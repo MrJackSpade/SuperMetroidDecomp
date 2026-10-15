@@ -38,7 +38,7 @@ internal static class SaveLoadRandomAudit
             long dispatches = 0;
             // Each main-loop dispatch calls GenerateRandomNumber once; an update that only
             // resumes a menu or loading dispatch after its NMI wait does not.
-            void Step(ushort input)
+            void Step(SnesButton input)
             {
                 if (!game.NextUpdateResumesNmiWait) dispatches++;
                 game.StepCaptured(input, ++sequence, 1);
@@ -60,7 +60,7 @@ internal static class SaveLoadRandomAudit
                         bindPresentation(game);
                     }
                 }
-                Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
+                Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
             }
             var runtime = game.RuntimeForVerification;
             if (!insertedWait || runtime?.Player.Samus is null)
@@ -89,7 +89,7 @@ internal static class SaveLoadRandomAudit
             game.GameState = SuperMetroidGameState.FileSelectMap;
             for (int tick = 0; tick < 1000 && (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification)); tick++)
             {
-                game.StepCaptured(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0, ++sequence, 1);
+                game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : (ushort)0, ++sequence, 1);
                 expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)
                     throw new InvalidDataException("Continued save lost the live runtime RNG at the file-map/load handoff.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -65,8 +66,8 @@ internal static class MoatFirstEntryVerification
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.
-                pause.Step((ushort)SuperMetroid.Core.Input.SnesButton.R,
-                    (ushort)SuperMetroid.Core.Input.SnesButton.R);
+                pause.Step(SnesButton.R,
+                    SnesButton.R);
                 for (int frame = 0; frame < 64; frame++) pause.Step(0, 0);
                 AssertEqual(1, pause.ScreenMode, "pause fixture reaches equipment graphics");
                 _ = pause.Render();

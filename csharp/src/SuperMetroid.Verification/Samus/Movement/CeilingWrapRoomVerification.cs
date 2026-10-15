@@ -38,7 +38,7 @@ internal static class CeilingWrapRoomVerification
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
         {
-            runtime.StepFrame((ushort)(SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
+            runtime.StepFrame((SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
             string actual = $"{frame},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{runtime.Plms.SlotTable.ActiveCount},{runtime.Room.LoadedCamera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
@@ -70,8 +70,8 @@ internal static class CeilingWrapRoomVerification
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
         {
-            ushort held = (ushort)SnesButton.X;
-            ushort pressed = frame == 0 ? held : (ushort)0;
+            SnesButton held = SnesButton.X;
+            SnesButton pressed = frame == 0 ? held : SnesButton.None;
             bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, held, pressed);
             shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });

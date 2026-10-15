@@ -108,8 +108,8 @@ public sealed class SamusCrystalFlashState
     public bool TryBegin(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput,
-        ushort shotBinding = (ushort)SnesButton.X,
+        SnesButton controllerInput,
+        SnesButton shotBinding = SnesButton.X,
         bool skipInputCheck = false)
     {
         Ensure.NotNull(bus);
@@ -117,8 +117,8 @@ public sealed class SamusCrystalFlashState
 
         // `$90:D5AD-$D5B9` uses CMP, not a bit test. This deliberately rejects any extra
         // held button, including Jump, Dash, Select, or the opposite D-pad directions.
-        SnesButton heldButtons = SnesButtons.FromRaw(controllerInput, "Crystal Flash input");
-        SnesButton shotButton = SnesButtons.FromRaw(shotBinding, "Crystal Flash Shot binding");
+        SnesButton heldButtons = controllerInput;
+        SnesButton shotButton = shotBinding;
         SnesButton requiredInput = RequiredInputWithoutShot | shotButton;
         if (!skipInputCheck && heldButtons != requiredInput)
             return false;

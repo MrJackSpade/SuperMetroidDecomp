@@ -41,8 +41,8 @@ internal static class GoldenTorizoCartridgeFallbackVerification
         bool enteredCombat = false;
         for (int frame = 0; frame < 850; frame++)
         {
-            ushort input = frame is >= 500 and < 900 && frame % 20 == 0
-                ? (ushort)SnesButton.X : (ushort)0;
+            SnesButton input = frame is >= 500 and < 900 && frame % 20 == 0
+                ? SnesButton.X : (ushort)0;
             try
             {
                 runtime.StepFrame(input);

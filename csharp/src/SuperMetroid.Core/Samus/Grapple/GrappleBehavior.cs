@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -156,9 +157,9 @@ internal sealed class GrappleBehavior
         /// <summary>Samus state visible to the wrapped main AI.</summary>
         public SamusState? Samus => frame.Samus;
         /// <summary>New input edges inherited from the current update.</summary>
-        public ushort NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
+        public SnesButton NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
         /// <summary>Held controller word inherited from the current update.</summary>
-        public ushort ControllerInput => frame.ControllerInput;
+        public SnesButton ControllerInput => frame.ControllerInput;
         /// <summary>Current room collision data visible to wrapped main AI.</summary>
         public RoomLevelData? Level => frame.Level;
         /// <summary>Unavailable projectile service in the common grapple wrapper.</summary>

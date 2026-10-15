@@ -53,7 +53,7 @@ internal static class PostCeresLandingHandOffVerification
             "station load keeps the previous camera fractions");
 
         // Hold Left+B throughout: locked handlers ignore it until the ship unlocks Samus.
-        const ushort input = (ushort)(SnesButton.Left | SnesButton.B);
+        const SnesButton input = (SnesButton.Left | SnesButton.B);
         int frames = 0;
         while (runtime.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
                frames++ < PostCeresLandingMaximumFrames)

@@ -31,7 +31,7 @@ internal static class MissileEdgeVerification
             var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)
             {
-                ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
                 shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, input, input);
                 projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
                 if (frame == 0) AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,

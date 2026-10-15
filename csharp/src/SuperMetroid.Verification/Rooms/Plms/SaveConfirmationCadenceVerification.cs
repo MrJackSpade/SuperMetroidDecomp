@@ -22,7 +22,7 @@ internal static class SaveConfirmationCadenceVerification
         }
 
         // Find the frame of a read by holding Right until the cursor moves.
-        int ReadsUntilToggle(ushort hold)
+        int ReadsUntilToggle(SnesButton hold)
         {
             bool before = box.ConfirmationSelectionYes;
             for (int frame = 1; frame <= 8; frame++)
@@ -33,7 +33,7 @@ internal static class SaveConfirmationCadenceVerification
             }
             throw new InvalidOperationException("The cursor never moved.");
         }
-        ReadsUntilToggle((ushort)SnesButton.Right);
+        ReadsUntilToggle(SnesButton.Right);
 
         // The frame after the toggling read is the redraw's wait: no audio handlers, and the
         // selection sound is queued there.
@@ -45,7 +45,7 @@ internal static class SaveConfirmationCadenceVerification
         // Then the loop's first wait; its second ends in the read, three frames after the
         // toggling read.
         box.Step(0);
-        AssertEqual(1, ReadsUntilToggle((ushort)SnesButton.Left),
+        AssertEqual(1, ReadsUntilToggle(SnesButton.Left),
             "the next read lands on the third frame after the toggling read");
         Console.WriteLine("Save confirmation cadence: a cursor move adds the redraw's lag frame before the next read.");
     }

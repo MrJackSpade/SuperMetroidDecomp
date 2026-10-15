@@ -33,7 +33,7 @@ internal static class ZeroDistanceJumpContactVerification
                     Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);
-            var result = SamusAerialMovement.StepNormalJump(bus, level, samus, (ushort)SnesButton.A, 0);
+            var result = SamusAerialMovement.StepNormalJump(bus, level, samus, SnesButton.A, 0);
             AssertEqual(initialX, unchecked((uint)samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
             AssertEqual(100, samus.Position.Y.Whole, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.Position.Y.Fraction,

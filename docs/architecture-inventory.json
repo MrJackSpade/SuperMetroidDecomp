@@ -61534,6 +61534,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Input.ControllerWordBoundaryAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Input/ControllerWordBoundaryAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Input.DemoInputAnimations",
       "kind": "static class",
       "scope": "product",

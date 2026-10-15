@@ -32,7 +32,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = 0x0301;
         ushort animation = 0;
-        speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, (ushort)SnesButton.B,
+        speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, SnesButton.B,
             0, ref animation, out _, () => queue.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6));
         var words = new ushort[256];
         for (int index = 160; index < 176; index++) words[index] = 0x8000;
@@ -83,7 +83,7 @@ internal static class SpeedBoosterEchoStopVerification
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = 0x0301;
         ushort animation = 0;
-        speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, (ushort)SnesButton.B,
+        speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, SnesButton.B,
             0, ref animation, out _);
         AssertTrue(speed.ConsumeEchoSoundRequest(), "deferred producer publishes its start request");
         AssertEqual((ushort)1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");

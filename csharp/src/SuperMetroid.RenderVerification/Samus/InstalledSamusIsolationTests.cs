@@ -317,9 +317,9 @@ internal sealed class InstalledSamusIsolationTests
                     actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
                     GroundedMovementResult result = left
                         ? SamusGroundedMovement.StepRunningLeft(actor.Memory, actor.Level, actor.Samus, frame,
-                            (ushort)(SnesButton.Left | SnesButton.B))
+                            (SnesButton.Left | SnesButton.B))
                         : SamusGroundedMovement.StepRunningRight(actor.Memory, actor.Level, actor.Samus, frame,
-                            (ushort)(SnesButton.Right | SnesButton.B));
+                            (SnesButton.Right | SnesButton.B));
                     Animate(actor, frame);
                     return result;
                 });
@@ -371,10 +371,10 @@ internal sealed class InstalledSamusIsolationTests
             {
                 actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
                 var movement = SamusAerialMovement.StepNormalJump(actor.Memory, actor.Level, actor.Samus,
-                    (ushort)SnesButton.A, frame);
+                    SnesButton.A, frame);
                 Animate(actor, frame);
                 if (movement.Landed) Require(actor.Samus.PoseTransitions.TryApplyAerialLanding(actor.Memory,
-                    actor.Level, wasSpinning: false, controllerInput: (ushort)SnesButton.A,
+                    actor.Level, wasSpinning: false, controllerInput: SnesButton.A,
                     nmiFrameCounter: frame), label + ": landing rejected");
                 return movement;
             });
@@ -439,7 +439,7 @@ internal sealed class InstalledSamusIsolationTests
     }
 
     /// <summary>Controller chord used to enter the Crystal Flash sequence in this fixture.</summary>
-    private const ushort FlashChord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+    private const SnesButton FlashChord = (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
 
     /// <summary>Checks Flash, shine, suit pickup, death, reserve refill, and drained poses with installed art.</summary>
     private void CheckSpecialSequences()
@@ -475,7 +475,7 @@ internal sealed class InstalledSamusIsolationTests
         string context = $"Crystal Flash left={left}";
         pair.Apply(context + " setup", actor => { PrepareFlash(actor.Samus); });
         Require(!pair.Apply(context + " rejected chord", actor => actor.Samus.CrystalFlash.TryBegin(
-            actor.Memory, actor.Samus, (ushort)(FlashChord | (ushort)SnesButton.A))), "Extra Flash input must be rejected");
+            actor.Memory, actor.Samus, (FlashChord | SnesButton.A))), "Extra Flash input must be rejected");
         ushort initialY = pair.Stock.Samus.Position.Y.Whole;
         Require(pair.Apply(context + " admission", actor => actor.Samus.CrystalFlash.TryBegin(
             actor.Memory, actor.Samus, FlashChord)), "Flash was not admitted");

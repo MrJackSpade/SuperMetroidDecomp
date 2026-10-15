@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -18,24 +19,24 @@ internal static class GoldenTorizoCodeVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1)));
-        ushort input = Word(0xaac91a);
+        SnesButton input = (SnesButton)Word(0xaac91a);
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
         Check(EnemyDefinitionId.GoldenTorizo, input, false, true);
-        Check(EnemyDefinitionId.GoldenTorizo, (ushort)(input | 0x20), false, false);
-        Check(EnemyDefinitionId.GoldenTorizo, (ushort)(input & ~0x80), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (input | SnesButton.L), false, false);
+        Check(EnemyDefinitionId.GoldenTorizo, (input & ~SnesButton.A), false, false);
         Check(EnemyDefinitionId.GoldenTorizo, input, true, false);
         Check(EnemyDefinitionId.BombTorizo, input, false, false);
         Console.WriteLine("Golden Torizo code: production initialization grants exact ROM inventory only for the exact held chord on the undefeated Golden encounter; reserve mode and reserve missiles remain unchanged.");
 
-        void Check(EnemyDefinitionId header, ushort held, bool defeated, bool grants)
+        void Check(EnemyDefinitionId header, SnesButton held, bool defeated, bool grants)
         {
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
             enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
-            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, ushort, ushort>(enemies.RunInitializationAi);
+            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(enemies.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
             actor.EnemyDefinitionPointer = header;
             actor.Definition = RoomEnemyDefinitionCatalog.Get(header);
@@ -53,7 +54,7 @@ internal static class GoldenTorizoCodeVerification
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]
                 : before;
             AssertTrue(expected.SequenceEqual(Snapshot(samus)),
-                $"GT code inventory: header ${(int)header:X4}, held ${held:X4}, defeated {defeated}");
+                $"GT code inventory: header ${(int)header:X4}, held ${held:X}, defeated {defeated}");
             AssertEqual((ushort)2, samus.ReserveTankMode, "GT code does not set reserve mode");
             AssertEqual((ushort)7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
         }

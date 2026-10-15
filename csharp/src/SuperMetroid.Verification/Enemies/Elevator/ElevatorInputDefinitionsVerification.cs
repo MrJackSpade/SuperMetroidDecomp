@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -30,13 +31,13 @@ internal static class ElevatorInputDefinitionsVerification
         for (ushort direction = 0; direction < 2; direction++)
         {
             ushort tableByteOffset = (ushort)(direction * 2);
-            ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
+            SnesButton native = (SnesButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(NewElevatorInputReadGuard(rom));
             enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
-            Action<RoomEnemySlot, ElevatorEnemyState, SamusState, ushort,
+            Action<RoomEnemySlot, ElevatorEnemyState, SamusState, SnesButton,
                     SamusProjectileSystem?> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -48,7 +49,7 @@ internal static class ElevatorInputDefinitionsVerification
             AssertEqual(tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
-            ushort opposite = (ushort)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
+            SnesButton opposite = (SnesButton)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));
             ElevatorActorStatus before = enemies.ElevatorBehavior.ElevatorStatus;
             enemies.ElevatorBehavior.PublishElevatorDoorContact();
             wait(slot, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")), samus, opposite, null);
@@ -76,7 +77,7 @@ internal static class ElevatorInputDefinitionsVerification
         {
             int address = 0xa394e2 + offset;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator named direction matches native mask");
+            AssertEqual((SnesButton)native, ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator named direction matches native mask");
         }
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
             AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");

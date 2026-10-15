@@ -135,13 +135,13 @@ public static class GameSaveJsonCodec
             slot.GameTimeSeconds,
             slot.GameTimeFrames),
         Controller = new SaveControllerJsonDocument(
-            (SnesButton)slot.ControllerBindings.Shoot,
-            (SnesButton)slot.ControllerBindings.Jump,
-            (SnesButton)slot.ControllerBindings.Dash,
-            (SnesButton)slot.ControllerBindings.ItemSelect,
-            (SnesButton)slot.ControllerBindings.ItemCancel,
-            (SnesButton)slot.ControllerBindings.AimUp,
-            (SnesButton)slot.ControllerBindings.AimDown),
+            slot.ControllerBindings.Shoot,
+            slot.ControllerBindings.Jump,
+            slot.ControllerBindings.Dash,
+            slot.ControllerBindings.ItemSelect,
+            slot.ControllerBindings.ItemCancel,
+            slot.ControllerBindings.AimUp,
+            slot.ControllerBindings.AimDown),
         ReserveMode = slot.ReserveMode,
         HudItem = slot.HudItem,
         MoonwalkEnabled = slot.MoonwalkEnabled,
@@ -169,13 +169,13 @@ public static class GameSaveJsonCodec
     {
         ValidateSlot(slot, slot.Slot);
         ControllerBindings bindings = new(
-            (ushort)slot.Controller.Shoot,
-            (ushort)slot.Controller.Jump,
-            (ushort)slot.Controller.Dash,
-            (ushort)slot.Controller.ItemSelect,
-            (ushort)slot.Controller.ItemCancel,
-            (ushort)slot.Controller.AimUp,
-            (ushort)slot.Controller.AimDown);
+            slot.Controller.Shoot,
+            slot.Controller.Jump,
+            slot.Controller.Dash,
+            slot.Controller.ItemSelect,
+            slot.Controller.ItemCancel,
+            slot.Controller.AimUp,
+            slot.Controller.AimDown);
         bindings.RequireRetailPermutation();
         return new SuperMetroidSaveSnapshot
         {
@@ -289,13 +289,13 @@ public static class GameSaveJsonCodec
             (slot.Inventory.EquippedBeams & ~slot.Inventory.CollectedBeams) != 0)
             throw new InvalidDataException($"slots[{expectedSlot}].inventory equips an uncollected upgrade");
         new ControllerBindings(
-            (ushort)slot.Controller.Shoot,
-            (ushort)slot.Controller.Jump,
-            (ushort)slot.Controller.Dash,
-            (ushort)slot.Controller.ItemSelect,
-            (ushort)slot.Controller.ItemCancel,
-            (ushort)slot.Controller.AimUp,
-            (ushort)slot.Controller.AimDown).RequireRetailPermutation();
+            slot.Controller.Shoot,
+            slot.Controller.Jump,
+            slot.Controller.Dash,
+            slot.Controller.ItemSelect,
+            slot.Controller.ItemCancel,
+            slot.Controller.AimUp,
+            slot.Controller.AimDown).RequireRetailPermutation();
 
         SaveProgressionJsonDocument progression = slot.Progression;
         if (progression.Events is null || progression.BossFlagsByAreaIndex is null ||

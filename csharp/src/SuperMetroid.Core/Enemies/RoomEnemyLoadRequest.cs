@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -44,7 +45,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     public SamusState? Samus { get; init; }
 
     /// <inheritdoc />
-    public ushort ControllerInput { get; init; }
+    public SnesButton ControllerInput { get; init; }
 
     /// <inheritdoc />
     public Position16<RoomPixels> Camera { get; init; }

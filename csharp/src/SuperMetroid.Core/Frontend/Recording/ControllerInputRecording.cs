@@ -37,8 +37,15 @@ public sealed record ControllerInputRecording
     /// <summary>Host options which can change the otherwise identical startup route.</summary>
     public required SuperMetroidGameOptions GameOptions { get; init; }
 
-    /// <summary>One raw SNES controller-one word for each call to <c>Step</c>.</summary>
+    /// <summary>One raw SNES controller-one word for each call to <c>Step</c>, as the journal stores it.</summary>
     public required ushort[] ControllerInputs { get; init; }
+
+    /// <summary>
+    /// The buttons a replay feeds to <c>Step</c> at <paramref name="frame"/>: the journal word, validated where it
+    /// enters the game, so a corrupt journal fails at the frame that holds the bad bits.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The word holds bits no SNES controller produces.</exception>
+    public SnesButton InputAt(int frame) => SnesButtons.FromRaw(ControllerInputs[frame], $"replay frame {frame}");
 
     /// <summary>Writes the compact, versioned recording to a stream.</summary>
     public void Write(Stream destination)

@@ -27,13 +27,13 @@ internal sealed class PauseMapScroll(Position16<MapPixels> minimum, Position16<M
     };
 
     /// <summary>Arbitrates held arrows left-first, advances one map offset during each eight-update pulse, and reports pulse completion.</summary>
-    public bool Step(ushort heldInput, ref Position16<MapPixels> scroll)
+    public bool Step(SnesButton heldInput, ref Position16<MapPixels> scroll)
     {
         bool left = CanScroll(MapScrollDirection.Left, scroll);
         bool right = CanScroll(MapScrollDirection.Right, scroll);
         bool up = CanScroll(MapScrollDirection.Up, scroll);
         bool down = CanScroll(MapScrollDirection.Down, scroll);
-        SnesButton held = (SnesButton)heldInput;
+        SnesButton held = heldInput;
         if (direction == MapScrollDirection.None)
         {
             if (left && held.HasFlag(SnesButton.Left)) direction = MapScrollDirection.Left;

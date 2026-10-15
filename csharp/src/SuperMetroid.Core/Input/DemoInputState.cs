@@ -32,26 +32,26 @@ public sealed class DemoInputState
     public ushort InitializationParameter { get; private set; }
 
     /// <summary>Controller word currently replacing player-held input.</summary>
-    public ushort Held { get; private set; }
+    public SnesButton Held { get; private set; }
 
     /// <summary>Controller edge word currently replacing newly pressed input.</summary>
-    public ushort NewlyPressed { get; private set; }
+    public SnesButton NewlyPressed { get; private set; }
 
     /// <summary>Previous demo-held word retained by <c>$91:83D3</c>'s publication seam.</summary>
-    public ushort PreviousHeld { get; private set; }
+    public SnesButton PreviousHeld { get; private set; }
 
     /// <summary>Previous demo-edge word retained by <c>$91:83D9</c>'s publication seam.</summary>
-    public ushort PreviousNewlyPressed { get; private set; }
+    public SnesButton PreviousNewlyPressed { get; private set; }
 
     /// <summary>
     /// Prior held word published to <c>joypad1_input_samusfilter</c> for this handler call.
     /// </summary>
-    public ushort PublishedPreviousHeld { get; private set; }
+    public SnesButton PublishedPreviousHeld { get; private set; }
 
     /// <summary>
     /// Prior edge word published to <c>joypad1_newinput_samusfilter</c> for this call.
     /// </summary>
-    public ushort PublishedPreviousNewlyPressed { get; private set; }
+    public SnesButton PublishedPreviousNewlyPressed { get; private set; }
 
     /// <summary>
     /// Clears every demo-input WRAM word exactly as <c>$91:8370</c> does.
@@ -139,8 +139,8 @@ public sealed class DemoInputState
             {
                 case AnimationProgramAdvanceKind.Show:
                     InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                    Held = (ushort)advance.Frame.Held;
-                    NewlyPressed = (ushort)advance.Frame.NewlyPressed;
+                    Held = advance.Frame.Held;
+                    NewlyPressed = advance.Frame.NewlyPressed;
                     Cursor = cursor;
                     break;
                 case AnimationProgramAdvanceKind.Stop:

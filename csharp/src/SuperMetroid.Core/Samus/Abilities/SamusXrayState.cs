@@ -341,7 +341,7 @@ public sealed class SamusXrayState
     public XrayPoseInputResult HandlePoseInput(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
@@ -351,9 +351,9 @@ public sealed class SamusXrayState
         if (movementType != SamusMovementType.TurningOnGround)
         {
             bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
-            ushort turnBinding = facingLeft
-                ? (ushort)SnesButton.Right
-                : (ushort)SnesButton.Left;
+            SnesButton turnBinding = facingLeft
+                ? SnesButton.Right
+                : SnesButton.Left;
             if ((controllerInput & turnBinding) == 0)
                 return default;
 
@@ -425,8 +425,8 @@ public sealed class SamusXrayState
     public XrayBeamStepResult StepBeam(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput,
-        ushort dashBinding = (ushort)SnesButton.B,
+        SnesButton controllerInput,
+        SnesButton dashBinding = SnesButton.B,
         bool vramQueueHasRoom = true)
     {
         Ensure.NotNull(bus);
@@ -487,9 +487,9 @@ public sealed class SamusXrayState
                 }
 
                 // `$88:87C8` gives Up priority when opposite directions are both held.
-                if ((controllerInput & (ushort)SnesButton.Up) != 0)
+                if ((controllerInput & SnesButton.Up) != 0)
                     MoveAngleUp();
-                else if ((controllerInput & (ushort)SnesButton.Down) != 0)
+                else if ((controllerInput & SnesButton.Down) != 0)
                     MoveAngleDown();
                 break;
 

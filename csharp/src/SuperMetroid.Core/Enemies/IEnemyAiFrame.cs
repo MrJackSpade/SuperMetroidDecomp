@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -18,10 +19,10 @@ internal interface IEnemyAiFrame
     SamusState? Samus { get; }
 
     /// <summary>Controller buttons newly pressed this frame.</summary>
-    ushort NewlyPressedControllerInput { get; }
+    SnesButton NewlyPressedControllerInput { get; }
 
     /// <summary>Controller buttons held this frame.</summary>
-    ushort ControllerInput { get; }
+    SnesButton ControllerInput { get; }
 
     /// <summary>Room collision data, when the frame has a room.</summary>
     RoomLevelData? Level { get; }

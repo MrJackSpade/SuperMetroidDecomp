@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
@@ -61,7 +62,7 @@ public sealed class FileSelectMapMenuState
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets are absent.</exception>
     public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
-        SuperMetroidSaveSlot slot, ushort initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
+        SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = Ensure.NotNull(bus);
         this.audio = Ensure.NotNull(audio);
@@ -127,7 +128,7 @@ public sealed class FileSelectMapMenuState
 
     /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
     /// <param name="input">Current held native controller-button word; edge interpretation is owned by navigation, not by rendering.</param>
-    public void Step(ushort input)
+    public void Step(SnesButton input)
     {
         if (!entry.IsComplete)
         {

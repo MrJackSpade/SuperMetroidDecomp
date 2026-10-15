@@ -29,7 +29,7 @@ internal static class RetailAttractTests
             Rgba32[]? held = null;
             for (int tick = 0; tick < 8000; tick++)
             {
-                ushort input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? (ushort)SnesButton.Start : (ushort)0;
+                SnesButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? SnesButton.Start : SnesButton.None;
                 var expected = legacy.Step(input);
                 var actual = captured.StepCaptured(input, tick + 1, 1);
                 states.Add(expected.GameState);

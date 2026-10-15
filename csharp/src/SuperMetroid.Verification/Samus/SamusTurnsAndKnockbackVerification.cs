@@ -24,14 +24,14 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         { (0, false), (1, true), (8, true), (9, false), (32767, false), (32768, false), (65535, true) })
     {
         var autoJump = new SamusState { InputSnapshot = { AutoJumpTimer = timer, AutoJumpInputPending = true } };
-        ushort physical = (ushort)SnesButton.X;
-        AssertEqual((ushort)(physical | (accepts ? (ushort)SnesButton.A : 0)),
+        SnesButton physical = SnesButton.X;
+        AssertEqual(physical | (accepts ? SnesButton.A : SnesButton.None),
             autoJump.InputSnapshot.ConsumeAutoJumpInput(physical), "native signed auto-jump timer gate");
         AssertTrue(!autoJump.InputSnapshot.AutoJumpInputPending, "auto-jump handler returns to ordinary input");
         AssertEqual(physical, autoJump.InputSnapshot.ConsumeAutoJumpInput(physical), "auto-jump substitution is one-shot");
-        autoJump.InputSnapshot.SnapshotDrawInput((ushort)SnesButton.A, physical);
+        autoJump.InputSnapshot.SnapshotDrawInput(SnesButton.A, physical);
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "first held draw does not increment timer");
-        autoJump.InputSnapshot.SnapshotDrawInput((ushort)SnesButton.A, 0);
+        autoJump.InputSnapshot.SnapshotDrawInput(SnesButton.A, 0);
         AssertEqual(1, autoJump.InputSnapshot.AutoJumpTimer, "second held draw increments timer");
         autoJump.InputSnapshot.SnapshotDrawInput(0, 0);
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "release clears auto-jump history");
@@ -237,7 +237,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     ineligibleHistory.PoseHistory.LastDifferentDirectionAndMovement = 0;
     ineligibleHistory.Kinematics.Position = ineligibleHistory.Kinematics.Position.WithFractionX(0x4321);
     var rejectedContact = SamusAerialMovement.StepSpinJump(
-        bus, level, ineligibleHistory, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
+        bus, level, ineligibleHistory, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(!rejectedContact.WallContact && !rejectedContact.WallJumpTriggered,
         "native history gate rejects before the wall probe");
     AssertEqual(0, ineligibleHistory.AnimationFrame, "rejected history cannot rewind wall animation");
@@ -245,7 +245,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         "rejected rightward wall probe cannot set real X fraction to FFFF");
     earlyContact.SolidVerticalCollisionResult = 0x7777;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
-        bus, level, earlyContact, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
+        bus, level, earlyContact, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
@@ -257,7 +257,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     // particular it must not leak the result-five write from the accepted paths below.
     var heldOnly = CreateSpinSamus(animationFrame: 0x0b);
     AerialMovementResult heldOnlyFrame = SamusAerialMovement.StepSpinJump(
-        bus, level, heldOnly, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
+        bus, level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(heldOnlyFrame.WallContact && !heldOnlyFrame.WallJumpTriggered,
         "eligible held Jump without a fresh edge remains contact only");
     AssertEqual(0, heldOnly.SolidVerticalCollisionResult,
@@ -269,9 +269,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         eligible,
-        (ushort)(SnesButton.Left | SnesButton.A),
+        (SnesButton.Left | SnesButton.A),
         0,
-        (ushort)SnesButton.A);
+        SnesButton.A);
     AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
     AssertEqual(beforeTriggerY, eligible.Position.Y.Whole, "wall trigger frame preserves Y");
     AssertEqual(7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
@@ -285,9 +285,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         opposedRightWall,
-        (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.A),
+        (SnesButton.Left | SnesButton.Right | SnesButton.A),
         0,
-        (ushort)SnesButton.A);
+        SnesButton.A);
     AssertTrue(opposedRightWallTrigger.WallJumpTriggered,
         "Left+Right uses native Left-first priority at a right wall");
     AssertEqual(triggerFrame.WallDistance, opposedRightWallTrigger.WallDistance,
@@ -303,9 +303,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         rightOnlyLeftWall,
-        (ushort)(SnesButton.Right | SnesButton.A),
+        (SnesButton.Right | SnesButton.A),
         0,
-        (ushort)SnesButton.A);
+        SnesButton.A);
     AssertTrue(rightOnlyLeftWallTrigger.WallJumpTriggered,
         "Right-only input probes and launches from a left wall");
 
@@ -314,9 +314,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         opposedLeftWall,
-        (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.A),
+        (SnesButton.Left | SnesButton.Right | SnesButton.A),
         0,
-        (ushort)SnesButton.A);
+        SnesButton.A);
     AssertTrue(!opposedLeftWallResult.WallContact && !opposedLeftWallResult.WallJumpTriggered,
         "Left+Right cannot launch from a left wall because Left wins the native branch");
 
@@ -337,9 +337,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         enemyEligible,
-        (ushort)(SnesButton.Left | SnesButton.A),
+        (SnesButton.Left | SnesButton.A),
         0,
-        (ushort)SnesButton.A);
+        SnesButton.A);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
     AssertEqual(7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
     AssertEqual(5, enemyEligible.SolidVerticalCollisionResult,
@@ -384,7 +384,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         eligible,
-        (ushort)(SnesButton.Right | SnesButton.A),
+        (SnesButton.Right | SnesButton.A),
         1);
     AssertEqual((wallStartY - 5), eligible.Position.Y.Whole, "wall launch moves by old 4.A000 speed");
     AssertEqual(SamusContactDamageIndex.PseudoScrew, eligible.HorizontalSpeed.ContactDamageIndex,
@@ -396,7 +396,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         bus,
         level,
         eligible,
-        (ushort)(SnesButton.Right | SnesButton.A),
+        (SnesButton.Right | SnesButton.A),
         2);
     AssertEqual(SamusContactDamageIndex.ScrewAttack, eligible.HorizontalSpeed.ContactDamageIndex,
         "wall-jump frame 23 publishes Screw-style damage index three");
@@ -608,7 +608,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 75)),
     };
     downKnockback.PoseMetadata.RefreshCollisionRadii(bus);
-    SamusKnockbackMovement.Start(bus, downKnockback, controllerInput: (ushort)SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
+    SamusKnockbackMovement.Start(bus, downKnockback, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
     // The no-speed-calculation down probe does not change the vertical words, so the
     // impact speed seen by `$91:F078` is the live speed entering this frame.
     ushort impactYSpeed = downKnockback.Kinematics.YSpeed;
@@ -664,7 +664,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         bus,
         empty,
         samus,
-        (ushort)SnesButton.A,
+        SnesButton.A,
         nmiFrameCounter: 1);
     AssertEqual(unchecked((int)0xfffb1c00), unchecked((int)(samus.Kinematics.Position.Y.RawValue - boostYBefore)),
         "damage boost reuses ordinary old-speed jumping movement");
@@ -679,7 +679,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         bus,
         samus,
         SamusPoseId.NeutralJumpRightPose,
-        (ushort)SnesButton.A);
+        SnesButton.A);
     AssertEqual(SamusPoseId.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
     AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed, "damage-boost exit preserves whole Y speed");
     AssertEqual(preservedYSubspeed, samus.Kinematics.YSubspeed, "damage-boost exit preserves Y subspeed");
@@ -756,7 +756,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         ushort preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
 
-        SamusKnockbackMovement.Start(bus, ball, controllerInput: (ushort)(SnesButton.Left | SnesButton.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide });
+        SamusKnockbackMovement.Start(bus, ball, controllerInput: (SnesButton.Left | SnesButton.Right), launch: new KnockbackLaunch { KnockbackXDirection = hitSide });
         AssertEqual(
             pose,
             ball.Pose,
@@ -793,7 +793,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     };
     ballExpires.PoseMetadata.RefreshCollisionRadii(bus);
     ballExpires.Presentation.InitializeAnimation(bus, initialFrame: 3);
-    SamusKnockbackMovement.Start(bus, ballExpires, controllerInput: (ushort)SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
+    SamusKnockbackMovement.Start(bus, ballExpires, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = 0 });
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
     ushort retainedBallFrame = ballExpires.AnimationFrame;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer.RawValue;

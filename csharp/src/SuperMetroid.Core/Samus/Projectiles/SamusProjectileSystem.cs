@@ -409,7 +409,7 @@ public sealed class SamusProjectileSystem
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.
             bool xrayBeamFallback = samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
-                (buttons.ControllerInput & (ushort)SnesButton.B) == 0;
+                (buttons.ControllerInput & SnesButton.B) == 0;
             if (samus.SelectedHudItem is 0 or 3 || xrayBeamFallback)
             {
                 (firedSlot, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
@@ -418,7 +418,7 @@ public sealed class SamusProjectileSystem
                     samus,
                     buttons.ControllerInput,
                     // FireUnchargedBeam tests both current and prior new-input latches.
-                    unchecked((ushort)(buttons.ControllerNewInput | buttons.ControllerPreviousNewInput)),
+                    buttons.ControllerNewInput | buttons.ControllerPreviousNewInput,
                     sharedProjectiles,
                     terrain.Plms);
             }

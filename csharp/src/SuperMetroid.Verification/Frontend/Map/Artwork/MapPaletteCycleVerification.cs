@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -123,8 +124,8 @@ internal static class MapPaletteCycleVerification
             new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
         var menu = new FileSelectMapMenuState(guard, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
-        nativeMenu.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
-        menu.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        nativeMenu.Step(SnesButton.Start);
+        menu.Step(SnesButton.Start);
         for (int tick = 0; tick < 54; tick++) { nativeMenu.Step(0); menu.Step(0); }
         AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "palette replacement test reaches file-select room map");
         menu.BindMapPresentation(edited);

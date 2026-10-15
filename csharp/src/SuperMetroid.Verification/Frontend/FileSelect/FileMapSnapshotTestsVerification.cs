@@ -54,10 +54,10 @@ internal static class FileMapSnapshotTestsVerification
             Rgba32[]? previousPixels = null;
             for (int tick = 0; tick < 300 && !legacy.LoadRequested && !legacy.OptionsRequested; tick++)
             {
-                ushort input = tick == 48 ? (ushort)SnesButton.Start
-                    : tick == 130 ? (ushort)(cancel ? SnesButton.B : SnesButton.Start)
-                    : cancel && tick == 240 ? (ushort)SnesButton.B
-                    : tick is >= 110 and <= 119 ? (ushort)SnesButton.Right : (ushort)0;
+                SnesButton input = tick == 48 ? SnesButton.Start
+                    : tick == 130 ? (cancel ? SnesButton.B : SnesButton.Start)
+                    : cancel && tick == 240 ? SnesButton.B
+                    : tick is >= 110 and <= 119 ? SnesButton.Right : (ushort)0;
                 legacy.Step(input); capture.Step(input);
                 if (previous is not null)
                     AssertTrue(previousPixels.SequenceEqual(RenderForComparison(previous)), "map packet survives window/palette/marker update");
@@ -94,7 +94,7 @@ internal static class FileMapSnapshotTestsVerification
         bool sawMap = false;
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
-            ushort input = tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.Start : (ushort)0;
             var reference = game.Step(input); var actual = capturedGame.StepCaptured(input, tick + 1, 1);
             sawMap |= game.GameState == SuperMetroidGameState.FileSelectMap;
             AssertTrue(!actual.UsedLegacyRaster, "saved-file frontend never falls back to raster");

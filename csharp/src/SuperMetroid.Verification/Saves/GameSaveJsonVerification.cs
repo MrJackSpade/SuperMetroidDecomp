@@ -67,7 +67,7 @@ internal static class GameSaveJsonVerification
         time.Load(frames: 41, seconds: 32, minutes: 21, hours: 7);
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: 0,
-            physicalButton: (ushort)SnesButton.Y);
+            physicalButton: SnesButton.Y);
         SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Brinstar, SaveStation = 4, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(1, snapshot);
 

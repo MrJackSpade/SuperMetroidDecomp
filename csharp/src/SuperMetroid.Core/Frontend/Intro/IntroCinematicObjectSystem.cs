@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
@@ -198,7 +199,7 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>Runs the same post-state-function object order as game state $25.</summary>
     /// <param name="newlyPressed">This frame's controller rising edges, read by the Japanese subtitles.</param>
-    public void Step(ushort newlyPressed)
+    public void Step(SnesButton newlyPressed)
     {
         if (narrationPage is not null && narrationProgram is null)
         {

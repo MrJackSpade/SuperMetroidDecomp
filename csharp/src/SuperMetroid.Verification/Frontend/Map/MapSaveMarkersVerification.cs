@@ -135,7 +135,7 @@ internal static class MapSaveMarkersVerification
         var menu = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, edited);
         for (int frame = 0; frame < 104; frame++)
         {
-            ushort input = frame == 48 ? (ushort)SnesButton.Start : (ushort)0;
+            SnesButton input = frame == 48 ? SnesButton.Start : (ushort)0;
             control.Step(input); menu.Step(input);
             AssertEqual(control.Phase, menu.Phase, "cosmetic marker edit preserves entry/navigation timing");
         }
@@ -147,7 +147,7 @@ internal static class MapSaveMarkersVerification
         AssertTrue(control.Render().SequenceEqual(menu.Render()), "restored marker rebind preserves scroll/animation and restores current stock position");
         for (int frame = 0; frame < 80; frame++)
         {
-            ushort input = frame == 0 ? (ushort)SnesButton.Start : (ushort)0;
+            SnesButton input = frame == 0 ? SnesButton.Start : (ushort)0;
             control.Step(input); menu.Step(input);
             AssertEqual(control.Phase, menu.Phase, "marker rebind preserves load phase");
             AssertEqual(control.LoadRequested, menu.LoadRequested, "marker rebind preserves load handoff timing");

@@ -85,7 +85,7 @@ internal static class PauseReserveTankAssetsVerification
         AssertTrue(!editedPixels.SequenceEqual(menu.Render()), "restore binds current stock artwork instead of frozen edited content");
         menu.BindMapPresentation(edited);
         AssertTrue(editedPixels.SequenceEqual(menu.Render()), "restoring current edited content preserves exact pixels and phase");
-        menu.Step(0, (ushort)SnesButton.Down); menu.Step(0, (ushort)SnesButton.A);
+        menu.Step(0, SnesButton.Down); menu.Step(0, SnesButton.A);
         AssertEqual((ushort)51, samus.Health, "custom reserve art cannot change transfer amount");
         AssertEqual((ushort)99, samus.ReserveEnergy, "custom reserve art cannot change reserve consumption");
         void Reject(PauseReserveTankDocument invalid) => AssertThrows<InvalidDataException>(() => PauseReserveTankPresentation.Write(new MemoryStream(), invalid), "invalid reserve presentation rejected");

@@ -145,7 +145,7 @@ internal static class MapLoadAnchorsVerification
                     var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
                     var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
-                    foreach (ushort input in MapScrollControls.Buttons)
+                    foreach (SnesButton input in MapScrollControls.Buttons)
                         for (int tick = 0; tick < 40; tick++)
                         {
                             AssertEqual(native.Step(input), compiled.Step(input), "anchor migration retains scroll sound timing");
@@ -195,7 +195,7 @@ internal static class MapLoadAnchorsVerification
             // native phase and stop on its actual endpoint, with a bounded guard.
             for (int tick = 0; tick < 256 && compiled.Phase != FileSelectMapNavigationPhase.Room; tick++)
             {
-                ushort input = tick == 48 ? (ushort)SnesButton.Start : (ushort)0;
+                SnesButton input = tick == 48 ? SnesButton.Start : (ushort)0;
                 native.Step(input); compiled.Step(input);
                 AssertEqual(native.Phase, compiled.Phase, "each saved station retains entry timing");
                 AssertEqual(ScrollState(Scroll(native)), ScrollState(Scroll(compiled)), "each saved station retains menu-owned scroll state");

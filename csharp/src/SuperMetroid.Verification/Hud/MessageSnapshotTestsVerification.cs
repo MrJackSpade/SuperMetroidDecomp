@@ -59,14 +59,14 @@ internal static class MessageSnapshotTestsVerification
                         if (held is null) { held = packet; heldPixels = expected; }
                     }
                 }
-                ushort input = state.Phase == GameplayMessageBoxPhase.AwaitingInput
-                    ? tick % 3 == 0 ? (ushort)SnesButton.Right : tick % 3 == 2 ? (ushort)SnesButton.A : (ushort)0
+                SnesButton input = state.Phase == GameplayMessageBoxPhase.AwaitingInput
+                    ? tick % 3 == 0 ? SnesButton.Right : tick % 3 == 2 ? SnesButton.A : (ushort)0
                     : (ushort)0;
                 if (id == GameplayMessageIds.SaveConfirmation && state.Phase == GameplayMessageBoxPhase.AwaitingInput)
                 {
-                    if (!toggledSave) { input = (ushort)SnesButton.Right; toggledSave = true; }
+                    if (!toggledSave) { input = SnesButton.Right; toggledSave = true; }
                     else if (!releasedSave) { input = 0; releasedSave = true; }
-                    else input = (ushort)SnesButton.A;
+                    else input = SnesButton.A;
                 }
                 state.Step(input);
             }

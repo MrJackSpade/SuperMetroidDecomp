@@ -70,7 +70,7 @@ internal static class ChozoGrabAnimationVerification
         int frames = 0;
         while (samus.ScriptLocks.StationaryScriptControlLocked && frames < 2000)
         {
-            runtime.StepFrame((ushort)SnesButton.Right);
+            runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
             {
                 if (expectedExplosion.StepFrame(bus)) expectedExplosion.ReleaseFlag();
@@ -103,7 +103,7 @@ internal static class ChozoGrabAnimationVerification
         bool animationResumed = false;
         for (int frame = 0; frame < 12; frame++)
         {
-            runtime.StepFrame((ushort)SnesButton.Right);
+            runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
             {
                 if (expectedExplosion.StepFrame(bus)) expectedExplosion.ReleaseFlag();

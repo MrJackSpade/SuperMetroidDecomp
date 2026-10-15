@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core.Rooms;
 using System.Buffers.Binary;
@@ -116,11 +117,11 @@ internal static class FileSelectRoomMapVerification
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
             AssertEqual(FileSelectMapNavigationPhase.Area, menu.Phase, "cancel fixture finishes area reveal");
-            menu.Step(0x1000);
+            menu.Step(SnesButton.Start);
             for (int i = 0; i < 54; i++) menu.Step(0);
             AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "cancel fixture reaches live room map");
         }
-        cancel.Step(0x8000);
+        cancel.Step(SnesButton.B);
         control.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(control.Render()),
             "room cancel must retain the map/icons drawn before input until next coroutine call");
@@ -324,17 +325,17 @@ internal static class FileSelectRoomMapVerification
             MapPresentation = RetailPresentationFixture(),
         });
         FrontendFrame frame = game.Step(0);
-        frame = game.Step(0x1000);
+        frame = game.Step(SnesButton.Start);
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
-        frame = game.Step(0x1000);
+        frame = game.Step(SnesButton.Start);
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus, 150);
         // Native entry dispatches and fade-in end on the 35th update.
         Until(() => frame.Phase == nameof(FileSelectPhase.Main), 40);
-        frame = game.Step(0x0080);
+        frame = game.Step(SnesButton.A);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
-        frame = game.Step(0x0080);
+        frame = game.Step(SnesButton.A);
         if (savedArea == 6)
         {
             Until(() => game.RuntimeForVerification is not null, 200);
@@ -347,27 +348,27 @@ internal static class FileSelectRoomMapVerification
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap, 200);
         for (int i = 0; i < 70; i++)
         {
-            frame = game.Step(0x1000);
+            frame = game.Step(SnesButton.Start);
         }
         AssertEqual("Area", frame.Phase, "holding confirm during initial reveal cannot skip area selection");
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
-        frame = game.Step(0x8000);
+        frame = game.Step(SnesButton.B);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
         // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int i = 0; i < 18; i++) frame = game.Step(0);
-        frame = game.Step(0x0080);
+        frame = game.Step(SnesButton.A);
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
         for (int i = 0; i < 10; i++) frame = game.Step(0);
-        frame = game.Step(0x1000);
+        frame = game.Step(SnesButton.Start);
         Until(() => frame.Phase == "Room", 80);
         for (int i = 0; i < 15; i++) frame = game.Step(0);
 
         AssertTrue(game.RuntimeForVerification is null, "room map does not implicitly load the save");
-        frame = game.Step(0x8000);
+        frame = game.Step(SnesButton.B);
         Until(() => frame.Phase == "Area", 80);
-        frame = game.Step(0x1000);
+        frame = game.Step(SnesButton.Start);
         Until(() => frame.Phase == "Room", 80);
-        frame = game.Step(0x1000);
+        frame = game.Step(SnesButton.Start);
         Until(() => game.RuntimeForVerification is not null, 100);
         AssertEqual(SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, AreaId.Maridia, 0).RoomPointer,
             game.GameplayRuntimeForVerification.Room.LoadedRoom.Pointer, "second map confirmation loads selected SRAM station");
@@ -386,14 +387,14 @@ internal static class FileSelectRoomMapVerification
     private static void VerifyFileSelectMapNavigation()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (ushort confirm in new ushort[] { 0x1000, 0x0080 })
+        foreach (SnesButton confirm in new SnesButton[] { SnesButton.Start, SnesButton.A })
         {
             var navigation = new FileSelectMapNavigation(bus, 4, confirm);
             navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
                 "options confirmation carried into map must not immediately confirm the area");
-            navigation.Step(0x0f20);
+            navigation.Step((SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right | SnesButton.L));
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase, "non-debug direction/select cannot cycle area");
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.PreparingWindow, navigation.Phase, "area confirm preserves prep boundary");
@@ -409,26 +410,26 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(0);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "fresh second confirm requests gameplay");
-            navigation.Step(0x8000);
+            navigation.Step(SnesButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
         var cancel = new FileSelectMapNavigation(bus, 4);
         cancel.BindLabels(RetailPresentationFixture().Labels);
-        cancel.Step(0x9180);
+        cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.Right | SnesButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
             "native non-debug direction branch suppresses simultaneous cancel and confirm");
         cancel.Step(0);
-        cancel.Step(0x9080);
+        cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
         var back = new FileSelectMapNavigation(bus, 4);
         back.BindLabels(RetailPresentationFixture().Labels);
-        back.Step(0x1000);
+        back.Step(SnesButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);
-        back.Step(0x8000);
+        back.Step(SnesButton.B);
         AssertEqual(FileSelectMapNavigationPhase.AreaReturnRequested, back.Phase, "room cancel requests animated return");
-        back.Step(0x1000);
+        back.Step(SnesButton.Start);
         back.CompleteAreaReturn();
-        back.Step(0x1000);
+        back.Step(SnesButton.Start);
         AssertEqual(FileSelectMapNavigationPhase.Area, back.Phase, "return transition consumes held input without deferred confirmation");
         AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
@@ -441,7 +442,7 @@ internal static class FileSelectRoomMapVerification
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
-        ushort[] inputs = [0x0200, 0x0100, 0x0800, 0x0400];
+        SnesButton[] inputs = [SnesButton.Left, SnesButton.Right, SnesButton.Up, SnesButton.Down];
         for (int direction = 1; direction <= 4; direction++)
         {
             var scroll = new FileSelectMapScroll(bus, map, system, new(240, 128));
@@ -450,7 +451,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(24, scroll.Minimum.Y, "room-select upper arrow boundary gets delayed 24px adjustment");
             for (int frame = 1; frame <= 8; frame++)
             {
-                bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : (ushort)0);
+                bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : SnesButton.None);
                 int delta = frame >= 4 ? 8 : 0;
                 AssertEqual(124 + (direction == 1 ? -delta : direction == 2 ? delta : 0), scroll.Scroll.X,
                     "map scroll horizontal exact pulse frame");
@@ -461,7 +462,7 @@ internal static class FileSelectRoomMapVerification
             AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
         }
         var precedence = new FileSelectMapScroll(bus, map, system, new(240, 128));
-        precedence.Step(0x0f00);
+        precedence.Step((SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right));
         AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
         var empty = new FileSelectMapScroll(bus, map, new Bank80SystemState(), new(216, 48));
         AssertEqual(208, empty.Minimum.X, "empty map uses retail left default");
@@ -469,10 +470,10 @@ internal static class FileSelectRoomMapVerification
         AssertEqual(32, empty.Minimum.Y, "empty map uses top default then file-select adjustment");
         AssertEqual(88, empty.Maximum.Y, "empty map uses retail bottom default");
         // Repeated stepping must stop at the native inequality, not run past the edge.
-        for (int frame = 0; frame < 1000; frame++) precedence.Step(0x0200);
+        for (int frame = 0; frame < 1000; frame++) precedence.Step(SnesButton.Left);
         AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
         ushort stoppedX = precedence.Scroll.X;
-        for (int frame = 0; frame < 16; frame++) precedence.Step(0x0200);
+        for (int frame = 0; frame < 16; frame++) precedence.Step(SnesButton.Left);
         AssertEqual(stoppedX, precedence.Scroll.X, "held input cannot scroll beyond unavailable arrow");
     }
 

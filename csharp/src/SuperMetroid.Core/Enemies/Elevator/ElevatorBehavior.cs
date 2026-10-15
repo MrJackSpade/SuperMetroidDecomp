@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -188,7 +189,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         RoomEnemySlot slot,
         ElevatorEnemyState state,
         SamusState? samus,
-        ushort newlyPressedControllerInput,
+        SnesButton newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
         if (ElevatorDoorTransitionActive ||
@@ -235,10 +236,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         RoomEnemySlot slot,
         ElevatorEnemyState state,
         SamusState samus,
-        ushort newlyPressedControllerInput,
+        SnesButton newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
-        ushort requiredInput =
+        SnesButton requiredInput =
             ElevatorActorDefinitions.RequiredDirectionInput(state.DirectionTableByteOffset);
         if ((newlyPressedControllerInput & requiredInput) == 0)
         {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.Desktop.Diagnostics;
 
 /// <summary>Debugger context captured at a recoverable desktop-host error boundary.</summary>
@@ -6,7 +7,7 @@ public sealed record GitHubErrorContext(
     ushort? FrameNumber = null,
     string? GameState = null,
     string? Phase = null,
-    ushort? ControllerInput = null,
+    SnesButton? ControllerInput = null,
     ushort? RoomPointer = null,
     ushort? RoomStatePointer = null,
     ushort? DoorPointer = null,

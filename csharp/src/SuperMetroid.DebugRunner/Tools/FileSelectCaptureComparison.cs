@@ -37,7 +37,7 @@ internal static class FileSelectCaptureComparison
         int requests = 0, firstDifference = -1;
         for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
         {
-            var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1).Frame;
+            var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1).Frame;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                 audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
             if (game.lastAudioEvents.Any(IsSwoosh))

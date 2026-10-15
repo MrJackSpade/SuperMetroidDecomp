@@ -36,7 +36,7 @@ internal static class RetailDeathCaptureTests
         var legacyAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var capturedAudio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         long sequence = 0;
-        void Step(ushort input, bool comparePixels)
+        void Step(SnesButton input, bool comparePixels)
         {
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, ++sequence, 1);
@@ -52,7 +52,7 @@ internal static class RetailDeathCaptureTests
                 renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: death frame {sequence}, {expected.GameState}");
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
-            Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0, false);
+            Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None, false);
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Death fixture startup failed.");
         foreach (var game in new[] { legacy, captured })
         {

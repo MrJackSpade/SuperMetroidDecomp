@@ -145,7 +145,7 @@ internal static class DoorAlignmentVerification
         var transition = new DoorTransitionState();
         transition.Begin(runtime);
         var audio = new CartridgeAudioState();
-        const ushort heldLeftRight = (ushort)(SnesButton.Left | SnesButton.Right);
+        const SnesButton heldLeftRight = (SnesButton.Left | SnesButton.Right);
         int alignmentCalls = 0;
         bool observedDestinationBuild = false;
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
@@ -160,7 +160,7 @@ internal static class DoorAlignmentVerification
                 observedDestinationBuild = true;
                 AssertEqual(heldLeftRight, runtime.Controller1.Current,
                     "destination OAM handoff retains the live Left+Right sample");
-                AssertEqual(0, runtime.Controller1.NewlyPressed,
+                AssertEqual(SnesButton.None, runtime.Controller1.NewlyPressed,
                     "destination OAM handoff does not synthesize a release or fresh edge");
             }
         }

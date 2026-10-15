@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -17,7 +18,7 @@ internal interface IEnemyDispatch
     /// camera; a species spawning on another enemy's behalf runs it without that context.
     /// </summary>
     void RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level = null, SamusState? samus = null,
-        ushort controllerInput = 0, ushort cameraX = 0);
+        SnesButton controllerInput = SnesButton.None, ushort cameraX = 0);
 
     /// <summary>Runs the slot's main AI inside the supplied frame.</summary>
     void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8);

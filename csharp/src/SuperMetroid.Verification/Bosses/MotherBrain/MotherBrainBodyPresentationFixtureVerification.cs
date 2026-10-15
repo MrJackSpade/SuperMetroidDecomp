@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
@@ -26,7 +27,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         /// <summary>BG2 scroll publications captured from the production callback.</summary>
         internal List<Position16<Bg2Pixels>> ScrollCalls { get; } = [];
         /// <summary>Production instruction processor bound to this fixture's enemy system.</summary>
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
 
         /// <summary>Creates and binds a third-form body with installed artwork and captured BG2 scroll calls.</summary>
         internal MotherBrainPresentationFixture(EnemyTileArtworkCatalog artwork)
@@ -42,7 +43,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             Inner.Enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)ScrollCalls.Add;
             Inner.Enemies.Drawing.Enqueue(0, Body.NativeIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>(Inner.Enemies.Instructions.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(Inner.Enemies.Instructions.ProcessInstructions);
         }
 
         /// <summary>Selects a body frame and optionally marks it as a new instruction frame.</summary>

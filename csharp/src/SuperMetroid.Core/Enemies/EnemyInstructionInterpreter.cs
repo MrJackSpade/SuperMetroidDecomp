@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -173,7 +174,7 @@ internal sealed class EnemyInstructionInterpreter
         SamusState? samus,
         RoomLevelData? level,
         Position16<RoomPixels> camera,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
         if (!_dispatch.Ai.HasTypedAnimation(slot))
         {

@@ -48,6 +48,8 @@ dotnet_diagnostic.SME6277.severity = error
 dotnet_diagnostic.SME6278.severity = error
 # #627: a masked local compared against several values is a hand-decoded selector.
 dotnet_diagnostic.SME6279.severity = error
+# #1306: controller state is SnesButton; only [ControllerWordBoundary] declarations convert raw words.
+dotnet_diagnostic.SME6284.severity = error
 # #628: spatial values are typed, never parallel components, parameters or collections.
 dotnet_diagnostic.SME6280.severity = error
 dotnet_diagnostic.SME6281.severity = error

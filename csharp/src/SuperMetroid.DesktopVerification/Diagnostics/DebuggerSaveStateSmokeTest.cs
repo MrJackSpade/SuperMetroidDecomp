@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -206,7 +207,7 @@ public static class DebuggerSaveStateSmokeTest
                    contentIdentity))
         {
             recordingPath = recorder.Path;
-            recorder.RecordFrame(0x1234);
+            recorder.RecordFrame((SnesButton)0x1234);
         }
 
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);

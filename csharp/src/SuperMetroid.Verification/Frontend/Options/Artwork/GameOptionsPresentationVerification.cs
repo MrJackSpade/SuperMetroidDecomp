@@ -119,7 +119,7 @@ internal static class GameOptionsPresentationVerification
             stockMenu.CaptureRenderSnapshot().Memory.Oam[0],
             "options rebind applies edited cursor anchor without resetting state");
 
-        stockMenu.Step((ushort)SnesButton.A);
+        stockMenu.Step(SnesButton.A);
         AssertEqual(GameOptionsPhase.FadeOutToIntro, stockMenu.Phase,
             "editable options enters intro fade-out");
         AssertTrue(LastSpriteX(stockMenu.CaptureRenderSnapshot()) >= 256,
@@ -167,11 +167,11 @@ internal static class GameOptionsPresentationVerification
 
         void Press(SnesButton button)
         {
-            Frame((ushort)button);
+            Frame(button);
             Frame(0);
         }
 
-        void Frame(ushort input)
+        void Frame(SnesButton input)
         {
             AssertEqual(native.Phase, installed.Phase,
                 $"installed options phase matches cartridge frame {comparedFrames}");

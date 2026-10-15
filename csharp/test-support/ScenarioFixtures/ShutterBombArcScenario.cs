@@ -77,14 +77,14 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Horizontal input sign that moves Samus toward the selected shutter.</summary>
     private int Toward => SlotIndex == 0 ? -1 : 1;
 
-    /// <summary>Controller word for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>
-    internal ushort Input(int frame)
+    /// <summary>Controller buttons for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>
+    internal SnesButton Input(int frame)
     {
-        ushort input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : (ushort)0;
+        SnesButton input = frame < 220 && frame % Interval == 0 ? Runtime.Options.ControllerBindings.Shoot : SnesButton.None;
         int direction = Approach && frame < 12 ? Toward : 0;
         if (frame >= RollAt && frame < RollAt + Duration) direction = -Toward;
         if (frame >= RollAt + Duration && frame < RollAt + Duration * 2) direction = Toward;
-        if (direction != 0) input |= (ushort)(direction < 0 ? SnesButton.Left : SnesButton.Right);
+        if (direction != 0) input |= direction < 0 ? SnesButton.Left : SnesButton.Right;
         return input;
     }
 

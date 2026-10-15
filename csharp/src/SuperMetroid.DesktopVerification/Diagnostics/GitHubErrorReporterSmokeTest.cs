@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -33,7 +34,7 @@ public static class GitHubErrorReporterSmokeTest
                 FrameNumber: 42,
                 GameState: "$08 MainGameplay",
                 Phase: "Gameplay",
-                ControllerInput: 0x0080,
+                ControllerInput: SnesButton.A,
                 RoomPointer: 0x96BA,
                 DoorPointer: 0x8BB6,
                 InputRecordingPath: "fixture.smrec",
@@ -118,7 +119,7 @@ public static class GitHubErrorReporterSmokeTest
         Require(after.Contains("animationFrame=18;") && after.Contains("animationTimer=1;") &&
             after.Contains("drainedHandler=UnableToStand;") && after.Contains("pose=$09;") && after.Contains("fx=Acid;"),
             "Failed-frame snapshot omitted the reported invalid animation and its installed handler.");
-        string diagnostics = GameplayFrameFailureDiagnostics.Format(before, after, 0x0880, "fixture.smrec", 70000);
+        string diagnostics = GameplayFrameFailureDiagnostics.Format(before, after, SnesButton.Up | SnesButton.A, "fixture.smrec", 70000);
         Require(diagnostics.Contains("Build:") && diagnostics.Contains("Core build ID:") &&
             diagnostics.Contains("Host build ID:") && diagnostics.Contains("Attempted input: $0880") &&
             diagnostics.Contains("zero-based): 70000") && diagnostics.Contains("fixture.smrec") &&

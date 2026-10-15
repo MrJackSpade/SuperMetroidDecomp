@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -35,7 +36,7 @@ internal sealed class NoobTubePlms
     }
 
     /// <summary>Runs either of the two callbacks that can own the sleeping tube actor.</summary>
-    internal void RunNoobTubePreInstruction(PlmSlot slot, ushort controllerNewInput)
+    internal void RunNoobTubePreInstruction(PlmSlot slot, SnesButton controllerNewInput)
     {
         if (slot.HeaderPointer != PlmHeaderId.NoobTube || slot.PreInstruction == 0)
             return;

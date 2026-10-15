@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Fx;
@@ -269,7 +270,7 @@ internal static void VerifySamusDrainedController()
     able.Drained.PutCrouchingOrFalling(bus, able);
     AssertTrue(!able.Drained.StepGetUpHandler(able, newlyPressedInput: 0),
         "able timer handler ignores absent Up edge");
-    AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: 0x0800),
+    AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: SnesButton.Up),
         "able timer handler accepts Up from E9 frame eight");
     AssertEqual(13, able.AnimationFrame, "able timer handler selects stand-up frame thirteen");
     AssertEqual(1, able.AnimationFrameTimer.RawValue, "able timer handler selects one-tick timer");
@@ -287,7 +288,7 @@ internal static void VerifySamusDrainedController()
     unable.Drained.PutCrouchingOrFalling(bus, unable);
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
         "rainbow command $18 installs failed-stand timer handler");
-    AssertTrue(unable.Drained.StepGetUpHandler(unable, newlyPressedInput: 0x0800),
+    AssertTrue(unable.Drained.StepGetUpHandler(unable, newlyPressedInput: SnesButton.Up),
         "failed-stand handler accepts Up only inside frames eight through eleven");
     AssertEqual(18, unable.AnimationFrame, "failed-stand handler selects frame eighteen");
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
@@ -732,7 +733,7 @@ internal static void VerifySamusGrabbedByDraygon()
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
     SamusPoseTransition rightUpShoot = (SamusPoseTransitionTable.Find(
-        bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
+        bus, samus.Pose, canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.X, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, rightUpShoot.ProspectivePose);
@@ -755,11 +756,11 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0, samus.DraygonGrabbed.EscapeButtonCounter, "no D-pad edge does not count");
 
     samus.DraygonGrabbed.StepEscapeHandler(
-        bus, samus, newlyPressedInput: 0x0800, grappleLockedInPlace: false);
+        bus, samus, newlyPressedInput: SnesButton.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "first Up edge increments escape counter");
     DraygonEscapeResult repeatedUp = samus.DraygonGrabbed.StepEscapeHandler(
-        bus, samus, newlyPressedInput: 0x0800, grappleLockedInPlace: false);
+        bus, samus, newlyPressedInput: SnesButton.Up, grappleLockedInPlace: false);
     AssertEqual(1, samus.DraygonGrabbed.EscapeButtonCounter,
         "repeated D-pad pattern is rejected and leaves escape counter unchanged");
 
@@ -776,7 +777,7 @@ internal static void VerifySamusGrabbedByDraygon()
     DraygonEscapeResult release = repeatedUp;
     for (int inputNumber = 1; inputNumber < SamusDraygonGrabbedState.EscapeButtonCounterTarget; inputNumber++)
     {
-        ushort direction = (inputNumber & 1) != 0 ? (ushort)0x0400 : (ushort)0x0800;
+        SnesButton direction = (inputNumber & 1) != 0 ? SnesButton.Down : SnesButton.Up;
         release = samus.DraygonGrabbed.StepEscapeHandler(
             bus, samus, direction, grappleLockedInPlace: false);
     }

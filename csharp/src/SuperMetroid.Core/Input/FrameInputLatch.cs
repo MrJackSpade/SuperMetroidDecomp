@@ -31,12 +31,12 @@ public sealed class FrameInputLatch
     }
 
     /// <summary>Atomically samples the combined held buttons and presses accumulated since the last simulation sample, then consumes only the pending presses; taps completed between samples are visible once while sustained holds remain visible.</summary>
-    /// <returns>Native sixteen-bit SNES button mask for one simulation update; does not remove any producer's held contribution.</returns>
-    public ushort Sample()
+    /// <returns>The buttons for one simulation update; does not remove any producer's held contribution.</returns>
+    public SnesButton Sample()
     {
         lock (gate)
         {
-            ushort result = (ushort)(held | pressed);
+            SnesButton result = held | pressed;
             pressed = SnesButton.None;
             return result;
         }

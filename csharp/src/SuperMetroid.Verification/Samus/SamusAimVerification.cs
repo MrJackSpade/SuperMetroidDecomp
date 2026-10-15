@@ -257,7 +257,7 @@ internal static void VerifySamusAimedAerialMovement()
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes aimed jump radius");
     ushort launchY = samus.Position.Y.Whole;
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
-        bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
+        bus, level, samus, SnesButton.A, nmiFrameCounter: 0);
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
@@ -274,7 +274,7 @@ internal static void VerifySamusAimedAerialMovement()
     // another aimed-jump pose expands through `$91:FDAE`; these few upward frames put the
     // body in open air so neither the upper nor lower probe needs to displace the center.
     for (ushort index = 0; index < 4; index++)
-        SamusAerialMovement.StepNormalJump(bus, level, samus, (ushort)SnesButton.A, index);
+        SamusAerialMovement.StepNormalJump(bus, level, samus, SnesButton.A, index);
     ushort compactCenterY = samus.Position.Y.Whole;
     uint compactVelocity = samus.Kinematics.VerticalSpeedFixed;
     SamusVerticalDirection compactDirection = samus.Kinematics.YDirection;
@@ -306,7 +306,7 @@ internal static void VerifySamusAimedAerialMovement()
     for (int index = 0; index < 160; index++)
     {
         frame = SamusAerialMovement.StepNormalJump(
-            bus, level, samus, (ushort)SnesButton.A, unchecked((ushort)index));
+            bus, level, samus, SnesButton.A, unchecked((ushort)index));
         if (frame.Landed)
             break;
     }
@@ -603,24 +603,24 @@ internal static void VerifySamusGunExtendedMovement()
         ((ushort)0x0000, (ushort)0x0100, (ushort)0x000b));
 
     AssertEqual(0x0b,
-        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, 0x0140, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, 0x0140, 0).")).ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0).")).ProspectivePose,
         "Shot+Right selects running gun extension");
     AssertEqual(0x13,
-        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, 0x0040, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, 0x0040, 0).")).ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, SnesButton.X, 0).")).ProspectivePose,
         "Shot selects neutral-jump gun extension");
     AssertEqual(0x67,
-        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, 0x0040, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, 0x0040, 0).")).ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, SnesButton.X, 0).")).ProspectivePose,
         "Shot selects falling gun extension");
 
     SamusPoseTransitionLookup heldRightAndShot = SamusPoseTransitionTable.Lookup(
         bus,
         SamusPoseId.MovingRightGunExtendedPose,
-        (ushort)(SnesButton.Right | SnesButton.X),
+        (SnesButton.Right | SnesButton.X),
         canonicalNewInput: 0);
     SamusPoseTransitionLookup releasedRightHoldingShot = SamusPoseTransitionTable.Lookup(
         bus,
         SamusPoseId.MovingRightGunExtendedPose,
-        (ushort)SnesButton.X,
+        SnesButton.X,
         canonicalNewInput: 0);
     AssertTrue(!heldRightAndShot.UsesPoseDefinitionFallback,
         "running-gun Right+Shot same-pose record suppresses fallback");
@@ -628,9 +628,9 @@ internal static void VerifySamusGunExtendedMovement()
         "running-gun Shot-only terminator requests fallback");
 
     SamusPoseTransition forwardRightRelease =
-        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
+        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
     SamusPoseTransition forwardLeftRelease =
-        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
+        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
     AssertEqual(0x4d, (byte)forwardRightRelease.ProspectivePose,
         "held Jump without Right selects neutral right jump");
     AssertEqual(0x4e, (byte)forwardLeftRelease.ProspectivePose,
@@ -711,7 +711,7 @@ internal static void VerifySamusGunExtendedMovement()
 
     // `$91:E99B` samples HELD Shot, not newly pressed Shot. Holding X at horizontal impact
     // selects `$E6`; releasing it selects `$A4` from the same source metadata.
-    falling.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: false, (ushort)SnesButton.X);
+    falling.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: false, SnesButton.X);
     AssertEqual(SamusPoseId.FiringLandingRightPose, falling.Pose, "held Shot selects firing landing $E6");
     AssertEqual(21, falling.Kinematics.Radius.Y, "firing landing expands to standing radius");
     AssertEqual(0u, falling.Kinematics.VerticalSpeedFixed, "firing landing clears Y speed");
@@ -733,7 +733,7 @@ internal static void VerifySamusGunExtendedMovement()
     var mirroredLanding = new SamusState { Pose = SamusPoseId.FallingGunExtendedLeftPose };
     mirroredLanding.PoseMetadata.RefreshCollisionRadii(bus);
     mirroredLanding.Presentation.InitializeAnimation(bus);
-    mirroredLanding.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: false, (ushort)SnesButton.X);
+    mirroredLanding.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: false, SnesButton.X);
     AssertEqual(SamusPoseId.FiringLandingLeftPose, mirroredLanding.Pose, "held Shot selects mirrored firing landing $E7");
 
     AssertTrue(SamusPoseMetadata.IsRightFacingRunningPose(SamusPoseId.MovingRightGunExtendedPose), "$0B is admitted by running dispatcher");

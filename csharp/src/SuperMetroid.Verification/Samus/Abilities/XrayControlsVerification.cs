@@ -56,7 +56,7 @@ internal static class XrayControlsVerification
             pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(pendingBomb.InstructionPointer);
             pendingBomb.InstructionTimer = NativeCountdown.Start(100);
             pendingBomb.BombTimer = NativeCountdown.Start(60);
-            runtime.StepFrame((ushort)(runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
+            runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
             AssertEqual(60, pendingBomb.BombTimer.RawValue, "X-ray activation freezes an existing bomb fuse immediately");
             AssertEqual(100, pendingBomb.InstructionTimer.RawValue, "X-ray activation skips existing bomb animation immediately");
             pendingBomb.ClearFields();
@@ -72,7 +72,7 @@ internal static class XrayControlsVerification
                 "Run+Shoot does not allocate a beam on the activation frame");
             for (int frame = 0; frame < 90; frame++)
             {
-                runtime.StepFrame((ushort)(runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
+                runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
                 AssertTrue(runtime.Projectiles.LastFiredProjectileSnapshot is null,
                     "active scanning does not fire ordinary beams");
                 AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose,

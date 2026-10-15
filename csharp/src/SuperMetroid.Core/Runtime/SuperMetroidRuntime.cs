@@ -362,7 +362,7 @@ public sealed class SuperMetroidRuntime
     public BackgroundScrollState BackgroundScroll { get; } = new();
 
     /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
-    public void RunBlankGameplayFrame(ushort controllerInput)
+    public void RunBlankGameplayFrame(SnesButton controllerInput)
     {
         NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         Oam.BeginFrame();
@@ -373,7 +373,7 @@ public sealed class SuperMetroidRuntime
     /// <summary>Runs one accepted NMI followed by the translated per-frame timer logic, as <paramref name="request"/> asks.</summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word, normalized through action bindings when the accepted NMI latches player input; attract playback publishes its independent scripted words later.</param>
     /// <param name="request">The state policy, audio calls and post-NMI host work for this frame.</param>
-    public RuntimeFrameResult StepFrame(ushort controller1Input, RuntimeFrameRequest request)
+    public RuntimeFrameResult StepFrame(SnesButton controller1Input, RuntimeFrameRequest request)
     {
         Ensure.NotNull(request);
         Tester.ApplyTesterInventory();
@@ -399,7 +399,7 @@ public sealed class SuperMetroidRuntime
     /// frame-exit ammo guard remains active through translated callbacks.
     /// </summary>
     private RuntimeFrameResult StepFrameGuarded(
-        ushort controller1Input,
+        SnesButton controller1Input,
         RuntimeFrameRequest frameRequest,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
@@ -1151,7 +1151,7 @@ public sealed class SuperMetroidRuntime
     /// suspended dispatch, whose remaining owners already ran when the box opened.
     /// </summary>
     internal RuntimeFrameResult StepMessageBoxFrame(
-        ushort controller1Input,
+        SnesButton controller1Input,
         RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {

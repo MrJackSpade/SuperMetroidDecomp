@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -58,9 +59,9 @@ public static class AudioInputReplaySmokeTest
         int totalAvailableFrames = recording.ControllerInputs.Length + NeutralTailFrames;
         for (int frameIndex = 0; frameIndex < totalAvailableFrames; frameIndex++)
         {
-            ushort input = frameIndex < recording.ControllerInputs.Length
-                ? recording.ControllerInputs[frameIndex]
-                : (ushort)0;
+            SnesButton input = frameIndex < recording.ControllerInputs.Length
+                ? recording.InputAt(frameIndex)
+                : SnesButton.None;
             FrontendFrame frame = game.Step(input);
             CartridgeAudioAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
@@ -156,7 +157,7 @@ public static class AudioInputReplaySmokeTest
         {
             try
             {
-                game.Step(recording.ControllerInputs[frameIndex]);
+                game.Step(recording.InputAt(frameIndex));
             }
             catch (Exception exception)
             {
@@ -201,7 +202,7 @@ public static class AudioInputReplaySmokeTest
         int framesToReplay = Math.Min(recording.ControllerInputs.Length, maximumFrames);
         for (int frameIndex = 0; frameIndex < framesToReplay; frameIndex++)
         {
-            FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
+            FrontendFrame frame = game.Step(recording.InputAt(frameIndex));
             bool pauseOwned = frame.GameState is >= SuperMetroidGameState.PausingDarkening and
                 <= SuperMetroidGameState.Unpausing;
             game.CopyAudioFrame(samples);

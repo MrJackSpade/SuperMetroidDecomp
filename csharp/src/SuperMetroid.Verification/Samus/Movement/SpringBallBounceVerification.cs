@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
@@ -30,7 +31,7 @@ internal static class SpringBallBounceVerification
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YSubacceleration = 0x1c00;
 
-            SamusMorphBallMovement.StepSpringBallInAir(bus, room, samus, (ushort)SuperMetroid.Core.Input.SnesButton.Right, 0);
+            SamusMorphBallMovement.StepSpringBallInAir(bus, room, samus, SnesButton.Right, 0);
             string context = $"Spring Ball in air with bounce state ${(int)bounceState:X4}";
             if (bounceState != SamusBallBounceState.None)
             {

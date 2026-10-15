@@ -86,7 +86,7 @@ public sealed class SamusBombProjectileSystem
     public void AdvancePowerBombHdma(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort gameState = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(bus);
@@ -109,7 +109,7 @@ public sealed class SamusBombProjectileSystem
                     bus,
                     samus,
                     controllerInput,
-                    (ushort)SnesButton.X,
+                    SnesButton.X,
                     skipInputCheck: false);
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
@@ -126,7 +126,7 @@ public sealed class SamusBombProjectileSystem
     /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
     /// overlap pass that the main gameplay loop invokes before movement-handler beta.
     /// </summary>
-    public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ushort controllerInput, ushort controllerNewInput, bool deferSamusOverlap = false, bool advancePowerBombHdma = true)
+    public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput, bool deferSamusOverlap = false, bool advancePowerBombHdma = true)
     {
         Ensure.NotNull(terrain.Bus);
         Ensure.NotNull(terrain.Level);
@@ -367,14 +367,14 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in a native slot.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
+        SnesButton controllerInput,
+        SnesButton controllerNewInput,
         out bool rejectedPlacementClearedCharge)
     {
         rejectedPlacementClearedCharge = false;
         // The outer $90:BF9D test uses held Shoot. Both item branches eventually call
         // helper two, which separately insists on the newly-pressed bit.
-        const ushort shoot = (ushort)SnesButton.X;
+        const SnesButton shoot = SnesButton.X;
         if ((controllerInput & shoot) == 0)
             return null;
 
@@ -443,9 +443,9 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Consumes Morph Ball charge input and either continues its Down hold or emits all five spread bombs.</summary>
     private BombSpreadAdmission HandleBombSpreadInput(
         SamusState samus,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
-        bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
+        bool shootHeld = (controllerInput & SnesButton.X) != 0;
         if (!shootHeld)
         {
             // The outer Morph-Ball handler cancels charge before testing HUD selection
@@ -467,7 +467,7 @@ public sealed class SamusBombProjectileSystem
             return BombSpreadAdmission.NotApplicable;
         }
 
-        if ((controllerInput & (ushort)SnesButton.Down) != 0 &&
+        if ((controllerInput & SnesButton.Down) != 0 &&
             (samus.BombSpreadChargeTimeoutCounter &
                 SamusBombSpreadRomData.DownChargeTimeoutMask) <
                 SamusBombSpreadRomData.DownChargeTimeoutMask)
@@ -512,7 +512,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Requires a fresh Shoot edge and available bomb capacity, testing only the cooldown's low byte after the first bomb.</summary>
-    private bool TryReserveBombSlot(ushort controllerNewInput, ushort shoot)
+    private bool TryReserveBombSlot(SnesButton controllerNewInput, SnesButton shoot)
     {
         if ((controllerNewInput & shoot) == 0)
             return false;

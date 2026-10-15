@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
@@ -53,6 +54,17 @@ internal static class ControllerInputRecordingVerification
         AssertTrue(actual.ContentIdentity is null, "version-one input recording has no content identity");
         AssertTrue(saveRam.SequenceEqual(actual.InitialSaveRam), "input recording SRAM seed");
         AssertTrue(inputs.SequenceEqual(actual.ControllerInputs), "input recording frame words");
+        // A replay converts each journal word once, where it enters the game; a word with bits no controller
+        // produces fails there, naming its frame.
+        AssertEqual(SnesButton.Left | SnesButton.A, actual.InputAt(2), "replay converts a journal word to its buttons");
+        try
+        {
+            actual.InputAt(3);
+            throw new InvalidOperationException("Replay accepted journal frame 3's non-controller bits.");
+        }
+        catch (InvalidDataException exception) when (exception.Message.StartsWith("replay frame 3 supplied non-controller bits", StringComparison.Ordinal))
+        {
+        }
 
         // The frame count is an integrity boundary, not merely a preallocation hint. A
         // partially flushed file must fail loudly instead of replaying an incomplete tail.

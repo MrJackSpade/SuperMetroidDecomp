@@ -195,7 +195,7 @@ public sealed class TitleSequenceState
     }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
-    public void Step(ushort controllerInput)
+    public void Step(SnesButton controllerInput)
     {
         controller.Latch(controllerInput);
         bool rebuildConsolePaletteFxAfterStep = false;
@@ -205,7 +205,7 @@ public sealed class TitleSequenceState
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
         // their INIDISP values are observable in native traces.
         bool confirmPressed =
-            controller.NewlyPressedButtons.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
+            controller.NewlyPressed.HasAny(TitleSequenceRomData.Timing.ConfirmButtons);
         if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)
         {
             Phase = TitleSequencePhase.SkipFadeOut;

@@ -35,7 +35,7 @@ internal static class ProjectileCooldownsVerification
         var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })
-        foreach (ushort edge in new ushort[] { 0, (ushort)SnesButton.X })
+        foreach (SnesButton edge in new SnesButton[] { 0, SnesButton.X })
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
@@ -56,7 +56,7 @@ internal static class ProjectileCooldownsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
             samus.PoseTransitionShotDirection = (ushort)0x8007;
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? (ushort)0 : (ushort)SnesButton.X }, new(0, 0), shared);
+            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = 0, ControllerPreviousNewInput = chargeEquipped ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
             AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
             AssertEqual((ushort)15, shared.CooldownTimer.RawValue, "Charge equipment or previous Shoot edge selects ordinary cooldown");
@@ -70,8 +70,8 @@ internal static class ProjectileCooldownsVerification
             for (int frame = 0; frame < 70; frame++)
             {
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
-                shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, (ushort)SnesButton.X, frame == 0 ? (ushort)SnesButton.X : (ushort)0);
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0 }, new(0, 0), shared);
+                shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, SnesButton.X, frame == 0 ? SnesButton.X : (ushort)0);
+                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
                 if (projectiles.LastFiredProjectileSnapshot is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;

@@ -35,7 +35,7 @@ internal static class PauseReserveHudVerification
         runtime.NmiHandler.RunNmi(0, true);
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
-        pause.Step(0, (ushort)SnesButton.Up);
+        pause.Step(0, SnesButton.Up);
         var game = new SuperMetroidGame(bus);
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued
         // DMA and presentation below are real production calls, not a fake refill.
@@ -47,7 +47,7 @@ internal static class PauseReserveHudVerification
         byte[] initialHud = displayed.Bytes.Slice(HudState.VramDestination * 2, HudState.MutableByteCount).ToArray();
         byte[] initialFx = displayed.Bytes.Slice(0xb100, 0x700).ToArray();
         long sequence = 0;
-        void Step(SnesButton input = 0) => game.StepCaptured((ushort)input, ++sequence, 1);
+        void Step(SnesButton input = SnesButton.None) => game.StepCaptured(input, ++sequence, 1);
         Step(SnesButton.A);
         AssertEqual(2, samus.ReserveTankMode, "paused A switches to manual");
         AssertEqual(originalAuto, displayed.ReadWord(HudState.VramDestination + 8), "AUTO remains until next accepted NMI");

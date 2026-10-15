@@ -159,7 +159,7 @@ internal sealed class AndroidGameSession
                     output = new AndroidPcmOutput(resumeTrace);
                 }
                 double start = clock.Elapsed.TotalMilliseconds;
-                ushort input = Input.Sample();
+                SnesButton input = Input.Sample();
                 data.Record(input);
                 var previousGameState = data.Game.GameState;
                 CapturedFrontendFrame frame = data.Game.StepCaptured(input, ++sequence, data.Generation);

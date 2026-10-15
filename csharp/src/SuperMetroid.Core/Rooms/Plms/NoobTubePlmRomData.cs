@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -5,8 +6,9 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>Cartridge constants used exclusively by Maridia's n00b-tube PLM program.</summary>
 public static class NoobTubePlmRomData
 {
-    /// <summary>Native controller-new-input mask used by <c>$84:D4BF</c>.</summary>
-    public const ushort AcceptedWakeInputMask = 0xc3c0;
+    /// <summary>Native controller-new-input mask <c>$C3C0</c> used by <c>$84:D4BF</c>: B, Y, Left, Right, A and X.</summary>
+    public const SnesButton AcceptedWakeInputMask =
+        SnesButton.B | SnesButton.Y | SnesButton.Left | SnesButton.Right | SnesButton.A | SnesButton.X;
 
     /// <summary>Solid collision type eight plus resident projectile-trigger BTS $44.</summary>
     public const ushort SolidProjectileTriggerLevelWord = 0x8044;

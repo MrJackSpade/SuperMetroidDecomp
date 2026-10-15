@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -52,7 +53,7 @@ internal static class GameOverMenuIndexesVerification
             var answered = new GameOverMenuState(bus, new CartridgeAudioState(), presentation, continueLoadsCeresArrival: ceres);
             answered.Phase = GameOverMenuPhase.Main;
             answered.Step(0);
-            answered.Step((ushort)SuperMetroid.Core.Input.SnesButton.A);
+            answered.Step(SnesButton.A);
             AssertEqual(ceres, answered.CeresArrivalRequested, $"Yes on loading state $1F={ceres} requests the Ceres loader");
             AssertEqual(ceres ? GameOverMenuPhase.Main : GameOverMenuPhase.FadeOutToContinue, answered.Phase,
                 "only an area-map continue fades out");

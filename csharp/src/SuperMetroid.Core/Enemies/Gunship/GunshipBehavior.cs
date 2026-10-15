@@ -176,7 +176,7 @@ internal sealed class GunshipBehavior
     internal void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
-        ushort newlyPressedControllerInput,
+        SnesButton newlyPressedControllerInput,
         VramWriteQueue? vramWriteQueue)
     {
         if (top.SlotIndex + 2 >= _slotTable.EnemyCount)
@@ -400,11 +400,9 @@ internal sealed class GunshipBehavior
     private void HandleIdleGunshipEntrance(
         RoomEnemySlot top,
         SamusState? samus,
-        ushort newlyPressedControllerInput)
+        SnesButton newlyPressedControllerInput)
     {
-        SnesButton newlyPressed = SnesButtons.FromRaw(
-            newlyPressedControllerInput,
-            "gunship entrance AI");
+        SnesButton newlyPressed = newlyPressedControllerInput;
         if (samus is null || !newlyPressed.HasAny(SnesButton.Down))
             return;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -22,8 +23,8 @@ internal static class SamusPoseTransitionTableAccess
         internal static SamusPoseTransition? Find(
             ISnesAddressSpace bus,
             SamusPoseId currentPose,
-            ushort canonicalHeldInput,
-            ushort canonicalNewInput) =>
+            SnesButton canonicalHeldInput,
+            SnesButton canonicalNewInput) =>
             SamusPoseTransitionTable.Lookup(bus, currentPose, canonicalHeldInput, canonicalNewInput).Transition;
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -91,7 +92,7 @@ public sealed class FileSelectMapScroll
     /// Processes held input in native arrow order. Returns true at the scroll-sound
     /// boundary. A released button does not cancel an already accepted eight-tick step.
     /// </summary>
-    public bool Step(ushort heldInput)
+    public bool Step(SnesButton heldInput)
     {
         for (int index = 0; index < MapScrollControls.DirectionCount; index++)
             if (Direction == MapScrollDirection.None && CanScroll(MapScrollControls.ArrowAt(index)) &&

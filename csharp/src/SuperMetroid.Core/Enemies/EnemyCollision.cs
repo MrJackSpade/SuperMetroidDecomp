@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Bosses.Crocomire;
@@ -86,7 +87,7 @@ internal sealed class EnemyCollision
     /// <param name="onlyNativeEnemyIndex">EnemyMain's current physical index, or null for a standalone whole-list audit.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         RoomLevelData? level = null,
         ushort? onlyNativeEnemyIndex = null)
     {

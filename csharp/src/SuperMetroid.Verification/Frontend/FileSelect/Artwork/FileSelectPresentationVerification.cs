@@ -162,11 +162,11 @@ internal static class FileSelectPresentationVerification
 
         void Press(SnesButton button)
         {
-            Frame((ushort)button);
+            Frame(button);
             Frame(0);
         }
 
-        void Frame(ushort input)
+        void Frame(SnesButton input)
         {
             AssertEqual(native.Phase, installed.Phase,
                 $"installed file-select phase matches frame {comparedFrames}");

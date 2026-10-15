@@ -52,7 +52,7 @@ internal static class BabyMetroidWallClearTimingVerification
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
-        runtime.StepFrame(unchecked((ushort)(SnesButton.Right | SnesButton.B)));
+        runtime.StepFrame(unchecked((SnesButton.Right | SnesButton.B)));
 
         AssertEqual(ShitroidAiFunction.HoverNearSamus, shitroid.Function, "Baby Metroid finished rising this frame");
         AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(new(WallColumn, WallRow)).CollisionType,

@@ -46,7 +46,7 @@ internal static class WrapShotRoomsVerification
             ushort cameraY = (ushort)Math.Max(0, setup.Y - 128);
             for (int frame = 0; frame < 40; frame++)
             {
-                ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
                 runtime.BombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
                 runtime.Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))

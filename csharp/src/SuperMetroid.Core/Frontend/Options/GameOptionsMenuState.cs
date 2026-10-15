@@ -147,10 +147,10 @@ public sealed class GameOptionsMenuState
     public bool FileSelectRequested { get; private set; }
 
     /// <summary>Advances one options-menu update using the raw held controller word.</summary>
-    public void Step(ushort controllerInput)
+    public void Step(SnesButton controllerInput)
     {
         controller.Latch(controllerInput);
-        SnesButton pressed = controller.NewlyPressedButtons;
+        SnesButton pressed = controller.NewlyPressed;
         // The selection missile is spawned by index one ($82:ECD3); the object handler
         // then runs after every index's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
@@ -386,8 +386,8 @@ public sealed class GameOptionsMenuState
         {
             for (int button = Input.ControllerBindings.AssignableButtonCount - 1; button >= 0; button--)
             {
-                ushort physicalButton = Input.ControllerBindings.AssignableButton(button);
-                if (((ushort)pressed & physicalButton) == 0)
+                SnesButton physicalButton = Input.ControllerBindings.AssignableButton(button);
+                if ((pressed & physicalButton) == SnesButton.None)
                     continue;
                 ControllerBindings = ControllerBindings.AssignAndSwap(SelectedItem, physicalButton);
                 ApplyControllerLabels();

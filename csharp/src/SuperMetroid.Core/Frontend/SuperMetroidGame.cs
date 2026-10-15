@@ -448,7 +448,7 @@ public sealed class SuperMetroidGame
     /// its sound-effect acknowledgements whether or not audio is bound, so gameplay is identical
     /// with audio enabled, disabled, or without an output device.
     /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="assets"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The session already advanced without synthesis and has no player to continue.</exception>
     public void BindAudio(ClipAudioCatalog clips) => audioSession.BindClips(clips);
 
@@ -491,7 +491,7 @@ public sealed class SuperMetroidGame
     public IDoorLoaderProgressSource DoorLoaderProgress { get; set; } = LagFreeDoorLoaderProgress.Instance;
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
-    public FrontendFrame Step(ushort controllerInput)
+    public FrontendFrame Step(SnesButton controllerInput)
     {
         // Derive the door-owned native disable flag before any producer can queue
         // audio. This also restores its meaning for legacy snapshots without adding
@@ -1219,7 +1219,7 @@ public sealed class SuperMetroidGame
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.StopSpinJump,
                         maximumQueued: 15, soundSuppressed: doorSoundsSuppressed);
                 }
-                else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
+                else if ((controllerInput & SnesButton.X) == 0 &&
                     GameplayRuntime.Projectiles.Charge.FlareCounter < 16)
                 {
                     audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll,
@@ -1628,7 +1628,7 @@ public sealed class SuperMetroidGame
                !samus.Xray.TimeIsFrozen &&
                !runtime.RoomLoader.HasPendingDoorTransition &&
                runtime.Room.ActiveRoom.AreaIndex != AreaId.Ceres &&
-               (runtime.Controller1.NewlyPressed & (ushort)SnesButton.Start) != 0;
+               (runtime.Controller1.NewlyPressed & SnesButton.Start) != 0;
     }
 
     /// <summary>
@@ -1652,7 +1652,7 @@ public sealed class SuperMetroidGame
     /// <c>GameState_8_MainGameplay</c>: one gameplay frame and the state publications its
     /// routines make. State $12 (<c>$82:93A1</c>) calls the same routine before fading in.
     /// </summary>
-    private void RunMainGameplayState(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
+    private void RunMainGameplayState(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         // DisplayMessageBox is a nested NMI-waiting coroutine inside gameplay
         // state eight. Its final acknowledgement returns below the normal bank-$90
@@ -1840,7 +1840,7 @@ public sealed class SuperMetroidGame
     /// supplies sequence/generation outside the saved game graph, so restoring game
     /// state must not rewind presentation identity. This is a staged migration API.
     /// </summary>
-    public CapturedFrontendFrame StepCaptured(ushort controllerInput, long hostSequence, long hostGeneration)
+    public CapturedFrontendFrame StepCaptured(SnesButton controllerInput, long hostSequence, long hostGeneration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
@@ -2201,7 +2201,7 @@ public sealed class SuperMetroidGame
     private bool demoHasNextScene;
 
     /// <summary>Advances demo loading, scripted gameplay, holds, cancellation, and title return.</summary>
-    private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
+    private void StepAttractDemo(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)
         {
@@ -2335,7 +2335,7 @@ public sealed class SuperMetroidGame
             return location + "; Samus=not initialized";
         return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
             $"animationList=${samus.AnimationDelayListAddress:X6}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
-            $"input=${runtime.Controller1.Current:X4}; newlyPressed=${runtime.Controller1.NewlyPressed:X4}; inputLocked={samus.InputLocked}; " +
+            $"input=${runtime.Controller1.Current:X}; newlyPressed=${runtime.Controller1.NewlyPressed:X}; inputLocked={samus.InputLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
             $"escapeTimer={runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
             $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
@@ -2370,7 +2370,7 @@ public sealed class SuperMetroidGame
     /// One native loading wait: the accepted NMI reads the controller and performs its
     /// transfers; no dispatcher runs. The last wait returns into the state store.
     /// </summary>
-    private void StepGameLoadingWait(ushort controllerInput)
+    private void StepGameLoadingWait(SnesButton controllerInput)
     {
         GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         if (--gameLoadingWaitsRemaining != 0)
@@ -2408,7 +2408,7 @@ public sealed class SuperMetroidGame
     /// Runs this dispatch's state-$09 door function. Returns true when it sets carry, so
     /// state $0A runs in the same dispatch.
     /// </summary>
-    private bool StepHitDoorBlockFunction(ushort controllerInput)
+    private bool StepHitDoorBlockFunction(SnesButton controllerInput)
     {
         if (!waitingForDownwardsElevator)
         {

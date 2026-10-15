@@ -119,11 +119,11 @@ public sealed class FileSelectMenuState
     internal bool ResumesAfterNmiWait => Phase is
         FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.InitializeMainAfterNmi;
     /// <summary>Advances one native menu frame from a raw SNES controller word.</summary>
-    public void Step(ushort controllerInput)
+    public void Step(SnesButton controllerInput)
     {
         SaveRamChangedThisFrame = false;
         controller.Latch(controllerInput);
-        SnesButton pressed = controller.NewlyPressedButtons;
+        SnesButton pressed = controller.NewlyPressed;
 
         if (!IsEntryPhase)
             StepMissileAnimation();

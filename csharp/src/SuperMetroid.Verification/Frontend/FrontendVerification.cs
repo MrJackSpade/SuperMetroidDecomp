@@ -356,7 +356,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(FileSelectPhase.CopyConfirm, copyMenu.Phase,
         "copy chooses distinct destination slot");
     copyMenu.Step(0);
-    copyMenu.Step((ushort)SnesButton.A);
+    copyMenu.Step(SnesButton.A);
     AssertTrue(copyMenu.SaveRamChangedThisFrame, "copy publishes SRAM mutation frame");
     AssertEqual(FileSelectPhase.CopyCompleted, copyMenu.Phase, "copy reaches completion screen");
     SuperMetroidSaveSlot copied = saveRam.ReadSlot(1)
@@ -378,7 +378,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(FileSelectPhase.ClearConfirm, clearMenu.Phase,
         "clear chooses first nonempty slot");
     clearMenu.Step(0);
-    clearMenu.Step((ushort)SnesButton.A);
+    clearMenu.Step(SnesButton.A);
     AssertTrue(clearMenu.SaveRamChangedThisFrame, "clear publishes SRAM mutation frame");
     AssertEqual(FileSelectPhase.ClearCompleted, clearMenu.Phase,
         "clear reaches DATA CLEARED screen");
@@ -386,7 +386,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertTrue(saveRam.ReadSlot(1) is not null, "file-select CLEAR preserves other slots");
 
     AdvanceFileSelectFade(savedMenu, FileSelectPhase.Main);
-    savedMenu.Step((ushort)SnesButton.A);
+    savedMenu.Step(SnesButton.A);
     for (int guard = 0;
          savedMenu.Phase != FileSelectPhase.FadeOutToOptions && guard < 80;
          guard++)
@@ -435,7 +435,7 @@ static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expe
 /// <summary>Sends one button edge followed by its release to the file-select state machine.</summary>
 static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
 {
-    menu.Step((ushort)button);
+    menu.Step(button);
     menu.Step(0);
 }
 
@@ -596,11 +596,11 @@ internal static void VerifyDemoInputObject()
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.
     int[] boundaries = [90, 1, 40, 1, 29, 70];
-    ushort[] held =
-        [0, (ushort)SnesButton.X, (ushort)SnesButton.X, (ushort)SnesButton.X,
-            (ushort)SnesButton.X, 0];
-    ushort[] newlyPressed =
-        [0, (ushort)SnesButton.X, 0, (ushort)SnesButton.X, 0, 0];
+    SnesButton[] held =
+        [0, SnesButton.X, SnesButton.X, SnesButton.X,
+            SnesButton.X, 0];
+    SnesButton[] newlyPressed =
+        [0, SnesButton.X, 0, SnesButton.X, 0, 0];
     int elapsed = 0, ends = 0;
     void EndRoutine(DemoInputCue cue)
     {
@@ -634,8 +634,8 @@ internal static void VerifyDemoInputObject()
     AssertEqual(1, ends, "flashback demo end routine runs once");
     AssertEqual(false, demo.Enabled, "demo end routine disables the object");
     AssertEqual(false, demo.IsActive, "demo end routine continues into delete");
-    AssertEqual(0, demo.Held, "demo delete clears held input");
-    AssertEqual(0, demo.NewlyPressed, "demo delete clears new input");
+    AssertEqual(SnesButton.None, demo.Held, "demo delete clears held input");
+    AssertEqual(SnesButton.None, demo.NewlyPressed, "demo delete clears new input");
 
     Console.WriteLine("  Demo input: records, edges, end routine and deletion agree.");
 }

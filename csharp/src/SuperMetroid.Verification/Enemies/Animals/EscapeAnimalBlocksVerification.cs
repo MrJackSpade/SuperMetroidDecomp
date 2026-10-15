@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Areas.Escape.EscapeRoomEffectsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -39,7 +40,7 @@ internal static class EscapeAnimalBlocksVerification
             SeedStationaryGrappleCollisionProbe(bus, samus);
             int before = plms.SlotTable.ActiveCount;
             SamusGrappleMovement.StepFiring(bus, level, samus,
-                (ushort)SuperMetroid.Core.Input.SnesButton.X, plms);
+                SnesButton.X, plms);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, plms.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");

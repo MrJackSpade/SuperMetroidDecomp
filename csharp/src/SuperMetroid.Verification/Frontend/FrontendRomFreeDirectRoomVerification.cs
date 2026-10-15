@@ -25,12 +25,12 @@ internal static class FrontendRomFreeDirectRoomVerification
         // Kraid's room, neutral and firing, then held Right+fire: the moving shot reaches the
         // arm's extended hitbox walker, which once read $A7:9127 from the cartridge.
         VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 900, 0);
-        VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 900, (ushort)SnesButton.X);
-        VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 1500, (ushort)(SnesButton.Right | SnesButton.X));
+        VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 900, SnesButton.X);
+        VerifyFrontendRomFreeDirectRoom(RoomHeaderPointers.Kraid, 1500, (SnesButton.Right | SnesButton.X));
     }
 
     /// <summary>Runs native and cartridge-free game instances with the same direct room and held input.</summary>
-    private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, ushort heldInput)
+    private static void VerifyFrontendRomFreeDirectRoom(ushort roomPointer, int frameCount, SnesButton heldInput)
     {
         GameInstallation installation = RepositoryInstallation.Installation;
         var nativeBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(RepositoryRomPath);
@@ -46,7 +46,7 @@ internal static class FrontendRomFreeDirectRoomVerification
         var options = new SuperMetroidGameOptions { Invincibility = true };
         native.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
         installed.GameplayRuntimeForVerification.ApplyHostOptions(options.RuntimeOverrides(forAttractDemo: false));
-        VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}" }, frameCount, heldInput: heldInput);
+        VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X}" }, frameCount, heldInput: heldInput);
     }
 
     /// <summary>Runs the focused cartridge-free direct-room verification command.</summary>

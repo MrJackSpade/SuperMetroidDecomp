@@ -27,7 +27,7 @@ internal static class FileSelectSoundVerification
         {
             // Accept on the first update the native main menu reads input.
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
-            menu.Step(accept ? (ushort)SnesButton.A : (ushort)0);
+            menu.Step(accept ? SnesButton.A : (ushort)0);
             var commands = audio.AdvanceFrame(renderer.Acknowledgements);
             writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
             var pcm = renderer.RenderFrame(commands);
@@ -65,7 +65,7 @@ internal static class FileSelectSoundVerification
         for (int tick = 0; tick < 500; tick++)
         {
             SnesButton button = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : SnesButton.Start;
-            var frame = game.StepCaptured(tick % 47 == 0 ? (ushort)button : (ushort)0, tick + 1, 1).Frame;
+            var frame = game.StepCaptured(tick % 47 == 0 ? button : SnesButton.None, tick + 1, 1).Frame;
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                 audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;

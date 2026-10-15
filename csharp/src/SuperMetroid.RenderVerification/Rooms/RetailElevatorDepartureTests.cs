@@ -45,7 +45,7 @@ internal static class RetailElevatorDepartureTests
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: downward elevator {phase}, sample={samples}");
         }
-        runtime.StepFrame((ushort)SnesButton.Down);
+        runtime.StepFrame(SnesButton.Down);
         Compare("departure start");
         if (runtime.Enemies.ElevatorBehavior.LastElevatorEvent != ElevatorFrameEvent.DepartureStarted)
             throw new InvalidOperationException("Downward elevator did not accept the input edge.");

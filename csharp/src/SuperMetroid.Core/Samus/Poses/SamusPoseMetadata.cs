@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -709,7 +710,7 @@ internal sealed class SamusPoseMetadata
         RoomLevelData level,
         bool timeIsFrozen,
         ushort nmiFrameCounter,
-        ushort controllerNewInput,
+        SnesButton controllerNewInput,
         RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);

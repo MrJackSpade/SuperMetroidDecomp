@@ -42,7 +42,7 @@ internal static class UnpauseStationLockReleaseVerification
         long sequence = 0;
 
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
-            game.StepCaptured((ushort)SnesButton.Start, ++sequence, 1);
+            game.StepCaptured(SnesButton.Start, ++sequence, 1);
         AssertEqual(SuperMetroidGameState.UnpausingA, game.GameState, "Start closes the menu");
         AssertTrue(samus.InputLocked && samus.ScriptLocks.RefillStationLocked, "the station lock holds through the fade");
         while (game.GameState != SuperMetroidGameState.Unpausing)

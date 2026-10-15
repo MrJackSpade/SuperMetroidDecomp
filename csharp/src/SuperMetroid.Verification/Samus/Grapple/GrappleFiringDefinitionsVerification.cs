@@ -121,7 +121,7 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(0x55aa, grapple.FlareOffset.X, "Presentation override is actually consumed");
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiring(bus, empty, samus, (ushort)SnesButton.X);
+                SamusGrappleMovement.StepFiring(bus, empty, samus, SnesButton.X);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -156,7 +156,7 @@ internal static class GrappleFiringDefinitionsVerification
                 outward && (input & (int)SnesButton.Up) != 0 ? (left ? 8 : 1) : (left ? 7 : 2);
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(bus, samus, (ushort)input);
+            SamusGrappleMovement.BeginFiring(bus, samus, (SnesButton)input);
             AssertEqual(direction, grapple.FireDirection, "Held aim selection");
             AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
             AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");

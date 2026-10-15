@@ -57,7 +57,7 @@ internal static class UnpauseReserveBlackoutVerification
         pausing.GameState = SuperMetroidGameState.MainGameplay;
         pausing.pauseBrightness = (byte)0;
         pausing.Step(0);
-        pausing.Step((ushort)SnesButton.Start);
+        pausing.Step(SnesButton.Start);
         AssertEqual(SuperMetroidGameState.PausingDarkening, pausing.GameState, "Start pauses");
         pausing.Step(0);
         AssertEqual(SuperMetroidGameState.Pausing, pausing.GameState,

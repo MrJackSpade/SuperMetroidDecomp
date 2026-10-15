@@ -60,7 +60,7 @@ internal static class TitleSnapshotTestsVerification
                     comparisons++;
 
                     // Hold the packet across real scene/palette/graphics advancement.
-                    ushort input = phase == TitleSequencePhase.TitleScreen ? (ushort)SnesButton.Start : (ushort)0;
+                    SnesButton input = phase == TitleSequencePhase.TitleScreen ? SnesButton.Start : (ushort)0;
                     scene.Step(input);
                     control.Step(input);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);

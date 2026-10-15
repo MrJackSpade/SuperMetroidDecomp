@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -29,13 +30,13 @@ internal sealed class SamusInputSnapshot
     /// exits a non-firing pose to fire on the next frame. Demo alpha replaces it with
     /// the preceding scripted edge before running the normal HUD dispatcher.
     /// </summary>
-    public ushort PreviousDrawNewInput { get; internal set; }
+    public SnesButton PreviousDrawNewInput { get; internal set; }
 
     /// <summary>WRAM $0AF4: consecutive held-Jump history updated by $90:EAB3.</summary>
     public ushort AutoJumpTimer { get; internal set; }
 
     /// <summary>WRAM $0DFE: held input published by $90:EAB3 and main-loop tail $82:8AB0.</summary>
-    public ushort PreviousDrawHeldInput { get; internal set; }
+    public SnesButton PreviousDrawHeldInput { get; internal set; }
 
     /// <summary>PoseInputHandler currently selects the one-shot $90:E926 auto-jump handler.</summary>
     public bool AutoJumpInputPending { get; internal set; }
@@ -51,7 +52,7 @@ internal sealed class SamusInputSnapshot
     public bool CrystalFlashPoseInputLocked { get; internal set; }
 
     /// <summary>Local input substitution from $90:E926; does not alter the controller's real edge.</summary>
-    internal ushort ConsumeAutoJumpInput(ushort newlyPressed)
+    internal SnesButton ConsumeAutoJumpInput(SnesButton newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;
         ShinesparkPoseInputLocked = false;
@@ -60,18 +61,18 @@ internal sealed class SamusInputSnapshot
         if (AutoJumpTimer != 0 && unchecked((short)(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit)) < 0)
         {
             AutoJumpTimer = 0;
-            newlyPressed |= (ushort)SuperMetroid.Core.Input.SnesButton.A;
+            newlyPressed |= SnesButton.A;
         }
         return newlyPressed;
     }
 
     /// <summary>$82:8AB0 publishes held input without advancing Samus's draw-time owners.</summary>
-    internal void PublishMainLoopHeldInput(ushort held) => PreviousDrawHeldInput = held;
+    internal void PublishMainLoopHeldInput(SnesButton held) => PreviousDrawHeldInput = held;
 
     /// <summary>Native $90:EAB3 increments only when Jump is held in both draw samples.</summary>
-    internal void SnapshotDrawInput(ushort held, ushort newlyPressed)
+    internal void SnapshotDrawInput(SnesButton held, SnesButton newlyPressed)
     {
-        ushort jump = (ushort)SuperMetroid.Core.Input.SnesButton.A;
+        SnesButton jump = SnesButton.A;
         AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != 0
             ? unchecked((ushort)(AutoJumpTimer + 1)) : (ushort)0;
         PreviousDrawHeldInput = held;

@@ -31,7 +31,7 @@ internal static class HiddenSoakTests
             game.BindAudio(DesktopAccess.LoadAudioClips());
             var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             long sequence = 0;
-            CapturedFrontendFrame Step(ushort input)
+            CapturedFrontendFrame Step(SnesButton input)
             {
                 var frame = game.StepCaptured(input, ++sequence, 1);
                 if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
@@ -39,14 +39,14 @@ internal static class HiddenSoakTests
                 return frame;
             }
             for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
-                Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
+                Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
             ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.NmiHandler.RunNmi(0, true);
             Step(0);
-            if (paused) Step((ushort)SnesButton.Start);
+            if (paused) Step(SnesButton.Start);
             for (int warmup = 0; warmup < 120; warmup++) Step(0);
             using var window = new Form { ClientSize = new(900, 672), ShowInTaskbar = false };
             var worker = new D3D11RenderWorker(window.Handle, new Extent16<DisplayPixels>(900, 672), 1, D3D11DeviceKind.Hardware);

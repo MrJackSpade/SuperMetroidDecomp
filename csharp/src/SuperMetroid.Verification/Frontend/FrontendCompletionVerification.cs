@@ -49,18 +49,18 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
         action: 0,
-        physicalButton: (ushort)SnesButton.R);
-    AssertEqual((ushort)SnesButton.R, swapped.Shoot, "controller swap assigns requested button");
-    AssertEqual((ushort)SnesButton.X, swapped.AimUp, "controller swap preserves permutation");
-    ushort normalized = swapped.Normalize(
-        (ushort)(SnesButton.R | SnesButton.X | SnesButton.Left | SnesButton.Right |
+        physicalButton: SnesButton.R);
+    AssertEqual(SnesButton.R, swapped.Shoot, "controller swap assigns requested button");
+    AssertEqual(SnesButton.X, swapped.AimUp, "controller swap preserves permutation");
+    SnesButton normalized = swapped.Normalize(
+        (SnesButton.R | SnesButton.X | SnesButton.Left | SnesButton.Right |
                  SnesButton.Start));
-    AssertTrue((normalized & (ushort)SnesButton.X) != 0,
+    AssertTrue((normalized & SnesButton.X) != 0,
         "physical remapped Shoot becomes canonical Shoot");
-    AssertTrue((normalized & (ushort)SnesButton.R) != 0,
+    AssertTrue((normalized & SnesButton.R) != 0,
         "displaced physical button becomes canonical Aim Up");
-    AssertTrue((normalized & (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.Start)) ==
-               (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.Start),
+    AssertTrue((normalized & (SnesButton.Left | SnesButton.Right | SnesButton.Start)) ==
+               (SnesButton.Left | SnesButton.Right | SnesButton.Start),
         "opposed fixed directions and Start survive binding normalization");
 
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -103,9 +103,9 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     StepOptionsUntil(options, GameOptionsPhase.ControllerSettings);
 
     PressOptions(options, SnesButton.R);
-    AssertEqual((ushort)SnesButton.R, options.ControllerBindings.Shoot,
+    AssertEqual(SnesButton.R, options.ControllerBindings.Shoot,
         "controller page assigns physical R to Shoot");
-    AssertEqual((ushort)SnesButton.X, options.ControllerBindings.AimUp,
+    AssertEqual(SnesButton.X, options.ControllerBindings.AimUp,
         "controller page swaps displaced Shoot button into Aim Up");
 
     for (int row = 0; row < 7; row++)
@@ -447,7 +447,7 @@ internal static void VerifyEndingCreditsState()
 /// <summary>Presses and releases an options button so successive menu inputs have distinct edges.</summary>
 private static void PressOptions(GameOptionsMenuState options, SnesButton button)
 {
-    options.Step((ushort)button);
+    options.Step(button);
     options.Step(0);
 }
 

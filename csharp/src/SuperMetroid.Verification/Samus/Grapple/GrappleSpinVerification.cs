@@ -34,14 +34,14 @@ internal static class GrappleSpinVerification
             samus.SelectedHudItem = 4;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
-            runtime.StepFrame((ushort)SnesButton.X);
+            runtime.StepFrame(SnesButton.X);
             Console.WriteLine($"Spin fire first frame: pose={(int)samus.Pose:X2}, grapple={samus.Grapple.Phase}");
             AssertEqual(left ? SamusPoseId.NormalJumpGunExtendedLeftPose : SamusPoseId.NormalJumpGunExtendedRightPose,
                 samus.Pose, "Fire exits the spin through the ROM pose table");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "spin HUD handler does not fire before pose transition");
-            runtime.StepFrame(held ? (ushort)SnesButton.X : (ushort)0);
+            runtime.StepFrame(held ? SnesButton.X : (ushort)0);
             AssertEqual(GrapplePhase.Firing, samus.Grapple.Phase, "preserved Fire edge starts grapple on the following frame");
-            runtime.StepFrame(held ? (ushort)SnesButton.X : (ushort)0);
+            runtime.StepFrame(held ? SnesButton.X : (ushort)0);
             AssertEqual(held ? GrapplePhase.Firing : GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "held grapple extends; one-frame tap cancels on the next firing pass");
         }

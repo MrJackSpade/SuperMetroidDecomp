@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json;
@@ -1319,8 +1320,8 @@ internal static class MapPresentationVerification
             titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics);
-        stockSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
-        editedSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        stockSkip.Step(SnesButton.Start);
+        editedSkip.Step(SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
         {
             stockSkip.Step(0);
@@ -1382,8 +1383,8 @@ internal static class MapPresentationVerification
             titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics);
-        stockTitle.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
-        editedTitle.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        stockTitle.Step(SnesButton.Start);
+        editedTitle.Step(SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {
             stockTitle.Step(0);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -177,14 +178,21 @@ internal static class SamusPoseInputDefinitions
     }
 
     /// <summary>Evaluates the selected transition list in its early or late native graph section using held and edge inputs.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) =>
+    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, SnesButton held, SnesButton newlyPressed) =>
         (ushort)pointer < LaterListsBegin
             ? SamusPoseInputRulesEarly.Match(pointer, held, newlyPressed)
             : SamusPoseInputRulesLate.Match(pointer, held, newlyPressed);
 
     /// <summary>Requires every bit of an authored canonical input chord to be present.</summary>
-    internal static bool Has(ushort input, CanonicalPoseButtons required) =>
-        (input & (ushort)required) == (ushort)required;
+    internal static bool Has(SnesButton input, CanonicalPoseButtons required) =>
+        (input & Buttons(required)) == Buttons(required);
+
+    /// <summary>
+    /// The buttons an authored chord names: canonical pose bits use the SNES joypad layout, with the
+    /// default action buttons standing for their bindings.
+    /// </summary>
+    [ControllerWordBoundary("authored pose chords are joypad-layout words until #1301 types them")]
+    private static SnesButton Buttons(CanonicalPoseButtons chord) => (SnesButton)(ushort)chord;
 
     /// <summary>Marks a selected target as a matched condition, distinct from an empty transition list.</summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>

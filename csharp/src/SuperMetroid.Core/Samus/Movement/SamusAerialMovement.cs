@@ -96,7 +96,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -163,9 +163,9 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
-        ushort controllerNewInput = 0,
+        SnesButton controllerNewInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(bus, level, samus);
@@ -284,7 +284,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -327,7 +327,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -436,7 +436,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -498,7 +498,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -538,7 +538,7 @@ public static class SamusAerialMovement
         uint baseSpeed = speed.CalculateBaseSpeedAtAddress(bus, speedRecordAddress);
 
         bool horizontalInput = (controllerInput &
-            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+            (SnesButton.Left | SnesButton.Right)) != 0;
         BlockMoveResult horizontal;
         if (speed.AccelerationMode == 0 && !horizontalInput)
         {
@@ -576,7 +576,7 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         SamusMovementType movementType,
         RoomPlmSystem? plms)
     {
@@ -592,7 +592,7 @@ public static class SamusAerialMovement
             speed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
 
         bool directionHeld = (controllerInput &
-            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+            (SnesButton.Left | SnesButton.Right)) != 0;
         if (speed.AccelerationMode == 0 && !directionHeld)
         {
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
@@ -704,12 +704,12 @@ public static class SamusAerialMovement
     /// <summary>Ends upward movement on Jump release or signed speed underflow.</summary>
     private static void ApplyVariableJumpCutoff(
         SamusKinematicsState state,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
         if (state.YDirection != SamusVerticalDirection.Up)
             return;
 
-        bool jumpHeld = (controllerInput & (ushort)SnesButton.A) != 0;
+        bool jumpHeld = (controllerInput & SnesButton.A) != 0;
         bool speedUnderflowed = unchecked((short)state.YSpeed) < 0;
         if (!jumpHeld || speedUnderflowed)
         {
@@ -723,10 +723,10 @@ public static class SamusAerialMovement
     private static bool IsForwardHeld(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput) =>
+        SnesButton controllerInput) =>
         samus.PoseMetadata.IsFacingLeft(bus)
-            ? (controllerInput & (ushort)SnesButton.Left) != 0
-            : (controllerInput & (ushort)SnesButton.Right) != 0;
+            ? (controllerInput & SnesButton.Left) != 0
+            : (controllerInput & SnesButton.Right) != 0;
 
     /// <summary>
     /// Ports `$90:9D35`'s block and solid-enemy wall probes, including enemy-shake publication.
@@ -735,8 +735,8 @@ public static class SamusAerialMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
+        SnesButton controllerInput,
+        SnesButton controllerNewInput,
         RoomPlmSystem? plms)
     {
         // $90:9D35 rejects before either enemy or terrain observation. Probing
@@ -744,8 +744,8 @@ public static class SamusAerialMovement
         if (!samus.PoseHistory.AllowsWallJumpProbe)
             return default;
 
-        bool heldLeft = (controllerInput & (ushort)SnesButton.Left) != 0;
-        bool heldRight = (controllerInput & (ushort)SnesButton.Right) != 0;
+        bool heldLeft = (controllerInput & SnesButton.Left) != 0;
+        bool heldRight = (controllerInput & SnesButton.Right) != 0;
         if (!heldLeft && !heldRight)
             return default;
 
@@ -772,7 +772,7 @@ public static class SamusAerialMovement
             return new WallJumpCheckResult(Triggered: false, Contact: true, Distance: distance);
         }
 
-        bool jumpNew = (controllerNewInput & (ushort)SnesButton.A) != 0;
+        bool jumpNew = (controllerNewInput & SnesButton.A) != 0;
         bool triggered = jumpNew && distance < 8;
         if (triggered)
         {
@@ -801,7 +801,7 @@ public static class SamusAerialMovement
     private static bool TryRestartSpaceJump(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerNewInput)
+        SnesButton controllerNewInput)
     {
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump) ||
             samus.Kinematics.YDirection != SamusVerticalDirection.Down)
@@ -824,7 +824,7 @@ public static class SamusAerialMovement
         bool atOrAboveMinimum = unchecked((short)(fallingVelocity8_8 - minimumVelocity)) >= 0;
         bool belowMaximum = unchecked((short)(fallingVelocity8_8 - 1280)) < 0;
         if (!atOrAboveMinimum || !belowMaximum ||
-            (controllerNewInput & (ushort)SnesButton.A) == 0)
+            (controllerNewInput & SnesButton.A) == 0)
         {
             return false;
         }

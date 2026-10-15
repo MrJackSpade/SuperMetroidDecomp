@@ -169,15 +169,15 @@ internal sealed class PauseMenuState
     /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
     /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
-    public bool Step(ushort delayedHeldInput, ushort newlyPressedInput, ushort? heldInput = null, byte nmiFrameCounter8 = 0)
+    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, byte nmiFrameCounter8 = 0)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(nmiFrameCounter8);
         if (ScreenMode == 0 && transition == PauseMenuTransition.None)
             MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, mapScrollPosition));
-        SnesButton delayedPressed = (SnesButton)delayedHeldInput;
-        SnesButton newlyPressed = (SnesButton)newlyPressedInput;
+        SnesButton delayedPressed = delayedHeldInput;
+        SnesButton newlyPressed = newlyPressedInput;
         if (transition != PauseMenuTransition.None)
         {
             StepPageTransition();

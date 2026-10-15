@@ -26,7 +26,7 @@ internal static class XrayWindowGeometryVerification
             AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "geometry fixture enters native X-ray posture");
             for (int frame = 0; frame < 330; frame++)
             {
-                ushort input = (ushort)(SnesButton.B | (frame < 90 ? 0 : frame < 170 ? SnesButton.Up : SnesButton.Down));
+                SnesButton input = (SnesButton.B | (frame < 90 ? 0 : frame < 170 ? SnesButton.Up : SnesButton.Down));
                 samus.Xray.StepBeam(bus, samus, input);
                 VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
             }

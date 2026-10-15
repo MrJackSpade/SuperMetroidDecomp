@@ -33,7 +33,7 @@ public static class SamusHurtFlashPalette
         ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         SamusHurtColorCatalog? presentationColors = null)
     {
         Ensure.NotNull(bus);
@@ -119,13 +119,13 @@ public static class SamusHurtFlashPalette
     /// <param name="samus">Owner of the resume-charging flag, which is cleared whenever nonzero regardless of the held buttons.</param>
     /// <param name="controllerInput">Current held SNES buttons; X must still be held to queue library-one sound $41.</param>
     /// <returns>Whether the nonzero latch caused a resume-charging sound request; this is not confirmation of playback.</returns>
-    public static bool ConsumeResumeChargingBeamSound(SamusState samus, ushort controllerInput)
+    public static bool ConsumeResumeChargingBeamSound(SamusState samus, SnesButton controllerInput)
     {
         Ensure.NotNull(samus);
         if (samus.ResumeChargingBeamSoundFlag == 0)
             return false;
 
-        bool queued = (controllerInput & (ushort)SnesButton.X) != 0;
+        bool queued = (controllerInput & SnesButton.X) != 0;
         if (queued)
         {
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
@@ -142,7 +142,7 @@ public static class SamusHurtFlashPalette
     private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
@@ -157,7 +157,7 @@ public static class SamusHurtFlashPalette
             }
 
             if (samus.ProjectileFlareCounter >= 16 &&
-                (controllerInput & (ushort)SnesButton.X) != 0)
+                (controllerInput & SnesButton.X) != 0)
             {
                 samus.ResumeChargingBeamSoundFlag = 1;
                 return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;

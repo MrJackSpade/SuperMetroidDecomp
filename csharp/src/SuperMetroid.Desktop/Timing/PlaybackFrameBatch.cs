@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 
@@ -14,8 +15,8 @@ internal static class PlaybackFrameBatch
     /// <remarks>Stops before polling when the host gate closes, or after an advance returns no frame; zero requested frames do not poll.</remarks>
     internal static (int CompletedFrames, FrontendFrame? LastFrame) Run(
         int requestedFrames,
-        Func<ushort> readInput,
-        Func<ushort, FrontendFrame?> advanceFrame,
+        Func<SnesButton> readInput,
+        Func<SnesButton, FrontendFrame?> advanceFrame,
         Func<bool>? canAdvance = null)
     {
         Ensure.AtLeastZero(requestedFrames);

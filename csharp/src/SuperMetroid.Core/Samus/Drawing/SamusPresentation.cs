@@ -239,7 +239,7 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Consumes a pose delay byte or native animation command after the frame timer expires.</summary>
-    private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
+    private void HandleAnimationDelay(ISnesAddressSpace bus, SnesButton controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
     {
@@ -264,7 +264,7 @@ internal sealed class SamusPresentation
 
         bool activeDashAnimation = _samus.HorizontalSpeed.HasRunningMomentum &&
             _samus.PoseMetadata.ReadMovementKind(bus) == SamusMovementType.Running &&
-            (controllerInput & (ushort)SnesButton.B) != 0;
+            (controllerInput & SnesButton.B) != 0;
         if (activeDashAnimation)
         {
             // `$90:852C-$8543` intercepts a command byte before the generic command table.

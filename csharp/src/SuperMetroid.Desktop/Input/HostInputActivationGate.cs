@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.Desktop.Input;
 
 /// <summary>
@@ -18,14 +19,14 @@ internal sealed class HostInputActivationGate
     /// <summary>Suppresses subsequent input until every host control has been released.</summary>
     public void SuppressUntilNeutral() => suppressedUntilNeutral = true;
 
-    /// <summary>Returns a safe controller word for the current activation state.</summary>
-    public ushort Filter(ushort input)
+    /// <summary>Returns the buttons safe to deliver in the current activation state.</summary>
+    public SnesButton Filter(SnesButton input)
     {
         if (!suppressedUntilNeutral)
             return input;
 
-        if (input == 0)
+        if (input == SnesButton.None)
             suppressedUntilNeutral = false;
-        return 0;
+        return SnesButton.None;
     }
 }

@@ -853,10 +853,10 @@ internal static class LookupStream5Verification
     /// <summary>Checks map screen button prompts and tile choices against retail definitions.</summary>
     internal static void VerifyLookupStream5MapButtons(SuperMetroidAddressSpace rom)
     {
-        var native = new ushort[4];
+        var native = new SnesButton[4];
         for (int i = 0; i < native.Length; i++)
         {
-            native[i] = ReadVerificationWord(rom, FileSelectMapRomData.ScrollArrows + i * 10 + 6);
+            native[i] = (SnesButton)ReadVerificationWord(rom, FileSelectMapRomData.ScrollArrows + i * 10 + 6);
             AssertEqual(i + 1, (int)ReadVerificationWord(rom, FileSelectMapRomData.ScrollArrows + i * 10 + 8), "Native direction identity");
             AssertEqual(native[i], MapScrollControls.ButtonFor((MapScrollDirection)(i + 1)), "Native directional mask");
             AssertEqual(native[i], MapScrollControls.Buttons[i], "Calculated ordered view");
@@ -873,7 +873,7 @@ internal static class LookupStream5Verification
             ushort startX = stock.Scroll.X, startY = stock.Scroll.Y;
             for (int tick = 1; tick <= 8; tick++)
             {
-                AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : (ushort)0), "Stock sound boundary");
+                AssertEqual(tick == 8, stock.Step(tick == 1 ? native[selected] : SnesButton.None), "Stock sound boundary");
                 int delta = tick >= 4 ? 8 : 0;
                 AssertEqual(unchecked((ushort)(startX + (selected == 0 ? -delta : selected == 1 ? delta : 0))), stock.Scroll.X, "Horizontal pulse");
                 AssertEqual(unchecked((ushort)(startY + (selected == 2 ? -delta : selected == 3 ? delta : 0))), stock.Scroll.Y, "Vertical pulse");
@@ -881,7 +881,7 @@ internal static class LookupStream5Verification
             }
         }
         var priority = new FileSelectMapScroll(rom, map, state, new(240, 128));
-        _ = priority.Step((ushort)(native[0] | native[1] | native[2] | native[3]));
+        _ = priority.Step((native[0] | native[1] | native[2] | native[3]));
         AssertEqual(MapScrollDirection.Left, priority.Direction, "Left takes priority among simultaneous directions");
         Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");
     }

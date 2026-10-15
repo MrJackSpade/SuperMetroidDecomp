@@ -66,8 +66,8 @@ internal static class PauseBackdropsVerification
             int toMap = 2 + PausePageTransitionNativeLength + 1, unpause = toMap + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < unpause + 2; tick++)
             {
-                ushort input = tick == 2 ? (ushort)SnesButton.R : tick == toMap ? (ushort)SnesButton.L :
-                    tick == unpause ? (ushort)SnesButton.Start : (ushort)0;
+                SnesButton input = tick == 2 ? SnesButton.R : tick == toMap ? SnesButton.L :
+                    tick == unpause ? SnesButton.Start : (ushort)0;
                 AssertEqual(native.Step(input, input), pause.Step(input, input), "backdrop migration preserves Start acceptance and page controls");
                 persistentEdit.Step(input, input);
                 // Each area's complete backdrop is compared word-for-word above, and the fade and
@@ -116,7 +116,7 @@ internal static class PauseBackdropsVerification
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
-        glitch.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
+        glitch.Step(0, (SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)12, samus.EquippedBeams, "fixture actually performs native Boots-to-Plasma simultaneous-input glitch");
         byte[] glitchPage = glitch.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
         AssertEqual((ushort)0x0900, BinaryPrimitives.ReadUInt16LittleEndian(glitchPage.AsSpan(0x514)), "fixture retains native VAR overrun beyond ordinary Plasma label");

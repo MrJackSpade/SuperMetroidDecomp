@@ -32,7 +32,7 @@ public static class SamusKnockbackMovement
     public static bool TryStartPendingHitInterruption(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         bool timeIsFrozen,
         RoomLevelData? level = null,
         ushort nmiFrameCounter = 0,
@@ -70,7 +70,7 @@ public static class SamusKnockbackMovement
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    public static bool Start(ISnesAddressSpace bus, SamusState samus, ushort controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
+    public static bool Start(ISnesAddressSpace bus, SamusState samus, SnesButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
@@ -173,8 +173,8 @@ public static class SamusKnockbackMovement
         else
         {
             bool forwardHeld = facingLeft
-                ? (controllerInput & (ushort)SnesButton.Left) != 0
-                : (controllerInput & (ushort)SnesButton.Right) != 0;
+                ? (controllerInput & SnesButton.Left) != 0
+                : (controllerInput & SnesButton.Right) != 0;
             samus.KnockbackDirection = launch.KnockbackXDirection == 0
                 ? forwardHeld ? (ushort)4 : (ushort)1
                 : forwardHeld ? (ushort)5 : (ushort)2;
@@ -315,7 +315,7 @@ public static class SamusKnockbackMovement
         ISnesAddressSpace bus,
         SamusState samus,
         SamusPoseId targetPose,
-        ushort controllerNewInput)
+        SnesButton controllerNewInput)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);

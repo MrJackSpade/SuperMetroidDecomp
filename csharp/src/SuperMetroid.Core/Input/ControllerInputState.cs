@@ -23,26 +23,23 @@ public sealed class ControllerInputState
     /// <summary>Delay loaded after a held-input repeat pulse.</summary>
     public ushort SubsequentRepeatDelay { get; set; }
 
-    /// <summary>Raw controller bits currently down, corresponding to direct page <c>$8B</c>.</summary>
-    public ushort Current { get; private set; }
+    /// <summary>Controller buttons currently down, corresponding to direct page <c>$8B</c>.</summary>
+    public SnesButton Current { get; private set; }
 
     /// <summary>
     /// Rising-edge button bits at direct page <c>$8F</c>. A bit is set for exactly the NMI
     /// where it changes from released to pressed.
     /// </summary>
-    public ushort NewlyPressed { get; private set; }
-
-    /// <summary>Typed rising-edge view of <see cref="NewlyPressed"/>.</summary>
-    public SnesButton NewlyPressedButtons => (SnesButton)NewlyPressed;
+    public SnesButton NewlyPressed { get; private set; }
 
     /// <summary>
     /// Auto-repeat form at direct page <c>$93</c>. The disassembly calls this "fake new";
     /// it begins as <see cref="NewlyPressed"/> and periodically emits all held bits.
     /// </summary>
-    public ushort NewlyPressedWithRepeat { get; private set; }
+    public SnesButton NewlyPressedWithRepeat { get; private set; }
 
-    /// <summary>Prior raw input at direct page <c>$97</c>.</summary>
-    public ushort Previous { get; private set; }
+    /// <summary>Prior controller buttons at direct page <c>$97</c>.</summary>
+    public SnesButton Previous { get; private set; }
 
     /// <summary>Current 16-bit repeat countdown at direct page <c>$9B</c>.</summary>
     public NativeCountdown RepeatTimer { get; private set; }
@@ -52,18 +49,16 @@ public sealed class ControllerInputState
     /// does. Disposing restores the real NMI sample for the demo-cancellation check.
     /// This is deliberately not Latch: recorded edges need not equal held-input changes.
     /// </summary>
-    internal IDisposable UseDemoInput(ushort held, ushort newlyPressed)
+    internal IDisposable UseDemoInput(SnesButton held, SnesButton newlyPressed)
     {
-        ushort validatedHeld = (ushort)SnesButtons.FromRaw(held, "demo controller override");
-        ushort validatedNew = (ushort)SnesButtons.FromRaw(newlyPressed, "demo controller edge override");
         var restore = new DemoInputRestore(this, Current, NewlyPressed);
-        Current = validatedHeld;
-        NewlyPressed = validatedNew;
+        Current = held;
+        NewlyPressed = newlyPressed;
         return restore;
     }
 
     /// <summary>Restores the real NMI controller sample after a scoped demo input override.</summary>
-    private sealed class DemoInputRestore(ControllerInputState owner, ushort held, ushort newlyPressed) : IDisposable
+    private sealed class DemoInputRestore(ControllerInputState owner, SnesButton held, SnesButton newlyPressed) : IDisposable
     {
         /// <summary>Prevents a repeated dispose from replacing a later controller sample.</summary>
         private bool disposed;
@@ -78,18 +73,17 @@ public sealed class ControllerInputState
     }
 
     /// <summary>Latches one completed SNES automatic joypad sample.</summary>
-    public void Latch(ushort rawInput)
+    /// <remarks>Raw words are validated where they enter the game (recordings, replays, hosts), not here.</remarks>
+    public void Latch(SnesButton input)
     {
-        // Host, replay, and frontend words all cross the same boundary. Validate once here;
-        // downstream code may then use the typed views without repeatedly trusting casts.
-        Current = (ushort)SnesButtons.FromRaw(rawInput, "controller-1 latch");
+        Current = input;
 
         // EOR previous followed by AND current is a compact rising-edge detector. Released
         // edges disappear because their bits are absent from Current.
-        NewlyPressed = (ushort)(Current & (Previous ^ Current));
+        NewlyPressed = Current & (Previous ^ Current);
         NewlyPressedWithRepeat = NewlyPressed;
 
-        if (Current != 0 && Current == Previous)
+        if (Current != SnesButton.None && Current == Previous)
         {
             // DEC is 16-bit and wraps. If RepeatTimer is zero, it becomes $FFFF and does
             // not pulse—a detail retained because the retail repeat delays remain zero in

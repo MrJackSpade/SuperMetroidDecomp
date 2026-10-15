@@ -310,7 +310,7 @@ internal static partial class SwapchainTests
         var right = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var silentDisplay = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         long sequence = 0, pcmSamples = 0, nonzero = 0;
-        CapturedFrontendFrame Step(ushort input)
+        CapturedFrontendFrame Step(SnesButton input)
         {
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, ++sequence, 1);
@@ -339,7 +339,7 @@ internal static partial class SwapchainTests
             return actual;
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
-            Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
+            Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Audio fixture failed startup.");
         // Room-local pause slice, matching the portable capture fixture; no traversal.
         foreach (var game in new[] { legacy, captured, headless })
@@ -367,7 +367,7 @@ internal static partial class SwapchainTests
             bool paused = false;
             for (int tick = 0; tick < 160; tick++)
             {
-                var actual = Step(tick is 10 or >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0);
+                var actual = Step(tick is 10 or >= 100 and <= 105 ? SnesButton.Start : SnesButton.None);
                 worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Capture fell back to raster."));
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
@@ -379,13 +379,13 @@ internal static partial class SwapchainTests
             // jump/shoot edges and explicit releases. No room traversal is intended.
             for (int tick = 0; tick < 64; tick++)
             {
-                ushort input = tick switch
+                SnesButton input = tick switch
                 {
-                    < 8 => (ushort)SnesButton.Right,
-                    10 or 12 => (ushort)SnesButton.Left,
-                    >= 16 and < 24 => (ushort)(SnesButton.Left | SnesButton.B),
-                    28 or 30 => (ushort)SnesButton.X,
-                    >= 40 and < 48 => (ushort)SnesButton.Right,
+                    < 8 => SnesButton.Right,
+                    10 or 12 => SnesButton.Left,
+                    >= 16 and < 24 => (SnesButton.Left | SnesButton.B),
+                    28 or 30 => SnesButton.X,
+                    >= 40 and < 48 => SnesButton.Right,
                     _ => 0,
                 };
                 var actual = Step(input);

@@ -125,18 +125,7 @@ public sealed class SuperMetroidSaveRam
             SaveStation: ReadSramWord(slotOffset + SaveRamLayout.SaveStationOffset),
             Area: ReadSramWord(slotOffset + SaveRamLayout.AreaOffset))
         {
-            // The first four words are the immutable D-pad directions. The remaining
-            // seven are laid out by WRAM address rather than by the options-screen row
-            // order: cancel precedes select and aim-down precedes aim-up in the save mirror.
-            ControllerBindings = new ControllerBindings(
-                Shoot: ReadSramWord(slotOffset + SaveRamLayout.ShootButtonOffset),
-                Jump: ReadSramWord(slotOffset + SaveRamLayout.JumpButtonOffset),
-                Dash: ReadSramWord(slotOffset + SaveRamLayout.DashButtonOffset),
-                ItemSelect: ReadSramWord(slotOffset + SaveRamLayout.SelectButtonOffset),
-                ItemCancel: ReadSramWord(slotOffset + SaveRamLayout.CancelButtonOffset),
-                AimUp: ReadSramWord(slotOffset + SaveRamLayout.AimUpButtonOffset),
-                AimDown: ReadSramWord(slotOffset + SaveRamLayout.AimDownButtonOffset))
-                .RequireRetailPermutation(),
+            ControllerBindings = ReadControllerBindings(slotOffset).RequireRetailPermutation(),
             MoonwalkEnabled = ReadSramWord(slotOffset + SaveRamLayout.MoonwalkOffset) != 0,
             DebugFlag = ReadSramWord(slotOffset + SaveRamLayout.DebugFlagOffset),
             NewFileMarker = ReadSramWord(slotOffset + SaveRamLayout.NewFileMarkerOffset),
@@ -146,6 +135,39 @@ public sealed class SuperMetroidSaveRam
             LoadedItemCount = ReadSramWord(slotOffset + SaveRamLayout.LoadedItemCountOffset),
         };
     }
+
+    /// <summary>
+    /// A slot's seven configurable bindings. They follow the four immutable D-pad words and are laid out by WRAM
+    /// address rather than by the options-screen row order: cancel precedes select and aim-down precedes aim-up.
+    /// The words are taken unchecked so <see cref="ControllerBindings.RequireRetailPermutation"/> reports a corrupt
+    /// permutation verbatim.
+    /// </summary>
+    [ControllerWordBoundary("SRAM stores each binding as its controller word")]
+    private ControllerBindings ReadControllerBindings(int slotOffset) => new(
+        Shoot: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.ShootButtonOffset),
+        Jump: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.JumpButtonOffset),
+        Dash: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.DashButtonOffset),
+        ItemSelect: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.SelectButtonOffset),
+        ItemCancel: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.CancelButtonOffset),
+        AimUp: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.AimUpButtonOffset),
+        AimDown: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.AimDownButtonOffset));
+
+    /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
+    [ControllerWordBoundary("SRAM stores the button configuration as controller words")]
+    private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
+    [
+        (ushort)SnesButton.Up,
+        (ushort)SnesButton.Down,
+        (ushort)SnesButton.Left,
+        (ushort)SnesButton.Right,
+        (ushort)bindings.Shoot,
+        (ushort)bindings.Jump,
+        (ushort)bindings.Dash,
+        (ushort)bindings.ItemCancel,
+        (ushort)bindings.ItemSelect,
+        (ushort)bindings.AimDown,
+        (ushort)bindings.AimUp,
+    ];
 
     /// <summary>
     /// Ports <c>SaveToSRAM</c> for the translated state currently owned by C# objects.
@@ -166,20 +188,7 @@ public sealed class SuperMetroidSaveRam
         // Later saves copy the live configurable action words, so do not silently restore
         // defaults every time the player reaches a save station.
         ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
-        ushort[] buttons =
-        [
-            (ushort)SnesButton.Up,
-            (ushort)SnesButton.Down,
-            (ushort)SnesButton.Left,
-            (ushort)SnesButton.Right,
-            bindings.Shoot,
-            bindings.Jump,
-            bindings.Dash,
-            bindings.ItemCancel,
-            bindings.ItemSelect,
-            bindings.AimDown,
-            bindings.AimUp,
-        ];
+        ushort[] buttons = ButtonConfigurationWords(bindings);
         for (int index = 0; index < buttons.Length; index++)
             WriteWord(payload, SaveRamLayout.ButtonConfigOffset + index * 2, buttons[index]);
 

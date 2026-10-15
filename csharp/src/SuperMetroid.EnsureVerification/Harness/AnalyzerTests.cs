@@ -350,6 +350,22 @@ internal static class AnalyzerTests
         Expect(domain + " class C { ushort slot; void A(Mode m) => slot = (ushort)m; void B(ushort timer) => slot = timer; bool T() => slot == 3; }");
         // A conversion consumed immediately as an index or arithmetic is a boundary expression.
         Expect(domain + " class C { int[] table = new int[3]; int M(Mode m) { int index = (int)m; return table[index] + index; } }");
+
+        // SME6284: the assembly declaring SnesButton (Core) converts it to or from raw words only inside a declared boundary.
+        const string buttons = "namespace SuperMetroid.Core.Input { [System.Flags] public enum SnesButton : ushort { None = 0, A = 0x0080 } " +
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class ControllerWordBoundaryAttribute(string reason) : System.Attribute " +
+            "{ public string Reason { get; } = reason; } } ";
+        void ExpectCore(string source, string? id = null, string? message = null) =>
+            Expect(buttons + source, id, message);
+        ExpectCore("class C { ushort M(SuperMetroid.Core.Input.SnesButton b) => (ushort)b; }",
+            PrimitiveDomainAnalyzer.ControllerWordConversionId, "converts controller buttons to a raw word");
+        ExpectCore("class C { SuperMetroid.Core.Input.SnesButton M(ushort w) => (SuperMetroid.Core.Input.SnesButton)w; }",
+            PrimitiveDomainAnalyzer.ControllerWordConversionId, "converts controller buttons from a raw word");
+        ExpectCore("class C { [SuperMetroid.Core.Input.ControllerWordBoundary(\"codec\")] ushort M(SuperMetroid.Core.Input.SnesButton b) => (ushort)b; }");
+        ExpectCore("[SuperMetroid.Core.Input.ControllerWordBoundary(\"codec\")] class C { ushort M(SuperMetroid.Core.Input.SnesButton b) => (ushort)b; }");
+        ExpectCore("class C { SuperMetroid.Core.Input.SnesButton M() => 0; }");
+        // Hosts, tools and tests use Core's SnesButton from metadata and convert at their own boundaries.
+        Expect("class C { ushort M(SuperMetroid.Core.Input.SnesButton b) => (ushort)b; }");
     }
 
     /// <summary>Loads trusted platform assemblies plus Core so each isolated snippet has the same type boundary.</summary>

@@ -78,9 +78,9 @@ internal static class GrappleFlarePlacementVerification
             Compare();
             for (int tick = 0; tick < 10; tick++)
             {
-                SamusGrappleMovement.StepFiring(nativeBus, empty, native, (ushort)SnesButton.X);
-                SamusGrappleMovement.StepFiring(guarded, empty, selected, (ushort)SnesButton.X);
-                SamusGrappleMovement.StepFiring(guarded, empty, changed, (ushort)SnesButton.X);
+                SamusGrappleMovement.StepFiring(nativeBus, empty, native, SnesButton.X);
+                SamusGrappleMovement.StepFiring(guarded, empty, selected, SnesButton.X);
+                SamusGrappleMovement.StepFiring(guarded, empty, changed, SnesButton.X);
                 Compare();
             }
             var expectedConnection = connect(nativeBus, native, native.Grapple, new(512, 512), true, false);

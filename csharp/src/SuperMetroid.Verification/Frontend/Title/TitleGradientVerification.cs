@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -251,8 +252,8 @@ internal static class TitleGradientVerification
         }
         var nativeSkip = CreateTitlePresentationFixture(bus);
         var installedSkip = CreateTitlePresentationFixture(bus, titlePalettePresentation: presentation);
-        nativeSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
-        installedSkip.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        nativeSkip.Step(SnesButton.Start);
+        installedSkip.Step(SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
         {
             nativeSkip.Step(0);
@@ -483,7 +484,7 @@ internal static class TitleGradientVerification
     {
         var title = CreateTitlePresentationFixture(bus, titleGradientPresentation: presentation,
             titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
-        title.Step((ushort)SuperMetroid.Core.Input.SnesButton.Start);
+        title.Step(SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)
         {
             title.Step(0);

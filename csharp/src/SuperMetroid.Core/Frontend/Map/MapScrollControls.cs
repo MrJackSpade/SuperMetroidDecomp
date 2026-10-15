@@ -33,12 +33,12 @@ internal static class MapScrollControls
     /// $81:AF38/AF42/AF4C/AF56 associate each arrow's direction with its matching
     /// controller direction. Drawing position and animation fields are separate.
     /// </summary>
-    public static ushort ButtonFor(MapScrollDirection direction) => (ushort)(direction switch
+    public static SnesButton ButtonFor(MapScrollDirection direction) => direction switch
     {
         MapScrollDirection.Left => SnesButton.Left,
         MapScrollDirection.Right => SnesButton.Right,
         MapScrollDirection.Up => SnesButton.Up,
         MapScrollDirection.Down => SnesButton.Down,
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
-    });
+    };
 }

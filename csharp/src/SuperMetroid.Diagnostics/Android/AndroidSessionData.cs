@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -91,7 +92,7 @@ internal sealed class AndroidSessionData : IDisposable
     public long Generation { get; private set; } = 1;
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
-    public void Record(ushort input) => recorder.RecordFrame(input);
+    public void Record(SnesButton input) => recorder.RecordFrame(input);
     /// <summary>Atomically writes the live SRAM through the installed map save format.</summary>
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
     /// <summary>Flushes accepted input frames after a worker failure.</summary>

@@ -62,7 +62,7 @@ internal static class EnemyProgramAnimation
             static (cue, _) => throw new InvalidOperationException($"A cue-free program published {cue}."));
 
     /// <summary>
-    /// Like <see cref="Run"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program
+    /// Like <see cref="Run{TProgram, TFrame, TCue}"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the program
     /// continues at, as a native return to a saved instruction pointer does, or null to run on.
     /// </summary>
     internal static void RunTo<TProgram, TFrame, TCue>(

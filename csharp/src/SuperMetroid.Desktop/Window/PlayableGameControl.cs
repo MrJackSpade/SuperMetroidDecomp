@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
@@ -310,7 +311,7 @@ public sealed class PlayableGameControl : UserControl
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
         // Execute reset once so the first visible debugger frame is state one's native setup.
-        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? (ushort)0 : null)
+        FrontendFrame resetFrame = AdvanceOneFrame(forcedInput: replay is null ? SnesButton.None : null)
             ?? throw new InvalidDataException("Replay contains no reset frame.");
         RefreshFrame(resetFrame);
         ResetFrameTimings();
@@ -506,7 +507,7 @@ public sealed class PlayableGameControl : UserControl
     private bool CanAdvanceAudioFrame() => audioDevice is null || audioDevice.CanAcceptFrame;
 
     /// <summary>Advances one accepted frontend frame and refreshes its display if available.</summary>
-    internal void StepFrame(ushort? forcedInput = null)
+    internal void StepFrame(SnesButton? forcedInput = null)
     {
         FrontendFrame? frame = AdvanceOneFrame(forcedInput);
         if (frame is not null)
@@ -517,10 +518,10 @@ public sealed class PlayableGameControl : UserControl
     /// Selects exactly one live or replay word, records it before execution, and advances
     /// the translated dispatcher. Null means exhausted replay or deferred audio capacity, never input zero.
     /// </summary>
-    private FrontendFrame? AdvanceOneFrame(ushort? forcedInput = null)
+    private FrontendFrame? AdvanceOneFrame(SnesButton? forcedInput = null)
     {
         if (!CanAdvanceAudioFrame()) return null;
-        ushort input;
+        SnesButton input;
         if (replay is not null)
         {
             if (replayFrameIndex >= replay.ControllerInputs.Length)
@@ -528,7 +529,7 @@ public sealed class PlayableGameControl : UserControl
                 SetPlaying(playing: false);
                 return null;
             }
-            input = replay.ControllerInputs[replayFrameIndex++];
+            input = replay.InputAt(replayFrameIndex++);
         }
         else
         {
@@ -793,12 +794,12 @@ public sealed class PlayableGameControl : UserControl
         KnownRoomNames.TryGetValue(roomPointer, out string? name) ? name : "Room";
 
     /// <summary>Merges keyboard and gamepad into one filtered cartridge-format input word.</summary>
-    private ushort BuildControllerWord()
+    private SnesButton BuildControllerWord()
     {
         // Keyboard and gamepad are two host producers for the same physical SNES port.
         // Merge them before recording so replay sees one exact cartridge-format word and
         // never depends on which Windows device generated a particular held bit.
-        ushort input = keyboard.BuildControllerWord(gamepad.Poll());
+        SnesButton input = keyboard.BuildControllerWord(gamepad.Poll());
         return inputActivation.Filter(input);
     }
 

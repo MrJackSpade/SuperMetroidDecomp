@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleFiringDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
@@ -187,7 +188,7 @@ internal static class GrappleConnectionDefinitionsVerification
     /// <summary>Checks firing cancellation and directional drop pose choices against native policy bytes for reachable poses and radius boundaries.</summary>
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
-        var cancel = new Func<ISnesAddressSpace, RoomLevelData, SamusState, ushort, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
+        var cancel = new Func<ISnesAddressSpace, RoomLevelData, SamusState, SnesButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
         var drop = (ISnesAddressSpace memory, SamusState player) => (byte)SamusGrappleMovement.SelectDroppedPose(memory, player);
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable

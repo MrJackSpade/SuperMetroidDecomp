@@ -96,7 +96,7 @@ internal static class NoobTubePlmVerification
         };
         SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
-            (ushort)SnesButton.X, plms);
+            SnesButton.X, plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");
         AssertEqual(0x8000, plms.PopulationSlots.Single().LoopTimer,
@@ -152,7 +152,7 @@ internal static class NoobTubePlmVerification
         AssertTrue(armed.Animation is NoobTubePlmAnimation { Program: NoobTubeProgram.WaitForInput, Link: NoobTubeProgram.Break },
             "power bomb wakes the input wait, linked to the break");
 
-        StepNoobTube(plms, guarded, level, streamer, (ushort)SnesButton.Right);
+        StepNoobTube(plms, guarded, level, streamer, SnesButton.Right);
         AssertTrue(samus.InputLocked, "break sequence locks Samus");
         AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked, "break sequence installs stationary command-zero animation ownership");
         var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
@@ -363,7 +363,7 @@ internal static class NoobTubePlmVerification
         ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
-        ushort controllerNewInput = 0) =>
+        SnesButton controllerNewInput = SnesButton.None) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = controllerNewInput });
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>

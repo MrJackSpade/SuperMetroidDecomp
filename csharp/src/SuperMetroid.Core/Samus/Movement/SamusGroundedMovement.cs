@@ -75,7 +75,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort controllerInput,
+        SnesButton controllerInput,
         RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);
@@ -122,7 +122,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort controllerInput,
+        SnesButton controllerInput,
         RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);
@@ -159,10 +159,10 @@ public static class SamusGroundedMovement
     }
 
     /// <summary>Restarts neutral standing's shot pose on held Shoot even when no projectile was admitted; angled poses keep their own animation.</summary>
-    private static void ResetStandingShotAnimation(SamusState samus, ushort controllerInput)
+    private static void ResetStandingShotAnimation(SamusState samus, SnesButton controllerInput)
     {
         if (samus.Pose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose &&
-            (controllerInput & (ushort)SnesButton.X) != 0)
+            (controllerInput & SnesButton.X) != 0)
             samus.Presentation.SetAnimationFrameFromSpecialHandler(0, SamusMovementRomData.StandingShotAnimationTimer);
     }
 
@@ -175,7 +175,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort controllerInput = 0,
+        SnesButton controllerInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);
@@ -236,7 +236,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        ushort controllerInput = 0,
+        SnesButton controllerInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);

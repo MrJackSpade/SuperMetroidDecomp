@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -68,7 +69,7 @@ public sealed class DoorTransitionState
     public void Step(
         SuperMetroidRuntime runtime,
         CartridgeAudioState audio,
-        ushort controllerInput,
+        SnesButton controllerInput,
         IDoorLoaderProgressSource loaderProgress,
         Action? publishSoundWaitAudio = null)
     {

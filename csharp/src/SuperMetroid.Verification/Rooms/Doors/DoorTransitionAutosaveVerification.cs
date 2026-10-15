@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Reflection;
 using System.IO.Compression;
 using SuperMetroid.Core.Frontend;
@@ -90,7 +91,7 @@ internal static class DoorTransitionAutosaveVerification
             var actualPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
             for (int frame = 0; frame < 6; frame++)
             {
-                ushort input = frame < 3 ? (ushort)0x0200 : (ushort)0;
+                SnesButton input = frame < 3 ? SnesButton.Left : SnesButton.None;
                 game.Step(input);
                 game.CopyAudioFrame(expectedPcm);
                 loaded.Game.Step(input);

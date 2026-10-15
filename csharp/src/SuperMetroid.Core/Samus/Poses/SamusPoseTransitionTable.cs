@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>
@@ -13,7 +14,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 public static class SamusPoseTransitionTable
 {
     /// <summary>Held Start and Select bits excluded from the native pose-table input match.</summary>
-    private const ushort StartAndSelectMask = (ushort)(SuperMetroid.Core.Input.SnesButton.Start | SuperMetroid.Core.Input.SnesButton.Select);
+    private const SnesButton StartAndSelectMask = SnesButton.Start | SnesButton.Select;
 
     /// <summary>
     /// Runs the complete native lookup and preserves whether failure enters
@@ -31,8 +32,8 @@ public static class SamusPoseTransitionTable
     public static SamusPoseTransitionLookup Lookup(
         ISnesAddressSpace bus,
         SamusPoseId currentPose,
-        ushort canonicalHeldInput,
-        ushort canonicalNewInput)
+        SnesButton canonicalHeldInput,
+        SnesButton canonicalNewInput)
     {
         Ensure.NotNull(bus);
 
@@ -43,8 +44,8 @@ public static class SamusPoseTransitionTable
 
         // Start and Select never participate in pose chords. $91:81F4 initializes its two
         // complement masks from only bits $0F00, then adds canonical action bits explicitly.
-        ushort held = (ushort)(canonicalHeldInput & ~StartAndSelectMask);
-        ushort newlyPressed = (ushort)(canonicalNewInput & ~StartAndSelectMask);
+        SnesButton held = canonicalHeldInput & ~StartAndSelectMask;
+        SnesButton newlyPressed = canonicalNewInput & ~StartAndSelectMask;
 
         if (!SamusPoseInputDefinitions.TryGetPointer(currentPose, out SamusPoseInputList tablePointer))
         {

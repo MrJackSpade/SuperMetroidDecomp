@@ -43,7 +43,7 @@ internal static class KraidReportedCollisionsVerification
             bool spawned = false;
             for (int frame = 0; frame < 24; frame++)
             {
-                game.Step(frame == 0 ? (ushort)SnesButton.X : (ushort)0);
+                game.Step(frame == 0 ? SnesButton.X : (ushort)0);
                 foreach (var shot in runtime.Projectiles.Slots.Where(p => p.IsActive))
                 {
                     spawned = true;

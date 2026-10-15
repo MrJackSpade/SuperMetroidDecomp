@@ -60,7 +60,7 @@ internal static class SpacetimeBeamVerification
         var selection = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
-        selection.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
+        selection.Step(0, (SnesButton.Left | SnesButton.A));
         AssertEqual((ushort)0x100e, samus.EquippedBeams,
             "same-frame Boots Left+A creates the SpaceTime beam word");
 
@@ -105,7 +105,7 @@ internal static class SpacetimeBeamVerification
         system.WritePersistentMirror(bus);
         FillProgressionPadding(bus, 0xa5);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
-        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Bus = gameplayBus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), shared);
+        SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Bus = gameplayBus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
         AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
         AssertTrue(!held.PersistentMemoryCorrupted,
@@ -263,22 +263,22 @@ internal static class SpacetimeBeamVerification
         static void ConfirmSelectedSave(SuperMetroidGame game)
         {
             FrontendFrame frame = game.Step(0);
-            frame = game.Step((ushort)SnesButton.Start);
+            frame = game.Step(SnesButton.Start);
             Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen),
                 () => frame = game.Step(0), 150, "SpaceTime title setup");
-            frame = game.Step((ushort)SnesButton.Start);
+            frame = game.Step(SnesButton.Start);
             Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus,
                 () => frame = game.Step(0), 150, "SpaceTime file menu");
             // Native entry dispatches and fade-in end on the 35th update.
             Until(() => frame.Phase == nameof(FileSelectPhase.Main),
                 () => frame = game.Step(0), 40, "SpaceTime file menu interactive");
-            frame = game.Step((ushort)SnesButton.A);
+            frame = game.Step(SnesButton.A);
             Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu,
                 () => frame = game.Step(0), 200, "SpaceTime options menu");
             // Options indexes zero and one, fifteen fade-in levels, then the interactive index.
             for (int frameIndex = 0; frameIndex < 18; frameIndex++)
                 frame = game.Step(0);
-            game.Step((ushort)SnesButton.A);
+            game.Step(SnesButton.A);
         }
 
         var cinematicGame = CreateGame(skipOpening: false);

@@ -113,7 +113,7 @@ public static class SamusMorphBallMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -130,7 +130,7 @@ public static class SamusMorphBallMovement
         }
 
         bool directionHeld = (controllerInput &
-            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+            (SnesButton.Left | SnesButton.Right)) != 0;
         if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == 0)
         {
             // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
@@ -152,7 +152,7 @@ public static class SamusMorphBallMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms,
         SamusMovementType movementType)
@@ -161,7 +161,7 @@ public static class SamusMorphBallMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool directionHeld = (controllerInput &
-            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+            (SnesButton.Left | SnesButton.Right)) != 0;
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
         SamusHorizontalDisplacement requestedHorizontal;
@@ -221,7 +221,7 @@ public static class SamusMorphBallMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -248,7 +248,7 @@ public static class SamusMorphBallMovement
         // while rising cancels the remaining magnitude; signed underflow at the apex takes
         // the same branch even if Jump is still held.
         if (samus.Kinematics.YDirection == SamusVerticalDirection.Up &&
-            (((controllerInput & (ushort)SnesButton.A) == 0) ||
+            (((controllerInput & SnesButton.A) == 0) ||
              unchecked((short)samus.Kinematics.YSpeed) < 0))
         {
             samus.Kinematics.YSubspeed = 0;
@@ -261,7 +261,7 @@ public static class SamusMorphBallMovement
                 bus,
                 movementType: SamusMovementType.SpringBallInAir);
         bool directionHeld = (controllerInput &
-            ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
+            (SnesButton.Left | SnesButton.Right)) != 0;
         int requestedHorizontal;
         // Null when native skips MoveSamus_Horizontally entirely ($90:902B): no probe runs.
         SamusCollisionDirection? collisionDirection = null;

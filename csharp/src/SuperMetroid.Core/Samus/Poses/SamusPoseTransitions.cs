@@ -81,7 +81,7 @@ internal sealed class SamusPoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
-        ushort controllerNewInput,
+        SnesButton controllerNewInput,
         RoomPlmSystem? plms = null)
     {
         Ensure.NotNull(bus);
@@ -146,7 +146,7 @@ internal sealed class SamusPoseTransitions
 
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.
-        if ((controllerNewInput & (ushort)SnesButton.X) != 0)
+        if ((controllerNewInput & SnesButton.X) != 0)
             _samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | _samus.PoseMetadata.ReadShotDirection(bus)));
 
         _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
@@ -632,7 +632,7 @@ internal sealed class SamusPoseTransitions
     public void ApplyOrdinaryJumpTransition(
         ISnesAddressSpace bus,
         SamusPoseId targetPose,
-        ushort controllerNewInput = 0)
+        SnesButton controllerNewInput = SnesButton.None)
     {
         Ensure.NotNull(bus);
         bool verified =
@@ -703,7 +703,7 @@ internal sealed class SamusPoseTransitions
         SamusAerialMovement.InitializeJump(bus, _samus);
 
         if (_samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & (ushort)SnesButton.X) != 0)
+            (controllerNewInput & SnesButton.X) != 0)
         {
             // `$91:F5CF-$F5E6` runs only in the normal-jumping initializer. It reads the
             // newly installed pose's direction byte and adds `$8000`; spin-jump's separate
@@ -729,7 +729,7 @@ internal sealed class SamusPoseTransitions
     internal bool InitializeInstalledNormalJumpPose(
         ISnesAddressSpace bus,
         SamusMovementType previousMovementType,
-        ushort controllerNewInput)
+        SnesButton controllerNewInput)
     {
         if (TryBeginShinesparkWindup(bus, _samus.Pose, previousMovementType))
             return true;
@@ -739,10 +739,10 @@ internal sealed class SamusPoseTransitions
     }
 
     /// <summary>Publishes $91:F5CF-F5E6 after an accepted normal-jump pose initializer.</summary>
-    internal void PublishNormalJumpPoseShotDirection(ISnesAddressSpace bus, ushort controllerNewInput)
+    internal void PublishNormalJumpPoseShotDirection(ISnesAddressSpace bus, SnesButton controllerNewInput)
     {
         if (_samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.NormalJumping &&
-            (controllerNewInput & (ushort)SnesButton.X) != 0)
+            (controllerNewInput & SnesButton.X) != 0)
             _samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | _samus.PoseMetadata.ReadShotDirection(bus)));
     }
     /// <summary>
@@ -1286,7 +1286,7 @@ internal sealed class SamusPoseTransitions
     /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
     /// direction through `$91:F9C2` and may replace it with `$8B-$8E/$9C/$9D`.
     /// </summary>
-    public void ApplyGroundedTurn(ISnesAddressSpace bus, SamusPoseId targetPose, ushort controllerInput = 0)
+    public void ApplyGroundedTurn(ISnesAddressSpace bus, SamusPoseId targetPose, SnesButton controllerInput = SnesButton.None)
     {
         Ensure.NotNull(bus);
 
@@ -1338,7 +1338,7 @@ internal sealed class SamusPoseTransitions
         // F8F9 checks held Jump, not a fresh press. Releasing Shoot from a buffered
         // Moonwalk selects a generic turn in the input table, then reaches this same
         // turn/jump initializer without a new Jump edge.
-        if (wasMoonwalking && (controllerInput & (ushort)SnesButton.A) != 0)
+        if (wasMoonwalking && (controllerInput & SnesButton.A) != 0)
         {
             ApplyMoonwalkTurnJump(bus, turnsLeft
                 ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose);
@@ -2011,13 +2011,13 @@ internal sealed class SamusPoseTransitions
     /// low bounce byte advances through two rebounds while high byte `$0600` records the
     /// native Spring Ball bounce family.
     /// </summary>
-    public bool ApplySpringBallLanding(ISnesAddressSpace bus, ushort controllerInput)
+    public bool ApplySpringBallLanding(ISnesAddressSpace bus, SnesButton controllerInput)
     {
         Ensure.NotNull(bus);
         if (!SamusPoseMetadata.IsAirborneSpringBallPose(_samus.Pose) && !SamusPoseMetadata.IsGroundedSpringBallPose(_samus.Pose))
             throw new InvalidOperationException($"Spring-Ball landing requires pose $7D-$80, not ${(int)_samus.Pose:X2}.");
 
-        if ((controllerInput & (ushort)SnesButton.A) != 0)
+        if ((controllerInput & SnesButton.A) != 0)
         {
             _samus.MorphBallBounceState = SamusBallBounceState.None;
             SamusAerialMovement.InitializeJump(bus, _samus);
@@ -2214,7 +2214,7 @@ internal sealed class SamusPoseTransitions
     public void ApplyAerialLanding(
         ISnesAddressSpace bus,
         bool wasSpinning,
-        ushort controllerInput = 0)
+        SnesButton controllerInput = SnesButton.None)
     {
         Ensure.NotNull(bus);
         SamusPoseId sourcePose = _samus.Pose;
@@ -2246,7 +2246,7 @@ internal sealed class SamusPoseTransitions
         ISnesAddressSpace bus,
         RoomLevelData level,
         bool wasSpinning,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
@@ -2307,7 +2307,7 @@ internal sealed class SamusPoseTransitions
     private SamusPoseId SelectAerialLandingPose(
         ISnesAddressSpace bus,
         bool wasSpinning,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
         byte direction = _samus.PoseMetadata.ReadPoseXDirection(bus);
         bool facingLeft = direction == 4;
@@ -2323,7 +2323,7 @@ internal sealed class SamusPoseTransitions
         // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
         // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
         // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
-        bool shotHeld = (controllerInput & (ushort)SnesButton.X) != 0;
+        bool shotHeld = (controllerInput & SnesButton.X) != 0;
         return _samus.PoseMetadata.ReadShotDirection(bus) switch
         {
             0 => SamusPoseId.LandingAimUpRightPose,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Tourian;
@@ -1002,7 +1003,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RoomEnemySlot slot,
         RoomLevelData? level = null,
         SamusState? samus = null,
-        ushort controllerInput = 0,
+        SnesButton controllerInput = SnesButton.None,
         ushort cameraX = 0)
     {
         int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer));
@@ -1026,7 +1027,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     /// <summary>Lets the population loader invoke the slot's compiled initialization handler.</summary>
     void IEnemyDispatch.RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level, SamusState? samus,
-        ushort controllerInput, ushort cameraX) =>
+        SnesButton controllerInput, ushort cameraX) =>
         RunInitializationAi(slot, level, samus, controllerInput, cameraX);
 
     /// <summary>Routes a scheduled enemy update through its banked main AI handler.</summary>

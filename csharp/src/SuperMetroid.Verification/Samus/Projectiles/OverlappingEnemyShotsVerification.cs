@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -24,7 +25,7 @@ internal static class OverlappingEnemyShotsVerification
         enemies.BindFixtureBus(bus);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
-        Action<RoomEnemySlot, SamusState, ushort> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        Action<RoomEnemySlot, SamusState, SnesButton> initialize = enemies.BeetomBehavior.InitializeBeetom;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
         {

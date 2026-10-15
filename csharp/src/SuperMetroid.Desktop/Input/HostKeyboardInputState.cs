@@ -60,8 +60,8 @@ internal sealed class HostKeyboardInputState
     /// <summary>Releases all event-owned keys after a host focus or session discontinuity.</summary>
     public void Clear() => heldKeys.Clear();
 
-    /// <summary>Merges the keyboard producer into an already-polled gamepad word.</summary>
-    public ushort BuildControllerWord(SnesButton gamepadInput)
+    /// <summary>Merges the keyboard producer into an already-polled gamepad sample.</summary>
+    public SnesButton BuildControllerWord(SnesButton gamepadInput)
     {
         SnesButton input = gamepadInput;
         if (heldKeys.Contains(Keys.Left)) input |= SnesButton.Left;
@@ -79,7 +79,7 @@ internal sealed class HostKeyboardInputState
         if (heldKeys.Contains(Keys.W)) input |= SnesButton.R;
         if (heldKeys.Contains(Keys.Enter)) input |= SnesButton.Start;
         if (heldKeys.Contains(Keys.ShiftKey)) input |= SnesButton.Select;
-        return (ushort)input;
+        return input;
     }
 
     /// <summary>Limits message interception to the keys mapped to SNES controls.</summary>

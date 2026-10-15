@@ -38,7 +38,7 @@ internal static class RetailFrontendTests
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: retail title {title.Phase}, tick {tick}");
                 titleCount++;
-                title.Step(title.Phase == TitleSequencePhase.TitleScreen ? (ushort)SnesButton.Start : (ushort)0);
+                title.Step(title.Phase == TitleSequencePhase.TitleScreen ? SnesButton.Start : (ushort)0);
             }
             else title.Step(0);
         }
@@ -50,7 +50,7 @@ internal static class RetailFrontendTests
         var states = new HashSet<SuperMetroidGameState>();
         for (int tick = 0; tick < 500; tick++)
         {
-            ushort input = tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.Start : SnesButton.None;
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, tick + 1, 2);
             if (expected.GameState != actual.Frame.GameState || expected.Phase != actual.Frame.Phase ||

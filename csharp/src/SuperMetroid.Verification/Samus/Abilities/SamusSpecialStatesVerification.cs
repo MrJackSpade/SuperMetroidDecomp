@@ -104,7 +104,7 @@ internal static void VerifySamusCrystalFlash()
         SuperMetroid.AssetExtraction.Samus.CrystalFlashColorExtractor.Extract(bus)));
     var beamPalettes = BeamPaletteCatalog.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Samus.BeamPaletteExtractor.Extract(bus)));
-    const ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+    const SnesButton chord = (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
@@ -122,7 +122,7 @@ internal static void VerifySamusCrystalFlash()
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
     samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-    AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | (ushort)SnesButton.A),
+    AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | SnesButton.A),
         "Crystal Flash rejects extra held input");
     AssertEqual(96, samus.InvincibilityTimer.RawValue, "rejected Crystal Flash preserves hit immunity");
     samus.Kinematics.YSubspeed = 1;
@@ -451,22 +451,22 @@ internal static void VerifySamusXray()
     // Eight instruction-list setup functions execute before the main bank-$88 preinstruction.
     // The eighth call clears SetupStage; the next call changes X-ray state zero to one.
     for (int stage = 1; stage <= 8; stage++)
-        standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+        standing.Xray.StepBeam(bus, standing, SnesButton.B);
     AssertEqual(XraySetupStage.Complete, standing.Xray.SetupStage, "eight X-ray setup stages complete");
     AssertEqual(XrayBeamPhase.NoBeam, standing.Xray.BeamPhase, "setup retains state zero");
-    standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+    standing.Xray.StepBeam(bus, standing, SnesButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase, "state zero starts widening");
 
     // Fixed-point acceleration reaches 10.F800 after 26 widening calls and would cross
     // eleven on call 27; native clamps the whole width to ten, clears its fraction, and
     // advances to full-beam state two on that exact call.
     for (int frame = 1; frame <= 26; frame++)
-        standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+        standing.Xray.StepBeam(bus, standing, SnesButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase,
         "X-ray remains widening through call 26");
     AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
     AssertEqual(0xf800, standing.Xray.AngularSubwidth, "call 26 fractional width");
-    standing.Xray.StepBeam(bus, standing, (ushort)SnesButton.B);
+    standing.Xray.StepBeam(bus, standing, SnesButton.B);
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
     AssertEqual(10, standing.Xray.AngularWidth, "full beam clamps width ten");
     AssertEqual(0, standing.Xray.AngularSubwidth, "full beam clears width fraction");
@@ -507,10 +507,10 @@ internal static void VerifySamusXray()
     standing.Xray.StepBeam(
         bus,
         standing,
-        (ushort)(SnesButton.B | SnesButton.Up | SnesButton.Down));
+        (SnesButton.B | SnesButton.Up | SnesButton.Down));
     AssertEqual(0x3f, standing.Xray.Angle.TableIndex, "X-ray Up wins over Down");
     for (int frame = 0; frame < 80; frame++)
-        standing.Xray.StepBeam(bus, standing, (ushort)(SnesButton.B | SnesButton.Up));
+        standing.Xray.StepBeam(bus, standing, (SnesButton.B | SnesButton.Up));
     AssertEqual(10, standing.Xray.Angle.TableIndex, "right X-ray upper clamp includes width");
     AssertEqual(0, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "upper-clamped angle selects looking-up art");
@@ -526,7 +526,7 @@ internal static void VerifySamusXray()
     standing.Xray.HandlePoseInput(
         bus,
         standing,
-        (ushort)SnesButton.Left);
+        SnesButton.Left);
     AssertTrue(standing.Pose != xrayPoseBeforeTurn, "X-ray starts standing turn");
     AssertEqual(xrayPoseBeforeTurn, standing.PoseHistory.LastDifferentPose, "X-ray turn shifts previous pose");
     AssertEqual(8, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray turn shifts previous metadata");
@@ -588,7 +588,7 @@ internal static void VerifySamusXray()
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched X-ray radius");
-    crouched.Xray.HandlePoseInput(bus, crouched, (ushort)SnesButton.Left);
+    crouched.Xray.HandlePoseInput(bus, crouched, SnesButton.Left);
     AssertEqual(SamusPoseId.TurningRightToLeftCrouchingPose, crouched.Pose, "crouched X-ray turn pose");
     AssertEqual(16, crouched.Kinematics.Radius.Y, "crouched turn retains radius");
     for (int stage = 1; stage <= 8; stage++)
@@ -641,7 +641,7 @@ internal static void VerifySamusXray()
         "interrupted X-Mode retains normal Samus handler ownership");
     AssertEqual(XraySetupStage.FreezeTimeBackupBg2Registers, interrupted.Xray.SetupStage,
         "interrupted X-Mode retains first HDMA setup stage");
-    interrupted.Xray.StepBeam(bus, interrupted, (ushort)SnesButton.B);
+    interrupted.Xray.StepBeam(bus, interrupted, SnesButton.B);
     AssertEqual(XraySetupStage.ReadBg1SecondScreen, interrupted.Xray.SetupStage,
         "interrupted X-Mode continues the independent beam setup program");
 

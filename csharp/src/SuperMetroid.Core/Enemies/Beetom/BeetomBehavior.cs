@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Beetom.Artwork;
 using SuperMetroid.Core.Fx;
@@ -78,7 +79,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
     internal readonly BeetomEnemyState?[] _beetomStates = new BeetomEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
-    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, ushort controllerInput)
+    internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, SnesButton controllerInput)
     {
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
@@ -120,7 +121,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         BeetomEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        ushort controllerInput)
+        SnesButton controllerInput)
     {
         switch (state.Function)
         {
@@ -423,7 +424,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         BeetomEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        ushort controllerInput,
+        SnesButton controllerInput,
         bool left)
     {
         if (!state.ButtonCounter.IsZero)

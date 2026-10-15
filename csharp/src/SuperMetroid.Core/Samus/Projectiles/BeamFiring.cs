@@ -82,12 +82,12 @@ internal sealed class BeamFiring
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerInput,
-        ushort controllerNewInput,
+        SnesButton controllerInput,
+        SnesButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
         RoomPlmSystem? roomPlms)
     {
-        const ushort shoot = (ushort)SnesButton.X;
+        const SnesButton shoot = SnesButton.X;
         _charge.PreviousBeamChargeCounter = _charge.FlareCounter;
 
         // `$90:B80D` gives the Hyper flag priority over Charge equipment. It still uses
@@ -238,12 +238,12 @@ internal sealed class BeamFiring
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort controllerNewInput,
+        SnesButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
         RoomPlmSystem? roomPlms,
         bool charged)
     {
-        const ushort shoot = (ushort)SnesButton.X;
+        const SnesButton shoot = SnesButton.X;
 
         // `$90:B823/$90:B986` converge on this allocation gate for every ordinary and
         // charged beam combination. Without Charge Beam, callers attempt a shot every held
@@ -431,11 +431,11 @@ internal sealed class BeamFiring
     internal (int? Slot, ushort Sound) TryFireMissile(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort controllerNewInput,
-        ushort controllerPreviousNewInput,
+        SnesButton controllerNewInput,
+        SnesButton controllerPreviousNewInput,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        const ushort shoot = (ushort)SnesButton.X;
+        const SnesButton shoot = SnesButton.X;
 
         // `$90:BE65-$BE72` accepts either the current new-press word or the previous filtered
         // drawing word. Live gameplay retains that edge through the next alpha, allowing

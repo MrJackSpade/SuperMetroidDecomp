@@ -46,12 +46,12 @@ internal static class HostAudioAcknowledgementTests
             int moves = 0;
             for (int tick = 0; tick < 2000 && moves < FileSelectCursorMoves; tick++)
             {
-                ushort input = 0;
+                SnesButton input = 0;
                 if (reference.GameState != SuperMetroidGameState.FileSelectMenus)
-                    input = tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0;
+                    input = tick % 47 == 0 ? SnesButton.Start : SnesButton.None;
                 else if (tick % 20 == 0)
                 {
-                    input = (ushort)SnesButton.Down;
+                    input = SnesButton.Down;
                     moves++;
                 }
                 control.StepFrame(input);

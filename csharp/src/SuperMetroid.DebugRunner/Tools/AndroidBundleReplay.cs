@@ -72,7 +72,7 @@ internal static class AndroidBundleReplay
             using var audioHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
             {
-                var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1);
+                var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1);
                 var pixels = frame.Snapshot is { } snapshot
                     ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
                 game.CopyAudioFrame(samples);

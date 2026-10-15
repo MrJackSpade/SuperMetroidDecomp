@@ -36,7 +36,7 @@ internal static class JumpNoXMovementVerification
         samus.HorizontalSpeed.AccelerationMode = 0;
 
         SamusAerialMovement.StepNormalJump(bus, runtime.Room.LoadedLevelData, samus,
-            (ushort)(SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
+            (SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");
         Console.WriteLine("Jump without X movement: Samus_Jumping_Movement skips the horizontal mover and its slope alignment.");

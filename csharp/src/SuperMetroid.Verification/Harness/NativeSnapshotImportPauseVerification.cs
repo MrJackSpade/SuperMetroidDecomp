@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -41,8 +42,8 @@ internal static class NativeSnapshotImportPauseVerification
 
         runtime.System.TimedHeldInputTimer = NativeCountdown.FromRaw(W(PauseMemory.TimedHeldTimer));
         runtime.System.TimedHeldInputTimerReset = W(PauseMemory.TimedHeldReset);
-        runtime.System.TimedHeldInput = W(PauseMemory.TimedHeldInput);
-        runtime.System.NewlyTimedHeldInput = W(PauseMemory.TimedHeldNew);
-        runtime.System.TimedHeldInputPrevious = W(PauseMemory.TimedHeldPrevious);
+        runtime.System.TimedHeldInput = (SnesButton)W(PauseMemory.TimedHeldInput);
+        runtime.System.NewlyTimedHeldInput = (SnesButton)W(PauseMemory.TimedHeldNew);
+        runtime.System.TimedHeldInputPrevious = (SnesButton)W(PauseMemory.TimedHeldPrevious);
     }
 }

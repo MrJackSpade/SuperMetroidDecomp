@@ -179,7 +179,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public void HandleExtraRunSpeed(
         SamusMovementType movementType,
-        ushort controllerInput,
+        SnesButton controllerInput,
         bool speedBoosterEquipped,
         bool liquidImpeded = false)
     {
@@ -189,7 +189,7 @@ public sealed class SamusHorizontalSpeedState
         // without momentum, both words are cleared. This is not a multiplier or hard reset.
         bool activelyDashing = !liquidImpeded &&
             movementType == SamusMovementType.Running &&
-            SnesButtons.FromRaw(controllerInput, "extra run-speed input").HasAny(dashButton);
+            controllerInput.HasAny(dashButton);
         if (!activelyDashing)
         {
             // `$90:9808` clears the extra pair only before momentum has been established.
@@ -275,7 +275,7 @@ public sealed class SamusHorizontalSpeedState
     public bool TryAdvanceSpeedBoosterAnimationStage(
         ISnesAddressSpace bus,
         SamusMovementType movementType,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort animationFrameBuffer,
         ref ushort animationFrame,
         out ushort animationFrameTimer,
@@ -284,7 +284,7 @@ public sealed class SamusHorizontalSpeedState
         Ensure.NotNull(bus);
         animationFrameTimer = 0;
         const SnesButton dashButton = SnesButton.B;
-        SnesButton heldButtons = SnesButtons.FromRaw(controllerInput, "speed-boost animation input");
+        SnesButton heldButtons = controllerInput;
         if (!HasRunningMomentum || movementType != SamusMovementType.Running || !heldButtons.HasAny(dashButton))
             return false;
 

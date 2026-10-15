@@ -71,7 +71,7 @@ internal static class ReserveModeVerification
         AssertTrue(reserve.CrystalFlash.TryBegin(
                 bus,
                 reserve,
-                (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X)),
+                (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X)),
             "Crystal Flash admits under Reserve Mode");
         AssertTrue(reserve.Xray.IsReserveMode,
             "Crystal Flash retains Reserve Mode HDMA ownership");

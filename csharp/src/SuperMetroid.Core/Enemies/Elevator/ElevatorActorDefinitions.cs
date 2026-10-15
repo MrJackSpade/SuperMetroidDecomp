@@ -12,10 +12,10 @@ public static class ElevatorActorDefinitions
     /// $A3:94E2, ElevatorInputMaskTable: newly pressed inputs that begin downward
     /// and upward elevator travel, indexed by the actor's doubled parameter one.
     /// </summary>
-    internal static ushort RequiredDirectionInput(ushort tableByteOffset) => tableByteOffset switch
+    internal static SnesButton RequiredDirectionInput(ushort tableByteOffset) => tableByteOffset switch
     {
-        0 => (ushort)SnesButton.Down,
-        2 => (ushort)SnesButton.Up,
+        0 => SnesButton.Down,
+        2 => SnesButton.Up,
         _ => throw new InvalidDataException(
             $"Elevator direction offset ${tableByteOffset:X4} is outside the two native input masks."),
     };

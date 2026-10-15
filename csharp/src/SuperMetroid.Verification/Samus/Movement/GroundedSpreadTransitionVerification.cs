@@ -58,17 +58,17 @@ internal static class GroundedSpreadTransitionVerification
         samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 120; frame++)
         {
-            ushort input = runtime.Options.ControllerBindings.Shoot;
-            if (frame is >= 70 and < 110 and not 75) input |= (ushort)SnesButton.Down;
+            SnesButton input = runtime.Options.ControllerBindings.Shoot;
+            if (frame is >= 70 and < 110 and not 75) input |= SnesButton.Down;
             if (frame == 100)
             {
                 if (scenario != 3) input |= runtime.Options.ControllerBindings.Jump;
-                if (scenario == 1) input &= unchecked((ushort)~SnesButton.Down);
-                if (scenario == 2) input &= unchecked((ushort)~runtime.Options.ControllerBindings.Shoot);
+                if (scenario == 1) input &= ~SnesButton.Down;
+                if (scenario == 2) input &= ~runtime.Options.ControllerBindings.Shoot;
             }
             runtime.StepFrame(input);
             if (trace is not null)
-                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X4},{(int)samus.Pose:X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
+                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X},{(int)samus.Pose:X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
             AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)

@@ -49,7 +49,7 @@ internal static class SimulationProfile
         using var publicationProfile = new RenderPublicationProfile();
         long sequence = 0;
         long nonzeroPcmSamples = 0;
-        (double Capture, double Audio, double Total, long Allocation, double Publication, long PublicationAllocation) Step(ushort input)
+        (double Capture, double Audio, double Total, long Allocation, double Publication, long PublicationAllocation) Step(SnesButton input)
         {
             publicationProfile.Reset();
             long allocationStart = GC.GetAllocatedBytesForCurrentThread();
@@ -68,14 +68,14 @@ internal static class SimulationProfile
                 publicationProfile.Ticks * 1000.0 / Stopwatch.Frequency, publicationProfile.AllocatedBytes);
         }
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
-            Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
+            Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
         if (game.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Profile failed startup.");
         game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
         game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
         Step(0);
         if (paused)
         {
-            Step((ushort)SnesButton.Start);
+            Step(SnesButton.Start);
             for (int tick = 0; tick < 120 && !IsPaused(game); tick++) Step(0);
             if (!IsPaused(game)) throw new InvalidOperationException("Profile did not reach pause menu.");
         }

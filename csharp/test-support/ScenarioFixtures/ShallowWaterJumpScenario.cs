@@ -56,7 +56,7 @@ internal sealed class ShallowWaterJumpScenario
         uint apex = Samus.Kinematics.Position.Y.RawValue;
         for (int frame = 0; frame < JumpFrameCount; frame++)
         {
-            Runtime.StepFrame((ushort)SnesButton.A, new RuntimeFrameRequest());
+            Runtime.StepFrame(SnesButton.A, new RuntimeFrameRequest());
             apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
             rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }

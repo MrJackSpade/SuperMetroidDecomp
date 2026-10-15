@@ -115,7 +115,7 @@ internal sealed class NmiHandler
     /// Equivalent of WRAM's NMI request flag. False models a lag NMI: it skips transfers,
     /// input, and accepted-frame counters but still advances the all-NMI counter.
     /// </param>
-    public void RunNmi(ushort controller1Input, bool mainLoopRequestedNmi)
+    public void RunNmi(SnesButton controller1Input, bool mainLoopRequestedNmi)
     {
         if (mainLoopRequestedNmi)
         {

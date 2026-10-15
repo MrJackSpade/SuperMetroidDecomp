@@ -35,7 +35,7 @@ internal static class GateBeamCollisionVerification
         for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
-        ushort input = (ushort)SnesButton.X;
+        SnesButton input = SnesButton.X;
         bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
         shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
         var shot = shots.Slots[0];

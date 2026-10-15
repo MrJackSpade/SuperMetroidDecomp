@@ -54,7 +54,7 @@ internal static class KraidSuperMissileDamageVerification
         ushort oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
         {
-            var result=game.Step(frame is 0 or 24 ? (ushort)SnesButton.X : (ushort)0);
+            var result=game.Step(frame is 0 or 24 ? SnesButton.X : (ushort)0);
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} mouth={state.InvulnerableMouthHitbox:X4}");

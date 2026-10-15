@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -16,7 +17,7 @@ namespace SuperMetroid.Core.Enemies;
 internal readonly record struct EnemyTouchContext(
     RoomEnemySlot Slot,
     SamusState Samus,
-    ushort ControllerInput,
+    SnesButton ControllerInput,
     RoomLevelData? Level,
     bool UsesExtendedHitboxes,
     EnemyInteractionCallback? HitboxTouchAi,

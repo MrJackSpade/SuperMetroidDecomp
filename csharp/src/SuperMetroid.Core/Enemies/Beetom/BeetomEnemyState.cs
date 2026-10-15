@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Beetom;
@@ -48,7 +49,12 @@ public sealed class BeetomEnemyState
     /// <summary>Native variable E: remaining controller-word changes needed to escape attachment, reset to $40 by the initial touch.</summary>
     public NativeCountdown ButtonCounter { get => NativeCountdown.FromRaw(_slot.VariableE); internal set => _slot.VariableE = value.RawValue; }
     /// <summary>Native variable F: input word last observed by initialization or the attached counter; any differing word, including releases, decrements <see cref="ButtonCounter"/>.</summary>
-    public ushort PreviousController1Input { get => _slot.VariableF; internal set => _slot.VariableF = value; }
+    [ControllerWordBoundary("the native routine keeps the last controller word in enemy variable F")]
+    public SnesButton PreviousController1Input
+    {
+        get => (SnesButton)_slot.VariableF;
+        internal set => _slot.VariableF = (ushort)value;
+    }
     /// <summary>Where the typed animation (#641) resumes. Setup installs it in place of the native $7E:7800,x list pointer, which nothing reads back; installation also resets the common instruction timer and loop counter.</summary>
     internal AnimationProgramCursor<BeetomProgram> Program { get; set; }
     /// <summary>Native $7E:7804,x short-hop starting record index, calculated using unaligned quadratic-table words until the $3000 height accumulator target is reached in steps of four.</summary>

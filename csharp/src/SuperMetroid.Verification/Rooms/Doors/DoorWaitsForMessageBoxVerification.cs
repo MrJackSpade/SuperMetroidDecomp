@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Rooms;
@@ -51,7 +52,7 @@ internal static class DoorWaitsForMessageBoxVerification
         {
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "the box keeps every frame until it closes");
             // Any held button acknowledges the station notice once its ten-frame wait ends.
-            game.Step((ushort)SuperMetroid.Core.Input.SnesButton.X);
+            game.Step(SnesButton.X);
             if (++frames > 200)
                 throw new InvalidOperationException("The station notice did not close.");
         }

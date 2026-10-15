@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Samus.Poses.CanonicalPoseButtons;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputDefinitions;
 using static SuperMetroid.Core.Samus.Poses.SamusPoseInputList;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseInputRulesLate
 {
     /// <summary>Dispatches the later bank-$91 pose tables in cartridge order, separating held chords from new presses.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) => pointer switch
+    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, SnesButton held, SnesButton newlyPressed) => pointer switch
     {
         SpringBallGroundRightPoseList => MatchSpringBallGroundRightPoseList(held, newlyPressed),
         SpringBallGroundLeftPoseList => MatchSpringBallGroundLeftPoseList(held, newlyPressed),
@@ -57,7 +58,7 @@ internal static class SamusPoseInputRulesLate
     };
 
     /// <summary>$91:A90C TransitionTable_79_7B_FacingRight_MorphBall_Spring_OnGround: native priority order.</summary>
-    private static SamusPoseInputMatch MatchSpringBallGroundRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchSpringBallGroundRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionRightPose);
@@ -71,7 +72,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A926 TransitionTable_7A_7C_FacingLeft_MorphBall_Spring_OnGround: native priority order.</summary>
-    private static SamusPoseInputMatch MatchSpringBallGroundLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchSpringBallGroundLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
@@ -85,7 +86,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A940 TransitionTable_7D_FacingRight_MorphBall_SpringBall_Falling: native priority order.</summary>
-    private static SamusPoseInputMatch MatchSpringBallFallingRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchSpringBallFallingRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionRightPose);
@@ -97,7 +98,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A954 TransitionTable_7E_FacingLeft_MorphBall_SpringBall_Falling: native priority order.</summary>
-    private static SamusPoseInputMatch MatchSpringBallFallingLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchSpringBallFallingLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
@@ -109,7 +110,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A968 TransitionTable_7F_FacingRight_MorphBall_SpringBall_InAir: native priority order.</summary>
-    private static SamusPoseInputMatch MatchSpringBallJumpRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchSpringBallJumpRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionRightPose);
@@ -121,7 +122,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A97C TransitionTable_80_FacingLeft_MorphBall_SpringBall_InAir: native priority order.</summary>
-    private static SamusPoseInputMatch MatchSpringBallJumpLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchSpringBallJumpLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnmorphingTransitionLeftPose);
@@ -133,7 +134,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A990 UNUSED_TransitionTable_63_91A990: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose63List(ushort held)
+    private static SamusPoseInputMatch MatchUnusedPose63List(SnesButton held)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.UnusedPose66);
@@ -141,7 +142,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A998 UNUSED_TransitionTable_64_91A998: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose64List(ushort held)
+    private static SamusPoseInputMatch MatchUnusedPose64List(SnesButton held)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.UnusedPose65);
@@ -149,7 +150,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A9A0 UNUSED_TransitionTable_65_91A9A0: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose65List(ushort held)
+    private static SamusPoseInputMatch MatchUnusedPose65List(SnesButton held)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.UnusedPose65);
@@ -167,7 +168,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A9C6 UNUSED_TransitionTable_66_91A9C6: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPose66List(ushort held)
+    private static SamusPoseInputMatch MatchUnusedPose66List(SnesButton held)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.UnusedPose66);
@@ -185,7 +186,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:A9EC TransitionTable_83_FacingRight_WallJump: native priority order.</summary>
-    private static SamusPoseInputMatch MatchWallJumpRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchWallJumpRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionRightPose);
@@ -203,7 +204,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AA12 TransitionTable_84_FacingLeft_WallJump: native priority order.</summary>
-    private static SamusPoseInputMatch MatchWallJumpLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchWallJumpLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionLeftPose);
@@ -221,7 +222,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AA38 TransitionTable_89_CF_D1_FacingRight_RanIntoAWall: native priority order.</summary>
-    private static SamusPoseInputMatch MatchRanIntoWallRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchRanIntoWallRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.NeutralJumpTransitionRightPose);
@@ -249,7 +250,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AA7C TransitionTable_8A_D0_D2_FacingLeft_RanIntoAWall: native priority order.</summary>
-    private static SamusPoseInputMatch MatchRanIntoWallLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchRanIntoWallLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump))
             return Accept(SamusPoseId.NeutralJumpTransitionLeftPose);
@@ -277,7 +278,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AAC0 TransitionTable_13_FaceRight_NormalJump_NotMoving_GunExtend: native priority order.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpGunExtendedRightPoseList(ushort held)
+    private static SamusPoseInputMatch MatchNormalJumpGunExtendedRightPoseList(SnesButton held)
     {
         if (Has(held, Jump | Right | Up))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpRightPose);
@@ -323,7 +324,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AB3A TransitionTable_14_FacingLeft_NormalJump_NotMoving_GunExtend: native priority order.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpGunExtendedLeftPoseList(ushort held)
+    private static SamusPoseInputMatch MatchNormalJumpGunExtendedLeftPoseList(SnesButton held)
     {
         if (Has(held, Jump | Left | Up))
             return Accept(SamusPoseId.NormalJumpAimDiagonalUpLeftPose);
@@ -369,7 +370,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:ABB4 TransitionTable_17_FacingRight_NormalJump_AimingDown: native priority order.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpAimDownRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchNormalJumpAimDownRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionRightPose);
@@ -421,7 +422,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AC40 TransitionTable_18_FacingLeft_NormalJump_AimingDown: native priority order.</summary>
-    private static SamusPoseInputMatch MatchNormalJumpAimDownLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchNormalJumpAimDownLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionLeftPose);
@@ -473,7 +474,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:ACCC TransitionTable_3D_FacingRight_Unmorphing: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnmorphingTransitionRightPoseList(ushort held)
+    private static SamusPoseInputMatch MatchUnmorphingTransitionRightPoseList(SnesButton held)
     {
         if (Has(held, Shoot | Right))
             return Accept(SamusPoseId.FallingGunExtendedRightPose);
@@ -485,7 +486,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:ACE0 TransitionTable_3E_FacingLeft_Unmorphing: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnmorphingTransitionLeftPoseList(ushort held)
+    private static SamusPoseInputMatch MatchUnmorphingTransitionLeftPoseList(SnesButton held)
     {
         if (Has(held, Shoot | Left))
             return Accept(SamusPoseId.FallingGunExtendedLeftPose);
@@ -497,7 +498,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:ACF4 TransitionTable_25_FacingRight_Turning_Standing: native priority order.</summary>
-    private static SamusPoseInputMatch MatchTurningRightToLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchTurningRightToLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.SpinJumpLeftPose);
@@ -509,7 +510,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD08 TransitionTable_26_FacingLeft_Turning_Standing: native priority order.</summary>
-    private static SamusPoseInputMatch MatchTurningLeftToRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchTurningLeftToRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.SpinJumpRightPose);
@@ -521,7 +522,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD1C TransitionTable_8B_FacingRight_Turning_Standing_AimingUp: native priority order.</summary>
-    private static SamusPoseInputMatch MatchTurningRightToLeftAimUpPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchTurningRightToLeftAimUpPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
             return Accept(SamusPoseId.SpinJumpLeftPose);
@@ -533,7 +534,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD30 TransitionTable_8C_FacingLeft_Turning_Standing_AimingUp: native priority order.</summary>
-    private static SamusPoseInputMatch MatchTurningLeftToRightAimUpPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchTurningLeftToRightAimUpPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
             return Accept(SamusPoseId.SpinJumpRightPose);
@@ -545,7 +546,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD44 TransitionTable_8D_FacingRight_Turning_Standing_AimDownRight: native priority order.</summary>
-    private static SamusPoseInputMatch MatchTurningRightToLeftAimDiagonalDownPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchTurningRightToLeftAimDiagonalDownPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
             return Accept(SamusPoseId.SpinJumpLeftPose);
@@ -557,7 +558,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD58 TransitionTable_8E_FacingLeft_Turning_Standing_AimDownLeft: native priority order.</summary>
-    private static SamusPoseInputMatch MatchTurningLeftToRightAimDiagonalDownPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchTurningLeftToRightAimDiagonalDownPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
             return Accept(SamusPoseId.SpinJumpRightPose);
@@ -569,7 +570,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD6C TransitionTable_C7_FacingRight_VerticalShinesparkWindup: native priority order.</summary>
-    private static SamusPoseInputMatch MatchShinesparkWindupRightPoseList(ushort held)
+    private static SamusPoseInputMatch MatchShinesparkWindupRightPoseList(SnesButton held)
     {
         if (Has(held, Jump | Up))
             return Accept(SamusPoseId.ShinesparkVerticalRightPose);
@@ -581,7 +582,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD80 TransitionTable_C8_FacingLeft_VerticalShinesparkWindup: native priority order.</summary>
-    private static SamusPoseInputMatch MatchShinesparkWindupLeftPoseList(ushort held)
+    private static SamusPoseInputMatch MatchShinesparkWindupLeftPoseList(SnesButton held)
     {
         if (Has(held, Jump | Up))
             return Accept(SamusPoseId.ShinesparkVerticalLeftPose);
@@ -593,7 +594,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AD94 TransitionTable_2D_FacingRight_Falling_AimingDown: native priority order.</summary>
-    private static SamusPoseInputMatch MatchFallingAimDownRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchFallingAimDownRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionRightPose);
@@ -619,7 +620,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:ADD2 TransitionTable_2E_FacingLeft_Falling_AimingDown: native priority order.</summary>
-    private static SamusPoseInputMatch MatchFallingAimDownLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchFallingAimDownLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.MorphingTransitionLeftPose);
@@ -645,7 +646,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AE10 UNUSED_TransitionTable_DF_91AE10: native priority order.</summary>
-    private static SamusPoseInputMatch MatchUnusedPoseDfList(ushort newlyPressed)
+    private static SamusPoseInputMatch MatchUnusedPoseDfList(SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Up))
             return Accept(SamusPoseId.UnusedPoseDe);
@@ -653,7 +654,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AE18 TransitionTable_BA_BB_BC_BD_BE_FacingLeft_GrabbedByDraygon: native priority order.</summary>
-    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralLeftPoseList(ushort held)
+    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralLeftPoseList(SnesButton held)
     {
         if (Has(held, Shoot | Left | Up))
             return Accept(SamusPoseId.DraygonGrabbedAimUpLeftPose);
@@ -679,7 +680,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AE56 TransitionTable_EC_ED_EE_EF_F0_FacingRight_GrabbedByDraygon: native priority order.</summary>
-    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralRightPoseList(ushort held)
+    private static SamusPoseInputMatch MatchDraygonGrabbedNeutralRightPoseList(SnesButton held)
     {
         if (Has(held, Shoot | Right | Up))
             return Accept(SamusPoseId.DraygonGrabbedAimUpRightPose);
@@ -705,7 +706,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AE94 TransitionTable_0B_MovingRight_GunExtended: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMovingRightGunExtendedPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMovingRightGunExtendedPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionRightPose);
@@ -735,7 +736,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AEDE TransitionTable_0C_MovingLeft_GunExtended: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMovingLeftGunExtendedPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMovingLeftGunExtendedPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Down))
             return Accept(SamusPoseId.CrouchingTransitionLeftPose);
@@ -765,7 +766,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AF28 TransitionTable_67_FacingRight_Falling_GunExtended: native priority order.</summary>
-    private static SamusPoseInputMatch MatchFallingGunExtendedRightPoseList(ushort held)
+    private static SamusPoseInputMatch MatchFallingGunExtendedRightPoseList(SnesButton held)
     {
         if (Has(held, Right | Up))
             return Accept(SamusPoseId.FallingAimDiagonalUpRightPose);
@@ -789,7 +790,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AF60 TransitionTable_68_FacingLeft_Falling_GunExtended: native priority order.</summary>
-    private static SamusPoseInputMatch MatchFallingGunExtendedLeftPoseList(ushort held)
+    private static SamusPoseInputMatch MatchFallingGunExtendedLeftPoseList(SnesButton held)
     {
         if (Has(held, Left | Up))
             return Accept(SamusPoseId.FallingAimDiagonalUpLeftPose);
@@ -813,7 +814,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AF98 TransitionTable_BF_FacingRight_Moonwalking_TurnJumpLeft: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMoonwalkTurnJumpLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(held, Jump | Left))
             return Accept(SamusPoseId.SpinJumpLeftPose);
@@ -825,7 +826,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AFAC TransitionTable_C0_FacingLeft_Moonwalking_TurnJumpRight: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMoonwalkTurnJumpRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(held, Jump | Right))
             return Accept(SamusPoseId.SpinJumpRightPose);
@@ -837,7 +838,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AFC0 TransitionTable_C1_FaceRight_Moonwalk_TurnJumpLeft_AimUpRight: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimUpLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimUpLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
             return Accept(SamusPoseId.SpinJumpLeftPose);
@@ -849,7 +850,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AFD4 TransitionTable_C2_FaceLeft_Moonwalk_TurnJumpRight_AimUpLeft: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimUpRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimUpRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
             return Accept(SamusPoseId.SpinJumpRightPose);
@@ -861,7 +862,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AFE8 TransitionTable_C3_FaceRight_Moonwalk_TurnJumpLeft_AimDownRight: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimDownLeftPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimDownLeftPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Left))
             return Accept(SamusPoseId.SpinJumpLeftPose);
@@ -873,7 +874,7 @@ internal static class SamusPoseInputRulesLate
     }
 
     /// <summary>$91:AFFC TransitionTable_C4_FaceLeft_Moonwalk_TurnJumpRight_AimDownLeft: native priority order.</summary>
-    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimDownRightPoseList(ushort held, ushort newlyPressed)
+    private static SamusPoseInputMatch MatchMoonwalkTurnJumpAimDownRightPoseList(SnesButton held, SnesButton newlyPressed)
     {
         if (Has(newlyPressed, Jump) && Has(held, Right))
             return Accept(SamusPoseId.SpinJumpRightPose);

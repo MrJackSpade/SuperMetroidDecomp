@@ -67,17 +67,17 @@ internal static class FrontendRomFreeVerification
         for (int frame = 0; frame < 3500; frame++)
         {
             FrontendFrame before = installed.CurrentFrameMetadata;
-            ushort input = 0;
+            SnesButton input = 0;
             if (before.GameState == SuperMetroidGameState.OpeningCinematic &&
                 before.Phase == nameof(TitleSequencePhase.TitleScreen) && !titleStartSent)
             {
-                input = (ushort)SnesButton.Start;
+                input = SnesButton.Start;
                 titleStartSent = true;
             }
             else if (before.GameState == SuperMetroidGameState.FileSelectMenus &&
                      before.Phase == nameof(FileSelectPhase.Main) && !fileSelectStartSent)
             {
-                input = (ushort)SnesButton.Start;
+                input = SnesButton.Start;
                 fileSelectStartSent = true;
             }
 
@@ -244,8 +244,8 @@ internal static class FrontendRomFreeVerification
             FrontendFrame before = installed.CurrentFrameMetadata;
             // Advance the narrator at a repeatable cadence; the original short
             // fixture ended before its first bank-$93 projectile animation frame.
-            ushort input = !startSent ? (ushort)SnesButton.Start :
-                frame % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
+            SnesButton input = !startSent ? SnesButton.Start :
+                frame % 47 == 0 ? SnesButton.A : (ushort)0;
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
@@ -466,10 +466,10 @@ internal static class FrontendRomFreeVerification
         int verifiedFrames = 0;
         for (int frame = 0; frame < 400; frame++)
         {
-            ushort input = frame < 24 ? (ushort)SnesButton.Right :
-                frame == 25 ? (ushort)SnesButton.X :
-                frame is >= 40 and < 60 ? (ushort)(SnesButton.A | SnesButton.Left) :
-                frame >= 60 ? (ushort)(SnesButton.Right | SnesButton.X) : (ushort)0;
+            SnesButton input = frame < 24 ? SnesButton.Right :
+                frame == 25 ? SnesButton.X :
+                frame is >= 40 and < 60 ? (SnesButton.A | SnesButton.Left) :
+                frame >= 60 ? (SnesButton.Right | SnesButton.X) : (ushort)0;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
             AssertEqual(expected.GameState, actual.GameState,
@@ -531,7 +531,7 @@ internal static class FrontendRomFreeVerification
     /// initialization and neutral-frame presentation, not incoming doors or travel.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    internal static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, ushort heldInput = 0)
+    internal static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, SnesButton heldInput = SnesButton.None)
     {
         native.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(
             room.RoomPointer);

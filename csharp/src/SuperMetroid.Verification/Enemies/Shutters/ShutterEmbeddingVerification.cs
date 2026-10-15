@@ -45,7 +45,7 @@ internal static class ShutterEmbeddingVerification
             bool carried = false;
             for (int frame = 0; frame < 220; frame++)
             {
-                ushort input = frame < stopAt ? (ushort)direction : (ushort)0;
+                SnesButton input = frame < stopAt ? direction : SnesButton.None;
                 if (frame == bombAt || frame == bombAt + 20) input |= runtime.Options.ControllerBindings.Shoot;
                 runtime.StepFrame(input);
                 activated |= (runtime.Enemies.VerticalShutterStates[slot] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.VerticalShutterStates[slot].")).Function == VerticalShutterFunction.MovingUp;

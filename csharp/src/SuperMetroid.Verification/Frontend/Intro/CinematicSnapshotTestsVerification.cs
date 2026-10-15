@@ -95,12 +95,12 @@ internal static class CinematicSnapshotTestsVerification
                 Rgba32[] expected = menu.Render();
                 LayeredRenderSnapshot snapshot = menu.CaptureRenderSnapshot();
                 Compare(expected, snapshot, tick);
-                ushort input = 0;
+                SnesButton input = 0;
                 if (menu.Phase == GameOverMenuPhase.Main)
                 {
-                    if (chooseNo && !toggled) { input = (ushort)SnesButton.Down; toggled = true; }
+                    if (chooseNo && !toggled) { input = SnesButton.Down; toggled = true; }
                     else if (!released) released = true;
-                    else input = (ushort)SnesButton.A;
+                    else input = SnesButton.A;
                 }
                 menu.Step(input);
                 audio.AdvanceFrame(default);
@@ -152,7 +152,7 @@ internal static class CinematicSnapshotTestsVerification
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;
             }
-            ushort input = tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.A : (ushort)0;
             legacy.Step(input);
             legacyAudio.AdvanceFrame(default);
             captured.Step(input);

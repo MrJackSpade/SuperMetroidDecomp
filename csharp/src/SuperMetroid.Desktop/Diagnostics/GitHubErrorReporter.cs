@@ -252,7 +252,8 @@ public sealed class GitHubErrorReporter : IDisposable
             body.Append("- Game state: ").AppendLine(context.GameState);
         if (context.Phase is not null)
             body.Append("- Phase: ").AppendLine(context.Phase);
-        AppendHexContext(body, "Controller input", context.ControllerInput);
+        // The report shows the controller word as the journal records it.
+        AppendHexContext(body, "Controller input", (ushort?)context.ControllerInput);
         AppendBankContext(body, "Room", ReportedPointerBank.RoomHeaders, context.RoomPointer);
         AppendBankContext(body, "Room state", ReportedPointerBank.RoomHeaders, context.RoomStatePointer);
         AppendBankContext(body, "Door", ReportedPointerBank.DoorHeaders, context.DoorPointer);

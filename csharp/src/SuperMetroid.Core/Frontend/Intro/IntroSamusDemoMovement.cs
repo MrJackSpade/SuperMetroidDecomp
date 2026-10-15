@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -21,8 +22,8 @@ internal static class IntroSamusDemoMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort heldInput,
-        ushort newlyPressedInput,
+        SnesButton heldInput,
+        SnesButton newlyPressedInput,
         ushort nmiFrameCounter)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(

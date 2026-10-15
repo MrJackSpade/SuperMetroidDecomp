@@ -34,7 +34,7 @@ internal static class FileCopyArrowVerification
         {
             saves.SelectSlot(0);
             var menu = new FileSelectMenuState(rom, mapPresentation: art);
-            void Press(SnesButton button) { menu.Step(0); menu.Step((ushort)button); }
+            void Press(SnesButton button) { menu.Step(0); menu.Step(button); }
             void Until(FileSelectPhase phase)
             {
                 for (int frame = 0; frame < 60 && menu.Phase != phase; frame++) menu.Step(0);

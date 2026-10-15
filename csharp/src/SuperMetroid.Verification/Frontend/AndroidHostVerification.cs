@@ -54,16 +54,16 @@ internal static class AndroidHostVerification
         var input = new FrameInputLatch();
         input.Set(1, SnesButton.A);
         input.Set(1, SnesButton.None);
-        AssertEqual((ushort)SnesButton.A, input.Sample(), "sub-frame tap reaches simulation");
-        AssertEqual((ushort)0, input.Sample(), "sub-frame tap releases on next frame");
+        AssertEqual(SnesButton.A, input.Sample(), "sub-frame tap reaches simulation");
+        AssertEqual(SnesButton.None, input.Sample(), "sub-frame tap releases on next frame");
         input.Set(1, SnesButton.Left);
         input.Set(2, SnesButton.Left);
         input.Set(1, SnesButton.None);
-        AssertEqual((ushort)SnesButton.Left, input.Sample(), "axis release cannot clear another held producer");
-        AssertEqual((ushort)SnesButton.Left, input.Sample(), "sustained hold is not a pulse");
+        AssertEqual(SnesButton.Left, input.Sample(), "axis release cannot clear another held producer");
+        AssertEqual(SnesButton.Left, input.Sample(), "sustained hold is not a pulse");
         input.Set(3, SnesButton.Start);
         input.Clear();
-        AssertEqual((ushort)0, input.Sample(), "focus loss clears pending and held input");
+        AssertEqual(SnesButton.None, input.Sample(), "focus loss clears pending and held input");
         Console.WriteLine("PASS Android host integer viewport and input policies");
     }
 }

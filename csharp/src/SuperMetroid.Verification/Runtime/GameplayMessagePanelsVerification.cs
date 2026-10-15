@@ -29,8 +29,8 @@ internal static class GameplayMessagePanelsVerification
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(null, stock);
             installed.Begin(NewForbiddenGameplayMessageBus(), id, 0,
-                shootBinding: (ushort)SnesButton.B,
-                runBinding: (ushort)SnesButton.Y);
+                shootBinding: SnesButton.B,
+                runBinding: SnesButton.Y);
             AssertEqual(GameplayMessagePanelDefinitions.TilemapWords, installed.Tilemap.Length,
                 $"installed gameplay-message panel {id} builds its complete tilemap with remapped controls");
             comparedWords += installed.Tilemap.Length;
@@ -47,7 +47,7 @@ internal static class GameplayMessagePanelsVerification
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, stock);
         active.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.MissileTank, 0,
-            shootBinding: (ushort)SnesButton.B);
+            shootBinding: SnesButton.B);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;

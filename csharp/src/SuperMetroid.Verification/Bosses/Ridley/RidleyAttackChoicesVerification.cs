@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
@@ -41,8 +42,8 @@ internal static class RidleyAttackChoicesVerification
         var reference = new RoomEnemySystem();
         actual.BindFixtureBus(NewRidleyAttackReadGuard(rom));
         reference.BindFixtureBus(rom);
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
         actual.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });

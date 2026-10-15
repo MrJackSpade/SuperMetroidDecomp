@@ -37,7 +37,7 @@ internal static class HeroShotsVerification
             int deletedFrame = -1, impactFrame = -1;
             for (int frame = 0; frame < 120; frame++)
             {
-                ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
                 var shot = projectiles.Slots[0];
                 ushort cameraX = !vertical && followShot && shot.IsActive
                     ? (ushort)Math.Max(0, shot.Position.X.Whole - 128) : (ushort)0;

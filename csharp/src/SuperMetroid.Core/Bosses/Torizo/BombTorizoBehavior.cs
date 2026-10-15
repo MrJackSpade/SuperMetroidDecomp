@@ -148,7 +148,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
     /// the concrete definition here is equivalent and prevents an unrelated host area enum
     /// from becoming a second authority for actor identity.
     /// </summary>
-    internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, ushort controllerInput)
+    internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, SnesButton controllerInput)
     {
         bool isGolden = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(torizo, isGolden);
@@ -188,7 +188,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         if (isGolden)
         {
             LoadGoldenTorizoBasePalette();
-            if (SnesButtons.FromRaw(controllerInput, "Golden Torizo code") == GoldenTorizoCodeDefinitions.ControllerChord)
+            if (controllerInput == GoldenTorizoCodeDefinitions.ControllerChord)
             {
                 if (samus is null)
                     throw new InvalidOperationException("The Golden Torizo code requires the live Samus owner.");
@@ -1329,7 +1329,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         RoomEnemySlot torizo,
         TorizoEnemyState state,
         SamusState? samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         TorizoBodyProgram target)
     {
         if (samus is null)
@@ -1337,9 +1337,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
         int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
         if (distance < 112 || !BombTorizoFunction12IsNonNegative(torizo, samus))
             return null;
-        SnesButton heldButtons = SnesButtons.FromRaw(
-            controllerInput,
-            "Golden Torizo jump decision");
+        SnesButton heldButtons = controllerInput;
         if (state.SamusSpaceJumpFrames <= 360 &&
             (!heldButtons.HasAny(SnesButtons.HorizontalDirections) ||
                 (_room.Random.Generate() & TorizoRandomDefinitions.ForwardLeapMask) == 0))

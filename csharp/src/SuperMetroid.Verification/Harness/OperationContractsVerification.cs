@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
@@ -50,8 +51,8 @@ internal static class OperationContractsVerification
             Camera = new(0x0120, 0x0040),
             TimeIsFrozen = false,
             Samus = samus,
-            NewlyPressedControllerInput = 0x0080,
-            ControllerInput = 0x0100,
+            NewlyPressedControllerInput = SnesButton.A,
+            ControllerInput = SnesButton.Right,
             SamusProjectiles = new SamusProjectileSystem(),
             Mode7Transform = new SamusMode7Transform(240, 16, 65520, new(128, 112)),
             SharedProjectiles = new SamusBombProjectileSystem(),

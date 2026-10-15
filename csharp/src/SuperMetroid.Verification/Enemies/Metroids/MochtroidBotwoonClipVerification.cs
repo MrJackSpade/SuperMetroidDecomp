@@ -115,16 +115,16 @@ internal static class MochtroidBotwoonClipVerification
         ushort minimumY = samus.Position.Y.Whole;
         for (int frame = 0; frame < 120; frame++)
         {
-            ushort input = 0;
+            SnesButton input = 0;
             if (frame < 12 ||
                 frame >= expected.FinalJumpFrame && frame < expected.FinalJumpFrame + 12)
             {
-                input |= (ushort)SnesButton.A;
+                input |= SnesButton.A;
             }
             if (frame == expected.FirstDownFrame)
-                input |= (ushort)SnesButton.Down;
+                input |= SnesButton.Down;
             if (frame == expected.StandFrame)
-                input |= (ushort)SnesButton.Up;
+                input |= SnesButton.Up;
 
             runtime.StepFrame(input);
             minimumY = Math.Min(minimumY, samus.Position.Y.Whole);

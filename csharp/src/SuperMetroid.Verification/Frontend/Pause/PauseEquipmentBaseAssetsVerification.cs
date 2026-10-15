@@ -39,7 +39,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         int toMap = PausePageTransitionNativeLength + 1;
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
-            ushort input = frame == 0 ? (ushort)SnesButton.R : frame == toMap ? (ushort)SnesButton.L : (ushort)0;
+            SnesButton input = frame == 0 ? SnesButton.R : frame == toMap ? SnesButton.L : (ushort)0;
             native.Step(input, input, nmiFrameCounter8: (byte)frame);
             installed.Step(input, input, nmiFrameCounter8: (byte)frame);
             AssertTrue(native.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(installed.CaptureRenderSnapshot().Memory.Vram),

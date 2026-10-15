@@ -36,7 +36,7 @@ internal static class GameplayMessageNoticesVerification
             while (installed.Phase != GameplayMessageBoxPhase.AwaitingInput)
                 installed.Step(0);
             ushort[] yesSelected = installed.Tilemap.ToArray();
-            installed.Step((ushort)SnesButton.Right);
+            installed.Step(SnesButton.Right);
             AssertTrue(!yesSelected.SequenceEqual(installed.Tilemap),
                 $"installed gameplay-message notice {id} redraws its NO-selection row without cartridge reads");
             comparedWords += installed.Tilemap.Length;

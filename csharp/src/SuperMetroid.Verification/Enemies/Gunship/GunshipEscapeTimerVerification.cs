@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -51,7 +52,7 @@ internal static class GunshipEscapeTimerVerification
         samus.Position = samus.Position.WithWholeY(0x0440);
         samus.Presentation.InitializeAnimation(bus);
         var timeBeforeBoarding = Time();
-        runtime.StepFrame(0x0400);
+        runtime.StepFrame(SnesButton.Down);
         AssertEqual(GunshipFrameEvent.EntryStarted, runtime.Enemies.GunshipBehavior.LastGunshipEvent, "Down starts actual Landing Site boarding");
         AssertEqual(timeBeforeBoarding, Time(), "Boarding handler stops the timer on its installation frame");
         AssertTrue(!TimerSpritesPresent(), "Boarding removes timer OAM immediately");

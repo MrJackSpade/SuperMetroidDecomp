@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -17,7 +18,7 @@ public interface IRoomEnemyActorContext
     SamusState? Samus { get; }
 
     /// <summary>The raw held SNES controller mask.</summary>
-    ushort ControllerInput { get; }
+    SnesButton ControllerInput { get; }
 
     /// <summary>The camera's room position.</summary>
     Position16<RoomPixels> Camera { get; }

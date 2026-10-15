@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -24,7 +25,7 @@ internal static class BossDisplayBindingsFixtureVerification
         /// <summary>The actor's physical slot.</summary>
         private readonly int _slot;
         /// <summary>Bound production instruction interpreter for one actor step.</summary>
-        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort> instructions;
+        private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
         /// <summary>Bound extended-hitbox query used by the collision check.</summary>
         private readonly HitboxQuery hitbox;
         /// <summary>Queries an extended hitbox and returns its callback pointer when touched.</summary>
@@ -45,7 +46,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = (ushort)EnemyProperties.ProcessInstructions;
             Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort>(Enemies.Instructions.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(Enemies.Instructions.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
 

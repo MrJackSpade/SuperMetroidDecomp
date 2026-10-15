@@ -34,7 +34,7 @@ internal static class RetailCinematicTests
                     $"{device.Kind}: intro {legacy.Phase}, tick {tick}");
                 count++;
             }
-            ushort input = tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.A : SnesButton.None;
             legacy.Step(input); captured.Step(input);
             if (legacy.Phase != captured.Phase || legacy.MotherBrainHitCount != captured.MotherBrainHitCount ||
                 legacy.FlashbackSamusX != captured.FlashbackSamusX || legacy.FlashbackSamusY != captured.FlashbackSamusY ||

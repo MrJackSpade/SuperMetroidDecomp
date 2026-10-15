@@ -54,7 +54,7 @@ internal static class ProjectileDamageVerification
         {
             var system = new SamusProjectileSystem();
             var samus = Samus(); samus.EquippedBeams = beam;
-            system.Firing.TryFireBeam(bus, room, samus, (ushort)SnesButton.X, new SamusBombProjectileSystem(), null, charged);
+            system.Firing.TryFireBeam(bus, room, samus, SnesButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
             int table = charged ? SamusProjectileRomData.Beams.ChargedDataPointers : SamusProjectileRomData.Beams.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction & 15);
@@ -64,7 +64,7 @@ internal static class ProjectileDamageVerification
         foreach (ushort item in new ushort[] { 1, 2 })
         {
             var system = new SamusProjectileSystem(); var samus = Samus(); samus.SelectedHudItem = item;
-            var result = system.Firing.TryFireMissile(bus, samus, (ushort)SnesButton.X, 0, new SamusBombProjectileSystem());
+            var result = system.Firing.TryFireMissile(bus, samus, SnesButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual((int?)0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
             system.EnemyImpacts.ReflectFromEnemy(bus, 0);

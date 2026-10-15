@@ -35,7 +35,7 @@ internal static class SpikeShinesparkSuitVerification
             for (int frame = 0; frame < 15; frame++)
             {
                 runtime.StepFrame(frame is 1 || frame == expected.LaunchFrame
-                    ? (ushort)SnesButton.A
+                    ? SnesButton.A
                     : (ushort)0);
             }
             AssertEqual(expected.Phase, samus.Shinespark.Phase,
@@ -53,7 +53,7 @@ internal static class SpikeShinesparkSuitVerification
         SuperMetroidRuntime frozenRuntime = CreateSpikeSuitRuntime(bus, underwater: true);
         SamusState frozenSamus = frozenRuntime.Player.IntroducedSamus;
         for (int frame = 0; frame < 8; frame++)
-            frozenRuntime.StepFrame(frame == 1 ? (ushort)SnesButton.A : (ushort)0);
+            frozenRuntime.StepFrame(frame == 1 ? SnesButton.A : (ushort)0);
         frozenSamus.Health = 0;
         frozenSamus.MaxHealth = 99;
         frozenSamus.ReserveEnergy = frozenSamus.MaxReserveEnergy = 2;
@@ -120,7 +120,7 @@ internal static class SpikeShinesparkSuitVerification
         SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(bus, underwater: true);
         SamusState samus = runtime.Player.IntroducedSamus;
         for (int frame = 0; frame < freezeAfter; frame++)
-            runtime.StepFrame(frame == 1 ? (ushort)SnesButton.A : (ushort)0);
+            runtime.StepFrame(frame == 1 ? SnesButton.A : (ushort)0);
 
         samus.Health = 0;
         samus.MaxHealth = 99;
@@ -132,8 +132,8 @@ internal static class SpikeShinesparkSuitVerification
         runtime.Freeze.GameplayTimeFrozen = true;
         while (recovery.IsActive)
         {
-            ushort input = samus.ReserveEnergy == 1 && launchAfter == 0
-                ? (ushort)SnesButton.A
+            SnesButton input = samus.ReserveEnergy == 1 && launchAfter == 0
+                ? SnesButton.A
                 : (ushort)0;
             runtime.StepFrame(input, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             {
@@ -142,7 +142,7 @@ internal static class SpikeShinesparkSuitVerification
             } });
         }
         for (int frame = 1; frame < 25; frame++)
-            runtime.StepFrame(frame == launchAfter ? (ushort)SnesButton.A : (ushort)0);
+            runtime.StepFrame(frame == launchAfter ? SnesButton.A : (ushort)0);
         return samus;
     }
 

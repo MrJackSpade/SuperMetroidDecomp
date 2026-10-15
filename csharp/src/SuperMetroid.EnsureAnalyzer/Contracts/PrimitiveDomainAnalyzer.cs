@@ -89,6 +89,26 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <summary>A masked or shifted local is compared against several values as a hand-decoded selector.</summary>
     public const string MaskedComparisonId = "SME6279";
 
+    /// <summary>Controller buttons are converted to or from a raw word outside a controller-word boundary (#1306).</summary>
+    public const string ControllerWordConversionId = "SME6284";
+
+    /// <summary>Marks the serialization and external-word declarations that may convert controller buttons.</summary>
+    public const string ControllerWordBoundaryAttributeName = "ControllerWordBoundaryAttribute";
+
+    /// <summary>The Core type that carries controller state; its raw words exist only where they are stored or read.</summary>
+    private const string ControllerButtonsType = "SuperMetroid.Core.Input.SnesButton";
+
+    /// <summary>Reports controller buttons narrowed to or widened from an integer outside a declared boundary.</summary>
+    private static readonly DiagnosticDescriptor ControllerWordConversionRule = new(
+        ControllerWordConversionId,
+        "Controller buttons converted outside a boundary",
+        "'{0}' converts controller buttons {1} a raw word outside a [ControllerWordBoundary]; keep SnesButton and convert only where words are stored or read",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Controller state flows through Core as SnesButton; only the declarations that store or read controller words " +
+            "(journals, SRAM, enemy variables, codecs) convert it, and each says why with [ControllerWordBoundary].");
+
     /// <summary>Reports a mask- or shift-extracted local compared with several nonzero values.</summary>
     private static readonly DiagnosticDescriptor MaskedComparisonRule = new(
         MaskedComparisonId,
@@ -157,7 +177,8 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         [PrimitiveSwitchRule, SilentEnumSwitchRule, MaskedSelectorRule, EnumNumericFormatRule,
-            CatalogComparisonRule, CastOnlyParameterRule, EnumArithmeticRule, PrimitiveInterludeRule, LiteralDomainRule, MaskedComparisonRule];
+            CatalogComparisonRule, CastOnlyParameterRule, EnumArithmeticRule, PrimitiveInterludeRule, LiteralDomainRule, MaskedComparisonRule,
+            ControllerWordConversionRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -168,6 +189,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         context.RegisterOperationAction(AnalyzeSwitchExpression, OperationKind.SwitchExpression);
         context.RegisterOperationAction(AnalyzeInterpolation, OperationKind.Interpolation);
         context.RegisterOperationAction(AnalyzeEnumConversion, OperationKind.Conversion);
+        context.RegisterOperationAction(AnalyzeControllerWordConversion, OperationKind.Conversion);
         context.RegisterOperationAction(AnalyzeEnumStep, OperationKind.Increment, OperationKind.Decrement,
             OperationKind.CompoundAssignment);
         context.RegisterOperationBlockStartAction(AnalyzeCastOnlyParameters);
@@ -190,6 +212,43 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                 "Casting arithmetic", conversion.Type.Name);
         }
     }
+
+    /// <summary>
+    /// Flags an explicit SnesButton/integer conversion outside a [ControllerWordBoundary] declaration in the assembly that
+    /// declares SnesButton (Core); hosts, tools and tests reference it and convert at their own boundaries.
+    /// </summary>
+    private static void AnalyzeControllerWordConversion(OperationAnalysisContext context)
+    {
+        var conversion = (IConversionOperation)context.Operation;
+        if (conversion.IsImplicit)
+            return;
+        bool toButtons = IsControllerButtons(conversion.Type) && IsIntegral(conversion.Operand.Type);
+        bool fromButtons = IsControllerButtons(conversion.Operand.Type) && IsIntegral(conversion.Type);
+        if (!toButtons && !fromButtons || InControllerWordBoundary(context.ContainingSymbol))
+            return;
+        Report(context, ControllerWordConversionRule, conversion.Syntax.GetLocation(),
+            conversion.Syntax.ToString(), toButtons ? "from" : "to");
+    }
+
+    /// <summary>Whether a type is the controller button set declared by the compilation being analyzed.</summary>
+    private static bool IsControllerButtons(ITypeSymbol? type) =>
+        type is INamedTypeSymbol named && named.ToDisplayString() == ControllerButtonsType && IsOwned(named);
+
+    /// <summary>Whether a declaration, its property or a containing type carries [ControllerWordBoundary].</summary>
+    private static bool InControllerWordBoundary(ISymbol? symbol)
+    {
+        for (ISymbol? current = symbol; current is not null and not INamespaceSymbol; current = current.ContainingSymbol)
+        {
+            if (HasControllerWordBoundary(current) ||
+                current is IMethodSymbol { AssociatedSymbol: { } property } && HasControllerWordBoundary(property))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>Matches the boundary marker by its short attribute type name.</summary>
+    private static bool HasControllerWordBoundary(ISymbol symbol) =>
+        symbol.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == ControllerWordBoundaryAttributeName);
 
     /// <summary>Flags increment, decrement, or compound assignment on a closed enum.</summary>
     private static void AnalyzeEnumStep(OperationAnalysisContext context)

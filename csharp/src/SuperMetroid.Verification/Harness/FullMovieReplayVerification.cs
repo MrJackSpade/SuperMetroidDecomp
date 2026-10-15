@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using System.Globalization;
 using SuperMetroid.Core.Frontend;
@@ -136,7 +137,7 @@ internal static class FullMovieReplayVerification
             // The last controller read of an eliminated music wait is still input the
             // cartridge consumed: it decides whether this update sees a new press.
             if (step.HardwareWaitLatch is { } latched)
-                game.AcceptDoorMusicWaitControllerRead(latched);
+                game.AcceptDoorMusicWaitControllerRead(SnesButtons.FromRaw(latched, $"movie update {update} wait latch"));
             NativeCheckpointMemory? nativeAfter = checkpoints.ReadAfter(update);
             // A dispatch that jumped into CommonBootSection has no checkpoint of its own, and
             // the clear erases the sound handler's waiting states before the next one. Both
@@ -145,7 +146,7 @@ internal static class FullMovieReplayVerification
             // A confirmation box can continue from the previous dispatch into this
             // NMI continuation; its MessageBox_Routine entry belongs to that dispatch.
             bool boxContinues = game.RuntimeForVerification?.MessageBox.IsActive == true;
-            game.Step(step.Input);
+            game.Step(SnesButtons.FromRaw(step.Input, $"movie update {update}"));
             uploadNmis.AssertSettled();
             // Bank $85's message box runs inside this dispatch on lag frames, polling the
             // joypad registers rather than accepting NMIs, so the box spans this update's
@@ -172,7 +173,7 @@ internal static class FullMovieReplayVerification
                 // so they read the session's SPC model frame by frame.
                 soundAcknowledgements.Expect(null);
                 for (; frame < boxFrameLimit && game.GameplayRuntimeForVerification.MessageBox.IsActive; frame++)
-                    game.Step(frameInputs[frame]);
+                    game.Step(SnesButtons.FromRaw(frameInputs[frame], $"movie frame {frame}"));
                 if (step.MessageBoxEndFrame is { } nativeEnd)
                 {
                     if (game.GameplayRuntimeForVerification.MessageBox.IsActive || frame != nativeEnd + 1)

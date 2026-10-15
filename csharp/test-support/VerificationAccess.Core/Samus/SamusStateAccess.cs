@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -26,7 +27,7 @@ internal static class SamusStateAccess
             RoomLevelData level,
             SamusPoseId targetPose,
             ushort nmiFrameCounter,
-            ushort controllerNewInput,
+            SnesButton controllerNewInput,
             RoomPlmSystem? plms = null)
         {
             if (targetPose is not (SamusPoseId.NormalJumpGunExtendedRightPose or SamusPoseId.NormalJumpGunExtendedLeftPose))

@@ -67,8 +67,8 @@ internal static class PillarFirstEntryVerification
         var visiblePositions = new HashSet<(ushort X, ushort Y)>[] { new(), new() };
         for (int frame = 0; frame < 600; frame++)
         {
-            ushort input = (ushort)SnesButton.Right;
-            if (frame % 20 is >= 3 and < 18) input |= (ushort)SnesButton.A;
+            SnesButton input = SnesButton.Right;
+            if (frame % 20 is >= 3 and < 18) input |= SnesButton.A;
             runtime.StepFrame(input);
             var heads = runtime.Enemies.SlotTable.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();

@@ -124,7 +124,7 @@ public sealed class GameOverMenuState
     /// <summary>Advances one menu update, latching input edges, animating the cursor and Baby, and progressing the music wait and one-level-per-update brightness fades.</summary>
     /// <param name="controllerInput">Current held-button word in native <see cref="SnesButton"/> bit layout; only newly pressed buttons affect the interactive menu.</param>
     /// <remarks>Select, Up, or Down toggles the answer and takes priority over A confirmation in the same update. Accepting either answer holds the current Baby frame for 180 updates while fading out.</remarks>
-    public void Step(ushort controllerInput)
+    public void Step(SnesButton controllerInput)
     {
         controller.Latch(controllerInput);
         if (ResumesAfterNmiWait)
@@ -141,7 +141,7 @@ public sealed class GameOverMenuState
             return;
         }
 
-        SnesButton pressed = controller.NewlyPressedButtons;
+        SnesButton pressed = controller.NewlyPressed;
         // Only indexes three, four, five and seven draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)

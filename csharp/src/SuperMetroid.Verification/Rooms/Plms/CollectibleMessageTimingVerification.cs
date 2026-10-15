@@ -71,7 +71,7 @@ internal static class CollectibleMessageTimingVerification
             AssertHeld();
         }
         AssertEqual(GameplayMessageBoxPhase.AwaitingInput, runtime.MessageBox.Phase, "fanfare reaches acknowledgement");
-        runtime.StepFrame((ushort)SnesButton.A);
+        runtime.StepFrame(SnesButton.A);
         while (runtime.MessageBox.IsActive && frames++ < 450)
         {
             AssertHeld();

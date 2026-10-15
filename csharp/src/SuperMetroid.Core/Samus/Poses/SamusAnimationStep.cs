@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 public sealed record SamusAnimationStep
 {
     /// <summary>Controller input.</summary>
-    public ushort ControllerInput { get; init; } = 0;
+    public SnesButton ControllerInput { get; init; } = 0;
 
     /// <summary>Nmi frame counter.</summary>
     public ushort NmiFrameCounter { get; init; } = 0;

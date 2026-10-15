@@ -96,7 +96,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = nextRandom;
-        Action<RoomEnemySlot, SamusState, ushort> initialize = enemies.BeetomBehavior.InitializeBeetom;
+        Action<RoomEnemySlot, SamusState, SnesButton> initialize = enemies.BeetomBehavior.InitializeBeetom;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         initialize(slot, new SamusState(), 0);

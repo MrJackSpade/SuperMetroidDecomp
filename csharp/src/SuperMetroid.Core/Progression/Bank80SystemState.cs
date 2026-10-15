@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Map;
@@ -202,7 +203,7 @@ public sealed class Bank80SystemState
     /// Despite the C decompilation's name <c>joypad_released_keys</c>, the assembly names
     /// and behavior show that this is the previous value of "held but not newly pressed."
     /// </summary>
-    public ushort HeldInputPrevious { get; private set; }
+    public SnesButton HeldInputPrevious { get; private set; }
 
     /// <summary>
     /// Countdown at WRAM <c>$05DB</c>. A signed underflow from zero to <c>$FFFF</c>
@@ -220,18 +221,18 @@ public sealed class Bank80SystemState
     /// Filtered input at WRAM <c>$05DF</c>. Bits appear after their buttons have remained
     /// stable long enough for the timer to underflow.
     /// </summary>
-    public ushort TimedHeldInput { get; internal set; }
+    public SnesButton TimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Rising-edge bits for <see cref="TimedHeldInput"/>, stored at WRAM <c>$05E1</c>.
     /// </summary>
-    public ushort NewlyTimedHeldInput { get; internal set; }
+    public SnesButton NewlyTimedHeldInput { get; internal set; }
 
     /// <summary>
     /// Prior active filtered input at WRAM <c>$05E3</c>. The original routine updates
     /// this only on timer underflow, not on every frame.
     /// </summary>
-    public ushort TimedHeldInputPrevious { get; internal set; }
+    public SnesButton TimedHeldInputPrevious { get; internal set; }
 
     /// <summary>
     /// Diagnostic-only observer of each <see cref="NextRandom"/> call, used by movie-replay
@@ -281,13 +282,13 @@ public sealed class Bank80SystemState
     /// <param name="timerReset">Number of stable frames minus one before activation.</param>
     /// <param name="controllerInput">All buttons currently down (WRAM <c>$8B</c>).</param>
     /// <param name="controllerNewInput">Buttons newly pressed this frame (WRAM <c>$8F</c>).</param>
-    public void UpdateHeldInput(ushort timerReset, ushort controllerInput, ushort controllerNewInput)
+    public void UpdateHeldInput(ushort timerReset, SnesButton controllerInput, SnesButton controllerNewInput)
     {
         TimedHeldInputTimerReset = timerReset;
 
         // TRB in the original clears every newly-pressed bit from the current input.
         // A fresh press is deliberately not considered "held" until the following frame.
-        ushort heldInput = (ushort)(controllerInput & ~controllerNewInput);
+        SnesButton heldInput = controllerInput & ~controllerNewInput;
 
         // CMP happens before STA, so remember the comparison result before replacing the
         // previous sample. This ordering is significant when a button changes state.
@@ -324,7 +325,7 @@ public sealed class Bank80SystemState
 
         // This is the standard rising-edge expression: current & (previous XOR current).
         // It produces a one-update pulse when a delayed button first becomes active.
-        NewlyTimedHeldInput = (ushort)(TimedHeldInput & (TimedHeldInputPrevious ^ TimedHeldInput));
+        NewlyTimedHeldInput = TimedHeldInput & (TimedHeldInputPrevious ^ TimedHeldInput);
     }
 
     /// <summary>

@@ -114,15 +114,15 @@ public static class GameplayMessageRomData
         public static readonly SnesBgTilemapWord UnknownGlyph = new(0x284e);
 
         /// <summary>$85:83D1..8409 BIT-test order; the first matching button wins even for a malformed multibit binding.</summary>
-        public static ushort ResolveGlyphWord(ushort binding) => binding switch
+        public static ushort ResolveGlyphWord(SnesButton binding) => binding switch
         {
-            var bits when (bits & (ushort)SnesButton.A) != 0 => A,
-            var bits when (bits & (ushort)SnesButton.B) != 0 => B,
-            var bits when (bits & (ushort)SnesButton.X) != 0 => X,
-            var bits when (bits & (ushort)SnesButton.Y) != 0 => Y,
-            var bits when (bits & (ushort)SnesButton.Select) != 0 => Select,
-            var bits when (bits & (ushort)SnesButton.L) != 0 => L,
-            var bits when (bits & (ushort)SnesButton.R) != 0 => R,
+            var bits when (bits & SnesButton.A) != 0 => A,
+            var bits when (bits & SnesButton.B) != 0 => B,
+            var bits when (bits & SnesButton.X) != 0 => X,
+            var bits when (bits & SnesButton.Y) != 0 => Y,
+            var bits when (bits & SnesButton.Select) != 0 => Select,
+            var bits when (bits & SnesButton.L) != 0 => L,
+            var bits when (bits & SnesButton.R) != 0 => R,
             _ => UnknownGlyph.Raw,
         };
 

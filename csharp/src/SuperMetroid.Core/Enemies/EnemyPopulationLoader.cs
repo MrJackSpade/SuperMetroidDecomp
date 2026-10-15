@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
@@ -133,7 +134,7 @@ internal sealed class EnemyPopulationLoader
         RoomEnemyPopulationDefinition populationDefinition,
         RoomLevelData? level,
         SamusState? samus,
-        ushort controllerInput,
+        SnesButton controllerInput,
         ushort cameraX)
     {
         ReadOnlySpan<RoomEnemyPopulationRecord> records = populationDefinition.Records.Span;

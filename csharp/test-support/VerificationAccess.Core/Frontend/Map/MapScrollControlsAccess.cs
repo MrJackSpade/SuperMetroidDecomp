@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 namespace SuperMetroid.Core.Frontend.Map;
 
 /// <summary>Verification access to <see cref="MapScrollControls"/> members production does not use.</summary>
@@ -7,7 +8,7 @@ internal static class MapScrollControlsAccess
     extension(MapScrollControls)
     {
         /// <summary>Controller buttons corresponding to all defined map scroll directions.</summary>
-        internal static ushort[] Buttons =>
+        internal static SnesButton[] Buttons =>
             [.. Enumerable.Range(1, MapScrollControls.DirectionCount).Select(direction => MapScrollControls.ButtonFor((MapScrollDirection)direction))];
     }
 }

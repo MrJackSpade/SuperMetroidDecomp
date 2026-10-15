@@ -45,7 +45,7 @@ internal static class ShutterRidingVerification
             AssertEqual(0, platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
                 "Morph Ball remains on the stopped shutter, not inside it");
             for (int frame = 0; frame < 30; frame++)
-                runtime.StepFrame((ushort)(slot == 0 ? SnesButton.Left : SnesButton.Right));
+                runtime.StepFrame((slot == 0 ? SnesButton.Left : SnesButton.Right));
             AssertTrue(Math.Abs(samus.Position.X.Whole - platform.Position.X.Whole) > platform.Radius.X + samus.Kinematics.Radius.X,
                 $"Morph Ball rolls completely clear of shutter {slot} through its upper opening (X={samus.Position.X.Whole})");
             AssertEqual(VerticalShutterFunction.PermanentNoOp, state.Function,

@@ -8,7 +8,7 @@ namespace SuperMetroid.Verification.Samus.Hud;
 internal static class SamusHudSelectionVerification
 {
     /// <summary>Runs one selector frame; true when it moved the selected index.</summary>
-    internal static bool SelectionChanged(SamusState samus, ushort controllerInput, ushort controllerNewInput)
+    internal static bool SelectionChanged(SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput)
     {
         ushort before = samus.SelectedHudItem;
         samus.HudSelection.HandleHudSelection(controllerInput, controllerNewInput);
@@ -21,8 +21,8 @@ internal static class SamusHudSelectionVerification
     /// </summary>
     internal static void VerifySamusHudSelection()
     {
-        const ushort select = (ushort)SnesButton.Select;
-        const ushort cancel = (ushort)SnesButton.Y;
+        const SnesButton select = SnesButton.Select;
+        const SnesButton cancel = SnesButton.Y;
 
         var samus = new SamusState();
         AssertTrue(!SelectionChanged(samus, select, select),
@@ -71,7 +71,7 @@ internal static class SamusHudSelectionVerification
         // Y is held but is not a new edge here. Native therefore performs Select's cycle
         // and remembers the chosen item; a later new Y edge cancels both words together.
         AssertTrue(SelectionChanged(samus,
-                unchecked((ushort)(select | cancel)),
+                (select | cancel),
                 select),
             "held item-cancel records Select auto-cancel target");
         AssertEqual(1, samus.SelectedHudItem,

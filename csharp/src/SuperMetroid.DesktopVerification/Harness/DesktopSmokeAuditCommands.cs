@@ -75,8 +75,8 @@ internal static class DesktopSmokeAuditCommands
                 throw new ArgumentException("--keyboard-input-audit does not accept additional arguments.");
             HostKeyboardInputSmokeTestResult result = HostKeyboardInputSmokeTest.Run();
             Console.WriteLine(
-                $"Keyboard input passed: Enter=${result.EnterControllerWord:X4}, " +
-                $"released=${result.ReleasedControllerWord:X4}; no Right bit was emitted.");
+                $"Keyboard input passed: Enter=${result.EnterControllerWord:X}, " +
+                $"released=${result.ReleasedControllerWord:X}; no Right bit was emitted.");
             return true;
         }
 

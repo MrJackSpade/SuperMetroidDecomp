@@ -105,7 +105,7 @@ internal static class GameOverRomDataVerification
         AssertTrue(framesToMenu > GameOverRomData.MaximumBrightness,
             "game-over menu waits for queued music before fading");
 
-        menu.Step((ushort)SnesButton.Down);
+        menu.Step(SnesButton.Down);
         AssertEqual(1, menu.SelectedItem, "game-over fixed two-row selection toggles to No");
         AssertEqual(FrontendFrame.Width * FrontendFrame.Height, menu.Render().Length,
             "game-over fixed menu layout renders one frontend frame");

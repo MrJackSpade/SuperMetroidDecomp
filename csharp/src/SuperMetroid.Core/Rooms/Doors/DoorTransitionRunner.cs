@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
@@ -199,7 +200,7 @@ internal sealed class DoorTransitionRunner
         _ = _plms.WreckedShipTreadmill.TrySpawnMaridiaElevatube(_room.LevelData);
     }
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
-    public void RunDoorSoundWaitFrame(ushort controllerInput)
+    public void RunDoorSoundWaitFrame(SnesButton controllerInput)
     {
         RunDoorSoundWaitPrologue(controllerInput);
         DrawDoorTransitionActors(runEnemyProjectiles: false);
@@ -211,7 +212,7 @@ internal sealed class DoorTransitionRunner
     /// runs while Samus is locked. On the entry frame it precedes the state handler, so
     /// its room-FX sound requests are queued before the door's cancels and DisableSounds.
     /// </summary>
-    public void RunDoorSoundWaitPrologue(ushort controllerInput)
+    public void RunDoorSoundWaitPrologue(SnesButton controllerInput)
     {
         _plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
         _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);

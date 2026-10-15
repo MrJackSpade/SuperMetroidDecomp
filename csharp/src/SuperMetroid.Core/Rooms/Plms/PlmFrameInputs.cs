@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.Scrolling;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -15,7 +16,7 @@ public readonly record struct PlmFrameInputs
     public required byte EnemyDeathQuota { get; init; }
 
     /// <summary>Controller new input.</summary>
-    public required ushort ControllerNewInput { get; init; }
+    public required SnesButton ControllerNewInput { get; init; }
 
     /// <summary>Collected items.</summary>
     public ushort CollectedItems { get; init; }

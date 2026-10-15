@@ -38,7 +38,7 @@ internal static class FrontendRenderCaptureTestsVerification
         Rgba32[]? heldPixels = null;
         for (int tick = 0; tick < 500; tick++)
         {
-            ushort input = tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.Start : (ushort)0;
             FrontendFrame expected = legacy.Step(input);
             CapturedFrontendFrame actual = captured.StepCaptured(input, tick + 1, 7);
             AssertEqual(expected.GameState, actual.Frame.GameState, "captured frontend state cadence");

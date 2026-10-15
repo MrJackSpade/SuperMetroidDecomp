@@ -84,7 +84,7 @@ internal static class RunningCadenceVerification
             ushort frame = 7;
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(bus,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
-                dash ? (ushort)SnesButton.B : (ushort)0, (ushort)raw, ref frame, out ushort timer,
+                dash ? SnesButton.B : (ushort)0, (ushort)raw, ref frame, out ushort timer,
                 () => { calls++; return 0x0500; });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
             AssertEqual(next, speed.SpeedBoostCounter, "Native counter decrement, stage bit and reset-word OR");
@@ -105,7 +105,7 @@ internal static class RunningCadenceVerification
             bus.MutableDelay = (byte)accumulator;
             speed.HasRunningMomentum = true; speed.SpeedBoostCounter = 0x0301;
             ushort frame = 9;
-            speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, (ushort)SnesButton.B,
+            speed.TryAdvanceSpeedBoosterAnimationStage(bus, SamusMovementType.Running, SnesButton.B,
                 (ushort)accumulator, ref frame, out ushort timer, () => (ushort)accumulator);
             AssertEqual(0x0400 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + stage * 2)), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
@@ -122,7 +122,7 @@ internal static class RunningCadenceVerification
             () => speed.TryAdvanceSpeedBoosterAnimationStage(
                 bus,
                 SamusMovementType.Running,
-                (ushort)SnesButton.B,
+                SnesButton.B,
                 0,
                 ref invalidFrame,
                 out _,
@@ -130,7 +130,7 @@ internal static class RunningCadenceVerification
             "Impossible Max6 accumulator fails before adjacent code becomes cadence metadata");
 
         speed = new SamusHorizontalSpeedState();
-        speed.HandleExtraRunSpeed(SamusMovementType.Running, (ushort)SnesButton.B, true);
+        speed.HandleExtraRunSpeed(SamusMovementType.Running, SnesButton.B, true);
         AssertEqual(1, speed.SpeedBoostCounter, "First running frame seeds native countdown");
         AssertEqual(0x1000, speed.ExtraRunSubspeed, "Cadence migration leaves run acceleration intact");
         speed.SpeedBoostCounter = 0; speed.SpecialPaletteTimer = NativeCountdown.Start(8); speed.SpecialPaletteFrame = 6;

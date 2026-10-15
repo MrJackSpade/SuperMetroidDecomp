@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -123,17 +124,17 @@ internal sealed class ControllerInputRecorder : IDisposable
     }
 
     /// <summary>
-    /// Appends the word before the corresponding game step, preserving the input which
+    /// Appends the buttons, as the journal's controller word, before the corresponding game step, preserving the input which
     /// caused an exception even when that frame never returned a rendered image.
     /// </summary>
-    public void RecordFrame(ushort controllerInput)
+    public void RecordFrame(SnesButton controllerInput)
     {
         ushort[]? snapshot = null;
         Task? completedFlush = null;
         lock (gate)
         {
             ObjectDisposedException.ThrowIf(disposed, this);
-            inputs.Add(controllerInput);
+            inputs.Add((ushort)controllerInput);
             if (flushTask.IsCompleted)
                 completedFlush = flushTask;
             if (inputs.Count - frameCountAtLastScheduledFlush >= FlushIntervalFrames &&

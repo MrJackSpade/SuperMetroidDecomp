@@ -32,8 +32,8 @@ internal static class RetailLoadAppearanceTests
         int samples = 0;
         for (int tick = 0; tick < 2400; tick++)
         {
-            ushort input = legacy.GameState != SuperMetroidGameState.MainGameplay && tick % 47 == 0
-                ? (ushort)SnesButton.Start : (ushort)0;
+            SnesButton input = legacy.GameState != SuperMetroidGameState.MainGameplay && tick % 47 == 0
+                ? SnesButton.Start : (ushort)0;
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, tick + 1, 1);
             if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||

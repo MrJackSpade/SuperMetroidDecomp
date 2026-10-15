@@ -48,11 +48,11 @@ internal static class GameOptionsCursorPhasesVerification
         var controllerPage = NewMenu();
         for (int row = 0; row < (int)GameOptionsPrimaryRow.ControllerSettings; row++)
         {
-            controllerPage.Step((ushort)SnesButton.Down);
+            controllerPage.Step(SnesButton.Down);
             controllerPage.Step(0);
         }
         AssertCursorVisible(controllerPage, "primary selection before dissolve");
-        controllerPage.Step((ushort)SnesButton.A);
+        controllerPage.Step(SnesButton.A);
         AssertEqual(GameOptionsPhase.DissolveOut, controllerPage.Phase, "enter dissolve-out");
         AssertCursorHidden(controllerPage, "dissolve-out");
         for (int frame = 0; frame < 20 && controllerPage.Phase != GameOptionsPhase.DissolveIn; frame++)
@@ -62,7 +62,7 @@ internal static class GameOptionsCursorPhasesVerification
 
         var intro = NewMenu();
         AssertCursorVisible(intro, "primary selection before intro");
-        intro.Step((ushort)SnesButton.A);
+        intro.Step(SnesButton.A);
         AssertEqual(GameOptionsPhase.FadeOutToIntro, intro.Phase, "enter intro fade-out");
         AssertCursorHidden(intro, "intro fade-out");
         Console.WriteLine("Options cursor: all 13 native entries, managed phase bounds and real dissolve/intro OAM transitions pass.");

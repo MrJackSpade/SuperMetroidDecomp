@@ -76,7 +76,7 @@ internal static class FileSelectNavigationLookupVerification
         // irrelevant controller bit set, cover the helper's input masking.
         foreach (SnesButton direction in new[] { SnesButton.None, SnesButton.Up,
             SnesButton.Down, SnesButton.Up | SnesButton.Down })
-        foreach (ushort otherBits in new ushort[] { 0, unchecked((ushort)~(ushort)(SnesButton.Up | SnesButton.Down)) })
+        foreach (ushort otherBits in new ushort[] { 0, unchecked((ushort)~(SnesButton.Up | SnesButton.Down)) })
         {
             SnesButton pressed = direction | (SnesButton)otherBits;
             for (int ordinal = 0; ordinal < original.Length; ordinal++)

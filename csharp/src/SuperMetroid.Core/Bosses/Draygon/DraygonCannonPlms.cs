@@ -43,7 +43,7 @@ internal sealed class DraygonCannonPlms
                 $"word ${variablePointer:X4}.");
         }
 
-        slot.DraygonCannon = new DraygonCannonPlmState(variablePointer, orientation);
+        slot.DraygonCannon = new DraygonCannonPlmState(variablePointer);
         if (slot.HeaderPointer == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
@@ -142,10 +142,9 @@ internal sealed class DraygonCannonPlms
         level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 
-    /// <summary>Per-slot cannon orientation, enemy control-word identity, destruction state, and queued hit flag.</summary>
+    /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
-        ushort variablePointer,
-        DraygonCannonOrientation orientation)
+        ushort variablePointer)
     {
         /// <summary>Bank-$A5 word written when this physical cannon stops firing.</summary>
         public ushort VariablePointer { get; } = variablePointer;

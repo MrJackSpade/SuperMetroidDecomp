@@ -41,6 +41,40 @@ internal static class RoomPlmNativeListAddresses
         (SpeedBoosterEscapeProgram.AdvanceLava, 0xb896),
     ];
 
+    /// <summary>The Speed Booster blocks' lists ($84:C928 and $84:C951..C9F8).</summary>
+    internal static IReadOnlyList<(SpeedBoosterBlockProgram Program, ushort Entry)> SpeedBoosterBlockEntries { get; } =
+    [
+        (SpeedBoosterBlockProgram.BrinstarSlowRespawning, 0xc951),
+        (SpeedBoosterBlockProgram.Respawning, 0xc974),
+        (SpeedBoosterBlockProgram.DachoraRespawning, 0xc997),
+        (SpeedBoosterBlockProgram.BrinstarSlowPermanent, 0xc9cf),
+        (SpeedBoosterBlockProgram.Permanent, 0xc9e4),
+        (SpeedBoosterBlockProgram.BombReveal, 0xc928),
+    ];
+
+    /// <summary>
+    /// The downward gate's lists: the open and closed gates ($84:BC13, $84:BC3A), the continuations after their sleeps
+    /// ($84:BC1F, $84:BC46), and the eight trigger lists from $84:BCAF, six bytes each.
+    /// </summary>
+    internal static IReadOnlyList<(DownwardGateProgram Program, ushort Entry)> DownwardGateEntries { get; } =
+    [
+        (DownwardGateProgram.Open, 0xbc13),
+        (DownwardGateProgram.Close, 0xbc1f),
+        (DownwardGateProgram.Closed, 0xbc3a),
+        (DownwardGateProgram.Reopen, 0xbc46),
+        (DownwardGateProgram.TriggerBlueLeft, 0xbcaf),
+        (DownwardGateProgram.TriggerBlueRight, 0xbcb5),
+        (DownwardGateProgram.TriggerRedLeft, 0xbcbb),
+        (DownwardGateProgram.TriggerRedRight, 0xbcc1),
+        (DownwardGateProgram.TriggerGreenLeft, 0xbcc7),
+        (DownwardGateProgram.TriggerGreenRight, 0xbccd),
+        (DownwardGateProgram.TriggerYellowLeft, 0xbcd3),
+        (DownwardGateProgram.TriggerYellowRight, 0xbcd9),
+    ];
+
+    /// <summary>The bytes from a sleeping gate list's entry to the continuation after its sleep.</summary>
+    internal const int DownwardGateSleepContinuationOffset = 12;
+
     /// <summary>The lavaquake list's length in words: three install-and-sleep phases.</summary>
     internal const int SpeedBoosterEscapeWordCount = 9;
 }

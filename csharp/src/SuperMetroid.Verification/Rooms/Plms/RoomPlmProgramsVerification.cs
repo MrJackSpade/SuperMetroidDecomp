@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.NativePlmListDefinitions;
@@ -49,6 +50,106 @@ internal static class RoomPlmProgramsVerification
             AssertEqual(expected, SpeedBoosterEscapePlmProgramDefinitions.PhaseAfter(program), $"lavaquake phase after {program}");
         }
         Console.WriteLine($"  Speed Booster lavaquake program: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The Speed Booster blocks' programs equal their native lists; both restore instructions draw the saved block.</summary>
+    internal static void VerifySpeedBoosterBlockPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SpeedBoosterBlockPlmProgramDefinitions.Programs,
+            SpeedBoosterBlockEntries, SpeedBoosterBlockDrawList, SpeedBoosterBlockCueAt, "Speed Booster block", SpeedBoosterBlockRestoreAt);
+        Console.WriteLine($"  Speed Booster block programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The blocks' break-sound instruction.</summary>
+    private static bool SpeedBoosterBlockCueAt(IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterBlockCue cue, out int length)
+    {
+        (cue, length) = (SpeedBoosterBlockCue.QueueBreakSound, 3);
+        if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct)
+            return false;
+        AssertEqual(SpeedBoosterBlockPlmProgramDefinitions.BreakSoundId, ReadOperandByte(cartridge, cursor + 2), "speed block break sound");
+        AssertEqual((byte)1, SpeedBoosterBlockPlmProgramDefinitions.BreakSoundMaximumQueued, "speed block break sound queue cap");
+        return true;
+    }
+
+    /// <summary>The two restore instructions, which draw the saved block for one update.</summary>
+    private static bool SpeedBoosterBlockRestoreAt(IImportCartridgeSource cartridge, ushort cursor, out SpeedBoosterBlockFrame frame, out int duration, out int length)
+    {
+        (frame, duration, length) = (SpeedBoosterBlockFrame.RestoredBlock, 1, 2);
+        return InstructionAt<RoomPlmInstruction>(cartridge, cursor) is RoomPlmInstruction.DrawPlmBlock or RoomPlmInstruction.DrawPlmBlockClone;
+    }
+
+    /// <summary>The bank-$84 draw list a Speed Booster block frame draws.</summary>
+    private static ushort SpeedBoosterBlockDrawList(SpeedBoosterBlockFrame frame) => frame switch
+    {
+        SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(0),
+        SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(1),
+        SpeedBoosterBlockFrame.Crumble2 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(2),
+        SpeedBoosterBlockFrame.Crumble3 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(3),
+        SpeedBoosterBlockFrame.BombReveal => SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw,
+        SpeedBoosterBlockFrame.RestoredBlock => throw new InvalidOperationException("The restored block is drawn by its native restore instruction."),
+        _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterBlockFrame)} {frame}."),
+    };
+
+    /// <summary>The downward gate's programs equal their native lists, and each wake continues after the sleep it ends.</summary>
+    internal static void VerifyDownwardGatePrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs, DownwardGateEntries,
+            draw => (ushort)draw, DownwardGateCueAt, "downward gate");
+        foreach ((DownwardGateProgram program, ushort entry) in DownwardGateEntries)
+        {
+            if (DownwardGatePlmProgramDefinitions.ProgramAfterSleep(program) is not { } next)
+                continue;
+            AssertEqual(unchecked((ushort)(entry + DownwardGateSleepContinuationOffset)), DownwardGateEntries.Single(e => e.Program == next).Entry,
+                $"downward gate {next} continues {program} past its sleep");
+        }
+        ushort firstTrigger = DownwardGateEntries.Single(e => e.Program == DownwardGateProgram.TriggerBlueLeft).Entry;
+        AssertTrue(DownwardGatePlmProgramDefinitions.TriggerPrograms.SequenceEqual(
+                DownwardGateEntries.Where(e => e.Entry >= firstTrigger).OrderBy(e => e.Entry).Select(e => e.Program)),
+            "downward gate triggers are selected in native list order");
+        Console.WriteLine($"  Downward gate programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>
+    /// The native instruction pointer a downward gate's typed program stands for: the address of the native instruction
+    /// its cursor rests on, for comparisons with native gate traces.
+    /// </summary>
+    internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGatePlmAnimation gate)
+    {
+        downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs,
+            DownwardGateEntries, draw => (ushort)draw, DownwardGateCueAt, "downward gate");
+        return downwardGateAddresses[(gate.Cursor.Program, gate.Cursor.Position)];
+    }
+
+    /// <summary>The downward gate's step addresses, walked once.</summary>
+    private static IReadOnlyDictionary<(DownwardGateProgram Program, int Position), ushort>? downwardGateAddresses;
+
+    /// <summary>The gate's trigger, pre-instruction, projectile and sound instructions with their operands.</summary>
+    private static bool DownwardGateCueAt(IImportCartridgeSource cartridge, ushort cursor, out DownwardGateCue cue, out int length)
+    {
+        ushort operand = cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2));
+        (DownwardGateCue Cue, int Length)? decoded = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
+        {
+            RoomPlmInstruction.ClearDownwardGateTrigger => (DownwardGateCue.ClearTrigger, 2),
+            RoomPlmInstruction.InstallPreInstruction => ((DownwardGatePreInstruction)operand == DownwardGatePreInstruction.WakeIfTriggered
+                ? DownwardGateCue.ArmWakeIfTriggered : DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow, 4),
+            RoomPlmInstruction.SpawnDownwardGateProjectile => (DownwardGateCue.SpawnMovingGate, 4),
+            RoomPlmInstruction.WakeDownwardGateProjectile => (DownwardGateCue.WakeGateProjectile, 4),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DownwardGateCue.QueueMovementSound, 3),
+            _ => null,
+        };
+        (cue, length) = decoded ?? default;
+        if (decoded is null)
+            return false;
+        if (cue == DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow)
+            AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow, operand, "downward gate closed wake");
+        if (cue == DownwardGateCue.SpawnMovingGate)
+            AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving, operand, "downward gate moving projectile");
+        if (cue == DownwardGateCue.QueueMovementSound)
+        {
+            AssertEqual(DownwardGatePlmRomData.MovementSound, ReadOperandByte(cartridge, cursor + 2), "downward gate movement sound");
+            AssertEqual((byte)6, DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued, "downward gate movement sound queue cap");
+        }
+        return true;
     }
 
     /// <summary>The Brinstar plants' programs equal their native lists.</summary>

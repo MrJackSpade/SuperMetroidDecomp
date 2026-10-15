@@ -211,7 +211,7 @@ internal sealed class BlockReactionPlms
             slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord)
                 .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.SpeedBoosterParent)
                 .Raw;
-            slot.InstructionPointer = definition.InstructionPointer;
+            slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             level.SetForegroundEntry(
                 blockIndex,
@@ -487,7 +487,7 @@ internal sealed class BlockReactionPlms
             }
 
             program = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
-                ? PlmProgramStart.Native(RoomPlmInstructionLists.BombReactionSpeedBlock)
+                ? PlmProgramStart.Typed(SpeedBoosterBlockProgram.BombReveal)
                 : PlmProgramStart.Delete;
         }
 

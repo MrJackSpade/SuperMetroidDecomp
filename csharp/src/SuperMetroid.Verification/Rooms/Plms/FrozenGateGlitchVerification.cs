@@ -98,7 +98,7 @@ internal static class FrozenGateGlitchVerification
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual((ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow,
             gate.PreInstruction, "Caterpillar gate enters proximity-aware sleep");
-        ushort sleepingInstruction = gate.InstructionPointer;
+        Enum sleepingProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
 
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
@@ -133,7 +133,7 @@ internal static class FrozenGateGlitchVerification
         plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(FrozenGateCameraX, FrozenGateCameraY), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        bool gateWoke = gate.InstructionPointer != sleepingInstruction;
+        bool gateWoke = gate.Animation is not { } woken || !woken.RunningProgram.Equals(sleepingProgram);
         AssertEqual(expected.GateWoke, gateWoke,
             $"{expected.Distance}-pixel case preserves native gate wake state");
 

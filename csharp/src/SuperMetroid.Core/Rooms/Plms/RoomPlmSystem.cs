@@ -374,29 +374,6 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
-                case RoomPlmInstruction.ClearDownwardGateTrigger:
-                    slot.LoopTimer = 0;
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
-
-                case RoomPlmInstruction.SpawnDownwardGateProjectile:
-                    Gates._downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-                        DownwardGateProjectileOperation.Spawn,
-                        ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2))),
-                        slot.BlockIndex));
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-                    continue;
-
-                case RoomPlmInstruction.WakeDownwardGateProjectile:
-                    // $BBF0 consumes but does not use the following list address. It locates
-                    // the actor whose variable-E stores this PLM's native block byte index.
-                    Gates._downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-                        DownwardGateProjectileOperation.Wake,
-                        DefinitionPointer: 0,
-                        slot.BlockIndex));
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
-                    continue;
-
                 case RoomPlmInstruction.Goto:
                     // `$84:8724` replaces Y with the following little-endian pointer. All
                     // eight collision entry lists use it to share their dimension-specific

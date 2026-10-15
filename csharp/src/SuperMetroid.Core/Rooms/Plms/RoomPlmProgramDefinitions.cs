@@ -37,13 +37,11 @@ internal static class RoomPlmProgramDefinitions
         MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value) ||
         WreckedShipAtticPlmRomData.TryReadInstructionWord(address, out value) ||
         ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out value) ||
-        SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
         RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        DownwardGatePlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
@@ -62,12 +60,10 @@ internal static class RoomPlmProgramDefinitions
         TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value) ||
-        SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        DownwardGatePlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||

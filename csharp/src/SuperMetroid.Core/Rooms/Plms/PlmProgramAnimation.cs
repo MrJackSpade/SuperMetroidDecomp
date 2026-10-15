@@ -36,6 +36,13 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     /// <summary>The bank-$84 draw list <paramref name="frame"/> draws.</summary>
     private protected abstract ushort DrawList(TFrame frame);
 
+    /// <summary>Draws <paramref name="frame"/> at the slot's block: its bank-$84 draw list unless the family draws it otherwise.</summary>
+    private protected virtual void Draw(TFrame frame, PlmSlot slot, PlmAnimationContext context) =>
+        context.Draw(slot, DrawList(frame));
+
+    /// <inheritdoc/>
+    internal sealed override Enum RunningProgram => Program;
+
     /// <summary>Carries out <paramref name="cue"/>; returns a program to continue at, or null to continue in place.</summary>
     private protected abstract TProgram? Publish(TCue cue, PlmSlot slot, PlmAnimationContext context);
 
@@ -79,7 +86,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                 case AnimationProgramStepKind.Show:
                     Cursor = next;
                     slot.InstructionTimer = NativeCountdown.FromRaw((ushort)step.Duration);
-                    context.Draw(slot, DrawList(step.Frame));
+                    Draw(step.Frame, slot, context);
                     return;
                 case AnimationProgramStepKind.Wait:
                     Cursor = next;

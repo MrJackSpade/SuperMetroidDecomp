@@ -177,7 +177,7 @@ internal sealed class PlmBlockDrawing
                 DrawPlmWordAt(level, streamer, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(compiled.Vertical ? 0 : block)), checked((short)(compiled.Vertical ? block : run))), compiled.WordAt(run, block), view, ShotBlockVisuals?.GetWord(drawPointer, run, block));
             return;
         }
-        if (drawPointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw)
+        if (drawPointer == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
         {
             DrawPlmWordAt(level, streamer, drawPointer, origin, SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord, view, SpeedBoosterVisuals?.GetWord(drawPointer, 0, 0));
             return;

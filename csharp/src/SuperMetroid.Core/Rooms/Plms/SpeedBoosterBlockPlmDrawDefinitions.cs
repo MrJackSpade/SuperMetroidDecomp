@@ -9,12 +9,24 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     /// <summary><c>$84:A4F3</c>: bomb reveal of one Speed Booster block.</summary>
     internal const string BombRevealVisualId = "bomb-reveal";
 
+    /// <summary><c>DrawInst_BombReactionSpeedBlock</c>, $84:A4F3: the bomb reveal's one-block draw.</summary>
+    internal const ushort BombRevealDraw = 0xa4f3;
+
+    /// <summary>The bytes between successive one-block crumble draws.</summary>
+    private const int CrumbleDrawStride = 6;
+
+    /// <summary>The shared one-block crumble draw for crumble image <paramref name="frame"/> (0..3).</summary>
+    internal static ushort CrumbleDrawList(int frame) =>
+        (uint)frame < 4
+            ? checked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * CrumbleDrawStride))
+            : throw new ArgumentOutOfRangeException(nameof(frame));
+
     /// <summary>Physical type-B parent with the named Speed Booster visual block.</summary>
     internal static ushort BombRevealWord => (ushort)(0xb000 | RoomPlmVisualBlockIndexes.SpeedBoosterParent);
 
     /// <summary>Materializes the one-block native reveal only when artwork import/export requests it.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BombReveal =>
-        new(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw,
+        new(BombRevealDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
             {
                 new(1, new ushort[] { BombRevealWord }, new(0, 0)),
@@ -27,7 +39,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     }
 
     /// <summary>Accepts only the bomb-reveal draw pointer and rejects unrelated PLM drawings.</summary>
-    internal static string VisualId(ushort pointer) => pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw
+    internal static string VisualId(ushort pointer) => pointer == BombRevealDraw
         ? BombRevealVisualId
         : throw new InvalidDataException(
             $"Speed Booster draw ${pointer:X4} has no visual ID.");

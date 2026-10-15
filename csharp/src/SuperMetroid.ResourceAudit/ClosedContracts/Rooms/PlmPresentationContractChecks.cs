@@ -88,8 +88,8 @@ internal static class PlmPresentationContractChecks
                     restore.GetWord((ushort)BombBlockRestoreDraw.Square, 1, 2);
                     tourian.GetWord((ushort)TourianAccessDraw.Clear, 5, 3);
                     tourian.GetWord((ushort)TourianAccessDraw.EmptyRow, 1, 0);
-                    speed.GetWord(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw, 0, 0);
-                    speed.GetWord(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw, 0, 1);
+                    speed.GetWord(SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw, 0, 0);
+                    speed.GetWord(SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw, 0, 1);
                     elevatube.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0);
                     elevatube.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 1, 0);
                     spore.GetWord((ushort)SporeSpawnCeilingDraw.Clear, 1, 1);

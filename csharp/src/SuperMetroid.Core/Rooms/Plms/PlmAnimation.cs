@@ -22,4 +22,7 @@ internal abstract class PlmAnimation
 
     /// <summary>Continues past the sleep the animation rests on, as a native wake steps over the sleep instruction.</summary>
     internal abstract void WakePastSleep();
+
+    /// <summary>The program the animation is running, as its family's program enum.</summary>
+    internal abstract Enum RunningProgram { get; }
 }

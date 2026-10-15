@@ -19,7 +19,7 @@ public static class BombSpecialBlockReactions
         if (index < 8)
             return PlmProgramStart.Native(RoomPlmInstructionLists.CrumbleRevealBySize(index & 3));
         return index is 0x0e or 0x0f or >= 0x1a and <= 0x1d
-            ? PlmProgramStart.Native(RoomPlmInstructionLists.BombReactionSpeedBlock)
+            ? PlmProgramStart.Typed(SpeedBoosterBlockProgram.BombReveal)
             : PlmProgramStart.Delete;
     }
 }

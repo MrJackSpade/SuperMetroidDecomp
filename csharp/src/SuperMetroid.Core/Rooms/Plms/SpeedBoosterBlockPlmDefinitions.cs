@@ -3,32 +3,32 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Typed catalog for all five retail Speed Booster collision-block variants.</summary>
-public static class SpeedBoosterBlockPlmDefinitions
+internal static class SpeedBoosterBlockPlmDefinitions
 {
     /// <summary>Brinstar BTS <c>$82</c>: respawning, slower crumble.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition BrinstarSlowRespawning = new(
         PlmHeaderId.SpeedBlockBrinstarSlowRespawning,
-        RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning);
+        SpeedBoosterBlockProgram.BrinstarSlowRespawning);
 
     /// <summary>Brinstar BTS <c>$83</c>: permanent, slower crumble.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition BrinstarSlowPermanent = new(
         PlmHeaderId.SpeedBlockBrinstarSlowPermanent,
-        RoomPlmInstructionLists.SpeedBlockBrinstarSlowPermanent);
+        SpeedBoosterBlockProgram.BrinstarSlowPermanent);
 
     /// <summary>Area-independent BTS <c>$0E</c>: standard respawning block.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition Respawning = new(
         PlmHeaderId.SpeedBlockRespawning,
-        RoomPlmInstructionLists.SpeedBlockRespawning);
+        SpeedBoosterBlockProgram.Respawning);
 
     /// <summary>Brinstar BTS <c>$84</c>: Dachora-room standard respawning block.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition DachoraRespawning = new(
         PlmHeaderId.SpeedBlockDachoraRespawning,
-        RoomPlmInstructionLists.SpeedBlockDachoraRespawning);
+        SpeedBoosterBlockProgram.DachoraRespawning);
 
     /// <summary>Area-independent BTS <c>$0F</c> and Brinstar BTS <c>$85</c>: permanent block.</summary>
     public static readonly SpeedBoosterBlockPlmDefinition Permanent = new(
         PlmHeaderId.SpeedBlockPermanent,
-        RoomPlmInstructionLists.SpeedBlockPermanent);
+        SpeedBoosterBlockProgram.Permanent);
 
     /// <summary>
     /// Resolves precisely the two area-independent and four Brinstar area-table entries

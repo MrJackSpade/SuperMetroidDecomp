@@ -73,8 +73,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
         RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
         AssertEqual(PlmHeaderId.SpeedBlockRespawning, slot.HeaderPointer,
             "BTS $0E selects the standard respawning header");
-        AssertEqual(RoomPlmInstructionLists.SpeedBlockRespawning, slot.InstructionPointer,
-            "BTS $0E selects list $C974");
+        AssertTrue(slot.Animation is SpeedBoosterBlockPlmAnimation { Program: SpeedBoosterBlockProgram.Respawning },
+            "BTS $0E starts the respawning program");
 
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         StepSpeedBoosterPlm(plms, bus, level, streamer);
@@ -146,8 +146,8 @@ internal static class SpeedBoosterCollisionBlocksVerification
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(expected.HeaderPointer, slot.HeaderPointer,
                 $"Brinstar BTS ${bts:X2} selects its exact PLM header");
-            AssertEqual(expected.InstructionPointer, slot.InstructionPointer,
-                $"Brinstar BTS ${bts:X2} selects its exact instruction list");
+            AssertTrue(slot.Animation is SpeedBoosterBlockPlmAnimation animation && animation.Program == expected.Program,
+                $"Brinstar BTS ${bts:X2} starts its exact typed program");
             AssertEqual(RoomCollisionType.Air,
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,
                 $"Brinstar BTS ${bts:X2} clears collision synchronously");

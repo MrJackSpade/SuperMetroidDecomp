@@ -21,6 +21,13 @@ internal readonly record struct PlmAnimationContext(
     internal void Draw(PlmSlot slot, ushort drawList) =>
         Plms.Drawing.DrawPlmInstruction(Bus, Level, Streamer, slot.HeaderPointer, slot.BlockIndex, drawList, View);
 
+    /// <summary>
+    /// Redraws the slot's saved level word at its block, as <c>$84:8B17 Instruction_PLM_DrawPLMBlock</c> restores a
+    /// respawning block.
+    /// </summary>
+    internal void DrawRestoredBlock(PlmSlot slot) =>
+        Plms.Drawing.DrawLevelWord(Level, Streamer, slot.BlockIndex, slot.RestoreLevelWord, View);
+
     /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="maximumQueued"/>.</summary>
     internal void QueueSound(SoundEffectId sound, byte maximumQueued) =>
         Plms.Sounds._soundRequests.Add(Plms.Sounds.CreateSoundRequest(sound, MaximumQueued: maximumQueued));

@@ -29,6 +29,12 @@ internal static class NativePlmListDefinitions
     /// </summary>
     internal delegate bool CueReader<TCue>(IImportCartridgeSource cartridge, ushort cursor, out TCue cue, out int length);
 
+    /// <summary>
+    /// Decodes an instruction at <paramref name="cursor"/> that draws and ends the pass, such as the restore of a
+    /// respawning block: the typed frame it became, its duration and its native length, or false for any other word.
+    /// </summary>
+    internal delegate bool ShowReader<TFrame>(IImportCartridgeSource cartridge, ushort cursor, out TFrame frame, out int duration, out int length);
+
     /// <summary>The cue reader of families whose lists hold only draws, loops and deletions.</summary>
     internal static CueReader<TCue> NoCues<TCue>() where TCue : struct =>
         (_, _, out cue, out length) =>
@@ -56,15 +62,39 @@ internal static class NativePlmListDefinitions
         IReadOnlyList<(TProgram Program, ushort Entry)> entries,
         Func<TFrame, ushort> drawList,
         CueReader<TCue> cueAt,
-        string family)
+        string family,
+        ShowReader<TFrame>? showAt = null)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull
     {
         AssertEqual(Enum.GetValues<TProgram>().Length, entries.Count, $"every typed {family} program has a native entry");
         var oracle = new ProgramSetOracle<TProgram, TFrame, TCue>(cartridge, programs,
-            entries.ToDictionary(entry => entry.Entry, entry => entry.Program), drawList, cueAt, family);
+            entries.ToDictionary(entry => entry.Entry, entry => entry.Program), drawList, cueAt, family, showAt);
         return entries.Sum(entry => oracle.Compare(entry.Program, entry.Entry));
+    }
+
+    /// <summary>
+    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet"/> makes: a
+    /// typed cursor's step stands where the native instruction pointer would, for comparisons with native traces.
+    /// </summary>
+    internal static IReadOnlyDictionary<(TProgram Program, int Position), ushort> StepAddresses<TProgram, TFrame, TCue>(
+        IImportCartridgeSource cartridge,
+        AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        IReadOnlyList<(TProgram Program, ushort Entry)> entries,
+        Func<TFrame, ushort> drawList,
+        CueReader<TCue> cueAt,
+        string family,
+        ShowReader<TFrame>? showAt = null)
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
+        var oracle = new ProgramSetOracle<TProgram, TFrame, TCue>(cartridge, programs,
+            entries.ToDictionary(entry => entry.Entry, entry => entry.Program), drawList, cueAt, family, showAt);
+        foreach ((TProgram program, ushort entry) in entries)
+            oracle.Compare(program, entry);
+        return oracle.Addresses;
     }
 
     /// <summary>One family's typed programs beside its native lists.</summary>
@@ -74,11 +104,15 @@ internal static class NativePlmListDefinitions
         Dictionary<ushort, TProgram> byEntry,
         Func<TFrame, ushort> drawList,
         CueReader<TCue> cueAt,
-        string family)
+        string family,
+        ShowReader<TFrame>? showAt)
         where TProgram : struct, Enum
         where TFrame : struct
         where TCue : notnull
     {
+        /// <summary>The native address of each typed step the walks have reached.</summary>
+        internal Dictionary<(TProgram Program, int Position), ushort> Addresses { get; } = [];
+
         /// <summary>Compares one typed program with its native list and returns its typed step count.</summary>
         internal int Compare(TProgram program, ushort entry)
         {
@@ -87,6 +121,7 @@ internal static class NativePlmListDefinitions
             int index = 0;
             for (int command = 0; command < 512; command++)
             {
+                Addresses[(program, index)] = cursor;
                 string at = $"{family} {program} step {index} at $84:{cursor:X4}";
                 AssertTrue(index < steps.Count, $"{at}: the typed program ends before the native list");
                 AnimationProgramStep<TProgram, TFrame, TCue> step = steps[index];
@@ -131,6 +166,15 @@ internal static class NativePlmListDefinitions
                         index++;
                         continue;
                     default:
+                        if (showAt is not null && showAt(cartridge, cursor, out TFrame shown, out int shownFor, out int showLength))
+                        {
+                            AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: instruction ${word:X4} draws");
+                            AssertEqual(shown, step.Frame, $"{at}: drawn frame");
+                            AssertEqual(shownFor, step.Duration, $"{at}: draw duration");
+                            cursor = unchecked((ushort)(cursor + showLength));
+                            index++;
+                            continue;
+                        }
                         AssertTrue(cueAt(cartridge, cursor, out TCue cue, out int length), $"{at}: native instruction ${word:X4} is known");
                         AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: instruction ${word:X4}");
                         AssertEqual(cue, step.PublishedCue, $"{at}: cue");

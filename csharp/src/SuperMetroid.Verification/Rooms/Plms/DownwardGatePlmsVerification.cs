@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.DownwardGateVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDownwardGateDrawsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.LookupDownwardGateProgramVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupDownwardGateSelectionVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -87,16 +86,13 @@ internal static class DownwardGatePlmsVerification
         Suite(nameof(VerifyDownwardGateDrawVisuals), () => VerifyDownwardGateDrawVisuals(rom));
     }
 
-    /// <summary>Runs retail control, draw-pointer, operand, and sound comparisons for downward-gate instruction lists.</summary>
+    /// <summary>Compares the downward gate's typed programs with its retail instruction lists.</summary>
     private static void VerifyDownwardGateProgramDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Gate program oracle revision");
-        Suite(nameof(VerifyDownwardGateProgramControls), () => VerifyDownwardGateProgramControls(rom));
-        Suite(nameof(VerifyDownwardGateProgramDraws), () => VerifyDownwardGateProgramDraws(rom));
-        Suite(nameof(VerifyDownwardGateProgramOperands), () => VerifyDownwardGateProgramOperands(rom));
-        Suite(nameof(VerifyDownwardGateProgramSounds), () => VerifyDownwardGateProgramSounds(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifyDownwardGatePrograms), () => RoomPlmProgramsVerification.VerifyDownwardGatePrograms(rom));
     }
 
     /// <summary>Checks resident slot order, gate collision, closed-actor spawning, shot wake, four-tile opening, and delayed moving-close actor.</summary>
@@ -112,8 +108,8 @@ internal static class DownwardGatePlmsVerification
         AssertEqual(PlmHeaderId.DownwardGate, slots[0].HeaderPointer,
             "first resident slot is the closed downward gate");
         AssertEqual(38, slots[1].NativeSlotIndex, "shot block receives the next native slot");
-        AssertEqual(RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
-            slots[1].InstructionPointer, "argument zero selects the retail blue-left list");
+        AssertTrue(slots[1].Animation is DownwardGatePlmAnimation { Program: DownwardGateProgram.TriggerBlueLeft },
+            "argument zero selects the blue-left trigger program");
 
         for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
         {

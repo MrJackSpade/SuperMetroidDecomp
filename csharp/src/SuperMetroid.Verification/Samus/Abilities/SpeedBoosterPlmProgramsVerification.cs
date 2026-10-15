@@ -12,78 +12,11 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Verification.Rooms.Plms;
 
 /// <summary>Checks Speed Booster block PLM selection, compiled programs, sound, and physical reveal behavior.</summary>
 internal static class SpeedBoosterPlmProgramsVerification
 {
-    /// <summary>Lists native instruction starts, timed draw counts, and end offsets for five break programs.</summary>
-    private static (ushort Start, int Frames, ushort End)[] SpeedBlockNativeLayouts() =>
-        [(0xc951,7,0xc974),(0xc974,7,0xc997),(0xc997,7,0xc9ba),(0xc9cf,4,0xc9e4),(0xc9e4,4,0xc9f9)];
-
-    /// <summary>Checks every control word, word ownership, and native timing or terminal opcode against bank 84.</summary>
-    private static void VerifySpeedBlockControlMapping(SuperMetroidAddressSpace rom)
-    {
-        var controls = new HashSet<ushort> {0xc928,0xc92c};
-        var ordered = new List<ushort> {0xc928,0xc92a,0xc92c};
-        foreach (var layout in SpeedBlockNativeLayouts())
-        {
-            controls.Add(layout.Start);
-            ordered.Add(layout.Start);
-            int cursor = layout.Start + 3;
-            for (int frame = 0; frame < layout.Frames; frame++, cursor += 4)
-            {
-                controls.Add((ushort)cursor);
-                ordered.Add((ushort)cursor);
-                ordered.Add((ushort)(cursor + 2));
-            }
-            for (; cursor < layout.End; cursor += 2)
-            {
-                controls.Add((ushort)cursor);
-                ordered.Add((ushort)cursor);
-            }
-        }
-        AssertEqual(74,ordered.Count,"speed native word extent");
-        AssertTrue(ordered.SequenceEqual(SpeedBoosterBlockPlmProgramDefinitions.MechanicsWordAddresses()),"speed complete native word enumeration");
-        var known = ordered.ToHashSet();
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            bool found = SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord((ushort)address,out ushort value);
-            AssertEqual(known.Contains((ushort)address),found,"speed complete word domain including unused Screw Attack gaps");
-            if (!found) AssertEqual((ushort)0,value,"speed missing word cleared");
-            else if (controls.Contains((ushort)address))
-                AssertEqual(ReadRomWord(rom,0x840000 | address),value,"speed native delays, queue, clone/ordinary restore and deletion");
-        }
-    }
-
-    /// <summary>Checks all interleaved draw-list operands against the native breakup and reveal programs.</summary>
-    private static void VerifySpeedBlockDrawOperandMapping(SuperMetroidAddressSpace rom)
-    {
-        var addresses = new List<ushort> {0xc92a};
-        foreach (var layout in SpeedBlockNativeLayouts())
-        for (int frame = 0; frame < layout.Frames; frame++)
-            addresses.Add((ushort)(layout.Start + 5 + frame * 4));
-        AssertEqual(30,addresses.Count,"speed native draw extent");
-        foreach (ushort address in addresses)
-        {
-            AssertTrue(SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address,out ushort value),"speed native draw operand owned");
-            AssertEqual(ReadRomWord(rom,0x840000 | address),value,"speed native forward/reverse breakup and bomb reveal selection");
-        }
-    }
-
-    /// <summary>Checks the five packed sound bytes and rejects all other byte addresses.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for speed block sound mapping")]
-    private static void VerifySpeedBlockSoundMapping(SuperMetroidAddressSpace rom)
-    {
-        ushort[] addresses = [0xc953,0xc976,0xc999,0xc9d1,0xc9e6];
-        AssertTrue(addresses.SequenceEqual(SpeedBoosterBlockPlmProgramDefinitions.MechanicsByteAddresses()),"speed native sound enumeration");
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            bool found = SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
-            AssertEqual(addresses.Contains((ushort)address),found,"speed complete packed sound domain");
-            AssertEqual(found ? rom.ReadCartridgeByte(0x840000 | address) : (byte)0,value,"speed native sound byte and missing output");
-        }
-    }
-
     /// <summary>Checks the bomb-reveal draw identity, one-run geometry, physical word, and continuation bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for speed block reveal draw mapping")]
     private static void VerifySpeedBlockRevealDrawMapping(SuperMetroidAddressSpace rom)
@@ -156,9 +89,14 @@ internal static class SpeedBoosterPlmProgramsVerification
             }
             ushort header = ReadRomWord(rom,tableAddress);
             AssertEqual((ushort)0xcdea,ReadRomWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
-            ushort expected = instruction ? ReadRomWord(rom,0x840000 | (header + 2)) : header;
-            AssertEqual(expected,instruction ? definition.InstructionPointer : (ushort)definition.HeaderPointer,
-                instruction ? "speed native selected instruction" : "speed native selected header");
+            if (instruction)
+            {
+                ushort list = ReadRomWord(rom,0x840000 | (header + 2));
+                AssertEqual(RoomPlmNativeListAddresses.SpeedBoosterBlockEntries.Single(entry => entry.Entry == list).Program,
+                    definition.Program, "speed native selected list starts its typed program");
+            }
+            else
+                AssertEqual(header,(ushort)definition.HeaderPointer,"speed native selected header");
         }
     }
 
@@ -169,9 +107,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySpeedBlockHeaderSelection), () => VerifySpeedBlockHeaderSelection(rom));
         Suite(nameof(VerifySpeedBlockInstructionSelection), () => VerifySpeedBlockInstructionSelection(rom));
-        Suite(nameof(VerifySpeedBlockControlMapping), () => VerifySpeedBlockControlMapping(rom));
-        Suite(nameof(VerifySpeedBlockDrawOperandMapping), () => VerifySpeedBlockDrawOperandMapping(rom));
-        Suite(nameof(VerifySpeedBlockSoundMapping), () => VerifySpeedBlockSoundMapping(rom));
+        Suite(nameof(RoomPlmProgramsVerification.VerifySpeedBoosterBlockPrograms), () => RoomPlmProgramsVerification.VerifySpeedBoosterBlockPrograms(rom));
 
         Suite(nameof(VerifySpeedBlockRevealDrawMapping), () => VerifySpeedBlockRevealDrawMapping(rom));
 
@@ -224,7 +160,7 @@ internal static class SpeedBoosterPlmProgramsVerification
             "bombed Speed Booster reveal reads no compiled source bytes");
 
         Console.WriteLine(
-            "Speed-block PLMs: 74 words/five sound bytes and one physical reveal match ROM; all five boosted contacts and bomb reveal execute with source reads forbidden.");
+            "Speed-block PLMs: the typed programs and one physical reveal match ROM; all five boosted contacts and bomb reveal execute with source reads forbidden.");
     }
 
     /// <summary>Rejects runtime reads from compiled Speed Booster programs and their physical draw lists.</summary>

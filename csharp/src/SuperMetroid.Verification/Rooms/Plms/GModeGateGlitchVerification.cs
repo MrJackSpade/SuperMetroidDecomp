@@ -81,7 +81,7 @@ internal static class GModeGateGlitchVerification
             plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
-        ushort sleepingGateInstruction = gate.InstructionPointer;
+        Enum sleepingGateProgram = (gate.Animation ?? throw new InvalidOperationException("The gate runs no typed program.")).RunningProgram;
         while (plms.SlotTable.ActiveCount < 40)
         {
             AssertTrue(plms.TrySpawnProjectileShotBlock(
@@ -131,7 +131,7 @@ internal static class GModeGateGlitchVerification
 
             RoomPlmSlotSnapshot currentGate = plms.PopulationSlots.Single(slot =>
                 slot.HeaderPointer == PlmHeaderId.DownwardGate);
-            if (currentGate.InstructionPointer != sleepingGateInstruction && openedFrame < 0)
+            if ((currentGate.Animation is not { } current || !current.RunningProgram.Equals(sleepingGateProgram)) && openedFrame < 0)
                 openedFrame = frame;
         }
 

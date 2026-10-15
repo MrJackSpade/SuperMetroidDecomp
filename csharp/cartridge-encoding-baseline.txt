@@ -114,18 +114,13 @@ csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelData.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelWord.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Rooms/Plms/BossRoomMutationPlms.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Rooms/Plms/CollectiblePlms.cs	SME6340	6
-csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGatePlmProgramDefinitions.cs	SME6341	4
-csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGateShotBlockDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubeBehavior.cs	SME6340	2
 csharp/src/SuperMetroid.Core/Rooms/Plms/PlmBlockDrawing.cs	SME6340	5
-csharp/src/SuperMetroid.Core/Rooms/Plms/PlmBlockDrawing.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Rooms/Plms/PlmTilemapUpdate.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmSharedDeleteProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmSystem.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmVisualBlockIndexes.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Rooms/Plms/SaveStationElectricityInstructionProgramDefinitions.cs	SME6341	4
-csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterBlockPlmDrawDefinitions.cs	SME6341	1
-csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterBlockPlmProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Rooms/Plms/StationPlms.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Rooms/RoomIdentities.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Rooms/RoomLoader.cs	SME6340	23
@@ -1372,8 +1367,7 @@ csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerificat
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterCollisionBlocksVerification.cs	SME6340	33
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterEchoStopVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPickupVerification.cs	SME6340	9
-csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPlmProgramsVerification.cs	SME6340	64
-csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPlmProgramsVerification.cs	SME6342	1
+csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPlmProgramsVerification.cs	SME6340	40
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterVisualsVerification.cs	SME6340	21
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedPaletteOverrunVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Samus/Abilities/XrayControlsVerification.cs	SME6340	2
@@ -1607,7 +1601,6 @@ csharp/test-support/VerificationAccess.Core/Rooms/Plms/NoobTubePlmProgramDefinit
 csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmPopulationDefinitionsAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmScrollProgramDefinitionsAccess.cs	SME6340	2
 csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmSystemAccess.cs	SME6340	4
-csharp/test-support/VerificationAccess.Core/Rooms/Plms/SpeedBoosterBlockPlmDrawDefinitionsAccess.cs	SME6341	1
 csharp/test-support/VerificationAccess.Core/Rooms/Scrolling/ScrollBoundaryCameraAccess.cs	SME6340	1
 csharp/test-support/VerificationAccess.Core/Runtime/Attract/AttractDemoRomDataInputObjects.cs	SME6340	2
 csharp/test-support/VerificationAccess.Core/Runtime/SuperMetroidRuntimeAccess.cs	SME6340	3

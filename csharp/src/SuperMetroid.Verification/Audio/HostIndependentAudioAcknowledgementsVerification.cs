@@ -48,10 +48,10 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             FrontendFrame silentFrame = silent.Step(0);
             FrontendFrame playingFrame = playing.Step(0);
-            AssertSequenceEqual(silentFrame.AudioEvents, playingFrame.AudioEvents, $"published audio events after update {update}");
+            AssertSequenceEqual(silent.AudioEventsForVerification, playing.AudioEventsForVerification, $"published audio events after update {update}");
             AssertEqual(silent.AudioAcknowledgementsForVerification, playing.AudioAcknowledgementsForVerification,
                 $"session acknowledgements after update {update}");
-            oracle.Render(new AudioFrameEvents(silentFrame.AudioEvents), expectedPcm);
+            oracle.Render(new AudioFrameEvents(silent.AudioEventsForVerification), expectedPcm);
             playing.CopyAudioFrame(pcm);
             AssertTrue(pcm.SequenceEqual(expectedPcm), $"session PCM after update {update}");
             update++;

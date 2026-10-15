@@ -38,7 +38,7 @@ internal static class EnemyPickupDefinitionsVerification
                 PreInstruction = 0xffff,
                 PersistsOnSamusContact = true,
             };
-            EnemyDeathsAndDrops.BeginEnemyPickup(projectile, kind);
+            EnemyDeathsAndDropsConstants.BeginEnemyPickup(projectile, kind);
             EnemyPickupAnimationDefinition expected = EnemyPickupDefinitions.Animation(kind);
             AssertEqual(expected.TableOffset, projectile.Variable0,
                 $"production pickup table offset {kind}");

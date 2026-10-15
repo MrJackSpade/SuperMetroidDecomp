@@ -61,13 +61,22 @@ internal static class SymbolRemover
                         retired.Add($"{RuntimeName(field.ContainingType)}\t{field.Name}");
                 }
                 var outermost = removals.Distinct().Where(n => !removals.Any(other => other != n && other.Span.Contains(n.Span) && other.Contains(n))).ToList();
-                if (outermost.Count == 0)
+                // Documentation that links a removed declaration keeps its name as code text.
+                var orphanedLinks = root.DescendantNodes(descendIntoTrivia: true).OfType<XmlEmptyElementSyntax>()
+                    .Where(element => element.Attributes.OfType<XmlCrefAttributeSyntax>().FirstOrDefault() is { } cref
+                        && !outermost.Any(n => n.FullSpan.Contains(element.Span))
+                        && Removed(SymbolIdentity.Normalize(model.GetSymbolInfo(cref.Cref).Symbol), identity, targets))
+                    .ToList();
+                if (outermost.Count == 0 && orphanedLinks.Count == 0)
                     continue;
                 // Removing an enum member must not renumber the members after it: each surviving
                 // implicitly valued member that follows a removed one gets its value written out.
                 var renumbered = ImplicitlyValuedSurvivors(model, outermost);
-                var marked = root.ReplaceNodes(outermost.Concat(renumbered.Keys), (original, rewritten) =>
-                    renumbered.TryGetValue(original, out var value)
+                var marked = root.ReplaceNodes(outermost.Concat(renumbered.Keys).Concat(orphanedLinks), (original, rewritten) =>
+                    original is XmlEmptyElementSyntax link
+                        ? SyntaxFactory.XmlElement("c", SyntaxFactory.SingletonList<XmlNodeSyntax>(
+                            SyntaxFactory.XmlText(link.Attributes.OfType<XmlCrefAttributeSyntax>().First().Cref.ToString())))
+                    : renumbered.TryGetValue(original, out var value)
                         ? ((EnumMemberDeclarationSyntax)rewritten).WithIdentifier(((EnumMemberDeclarationSyntax)rewritten).Identifier.WithTrailingTrivia())
                             .WithEqualsValue(SyntaxFactory.EqualsValueClause(
                                 SyntaxFactory.Token(SyntaxKind.EqualsToken).WithLeadingTrivia(SyntaxFactory.Space).WithTrailingTrivia(SyntaxFactory.Space),
@@ -93,6 +102,15 @@ internal static class SymbolRemover
         File.WriteAllLines(retiredFieldsPath, retired, new UTF8Encoding(false));
         Console.WriteLine($"Removed {removedNodes} declarations of {targets.Count} findings; deleted {deletedFiles} emptied files; " +
             $"{retired.Count} retired instance fields written to {retiredFieldsPath}.");
+    }
+
+    /// <summary>Whether a symbol is removed itself or inside a removed type.</summary>
+    private static bool Removed(ISymbol? symbol, SymbolIdentity identity, HashSet<string> targets)
+    {
+        for (var current = symbol; current is not null and not INamespaceSymbol; current = current.ContainingSymbol)
+            if (identity.Key(SymbolIdentity.Normalize(current)) is { } key && targets.Contains(key))
+                return true;
+        return false;
     }
 
     /// <summary>The syntax a set of positional-parameter removals takes out of one file.</summary>

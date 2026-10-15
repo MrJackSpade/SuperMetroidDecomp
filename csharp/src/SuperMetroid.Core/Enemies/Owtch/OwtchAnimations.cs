@@ -46,12 +46,6 @@ internal static class OwtchAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params OwtchProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => OwtchFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue> Show(int pose, int duration) => AnimationProgramStep<OwtchProgram, OwtchFrame, OwtchCue>.Show(new(pose), duration);
 

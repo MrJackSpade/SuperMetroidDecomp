@@ -32,12 +32,6 @@ internal static class TourianEntranceStatueAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params TourianEntranceStatueProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => TourianEntranceStatueFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Ends the actor's program, as the native stop does.</summary>
     private static AnimationProgramStep<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue> Stop => AnimationProgramStep<TourianEntranceStatueProgram, TourianEntranceStatueFrame, NoAnimationCue>.Stop;
 }

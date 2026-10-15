@@ -71,12 +71,14 @@ public static class DebuggerSaveStateSmokeTest
             var expected = new FrontendFrame[continuationFrames];
             var expectedPcm = new short[continuationFrames][];
             var expectedAcknowledgements = new CartridgeAudioAcknowledgements[continuationFrames];
+            var expectedAudioEvents = new AudioEvent[continuationFrames][];
             for (int frame = 0; frame < continuationFrames; frame++)
             {
                 expected[frame] = game.Step(0).WithCopiedPixels();
                 expectedPcm[frame] = new short[CartridgeAudioSession.PcmSamplesPerFrame];
                 game.CopyAudioFrame(expectedPcm[frame]);
                 expectedAcknowledgements[frame] = game.AudioAcknowledgementsForVerification;
+                expectedAudioEvents[frame] = [.. game.AudioEventsForVerification];
             }
 
             DebuggerSaveStateLoadResult loaded = store.Load(0);
@@ -122,7 +124,7 @@ public static class DebuggerSaveStateSmokeTest
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
                     !actual.Pixels.SequenceEqual(wanted.Pixels) ||
-                    !actual.AudioEvents.SequenceEqual(wanted.AudioEvents) ||
+                    !loaded.Game.AudioEventsForVerification.SequenceEqual(expectedAudioEvents[frame]) ||
                     !actualPcm.SequenceEqual(expectedPcm[frame]) ||
                     actualAcknowledgements != expectedAcknowledgements[frame])
                 {

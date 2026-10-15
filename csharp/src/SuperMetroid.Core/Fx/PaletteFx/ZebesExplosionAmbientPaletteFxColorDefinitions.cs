@@ -47,13 +47,4 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
 
     /// <summary>The afterglow and lava programs in definition order.</summary>
     public static IReadOnlyList<ZebesExplosionAmbientPaletteFxColorDefinition> All { get; } = Array.AsReadOnly(Definitions);
-
-    /// <summary>Returns the constant afterglow hold or lava's descending then ascending frame duration.</summary>
-    internal static ushort Duration(
-        ZebesExplosionAmbientPaletteFxProgramOwner owner,
-        int frame) => owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow
-            ? (ushort)16
-            : (uint)frame < 10
-                ? (ushort)(frame <= 4 ? 9 - frame : frame)
-                : throw new ArgumentOutOfRangeException(nameof(frame));
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Title;
@@ -54,7 +55,7 @@ internal static class RetailFrontendTests
             var actual = captured.StepCaptured(input, tick + 1, 2);
             if (expected.GameState != actual.Frame.GameState || expected.Phase != actual.Frame.Phase ||
                 expected.FrameNumber != actual.Frame.FrameNumber ||
-                !expected.AudioEvents.SequenceEqual(actual.Frame.AudioEvents))
+                !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Frontend state/audio diverged at tick {tick}.");
             states.Add(expected.GameState);
             var packet = actual.Snapshot ?? throw new InvalidOperationException($"Legacy raster fallback at {expected.Phase}.");

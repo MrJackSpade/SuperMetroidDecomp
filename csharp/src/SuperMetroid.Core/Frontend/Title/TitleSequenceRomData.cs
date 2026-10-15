@@ -58,8 +58,6 @@ public static class TitleSequenceRomData
             new(TitleSequencePhase.MetroidThreeText, 0x8ba09d, new(129, 112), 0x0200);
         /// <summary>Byte length of a title text-list timed entry: one duration word followed by one bank-$8C spritemap-pointer word.</summary>
         public const int TimedEntryByteCount = 4;
-        /// <summary>Byte length of a command word in a bank-$8B title text instruction list.</summary>
-        public const int InstructionWordByteCount = 2;
         /// <summary>High bit distinguishing a code-pointer command from a timed duration in title text lists.</summary>
         public const ushort CommandBit = 0x8000;
     }

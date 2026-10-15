@@ -108,6 +108,10 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
             case RecursivePatternSyntax when model.GetOperation(node) is IRecursivePatternOperation recursive:
                 targets.Add(recursive.DeconstructSymbol);
                 return;
+            // An attribute binds to its constructor; applying it also uses the attribute type itself.
+            case AttributeSyntax:
+                targets.AddRange(targets.OfType<IMethodSymbol>().Select(constructor => constructor.ContainingType).ToList());
+                return;
             case not ExpressionSyntax:
                 return;
         }

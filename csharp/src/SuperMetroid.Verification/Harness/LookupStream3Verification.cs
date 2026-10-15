@@ -1264,7 +1264,7 @@ internal static class LookupStream3Verification
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => _ = escapePrograms[invalid], "stream 3 escape lightning owner bounds");
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitions.Duration(invalid), "stream 3 escape lightning duration bounds");
+            AssertThrows<IndexOutOfRangeException>(() => CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.Duration(invalid), "stream 3 escape lightning duration bounds");
         Suite(nameof(VerifyGrappleConnectionDefinitions), () => VerifyGrappleConnectionDefinitions((SuperMetroidAddressSpace)rom));
         Suite(nameof(VerifyMotherBrainTurretDefinitions), () => VerifyMotherBrainTurretDefinitions((SuperMetroidAddressSpace)rom));
         foreach (MotherBrainContactPart part in Enum.GetValues<MotherBrainContactPart>())
@@ -3322,12 +3322,12 @@ internal static class LookupStream3Verification
         foreach (var entry in new[]
         {
             (DefinitionPointer: NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
-                ProgramStart: NintendoLogoFadePaletteFxColorDefinitions.BootLogoEntry,
-                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitions.BootLogoColorByteIndex,
+                ProgramStart: NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoEntry,
+                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex,
                 BranchesToSharedBody: false),
             (DefinitionPointer: NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
-                ProgramStart: NintendoLogoFadePaletteFxColorDefinitions.CopyrightEntry,
-                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitions.CopyrightColorByteIndex,
+                ProgramStart: NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightEntry,
+                ColorByteIndex: NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex,
                 BranchesToSharedBody: true),
         })
         {

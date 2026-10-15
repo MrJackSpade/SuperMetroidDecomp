@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
@@ -68,7 +69,7 @@ internal static class DoorMusicTimingVerification
                 musicWaitFrame = frame;
             var output = game.Step(0);
             // Bank loads and music-port writes are published in the update the CPU issues them.
-            foreach (var audioEvent in output.AudioEvents)
+            foreach (var audioEvent in game.AudioEventsForVerification)
             {
                 if (audioEvent.Kind == AudioEventKind.LoadAudioBank) uploadFrame = frame;
                 if (audioEvent == AudioEvent.WriteMusicPort(MusicCommand.SelectTrack(5)))

@@ -34,13 +34,13 @@ internal static class DeadTourianBehaviorVerification
         foreach (DeadTourianProgram pose in new[] { DeadTourianProgram.SidehopperIdle, DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead })
         {
             enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, pose);
-            ushort frame = DeadTourianAnimations.Spritemaps(pose).Single();
+            ushort frame = DeadTourianAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(enemies, corpse, 3), $"dead Sidehopper {pose} pose");
         }
 
         enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, DeadTourianProgram.SidehopperHopping);
-        ushort[] hop = DeadTourianAnimations.Spritemaps(DeadTourianProgram.SidehopperHopping).ToArray();
+        ushort[] hop = DeadTourianAnimationsConstants.Spritemaps(DeadTourianProgram.SidehopperHopping).ToArray();
         int[] holds = [2, 4, 5, 48, 5, 4, 5, 4];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(hop, holds),
             EnemyInstructionRunner.ShownFrames(enemies, corpse, holds.Sum() + 1), "dead Sidehopper hop");

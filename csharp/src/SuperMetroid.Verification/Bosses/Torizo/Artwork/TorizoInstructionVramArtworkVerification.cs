@@ -46,34 +46,35 @@ internal static class TorizoInstructionVramArtworkVerification
         for (int transferIndex = 0; transferIndex < TorizoInstructionVramTransferDefinitions.All.Length; transferIndex++)
         {
             TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.All[transferIndex];
-            AssertTrue(transfer.Instruction > previousInstruction,
+            ushort instruction = TorizoInstructionVramTransferDefinitions.Sites[transferIndex].Instruction;
+            AssertTrue(instruction > previousInstruction,
                 "Torizo transfer opcodes are distinct and sorted");
-            previousInstruction = transfer.Instruction;
-            authoredOpcodes.Add(transfer.Instruction);
-            AssertEqual((ushort)CommonEnemyInstruction.CopyToVram,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | transfer.Instruction)),
-                $"Torizo transfer $AA:{transfer.Instruction:X4} opcode");
-            int descriptor = 0xaa0000 | unchecked((ushort)(transfer.Instruction + 2));
+            previousInstruction = instruction;
+            authoredOpcodes.Add(instruction);
+            AssertEqual(CommonEnemyInstructionConstants.CopyToVram,
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaa0000 | instruction)),
+                $"Torizo transfer $AA:{instruction:X4} opcode");
+            int descriptor = 0xaa0000 | unchecked((ushort)(instruction + 2));
             AssertEqual(transfer.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor),
-                $"Torizo transfer $AA:{transfer.Instruction:X4} byte count");
+                $"Torizo transfer $AA:{instruction:X4} byte count");
             int nativeSource = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             AssertEqual(transfer.SourceAddress, nativeSource,
-                $"Torizo transfer $AA:{transfer.Instruction:X4} source");
+                $"Torizo transfer $AA:{instruction:X4} source");
             AssertEqual(transfer.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
-                $"Torizo transfer $AA:{transfer.Instruction:X4} VRAM destination");
+                $"Torizo transfer $AA:{instruction:X4} VRAM destination");
             AssertTrue((stock.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
                     out ReadOnlyMemory<byte> installed),
-                $"Torizo transfer $AA:{transfer.Instruction:X4} installed tile source");
+                $"Torizo transfer $AA:{instruction:X4} installed tile source");
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(rom.ReadCartridgeByte(transfer.SourceAddress + offset),
                     installed.Span[offset],
-                    $"Torizo transfer $AA:{transfer.Instruction:X4} byte {offset:X4}");
+                    $"Torizo transfer $AA:{instruction:X4} byte {offset:X4}");
             UploadTorizoTiles(installedEnemies, installedSlot, transferIndex);
             for (int offset = 0; offset < transfer.ByteCount; offset++)
                 AssertEqual(installed.Span[offset],
                     installedVram.ReadByte(transfer.DestinationWord * 2 + offset),
-                    $"production Torizo upload $AA:{transfer.Instruction:X4} byte {offset:X4}");
+                    $"production Torizo upload $AA:{instruction:X4} byte {offset:X4}");
         }
 
         // Detect a missed valid $814B descriptor in the native instruction
@@ -81,7 +82,7 @@ internal static class TorizoInstructionVramArtworkVerification
         for (int address = 0xb000; address < 0xd369; address++)
         {
             int opcode = 0xaa0000 | address;
-            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(opcode) != (ushort)CommonEnemyInstruction.CopyToVram)
+            if (CartridgeImportSource.Require(rom).ReadCartridgeWord(opcode) != CommonEnemyInstructionConstants.CopyToVram)
                 continue;
             int descriptor = opcode + 2;
             ushort byteCount = CartridgeImportSource.Require(rom).ReadCartridgeWord(descriptor);

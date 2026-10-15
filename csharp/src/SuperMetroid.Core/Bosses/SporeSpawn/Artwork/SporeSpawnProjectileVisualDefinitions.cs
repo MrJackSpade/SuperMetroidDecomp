@@ -14,8 +14,6 @@ internal static class SporeSpawnProjectileVisualDefinitions
     internal const ushort SporeProgram = 0xdc1e;
     /// <summary>The stalk segment's list at $86:DC2E.</summary>
     internal const ushort StalkProgram = 0xdc2e;
-    /// <summary>The shot spore's list at $86:DC34.</summary>
-    internal const ushort SporeShotProgram = 0xdc34;
 
     /// <summary>The installed projectile frames.</summary>
     internal const int ProjectileFrameCount = 17;

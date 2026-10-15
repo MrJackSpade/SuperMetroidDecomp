@@ -15,7 +15,8 @@ internal static class EnemyVisualSelectorInventoryVerification
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var (keyed, unresolved, owners) = EnemyVisualSelectorInventory.Collect(rom);
+        var owners = new Dictionary<int, string>();
+        var (keyed, unresolved) = EnemyVisualSelectorInventory.Collect(rom, owners);
         Console.WriteLine($"Enemy visual selectors: {keyed.Count} unique bank-resolved addresses.");
         if (keyed.Count != CompiledEnemyVisualSelectorsTooling.Count)
         {

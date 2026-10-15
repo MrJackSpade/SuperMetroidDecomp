@@ -15,6 +15,8 @@ internal static class PaletteFxContractTests
 {
     /// <summary><c>PalFxDef_CutsceneGunshipEngine</c> at <c>$8D:E1A8</c>.</summary>
     private const ushort GunshipEngineDefinitionPointer = 0xe1a8;
+    /// <summary>The gunship engine writes CGRAM word index <c>$00BE</c>.</summary>
+    private const ushort GunshipEngineColorIndex = 0x00be;
 
     /// <summary>
     /// Confirms #1152's required color dependency using compiler-only fixtures.
@@ -50,7 +52,7 @@ internal static class PaletteFxContractTests
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
         fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
-        int colorIndex = CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorIndex / sizeof(ushort);
+        int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
         fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");

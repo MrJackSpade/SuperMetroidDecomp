@@ -53,9 +53,6 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
     /// <summary>Bytes from one duration word through its terminal wait command.</summary>
     public const int FrameByteCount = 10;
 
-    /// <summary>The byte index of the first blue-spore color in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x00e2;
-
     /// <summary>The standard-room and Spore Spawn variants in definition order.</summary>
     public static IReadOnlyList<BrinstarBlueSporePaletteFxColorDefinition> All { get; } = new ProgramOwners();
 }

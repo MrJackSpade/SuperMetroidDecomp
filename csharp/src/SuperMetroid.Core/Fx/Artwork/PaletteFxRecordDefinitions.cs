@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal static class PaletteFxRecordDefinitions
 {
     /// <summary>Each record's address and layout, by record.</summary>
-    private static readonly (ushort Address, int Layout)[] Records =
+    internal static readonly (ushort Address, int Layout)[] Records =
     [
         new(0xc69a, 0),
         new(0xc6bc, 0),
@@ -682,9 +682,6 @@ internal static class PaletteFxRecordDefinitions
         [new(false, 11)],
         [new(false, 5)],
     ];
-
-    /// <summary>The records the programs show.</summary>
-    internal static int RecordCount => Records.Length;
 
     /// <summary>The bank-$8D address of <paramref name="frame"/>'s timer word; its colour words follow it.</summary>
     internal static ushort Address(PaletteFxFrame frame) => Records[frame.Record].Address;

@@ -12,5 +12,19 @@ internal static class MaridiaEnvironmentalPaletteFxColorDefinitionAccess
 
         /// <summary>Frames from the first record through the next first record.</summary>
         internal int CycleFrames => self.FrameCount * self.Duration;
+        /// <summary>Destination byte address from the named palette slot and first color.</summary>
+        public ushort ColorByteIndex => (ushort)(sizeof(ushort) * (16 *
+            (self.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
+                ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.WaterfallPalette
+                : MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.SandPalette)
+            + (self.Owner == MaridiaEnvironmentalPaletteOwner.SandPits
+                ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.SandPitFirstColor
+                : self.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
+                    ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.WaterfallFirstColor
+                    : MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.FallingFirstColor)));
+        /// <summary>The authored cadence for sand or waterfall animation.</summary>
+        public ushort Duration => self.Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
+            ? MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.WaterfallDuration
+            : MaridiaEnvironmentalPaletteFxColorDefinitionsConstants.SandDuration;
     }
 }

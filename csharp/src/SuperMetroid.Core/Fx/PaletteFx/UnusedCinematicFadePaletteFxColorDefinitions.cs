@@ -22,17 +22,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class UnusedCinematicFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The instruction-list entry at <c>$8D:D9D0</c>.</summary>
-    public const ushort ProgramStart = 0xd9d0;
-
     /// <summary>The first timed record at <c>$8D:D9D4</c>.</summary>
     public const ushort FirstFramePointer = 0xd9d4;
-
-    /// <summary>The terminal <c>delete</c> command at <c>$8D:DB60</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xdb60;
-
-    /// <summary>The fade writes CGRAM from byte index <c>$00A0</c>.</summary>
-    public const ushort ColorByteIndex = 0x00a0;
 
     /// <summary>The one-shot fade contains eleven timed records.</summary>
     public const int FrameCount = 11;
@@ -42,9 +33,6 @@ public static class UnusedCinematicFadePaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 36;
-
-    /// <summary>Each record lasts two frames.</summary>
-    public const ushort FrameDuration = 2;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
@@ -61,16 +49,5 @@ public static class UnusedCinematicFadePaletteFxColorDefinitions
             throw new ArgumentOutOfRangeException(nameof(color));
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
-    }
-
-    /// <summary>The program's header and terminal control-word addresses.</summary>
-    private enum ControlWord : ushort
-    {
-        /// <summary>The <c>SetColorIndex</c> opcode at the program entry.</summary>
-        SetColorIndex = ProgramStart,
-        /// <summary>The CGRAM byte-index operand of <c>SetColorIndex</c>.</summary>
-        ColorIndexOperand = ProgramStart + 2,
-        /// <summary>The terminal <c>Delete</c> opcode.</summary>
-        Delete = DeleteInstructionPointer,
     }
 }

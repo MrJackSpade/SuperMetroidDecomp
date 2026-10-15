@@ -42,12 +42,6 @@ internal static class BullAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params BullProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => BullFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<BullProgram, BullFrame, NoAnimationCue>.Show(new(pose), duration);
 

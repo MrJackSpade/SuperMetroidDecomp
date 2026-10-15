@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
@@ -25,4 +26,8 @@ internal static class HyperBeamPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="HyperBeamPaletteFxColorDefinitionsConstants.NativeLoopControlAddress"/>
         internal static int NativeLoopControlAddress => HyperBeamPaletteFxColorDefinitionsConstants.NativeLoopControlAddress;
     }
+    /// <summary>Number of authored timed color records.</summary>
+    public const int FrameCount = 10;
+    /// <summary>Fixed duration loaded by every authored color record.</summary>
+    public const ushort FrameDuration = 2;
 }

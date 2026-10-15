@@ -50,10 +50,6 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 
-    /// <summary>The terminal <c>goto</c> command after all timed records.</summary>
-    public ushort LoopInstructionPointer => unchecked((ushort)(FirstFramePointer +
-        CinematicGlowPaletteFxColorDefinitions.FrameCount * FrameByteCount));
-
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)
     {

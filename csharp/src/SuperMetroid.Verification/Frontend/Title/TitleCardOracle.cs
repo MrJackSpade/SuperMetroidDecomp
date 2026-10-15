@@ -34,7 +34,7 @@ internal static class TitleCardOracle
                 if (step.Command is { } command)
                 {
                     AssertEqual((ushort)command, word, $"{at}: command");
-                    address += TitleSequenceRomData.TextSequences.InstructionWordByteCount;
+                    address += TitleSequenceRomDataTextSequencesConstants.InstructionWordByteCount;
                 }
                 else
                 {

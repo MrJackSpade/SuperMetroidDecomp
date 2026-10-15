@@ -30,20 +30,9 @@ internal readonly struct InstructionItem
     internal static InstructionItem Frame(ushort duration) =>
         new(InstructionItemKind.Words, [duration, InstructionWord.Presentation], 0);
 
-    /// <summary>A timed frame whose visual operand is a compiled identity.</summary>
-    internal static InstructionItem Frame(ushort duration, ushort visual) =>
-        new(InstructionItemKind.Words, [duration, InstructionWord.Visual(visual)], 0);
-
     /// <summary>Asserts that preceding items land exactly at a native named entry point.</summary>
     internal static InstructionItem Entry(ushort address) => new(InstructionItemKind.Entry, [], address);
 
     /// <summary>Resumes layout at a later native address after bytes owned by another program.</summary>
     internal static InstructionItem Origin(ushort address) => new(InstructionItemKind.Origin, [], address);
-
-    /// <summary>Advances over a bounded number of unowned bytes such as a packed sound operand.</summary>
-    internal static InstructionItem Skip(int bytes)
-    {
-        if (bytes is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
-        return new(InstructionItemKind.Skip, [], (ushort)bytes);
-    }
 }

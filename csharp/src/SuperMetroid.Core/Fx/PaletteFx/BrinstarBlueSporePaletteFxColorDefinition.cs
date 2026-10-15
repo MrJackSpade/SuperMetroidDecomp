@@ -20,11 +20,6 @@ public sealed class BrinstarBlueSporePaletteFxColorDefinition
     /// <summary>$8D:ED9D/$EE35, after color-index setup and the optional death-preinstruction pair.</summary>
     public ushort FirstFramePointer => (ushort)(ProgramStart + (DeletesWithAreaMiniBoss ? 8 : 4));
 
-    /// <summary>$8D:EE29/$EEC1, after fourteen ten-byte timed color records.</summary>
-    public ushort LoopInstructionPointer => (ushort)(FirstFramePointer +
-        BrinstarBlueSporePaletteFxColorDefinitions.FrameCount *
-        BrinstarBlueSporePaletteFxColorDefinitions.FrameByteCount);
-
     /// <summary>The Spore Spawn room installs the area-mini-boss death callback at $8D:EE2D.</summary>
     public bool DeletesWithAreaMiniBoss => Owner == BrinstarBlueSporePaletteOwner.SporeSpawnRoom;
     /// <summary>Locates one of fourteen ten-byte timed records after this owner's setup words.</summary>

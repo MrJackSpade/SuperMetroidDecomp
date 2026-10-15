@@ -38,11 +38,6 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 
-    /// <summary>The terminal <c>delete</c> command after all timed records.</summary>
-    public ushort DeleteInstructionPointer => unchecked((ushort)(FirstFramePointer +
-        ZebesExplosionLayerFadePaletteFxColorDefinitions.FrameCount *
-        ZebesExplosionLayerFadePaletteFxColorDefinitions.FrameByteCount));
-
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)
     {

@@ -35,7 +35,7 @@ internal static class WaverBehaviorVerification
             WaverBehavior.SetWaverProgram(slot, state);
 
             WaverProgram program = WaverAnimationDefinitions.Program(selector);
-            ushort[] frames = WaverAnimations.Spritemaps(program).ToArray();
+            ushort[] frames = WaverAnimationsConstants.Spritemaps(program).ToArray();
             // A one-update frame is still flagged new when the sleep runs on the next update; an eight-update frame's flag
             // has cleared by then.
             int duration = frames.Length == 1 ? 1 : 8;

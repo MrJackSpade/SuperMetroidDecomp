@@ -29,7 +29,7 @@ internal static class CeresEnginePaletteBindingVerification
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(installation.MapDirectory, null);
         IntroCinematicArtworkCatalog artwork = installation.LoadIntroCinematicArt();
-        int destination = CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorIndex / sizeof(ushort);
+        int destination = CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex / sizeof(ushort);
         ushort[] nativeColors = [0x7fff, 0]; // Pinned $8D:C880/$C886, not runtime ROM reads.
         var game = new SuperMetroidGame(SuperMetroidAddressSpace.CreateWithoutCartridge());
         game.BindArtwork(game.Artwork with

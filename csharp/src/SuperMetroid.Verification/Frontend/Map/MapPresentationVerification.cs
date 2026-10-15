@@ -992,27 +992,27 @@ internal static class MapPresentationVerification
             waterfallDefinition.ColorByteIndex, "selected Maridia");
         AssertOverride(
             WreckedShipGreenLightPaletteFxColorDefinitions.PoweredDefinition,
-            WreckedShipGreenLightPaletteFxColorDefinitions.ColorByteIndex,
+            WreckedShipGreenLightPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Wrecked Ship");
         AssertOverride(
             RedBrinstarGlowPaletteFxColorDefinitions.DefinitionPointer,
-            RedBrinstarGlowPaletteFxColorDefinitions.ColorByteIndex,
+            RedBrinstarGlowPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Red Brinstar");
         AssertOverride(
             TourianGlowPaletteFxColorDefinitions.LiveDefinitionPointer,
-            TourianGlowPaletteFxColorDefinitions.ColorByteIndex,
+            TourianGlowPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Tourian");
         BrinstarBlueSporePaletteFxColorDefinition blueSporeDefinition =
             BrinstarBlueSporePaletteFxColorDefinitions.All.Single(item =>
                 item.Owner == BrinstarBlueSporePaletteOwner.StandardRooms);
         AssertOverride(blueSporeDefinition.DefinitionPointer,
-            BrinstarBlueSporePaletteFxColorDefinitions.ColorByteIndex,
+            BrinstarBlueSporePaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Brinstar blue-spore");
         foreach (TorizoBellyPaletteFxColorDefinition torizoDefinition in
                  TorizoBellyPaletteFxColorDefinitions.All)
         {
             AssertOverride(torizoDefinition.DefinitionPointer,
-                TorizoBellyPaletteFxColorDefinitions.ColorByteIndex,
+                TorizoBellyPaletteFxColorDefinitionsConstants.ColorByteIndex,
                 $"{torizoDefinition.Owner} belly");
         }
         TourianStatueGreyPaletteFxColorDefinition statueDefinition =
@@ -1030,18 +1030,18 @@ internal static class MapPresentationVerification
         AssertOverride(
             CeresCinematicLightPaletteFxColorDefinitions
                 .GunshipEngineDefinitionPointer,
-            CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineColorIndex,
+            CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineColorIndex,
             "Ceres gunship engine");
         AssertOverride(
             CeresCinematicLightPaletteFxColorDefinitions
                 .SpriteNavigationLightsDefinitionPointer,
-            CeresCinematicLightPaletteFxColorDefinitions
+            CeresCinematicLightPaletteFxColorDefinitionsConstants
                 .SpriteNavigationLightsColorIndex,
             "sprite Ceres navigation lights");
         AssertOverride(
             CeresCinematicLightPaletteFxColorDefinitions
                 .BackgroundNavigationLightsDefinitionPointer,
-            CeresCinematicLightPaletteFxColorDefinitions
+            CeresCinematicLightPaletteFxColorDefinitionsConstants
                 .BackgroundNavigationLightsColorIndex,
             "background Ceres navigation lights");
         foreach (PlanetZebesTextPaletteFxColorDefinition fadeDefinition in
@@ -1062,36 +1062,36 @@ internal static class MapPresentationVerification
         }
         AssertOverride(
             ExplodingZebesFadePaletteFxColorDefinitions.DefinitionPointer,
-            ExplodingZebesFadePaletteFxColorDefinitions.ColorByteIndex,
+            ExplodingZebesFadePaletteFxColorDefinitionsConstants.ColorByteIndex,
             "exploding Zebes fade");
         AssertOverride(
             UnusedCinematicFadePaletteFxColorDefinitions.DefinitionPointer,
-            UnusedCinematicFadePaletteFxColorDefinitions.ColorByteIndex,
+            UnusedCinematicFadePaletteFxColorDefinitionsConstants.ColorByteIndex,
             "unused cinematic fade");
         AssertOverride(
             TitleLogoFadePaletteFxColorDefinitions.DefinitionPointer,
-            TitleLogoFadePaletteFxColorDefinitions.ColorByteIndex,
+            TitleLogoFadePaletteFxColorDefinitionsConstants.ColorByteIndex,
             "title-logo fade");
         foreach ((string owner, ushort definitionPointer,
                      ushort colorByteIndex) in new[]
                  {
                      ("BootLogo",
                          NintendoLogoFadePaletteFxColorDefinitions.BootLogoDefinitionPointer,
-                         NintendoLogoFadePaletteFxColorDefinitions.BootLogoColorByteIndex),
+                         NintendoLogoFadePaletteFxColorDefinitionsConstants.BootLogoColorByteIndex),
                      ("Copyright",
                          NintendoLogoFadePaletteFxColorDefinitions.CopyrightDefinitionPointer,
-                         NintendoLogoFadePaletteFxColorDefinitions.CopyrightColorByteIndex),
+                         NintendoLogoFadePaletteFxColorDefinitionsConstants.CopyrightColorByteIndex),
                  })
         {
             AssertOverride(definitionPointer, colorByteIndex, $"Nintendo shared fade {owner}");
         }
         AssertOverride(
             ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
-            ZebesExplosionForegroundPaletteFxColorDefinitions.ColorByteIndex,
+            ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Zebes explosion foreground");
         AssertOverride(
             ZebesExplosionFinalePaletteFxColorDefinitions.DefinitionPointer,
-            ZebesExplosionFinalePaletteFxColorDefinitions.ColorByteIndex,
+            ZebesExplosionFinalePaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Zebes explosion finale");
         foreach ((string owner, ushort definitionPointer,
                      ushort colorByteIndex) in new[]
@@ -1099,12 +1099,12 @@ internal static class MapPresentationVerification
                      ("WideExplosionBackground",
                          ZebesExplosionWhiteoutPaletteFxColorDefinitions
                              .WideExplosionBackgroundDefinitionPointer,
-                         ZebesExplosionWhiteoutPaletteFxColorDefinitions
+                         ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
                              .WideExplosionBackgroundColorByteIndex),
                      ("SpaceWhiteout",
                          ZebesExplosionWhiteoutPaletteFxColorDefinitions
                              .SpaceWhiteoutDefinitionPointer,
-                         ZebesExplosionWhiteoutPaletteFxColorDefinitions
+                         ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
                              .SpaceWhiteoutColorByteIndex),
                  })
         {
@@ -1126,18 +1126,18 @@ internal static class MapPresentationVerification
         }
         AssertOverride(
             ZebesExplosionGunshipPaletteFxColorDefinitions.DefinitionPointer,
-            ZebesExplosionGunshipPaletteFxColorDefinitions.ColorByteIndex,
+            ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Zebes explosion gunship");
         foreach (SamusLoadingSuitPaletteFxColorDefinition suitDefinition in
                  SamusLoadingSuitPaletteFxColorDefinitions.All)
         {
             AssertOverride(suitDefinition.DefinitionPointer,
-                SamusLoadingSuitPaletteFxColorDefinitions.ColorByteIndex,
+                SamusLoadingSuitPaletteFxColorDefinitionsConstants.ColorByteIndex,
                 $"Samus loading {suitDefinition.Owner}");
         }
         AssertOverride(
             PostCreditsIconGlarePaletteFxColorDefinitions.DefinitionPointer,
-            PostCreditsIconGlarePaletteFxColorDefinitions.ColorByteIndex,
+            PostCreditsIconGlarePaletteFxColorDefinitionsConstants.ColorByteIndex,
             "post-credits icon glare");
         foreach (TourianEscapeRedFlashPaletteFxColorDefinition flashDefinition in
                  TourianEscapeRedFlashPaletteFxColorDefinitions.All)
@@ -1153,7 +1153,7 @@ internal static class MapPresentationVerification
         }
         AssertOverride(
             OldTourianEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
-            OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorByteIndex,
+            OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "old Tourian escape red flash");
         foreach (OldTourianEscapeAccentPaletteFxColorDefinition accentDefinition in
                  OldTourianEscapeAccentPaletteFxColorDefinitions.All)
@@ -1163,7 +1163,7 @@ internal static class MapPresentationVerification
         }
         AssertOverride(
             UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer,
-            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorByteIndex,
+            UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "upper Crateria escape red flash");
         foreach (CrateriaEscapeLightningPaletteFxColorDefinition lightningDefinition in
                  CrateriaEscapeLightningPaletteFxColorDefinitions.All)
@@ -1174,7 +1174,7 @@ internal static class MapPresentationVerification
         }
         AssertOverride(
             BeaconPaletteFxColorDefinitions.DefinitionPointer,
-            BeaconPaletteFxColorDefinitions.ColorByteIndex,
+            BeaconPaletteFxColorDefinitionsConstants.ColorByteIndex,
             "Crateria and Brinstar beacon flash");
 
         File.Delete(replacement);

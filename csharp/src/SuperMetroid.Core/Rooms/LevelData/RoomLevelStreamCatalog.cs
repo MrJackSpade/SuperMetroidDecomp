@@ -13,7 +13,7 @@ public sealed class RoomLevelStreamCatalog
     internal const int MinimumStreamByteCount = 2;
 
     /// <summary>Complete decompressed native level streams keyed by their 24-bit source address.</summary>
-    private readonly Dictionary<int, ReadOnlyMemory<byte>> streams;
+    internal readonly Dictionary<int, ReadOnlyMemory<byte>> streams;
 
     /// <summary>Copies a validated installation and requires exactly every retail level source.</summary>
     /// <param name="streams">Complete decompressed native streams keyed by their 24-bit source address.</param>
@@ -41,9 +41,6 @@ public sealed class RoomLevelStreamCatalog
 
     /// <summary>SHA-256 of the installed stream manifest, which names every stream's hash.</summary>
     public string ContentIdentity { get; }
-
-    /// <summary>Number of distinct installed level sources.</summary>
-    public int Count => streams.Count;
 
     /// <summary>Reads one complete decompressed native level stream by cartridge source identity.</summary>
     /// <param name="sourceAddress">Full 24-bit level-data source identity selected by the room state.</param>

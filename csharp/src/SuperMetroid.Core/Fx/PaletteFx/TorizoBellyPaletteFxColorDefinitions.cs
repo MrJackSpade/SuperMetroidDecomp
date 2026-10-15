@@ -60,21 +60,6 @@ public static class TorizoBellyPaletteFxColorDefinitions
     /// <summary>Bytes from one duration word through its terminal wait command.</summary>
     public const int FrameByteCount = 10;
 
-    /// <summary>The byte index of the first Torizo belly color in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x0132;
-
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxColorDefinition> All { get; } = new ProgramDefinitions();
-
-    /// <summary>Bounded duration shared by both Torizo belly programs.</summary>
-    /// <remarks>
-    /// For f=0..5, duration is 10 when f mod 3 is zero, otherwise 8:
-    /// exactly 10,8,8,10,8,8 in the pinned ROM, totaling 52 frames.
-    /// </remarks>
-    internal static ushort Duration(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(frame % 3 == 0 ? 10 : 8);
-    }
 }

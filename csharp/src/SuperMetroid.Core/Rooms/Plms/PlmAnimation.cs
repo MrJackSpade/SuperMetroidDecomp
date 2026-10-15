@@ -25,4 +25,7 @@ internal abstract class PlmAnimation
 
     /// <summary>The program the animation is running, as its family's program enum.</summary>
     internal abstract Enum RunningProgram { get; }
+
+    /// <summary>Names the family and its running program for diagnostics that report what a slot runs.</summary>
+    public override string ToString() => $"{GetType().Name} running {RunningProgram}";
 }

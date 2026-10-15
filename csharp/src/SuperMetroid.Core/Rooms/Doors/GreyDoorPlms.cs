@@ -146,7 +146,7 @@ internal sealed class GreyDoorPlms
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(conditionOffset >> 1);
         slot.RoomArgument = GreyDoorRoomArgumentDefinitions.DoorBitArgument(rawRoomArgument);
         ApplyGreyDoorSetup(level, slot.BlockIndex);
-        slot.GreyDoor = new GreyDoorPlmState(orientation, condition);
+        slot.GreyDoor = new GreyDoorPlmState(condition);
         var variant = new GreyDoorVariant(orientation, BombTorizo: slot.HeaderPointer == PlmHeaderId.BombTorizoGreyDoor);
         slot.StartAnimation(new GreyDoorPlmAnimation(variant, GreyDoorProgram.Waiting));
     }

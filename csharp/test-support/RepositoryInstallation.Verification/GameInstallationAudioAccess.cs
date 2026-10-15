@@ -1,7 +1,7 @@
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 using SuperMetroid.AssetExtraction.Installation;
 
-namespace SuperMetroid.TestSupport.RepositoryInstallation;
+namespace SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 /// <summary>
 /// The installation's extracted audio catalog for the synthesizer's verifiers (#1305). The game

@@ -20,17 +20,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
-    /// <summary>The instruction-list entry at <c>$8D:DF94</c>.</summary>
-    public const ushort ProgramStart = 0xdf94;
-
     /// <summary>The first timed record at <c>$8D:DF98</c>.</summary>
     public const ushort FirstFramePointer = 0xdf98;
-
-    /// <summary>The terminal <c>delete</c> command at <c>$8D:E190</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xe190;
-
-    /// <summary>The glare writes CGRAM from byte index <c>$01E0</c>.</summary>
-    public const ushort ColorByteIndex = 0x01e0;
 
     /// <summary>The one-shot glare contains fourteen timed records.</summary>
     public const int FrameCount = 14;
@@ -40,9 +31,6 @@ public static class PostCreditsIconGlarePaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 36;
-
-    /// <summary>Each record lasts one frame.</summary>
-    public const ushort FrameDuration = 1;
 
     /// <summary>Frames0..13 occupy36-byte records atDF98: duration,16 colors, wait.</summary>
     public static ushort FramePointer(int frame)
@@ -59,17 +47,6 @@ public static class PostCreditsIconGlarePaletteFxColorDefinitions
             throw new ArgumentOutOfRangeException(nameof(color));
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
-    }
-
-    /// <summary>The program's header and terminal control-word addresses.</summary>
-    private enum ControlWord : ushort
-    {
-        /// <summary>The <c>SetColorIndex</c> opcode at the program entry.</summary>
-        SetColorIndex = ProgramStart,
-        /// <summary>The CGRAM byte-index operand of <c>SetColorIndex</c>.</summary>
-        ColorIndexOperand = ProgramStart + 2,
-        /// <summary>The terminal <c>Delete</c> opcode.</summary>
-        Delete = DeleteInstructionPointer,
     }
 
     /// <summary>A color operand's byte offset from the first frame's first color, after the frame's leading command word.</summary>

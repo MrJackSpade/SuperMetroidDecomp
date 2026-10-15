@@ -39,9 +39,9 @@ internal static class SporeSpawnCeilingPlmsVerification
         ushort[] originalOperands = [0xab17,0xab1b,0xab1f];
         for (int frame = 0; frame < originalOperands.Length; frame++)
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | originalOperands[frame]),
-                SporeSpawnCeilingPlmDrawDefinitions.CrumbleFramePointer(frame), "Spore ceiling native frame selector");
+                SporeSpawnCeilingPlmDrawDefinitionsConstants.CrumbleFramePointer(frame), "Spore ceiling native frame selector");
         foreach (int invalid in new[] {int.MinValue,-1,3,4,255,256,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnCeilingPlmDrawDefinitions.CrumbleFramePointer(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnCeilingPlmDrawDefinitionsConstants.CrumbleFramePointer(invalid),
                 "Spore ceiling frame selector bounds");
     }
 

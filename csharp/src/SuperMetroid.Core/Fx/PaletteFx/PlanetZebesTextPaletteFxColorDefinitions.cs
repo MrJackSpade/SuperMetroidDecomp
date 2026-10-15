@@ -27,15 +27,8 @@ public static class PlanetZebesTextPaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = sizeof(ushort) * (ColorsPerFrame + 2);
-
-    /// <summary>$8D:C912/C968: the authored three-frame hold.</summary>
-    public const ushort FrameDuration = 3;
     /// <summary>$8D:C90E: native fade-in setup; fade-out follows its terminal delete.</summary>
     internal const ushort FadeInProgram = 0xC90E;
-    /// <summary>$8D:C910/C966: CGRAM palette 8 for the cinematic text.</summary>
-    internal const int TextPalette = 8;
-    /// <summary>$8D:C910/C966: first text color 1 within the selected palette.</summary>
-    internal const int FirstTextColor = 1;
 
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxColorDefinition> All { get; } = new DefinitionSequence();

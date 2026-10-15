@@ -23,12 +23,6 @@ internal static class KzanAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params KzanProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => KzanFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<KzanProgram, KzanFrame, NoAnimationCue>.Show(new(pose), duration);
 

@@ -51,10 +51,6 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 
-    /// <summary>The terminal <c>goto</c> command after all timed records.</summary>
-    public ushort LoopInstructionPointer => unchecked((ushort)(FirstFramePointer +
-        FrameCount * FrameByteCount));
-
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)
     {
@@ -70,13 +66,5 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
             throw new ArgumentOutOfRangeException(nameof(color));
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
-    }
-
-    /// <summary>Returns the cartridge-authored duration for one timed record.</summary>
-    public ushort FrameDuration(int frame)
-    {
-        if ((uint)frame >= FrameCount)
-            throw new ArgumentOutOfRangeException(nameof(frame));
-        return ZebesExplosionAmbientPaletteFxColorDefinitions.Duration(Owner, frame);
     }
 }

@@ -22,7 +22,7 @@ internal static class EvirVisualsVerification
     internal static void VerifyInstalledEvirVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        var shownFrames = EvirAnimations.Spritemaps(Enum.GetValues<EvirProgram>()).ToHashSet();
+        var shownFrames = EvirAnimationsConstants.Spritemaps(Enum.GetValues<EvirProgram>()).ToHashSet();
         foreach (ushort pointer in shownFrames)
         {
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(

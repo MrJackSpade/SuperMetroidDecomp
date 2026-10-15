@@ -26,12 +26,6 @@ internal static class FlyAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params FlyProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => FlyFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<FlyProgram, FlyFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<FlyProgram, FlyFrame, NoAnimationCue>.Show(new(pose), duration);
 

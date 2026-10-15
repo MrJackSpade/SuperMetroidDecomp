@@ -78,12 +78,6 @@ internal static class PhantoonAnimations
         [P.MouthInitial] = Still(new(F.Mouth, 0)),
     });
 
-    /// <summary>The eye program gazing in clockwise direction <paramref name="ordinal"/> from up.</summary>
-    internal static PhantoonPartProgram Gaze(int ordinal) =>
-        (uint)ordinal < 8
-            ? P.EyeLookingUp + ordinal
-            : throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Phantoon gazes in eight directions.");
-
     /// <summary>Shows one frame for an update, then holds it as the native sleep does.</summary>
     private static AnimationProgramStep<PhantoonPartProgram, PhantoonPartFrame, PhantoonPartCue>[] Still(PhantoonPartFrame frame) =>
         [Show(frame, 1), Hold];

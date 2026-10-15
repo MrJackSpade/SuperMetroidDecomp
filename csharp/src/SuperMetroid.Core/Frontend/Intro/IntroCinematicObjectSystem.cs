@@ -531,8 +531,4 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>Advances a bank-relative script cursor with native 16-bit wrap.</summary>
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
-
-    /// <summary>Describes an opcode outside the active retail caret or eye stream.</summary>
-    private static InvalidDataException Unsupported(string kind, ushort opcode, ushort pointer) =>
-        new($"Cinematic {kind} opcode $8B:{opcode:X4}, read from ${pointer:X4}, is invalid for the active retail stream.");
 }

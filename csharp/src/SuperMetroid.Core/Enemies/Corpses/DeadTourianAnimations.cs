@@ -98,12 +98,6 @@ internal static class DeadTourianAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params DeadTourianProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => DeadTourianFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue> Show(int pose, int duration) => AnimationProgramStep<DeadTourianProgram, DeadTourianFrame, DeadTourianCue>.Show(new(pose), duration);
 

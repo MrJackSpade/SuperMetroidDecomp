@@ -108,12 +108,6 @@ internal static class EvirAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params EvirProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => EvirFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<EvirProgram, EvirFrame, EvirCue> Show(int pose, int duration) => AnimationProgramStep<EvirProgram, EvirFrame, EvirCue>.Show(new(pose), duration);
 

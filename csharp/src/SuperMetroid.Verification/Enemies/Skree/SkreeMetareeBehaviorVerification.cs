@@ -35,7 +35,7 @@ internal static class SkreeMetareeBehaviorVerification
             SkreeMetareeProgram windUp = program(SkreeMetareeAnimationPhase.PreparingAttack);
             start(windUp);
             int[] holds = [16, 8];
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkreeMetareeAnimations.Spritemaps(windUp), holds),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkreeMetareeAnimationsConstants.Spritemaps(windUp), holds),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum()), $"{species} wind-up poses");
             AssertTrue(!attackReady(), $"{species} is not ready while the last wind-up pose holds");
             EnemyInstructionRunner.ShownFrames(enemies, slot, 1);

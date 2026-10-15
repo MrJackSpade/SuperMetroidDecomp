@@ -19,8 +19,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class SamusLoadingSuitPaletteFxColorDefinitions
 {
-    /// <summary>All programs write CGRAM from byte index <c>$0180</c>.</summary>
-    public const ushort ColorByteIndex = 0x0180;
 
     /// <summary>Each program has four independently counted two-record groups.</summary>
     public const int GroupCount = 4;
@@ -36,25 +34,6 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 36;
-
-    /// <summary>Each record in a counted group lasts three frames.</summary>
-    public const ushort GroupFrameDuration = 3;
-
-    /// <summary>The terminal record lasts one frame.</summary>
-    public const ushort FinalFrameDuration = 1;
-
-    /// <summary>Chosen replay chronology of the loading flash, retained under #1165's nonsense exception.</summary>
-    /// <remarks>Native $8D:DB66 and the following timer operands repeat each
-    /// six-frame palette pair 36, 3, 3, then 2 times. The first two pairs even
-    /// contain identical colors: their split is script chronology, not a color
-    /// interpolation parameter. $8D:C648 assigns each literal counter and
-    /// $C639 decrements it without a duration, position, or brightness input.
-    /// The separate fanfare at $92:ED24 counts to 360, not this program's 265.
-    /// These choices specify how long the flashes look; fitting the group index
-    /// or spelling the same numbers as cases would only disguise that timing.
-    /// Layout and repeated palette data are reviewed separately; this exception
-    /// covers only the four replay operands, not their surrounding tables.</remarks>
-    private static readonly byte[] GroupTimerValues = [36, 3, 3, 2];
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
         new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, 0xe1f4, 0xdb62);
@@ -107,13 +86,5 @@ public static class SamusLoadingSuitPaletteFxColorDefinitions
         if ((uint)group >= GroupCount)
             throw new ArgumentOutOfRangeException(nameof(group));
         return (ushort)(7 + group * (FramesPerGroup * FrameByteCount + 4 + 3));
-    }
-
-    /// <summary>Returns the cartridge-authored replay count of one group.</summary>
-    public static byte GroupTimerValue(int group)
-    {
-        if ((uint)group >= GroupCount)
-            throw new ArgumentOutOfRangeException(nameof(group));
-        return GroupTimerValues[group];
     }
 }

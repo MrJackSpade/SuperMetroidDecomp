@@ -26,7 +26,7 @@ internal static class PaletteFxProgramsVerification
             foreach (var step in PaletteFxAnimations.Programs.Steps(program))
                 if (step.Kind == Core.Programs.AnimationProgramStepKind.Show)
                     records.Add(step.Frame.Record);
-        AssertEqual(PaletteFxRecordDefinitions.RecordCount, records.Count, "every colour record is shown by a program");
+        AssertEqual(PaletteFxRecordDefinitionsConstants.RecordCount, records.Count, "every colour record is shown by a program");
         Console.WriteLine($"  Palette-FX programs: {steps.Count} programs ({steps.Values.Sum(s => s.Length)} steps, {records.Count} colour records) match bank $8D.");
     }
 

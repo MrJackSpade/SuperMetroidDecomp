@@ -16,7 +16,7 @@ internal static class ReachabilityAnalysis
         ["SuperMetroid.Game", "SuperMetroid.Android", "SuperMetroid.EnsureAnalyzer"];
 
     /// <summary>Test executables; what only they reach is not used.</summary>
-    private static readonly HashSet<string> VerificationProjects =
+    internal static readonly HashSet<string> VerificationProjects =
         ["SuperMetroid.Verification", "SuperMetroid.IntegrationVerification", "SuperMetroid.RenderVerification",
          "SuperMetroid.DesktopVerification", "SuperMetroid.EnsureVerification"];
 

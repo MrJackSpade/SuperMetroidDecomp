@@ -17,7 +17,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
     /// <summary>Confirms every pose Oum's programs show is one of the extracted frames and has installed editable art.</summary>
     internal static void VerifyInstalledOumVisualSelectors(EnemyTileArtworkCatalog stock)
     {
-        var seen = MaridiaLargeSnailAnimations.Spritemaps(Enum.GetValues<MaridiaLargeSnailProgram>()).ToHashSet();
+        var seen = MaridiaLargeSnailAnimationsConstants.Spritemaps(Enum.GetValues<MaridiaLargeSnailProgram>()).ToHashSet();
         foreach (ushort pose in seen)
             AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     MaridiaLargeSnailCollisionDefinitions.Bank, pose, out _),

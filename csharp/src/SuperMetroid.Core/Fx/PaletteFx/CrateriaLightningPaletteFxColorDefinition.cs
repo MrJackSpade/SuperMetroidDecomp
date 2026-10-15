@@ -16,8 +16,6 @@ public sealed class CrateriaLightningPaletteFxColorDefinition
     internal bool IsSurface => Owner == CrateriaLightningPaletteOwner.SurfaceLightning;
     /// <summary>$8D:EB3B/$EC6E setup starts: pre-instruction and CGRAM destination.</summary>
     public ushort ProgramStart => IsSurface ? (ushort)0xeb3b : (ushort)0xec6e;
-    /// <summary>Surface uses CGRAM byte $A8; unused dark lightning uses byte $82.</summary>
-    public ushort ColorByteIndex => IsSurface ? (ushort)0x00a8 : (ushort)0x0082;
     /// <summary>$8D:EB43/$EC76 first neutral frame follows the eight-byte setup.</summary>
     public ushort FirstFramePointer => (ushort)(ProgramStart + 8);
     /// <summary>Live BGR555 words per timed record: eight targeting CGRAM colors 84..91 for surface lightning, or seven targeting colors 65..71 for dark lightning.</summary>
@@ -46,14 +44,13 @@ public sealed class CrateriaLightningPaletteFxColorDefinition
     private CrateriaLightningPaletteFrame Frame(int index)
     {
         if (index == 0)
-            return new(FirstFramePointer, 240, ColorsPerFrame);
+            return new(FirstFramePointer, ColorsPerFrame);
         if (index <= 7)
-            return new((ushort)(RepeatedFramesPointer + (index - 1) * FrameByteCount),
-                index is 1 or 7 ? (ushort)2 : (ushort)1, ColorsPerFrame);
+            return new((ushort)(RepeatedFramesPointer + (index - 1) * FrameByteCount), ColorsPerFrame);
         if (index < 8 + NeutralCount)
-            return new((ushort)(NeutralFramesPointer + (index - 8) * FrameByteCount), 240, ColorsPerFrame);
+            return new((ushort)(NeutralFramesPointer + (index - 8) * FrameByteCount), ColorsPerFrame);
         int final = index - 8 - NeutralCount;
-        return new((ushort)(FinalFramesPointer + final * FrameByteCount), final == 3 ? (ushort)2 : (ushort)1, ColorsPerFrame);
+        return new((ushort)(FinalFramesPointer + final * FrameByteCount), ColorsPerFrame);
     }
 
     /// <summary>Presentation operand after the duration; independent color payloads remain required under #1165.</summary>

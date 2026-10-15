@@ -16,9 +16,6 @@ public readonly record struct NativeLowByteCounterStep(ushort Remaining)
     /// <summary>Whether the 8-bit DEC produced a byte with bit 7 set (DEC then BMI).</summary>
     public bool IsNegative => (Low & 0x80) != 0;
 
-    /// <summary>Whether the result would take an 8-bit BPL branch.</summary>
-    public bool IsNonNegative => !IsNegative;
-
     /// <summary>The 8-bit DEC, BEQ, BMI expiry predicate.</summary>
     public bool IsZeroOrNegative => IsZero || IsNegative;
 }

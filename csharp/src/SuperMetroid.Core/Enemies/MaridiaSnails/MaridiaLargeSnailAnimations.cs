@@ -130,12 +130,6 @@ internal static class MaridiaLargeSnailAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MaridiaLargeSnailProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MaridiaLargeSnailFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue> Show(int pose, int duration) => AnimationProgramStep<MaridiaLargeSnailProgram, MaridiaLargeSnailFrame, MaridiaLargeSnailCue>.Show(new(pose), duration);
 

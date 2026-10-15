@@ -27,20 +27,6 @@ public static class MaridiaEnvironmentalPaletteFxColorDefinitions
     internal const int SandPitBandCount = 2;
     /// <summary>$8D:F57F: eight-color waterfall rotation group.</summary>
     internal const int WaterfallRotationColors = 8;
-    /// <summary>$8D:F4EB/F543: selected sand background palette slot2.</summary>
-    internal const int SandPalette = 2;
-    /// <summary>$8D:F57B: selected waterfall background palette slot3.</summary>
-    internal const int WaterfallPalette = 3;
-    /// <summary>$8D:F4EB: first sand-pit color4 within its palette.</summary>
-    internal const int SandPitFirstColor = 4;
-    /// <summary>$8D:F543: first sand-fall color8 within its palette.</summary>
-    internal const int FallingFirstColor = 8;
-    /// <summary>$8D:F57B operand0068: waterfall first color4 in palette3; the native source comment incorrectly labels colors8..F.</summary>
-    internal const int WaterfallFirstColor = 4;
-    /// <summary>$8D:F4ED/F545: authored ten-frame sand cadence.</summary>
-    internal const ushort SandDuration = 10;
-    /// <summary>$8D:F57D: selected two-frame waterfall cadence.</summary>
-    internal const ushort WaterfallDuration = 2;
 
     /// <summary>The sand-pit, sand-fall, and waterfall programs in native definition order, calculated without cached records.</summary>
     public static IReadOnlyList<MaridiaEnvironmentalPaletteFxColorDefinition> All { get; } = new DefinitionSequence();

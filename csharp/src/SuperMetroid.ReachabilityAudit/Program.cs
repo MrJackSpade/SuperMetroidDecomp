@@ -13,6 +13,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <remarks>
 /// --remove deletes the declarations of the named finding categories.
 /// --relocate moves shipped symbols that only tools reach into a development-only project.
+/// --prune-keeping-verification-used deletes dead code, first moving what tests still use into test-support.
 /// --check is the CI gate: it fails on any finding its allow-list does not name.
 /// </remarks>
 internal static class Program
@@ -78,10 +79,29 @@ internal static class Program
                         Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies);
                     return 0;
                 }
+                case ["--solution", var solutionPath, "--prune-keeping-verification-used", var categoryList, "--path-prefix", var prefix,
+                    "--to", var targetDirectory, "--retired-fields", var retiredFields]:
+                {
+                    // Deletes the dead code tests do not use, then moves what they still use, with everything it uses,
+                    // into test-support. Removing first leaves no dead shipped code naming members the move takes away.
+                    var categories = categoryList.Split(',').ToHashSet();
+                    var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
+                    var result = ReachabilityAnalysis.Run(solution);
+                    var unused = VerificationReferences.DeadFindings(result, categories, prefix);
+                    unused.ExceptWith(VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefix));
+                    SymbolRemover.Remove(solution, unused, Path.GetFullPath(retiredFields));
+                    solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
+                    result = ReachabilityAnalysis.Run(solution);
+                    SymbolRelocator.Relocate(solution,
+                        VerificationReferences.SelectUsedDeadCode(result, VerificationReferences.Collect(solution), categories, prefix),
+                        Path.GetFullPath(targetDirectory), ReachabilityFindings.ProductionAssemblies, RelocationStyle.VerificationAccess);
+                    return 0;
+                }
                 default:
                     throw new ArgumentException("Usage: SuperMetroid.ReachabilityAudit --solution <SuperMetroid.Full.slnx> "
                         + "(--output <directory> | --remove <category,...> --retired-fields <file> [--path-prefix <repo-relative path>] "
                         + "| --relocate <category> --to <project directory> | --why <symbol text> "
+                        + "| --prune-keeping-verification-used <category,...> --path-prefix <repo-relative path> --to <test-support directory> --retired-fields <file> "
                         + "| --remove-keys <file> --retired-fields <file> | --check <allow-list> --output <directory>)");
             }
         }

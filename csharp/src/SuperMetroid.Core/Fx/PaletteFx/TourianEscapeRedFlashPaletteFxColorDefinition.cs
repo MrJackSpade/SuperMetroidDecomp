@@ -44,12 +44,6 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => sizeof(ushort) * (ColorsPerFrame + 2);
 
-    /// <summary>The terminal <c>goto</c> command after all timed records.</summary>
-    public ushort LoopInstructionPointer => unchecked((ushort)(
-        FirstFramePointer +
-        TourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount *
-        FrameByteCount));
-
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)
     {

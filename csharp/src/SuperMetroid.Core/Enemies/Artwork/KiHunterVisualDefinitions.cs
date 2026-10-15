@@ -16,7 +16,4 @@ internal static class KiHunterVisualDefinitions
     internal static EnemySpritemapDefinition[] Frames() =>
         [.. new SortedSet<ushort>(KiHunterAnimations.Spritemaps(Enum.GetValues<KiHunterProgram>()))
             .Select(pointer => new EnemySpritemapDefinition(Bank, pointer, $"ki_hunter_a8_{pointer:x4}"))];
-
-    /// <summary>The pose the left-facing flight opens on, the idle Ki-Hunter's first frame.</summary>
-    internal static ushort IdleFrame => KiHunterAnimations.Spritemaps(KiHunterProgram.FlyingLeft).First();
 }

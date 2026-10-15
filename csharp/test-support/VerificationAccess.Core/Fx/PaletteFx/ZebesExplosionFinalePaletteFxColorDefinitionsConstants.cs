@@ -17,4 +17,6 @@ internal static class ZebesExplosionFinalePaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="ZebesExplosionFinalePaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => ZebesExplosionFinalePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
+    /// <summary>The finale writes CGRAM from byte index <c>$0002</c>.</summary>
+    public const ushort ColorByteIndex = 0x0002;
 }

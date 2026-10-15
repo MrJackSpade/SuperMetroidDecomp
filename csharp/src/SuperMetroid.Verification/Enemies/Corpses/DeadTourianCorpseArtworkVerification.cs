@@ -117,8 +117,8 @@ internal static class DeadTourianCorpseArtworkVerification
         AssertEqual(DeadTourianCorpseVisualDefinitions.CorpseFrameCount, corpsePrograms.Length,
             "every dead Tourian corpse program has an editable composition");
         foreach (DeadTourianProgram program in corpsePrograms)
-            VerifyInstalledPose(DeadTourianAnimations.Spritemaps(program).Single(), $"dead Tourian corpse {program}");
-        ushort[] sidehopperPointers = DeadTourianAnimations.Spritemaps(
+            VerifyInstalledPose(DeadTourianAnimationsConstants.Spritemaps(program).Single(), $"dead Tourian corpse {program}");
+        ushort[] sidehopperPointers = DeadTourianAnimationsConstants.Spritemaps(
             DeadTourianProgram.SidehopperHopping, DeadTourianProgram.SidehopperIdle,
             DeadTourianProgram.SidehopperCorpse, DeadTourianProgram.SidehopperInitiallyDead).Distinct().ToArray();
         foreach (ushort pointer in sidehopperPointers)

@@ -72,7 +72,7 @@ internal static class PhantoonAnimationsVerification
         foreach ((PhantoonPartProgram program, ushort entry) in PartEntries)
             stepCount += CompareProgram(cartridge, program, entry);
         for (int ordinal = 0; ordinal < 8; ordinal++)
-            AssertEqual(PhantoonPartProgram.EyeLookingUp + ordinal, PhantoonAnimations.Gaze(ordinal), $"gaze {ordinal} selects its program");
+            AssertEqual(PhantoonPartProgram.EyeLookingUp + ordinal, PhantoonAnimationsConstants.Gaze(ordinal), $"gaze {ordinal} selects its program");
 
         VerifyEyeOpening();
         VerifyMouthFlame();

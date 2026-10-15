@@ -127,14 +127,14 @@ internal static class EnemySpritemapArtworkVerification
             [bull, null, null, Position16<RoomPixels>.Zero, (ushort)0];
         for (int frame = 0; frame < 41; frame++)
             EnemyInstructionRunner.Process(enemies, arguments);
-        AssertEqual(BullAnimations.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
+        AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
             "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, (ushort)2);
         for (int frame = 0; frame < 61; frame++)
             EnemyInstructionRunner.Process(enemies, arguments);
-        AssertEqual(BullAnimations.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
+        AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
         AssertEqual((ushort)0, bull.Timer.RawValue,
             "installed Bull immune-shot loop exhausts its native repeat timer");
@@ -379,17 +379,17 @@ internal static class EnemySpritemapArtworkVerification
                 RoomSpriteObjectDefinitions.InstructionPointer(
                     RoomSpriteObjectKind.DraygonIntroEvir)),
             "room sprite-object mechanics are not presentation selectors");
-        AssertTrue(FuneNamiheAnimations.Spritemaps(Enum.GetValues<FuneNamiheProgram>()).ToHashSet().SetEquals(
+        AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
                     frame.Name.StartsWith("namihe_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Fune's and Namihe's programs show exactly their installed frames");
-        AssertTrue(RioAnimations.Spritemaps(Enum.GetValues<RioProgram>()).ToHashSet().SetEquals(
+        AssertTrue(RioAnimationsConstants.Spritemaps(Enum.GetValues<RioProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Rio's programs show exactly its eight installed frames");
-        AssertTrue(LowerNorfairRioAnimations.Spritemaps(Enum.GetValues<LowerNorfairRioProgram>()).ToHashSet().SetEquals(
+        AssertTrue(LowerNorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<LowerNorfairRioProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("lower_norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Lower Norfair Rio's programs show exactly its installed frames");
-        AssertTrue(NorfairRioAnimations.Spritemaps(Enum.GetValues<NorfairRioProgram>()).ToHashSet().SetEquals(
+        AssertTrue(NorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<NorfairRioProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Norfair Rio's programs show exactly its installed frames");
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock));
@@ -406,19 +406,19 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock));
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
-                MorphBallEyeAnimations.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
+                MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
             "the installed Morph Ball eye frames are exactly the poses its programs show");
         HashSet<ushort> shaktoolFrames = ShaktoolVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(15, shaktoolFrames.Count,
             "Shaktool's visual frame identities are distinct");
-        AssertTrue(ShaktoolAnimations.Spritemaps(Enum.GetValues<ShaktoolProgram>()).ToHashSet().SetEquals(shaktoolFrames),
+        AssertTrue(ShaktoolAnimationsConstants.Spritemaps(Enum.GetValues<ShaktoolProgram>()).ToHashSet().SetEquals(shaktoolFrames),
             "the Shaktool's programs show exactly its installed frames");
         HashSet<ushort> platformFramePointers = TripperKamerVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(18, platformFramePointers.Count,
             "Tripper/Kamer visual frame identities are distinct");
-        HashSet<ushort> shownPlatformFrames = PlatformAnimations.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet();
+        HashSet<ushort> shownPlatformFrames = PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet();
         AssertEqual(16, shownPlatformFrames.Count, "platform programs show sixteen distinct animated compositions");
         AssertTrue(platformFramePointers.Except(shownPlatformFrames).ToHashSet()
                 .SetEquals(new[]
@@ -431,7 +431,7 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(12, dragonFrames.Count,
             "Dragon has twelve distinct installed body and wing frames");
-        AssertTrue(dragonFrames.SetEquals(DragonAnimations.Spritemaps(Enum.GetValues<DragonProgram>())),
+        AssertTrue(dragonFrames.SetEquals(DragonAnimationsConstants.Spritemaps(Enum.GetValues<DragonProgram>())),
             "every installed Dragon body and wing frame is a pose its programs show");
         HashSet<ushort> multiviolaFrames = MultiviolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
@@ -1135,14 +1135,14 @@ internal static class EnemySpritemapArtworkVerification
         {
             OffsetY = sharedSpritePart.OffsetY + 1,
         };
-        ushort mawIdlePointer = YappingMawVisualDefinitions.IdleFrame;
+        ushort mawIdlePointer = YappingMawVisualDefinitionsConstants.IdleFrame;
         string mawIdleName = $"yapping_maw_a8_{mawIdlePointer:x4}";
         SpriteVisualPart mawPart = document.Frames[mawIdleName][0];
         document.Frames[mawIdleName][0] = mawPart with
         {
             OffsetY = mawPart.OffsetY + 1,
         };
-        ushort hunterIdlePointer = KiHunterVisualDefinitions.IdleFrame;
+        ushort hunterIdlePointer = KiHunterVisualDefinitionsConstants.IdleFrame;
         string hunterIdleName = $"ki_hunter_a8_{hunterIdlePointer:x4}";
         SpriteVisualPart hunterPart = document.Frames[hunterIdleName][0];
         document.Frames[hunterIdleName][0] = hunterPart with
@@ -1260,10 +1260,10 @@ internal static class EnemySpritemapArtworkVerification
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         OamBuffer stockDragon = DrawEnemy(stock, NewFrameReadGuard(rom),
-            DragonAnimations.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
+            DragonAnimationsConstants.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
             EnemyDefinitionId.Dragon);
         OamBuffer editedDragon = DrawEnemy(edited, NewFrameReadGuard(rom),
-            DragonAnimations.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
+            DragonAnimationsConstants.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
             EnemyDefinitionId.Dragon);
         AssertEqual(unchecked((byte)(stockDragon.LowTable[0] + 1)),
             editedDragon.LowTable[0],
@@ -1327,18 +1327,18 @@ internal static class EnemySpritemapArtworkVerification
                    EnemyDefinitionId.Menu })
         {
             OamBuffer stockFly = DrawEnemy(stock, NewFrameReadGuard(rom),
-                FlyAnimations.Spritemaps(FlyProgram.Flight).First(), definition);
+                FlyAnimationsConstants.Spritemaps(FlyProgram.Flight).First(), definition);
             OamBuffer editedFly = DrawEnemy(edited, NewFrameReadGuard(rom),
-                FlyAnimations.Spritemaps(FlyProgram.Flight).First(), definition);
+                FlyAnimationsConstants.Spritemaps(FlyProgram.Flight).First(), definition);
             AssertEqual(unchecked((byte)(stockFly.LowTable[0] + 1)),
                 editedFly.LowTable[0],
                 $"fly ${(int)definition:X4} uses edited shared presentation");
         }
         OamBuffer stockKago = DrawEnemy(stock, NewFrameReadGuard(rom),
-            KagoAnimations.Spritemaps(KagoProgram.Slow).First(),
+            KagoAnimationsConstants.Spritemaps(KagoProgram.Slow).First(),
             EnemyDefinitionId.Kago);
         OamBuffer editedKago = DrawEnemy(edited, NewFrameReadGuard(rom),
-            KagoAnimations.Spritemaps(KagoProgram.Slow).First(),
+            KagoAnimationsConstants.Spritemaps(KagoProgram.Slow).First(),
             EnemyDefinitionId.Kago);
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
@@ -1351,7 +1351,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockFaceBlock.LowTable[0] + 1)),
             editedFaceBlock.LowTable[0],
             "face-block authored offset changes installed presentation");
-        ushort morphEyePointer = MorphBallEyeAnimations.Spritemaps(MorphBallEyeProgram.MountFacingLeft).Single();
+        ushort morphEyePointer = MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeProgram.MountFacingLeft).Single();
         OamBuffer stockMorphEye = DrawEnemy(stock, NewFrameReadGuard(rom),
             morphEyePointer, EnemyDefinitionId.Eye);
         OamBuffer editedMorphEye = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1359,7 +1359,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockMorphEye.LowTable[0] + 1)),
             editedMorphEye.LowTable[0],
             "Morph Ball eye mount art edit changes installed presentation");
-        ushort shutterPointer = ShutterAnimations.Spritemaps(ShutterProgram.FortyPixels).First();
+        ushort shutterPointer = ShutterAnimationsConstants.Spritemaps(ShutterProgram.FortyPixels).First();
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  { EnemyDefinitionId.ShutterGrowing,
                    EnemyDefinitionId.ShutterShootable,
@@ -1375,7 +1375,7 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(stockShutter.LowTable[1], editedShutter.LowTable[1],
                 $"shutter ${(int)definition:X4} visual edit leaves physical Y unchanged");
         }
-        ushort metroidPointer = MetroidAnimations.Spritemaps(MetroidProgram.ChasingSamus).First();
+        ushort metroidPointer = MetroidAnimationsConstants.Spritemaps(MetroidProgram.ChasingSamus).First();
         OamBuffer stockMetroid = DrawEnemy(stock, NewFrameReadGuard(rom),
             metroidPointer, EnemyDefinitionId.Metroid);
         OamBuffer editedMetroid = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1473,7 +1473,7 @@ internal static class EnemySpritemapArtworkVerification
             "editable elevator OAM offset changes its displayed frame");
         AssertEqual(stockElevator.LowTable[0], editedElevator.LowTable[0],
             "elevator visual edit leaves its physical X position unchanged");
-        ushort framePointer = BoyonAnimations.Spritemaps(BoyonProgram.IdleLoop).First();
+        ushort framePointer = BoyonAnimationsConstants.Spritemaps(BoyonProgram.IdleLoop).First();
         var stockOam = DrawEnemy(stock, NewFrameReadGuard(rom), framePointer,
             EnemyDefinitionId.Boyon);
         var editedOam = DrawEnemy(edited, NewFrameReadGuard(rom), framePointer,
@@ -1509,7 +1509,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
             "authored Ceres Baby Y offset changes installed OAM");
-        ushort cacatacPointer = CacatacAnimations.Spritemaps(CacatacProgram.UpsideUpIdle).First();
+        ushort cacatacPointer = CacatacAnimationsConstants.Spritemaps(CacatacProgram.UpsideUpIdle).First();
         var stockCacatac = DrawEnemy(stock, NewFrameReadGuard(rom),
             cacatacPointer, EnemyDefinitionId.Cacatac);
         var editedCacatac = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1519,7 +1519,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Cacatac Y offset changes live room OAM");
         AssertEqual(stockCacatac.LowTable[0], editedCacatac.LowTable[0],
             "Cacatac visual override leaves X unchanged");
-        ushort boulderPointer = BoulderAnimations.Spritemaps(BoulderProgram.Left).First();
+        ushort boulderPointer = BoulderAnimationsConstants.Spritemaps(BoulderProgram.Left).First();
         var stockBoulder = DrawEnemy(stock, NewFrameReadGuard(rom),
             boulderPointer, EnemyDefinitionId.Boulder);
         var editedBoulder = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1529,7 +1529,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Boulder Y offset changes live room OAM");
         AssertEqual(stockBoulder.LowTable[0], editedBoulder.LowTable[0],
             "Boulder visual override leaves X unchanged");
-        ushort atomicPointer = AtomicAnimations.Spritemaps(AtomicProgram.UpRight).First();
+        ushort atomicPointer = AtomicAnimationsConstants.Spritemaps(AtomicProgram.UpRight).First();
         var stockAtomic = DrawEnemy(stock, NewFrameReadGuard(rom),
             atomicPointer, EnemyDefinitionId.Atomic);
         var editedAtomic = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1539,7 +1539,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Atomic Y offset changes live room OAM");
         AssertEqual(stockAtomic.LowTable[0], editedAtomic.LowTable[0],
             "Atomic visual override leaves X unchanged");
-        ushort skulteraPointer = SkulteraAnimations.Spritemaps(SkulteraProgram.SwimmingLeftLoop).First();
+        ushort skulteraPointer = SkulteraAnimationsConstants.Spritemaps(SkulteraProgram.SwimmingLeftLoop).First();
         var stockSkultera = DrawEnemy(stock, NewFrameReadGuard(rom),
             skulteraPointer, EnemyDefinitionId.Skultera);
         var editedSkultera = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1549,7 +1549,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Skultera Y offset changes live room OAM");
         AssertEqual(stockSkultera.LowTable[0], editedSkultera.LowTable[0],
             "Skultera visual override leaves X unchanged");
-        ushort waverPointer = WaverAnimations.Spritemaps(WaverProgram.SteadyFacingLeft).First();
+        ushort waverPointer = WaverAnimationsConstants.Spritemaps(WaverProgram.SteadyFacingLeft).First();
         var stockWaver = DrawEnemy(stock, NewFrameReadGuard(rom),
             waverPointer, EnemyDefinitionId.Waver);
         var editedWaver = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1561,11 +1561,11 @@ internal static class EnemySpritemapArtworkVerification
             "Waver visual override leaves X unchanged");
         foreach ((ushort pointer, EnemyDefinitionId definition, string name) in new[]
                  {
-                     (ZoaAnimations.Spritemaps(ZoaProgram.FacingLeftShooting).First(),
+                     (ZoaAnimationsConstants.Spritemaps(ZoaProgram.FacingLeftShooting).First(),
                          EnemyDefinitionId.Zoa, "Zoa"),
-                     (SkreeMetareeAnimations.Spritemaps(SkreeMetareeProgram.MetareeIdling).First(),
+                     (SkreeMetareeAnimationsConstants.Spritemaps(SkreeMetareeProgram.MetareeIdling).First(),
                          EnemyDefinitionId.Metaree, "Metaree"),
-                     (SkreeMetareeAnimations.Spritemaps(SkreeMetareeProgram.SkreeIdling).First(),
+                     (SkreeMetareeAnimationsConstants.Spritemaps(SkreeMetareeProgram.SkreeIdling).First(),
                          EnemyDefinitionId.Skree, "Skree"),
                  })
         {
@@ -1587,7 +1587,7 @@ internal static class EnemySpritemapArtworkVerification
                      (EnemyDefinitionId.Geega, PipeBugProgram.GeegaFlyingLeft, "yellow Pipe Bug"),
                  })
         {
-            ushort pointer = PipeBugAnimations.Spritemaps(program).First();
+            ushort pointer = PipeBugAnimationsConstants.Spritemaps(program).First();
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
             OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1601,7 +1601,7 @@ internal static class EnemySpritemapArtworkVerification
         // Fake Kraid's and the fingernail's frames come from their typed programs (#641).
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.MiniKraid, FakeKraidAnimations.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
+                     (EnemyDefinitionId.MiniKraid, FakeKraidAnimationsConstants.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
                      (EnemyDefinitionId.KraidNail, new KraidPartFrame(KraidPartFrameKind.Nail, 0).Spritemap,
                          "Kraid fingernail"),
                  })
@@ -1618,8 +1618,8 @@ internal static class EnemySpritemapArtworkVerification
         }
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
-                     (EnemyDefinitionId.Owtch, OwtchAnimations.Spritemaps(OwtchProgram.MovingLeftLoop).First(), "Owtch"),
-                     (EnemyDefinitionId.Stoke, StokeAnimations.Spritemaps(StokeProgram.MovingLeftLoop).First(), "Stoke"),
+                     (EnemyDefinitionId.Owtch, OwtchAnimationsConstants.Spritemaps(OwtchProgram.MovingLeftLoop).First(), "Owtch"),
+                     (EnemyDefinitionId.Stoke, StokeAnimationsConstants.Spritemaps(StokeProgram.MovingLeftLoop).First(), "Stoke"),
                  })
         {
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
@@ -1639,7 +1639,7 @@ internal static class EnemySpritemapArtworkVerification
                      (EnemyDefinitionId.Ripper, RipperProgram.RipperMovingRight, "Ripper"),
                  })
         {
-            ushort pointer = RipperAnimations.Spritemaps(program).First();
+            ushort pointer = RipperAnimationsConstants.Spritemaps(program).First();
             OamBuffer nativeFrame = DrawEnemy(stock, NewFrameReadGuard(rom),
                 pointer, definition);
             OamBuffer editedFrame = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1658,7 +1658,7 @@ internal static class EnemySpritemapArtworkVerification
             EnemyDefinitionId.GRipper);
         AssertEqual(unchecked((byte)(stockFrozen.LowTable[1] + 1)),
             editedFrozen.LowTable[1], "authored frozen GRipper Y offset changes live room OAM");
-        ushort firefleaPointer = FirefleaAnimations.Spritemaps(FirefleaProgram.Loop).First();
+        ushort firefleaPointer = FirefleaAnimationsConstants.Spritemaps(FirefleaProgram.Loop).First();
         OamBuffer stockFireflea = DrawEnemy(stock, NewFrameReadGuard(rom),
             firefleaPointer, EnemyDefinitionId.Fireflea);
         OamBuffer editedFireflea = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1668,7 +1668,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Fireflea Y offset changes live room OAM");
         AssertEqual(stockFireflea.LowTable[0], editedFireflea.LowTable[0],
             "Fireflea visual edit leaves X position unchanged");
-        ushort magdollitePointer = MagdolliteAnimations.Spritemaps(MagdolliteProgram.LeftIdle).First();
+        ushort magdollitePointer = MagdolliteAnimationsConstants.Spritemaps(MagdolliteProgram.LeftIdle).First();
         OamBuffer stockMagdollite = DrawEnemy(stock, NewFrameReadGuard(rom),
             magdollitePointer, EnemyDefinitionId.Magdollite);
         OamBuffer editedMagdollite = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1678,7 +1678,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Magdollite Y offset changes live room OAM");
         AssertEqual(stockMagdollite.LowTable[0], editedMagdollite.LowTable[0],
             "Magdollite visual edit leaves X position unchanged");
-        ushort rioPointer = RioAnimations.Spritemaps(RioProgram.Idle).First();
+        ushort rioPointer = RioAnimationsConstants.Spritemaps(RioProgram.Idle).First();
         OamBuffer stockRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             rioPointer, EnemyDefinitionId.Rio);
         OamBuffer editedRio = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1688,7 +1688,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Rio Y offset changes installed room OAM");
         AssertEqual(stockRio.LowTable[0], editedRio.LowTable[0],
             "Rio visual edit leaves physical X unchanged");
-        ushort lowerRioPointer = LowerNorfairRioAnimations.Spritemaps(LowerNorfairRioProgram.IdleLoop).First();
+        ushort lowerRioPointer = LowerNorfairRioAnimationsConstants.Spritemaps(LowerNorfairRioProgram.IdleLoop).First();
         OamBuffer stockLowerRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             lowerRioPointer, EnemyDefinitionId.Holtz);
         OamBuffer editedLowerRio = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1698,7 +1698,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Lower Norfair Rio Y offset changes installed room OAM");
         AssertEqual(stockLowerRio.LowTable[0], editedLowerRio.LowTable[0],
             "Lower Norfair Rio visual edit leaves physical X unchanged");
-        ushort norfairRioPointer = NorfairRioAnimations.Spritemaps(NorfairRioProgram.Idle).First();
+        ushort norfairRioPointer = NorfairRioAnimationsConstants.Spritemaps(NorfairRioProgram.Idle).First();
         OamBuffer stockNorfairRio = DrawEnemy(stock, NewFrameReadGuard(rom),
             norfairRioPointer, EnemyDefinitionId.Geruta);
         OamBuffer editedNorfairRio = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1708,7 +1708,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Norfair Rio Y offset changes installed room OAM");
         AssertEqual(stockNorfairRio.LowTable[0], editedNorfairRio.LowTable[0],
             "Norfair Rio visual edit leaves physical X unchanged");
-        ushort puyoPointer = PuyoAnimations.Spritemaps(PuyoProgram.GroundedFast).First();
+        ushort puyoPointer = PuyoAnimationsConstants.Spritemaps(PuyoProgram.GroundedFast).First();
         OamBuffer stockPuyo = DrawEnemy(stock, NewFrameReadGuard(rom),
             puyoPointer, EnemyDefinitionId.Puyo);
         OamBuffer editedPuyo = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1718,7 +1718,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Puyo Y offset changes installed room OAM");
         AssertEqual(stockPuyo.LowTable[0], editedPuyo.LowTable[0],
             "Puyo visual edit leaves physical X unchanged");
-        ushort bullPointer = BullAnimations.Spritemaps(BullProgram.Normal).First();
+        ushort bullPointer = BullAnimationsConstants.Spritemaps(BullProgram.Normal).First();
         OamBuffer stockBull = DrawEnemy(stock, NewFrameReadGuard(rom),
             bullPointer, EnemyDefinitionId.Bull);
         OamBuffer editedBull = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1728,7 +1728,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Bull Y offset changes installed room OAM");
         AssertEqual(stockBull.LowTable[0], editedBull.LowTable[0],
             "Bull visual edit leaves physical X unchanged");
-        ushort alcoonPointer = AlcoonAnimations.Spritemaps(AlcoonProgram.WalkingLeftLoop).First();
+        ushort alcoonPointer = AlcoonAnimationsConstants.Spritemaps(AlcoonProgram.WalkingLeftLoop).First();
         OamBuffer stockAlcoon = DrawEnemy(stock, NewFrameReadGuard(rom),
             alcoonPointer, EnemyDefinitionId.Alcoon);
         OamBuffer editedAlcoon = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1738,7 +1738,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Alcoon Y offset changes installed room OAM");
         AssertEqual(stockAlcoon.LowTable[0], editedAlcoon.LowTable[0],
             "Alcoon visual edit leaves physical X unchanged");
-        ushort beetomPointer = BeetomAnimations.Spritemaps(BeetomProgram.CrawlingLeftLoop).First();
+        ushort beetomPointer = BeetomAnimationsConstants.Spritemaps(BeetomProgram.CrawlingLeftLoop).First();
         OamBuffer stockBeetom = DrawEnemy(stock, NewFrameReadGuard(rom),
             beetomPointer, EnemyDefinitionId.Beetom);
         OamBuffer editedBeetom = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1748,7 +1748,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Beetom Y offset changes installed room OAM");
         AssertEqual(stockBeetom.LowTable[0], editedBeetom.LowTable[0],
             "Beetom visual edit leaves physical X unchanged");
-        ushort hopperPointer = HopperAnimations.Spritemaps(HopperProgram.SidehopperFloorJumping).Single();
+        ushort hopperPointer = HopperAnimationsConstants.Spritemaps(HopperProgram.SidehopperFloorJumping).Single();
         OamBuffer stockHopper = DrawEnemy(stock, NewFrameReadGuard(rom),
             hopperPointer, EnemyDefinitionId.Sidehopper);
         OamBuffer editedHopper = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1758,7 +1758,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Sidehopper Y offset changes installed room OAM");
         AssertEqual(stockHopper.LowTable[0], editedHopper.LowTable[0],
             "Sidehopper visual edit leaves physical X unchanged");
-        ushort chootPointer = ChootAnimations.Spritemaps(ChootProgram.Idle).First();
+        ushort chootPointer = ChootAnimationsConstants.Spritemaps(ChootProgram.Idle).First();
         OamBuffer stockChoot = DrawEnemy(stock, NewFrameReadGuard(rom),
             chootPointer, EnemyDefinitionId.Choot);
         OamBuffer editedChoot = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1778,7 +1778,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored HZoomer Y offset changes installed room OAM");
         AssertEqual(stockHZoomer.LowTable[0], editedHZoomer.LowTable[0],
             "HZoomer visual edit leaves physical X unchanged");
-        ushort sbugPointer = SbugAnimations.Spritemaps(SbugProgram.Right).First();
+        ushort sbugPointer = SbugAnimationsConstants.Spritemaps(SbugProgram.Right).First();
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  { EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2 })
         {
@@ -2738,7 +2738,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preOwtchStokeFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog preOwtchStokeUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
-        ushort owtchPointer = OwtchAnimations.Spritemaps(OwtchProgram.MovingLeftLoop).First();
+        ushort owtchPointer = OwtchAnimationsConstants.Spritemaps(OwtchProgram.MovingLeftLoop).First();
         OamBuffer stockOwtch = DrawEnemy(stock, NewFrameReadGuard(rom),
             owtchPointer, EnemyDefinitionId.Owtch);
         OamBuffer upgradedOwtch = DrawEnemy(preOwtchStokeUpgraded,
@@ -2769,7 +2769,7 @@ internal static class EnemySpritemapArtworkVerification
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], retainedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
-        ushort retainedPipePointer = PipeBugAnimations.Spritemaps(PipeBugProgram.GametRisingLeft).First();
+        ushort retainedPipePointer = PipeBugAnimationsConstants.Spritemaps(PipeBugProgram.GametRisingLeft).First();
         OamBuffer editedPipe = DrawEnemy(edited, NewFrameReadGuard(rom),
             retainedPipePointer, EnemyDefinitionId.Gamet);
         OamBuffer retainedPipe = DrawEnemy(upgraded, NewFrameReadGuard(rom),
@@ -2788,7 +2788,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = priorFrames,
             }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemyTileArtworkCatalog priorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
-        ushort pipePointer = PipeBugAnimations.Spritemaps(PipeBugProgram.GametRisingLeft).First();
+        ushort pipePointer = PipeBugAnimationsConstants.Spritemaps(PipeBugProgram.GametRisingLeft).First();
         OamBuffer stockPipe = DrawEnemy(stock, NewFrameReadGuard(rom),
             pipePointer, EnemyDefinitionId.Gamet);
         OamBuffer upgradedPipe = DrawEnemy(priorUpgraded, NewFrameReadGuard(rom),
@@ -2821,7 +2821,7 @@ internal static class EnemySpritemapArtworkVerification
             waverPointer, EnemyDefinitionId.Waver);
         AssertEqual(editedWaver.LowTable[1], upgradedWaver.LowTable[1],
             "previous-version override retains edited Waver composition");
-        ushort zoaPointer = ZoaAnimations.Spritemaps(ZoaProgram.FacingLeftShooting).First();
+        ushort zoaPointer = ZoaAnimationsConstants.Spritemaps(ZoaProgram.FacingLeftShooting).First();
         var stockZoa = DrawEnemy(stock, NewFrameReadGuard(rom),
             zoaPointer, EnemyDefinitionId.Zoa);
         var upgradedZoa = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),

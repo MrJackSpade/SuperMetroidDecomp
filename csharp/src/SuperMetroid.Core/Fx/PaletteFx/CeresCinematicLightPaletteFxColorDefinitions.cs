@@ -12,39 +12,14 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class CeresCinematicLightPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxInstList_CutsceneGunshipEngine</c> at <c>$8D:C87A</c>.</summary>
-    /// <remarks>
-    /// The $8D:E1A8 definition selects a bounded two-record control loop.
-    /// $C87A sets CGRAM word index $00BE; timed records start at
-    /// $C87E + 6 * frame for frame 0..1. Each record has duration one,
-    /// one live BGR555 color word, and a $C595 wait. The $C61E goto at
-    /// $C88A targets $C87E, yielding a two-frame cycle without entering
-    /// the adjacent $C88E program. All eight mechanics words match the
-    /// pinned NTSC J/U v1.0 ROM; the two colors stay presentation-owned.
-    /// </remarks>
-    public const ushort GunshipEngineProgramStart = 0xc87a;
     /// <summary>The first gunship-engine timed record at <c>$8D:C87E</c>.</summary>
     public const ushort GunshipEngineFirstFramePointer = 0xc87e;
-    /// <summary>The gunship-engine terminal <c>goto</c> at <c>$8D:C88A</c>.</summary>
-    public const ushort GunshipEngineLoopInstructionPointer = 0xc88a;
-    /// <summary>The gunship engine writes CGRAM word index <c>$00BE</c>.</summary>
-    public const ushort GunshipEngineColorIndex = 0x00be;
     /// <summary>The gunship-engine loop contains two timed records.</summary>
     public const int GunshipEngineFrameCount = 2;
     /// <summary>Each gunship-engine record writes one live BGR555 color.</summary>
     public const int GunshipEngineColorsPerFrame = 1;
     /// <summary>Bytes from one gunship-engine duration through its terminal wait.</summary>
     public const int GunshipEngineFrameByteCount = 6;
-    /// <summary>Each gunship-engine record lasts one frame.</summary>
-    public const ushort GunshipEngineFrameDuration = 1;
-    /// <summary><c>PalFxInstList_CutsceneCeresNavigationLightsSprite</c> at <c>$8D:C88E</c>.</summary>
-    public const ushort SpriteNavigationLightsProgramStart = 0xc88e;
-    /// <summary>The sprite-Ceres navigation lights write CGRAM word index <c>$01DA</c>.</summary>
-    public const ushort SpriteNavigationLightsColorIndex = 0x01da;
-    /// <summary><c>PalFxInstList_CutsceneCeresNavigationLightsBg</c> at <c>$8D:C906</c>.</summary>
-    public const ushort BackgroundNavigationLightsProgramStart = 0xc906;
-    /// <summary>The background-Ceres navigation lights write CGRAM word index <c>$00DA</c>.</summary>
-    public const ushort BackgroundNavigationLightsColorIndex = 0x00da;
 
     /// <summary>The shared Ceres navigation-light loop begins at <c>$8D:C892</c>.</summary>
     /// <remarks>
@@ -58,16 +33,12 @@ public static class CeresCinematicLightPaletteFxColorDefinitions
     /// v1.0 ROM. The 28 color words remain presentation-owned.
     /// </remarks>
     public const ushort NavigationLightsFirstFramePointer = 0xc892;
-    /// <summary>The shared Ceres navigation-light terminal <c>goto</c> at <c>$8D:C902</c>.</summary>
-    public const ushort NavigationLightsLoopInstructionPointer = 0xc902;
     /// <summary>The shared Ceres navigation-light loop contains fourteen timed records.</summary>
     public const int NavigationLightsFrameCount = 14;
     /// <summary>Each Ceres navigation-light record writes two live BGR555 colors.</summary>
     public const int NavigationLightsColorsPerFrame = 2;
     /// <summary>Bytes from one navigation-light duration through its terminal wait.</summary>
     public const int NavigationLightsFrameByteCount = 8;
-    /// <summary>Each Ceres navigation-light record lasts four frames.</summary>
-    public const ushort NavigationLightsFrameDuration = 4;
     /// <summary>Returns one gunship-engine timed-record pointer.</summary>
     public static ushort GunshipEngineFramePointer(int frame)
     {
@@ -119,34 +90,5 @@ public static class CeresCinematicLightPaletteFxColorDefinitions
             throw new ArgumentOutOfRangeException(nameof(color));
         return unchecked((ushort)(NavigationLightsFramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
-    }
-
-    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
-    private enum MechanicsWord : ushort
-    {
-        /// <summary>Gunship-engine <c>SetColorIndex</c> opcode at <c>$8D:C87A</c>.</summary>
-        GunshipEngineSetColorIndex = GunshipEngineProgramStart,
-        /// <summary>Gunship-engine color-index operand at <c>$8D:C87C</c>.</summary>
-        GunshipEngineColorIndexOperand = GunshipEngineProgramStart + 2,
-        /// <summary>Gunship-engine terminal <c>goto</c> opcode at <c>$8D:C88A</c>.</summary>
-        GunshipEngineGoto = GunshipEngineLoopInstructionPointer,
-        /// <summary>Gunship-engine goto target operand at <c>$8D:C88C</c>.</summary>
-        GunshipEngineGotoTarget = GunshipEngineLoopInstructionPointer + 2,
-        /// <summary>Sprite navigation-light <c>SetColorIndex</c> opcode at <c>$8D:C88E</c>.</summary>
-        SpriteNavigationLightsSetColorIndex = SpriteNavigationLightsProgramStart,
-        /// <summary>Sprite navigation-light color-index operand at <c>$8D:C890</c>.</summary>
-        SpriteNavigationLightsColorIndexOperand = SpriteNavigationLightsProgramStart + 2,
-        /// <summary>Shared navigation-light terminal <c>goto</c> opcode at <c>$8D:C902</c>.</summary>
-        NavigationLightsGoto = NavigationLightsLoopInstructionPointer,
-        /// <summary>Shared navigation-light goto target operand at <c>$8D:C904</c>.</summary>
-        NavigationLightsGotoTarget = NavigationLightsLoopInstructionPointer + 2,
-        /// <summary>Background navigation-light <c>SetColorIndex</c> opcode at <c>$8D:C906</c>.</summary>
-        BackgroundNavigationLightsSetColorIndex = BackgroundNavigationLightsProgramStart,
-        /// <summary>Background navigation-light color-index operand at <c>$8D:C908</c>.</summary>
-        BackgroundNavigationLightsColorIndexOperand = BackgroundNavigationLightsProgramStart + 2,
-        /// <summary>Background navigation-light <c>goto</c> opcode at <c>$8D:C90A</c>.</summary>
-        BackgroundNavigationLightsGoto = BackgroundNavigationLightsProgramStart + 4,
-        /// <summary>Background navigation-light goto target operand at <c>$8D:C90C</c>.</summary>
-        BackgroundNavigationLightsGotoTarget = BackgroundNavigationLightsProgramStart + 6,
     }
 }

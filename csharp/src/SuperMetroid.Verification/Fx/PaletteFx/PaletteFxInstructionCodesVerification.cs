@@ -106,8 +106,8 @@ internal static class PaletteFxInstructionCodesVerification
     {
         ushort[] pointers =
         [
-            PaletteFxDeleteDefinitions.CinematicDelete,
-            PaletteFxDeleteDefinitions.EmptyRoomEffect,
+            PaletteFxDeleteDefinitionsConstants.CinematicDelete,
+            PaletteFxDeleteDefinitionsConstants.EmptyRoomEffect,
         ];
 
         var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
@@ -214,7 +214,7 @@ internal static class PaletteFxInstructionCodesVerification
         ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
         AssertEqual((ushort)0xc655, Word(0xdf94), "native glare set-color opcode");
         AssertEqual((ushort)0x01e0, Word(0xdf96), "native glare destination operand");
-        AssertEqual(PostCreditsIconGlarePaletteFxColorDefinitions.ProgramStart, Word(0xe202), "native glare definition entry");
+        AssertEqual(PostCreditsIconGlarePaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe202), "native glare definition entry");
         AssertEqual((ushort)PaletteFxSetup.Null, Word(0xe200), "native glare setup callback");
         foreach (int invalid in new[] { int.MinValue, -1, 14, int.MaxValue })
         {
@@ -309,7 +309,7 @@ internal static class PaletteFxInstructionCodesVerification
         ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
         AssertEqual((ushort)0xc655, Word(0xd6ba), "native gunship reveal set-color opcode");
         AssertEqual((ushort)0x00a0, Word(0xd6bc), "native gunship reveal destination operand");
-        AssertEqual(ZebesExplosionGunshipPaletteFxColorDefinitions.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");
+        AssertEqual(ZebesExplosionGunshipPaletteFxColorDefinitionsConstants.ProgramStart, Word(0xe1e6), "native gunship reveal definition entry");
         AssertEqual((ushort)PaletteFxSetup.Null, Word(0xe1e4), "native gunship reveal setup callback");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
@@ -432,7 +432,7 @@ internal static class PaletteFxInstructionCodesVerification
             ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer,
             0);
         for (int step = 0;
-             step <= ZebesExplosionForegroundPaletteFxColorDefinitions.CycleFrames;
+             step <= ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames;
              step++)
         {
             paletteFx.Step(guarded, new SnesCgram(), new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -649,7 +649,7 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(SoundEffectLibrary.Library2,
                 paletteFx.SoundRequests[0].SoundEffect.Library,
                 "beacon selects sound library two");
-            AssertEqual(BeaconPaletteFxColorDefinitions.SoundId,
+            AssertEqual(BeaconPaletteFxColorDefinitionsConstants.SoundId,
                 paletteFx.SoundRequests[0].SoundEffect.Value,
                 "beacon retains its compiled sound ID");
             soundCount++;
@@ -873,7 +873,7 @@ internal static class PaletteFxInstructionCodesVerification
             int table = 0x8d0000 | ReadVerificationWord(bus, operand);
             for (ushort phase = 0; phase < 16; phase++)
                 AssertEqual(ReadVerificationWord(bus, table + 2 * phase),
-                    PaletteFxHeatInstructionListDefinitions.ResolveForEquippedItems((ushort)equipment, phase),
+                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems((ushort)equipment, phase),
                     "All equipment words preserve native Gravity-before-Varia selection at every phase");
         }
     }

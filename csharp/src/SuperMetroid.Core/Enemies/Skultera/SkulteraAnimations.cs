@@ -74,12 +74,6 @@ internal static class SkulteraAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params SkulteraProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => SkulteraFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue> Show(int pose, int duration) => AnimationProgramStep<SkulteraProgram, SkulteraFrame, SkulteraCue>.Show(new(pose), duration);
 

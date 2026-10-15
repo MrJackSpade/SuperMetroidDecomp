@@ -230,7 +230,7 @@ internal static class TorizoNativeListAddresses
     /// <summary>The common commands Torizo's lists use beyond the shared reader's.</summary>
     private static readonly Dictionary<ushort, BodyWordKind> BodyWords = new()
     {
-        [(ushort)CommonEnemyInstruction.CopyToVram] = BodyWordKind.TileTransfer,
+        [CommonEnemyInstructionConstants.CopyToVram] = BodyWordKind.TileTransfer,
     };
 
     /// <summary>Decodes a native Torizo list word.</summary>

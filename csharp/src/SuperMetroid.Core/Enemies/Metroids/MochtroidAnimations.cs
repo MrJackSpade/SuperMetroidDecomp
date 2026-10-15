@@ -35,12 +35,6 @@ internal static class MochtroidAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MochtroidProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MochtroidFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<MochtroidProgram, MochtroidFrame, NoAnimationCue>.Show(new(pose), duration);
 

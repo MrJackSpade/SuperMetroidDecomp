@@ -15,7 +15,4 @@ internal static class YappingMawVisualDefinitions
     internal static EnemySpritemapDefinition[] Frames() =>
         [.. new SortedSet<ushort>(YappingMawAnimations.Spritemaps(Enum.GetValues<YappingMawProgram>()))
             .Select(pointer => new EnemySpritemapDefinition(Bank, pointer, $"yapping_maw_a8_{pointer:x4}"))];
-
-    /// <summary>The pose the upward attack opens on, the idle Yapping Maw's first frame.</summary>
-    internal static ushort IdleFrame => YappingMawAnimations.Spritemaps(YappingMawProgram.AttackingUp).First();
 }

@@ -36,7 +36,7 @@ internal static class StokeBehaviorVerification
             (enemies, slot, state) = Create(rom, direction);
             state.Function = StokeAiFunction.IdleDuringAttack;
             state.Program = AnimationProgramCursor<StokeProgram>.Start(attack);
-            ushort[] attackFrames = StokeAnimations.Spritemaps(attack).ToArray();
+            ushort[] attackFrames = StokeAnimationsConstants.Spritemaps(attack).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(attackFrames, [16, 16]),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, 32), $"Stoke {attack} poses");
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(

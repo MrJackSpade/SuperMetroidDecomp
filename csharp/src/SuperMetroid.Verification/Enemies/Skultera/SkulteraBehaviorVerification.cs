@@ -43,7 +43,7 @@ internal static class SkulteraBehaviorVerification
             SkulteraBehavior.BeginSkulteraTurn(slot, state, startsLeft);
             AssertEqual(AnimationProgramCursor<SkulteraProgram>.Start(turn), state.Program, $"Skultera {swim} begins {turn}");
             int[] holds = [13, 10, 8, 6, 6, 8, 10, 13];
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkulteraAnimations.Spritemaps(turn), holds),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames(SkulteraAnimationsConstants.Spritemaps(turn), holds),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum()), $"Skultera {turn} poses");
             AssertTrue(!state.TurnFinished, $"Skultera {turn} is unfinished while its last pose holds");
             EnemyInstructionRunner.ShownFrames(enemies, slot, 1);

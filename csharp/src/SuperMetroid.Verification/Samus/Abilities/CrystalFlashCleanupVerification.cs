@@ -100,7 +100,7 @@ internal static class CrystalFlashCleanupVerification
                 contactEnemy.VariableC = contactEnemy.VariableD = 0;
                 // Contact runs before AI publishes its first map. Seed that same
                 // authored map so this fixture tests contact on this exact frame.
-                contactEnemy.SpritemapPointer = RipperAnimations.Spritemaps(
+                contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(
                     runtime.Enemies.RipperBehavior._ripperPrograms[contactEnemy.SlotIndex].Program).First();
             }
             ushort beforeHealth = samus.Health;

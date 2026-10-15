@@ -1784,11 +1784,11 @@ internal static class LookupStream5Verification
         foreach ((ushort definition, ushort program) in new[]
         {
             (CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineDefinitionPointer,
-                CeresCinematicLightPaletteFxColorDefinitions.GunshipEngineProgramStart),
+                CeresCinematicLightPaletteFxColorDefinitionsConstants.GunshipEngineProgramStart),
             (CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsDefinitionPointer,
-                CeresCinematicLightPaletteFxColorDefinitions.SpriteNavigationLightsProgramStart),
+                CeresCinematicLightPaletteFxColorDefinitionsConstants.SpriteNavigationLightsProgramStart),
             (CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsDefinitionPointer,
-                CeresCinematicLightPaletteFxColorDefinitions.BackgroundNavigationLightsProgramStart),
+                CeresCinematicLightPaletteFxColorDefinitionsConstants.BackgroundNavigationLightsProgramStart),
         })
         {
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition + 2), program,

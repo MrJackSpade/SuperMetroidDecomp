@@ -33,8 +33,8 @@ internal static class BullBehaviorVerification
 
         BullBehavior.ResolveBullImmuneShot(slot, state, 2);
         AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot), state.Program, "Bull immune-shot animation");
-        ushort[] shot = BullAnimations.Spritemaps(BullProgram.ShotLoop).ToArray();
-        ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimations.Spritemaps(BullProgram.Normal).First()];
+        ushort[] shot = BullAnimationsConstants.Spritemaps(BullProgram.ShotLoop).ToArray();
+        ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullProgram.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
             EnemyInstructionRunner.ShownFrames(enemies, slot, 61), "Bull shot program repeats five times and returns to normal");
         AssertEqual((ushort)0, slot.Timer.RawValue, "Bull shot loop exhausts its native repeat timer");

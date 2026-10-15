@@ -17,4 +17,6 @@ internal static class WreckedShipGreenLightPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="WreckedShipGreenLightPaletteFxColorDefinitionsConstants.PoweredDefinitionAlternate"/>
         internal static ushort PoweredDefinitionAlternate => WreckedShipGreenLightPaletteFxColorDefinitionsConstants.PoweredDefinitionAlternate;
     }
+    /// <summary>The first powered-light destination byte in CGRAM.</summary>
+    public const ushort ColorByteIndex = 0x0098;
 }

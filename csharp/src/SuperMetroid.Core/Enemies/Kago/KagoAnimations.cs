@@ -35,12 +35,6 @@ internal static class KagoAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params KagoProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => KagoFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<KagoProgram, KagoFrame, NoAnimationCue>.Show(new(pose), duration);
 

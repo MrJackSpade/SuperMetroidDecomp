@@ -27,8 +27,6 @@ public static class TitleScreenAmbientPaletteFxColorDefinitions
 {
     /// <summary>$8D:C7FE-C85D: four dimming steps and their reflected return form the tube pulse. This selected pulse depth is authored title choreography.</summary>
     internal const int TubeDimmingSteps = 4;
-    /// <summary>$8D:C7FE and each following tube record: authored ten-tick shade exposure in this title pulse.</summary>
-    internal const ushort TubeShadeTicks = 10;
     /// <summary>$8D:C866/C86E: bright and dim display states alternate on consecutive palette updates.</summary>
     internal const int DisplayStates = 2;
     /// <summary>$8D:C7FC: first tube material color is CGRAM42; four material slots end at45.</summary>

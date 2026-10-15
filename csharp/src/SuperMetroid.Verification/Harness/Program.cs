@@ -43,15 +43,24 @@ if (args.Length == 0)
     return RunFullSuite();
 if (VerificationCommands.TryDispatch(args, out int exitCode))
     return exitCode;
-// Several argument-free commands run in one process, so focused checks share one startup.
-if (args.Length > 1 && args.All(argument => argument.StartsWith("--", StringComparison.Ordinal)))
+// Several commands, each a flag and its values (such as --suite VerifyName), run in one process so focused
+// checks share one startup.
+if (args.Length > 1 && args[0].StartsWith("--", StringComparison.Ordinal))
 {
-    int combined = 0;
-    foreach (string flag in args)
+    var commands = new List<List<string>>();
+    foreach (string argument in args)
     {
-        if (!VerificationCommands.TryDispatch([flag], out int flagExit))
-            throw new ArgumentException(VerificationCommands.UsageFor([flag]), nameof(args));
-        combined = Math.Max(combined, flagExit);
+        if (argument.StartsWith("--", StringComparison.Ordinal))
+            commands.Add([argument]);
+        else
+            commands[^1].Add(argument);
+    }
+    int combined = 0;
+    foreach (List<string> command in commands)
+    {
+        if (!VerificationCommands.TryDispatch([.. command], out int commandExit))
+            throw new ArgumentException(VerificationCommands.UsageFor([.. command]), nameof(args));
+        combined = Math.Max(combined, commandExit);
     }
     return combined;
 }

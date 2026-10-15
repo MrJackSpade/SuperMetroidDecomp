@@ -95,7 +95,7 @@ csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaContractChecks.cs	SME6340	2
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaDomainGeometry.cs	SME6340	4
 csharp/src/SuperMetroid.ResourceAudit/VramDma/VramDmaOwnership.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/AssetExtraction/Cartridge/CartridgeImportAddressSpaceTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/AssetExtraction/Rooms/CartridgeRoomStateImporter.cs	SME6340	1
+csharp/test-support/VerificationAccess.Tooling/AssetExtraction/Rooms/CartridgeRoomStateImporter.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Areas/Tourian/TourianStatueProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/FakeKraidProjectileInstructionProgramDefinitionsTooling.cs	SME6341	3
 csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainRoomColorPresentationToolingExtensions.cs	SME6341	1

@@ -16,18 +16,19 @@ namespace SuperMetroid.TestSupport.CatalogInventories;
 /// or BG2 command payload may coincidentally pass the shallow count check.
 /// Every family still needs a consumer and exact OAM parity test before extraction.
 /// </summary>
-internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keyed, List<string> Unresolved, Dictionary<int, string> Owners)
+internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keyed, List<string> Unresolved)
 {
     /// <summary>
     /// Scans every Core instruction-program catalog's presentation operands against the cartridge:
     /// each bank-resolved selector address with its native target, and the catalogs skipped because
     /// their bank cannot be resolved by the standard probe.
     /// </summary>
-    internal static EnemyVisualSelectorInventory Collect(ISnesAddressSpace rom)
+    /// <param name="rom">The retail cartridge whose selector words are read.</param>
+    /// <param name="owners">When given, receives the owning catalog's name for each selector address.</param>
+    internal static EnemyVisualSelectorInventory Collect(ISnesAddressSpace rom, Dictionary<int, string>? owners = null)
     {
         var keyed = new Dictionary<int, ushort>();
         var unresolved = new List<string>();
-        var owners = new Dictionary<int, string>();
 
         // One-frame programs declare a single operand instead of an indexed list.
         // Ignoring that shape omitted Kzan's live operand (#1166).
@@ -65,7 +66,7 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
                     throw new InvalidDataException(
                         $"Conflicting visual selector ${source:X6}.");
                 keyed[source] = pointer;
-                owners[source] = name;
+                owners?[source] = name;
             }
         }
         // Typed projectile programs (#641) key their installed frames by the bank-$86 operand address that drew
@@ -84,9 +85,9 @@ internal sealed record EnemyVisualSelectorInventory(Dictionary<int, ushort> Keye
                 if (keyed.TryGetValue(source, out ushort previous) && previous != pointer)
                     throw new InvalidDataException($"Conflicting visual selector ${source:X6}.");
                 keyed[source] = pointer;
-                owners[source] = owner;
+                owners?[source] = owner;
             }
         }
-        return new(keyed, unresolved, owners);
+        return new(keyed, unresolved);
     }
 }

@@ -56,12 +56,6 @@ internal static class ZoaAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params ZoaProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => ZoaFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<ZoaProgram, ZoaFrame, ZoaCue> Show(int pose, int duration) => AnimationProgramStep<ZoaProgram, ZoaFrame, ZoaCue>.Show(new(pose), duration);
 

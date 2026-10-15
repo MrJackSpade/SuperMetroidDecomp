@@ -7,7 +7,7 @@ internal static class HyperBeamPaletteFxStateConstants
     /// <summary>Number of colors copied by each Hyper Beam record.</summary>
     public const int ColorsPerFrame = HyperBeamPaletteFxColorDefinitionsConstants.ColorsPerFrame;
     /// <summary>Number of timed color records in the Hyper Beam loop.</summary>
-    public const int FrameCount = HyperBeamPaletteFxColorDefinitions.FrameCount;
+    public const int FrameCount = HyperBeamPaletteFxColorDefinitionsConstants.FrameCount;
 
     /// <summary>Provides the expected Hyper Beam palette frame count and colors per frame for state comparison.</summary>
     extension(HyperBeamPaletteFxState)

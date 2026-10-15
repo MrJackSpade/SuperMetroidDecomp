@@ -13,4 +13,6 @@ internal static class BrinstarBlueSporePaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="BrinstarBlueSporePaletteFxColorDefinitionsConstants.CycleFrames"/>
         internal static int CycleFrames => BrinstarBlueSporePaletteFxColorDefinitionsConstants.CycleFrames;
     }
+    /// <summary>The byte index of the first blue-spore color in CGRAM.</summary>
+    public const ushort ColorByteIndex = 0x00e2;
 }

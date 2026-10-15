@@ -80,7 +80,7 @@ public static class AudioInputReplaySmokeTest
             }
 
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
-            powerBeamCommandObserved |= frame.AudioEvents.Any(audioEvent =>
+            powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
                 audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                 audioEvent.SoundEffect == SoundEffectLibrary1Sounds.PowerBeam);
             powerBeamAcknowledged |= acknowledgements[ApuPort.SoundLibrary1] == 0x0b;
@@ -214,7 +214,7 @@ public static class AudioInputReplaySmokeTest
             }
             if (active is { } pause)
             {
-                AudioEvent[] events = [.. frame.AudioEvents.Where(audioEvent => audioEvent.Kind != AudioEventKind.DriverTick)];
+                AudioEvent[] events = [.. game.AudioEventsForVerification.Where(audioEvent => audioEvent.Kind != AudioEventKind.DriverTick)];
                 pause.AudioEvents += events.Length;
                 if (events.Length != 0)
                     pause.RecordEvents(frameIndex, frame.GameState, events);

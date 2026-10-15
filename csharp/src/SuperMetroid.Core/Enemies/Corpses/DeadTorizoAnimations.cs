@@ -23,12 +23,6 @@ internal static class DeadTorizoAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params DeadTorizoProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => DeadTorizoFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<DeadTorizoProgram, DeadTorizoFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<DeadTorizoProgram, DeadTorizoFrame, NoAnimationCue>.Show(new(pose), duration);
 

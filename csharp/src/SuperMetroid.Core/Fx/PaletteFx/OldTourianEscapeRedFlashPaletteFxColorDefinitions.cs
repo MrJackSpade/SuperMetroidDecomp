@@ -9,17 +9,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary><c>PalFxInstList_Crateria8</c> at <c>$8D:FA69</c>.</summary>
-    public const ushort ProgramStart = 0xfa69;
-
-    /// <summary>The first CGRAM destination byte for the old-Tourian red flash.</summary>
-    public const ushort ColorByteIndex = 0x00a2;
-
     /// <summary>The first timed record at <c>$8D:FA6D</c>.</summary>
     public const ushort FirstFramePointer = 0xfa6d;
-
-    /// <summary>The terminal <c>goto</c> at <c>$8D:FBBD</c>.</summary>
-    public const ushort LoopInstructionPointer = 0xfbbd;
 
     /// <summary>The loop contains fourteen timed records.</summary>
     public const int FrameCount = 14;
@@ -47,18 +38,5 @@ public static class OldTourianEscapeRedFlashPaletteFxColorDefinitions
         int skippedCommands = (color >= 3 ? 1 : 0) + (color >= 7 ? 1 : 0);
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) *
             (1 + color + skippedCommands)));
-    }
-
-    /// <summary>The program's header and loop control-word addresses.</summary>
-    private enum ControlWord : ushort
-    {
-        /// <summary>The <c>SetColorIndex</c> opcode at the program entry.</summary>
-        SetColorIndex = ProgramStart,
-        /// <summary>The CGRAM byte-index operand of <c>SetColorIndex</c>.</summary>
-        ColorIndexOperand = ProgramStart + 2,
-        /// <summary>The terminal <c>Goto</c> opcode.</summary>
-        Goto = LoopInstructionPointer,
-        /// <summary>The <c>Goto</c> target operand.</summary>
-        GotoTarget = LoopInstructionPointer + 2,
     }
 }

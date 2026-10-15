@@ -53,6 +53,8 @@ internal static class CoreAccess
         internal CartridgeAudioState AudioForVerification => game.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
         internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.audioSession.Acknowledgements;
+        /// <summary>The most recent update's ordered semantic audio events.</summary>
+        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.lastAudioEvents;
         /// <summary>Reads the menu NMI frame counter used by frontend animation timing.</summary>
         internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>

@@ -36,7 +36,7 @@ internal static class HyperBeamPaletteFxColorDefinitionsVerification
         int relative = address -
             HyperBeamPaletteFxColorDefinitions.NativeFirstFrameTimerAddress;
         if (relative is < 0 or
-            >= (HyperBeamPaletteFxColorDefinitions.FrameCount *
+            >= (HyperBeamPaletteFxColorDefinitionsConstants.FrameCount *
                 HyperBeamPaletteFxColorDefinitions.FrameByteCount))
         {
             return false;

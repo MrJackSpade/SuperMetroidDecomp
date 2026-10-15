@@ -17,4 +17,6 @@ internal static class RedBrinstarGlowPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
+    /// <summary>The byte index of the first Red Brinstar glow color in CGRAM.</summary>
+    public const ushort ColorByteIndex = 0x00c8;
 }

@@ -23,7 +23,7 @@ internal static class DragonBehaviorVerification
         {
             DragonProgram program = DragonAnimationDefinitions.Program(selector);
             (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(rom, selector);
-            ushort[] poses = DragonAnimations.Spritemaps(program).ToArray();
+            ushort[] poses = DragonAnimationsConstants.Spritemaps(program).ToArray();
             switch (selector)
             {
                 case DragonAnimationSelector.IdleFacingLeft or DragonAnimationSelector.IdleFacingRight:

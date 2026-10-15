@@ -288,8 +288,6 @@ internal static class EnemyProjectileDefinitionsVerification
                 $"{kind} properties");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), definition.TouchInstructionList,
                 $"{kind} touch list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 12)), definition.ShotInstructionList,
-                $"{kind} shot list");
         }
         return forbidden;
     }

@@ -19,17 +19,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ExplodingZebesFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The instruction-list entry at <c>$8D:CAAA</c>.</summary>
-    public const ushort ProgramStart = 0xcaaa;
-
     /// <summary>The first timed record at <c>$8D:CAAE</c>.</summary>
     public const ushort FirstFramePointer = 0xcaae;
-
-    /// <summary>The terminal <c>delete</c> command at <c>$8D:CB3A</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xcb3a;
-
-    /// <summary>The fade writes CGRAM from byte index <c>$01E0</c>.</summary>
-    public const ushort ColorByteIndex = 0x01e0;
 
     /// <summary>The one-shot fade contains seven timed records.</summary>
     public const int FrameCount = 7;
@@ -39,9 +30,6 @@ public static class ExplodingZebesFadePaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 20;
-
-    /// <summary>Each record lasts eight frames.</summary>
-    public const ushort FrameDuration = 8;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

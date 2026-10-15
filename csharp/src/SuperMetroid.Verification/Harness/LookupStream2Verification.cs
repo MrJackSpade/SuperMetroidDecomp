@@ -233,7 +233,7 @@ internal static class LookupStream2Verification
             for (int frame = 0; frame < 15; frame++)
             {
                 nativeDurations[frame] = ReadVerificationWord(rom, 0x8d0000 | definition.FramePointer(frame));
-                AssertEqual(nativeDurations[frame], OldTourianEscapeAccentPaletteFxColorDefinitions.Duration(frame), "Exact native authored pass dwell");
+                AssertEqual(nativeDurations[frame], OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(frame), "Exact native authored pass dwell");
                 cycle += nativeDurations[frame];
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frame % 5, color)),
@@ -257,8 +257,8 @@ internal static class LookupStream2Verification
             }
             AssertEqual(0, guarded.ForbiddenReadAttempts, "Cadence execution avoids native mechanics reads");
         }
-        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitions.Duration(-1), "Accent duration lower domain");
-        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitions.Duration(15), "Accent duration upper domain");
+        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(-1), "Accent duration lower domain");
+        AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
     /// <summary>Checks the ninja Space Pirates' typed programs, which carry the native list layout.</summary>
@@ -1287,7 +1287,7 @@ internal static class LookupStream2Verification
     {
         Suite(nameof(PipeBugBehaviorVerification.VerifyPipeBugBehavior), () => PipeBugBehaviorVerification.VerifyPipeBugBehavior(rom));
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
-        ushort[] poses = PipeBugAnimations.Spritemaps(Enum.GetValues<PipeBugProgram>()).Distinct().ToArray();
+        ushort[] poses = PipeBugAnimationsConstants.Spritemaps(Enum.GetValues<PipeBugProgram>()).Distinct().ToArray();
         foreach (ushort pose in poses)
             AssertEqual((ushort)1, ReadVerificationWord(rom, (int)new SnesAddress(PipeBugFrameToolingDefinitions.Bank, pose)), "Native seven-byte single-part composition");
         Console.WriteLine($"Pipe Bug visual geometry: {poses.Length} native single-part poses and the typed loops pass.");
@@ -1849,8 +1849,8 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(17), "Ghost flicker upper bound");
-        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitions.Duration(-1), "Norfair duration lower bound");
-        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitions.Duration(16), "Norfair duration upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(-1), "Norfair duration lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxColorDefinitionsConstants.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
     /// <summary>Checks compiled palette instruction mechanics across upper, old, and belly color programs.</summary>

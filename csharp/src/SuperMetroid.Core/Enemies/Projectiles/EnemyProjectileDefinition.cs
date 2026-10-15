@@ -8,14 +8,12 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <param name="RadiusWord">Packed X radius in the low byte and Y radius in the high byte.</param>
 /// <param name="Properties">Damage and collision/draw property bits.</param>
 /// <param name="TouchInstructionList">Optional list installed when the actor touches Samus.</param>
-/// <param name="ShotInstructionList">List installed when a destructible actor is shot.</param>
 internal readonly record struct EnemyProjectileDefinition(
     ushort PreInstruction,
     ushort InitialInstructionList,
     ushort RadiusWord,
     ushort Properties,
-    ushort TouchInstructionList,
-    ushort ShotInstructionList)
+    ushort TouchInstructionList)
 {
     /// <summary>The collision half-extents decoded from the packed radius word (X low byte, Y high byte).</summary>
     internal Extent16<RoomPixels> Radius => new(unchecked((byte)RadiusWord), SnesLittleEndian.HighByte(RadiusWord));

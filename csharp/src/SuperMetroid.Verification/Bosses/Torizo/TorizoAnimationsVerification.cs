@@ -38,9 +38,9 @@ internal static class TorizoAnimationsVerification
         foreach ((TorizoBodyProgram program, ushort entry) in BodyEntries)
             steps += CompareBodyProgram(cartridge, program, entry);
         VerifyResumedSleeps(cartridge);
-        var poses = new HashSet<ushort>(Enumerable.Range(0, TorizoFrameDefinitions.PoseCount)
+        var poses = new HashSet<ushort>(Enumerable.Range(0, TorizoFrameDefinitionsConstants.PoseCount)
             .Select(pose => TorizoFrameDefinitions.Spritemap(new TorizoFrame(pose))));
-        AssertEqual(TorizoFrameDefinitions.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
+        AssertEqual(TorizoFrameDefinitionsConstants.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
         AssertTrue(poses.SetEquals(TorizoAnimations.Spritemaps(TorizoAnimations.AllPrograms)), "the body programs show every Torizo pose");
         AssertTrue(poses.SetEquals(TorizoCollisionDefinitions.FramePointers), "every Torizo pose has its physical frame");
         Console.WriteLine($"  Torizo programs: {BodyEntries.Length} body programs ({steps} steps, {poses.Count} poses) match bank $AA.");
@@ -76,7 +76,7 @@ internal static class TorizoAnimationsVerification
                 AssertEqual(AnimationProgramStepKind.Cue, copy.Kind, $"{at}: tile transfer");
                 AssertEqual(TorizoCueKind.CopyTiles, copy.Cue.Kind, $"{at}: tile transfer cue");
                 TorizoInstructionVramTransferDefinition transfer = TorizoInstructionVramTransferDefinitions.Entries[copy.Cue.Transfer];
-                AssertEqual(cursor, transfer.Instruction, $"{at}: tile transfer descriptor");
+                AssertEqual(cursor, TorizoInstructionVramTransferDefinitions.Sites[copy.Cue.Transfer].Instruction, $"{at}: tile transfer descriptor");
                 AssertEqual(transfer.ByteCount, cartridge.ReadCartridgeWord(address + 2), $"{at}: tile transfer size");
                 AssertEqual(transfer.SourceAddress, cartridge.ReadCartridgeLongFixedBank(address + 4), $"{at}: tile transfer source");
                 AssertEqual(transfer.DestinationWord, cartridge.ReadCartridgeWord(address + 7), $"{at}: tile transfer destination");

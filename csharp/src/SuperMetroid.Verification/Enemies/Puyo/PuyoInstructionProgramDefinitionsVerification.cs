@@ -32,11 +32,11 @@ internal static class PuyoInstructionProgramDefinitionsVerification
                      PuyoProgram.RightFrame3LeftFrame1, PuyoProgram.RightFrame4LeftFrame0 })
         {
             Start(slot, state, pose);
-            ushort frame = PuyoAnimations.Spritemaps(pose).Single();
+            ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"Puyo {pose} pose");
         }
         if (artwork is not null)
-            foreach (ushort pose in PuyoAnimations.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
+            foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
                 AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameToolingDefinitions.Bank, pose, out _),
                     $"Puyo pose ${pose:X4} has installed artwork");
         Console.WriteLine("  Puyo: the fast-loop start, three grounded loops and five airborne poses pass.");

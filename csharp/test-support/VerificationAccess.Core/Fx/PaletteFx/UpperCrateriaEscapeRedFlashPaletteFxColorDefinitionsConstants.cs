@@ -17,4 +17,6 @@ internal static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConsta
         /// <inheritdoc cref="UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
+    /// <summary>The first CGRAM destination byte for upper Crateria's red flash.</summary>
+    public const ushort ColorByteIndex = 0x0082;
 }

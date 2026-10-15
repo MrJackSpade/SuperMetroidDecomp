@@ -55,12 +55,6 @@ internal static class MetroidAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MetroidProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MetroidFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue> Show(int pose, int duration) => AnimationProgramStep<MetroidProgram, MetroidFrame, MetroidCue>.Show(new(pose), duration);
 

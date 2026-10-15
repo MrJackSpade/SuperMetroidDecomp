@@ -68,7 +68,9 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color, entry.door.Orientation,
+                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
+                    entry.slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
+                        : throw new InvalidOperationException($"Coloured cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
                     ColoredPhase(entry.slot), entry.door.HitCounter)),
         ];
 
@@ -81,7 +83,9 @@ internal static class RoomPlmSystemAccess
                     entry.slot.HeaderPointer,
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
-                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Orientation, entry.door.Condition,
+                    entry.slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
+                        : throw new InvalidOperationException($"Grey cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
+                    (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
                     GreyPhase(entry.slot), entry.door.HitCounter, entry.slot.Animation)),
         ];
 

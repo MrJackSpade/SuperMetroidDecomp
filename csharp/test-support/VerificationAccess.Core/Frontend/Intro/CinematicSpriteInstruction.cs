@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Frontend.Intro;
+﻿namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>Shared bank-$8B cinematic-sprite interpreter instructions.</summary>
 internal enum CinematicSpriteInstruction : ushort

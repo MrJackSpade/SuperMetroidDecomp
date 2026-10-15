@@ -41,9 +41,9 @@ internal static class MorphBallEyeBehaviorVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, MorphBallEyeEnemyState state) = Create(rom, parameter1: 0, parameter2: 0);
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(closing);
             MorphBallEyeProgram closed = closing == MorphBallEyeProgram.FacingRightDeactivating ? MorphBallEyeProgram.FacingRightClosed : MorphBallEyeProgram.FacingLeftClosed;
-            ushort shut = MorphBallEyeAnimations.Spritemaps(closed).Single();
+            ushort shut = MorphBallEyeAnimationsConstants.Spritemaps(closed).Single();
             int[] holds = [8, 48, 5, 48];
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. MorphBallEyeAnimations.Spritemaps(closing), shut], holds),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. MorphBallEyeAnimationsConstants.Spritemaps(closing), shut], holds),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum() + 1), $"eye {closing} closes and holds");
         }
 
@@ -52,7 +52,7 @@ internal static class MorphBallEyeBehaviorVerification
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active, MorphBallEyeFrameDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(tracker, eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active)),
             "eye tracking loop");
-        ushort[] active = [.. MorphBallEyeAnimations.Spritemaps(MorphBallEyeProgram.Active)];
+        ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeProgram.Active)];
         for (int pose = 0; pose < active.Length; pose++)
         {
             tracking.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active, pose);

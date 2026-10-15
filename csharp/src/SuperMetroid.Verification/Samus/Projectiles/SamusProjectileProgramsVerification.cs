@@ -21,7 +21,7 @@ internal static class SamusProjectileProgramsVerification
         ushort Word(int address) => cartridge.ReadCartridgeWord(SamusProjectileRomData.Banks.Projectile | (ushort)address);
 
         Dictionary<ushort, SamusProjectileProgram> byEntry = Enum.GetValues<SamusProjectileProgram>()
-            .ToDictionary(SamusProjectileProgramAddresses.Entry, program => program);
+            .ToDictionary(SamusProjectileProgramAddressesConstants.Entry, program => program);
         var records = new SortedSet<ushort>();
         int steps = 0;
         foreach ((ushort entry, SamusProjectileProgram program) in byEntry)
@@ -71,7 +71,7 @@ internal static class SamusProjectileProgramsVerification
                 AssertEqual(programSteps.Count, index + 1, $"{at}: the goto or delete ends the program");
             }
         }
-        AssertEqual(SamusProjectileRecordDefinitions.RecordCount, records.Count, "every record is shown by a program");
+        AssertEqual(SamusProjectileRecordDefinitionsConstants.RecordCount, records.Count, "every record is shown by a program");
         AssertTrue(records.SequenceEqual(SamusProjectileRecordDefinitions.TimedRecordAddresses), "the record addresses are the timed records in address order");
 
         int fields = 0;
@@ -111,7 +111,7 @@ internal static class SamusProjectileProgramsVerification
         if (HeaderListField(address) is not { } field)
             return SamusProjectileSelectionDefinitions.ReadWord(address);
         return SamusProjectileHeaderDefinitions.Program(field.Header, field.Index) is { } program
-            ? SamusProjectileProgramAddresses.Entry(program) : (ushort)0;
+            ? SamusProjectileProgramAddressesConstants.Entry(program) : (ushort)0;
     }
 
     /// <summary>The header and list field <paramref name="address"/> lies in, or null outside the headers' list fields.</summary>

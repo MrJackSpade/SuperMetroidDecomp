@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;

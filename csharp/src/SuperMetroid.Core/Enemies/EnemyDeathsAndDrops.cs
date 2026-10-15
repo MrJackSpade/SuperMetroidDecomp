@@ -269,12 +269,8 @@ internal sealed class EnemyDeathsAndDrops
             : ConfigurePickup(projectile, kind);
     }
 
-    /// <summary>Starts the selected pickup's program, 400-frame life and collision callback.</summary>
-    internal static void BeginEnemyPickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind) =>
-        projectile.StartAnimation(new EnemyDeathProjectileAnimation(ConfigurePickup(projectile, kind)));
-
     /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its program.</summary>
-    private static EnemyDeathProjectileProgram ConfigurePickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind)
+    internal static EnemyDeathProjectileProgram ConfigurePickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
         projectile.Variable0 = animation.TableOffset;

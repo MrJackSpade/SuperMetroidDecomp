@@ -160,14 +160,11 @@ internal static class SamusProjectileProgramAddresses
     ];
 
     /// <summary>Each step's native address, by program.</summary>
-    private static readonly Dictionary<SamusProjectileProgram, ushort[]> StepAddresses = Entries.ToDictionary(
+    internal static readonly Dictionary<SamusProjectileProgram, ushort[]> StepAddresses = Entries.ToDictionary(
         entry => entry.Program, entry => Layout(entry.Program, entry.Entry));
 
     /// <summary>The cursor each native address stands for: a program's entry, else the one step at that address.</summary>
     private static readonly Dictionary<ushort, AnimationProgramCursor<SamusProjectileProgram>> Cursors = BuildCursors();
-
-    /// <summary>The list entry of <paramref name="program"/>.</summary>
-    internal static ushort Entry(SamusProjectileProgram program) => StepAddresses[program][0];
 
     /// <summary>The word just before <paramref name="program"/>'s list.</summary>
     internal static ushort Prefix(SamusProjectileProgram program) => Entries.Single(entry => entry.Program == program).Prefix;

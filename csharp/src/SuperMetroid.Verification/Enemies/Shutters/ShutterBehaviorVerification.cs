@@ -51,7 +51,7 @@ internal static class ShutterBehaviorVerification
             RoomEnemySlot slot = NewSlot(enemies, definition);
             initialize(enemies, slot);
             AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(program), cursor(enemies), $"shutter ${(int)definition:X4} initial animation");
-            ushort pose = ShutterAnimations.Spritemaps(program).Single();
+            ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"shutter ${(int)definition:X4} shows and holds its pose");
         }
@@ -135,7 +135,7 @@ internal static class ShutterBehaviorVerification
         EnemySpritemapDefinition[] frames = ShutterVisualDefinitions.Frames();
         AssertEqual(programs.Length, frames.Length, "one exported shutter composition per pose");
         for (int index = 0; index < programs.Length; index++)
-            AssertEqual(ShutterAnimations.Spritemaps(programs[index]).Single(), frames[index].Pointer, "shutter export pointer is its program's pose");
+            AssertEqual(ShutterAnimationsConstants.Spritemaps(programs[index]).Single(), frames[index].Pointer, "shutter export pointer is its program's pose");
         // Stage n's used map holds n + 1 sprites; an unused map of n + 2 sprites follows it (2 + 5 per sprite bytes each).
         for (int stage = 0; stage < 4; stage++)
         {

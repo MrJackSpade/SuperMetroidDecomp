@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
@@ -29,5 +30,18 @@ internal static class PaletteFxHeatInstructionListDefinitionsConstants
         internal static ushort PowerSourceTable => PaletteFxHeatInstructionListDefinitionsConstants.PowerSourceTable;
         /// <inheritdoc cref="PaletteFxHeatInstructionListDefinitionsConstants.VariaSourceTable"/>
         internal static ushort VariaSourceTable => PaletteFxHeatInstructionListDefinitionsConstants.VariaSourceTable;
+    }
+    /// <summary>
+    /// Applies the cartridge's Gravity-before-Varia equipment priority and returns the
+    /// program selected for the published heat phase.
+    /// </summary>
+    public static ushort ResolveForEquippedItems(ushort equippedItems, ushort phase)
+    {
+        PaletteFxHeatSuit suit = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? PaletteFxHeatSuit.Gravity
+            : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                ? PaletteFxHeatSuit.Varia
+                : PaletteFxHeatSuit.Power;
+        return PaletteFxHeatInstructionListDefinitions.Resolve(suit, phase);
     }
 }

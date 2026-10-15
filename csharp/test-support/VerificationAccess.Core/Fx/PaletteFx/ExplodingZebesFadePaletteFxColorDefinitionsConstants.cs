@@ -17,4 +17,6 @@ internal static class ExplodingZebesFadePaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="ExplodingZebesFadePaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => ExplodingZebesFadePaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
+    /// <summary>The fade writes CGRAM from byte index <c>$01E0</c>.</summary>
+    public const ushort ColorByteIndex = 0x01e0;
 }

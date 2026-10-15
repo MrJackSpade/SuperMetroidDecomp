@@ -55,8 +55,8 @@ internal static class SingleFrameEnemyVisualsVerification
         };
         foreach (var (definition, spritemap, count) in new[]
         {
-            (SingleFrameEnemyVisualDefinitions.Kzan, KzanAnimations.Spritemaps(KzanProgram.Idle).Single(), 4),
-            (SingleFrameEnemyVisualDefinitions.Polyp, PolypAnimations.Spritemaps(PolypProgram.Stationary).Single(), 1),
+            (SingleFrameEnemyVisualDefinitions.Kzan, KzanAnimationsConstants.Spritemaps(KzanProgram.Idle).Single(), 4),
+            (SingleFrameEnemyVisualDefinitions.Polyp, PolypAnimationsConstants.Spritemaps(PolypProgram.Stationary).Single(), 1),
         })
         {
             AssertEqual(definition.Pointer, spritemap, definition.Name + " is the frame its typed program shows");

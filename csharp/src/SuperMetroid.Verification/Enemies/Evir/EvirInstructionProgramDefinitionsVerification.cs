@@ -43,7 +43,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             EvirEnemyState state = PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
             _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4);
-            AssertEqual(EvirAnimations.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
             AnimationProgramCursor<EvirProgram>? held = state.Program;
             _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4);
@@ -73,7 +73,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                     AssertEqual((ushort)8, state.RegenerationXOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
             }
-            AssertEqual(EvirAnimations.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
+            AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "regenerating Evir projectile ends on its flight pose");
             AssertEqual((ushort)0, state.RegenerationXOffset, "regeneration loop advances the projectile mouth offset eight times");
             AssertEqual((ushort)0, state.RegenerationFlag, "regeneration finish cue clears regeneration ownership");

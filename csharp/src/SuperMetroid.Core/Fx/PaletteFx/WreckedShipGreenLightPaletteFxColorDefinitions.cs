@@ -16,17 +16,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class WreckedShipGreenLightPaletteFxColorDefinitions
 {
 
-    /// <summary><c>InstList_PaletteFXObject_WreckedShip1_0</c> at $8D:EAE2.</summary>
-    public const ushort ProgramStart = 0xeae2;
-
     /// <summary>First timed record, <c>InstList_PaletteFXObject_WreckedShip1_1</c>.</summary>
     public const ushort FirstFramePointer = 0xeae6;
-
-    /// <summary>Terminal <c>goto</c> command at $8D:EB26.</summary>
-    public const ushort LoopInstructionPointer = 0xeb26;
-
-    /// <summary>The first powered-light destination byte in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x0098;
 
     /// <summary>Eight ten-frame records form the powered-light cycle.</summary>
     public const int FrameCount = 8;
@@ -36,19 +27,6 @@ public static class WreckedShipGreenLightPaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration word through its terminal wait command.</summary>
     public const int FrameByteCount = 8;
-
-    /// <summary>The setup and loop control words outside the timed records, by bank-$8D address.</summary>
-    private enum ControlWord : ushort
-    {
-        /// <summary>$8D:EAE2: the set-color-index opcode.</summary>
-        SetColorIndex = ProgramStart,
-        /// <summary>$8D:EAE4: the CGRAM byte operand.</summary>
-        ColorIndexOperand = ProgramStart + sizeof(ushort),
-        /// <summary>$8D:EB26: the terminal goto opcode.</summary>
-        LoopGoto = LoopInstructionPointer,
-        /// <summary>$8D:EB28: the goto target, the first timed record.</summary>
-        LoopTarget = LoopInstructionPointer + sizeof(ushort),
-    }
 
     /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
     public static ushort FramePointer(int frame)

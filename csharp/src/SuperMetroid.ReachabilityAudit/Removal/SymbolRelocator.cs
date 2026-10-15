@@ -10,7 +10,7 @@ using SuperMetroid.ReachabilityAudit.Reporting;
 namespace SuperMetroid.ReachabilityAudit.Removal;
 
 /// <summary>
-/// Moves shipped-assembly symbols that only tools reach into a development-only project.
+/// Moves shipped-assembly symbols into a development-only project or test-support, per <see cref="RelocationStyle"/>.
 /// <list type="bullet">
 /// <item>Top-level types move whole, keeping their namespace, to the same relative path under the target.</item>
 /// <item>Static members and nested types of a type that stays move into a per-owner adapter class,
@@ -53,11 +53,16 @@ internal static class SymbolRelocator
 
     /// <summary>Moves the selected reachability category into tool source, rewrites references, and reports manual cases.</summary>
     public static void Relocate(LoadedSolution solution, ReachabilityResult result, string category,
-        string targetDirectory, IReadOnlySet<string> shippedAssemblies)
+        string targetDirectory, IReadOnlySet<string> shippedAssemblies) =>
+        Relocate(solution, ReachabilityFindings.Classify(result).Where(f => f.Category == category)
+            .Select(f => f.Declaration.Key).ToHashSet(), targetDirectory, shippedAssemblies, RelocationStyle.Tooling);
+
+    /// <summary>Moves the declarations with the given keys into the target, rewrites references, and reports manual cases.</summary>
+    public static void Relocate(LoadedSolution solution, IReadOnlySet<string> targets, string targetDirectory,
+        IReadOnlySet<string> shippedAssemblies, RelocationStyle style)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);
-        var targets = ReachabilityFindings.Classify(result).Where(f => f.Category == category)
-            .Select(f => f.Declaration.Key).ToHashSet();
+        string AdapterName(INamedTypeSymbol owner) => style.AdapterName(owner);
         var trees = solution.Projects
             .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource)
                 .Select(t => (Tree: t, p.Compilation, Project: p.Project.AssemblyName)))
@@ -127,6 +132,22 @@ internal static class SymbolRelocator
             if (written && symbol is IPropertySymbol { SetMethod.DeclaredAccessibility: Accessibility.Private or Accessibility.Protected or Accessibility.ProtectedAndInternal })
                 setterPromotions.Add(symbol);
         }
+        // A staying call site of a moved instance member resolves it as an extension, which needs the
+        // adapter's namespace in scope; moved code lands in that namespace already.
+        var neededUsings = new Dictionary<SyntaxTree, SortedSet<string>>();
+        void RequireExtensionNamespace(SyntaxTree tree, SemanticModel model, SyntaxNode site, Move extension)
+        {
+            if (EnclosingMove(tree, site) is not null || extension.AdapterOwner.ContainingNamespace is not { IsGlobalNamespace: false } ns)
+                return;
+            string name = ns.ToDisplayString();
+            for (var scope = model.GetEnclosingSymbol(site.SpanStart)?.ContainingNamespace; scope is { IsGlobalNamespace: false }; scope = scope.ContainingNamespace)
+                if (scope.ToDisplayString() == name)
+                    return;
+            if (tree.GetCompilationUnitRoot().Usings.Any(u => u.Alias is null && u.StaticKeyword.IsKind(SyntaxKind.None) && u.Name?.ToString() == name))
+                return;
+            if (!neededUsings.TryGetValue(tree, out var names)) neededUsings[tree] = names = new(StringComparer.Ordinal);
+            names.Add(name);
+        }
         foreach (var (tree, compilation, assembly) in trees)
         {
             var model = compilation.GetSemanticModel(tree);
@@ -134,6 +155,14 @@ internal static class SymbolRelocator
             var root = tree.GetRoot();
             foreach (var node in root.DescendantNodes(descendIntoTrivia: true))
             {
+                // Moved code constructing a staying type needs the constructor visible from the target.
+                if (node is BaseObjectCreationExpressionSyntax creation && EnclosingMove(tree, creation) is { Placement: not Placement.WholeType } &&
+                    SymbolIdentity.Normalize(model.GetSymbolInfo(creation).Symbol) is IMethodSymbol { MethodKind: MethodKind.Constructor } constructor &&
+                    !Moved(constructor))
+                {
+                    Promote(constructor, promotions, false);
+                    continue;
+                }
                 if (node is CrefSyntax cref && cref.Parent is XmlCrefAttributeSyntax attribute)
                 {
                     var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(cref).Symbol);
@@ -172,6 +201,8 @@ internal static class SymbolRelocator
                         Promote(bound, promotions, IsWritten(node));
                         continue;
                     }
+                    if (bound is not null && MoveOf(bound) is { Placement: Placement.ExtensionMember } accessed)
+                        RequireExtensionNamespace(tree, model, node, accessed);
                     if (bound is null || MoveOf(bound) is not { Placement: Placement.AdapterMember } move)
                         continue;
                     if (model.GetSymbolInfo(left).Symbol is not INamedTypeSymbol) continue;
@@ -231,6 +262,14 @@ internal static class SymbolRelocator
             }
         }
 
+        foreach (var (tree, names) in neededUsings)
+        {
+            var unit = tree.GetCompilationUnitRoot();
+            string newline = tree.GetText().ToString().Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            string directives = string.Concat(names.Select(name => $"using {name};{newline}"));
+            Edit(tree, new TextSpan(unit.Usings.Count > 0 ? unit.Usings[^1].FullSpan.End : 0, 0), directives);
+        }
+
         // 3. Accessibility: staying members used by moved code become internal.
         foreach (var symbol in setterPromotions)
             foreach (var reference in symbol.DeclaringSyntaxReferences)
@@ -262,19 +301,21 @@ internal static class SymbolRelocator
         TargetFile FileFor(string path, SyntaxTree source)
         {
             if (!files.TryGetValue(path, out var file))
-                files[path] = file = new TargetFile(Usings(source), Namespace(source));
+                files[path] = file = new TargetFile(Usings(source), Namespace(source), style);
             return file;
         }
         foreach (var move in moves)
         {
             string text = Rewritten(move.Tree, move.Node.FullSpan, edits);
-            string relative = TargetRelativePath(identity.Relative(move.Tree.FilePath));
+            string relative = TargetRelativePath(identity.Relative(move.Tree.FilePath), style.KeepsProjectDirectory);
             if (move.Placement == Placement.WholeType)
             {
                 FileFor(Path.Combine(targetDirectory, relative), move.Tree).Types.Add(text);
                 continue;
             }
-            string adapterFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relative) ?? "", AdapterName(move.AdapterOwner) + ".cs");
+            // Static members and instance extensions live in separately named classes, each in its own file.
+            string className = move.Placement == Placement.ExtensionMember ? style.ExtensionsName(move.AdapterOwner) : AdapterName(move.AdapterOwner);
+            string adapterFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relative) ?? "", className + ".cs");
             var file = FileFor(adapterFile, move.Tree);
             var adapter = file.Adapter(move.AdapterOwner, movedInterfaces, implementation => MoveOf(implementation) is not null);
             text = AsAdapterMember(text);
@@ -304,7 +345,7 @@ internal static class SymbolRelocator
             string output = text.ToString();
             if (CSharpSyntaxTree.ParseText(output).GetRoot().DescendantNodes().OfType<BaseTypeDeclarationSyntax>().Any()
                 || CSharpSyntaxTree.ParseText(output).GetRoot().DescendantNodes().OfType<DelegateDeclarationSyntax>().Any())
-                File.WriteAllText(path, output, new UTF8Encoding(File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..]));
+                File.WriteAllText(path, output, new UTF8Encoding(HasByteOrderMark(path)));
             else
             {
                 File.Delete(path);
@@ -316,12 +357,18 @@ internal static class SymbolRelocator
             Directory.CreateDirectory(Path.GetDirectoryName(path) ??
                 throw new InvalidOperationException($"{path} has no containing directory."));
             // A later pass adds to the adapters and files an earlier pass created.
-            File.WriteAllText(path, File.Exists(path) ? file.MergeInto(File.ReadAllText(path)) : file.Render(), new UTF8Encoding(true));
+            // A merge keeps the existing file's byte-order mark; new files get one.
+            bool existing = File.Exists(path);
+            File.WriteAllText(path, existing ? file.MergeInto(File.ReadAllText(path)) : file.Render(),
+                new UTF8Encoding(!existing || HasByteOrderMark(path)));
         }
         foreach (string line in manual) Console.WriteLine(line);
         Console.WriteLine($"Relocated {moves.Count} declarations into {files.Count} files; deleted {deleted} emptied files; " +
             $"{promotions.Count} members made internal; {manual.Count} left for manual relocation.");
     }
+
+    /// <summary>Whether a source file starts with a UTF-8 byte-order mark, which rewriting it keeps.</summary>
+    private static bool HasByteOrderMark(string path) => File.ReadAllBytes(path) is [0xEF, 0xBB, 0xBF, ..];
 
     /// <summary>Places supported declarations and leaves unsafe shapes for manual relocation.</summary>
     private static Placement? Classify(ISymbol symbol, SyntaxNode node)
@@ -329,6 +376,8 @@ internal static class SymbolRelocator
         if (symbol is INamedTypeSymbol type)
             return type.ContainingType is { IsGenericType: true } ? null : Placement.WholeType;
         if (symbol.ContainingType is not { } owner || owner.IsGenericType) return null;
+        // An enum value cannot leave its enum.
+        if (owner.TypeKind == TypeKind.Enum) return null;
         switch (symbol)
         {
             case IMethodSymbol { MethodKind: MethodKind.Ordinary, IsStatic: true }:
@@ -419,24 +468,22 @@ internal static class SymbolRelocator
     private static string TypeName(INamedTypeSymbol type) =>
         type.ContainingType is { } outer ? TypeName(outer) + "." + type.Name : type.Name;
 
-    /// <summary>Flattens nested owner names into the development adapter's class name.</summary>
-    internal static string AdapterName(INamedTypeSymbol owner) => FlatName(owner) + "Tooling";
-
-    /// <summary>Concatenates containing type names for a unique adapter identifier.</summary>
-    private static string FlatName(INamedTypeSymbol type) =>
-        type.ContainingType is { } outer ? FlatName(outer) + type.Name : type.Name;
-
     /// <summary>Formats a repository-relative source location for manual relocation reports.</summary>
     private static string Location(SymbolIdentity identity, SyntaxNode node) =>
         $"{identity.Relative(node.SyntaxTree.FilePath)}:{node.GetLocation().GetLineSpan().StartLinePosition.Line + 1}";
 
-    /// <summary>csharp/src/SuperMetroid.Core/Game/X.cs maps to Core/Game/X.cs under the target project.</summary>
-    private static string TargetRelativePath(string repositoryRelative)
+    /// <summary>
+    /// csharp/src/SuperMetroid.Core/Game/X.cs maps to Core/Game/X.cs under the target, or to Game/X.cs
+    /// when the target already stands for the source project.
+    /// </summary>
+    private static string TargetRelativePath(string repositoryRelative, bool keepsProjectDirectory)
     {
         string[] parts = repositoryRelative.Split('/');
         int project = Array.FindIndex(parts, p => p.StartsWith("SuperMetroid.", StringComparison.Ordinal));
         if (project < 0) throw new InvalidOperationException($"{repositoryRelative} is not under a project directory.");
-        return Path.Combine([parts[project]["SuperMetroid.".Length..], .. parts[(project + 1)..]]);
+        return keepsProjectDirectory
+            ? Path.Combine([parts[project]["SuperMetroid.".Length..], .. parts[(project + 1)..]])
+            : Path.Combine(parts[(project + 1)..]);
     }
 
     /// <summary>Applies reference edits inside a moved declaration from the end to preserve original spans.</summary>
@@ -486,11 +533,11 @@ internal static class SymbolRelocator
         tree.GetCompilationUnitRoot().Members.OfType<BaseNamespaceDeclarationSyntax>().FirstOrDefault()?.Name.ToString() ?? "";
 
     /// <summary>Accumulates whole types and per-owner adapters for one destination source file.</summary>
-    private sealed class TargetFile(IReadOnlyList<string> usings, string ns)
+    private sealed class TargetFile(IReadOnlyList<string> usings, string ns, RelocationStyle style)
     {
         /// <summary>Whole declarations to append in this destination namespace.</summary>
         public List<string> Types { get; } = [];
-        /// <summary>Development adapters indexed by their original shipped owner.</summary>
+        /// <summary>Adapters indexed by their original shipped owner.</summary>
         private readonly Dictionary<INamedTypeSymbol, AdapterClass> adapters = new(Comparer);
 
         /// <summary>Gets or creates the owner adapter, adding forwarders for retained interface contracts.</summary>
@@ -500,7 +547,7 @@ internal static class SymbolRelocator
                 return adapter;
             var implemented = owner.Interfaces.Select(i => i.OriginalDefinition).Where(movedInterfaces.Contains).ToList();
             adapters[owner] = adapter = new AdapterClass(owner,
-                [.. implemented.Select(i => i.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))]);
+                [.. implemented.Select(i => i.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat))], style);
             // Contract members gameplay still uses stay on the owner; the adapter forwards to them.
             foreach (var contract in implemented.SelectMany(i => i.GetMembers())
                          .Where(m => m is IPropertySymbol or IMethodSymbol { MethodKind: MethodKind.Ordinary }))
@@ -536,27 +583,34 @@ internal static class SymbolRelocator
             if (newUsings.Length > 0)
                 inserts.Add((root.Usings.Count > 0 ? root.Usings[^1].FullSpan.End : 0, newUsings));
             var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>().ToDictionary(c => c.Identifier.Text, c => c);
+            // Text goes in before a closing brace, at the start of its line, each line indented by the given prefix.
+            void InsertBefore(SyntaxToken closeBrace, IEnumerable<string> members, string indent) =>
+                inserts.Add((existing.LastIndexOf('\n', closeBrace.SpanStart - 1) + 1, string.Concat(members.Select(member =>
+                    string.Join("\r\n", member.Trim('\r', '\n').Replace("\r\n", "\n").Split('\n')
+                        .Select(line => line.Length == 0 ? line : indent + line)) + "\r\n"))));
             foreach (var adapter in adapters.Values)
             {
-                bool appendedAdapter = false;
-                foreach (var (name, members, extensions) in new[]
-                         { (AdapterName(adapter.Owner), adapter.Members, false), (AdapterName(adapter.Owner) + "Extensions", adapter.Extensions, true) })
+                if (adapter.Members.Count > 0)
                 {
-                    if (members.Count == 0 || appendedAdapter) continue;
-                    if (!classes.TryGetValue(name, out var existingClass))
-                    {
-                        appended.Append("\r\n").Append(adapter.Render());
-                        appendedAdapter = true;
-                        continue;
-                    }
-                    var block = existingClass.Members.FirstOrDefault(m => m.IsKind(SyntaxKind.ExtensionBlockDeclaration));
-                    int close = extensions && block is not null ? block.GetLastToken().SpanStart : existingClass.CloseBraceToken.SpanStart;
-                    // Members keep their owner-relative indentation; extension members sit one level deeper.
-                    string indent = extensions ? "    " : "";
-                    inserts.Add((existing.LastIndexOf('\n', close - 1) + 1, string.Concat(members.Select(member =>
-                        string.Join("\r\n", member.Trim('\r', '\n').Replace("\r\n", "\n").Split('\n')
-                            .Select(line => line.Length == 0 ? line : indent + line)) + "\r\n"))));
+                    if (classes.TryGetValue(style.AdapterName(adapter.Owner), out var membersClass))
+                        InsertBefore(membersClass.CloseBraceToken, adapter.Members, "");
+                    else
+                        appended.Append("\r\n").Append(adapter.RenderMembers());
                 }
+                if (adapter.Extensions.Count == 0)
+                    continue;
+                if (!classes.TryGetValue(style.ExtensionsName(adapter.Owner), out var extensionsClass))
+                {
+                    appended.Append("\r\n").Append(adapter.RenderExtensions());
+                    continue;
+                }
+                // Instance members join the class's receiver block for the owner, or open one.
+                var block = extensionsClass.Members.OfType<ExtensionBlockDeclarationSyntax>().FirstOrDefault(b =>
+                    b.ParameterList?.Parameters is [{ Identifier.Text: "self", Type: { } type }] && type.ToString() == TypeName(adapter.Owner));
+                if (block is not null)
+                    InsertBefore(block.CloseBraceToken, adapter.Extensions, "    ");
+                else
+                    InsertBefore(extensionsClass.CloseBraceToken, [adapter.ExtensionBlock()], "");
             }
             foreach (string type in Types)
                 appended.Append("\r\n").Append(type.Trim('\r', '\n')).Append("\r\n");
@@ -567,7 +621,7 @@ internal static class SymbolRelocator
             return output.ToString().Replace("\r\n", "\n").Replace("\n", "\r\n");
         }
 
-        /// <summary>Writes using directives, moved types, and generated adapters into a new tool file.</summary>
+        /// <summary>Writes using directives, moved types, and generated adapters into a new target file.</summary>
         public string Render()
         {
             var output = new StringBuilder();
@@ -579,16 +633,21 @@ internal static class SymbolRelocator
             if (ns.Length > 0) output.Append("namespace ").Append(ns).Append(";\r\n");
             foreach (string type in Types)
                 output.Append("\r\n").Append(type.Trim('\r', '\n')).Append("\r\n");
-            foreach (var adapter in adapters.Values.OrderBy(a => AdapterName(a.Owner), StringComparer.Ordinal))
-                output.Append("\r\n").Append(adapter.Render());
+            foreach (var adapter in adapters.Values.OrderBy(a => style.AdapterName(a.Owner), StringComparer.Ordinal))
+            {
+                if (adapter.Members.Count > 0)
+                    output.Append("\r\n").Append(adapter.RenderMembers());
+                if (adapter.Extensions.Count > 0)
+                    output.Append("\r\n").Append(adapter.RenderExtensions());
+            }
             return output.ToString().Replace("\r\n", "\n").Replace("\n", "\r\n");
         }
     }
 
     /// <summary>Renders static and instance-extension members for one original owner.</summary>
-    private sealed class AdapterClass(INamedTypeSymbol owner, List<string> interfaces)
+    private sealed class AdapterClass(INamedTypeSymbol owner, List<string> interfaces, RelocationStyle style)
     {
-        /// <summary>The shipped type whose tool-only members this adapter holds.</summary>
+        /// <summary>The shipped type whose moved members this adapter holds.</summary>
         public INamedTypeSymbol Owner { get; } = owner;
         /// <summary>Moved interfaces implemented by this adapter through relocated members and forwarders.</summary>
         public List<string> Interfaces { get; } = interfaces;
@@ -597,31 +656,32 @@ internal static class SymbolRelocator
         /// <summary>Instance methods and properties rendered into an extension block.</summary>
         public List<string> Extensions { get; } = [];
 
-        /// <summary>Emits the adapter class and optional instance extension class for its owner.</summary>
-        public string Render()
+        /// <summary>Emits the class holding the owner's moved static members.</summary>
+        public string RenderMembers()
         {
-            var output = new StringBuilder();
             string ownerName = TypeName(Owner);
-            if (Members.Count > 0)
-            {
-                output.Append($"/// <summary>Development-tool members of <see cref=\"{ownerName}\"/>; never linked by player hosts.</summary>\r\n");
-                if (Interfaces.Count > 0)
-                    output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {AdapterName(Owner)} : {string.Join(", ", Interfaces)}\r\n");
-                else
-                    output.Append($"internal static class {AdapterName(Owner)}\r\n");
-                output.Append("{\r\n");
-                output.Append(string.Join("\r\n", Members.Select(m => m.Trim('\r', '\n')))).Append("\r\n}\r\n");
-            }
-            if (Extensions.Count > 0)
-            {
-                if (Members.Count > 0) output.Append("\r\n");
-                output.Append($"/// <summary>Development-tool instance members of <see cref=\"{ownerName}\"/>.</summary>\r\n");
-                output.Append($"internal static class {AdapterName(Owner)}Extensions\r\n{{\r\n    extension({ownerName} self)\r\n    {{\r\n");
-                foreach (string member in Extensions)
-                    output.Append(Indent(member.Trim('\r', '\n'))).Append("\r\n");
-                output.Append("    }\r\n}\r\n");
-            }
-            return output.ToString();
+            var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n");
+            if (Interfaces.Count > 0)
+                output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {style.AdapterName(Owner)} : {string.Join(", ", Interfaces)}\r\n");
+            else
+                output.Append($"internal static class {style.AdapterName(Owner)}\r\n");
+            return output.Append("{\r\n").Append(string.Join("\r\n", Members.Select(m => m.Trim('\r', '\n')))).Append("\r\n}\r\n").ToString();
+        }
+
+        /// <summary>Emits the class holding the owner's moved instance members.</summary>
+        public string RenderExtensions() =>
+            new StringBuilder("/// <summary>").Append(string.Format(style.ExtensionsSummary, TypeName(Owner))).Append("</summary>\r\n")
+                .Append($"internal static class {style.ExtensionsName(Owner)}\r\n{{\r\n").Append(ExtensionBlock()).Append("}\r\n").ToString();
+
+        /// <summary>The owner's documented receiver block holding every moved instance member, indented one level.</summary>
+        public string ExtensionBlock()
+        {
+            string ownerName = TypeName(Owner);
+            var output = new StringBuilder("    /// <summary>").Append(string.Format(style.ExtensionBlockSummary, ownerName)).Append("</summary>\r\n")
+                .Append($"    extension({ownerName} self)\r\n    {{\r\n");
+            foreach (string member in Extensions)
+                output.Append(Indent(member.Trim('\r', '\n'))).Append("\r\n");
+            return output.Append("    }\r\n").ToString();
         }
 
         /// <summary>Adds one indentation level to moved instance members inside an extension block.</summary>

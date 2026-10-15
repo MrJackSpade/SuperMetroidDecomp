@@ -145,11 +145,11 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertEqual(30, phase.Value, $"cartridge pause fade duration for {phase.Key}");
         Console.WriteLine("  Gameplay capture integration: ordered overlays and 180-frame room/pause slice preserve pixels, state and audio commands; all four fades take 30 frames.");
 
-        static void Compare(FrontendFrame expected, CapturedFrontendFrame actual)
+        void Compare(FrontendFrame expected, CapturedFrontendFrame actual)
         {
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
-            AssertSequenceEqual(expected.AudioEvents, actual.Frame.AudioEvents, "gameplay capture audio event order");
+            AssertSequenceEqual(legacy.AudioEventsForVerification, packets.AudioEventsForVerification, "gameplay capture audio event order");
             Rgba32[] pixels = actual.Snapshot is { } packet ? SoftwareFrameSnapshotRenderer.Render(packet) : actual.Frame.Pixels;
             AssertTrue(expected.Pixels.SequenceEqual(pixels), $"gameplay capture pixels in {expected.Phase}");
         }

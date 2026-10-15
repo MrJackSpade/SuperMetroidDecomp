@@ -5,8 +5,6 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
 {
     /// <summary>Bank-local position of the one-frame record following four counted groups.</summary>
     private const ushort FinalFrameOffset = 0x0140;
-    /// <summary>Bank-local position of deletion after the terminal palette record.</summary>
-    private const ushort DeleteInstructionOffset = 0x0164;
 
     /// <summary>Pairs one suit's palette-FX header with its bank-$8D instruction-list entry.</summary>
     internal SamusLoadingSuitPaletteFxColorDefinition(
@@ -33,18 +31,10 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
     /// <summary>The terminal one-frame record after all counted groups.</summary>
     public ushort FinalFramePointer => unchecked((ushort)(ProgramStart + FinalFrameOffset));
 
-    /// <summary>The terminal <c>delete</c> command after the final record.</summary>
-    public ushort DeleteInstructionPointer =>
-        unchecked((ushort)(ProgramStart + DeleteInstructionOffset));
-
     /// <summary>Returns the first record of one counted group.</summary>
     public ushort GroupStartPointer(int group) => unchecked((ushort)(
         ProgramStart + SamusLoadingSuitPaletteFxColorDefinitions
             .GroupStartOffset(group)));
-
-    /// <summary>Returns the byte operand that initializes one group's replay timer.</summary>
-    public ushort GroupTimerBytePointer(int group) =>
-        unchecked((ushort)(GroupStartPointer(group) - 1));
 
     /// <summary>Returns one of the nine timed-record pointers.</summary>
     public ushort FramePointer(int frame)

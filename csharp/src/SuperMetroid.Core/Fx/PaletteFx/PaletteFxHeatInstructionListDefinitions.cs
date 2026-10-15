@@ -43,18 +43,4 @@ public static class PaletteFxHeatInstructionListDefinitions
         };
         return (ushort)(firstProgram + 0x22 * phase);
     }
-
-    /// <summary>
-    /// Applies the cartridge's Gravity-before-Varia equipment priority and returns the
-    /// program selected for the published heat phase.
-    /// </summary>
-    public static ushort ResolveForEquippedItems(ushort equippedItems, ushort phase)
-    {
-        PaletteFxHeatSuit suit = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? PaletteFxHeatSuit.Gravity
-            : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? PaletteFxHeatSuit.Varia
-                : PaletteFxHeatSuit.Power;
-        return Resolve(suit, phase);
-    }
 }

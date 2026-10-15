@@ -130,12 +130,6 @@ internal static class CeresSteamAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params CeresSteamProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => CeresSteamFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue> Show(int pose, int duration) => AnimationProgramStep<CeresSteamProgram, CeresSteamFrame, CeresSteamCue>.Show(new(pose), duration);
 

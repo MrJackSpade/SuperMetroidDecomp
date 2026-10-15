@@ -21,4 +21,8 @@ internal static class ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.WideExplosionBackgroundDefinitionPointer"/>
         internal static ushort WideExplosionBackgroundDefinitionPointer => ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.WideExplosionBackgroundDefinitionPointer;
     }
+    /// <summary>The wide-background entry writes CGRAM from byte index <c>$0022</c>.</summary>
+    public const ushort WideExplosionBackgroundColorByteIndex = 0x0022;
+    /// <summary>The space-whiteout entry writes CGRAM from byte index <c>$0000</c>.</summary>
+    public const ushort SpaceWhiteoutColorByteIndex = 0x0000;
 }

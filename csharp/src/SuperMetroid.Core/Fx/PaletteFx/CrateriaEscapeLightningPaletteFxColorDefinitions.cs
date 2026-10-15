@@ -68,13 +68,4 @@ public static class CrateriaEscapeLightningPaletteFxColorDefinitions
         /// <summary>Exposes the same native definition order to non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
-    /// <summary>$8D:FE05/$FF2B duration schedule: three quiet intervals between one-tick flashes.</summary>
-    internal static ushort Duration(int frame) => frame switch
-    {
-        0 => 49,
-        5 => 17,
-        7 => 24,
-        >= 0 and < FrameCount => 1,
-        _ => throw new IndexOutOfRangeException(),
-    };
 }

@@ -228,12 +228,6 @@ internal static class MagdolliteAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MagdolliteProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MagdolliteFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue> Show(int pose, int duration) => AnimationProgramStep<MagdolliteProgram, MagdolliteFrame, MagdolliteCue>.Show(new(pose), duration);
 

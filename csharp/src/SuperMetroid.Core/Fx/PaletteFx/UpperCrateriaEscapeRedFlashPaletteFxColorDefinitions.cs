@@ -8,14 +8,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions
 {
-    /// <summary><c>PalFxInstList_Crateria2</c> at <c>$8D:FCFD</c>.</summary>
-    public const ushort ProgramStart = 0xfcfd;
-    /// <summary>The first CGRAM destination byte for upper Crateria's red flash.</summary>
-    public const ushort ColorByteIndex = 0x0082;
     /// <summary>The first timed record at <c>$8D:FD01</c>.</summary>
     public const ushort FirstFramePointer = 0xfd01;
-    /// <summary>The terminal <c>goto</c> at <c>$8D:FDFD</c>.</summary>
-    public const ushort LoopInstructionPointer = 0xfdfd;
     /// <summary>The loop contains fourteen timed records.</summary>
     public const int FrameCount = 14;
     /// <summary>Each record writes seven live BGR555 colors.</summary>

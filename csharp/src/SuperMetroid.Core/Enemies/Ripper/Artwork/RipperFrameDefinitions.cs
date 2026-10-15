@@ -13,9 +13,6 @@ internal static class RipperFrameDefinitions
     /// <summary><c>Spritemap_GRipper_Ripper2_Frozen_FacingRight</c> at $A2:E44B, pinned while a GRipper or Ripper II facing right is frozen.</summary>
     internal const ushort FrozenFacingRightSpritemap = 0xe44b;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 12;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(RipperFrame frame) => frame.Pose switch
     {

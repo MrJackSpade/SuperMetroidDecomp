@@ -21,23 +21,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 {
 
-    /// <summary>The wide-background entry at <c>$8D:D362</c>.</summary>
-    public const ushort WideExplosionBackgroundProgramStart = 0xd362;
-
-    /// <summary>The wide-background entry writes CGRAM from byte index <c>$0022</c>.</summary>
-    public const ushort WideExplosionBackgroundColorByteIndex = 0x0022;
-
-    /// <summary>The space-whiteout entry at <c>$8D:D36A</c>.</summary>
-    public const ushort SpaceWhiteoutProgramStart = 0xd36a;
-
-    /// <summary>The space-whiteout entry writes CGRAM from byte index <c>$0000</c>.</summary>
-    public const ushort SpaceWhiteoutColorByteIndex = 0x0000;
-
     /// <summary>The first shared timed record at <c>$8D:D36E</c>.</summary>
     public const ushort FirstFramePointer = 0xd36e;
-
-    /// <summary>The terminal <c>delete</c> command at <c>$8D:D3C8</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xd3c8;
 
     /// <summary>The shared one-shot ramp contains fifteen timed records.</summary>
     public const int FrameCount = 15;
@@ -47,9 +32,6 @@ public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 6;
-
-    /// <summary>Each record lasts fourteen frames.</summary>
-    public const ushort FrameDuration = 14;
 
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
@@ -66,24 +48,5 @@ public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
             throw new ArgumentOutOfRangeException(nameof(color));
         return unchecked((ushort)(FramePointer(frame) + sizeof(ushort) +
             color * sizeof(ushort)));
-    }
-
-    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
-    private enum MechanicsWord : ushort
-    {
-        /// <summary>Wide-background <c>SetColorIndex</c> opcode at <c>$8D:D362</c>.</summary>
-        WideBackgroundSetColorIndex = WideExplosionBackgroundProgramStart,
-        /// <summary>Wide-background color-index operand at <c>$8D:D364</c>.</summary>
-        WideBackgroundColorIndexOperand = WideExplosionBackgroundProgramStart + 2,
-        /// <summary>Wide-background <c>goto</c> opcode at <c>$8D:D366</c>.</summary>
-        WideBackgroundGoto = WideExplosionBackgroundProgramStart + 4,
-        /// <summary>Wide-background goto target operand at <c>$8D:D368</c>.</summary>
-        WideBackgroundGotoTarget = WideExplosionBackgroundProgramStart + 6,
-        /// <summary>Space-whiteout <c>SetColorIndex</c> opcode at <c>$8D:D36A</c>.</summary>
-        SpaceWhiteoutSetColorIndex = SpaceWhiteoutProgramStart,
-        /// <summary>Space-whiteout color-index operand at <c>$8D:D36C</c>; its value is zero.</summary>
-        SpaceWhiteoutColorIndexOperand = SpaceWhiteoutProgramStart + 2,
-        /// <summary>Terminal <c>delete</c> opcode at <c>$8D:D3C8</c>.</summary>
-        Delete = DeleteInstructionPointer,
     }
 }

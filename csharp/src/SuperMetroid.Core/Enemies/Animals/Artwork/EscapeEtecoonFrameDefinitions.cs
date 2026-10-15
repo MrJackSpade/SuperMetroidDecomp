@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Enemies.Animals.Artwork;
 /// </summary>
 internal static class EscapeEtecoonFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xb3;
-
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 10;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(EscapeEtecoonFrame frame) => frame.Pose switch

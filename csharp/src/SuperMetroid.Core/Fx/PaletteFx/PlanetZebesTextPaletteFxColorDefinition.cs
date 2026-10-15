@@ -14,22 +14,8 @@ public sealed class PlanetZebesTextPaletteFxColorDefinition
         + (Owner == PlanetZebesTextPaletteFxProgramOwner.FadeOut
             ? 3 * sizeof(ushort) + PlanetZebesTextPaletteFxColorDefinitions.FrameCount
                 * PlanetZebesTextPaletteFxColorDefinitions.FrameByteCount : 0));
-
-    /// <summary>Byte destination from the independently required text palette and first color.</summary>
-    public ushort ColorByteIndex => Owner switch
-    {
-        PlanetZebesTextPaletteFxProgramOwner.FadeIn or PlanetZebesTextPaletteFxProgramOwner.FadeOut =>
-            (ushort)(sizeof(ushort) * (16 * PlanetZebesTextPaletteFxColorDefinitions.TextPalette
-                + PlanetZebesTextPaletteFxColorDefinitions.FirstTextColor)),
-        _ => throw new InvalidOperationException("Unsupported PLANET ZEBES fade owner."),
-    };
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
-
-    /// <summary>The terminal <c>delete</c> command after all timed records.</summary>
-    public ushort DeleteInstructionPointer => unchecked((ushort)(FirstFramePointer +
-        PlanetZebesTextPaletteFxColorDefinitions.FrameCount *
-        PlanetZebesTextPaletteFxColorDefinitions.FrameByteCount));
 
     /// <summary>Returns one timed-record pointer.</summary>
     public ushort FramePointer(int frame)

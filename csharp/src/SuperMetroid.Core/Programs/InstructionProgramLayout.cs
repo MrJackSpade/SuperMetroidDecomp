@@ -87,28 +87,6 @@ internal sealed class InstructionProgramLayout
         return false;
     }
 
-    /// <summary>
-    /// Reads any compiled word: a mechanics value or a compiled visual identity. Installed
-    /// presentation slots have no compiled value and read as absent.
-    /// </summary>
-    internal bool TryReadWord(ushort address, out ushort value)
-    {
-        if (index.Value.TryGet(address, out InstructionWord word))
-        {
-            value = word.Value;
-            return !word.IsPresentation || word.IsCompiledVisual;
-        }
-        value = 0;
-        return false;
-    }
-
-    /// <summary>Checks whether an exact native word address is a visual operand slot.</summary>
-    internal bool IsPresentationWord(ushort address) =>
-        index.Value.TryGet(address, out InstructionWord word) && word.IsPresentation;
-
-    /// <summary>True when <paramref name="address"/> is the first byte of any laid-out word.</summary>
-    internal bool Owns(ushort address) => index.Value.TryGet(address, out _);
-
     /// <summary>Every laid-out word in address order, its address index, and its two orderings.</summary>
     internal sealed class WordIndex
     {

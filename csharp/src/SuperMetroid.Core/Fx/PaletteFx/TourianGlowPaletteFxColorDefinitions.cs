@@ -17,20 +17,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianGlowPaletteFxColorDefinitions
 {
 
-    /// <summary>Clone entry at <c>$8D:F62A</c>.</summary>
-    public const ushort CloneProgramStart = 0xf62a;
-
-    /// <summary>Live entry at <c>$8D:F632</c>.</summary>
-    public const ushort LiveProgramStart = 0xf632;
-
-    /// <summary>Shared pre-instruction setup at <c>$8D:F636</c>.</summary>
-    public const ushort SharedProgramStart = 0xf636;
-
     /// <summary>First timed record at <c>$8D:F63A</c>.</summary>
     public const ushort FirstFramePointer = 0xf63a;
-
-    /// <summary>Terminal <c>goto</c> at <c>$8D:F72C</c>.</summary>
-    public const ushort LoopInstructionPointer = 0xf72c;
 
     /// <summary>Eleven ten-frame records form one complete glow cycle.</summary>
     public const int FrameCount = 11;
@@ -40,9 +28,6 @@ public static class TourianGlowPaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 22;
-
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x00e8;
 
     /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
     public static ushort FramePointer(int frame)

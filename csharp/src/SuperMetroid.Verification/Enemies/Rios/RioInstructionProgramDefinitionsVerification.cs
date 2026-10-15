@@ -41,8 +41,8 @@ internal static class RioInstructionProgramDefinitionsVerification
         AssertEqual((RioProgram?)null, state.InstalledProgram, "real Rio initializer leaves nothing installed");
 
         // Idle shows its two poses, then runs into the ten-pose post-swoop idle, which returns to idle.
-        IEnumerable<ushort> idlePass = RioAnimations.Spritemaps(RioProgram.Idle, RioProgram.PostSwoopIdle);
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimations.Spritemaps(RioProgram.Idle).First()], Enumerable.Repeat(4, 13)),
+        IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioProgram.Idle, RioProgram.PostSwoopIdle);
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimationsConstants.Spritemaps(RioProgram.Idle).First()], Enumerable.Repeat(4, 13)),
             EnemyInstructionRunner.ShownFrames(enemies, rio, 12 * 4 + 1),
             "idle runs into the post-swoop idle and returns");
 
@@ -51,7 +51,7 @@ internal static class RioInstructionProgramDefinitionsVerification
             state.AnimationFinished = false;
             state.Program = AnimationProgramCursor<RioProgram>.Start(swoop);
             rio.InstructionTimer = NativeCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames(RioAnimations.Spritemaps(swoop), Enumerable.Repeat(3, 5)),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames(RioAnimationsConstants.Spritemaps(swoop), Enumerable.Repeat(3, 5)),
                 EnemyInstructionRunner.ShownFrames(enemies, rio, 5 * 3),
                 $"Rio {swoop} shows its five poses");
             AssertTrue(!state.AnimationFinished, $"Rio {swoop} is still showing its last pose");

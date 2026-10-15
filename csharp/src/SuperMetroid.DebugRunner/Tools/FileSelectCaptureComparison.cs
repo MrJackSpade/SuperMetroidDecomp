@@ -40,13 +40,13 @@ internal static class FileSelectCaptureComparison
             var frame = game.StepCaptured(recording.ControllerInputs[tick], tick + 1, 1).Frame;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                 audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
-            if (frame.AudioEvents.Any(IsSwoosh))
+            if (game.lastAudioEvents.Any(IsSwoosh))
             {
                 requests++;
                 Console.WriteLine($"Swoosh start: tick={tick}, phase={frame.Phase}");
             }
             game.CopyAudioFrame(pcm);
-            muted.Render(new AudioFrameEvents([.. frame.AudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), suppressed);
+            muted.Render(new AudioFrameEvents([.. game.lastAudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), suppressed);
             for (int i = 0; i < pcm.Length; i += 2)
             {
                 double sample = (pcm[i] + pcm[i + 1]) * 0.5;

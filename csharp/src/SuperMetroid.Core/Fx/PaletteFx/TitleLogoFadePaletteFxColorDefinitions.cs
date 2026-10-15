@@ -17,17 +17,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TitleLogoFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The instruction-list entry at <c>$8D:C696</c>.</summary>
-    public const ushort ProgramStart = 0xc696;
-
     /// <summary>The first timed record at <c>$8D:C69A</c>.</summary>
     public const ushort FirstFramePointer = 0xc69a;
-
-    /// <summary>The terminal <c>delete</c> command at <c>$8D:C7AA</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xc7aa;
-
-    /// <summary>The fade writes CGRAM from byte index <c>$0142</c>.</summary>
-    public const ushort ColorByteIndex = 0x0142;
 
     /// <summary>The one-shot fade contains eight timed records.</summary>
     public const int FrameCount = 8;
@@ -37,9 +28,6 @@ public static class TitleLogoFadePaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 34;
-
-    /// <summary>Each record lasts three frames.</summary>
-    public const ushort FrameDuration = 3;
 
     /// <summary>Returns one timed-record pointer.</summary>
     public static ushort FramePointer(int frame)

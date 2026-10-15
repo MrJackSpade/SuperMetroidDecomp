@@ -12,9 +12,6 @@ internal static class TorizoFrameDefinitions
     /// <summary>The extended spritemap $AA:87D0 both statues start on, before their program shows a pose.</summary>
     internal const ushort InitialSpritemap = 0x87d0;
 
-    /// <summary>The body's poses.</summary>
-    internal const int PoseCount = 106;
-
     /// <summary>The extended spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(TorizoFrame frame) => frame.Pose switch
     {

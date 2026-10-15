@@ -31,12 +31,6 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     /// <summary>The first timed record after color-index setup.</summary>
     public ushort FirstFramePointer => unchecked((ushort)(ProgramStart + 4));
 
-    /// <summary>The terminal <c>goto</c> command after all timed records.</summary>
-    public ushort LoopInstructionPointer => unchecked((ushort)(
-        FirstFramePointer +
-        OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount *
-        OldTourianEscapeAccentPaletteFxColorDefinitions.FrameByteCount));
-
     /// <summary>Locates one of fifteen timed records after this entry's color-index setup.</summary>
     public ushort FramePointer(int frame)
     {

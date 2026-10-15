@@ -48,7 +48,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailProgram.FacingLeftIdle), state.Program, "Oum starts left-facing idle");
             Start(slot, state, attack);
             int[] holds = [16, 16, 16, 2, 3, 4, 2, 3, 1, 3, 2, 1, 18];
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames(MaridiaLargeSnailAnimations.Spritemaps(attack), holds),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames(MaridiaLargeSnailAnimationsConstants.Spritemaps(attack), holds),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum()), $"Oum {attack} poses");
             AssertTrue(!state.AttackAnimationFinished, $"Oum {attack} is unfinished while its last pose holds");
             EnemyInstructionRunner.ShownFrames(enemies, slot, 1);

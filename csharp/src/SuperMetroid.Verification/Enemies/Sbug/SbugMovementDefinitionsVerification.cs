@@ -64,7 +64,7 @@ internal static class SbugMovementDefinitionsVerification
             AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Program.Program),
                 $"Sbug production facing list {selector}");
             // Each loop shows its four frames five updates apiece, then its goto shows the first again.
-            ushort[] loop = SbugAnimations.Spritemaps(state.Program.Program).ToArray();
+            ushort[] loop = SbugAnimationsConstants.Spritemaps(state.Program.Program).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [5, 5, 5, 5, 5]),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, 21), $"Sbug facing loop {selector}");
         }

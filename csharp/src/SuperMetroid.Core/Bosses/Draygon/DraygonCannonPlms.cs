@@ -149,8 +149,6 @@ internal sealed class DraygonCannonPlms
     {
         /// <summary>Bank-$A5 word written when this physical cannon stops firing.</summary>
         public ushort VariablePointer { get; } = variablePointer;
-        /// <summary>Selects the right or left damage opcode accepted by this PLM.</summary>
-        public DraygonCannonOrientation Orientation { get; } = orientation;
         /// <summary>Marks that this cannon's terrain and firing control have been disabled.</summary>
         public bool Destroyed { get; set; }
         /// <summary>Indicates a projectile collision awaiting missile-family filtering.</summary>

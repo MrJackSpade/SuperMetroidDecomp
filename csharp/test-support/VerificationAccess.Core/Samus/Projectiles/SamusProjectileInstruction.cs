@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+﻿namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>The two bank-$93 projectile instruction routines referenced by retail lists.</summary>
 public enum SamusProjectileInstruction : ushort

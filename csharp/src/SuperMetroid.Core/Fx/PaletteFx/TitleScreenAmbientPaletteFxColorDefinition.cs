@@ -23,8 +23,6 @@ public sealed class TitleScreenAmbientPaletteFxColorDefinition
     /// <summary>Editable packed RGB5 words per timed record: four for tube CGRAM slots 42..45 or two for display slots 46..47, excluding duration and wait control words.</summary>
     public int ColorsPerFrame => (IsTubeLight ? TitleScreenAmbientPaletteFxColorDefinitions.TubeLastColor
         : TitleScreenAmbientPaletteFxColorDefinitions.DisplayLastColor) - FirstColor + 1;
-    /// <summary>Native timed-record exposure in palette-FX updates: ten for each tube shade or one for each display state, producing 80-update and two-update loops respectively; rendering does not advance it.</summary>
-    public ushort FrameDuration => IsTubeLight ? TitleScreenAmbientPaletteFxColorDefinitions.TubeShadeTicks : (ushort)1;
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public int FrameByteCount => sizeof(ushort) + ColorsPerFrame * sizeof(ushort) +
         sizeof(ushort);

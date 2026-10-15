@@ -389,8 +389,8 @@ public sealed class SuperMetroidGame
     private byte endingFadeBrightness = 15;
     /// <summary>Cadence counter for the ending fade.</summary>
     private int endingFadeCounter;
-    /// <summary>Semantic audio events published by the most recent frontend frame.</summary>
-    private IReadOnlyList<AudioEvent> lastAudioEvents = Array.Empty<AudioEvent>();
+    /// <summary>The most recent update's ordered semantic audio events; the session has already rendered them.</summary>
+    internal IReadOnlyList<AudioEvent> lastAudioEvents = Array.Empty<AudioEvent>();
     /// <summary>Runtime publication number last copied into the frontend audio queue.</summary>
     private ulong? lastAudioRuntimeGameplayPublication;
     /// <summary>Room-state pointer associated with the last copied audio publication.</summary>
@@ -1371,19 +1371,18 @@ public sealed class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>Reads frontend status and audio events without materializing a retained display.</summary>
+    /// <summary>Reads frontend status without materializing a retained display.</summary>
     public FrontendFrame CurrentFrameMetadata =>
-        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>(), lastAudioEvents);
+        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>());
 
-    /// <summary>Reads the current status, last audio events, and display without advancing the dispatcher.</summary>
+    /// <summary>Reads the current status and display without advancing the dispatcher.</summary>
     /// <remarks>
     /// Pixels are the producer's reusable 256-by-224 buffer, not a copy; a host retaining them across another frame must copy them.
     /// When a display capture already owns the current image, the pixel array is empty and the host presents that capture instead.
     /// </remarks>
     public FrontendFrame CurrentFrame =>
         new(GameState, PhaseName, FrameNumber,
-            display.CurrentPixels,
-            lastAudioEvents);
+            display.CurrentPixels);
 
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.

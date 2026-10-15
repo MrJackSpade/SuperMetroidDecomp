@@ -3554,14 +3554,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep.Value;
     }
 
-    /// <summary>Restarts a slot's native animation list with its initial timer.</summary>
-    internal static void SetMotherBrainInstructionList(RoomEnemySlot slot, ushort pointer)
-    {
-        slot.CurrentInstruction = pointer;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
-    }
-
     /// <summary>Ports <c>$A9:C42D</c>: restarts the body enemy on <paramref name="program"/> with its initial timer.</summary>
     internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
     {

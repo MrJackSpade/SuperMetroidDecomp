@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using System.Reflection;
@@ -63,7 +64,7 @@ internal static class KiHunterSpitAudioVerification
         {
             var frame = game.Step(0);
             requests += runtime.Enemies.Audio.SoundRequests.Count(request => request.SoundEffect == spit);
-            starts += frame.AudioEvents.Count(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect && audioEvent.SoundEffect == spit);
+            starts += game.AudioEventsForVerification.Count(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect && audioEvent.SoundEffect == spit);
         }
         Step();
         AssertEqual(1, runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.Kind == RoomEnemyProjectileKind.KiHunterAcidSpitRight), "staged attack spawns one real acid projectile");

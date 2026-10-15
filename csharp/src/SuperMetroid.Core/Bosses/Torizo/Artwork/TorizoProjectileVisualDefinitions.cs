@@ -20,10 +20,6 @@ internal static class TorizoProjectileVisualDefinitions
     internal const ushort StatueFragment8List = 0xa54b;
     /// <summary>The native list ChozoOrbMovingLeft starts, at $86:AB15, which projectile definitions name.</summary>
     internal const ushort ChozoOrbMovingLeftList = 0xab15;
-    /// <summary>The native list ChozoOrbWallImpact starts, at $86:AB25, which projectile definitions name.</summary>
-    internal const ushort ChozoOrbWallImpactList = 0xab25;
-    /// <summary>The native list ChozoOrbShot starts, at $86:AB68, which projectile definitions name.</summary>
-    internal const ushort ChozoOrbShotList = 0xab68;
     /// <summary>The native list SonicBoomFiredLeft starts, at $86:ADBF, which projectile definitions name.</summary>
     internal const ushort SonicBoomFiredLeftList = 0xadbf;
     /// <summary>The native list LandingDustRightFoot starts, at $86:AF9D, which projectile definitions name.</summary>
@@ -34,8 +30,6 @@ internal static class TorizoProjectileVisualDefinitions
     internal const ushort EggBouncingLeftList = 0xb104;
     /// <summary>The native list SuperMissileRightInitial starts, at $86:B293, which projectile definitions name.</summary>
     internal const ushort SuperMissileRightInitialList = 0xb293;
-    /// <summary>The native list SuperMissileImpact starts, at $86:B2EF, which projectile definitions name.</summary>
-    internal const ushort SuperMissileImpactList = 0xb2ef;
     /// <summary>The native list EyeBeamNormal starts, at $86:B410, which projectile definitions name.</summary>
     internal const ushort EyeBeamNormalList = 0xb410;
 

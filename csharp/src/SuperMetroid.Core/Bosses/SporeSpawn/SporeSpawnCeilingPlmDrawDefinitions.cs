@@ -79,15 +79,6 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         return false;
     }
 
-    /// <summary>Maps zero-based crumble stage zero through two to its bank-$84 draw pointer.</summary>
-    internal static ushort CrumbleFramePointer(int frame) => frame switch
-    {
-        0 => (ushort)SporeSpawnCeilingDraw.CrumbleFirst,
-        1 => (ushort)SporeSpawnCeilingDraw.CrumbleSecond,
-        2 => (ushort)SporeSpawnCeilingDraw.CrumbleThird,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
-    };
-
     /// <summary>Builds a two-run physical square for a supported clear or crumble pointer.</summary>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)

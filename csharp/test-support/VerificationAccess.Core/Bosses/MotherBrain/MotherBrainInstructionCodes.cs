@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+﻿namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Shared bank-$A9 enemy instruction words that Mother Brain bytecode also uses.</summary>
 internal static class MotherBrainInstructionCodes

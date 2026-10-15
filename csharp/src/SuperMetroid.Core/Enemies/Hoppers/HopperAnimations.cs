@@ -170,12 +170,6 @@ internal static class HopperAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params HopperProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => HopperFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<HopperProgram, HopperFrame, HopperCue> Show(int pose, int duration) => AnimationProgramStep<HopperProgram, HopperFrame, HopperCue>.Show(new(pose), duration);
 

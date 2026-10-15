@@ -24,8 +24,7 @@ public sealed class ModuleMap
         string Role,
         ImmutableDictionary<string, string> Mirrors,
         string? DomainOf,
-        ImmutableArray<string> SharedModules,
-        ImmutableArray<string> References);
+        ImmutableArray<string> SharedModules);
 
     /// <summary>Repository root: the directory above the one holding the map.</summary>
     public string RepositoryRoot { get; }
@@ -83,8 +82,7 @@ public sealed class ModuleMap
                 Text(module, "role"),
                 mirrors.ToImmutable(),
                 module.TryGetProperty("domainOf", out JsonElement domain) ? domain.GetString() : null,
-                Strings(module, "sharedModules"),
-                Strings(module, "references")));
+                Strings(module, "sharedModules")));
         }
         var layers = ImmutableDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
         var names = ImmutableArray.CreateBuilder<string>();

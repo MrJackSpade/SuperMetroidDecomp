@@ -56,7 +56,7 @@ internal static class HostAudioAcknowledgementTests
                 }
                 control.StepFrame(input);
                 FrontendFrame frame = reference.Step(input);
-                cursorRequests += frame.AudioEvents.Count(audioEvent =>
+                cursorRequests += reference.AudioEventsForVerification.Count(audioEvent =>
                     audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                     audioEvent.SoundEffect == SoundEffectLibrary1Sounds.MenuCursor);
                 AssertSameAudio(control.game, reference, $"update {tick}");

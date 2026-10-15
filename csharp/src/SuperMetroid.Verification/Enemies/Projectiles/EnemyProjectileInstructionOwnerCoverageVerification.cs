@@ -12,6 +12,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled mechanics ownership for enemy projectile instruction entry points.</summary>
 internal static class EnemyProjectileInstructionOwnerCoverageVerification
 {
+    /// <summary>Offset of the shot-reaction list in a native <c>EprojDef</c>, which production never reads.</summary>
+    private const int ShotListOffset = 12;
+
     /// <summary>Checks every nonzero initial, touch, and shot entry without a cartridge fallback.</summary>
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
@@ -101,7 +104,8 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 RoomEnemyProjectileKind.KagoBug or RoomEnemyProjectileKind.EyeDoorProjectile or
                 // A shot Draygon wall turret runs the typed misc-dust small explosion (#1292).
                 RoomEnemyProjectileKind.DraygonWallTurret))
-                VerifySharedDelete(definition.ShotInstructionList, "shot");
+                VerifySharedDelete(CartridgeImportSource.Require(rom).ReadCartridgeWord(
+                    NativeEnemyProjectileListDefinitions.ProjectileBank | ((ushort)kind + ShotListOffset)), "shot");
 
             // Production runs every untyped reaction as the shared delete, so each such list must delete at once.
             void VerifySharedDelete(ushort address, string role)

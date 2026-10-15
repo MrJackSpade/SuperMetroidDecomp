@@ -84,10 +84,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
-    /// <summary>Admits either physical component of any Ki-Hunter color variant.</summary>
-    internal static bool IsKiHunterDefinition(EnemyDefinitionId definition) =>
-        IsKiHunterBodyDefinition(definition) || IsKiHunterWingDefinition(definition);
-
     /// <summary>Discards per-slot typed state and prior sound publication on room load.</summary>
     internal void ResetKiHunterRoomState()
     {

@@ -133,7 +133,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual((ushort)3, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native three-entry map");
         foreach (ushort pointer in fourEntryTripper)
             AssertEqual((ushort)4, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | pointer), "Tripper native four-entry map");
-        AssertTrue(PlatformAnimations.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet()
+        AssertTrue(PlatformAnimationsConstants.Spritemaps(Enum.GetValues<PlatformProgram>()).ToHashSet()
                 .SetEquals(kamer.Concat(threeEntryTripper).Concat(fourEntryTripper)),
             "platform programs show exactly the sixteen animated maps");
     }

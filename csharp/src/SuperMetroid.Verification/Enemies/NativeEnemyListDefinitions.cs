@@ -39,13 +39,13 @@ internal static class NativeEnemyListDefinitions
     /// <summary>The common commands the reader decodes.</summary>
     private static readonly Dictionary<ushort, WordKind> CommonWords = new()
     {
-        [(ushort)CommonEnemyInstruction.Goto] = WordKind.GoTo,
+        [CommonEnemyInstructionConstants.Goto] = WordKind.GoTo,
         [(ushort)CommonEnemyInstruction.Sleep] = WordKind.Sleep,
-        [(ushort)CommonEnemyInstruction.StopScript] = WordKind.Stop,
-        [(ushort)CommonEnemyInstruction.SetTimer] = WordKind.SetCounter,
-        [(ushort)CommonEnemyInstruction.DecrementTimerAndGoto] = WordKind.RepeatWhileCounting,
-        [(ushort)CommonEnemyInstruction.DecrementTimerAndGotoDuplicate] = WordKind.RepeatWhileCounting,
-        [(ushort)CommonEnemyInstruction.WaitFrames] = WordKind.Wait,
+        [CommonEnemyInstructionConstants.StopScript] = WordKind.Stop,
+        [CommonEnemyInstructionConstants.SetTimer] = WordKind.SetCounter,
+        [CommonEnemyInstructionConstants.DecrementTimerAndGoto] = WordKind.RepeatWhileCounting,
+        [CommonEnemyInstructionConstants.DecrementTimerAndGotoDuplicate] = WordKind.RepeatWhileCounting,
+        [CommonEnemyInstructionConstants.WaitFrames] = WordKind.Wait,
     };
 
     /// <summary>Decodes a native enemy list word.</summary>

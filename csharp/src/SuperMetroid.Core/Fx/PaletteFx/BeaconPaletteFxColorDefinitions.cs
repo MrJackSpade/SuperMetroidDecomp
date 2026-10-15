@@ -18,26 +18,11 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class BeaconPaletteFxColorDefinitions
 {
 
-    /// <summary>Color-index setup at <c>$8D:EFF7</c>.</summary>
-    public const ushort ProgramStart = 0xeff7;
-
     /// <summary>First timed record at <c>$8D:EFFB</c>.</summary>
     public const ushort FirstFramePointer = 0xeffb;
 
-    /// <summary>Library-two sound opcode at <c>$8D:F04F</c>.</summary>
-    public const ushort SoundInstructionPointer = 0xf04f;
-
-    /// <summary>Sound-ID byte at <c>$8D:F051</c>.</summary>
-    public const ushort SoundOperandPointer = 0xf051;
-
-    /// <summary>Library-two sound ID <c>$18</c> selected at <c>$8D:F051</c>.</summary>
-    public const byte SoundId = 0x18;
-
     /// <summary>First timed record after the byte-sized sound command.</summary>
     public const ushort PostSoundFramePointer = 0xf052;
-
-    /// <summary>Terminal <c>goto</c> command at <c>$8D:F08A</c>.</summary>
-    public const ushort LoopInstructionPointer = 0xf08a;
 
     /// <summary>Ten ten-frame records form one complete flash cycle.</summary>
     public const int FrameCount = 10;
@@ -56,9 +41,6 @@ public static class BeaconPaletteFxColorDefinitions
 
     /// <summary>The fourth color follows the inline CGRAM-index skip at byte ten.</summary>
     private const int PostSkipColorOffset = 10;
-
-    /// <summary>The first destination byte in CGRAM.</summary>
-    public const ushort ColorByteIndex = 0x00e2;
 
     /// <summary>Returns the timed-record pointer for one zero-based cycle frame.</summary>
     public static ushort FramePointer(int frame)
@@ -90,20 +72,5 @@ public static class BeaconPaletteFxColorDefinitions
             ? sizeof(ushort) + color * sizeof(ushort)
             : PostSkipColorOffset;
         return unchecked((ushort)(FramePointer(frame) + offset));
-    }
-
-    /// <summary>Fixed control words outside the timed records, by bank-<c>$8D</c> address.</summary>
-    private enum MechanicsWord : ushort
-    {
-        /// <summary><c>SetColorIndex</c> opcode at <c>$8D:EFF7</c>.</summary>
-        SetColorIndex = ProgramStart,
-        /// <summary>CGRAM byte-index operand at <c>$8D:EFF9</c>.</summary>
-        ColorIndexOperand = ProgramStart + 2,
-        /// <summary>Library-two sound opcode at <c>$8D:F04F</c>.</summary>
-        QueueSound = SoundInstructionPointer,
-        /// <summary>Terminal <c>goto</c> opcode at <c>$8D:F08A</c>.</summary>
-        Goto = LoopInstructionPointer,
-        /// <summary>Goto target operand at <c>$8D:F08C</c>.</summary>
-        GotoTarget = LoopInstructionPointer + 2,
     }
 }

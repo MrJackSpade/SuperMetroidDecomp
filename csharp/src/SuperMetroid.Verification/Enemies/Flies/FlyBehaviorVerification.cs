@@ -19,7 +19,7 @@ internal static class FlyBehaviorVerification
     /// </summary>
     internal static void VerifyFlyBehavior(SuperMetroidAddressSpace rom)
     {
-        ushort[] loop = FlyAnimations.Spritemaps(FlyProgram.Flight).ToArray();
+        ushort[] loop = FlyAnimationsConstants.Spritemaps(FlyProgram.Flight).ToArray();
         string expected = EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [2, 2, 2, 2, 2]);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.Mellow, EnemyDefinitionId.Mella, EnemyDefinitionId.Menu })
         {

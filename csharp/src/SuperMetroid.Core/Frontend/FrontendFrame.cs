@@ -12,13 +12,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <param name="Phase">Human-readable scene or runtime phase label for host diagnostics.</param>
 /// <param name="FrameNumber">Wrapping 16-bit front-end step counter, not elapsed time or a native movie video-frame number.</param>
 /// <param name="Pixels">Producer-owned row-major RGBA screen buffer, valid until that producer renders again; copy it before retaining the frame.</param>
-/// <param name="AudioEvents">This step's ordered semantic audio events (see <see cref="AudioFrameEvents"/>), for diagnostics and tools; the session has already rendered them.</param>
 public readonly record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,
     ushort FrameNumber,
-    Rgba32[] Pixels,
-    IReadOnlyList<AudioEvent> AudioEvents)
+    Rgba32[] Pixels)
 {
     /// <summary>Visible frame width in pixels: 256 columns in row-major screen order.</summary>
     public const int Width = SnesPpuLayout.ScreenWidthPixels;

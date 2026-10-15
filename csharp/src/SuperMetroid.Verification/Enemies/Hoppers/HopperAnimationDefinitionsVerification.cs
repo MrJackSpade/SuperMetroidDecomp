@@ -64,7 +64,7 @@ internal static class HopperAnimationDefinitionsVerification
             state.XVelocity = 3;
             HoppersBehavior.StartHopperJump(slot, state, upsideDown, false);
             AssertEqual(AnimationProgramCursor<HopperProgram>.Start(jumping), state.Program, $"hopper jumping program {context}");
-            ushort airborne = HopperAnimations.Spritemaps(jumping).Single();
+            ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, 2), $"hopper airborne pose {context}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
@@ -75,7 +75,7 @@ internal static class HopperAnimationDefinitionsVerification
             HoppersBehavior.LandHopper(slot, state);
             AssertEqual(AnimationProgramCursor<HopperProgram>.Start(landed), state.Program, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimations.Spritemaps(landed), holds),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
                 EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum()), $"hopper landing poses {context}");
             AssertTrue(!state.ReadyToHop, $"hopper landed program {context} holds its last pose before readiness");
             EnemyInstructionRunner.ShownFrames(enemies, slot, 1);

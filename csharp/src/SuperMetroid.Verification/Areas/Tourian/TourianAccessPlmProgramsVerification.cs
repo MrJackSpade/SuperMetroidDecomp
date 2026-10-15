@@ -41,9 +41,9 @@ internal static class TourianAccessPlmProgramsVerification
         ushort[] originalOperands = [0xaaea,0xaaee,0xaaf2,0xaaf6];
         for (int frame = 0; frame < originalOperands.Length; frame++)
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | originalOperands[frame]),
-                TourianAccessPlmDrawDefinitions.CrumbleFramePointer(frame), "Tourian access native frame selector");
+                TourianAccessPlmDrawDefinitionsConstants.CrumbleFramePointer(frame), "Tourian access native frame selector");
         foreach (int invalid in new[] {int.MinValue,-1,4,5,255,256,int.MaxValue})
-            AssertThrows<ArgumentOutOfRangeException>(() => TourianAccessPlmDrawDefinitions.CrumbleFramePointer(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => TourianAccessPlmDrawDefinitionsConstants.CrumbleFramePointer(invalid),
                 "Tourian access frame selector bounds");
     }
 

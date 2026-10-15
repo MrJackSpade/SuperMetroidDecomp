@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -68,15 +69,15 @@ internal static class FileSelectSoundVerification
             reachedSavedMap |= frame.GameState == SuperMetroidGameState.FileSelectMap;
             static bool IsSwoosh(AudioEvent audioEvent) => audioEvent.Kind == AudioEventKind.StartSoundEffect &&
                 audioEvent.SoundEffect == SoundEffectLibrary1Sounds.FileSelectSwoosh;
-            starts += frame.AudioEvents.Count(IsSwoosh);
-            if (frame.AudioEvents.Any(IsSwoosh) && firstSoundTick < 0)
+            starts += game.AudioEventsForVerification.Count(IsSwoosh);
+            if (game.AudioEventsForVerification.Any(IsSwoosh) && firstSoundTick < 0)
             {
                 firstSoundTick = tick;
                 AssertEqual(SuperMetroidGameState.FileSelectMenus, frame.GameState, "swoosh starts on the file screen, not after loading");
                 AssertEqual(nameof(FileSelectPhase.TurnSelectedHelmet), frame.Phase, "swoosh accompanies selected helmet turn");
             }
             game.CopyAudioFrame(pcm);
-            withoutSwoosh.Render(new AudioFrameEvents([.. frame.AudioEvents.Where(audioEvent => !IsSwoosh(audioEvent))]), control);
+            withoutSwoosh.Render(new AudioFrameEvents([.. game.AudioEventsForVerification.Where(audioEvent => !IsSwoosh(audioEvent))]), control);
             for (int sample = 0; sample < pcm.Length; sample++)
                 if (pcm[sample] != control[sample])
                 {

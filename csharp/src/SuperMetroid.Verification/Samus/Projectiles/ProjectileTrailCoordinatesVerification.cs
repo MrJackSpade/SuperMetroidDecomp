@@ -73,7 +73,7 @@ internal static class ProjectileTrailCoordinatesVerification
     {
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
         // reads that frame.
-        var records = Enumerable.Range(0, SamusProjectileRecordDefinitions.RecordCount)
+        var records = Enumerable.Range(0, SamusProjectileRecordDefinitionsConstants.RecordCount)
             .Select(index => SamusProjectileRecordDefinitions.Get(new SamusProjectileFrame(index))).OrderBy(record => record.Address).ToArray();
         var afterFrame = Enumerable.Range(0, 22).Select(frame => SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(
             records.First(record => record.AnimationFrame == frame).Address + SamusProjectileRomData.Instructions.AnimationRecordByteCount)))).ToArray();

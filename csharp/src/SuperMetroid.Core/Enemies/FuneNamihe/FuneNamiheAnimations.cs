@@ -108,12 +108,6 @@ internal static class FuneNamiheAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params FuneNamiheProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => FuneNamiheFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue> Show(int pose, int duration) => AnimationProgramStep<FuneNamiheProgram, FuneNamiheFrame, FuneNamiheCue>.Show(new(pose), duration);
 

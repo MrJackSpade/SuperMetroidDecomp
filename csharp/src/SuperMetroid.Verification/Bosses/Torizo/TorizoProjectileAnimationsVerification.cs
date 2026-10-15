@@ -94,7 +94,7 @@ internal static class TorizoProjectileAnimationsVerification
         {
             IReadOnlyList<TorizoProjectileFrame> installed = TorizoProjectileVisualDefinitions.Frames(family);
             var shown = Enum.GetValues<TorizoProjectileProgram>()
-                .Where(program => TorizoProjectileAnimations.Family(program) == family)
+                .Where(program => TorizoProjectileAnimationsConstants.Family(program) == family)
                 .SelectMany(program => TorizoProjectileAnimations.Programs.Steps(program))
                 .Where(step => step.Kind == AnimationProgramStepKind.Show)
                 .Select(step => step.Frame).ToHashSet();

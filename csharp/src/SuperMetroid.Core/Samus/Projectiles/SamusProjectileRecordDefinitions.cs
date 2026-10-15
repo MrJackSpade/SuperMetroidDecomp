@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 internal static class SamusProjectileRecordDefinitions
 {
     /// <summary>Every record.</summary>
-    private static readonly SamusProjectileRecord[] Records =
+    internal static readonly SamusProjectileRecord[] Records =
     [
         new(0x86db, 0xa25b, new(4, 4), 0x0000),
         new(0x86e7, 0xa262, new(8, 4), 0x0000),
@@ -820,9 +820,6 @@ internal static class SamusProjectileRecordDefinitions
     /// <summary>Every record's bank-$93 address in address order: the frames installed bindings name.</summary>
     internal static IReadOnlyList<ushort> TimedRecordAddresses { get; } =
         Array.AsReadOnly(Records.Select(record => record.Address).Order().ToArray());
-
-    /// <summary>The number of records.</summary>
-    internal static int RecordCount => Records.Length;
 
     /// <summary>The record <paramref name="frame"/> shows.</summary>
     internal static SamusProjectileRecord Get(SamusProjectileFrame frame) => Records[frame.Record];

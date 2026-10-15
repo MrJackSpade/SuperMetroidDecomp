@@ -74,12 +74,6 @@ internal static class PuyoAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params PuyoProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => PuyoFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<PuyoProgram, PuyoFrame, NoAnimationCue>.Show(new(pose), duration);
 

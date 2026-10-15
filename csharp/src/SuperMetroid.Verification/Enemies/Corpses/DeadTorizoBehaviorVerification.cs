@@ -27,7 +27,7 @@ internal static class DeadTorizoBehaviorVerification
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
         AssertEqual(AnimationProgramCursor<DeadTorizoProgram>.Start(DeadTorizoProgram.Stationary),
             enemies.DeadTorizoBehavior._deadTorizoProgram, "real Dead Torizo initializer starts the stationary pose");
-        ushort frame = DeadTorizoAnimations.Spritemaps(DeadTorizoProgram.Stationary).Single();
+        ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
             EnemyInstructionRunner.ShownFrames(enemies, corpse, 3), "Dead Torizo stationary pose");
         Console.WriteLine("  Dead Torizo behavior: the initializer starts the stationary pose and it holds.");

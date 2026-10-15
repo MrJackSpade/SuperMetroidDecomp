@@ -13,4 +13,19 @@ internal static class OldTourianEscapeAccentPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.CycleFrames"/>
         internal static int CycleFrames => OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.CycleFrames;
     }
+    /// <summary>$8D:FBC5-FC59/FC63-FCF7: exact neutral holds16/2/32 and extra-tick phases3/none/1 are authored animation choreography. Identical colors receive different holds; regenerating these choices would invent a different rhythm.</summary>
+    internal static readonly FlickerPass[] AuthoredCadence = [new(16, 3), new(2, null), new(32, 1)];
+    /// <summary>Each pass contains the neutral palette followed by four tint stages.</summary>
+    internal const int TintPhases = 5;
+    /// <summary>Applies each five-stage pass's authored neutral hold and extra-tick tint phase.</summary>
+    internal static ushort Duration(int frame)
+    {
+        if ((uint)frame >= OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount) throw new IndexOutOfRangeException();
+        FlickerPass pass = AuthoredCadence[frame / TintPhases];
+        int tint = frame % TintPhases;
+        return tint == 0 ? pass.NeutralHold : (ushort)(tint == pass.ExtendedTintPhase ? 2 : 1);
+    }
+
+    /// <summary>One authored flicker pass: neutral hold and optional tint phase held for an extra native tick.</summary>
+    internal readonly record struct FlickerPass(ushort NeutralHold, int? ExtendedTintPhase);
 }

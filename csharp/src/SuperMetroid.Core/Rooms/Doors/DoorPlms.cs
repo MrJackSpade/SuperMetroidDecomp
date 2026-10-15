@@ -143,7 +143,7 @@ internal sealed class DoorPlms
         ColoredDoorOrientation orientation)
     {
         ApplyColoredDoorSetup(level, slot.BlockIndex);
-        slot.ColoredDoor = new ColoredDoorPlmState(color, orientation);
+        slot.ColoredDoor = new ColoredDoorPlmState(color);
         slot.StartAnimation(new ColoredDoorPlmAnimation(color, orientation, ColoredDoorProgram.Waiting));
     }
 

@@ -22,9 +22,6 @@ public sealed class DemoInputState
     /// <summary>Where the object's program resumes; null once the object is deleted.</summary>
     internal AnimationProgramCursor<DemoInputProgram>? Cursor { get; private set; }
 
-    /// <summary>Whether the object still runs a program.</summary>
-    public bool IsActive => Cursor is not null;
-
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
     public NativeCountdown InstructionTimer { get; private set; }
 

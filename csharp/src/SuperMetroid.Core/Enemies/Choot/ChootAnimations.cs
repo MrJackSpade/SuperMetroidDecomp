@@ -41,12 +41,6 @@ internal static class ChootAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params ChootProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => ChootFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<ChootProgram, ChootFrame, ChootCue> Show(int pose, int duration) => AnimationProgramStep<ChootProgram, ChootFrame, ChootCue>.Show(new(pose), duration);
 

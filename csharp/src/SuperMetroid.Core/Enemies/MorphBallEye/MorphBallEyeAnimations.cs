@@ -108,12 +108,6 @@ internal static class MorphBallEyeAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MorphBallEyeProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => MorphBallEyeFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<MorphBallEyeProgram, MorphBallEyeFrame, NoAnimationCue>.Show(new(pose), duration);
 

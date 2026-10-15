@@ -17,4 +17,8 @@ internal static class BeaconPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="BeaconPaletteFxColorDefinitionsConstants.DefinitionPointer"/>
         internal static ushort DefinitionPointer => BeaconPaletteFxColorDefinitionsConstants.DefinitionPointer;
     }
+    /// <summary>Library-two sound ID <c>$18</c> selected at <c>$8D:F051</c>.</summary>
+    public const byte SoundId = 0x18;
+    /// <summary>The first destination byte in CGRAM.</summary>
+    public const ushort ColorByteIndex = 0x00e2;
 }

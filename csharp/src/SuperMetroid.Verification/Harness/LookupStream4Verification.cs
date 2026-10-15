@@ -91,7 +91,7 @@ internal static class LookupStream4Verification
         while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
         {
             ushort duration = rom.ReadCartridgeWord((0x8d0000 | cursor));
-            AssertEqual(duration, ZebesExplosionForegroundPaletteFxColorDefinitions.Duration(rows.Count), "Every native foreground duration");
+            AssertEqual(duration, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(rows.Count), "Every native foreground duration");
             cursor += 2;
             var colors = new List<ushort>();
             while (rom.ReadCartridgeWord((0x8d0000 | cursor)) < 0x8000)
@@ -104,7 +104,7 @@ internal static class LookupStream4Verification
             rows.Add((duration, colors.ToArray()));
         }
         AssertEqual((ushort)PaletteFxInstruction.Delete, rom.ReadCartridgeWord((0x8d0000 | cursor)), "Native foreground delete");
-        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitions.DeleteInstructionPointer, "Derived foreground terminal address");
+        AssertEqual(cursor, (int)ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.DeleteInstructionPointer, "Derived foreground terminal address");
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
@@ -125,12 +125,12 @@ internal static class LookupStream4Verification
         }
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0].Duration, "Actual actor program retains the shared native handoff");
-        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitions.CycleFrames, "Derived complete exposure");
+        AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
         fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
         foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxColorDefinitions.Duration(invalid), "Foreground duration domain");
+            AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.Duration(invalid), "Foreground duration domain");
         Console.WriteLine("Foreground cadence:35 native controls,16 independently decoded durations,144 actual CGRAM exposures plus exact deletion/native star handoff/read guard/bounds pass; color artwork remains required.");
     }
 

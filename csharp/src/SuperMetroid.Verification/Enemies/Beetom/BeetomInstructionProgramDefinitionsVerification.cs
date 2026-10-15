@@ -66,7 +66,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             AnimationProgramCursor<BeetomProgram> held = state.Program;
             RunBeetomCalls(enemies, processArguments, slot, 2);
             AssertEqual(held, state.Program, $"{hop} holds its last pose");
-            AssertEqual(BeetomAnimations.Spritemaps(hop).Last(), slot.SpritemapPointer, $"{hop} ends on its last pose");
+            AssertEqual(BeetomAnimationsConstants.Spritemaps(hop).Last(), slot.SpritemapPointer, $"{hop} ends on its last pose");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), $"{hop} starts off-screen processing");
         }
 
@@ -78,7 +78,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
             RunBeetomLoop(enemies, processArguments, slot, state, loop, callsThroughGoto: 9);
         }
 
-        AssertTrue(BeetomAnimations.Spritemaps(Enum.GetValues<BeetomProgram>()).ToHashSet().SetEquals(
+        AssertTrue(BeetomAnimationsConstants.Spritemaps(Enum.GetValues<BeetomProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("beetom_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Beetom's programs show exactly its installed frames");
         Suite(nameof(BeetomAnimationsVerification.VerifyBeetomAnimations), () => BeetomAnimationsVerification.VerifyBeetomAnimations(rom));
@@ -173,7 +173,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         RunBeetomCalls(enemies, arguments, slot, callsThroughGoto);
         AssertEqual(new AnimationProgramCursor<BeetomProgram>(loop, 1), state.Program,
             $"Beetom {loop} restarts and shows its first pose");
-        AssertEqual(BeetomAnimations.Spritemaps(loop).First(), slot.SpritemapPointer, $"Beetom {loop} first pose");
+        AssertEqual(BeetomAnimationsConstants.Spritemaps(loop).First(), slot.SpritemapPointer, $"Beetom {loop} first pose");
     }
 
     /// <summary>Reads a native Beetom instruction word from bank A8 solely for comparison with compiled definitions.</summary>

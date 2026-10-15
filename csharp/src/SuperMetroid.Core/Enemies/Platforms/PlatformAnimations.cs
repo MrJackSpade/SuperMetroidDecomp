@@ -138,12 +138,6 @@ internal static class PlatformAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params PlatformProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .Where(step => step.Kind == AnimationProgramStepKind.Show)
-            .Select(step => PlatformFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<PlatformProgram, PlatformFrame, PlatformCue> Show(int pose, int duration) => AnimationProgramStep<PlatformProgram, PlatformFrame, PlatformCue>.Show(new(pose), duration);
 

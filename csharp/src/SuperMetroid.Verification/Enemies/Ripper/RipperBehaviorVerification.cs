@@ -42,7 +42,7 @@ internal static class RipperBehaviorVerification
         Suite(nameof(VerifyRipper), () => VerifyRipper(1, RipperProgram.RipperMovingRight, "Ripper right"));
         Suite(nameof(VerifyRipper), () => VerifyRipper(0, RipperProgram.RipperMovingLeft, "Ripper left"));
 
-        AssertEqual(RipperFrameDefinitions.PoseCount, observedFrames.Count,
+        AssertEqual(RipperFrameDefinitionsConstants.PoseCount, observedFrames.Count,
             "all Ripper-family walking frames execute across six loops");
         Console.WriteLine("  Ripper behavior: three initializers and the reversal select and run their loops.");
 
@@ -99,7 +99,7 @@ internal static class RipperBehaviorVerification
         void VerifyInstalledLoop(RoomEnemySystem enemies, RoomEnemySlot slot, RipperProgram expectedProgram, string context)
         {
             // The loop shows four frames held 8, 7, 8 and 7 updates, then its goto shows the first frame again.
-            ushort[] loop = RipperAnimations.Spritemaps(expectedProgram).ToArray();
+            ushort[] loop = RipperAnimationsConstants.Spritemaps(expectedProgram).ToArray();
             ushort[] expected = [.. loop, loop[0]];
             int[] expectedUpdates = [0, 8, 15, 23, 30];
             slot.InstructionTimer = NativeCountdown.Start(1);

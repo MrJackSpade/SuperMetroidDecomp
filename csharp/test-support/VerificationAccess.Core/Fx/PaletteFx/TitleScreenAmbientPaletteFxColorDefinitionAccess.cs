@@ -12,5 +12,7 @@ internal static class TitleScreenAmbientPaletteFxColorDefinitionAccess
 
         /// <summary>The complete loop duration in frames.</summary>
         internal int CycleFrames => self.FrameCount * self.FrameDuration;
+        /// <summary>Native timed-record exposure in palette-FX updates: ten for each tube shade or one for each display state, producing 80-update and two-update loops respectively; rendering does not advance it.</summary>
+        public ushort FrameDuration => self.IsTubeLight ? TitleScreenAmbientPaletteFxColorDefinitionsConstants.TubeShadeTicks : (ushort)1;
     }
 }

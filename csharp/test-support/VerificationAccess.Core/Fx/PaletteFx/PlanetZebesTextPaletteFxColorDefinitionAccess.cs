@@ -9,5 +9,13 @@ internal static class PlanetZebesTextPaletteFxColorDefinitionAccess
     {
         /// <summary>Native four-byte definition identity selected by fade direction.</summary>
         internal ushort DefinitionPointer => (ushort)(PlanetZebesTextPaletteFxColorDefinitions.FadeInDefinition + (int)self.Owner * 4);
+        /// <summary>Byte destination from the independently required text palette and first color.</summary>
+        public ushort ColorByteIndex => self.Owner switch
+        {
+            PlanetZebesTextPaletteFxProgramOwner.FadeIn or PlanetZebesTextPaletteFxProgramOwner.FadeOut =>
+                (ushort)(sizeof(ushort) * (16 * PlanetZebesTextPaletteFxColorDefinitionsConstants.TextPalette
+                    + PlanetZebesTextPaletteFxColorDefinitionsConstants.FirstTextColor)),
+            _ => throw new InvalidOperationException("Unsupported PLANET ZEBES fade owner."),
+        };
     }
 }

@@ -21,4 +21,6 @@ internal static class TourianGlowPaletteFxColorDefinitionsConstants
         /// <inheritdoc cref="TourianGlowPaletteFxColorDefinitionsConstants.LiveDefinitionPointer"/>
         internal static ushort LiveDefinitionPointer => TourianGlowPaletteFxColorDefinitionsConstants.LiveDefinitionPointer;
     }
+    /// <summary>The first destination byte in CGRAM.</summary>
+    public const ushort ColorByteIndex = 0x00e8;
 }

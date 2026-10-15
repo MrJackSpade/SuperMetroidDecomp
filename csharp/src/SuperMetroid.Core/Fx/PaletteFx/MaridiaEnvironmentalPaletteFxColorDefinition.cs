@@ -24,17 +24,6 @@ public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
     /// <summary>The terminal goto follows one complete rotation of the selected color group.</summary>
     public ushort LoopInstructionPointer => (ushort)(FirstFramePointer + FrameCount * FrameByteCount);
 
-    /// <summary>Destination byte address from the named palette slot and first color.</summary>
-    public ushort ColorByteIndex => (ushort)(sizeof(ushort) * (16 *
-        (Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
-            ? MaridiaEnvironmentalPaletteFxColorDefinitions.WaterfallPalette
-            : MaridiaEnvironmentalPaletteFxColorDefinitions.SandPalette)
-        + (Owner == MaridiaEnvironmentalPaletteOwner.SandPits
-            ? MaridiaEnvironmentalPaletteFxColorDefinitions.SandPitFirstColor
-            : Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
-                ? MaridiaEnvironmentalPaletteFxColorDefinitions.WaterfallFirstColor
-                : MaridiaEnvironmentalPaletteFxColorDefinitions.FallingFirstColor)));
-
     /// <summary>A one-color cyclic rotation returns after the named group size.</summary>
     public int FrameCount => Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
         ? MaridiaEnvironmentalPaletteFxColorDefinitions.WaterfallRotationColors
@@ -42,11 +31,6 @@ public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
 
     /// <summary>Sand pits rotate two groups; sand falls and waterfalls each rotate one group.</summary>
     public int ColorsPerFrame => FrameCount * (Owner == MaridiaEnvironmentalPaletteOwner.SandPits ? MaridiaEnvironmentalPaletteFxColorDefinitions.SandPitBandCount : 1);
-
-    /// <summary>The authored cadence for sand or waterfall animation.</summary>
-    public ushort Duration => Owner == MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls
-        ? MaridiaEnvironmentalPaletteFxColorDefinitions.WaterfallDuration
-        : MaridiaEnvironmentalPaletteFxColorDefinitions.SandDuration;
     /// <summary>Bytes from a duration word through its terminal wait command.</summary>
     public int FrameByteCount =>
         sizeof(ushort) + ColorsPerFrame * sizeof(ushort) + sizeof(ushort);

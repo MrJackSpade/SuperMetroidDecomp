@@ -15,13 +15,6 @@ internal readonly record struct KraidHeadCommandSequence(int Length) : IEnumerab
 
     /// <summary>Calculates a command by its ordinal in native program order.</summary>
     public KraidHeadInstructionDefinition this[int index] => KraidHeadInstructionDefinitions.Command(index);
-    /// <summary>Materializes all calculated commands for consumers requiring an array.</summary>
-    public KraidHeadInstructionDefinition[] ToArray()
-    {
-        var result = new KraidHeadInstructionDefinition[Length];
-        for (int index = 0; index < result.Length; index++) result[index] = this[index];
-        return result;
-    }
     /// <summary>Traverses native commands without allocating a backing table.</summary>
     public Enumerator GetEnumerator() => new(this);
     /// <summary>Value enumerator over a calculated Kraid head command sequence.</summary>

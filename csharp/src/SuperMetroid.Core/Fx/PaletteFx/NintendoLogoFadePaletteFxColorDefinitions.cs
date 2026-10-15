@@ -18,26 +18,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class NintendoLogoFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The unused boot-logo entry at <c>$8D:C7AC</c>.</summary>
-    public const ushort BootLogoEntry = 0xc7ac;
-
     /// <summary>The shared first timed record at <c>$8D:C7B0</c>.</summary>
     public const ushort FirstFramePointer = 0xc7b0;
-
-    /// <summary>The shared terminal <c>delete</c> command at <c>$8D:C7F0</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xc7f0;
-
-    /// <summary>The copyright entry at <c>$8D:C7F2</c>.</summary>
-    public const ushort CopyrightEntry = 0xc7f2;
-
-    /// <summary>The copyright branch command at <c>$8D:C7F6</c>.</summary>
-    public const ushort CopyrightGotoInstructionPointer = 0xc7f6;
-
-    /// <summary>The boot logo writes CGRAM from byte index <c>$0132</c>.</summary>
-    public const ushort BootLogoColorByteIndex = 0x0132;
-
-    /// <summary>The copyright text writes CGRAM from byte index <c>$0192</c>.</summary>
-    public const ushort CopyrightColorByteIndex = 0x0192;
 
     /// <summary>The shared one-shot fade contains eight timed records.</summary>
     public const int FrameCount = 8;
@@ -47,9 +29,6 @@ public static class NintendoLogoFadePaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 8;
-
-    /// <summary>Each record lasts three frames.</summary>
-    public const ushort FrameDuration = 3;
     /// <summary>Returns one shared timed-record pointer.</summary>
     public static ushort FramePointer(int frame)
     {

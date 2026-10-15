@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Hardware;

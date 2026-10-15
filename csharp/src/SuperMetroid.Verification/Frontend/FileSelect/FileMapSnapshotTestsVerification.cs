@@ -101,7 +101,7 @@ internal static class FileMapSnapshotTestsVerification
             AssertTrue(reference.Pixels.SequenceEqual(RenderForComparison((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")))), "saved-file frontend pixels");
             AssertEqual(reference.GameState, actual.Frame.GameState, "saved-file frontend state");
             AssertEqual(reference.Phase, actual.Frame.Phase, "saved-file frontend phase");
-            AssertSequenceEqual(reference.AudioEvents, actual.Frame.AudioEvents, "saved-file frontend audio event order");
+            AssertSequenceEqual(game.AudioEventsForVerification, capturedGame.AudioEventsForVerification, "saved-file frontend audio event order");
         }
         AssertTrue(sawMap && game.GameState == SuperMetroidGameState.MainGameplay, "saved-file frontend completes map and load");
         Console.WriteLine($"  File map snapshots: {samples} area/room/entry/window/load/cancel comparisons match.");

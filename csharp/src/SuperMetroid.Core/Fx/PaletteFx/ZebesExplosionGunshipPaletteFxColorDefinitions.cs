@@ -21,17 +21,8 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionGunshipPaletteFxColorDefinitions
 {
 
-    /// <summary>The instruction-list entry at <c>$8D:D6BA</c>.</summary>
-    public const ushort ProgramStart = 0xd6ba;
-
     /// <summary>The first timed record at <c>$8D:D6BE</c>.</summary>
     public const ushort FirstFramePointer = 0xd6be;
-
-    /// <summary>The terminal <c>delete</c> command at <c>$8D:D8FE</c>.</summary>
-    public const ushort DeleteInstructionPointer = 0xd8fe;
-
-    /// <summary>The reveal writes CGRAM from byte index <c>$00A0</c>.</summary>
-    public const ushort ColorByteIndex = 0x00a0;
 
     /// <summary>The one-shot reveal contains sixteen timed records.</summary>
     public const int FrameCount = 16;
@@ -41,9 +32,6 @@ public static class ZebesExplosionGunshipPaletteFxColorDefinitions
 
     /// <summary>Bytes from one duration through its terminal wait command.</summary>
     public const int FrameByteCount = 36;
-
-    /// <summary>Each record lasts 24 frames.</summary>
-    public const ushort FrameDuration = 0x18;
 
     /// <summary>Frames0..15 occupy36-byte records atD6BE: duration,16 colors, wait.</summary>
     public static ushort FramePointer(int frame)

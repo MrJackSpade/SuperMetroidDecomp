@@ -67,6 +67,8 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.ShaktoolAttackBackCircle] = () => new ShaktoolProjectileAnimation(ShaktoolProjectileProgram.Back),
         [RoomEnemyProjectileKind.YappingMawBody] = () => new YappingMawBodyProjectileAnimation(YappingMawBodyProjectileProgram.FacingDown),
         [RoomEnemyProjectileKind.EyeDoorProjectile] = () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Initial),
+        [RoomEnemyProjectileKind.EyeDoorSweat] = () => new EyeDoorSweatAnimation(EyeDoorSweatProgram.Falling),
+        [RoomEnemyProjectileKind.SaveStationElectricity] = () => new SaveStationElectricityAnimation(SaveStationElectricityProgram.Start),
         [RoomEnemyProjectileKind.DownwardGateMoving] = () => new DownwardGateProjectileAnimation(DownwardGateProjectileProgram.Moving),
         [RoomEnemyProjectileKind.DownwardGateClosed] = () => new DownwardGateProjectileAnimation(DownwardGateProjectileProgram.Closed),
         [RoomEnemyProjectileKind.NoobTubeCrack] = () => new NoobTubeProjectileAnimation(NoobTubeProjectileProgram.Crack),

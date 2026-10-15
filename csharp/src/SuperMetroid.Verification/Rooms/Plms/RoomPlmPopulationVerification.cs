@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -1268,9 +1269,8 @@ internal static class RoomPlmPopulationVerification
             OffsetX = 0, OffsetY = 0, TileColumn = 1, TileRow = 0,
             Size = 8, Priority = 1, Palette = 0, FlipX = false, FlipY = false,
         };
-        HashSet<ushort> electricityOperands = Enumerable.Range(0,
-            SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount)
-            .Select(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress).ToHashSet();
+        HashSet<ushort> electricityOperands = Enumerable.Range(0, SaveStationElectricityFrameDefinitions.PoseCount)
+            .Select(index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index))).ToHashSet();
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
@@ -1289,8 +1289,8 @@ internal static class RoomPlmPopulationVerification
             "save electricity starts two blocks above the station PLM");
 
         enemies.StepEnemyProjectiles(level, samus: null);
-        AssertEqual(SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress(0),
-            electricity.PresentationOperandAddress, "save electricity selects its first installed frame through the compiled interpreter");
+        AssertEqual(SaveStationElectricityFrameDefinitions.PresentationKey(new(0)),
+            electricity.PresentationOperandAddress, "save electricity selects its first installed frame through its typed program");
         AssertEqual(EnemyProjectileSpritemapDefinitions.BlankSpritemap, electricity.SpritemapPointer,
             "installed program artwork does not retain a cartridge spritemap pointer");
         var oam = new OamBuffer();

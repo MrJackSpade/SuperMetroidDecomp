@@ -994,12 +994,6 @@ internal sealed class EnemyProjectileEngine
                 address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity)
-        {
-            return SaveStationElectricityInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
         if (MotherBrainTopTubeInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return MotherBrainTopTubeInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -1008,11 +1002,6 @@ internal sealed class EnemyProjectileEngine
         if (FakeKraidProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.EyeDoorSweat)
-        {
-            return EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))

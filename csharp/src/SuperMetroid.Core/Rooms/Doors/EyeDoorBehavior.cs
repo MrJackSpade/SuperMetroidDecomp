@@ -180,9 +180,9 @@ internal sealed class EyeDoorBehavior
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && collidedVertically)
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 4)));
-            SetEyeDoorEffectImpactList(
-                projectile,
-                EyeDoorSweatInstructionProgramDefinitions.Impact);
+            // The floor splash stops the drop's movement, as the native list switch does.
+            projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
+            projectile.StartAnimation(new EyeDoorSweatAnimation(EyeDoorSweatProgram.HitFloor));
             return;
         }
 
@@ -194,16 +194,6 @@ internal sealed class EyeDoorBehavior
     {
         short sample = EnemyTrigonometryTables.SignedSine(unchecked((byte)tableIndex));
         return unchecked((short)(sample >> 4));
-    }
-
-    /// <summary>Stops projectile movement and restarts its impact animation at the first instruction.</summary>
-    private static void SetEyeDoorEffectImpactList(
-        RoomEnemyProjectileSlot projectile,
-        ushort instructionList)
-    {
-        projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.EyeDoorSmokeInertPreInstruction;
-        projectile.InstructionPointer = instructionList;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Sends an eye-door shot into its typed impact program, stopping its movement as the native list switch does.</summary>

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Plms.Artwork;
+using SuperMetroid.Core.Rooms.Doors.Artwork;
 using SuperMetroid.Core.Enemies.Deaths.Artwork;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Verification.Enemies.Skree;
@@ -268,8 +270,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 CeresFallingDebrisVisualDefinitions.Frames.Count,
                 index => CeresFallingDebrisVisualDefinitions.PresentationKey(CeresFallingDebrisVisualDefinitions.Frames[index])),
             ("save-station electricity", RoomEnemyProjectileKind.SaveStationElectricity,
-                SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
-                SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress),
+                SaveStationElectricityFrameDefinitions.PoseCount,
+                index => SaveStationElectricityFrameDefinitions.PresentationKey(new(index))),
             ("gunship dust", RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
                 GunshipDustVisualDefinitions.Frames.Count,
                 index => GunshipDustVisualDefinitions.PresentationKey(GunshipDustVisualDefinitions.Frames[index])),
@@ -283,8 +285,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 ChozoTourianDustFrameDefinitions.PoseCount,
                 index => ChozoTourianDustFrameDefinitions.PresentationKey(new(index))),
             ("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
-                EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
-                EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress),
+                EyeDoorSweatFrameDefinitions.PoseCount,
+                index => EyeDoorSweatFrameDefinitions.PresentationKey(new(index))),
             ("Ki Hunter acid spit", RoomEnemyProjectileKind.KiHunterAcidSpitLeft,
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
                 index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index))),

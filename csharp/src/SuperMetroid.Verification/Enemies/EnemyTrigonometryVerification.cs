@@ -119,7 +119,6 @@ using static SuperMetroid.Verification.Enemies.Animals.EscapeEtecoonDefinitionsV
 using static SuperMetroid.Verification.Enemies.Animals.EtecoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Evir.EvirInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.EyeDoorPlmDrawDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Doors.EyeDoorSweatInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.FakeKraidProjectileInstructionProgramDefinitionsVerification;
@@ -241,7 +240,6 @@ using static SuperMetroid.Verification.Samus.SamusIndexedSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusStandaloneSpeedsVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusVerticalDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SaveStationAnimationDefinitionsVerification;
-using static SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Sbug.SbugMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolInstructionDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Shaktool.ShaktoolSegmentDefinitionsVerification;
@@ -327,7 +325,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(DragonFireballBehaviorVerification.VerifyDragonFireballBehavior), () => DragonFireballBehaviorVerification.VerifyDragonFireballBehavior(LoadRepositoryRom())),
         new(nameof(EyeDoorProjectileAnimationsVerification.VerifyEyeDoorProjectileAnimations), () => EyeDoorProjectileAnimationsVerification.VerifyEyeDoorProjectileAnimations(LoadRepositoryRom())),
         new(nameof(EyeDoorProjectileBehaviorVerification.VerifyEyeDoorProjectileBehavior), () => EyeDoorProjectileBehaviorVerification.VerifyEyeDoorProjectileBehavior(LoadRepositoryRom())),
-        new(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(EyeDoorSweatAnimationsVerification.VerifyEyeDoorSweatAnimations), () => EyeDoorSweatAnimationsVerification.VerifyEyeDoorSweatAnimations(LoadRepositoryRom())),
+        new(nameof(EyeDoorSweatBehaviorVerification.VerifyEyeDoorSweatBehavior), () => EyeDoorSweatBehaviorVerification.VerifyEyeDoorSweatBehavior(LoadRepositoryRom())),
         new(nameof(SkreeMetareeParticleAnimationsVerification.VerifySkreeMetareeParticleAnimations), () => SkreeMetareeParticleAnimationsVerification.VerifySkreeMetareeParticleAnimations(LoadRepositoryRom())),
         new(nameof(SkreeMetareeParticleBehaviorVerification.VerifySkreeMetareeParticleBehavior), () => SkreeMetareeParticleBehaviorVerification.VerifySkreeMetareeParticleBehavior(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
@@ -355,7 +354,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyRidleyAnimations), () => VerifyRidleyAnimations(LoadRepositoryRom())),
         new(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresFallingDebrisAnimations), () => VerifyCeresFallingDebrisAnimations(LoadRepositoryRom())),
-        new(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(SaveStationElectricityAnimationsVerification.VerifySaveStationElectricityAnimations), () => SaveStationElectricityAnimationsVerification.VerifySaveStationElectricityAnimations(LoadRepositoryRom())),
+        new(nameof(SaveStationElectricityBehaviorVerification.VerifySaveStationElectricityBehavior), () => SaveStationElectricityBehaviorVerification.VerifySaveStationElectricityBehavior(LoadRepositoryRom())),
         new(nameof(EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations), () => EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations(LoadRepositoryRom())),
         new(nameof(EnemyDeathProjectileBehaviorVerification.VerifyEnemyDeathProjectileBehavior), EnemyDeathProjectileBehaviorVerification.VerifyEnemyDeathProjectileBehavior),
         new(nameof(ShaktoolProjectileAnimationsVerification.VerifyShaktoolProjectileAnimations), () => ShaktoolProjectileAnimationsVerification.VerifyShaktoolProjectileAnimations(LoadRepositoryRom())),

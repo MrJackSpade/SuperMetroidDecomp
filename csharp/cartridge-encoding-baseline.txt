@@ -1128,7 +1128,7 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	287
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6342	7
-csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	529
+csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	513
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs	SME6340	132

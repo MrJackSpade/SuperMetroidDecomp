@@ -851,14 +851,7 @@ public sealed class ManagedSpcPlayer
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
     {
         ManagedSpcSoundLibrary library = soundLibraries[libraryIndex];
-        bool reject = !changed || command == 0 || libraryIndex switch
-        {
-            0 => command != 1 && command != 2 && library.Priority != 0,
-            1 => command != 0x71 && command != 0x7e && library.Priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
-            2 => command != 1 && (library.Mode == 2 || command != 2 && library.Priority != 0),
-            _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
-        };
-        if (reject)
+        if (!changed || command == 0 || RejectsRequest(libraryIndex, command, library.Priority, library.Mode))
         {
             if (library.CurrentSound != 0)
                 ProcessSoundLibrary(libraryIndex);
@@ -888,6 +881,20 @@ public sealed class ManagedSpcPlayer
         byte configuration = SpcSoundEffectTables.Configuration(libraryIndex, command);
         ConfigureSoundLibrary(libraryIndex, library, configuration);
     }
+
+    /// <summary>
+    /// Whether a library rejects a changed nonzero request given its current priority and
+    /// low-health mode: a high-priority sound blocks ordinary requests, library 3's low-health mode
+    /// blocks everything except its clearing request, and each library has requests exempt from
+    /// priority. The offline clip exporter (#1305) reads its policy from this rule.
+    /// </summary>
+    internal static bool RejectsRequest(int libraryIndex, byte command, byte priority, byte mode) => libraryIndex switch
+    {
+        0 => command != 1 && command != 2 && priority != 0,
+        1 => command != 0x71 && command != 0x7e && priority != 0, // cartridge-encoding: allow(HardwareValue) - retail SFX2 cancellation overrides
+        2 => command != 1 && (mode == 2 || command != 2 && priority != 0),
+        _ => throw new ArgumentOutOfRangeException(nameof(libraryIndex)),
+    };
 
     /// <summary>Applies native allocation-policy writes for a validated sound library.</summary>
     /// <remarks>#1165 original-handler proof covers all policy cases. Mode is unchanged
@@ -1568,6 +1575,9 @@ public sealed class ManagedSpcPlayer
 
     /// <summary>The address of the next top-level music record, for offline loop analysis (#1305).</summary>
     internal ushort ReadMusicTopLevelPointer() => musicTopLevelPointer;
+
+    /// <summary>The tempo's whole byte, added to the accumulator per driver tick, and the accumulator itself, for clip export (#1305).</summary>
+    internal (byte Tempo, byte Phase) ReadTempo() => (unchecked((byte)SpcFixedPoint.Whole(tempo)), mainTempoAccumulator);
 
     /// <summary>
     /// Replaces one group of the state that track starts and uploads leave in place with

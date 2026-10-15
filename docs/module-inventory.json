@@ -56,7 +56,7 @@
     {
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
-      "files": 200,
+      "files": 203,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -134,7 +134,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
-      "files": 102,
+      "files": 113,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Hardware",
@@ -719,7 +719,7 @@
     {
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
-      "files": 1572,
+      "files": 1573,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1263,6 +1263,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/AudioClipExporter.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Audio",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/BrrExtractionLimits.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -1326,6 +1339,18 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundEffectObserver.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Audio",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundEffectProgramScan.cs",
       "module": "csharp/src/SuperMetroid.AssetExtraction",
       "role": "production",
@@ -1335,6 +1360,18 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Audio"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.AssetExtraction/Audio/SoundEffectRendering.cs",
+      "module": "csharp/src/SuperMetroid.AssetExtraction",
+      "role": "production",
+      "namespace": "SuperMetroid.AssetExtraction.Audio",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "dependsOn": [
         "csharp/src/SuperMetroid.Core/Audio"
       ]
     },
@@ -6151,6 +6188,26 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/AudioClipFile.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/AudioClipManifest.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/AudioEvent.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -6421,6 +6478,19 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/ClipAudioCatalog.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/DspBrrLayout.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -6546,6 +6616,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Audio/ISpcDriverObserver.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/LowHealthModeEffect.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -6694,6 +6774,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/MusicClipEntry.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/MusicCommand.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -6725,6 +6815,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Audio/MusicPortCommand.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/MusicTempoSegment.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -6865,6 +6965,36 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Audio/SoundEffectClipEntry.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/SoundEffectClipLayer.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/SoundEffectClipPolicy.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Audio/SoundEffectId.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
@@ -6916,6 +7046,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Audio/SoundEffectLibrary3Sounds.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/SoundEffectPriorityEffect.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -7154,6 +7294,16 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Core/Audio/SpcSoundStreamDefinitions.cs",
+      "module": "csharp/src/SuperMetroid.Core/Audio",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Audio",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Audio/UnrenderableSoundEffect.cs",
       "module": "csharp/src/SuperMetroid.Core/Audio",
       "role": "production",
       "namespace": "SuperMetroid.Core.Audio",
@@ -62470,6 +62620,21 @@
     },
     {
       "path": "csharp/src/SuperMetroid.Verification/Audio/AudioBankTransitionVerification.cs",
+      "module": "csharp/src/SuperMetroid.Verification",
+      "role": "verification",
+      "namespace": "SuperMetroid.Verification.Audio",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.AssetExtraction",
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/test-support/RepositoryInstallation",
+        "csharp/test-support/VerificationAccess.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Verification/Audio/AudioClipExportVerification.cs",
       "module": "csharp/src/SuperMetroid.Verification",
       "role": "verification",
       "namespace": "SuperMetroid.Verification.Audio",

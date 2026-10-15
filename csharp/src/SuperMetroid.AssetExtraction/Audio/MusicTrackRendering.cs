@@ -28,6 +28,25 @@ internal static class MusicTrackRendering
     }
 
     /// <summary>
+    /// Renders the exported clip of <paramref name="track"/>: from the tick that started it to its
+    /// E2 for a looping track, whose loop is [E1, E2), or to the tick that ended it. Every music
+    /// loop that repeats its tempo phase repeats [E1, E2) sample-exactly.
+    /// </summary>
+    /// <returns>Interleaved native stereo PCM whose frame zero is the start tick.</returns>
+    internal static short[] RenderClip(ExtractedAudioAssetCatalog catalog, MusicTrackAnalysis track)
+    {
+        long end = track.Shape switch
+        {
+            MusicTrackShape.Loops => track.Arrivals[1],
+            MusicTrackShape.Ends => track.IntroSamples,
+            MusicTrackShape.NoPeriodFound => throw new ArgumentException($"{track.Bank} track {track.Track} has no period to export.", nameof(track)),
+            _ => throw new ArgumentException($"Unknown track shape {track.Shape}.", nameof(track)),
+        };
+        short[] pcm = Render(catalog, track, end);
+        return pcm[(int)(track.StartSample * 2)..(int)(end * 2)];
+    }
+
+    /// <summary>
     /// Compares the loop body [E2, E3) with what follows it, [E3, E3 + loop), in <paramref name="pcm"/>:
     /// the error of looping [E2, E3) where the cartridge plays its next pass.
     /// </summary>

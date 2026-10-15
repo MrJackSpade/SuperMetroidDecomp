@@ -81,6 +81,13 @@ public sealed class ManagedSnesDsp
     /// <summary>Native stereo frames accumulated since the last host-buffer copy.</summary>
     public int BufferedStereoFrameCount => sampleOffset;
 
+    /// <summary>
+    /// Voices whose output reaches the main mix; all by default. The offline clip renderer (#1305)
+    /// selects one sound-effect channel's voice to render it as its own looping layer. Masked voices
+    /// still run, so pitch modulation and echo input are unchanged.
+    /// </summary>
+    internal byte OutputVoices { get; set; } = byte.MaxValue;
+
     /// <summary>Restores the hardware-facing DSP state used by the translated SPC reset vector.</summary>
     public void Reset()
     {
@@ -270,6 +277,8 @@ public sealed class ManagedSnesDsp
         for (int index = 0; index < VoiceCount; index++)
         {
             CycleVoice(index);
+            if ((OutputVoices & (1 << index)) == 0)
+                continue;
             Voice voice = voices[index];
             totalLeft = Clamp16(totalLeft + ((voice.SampleOutput * voice.VolumeLeft) >> 6));
             totalRight = Clamp16(totalRight + ((voice.SampleOutput * voice.VolumeRight) >> 6));

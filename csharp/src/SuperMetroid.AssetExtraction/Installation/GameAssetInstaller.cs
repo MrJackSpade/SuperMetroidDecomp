@@ -238,7 +238,8 @@ public static class GameAssetInstaller
     private static readonly InstallerComponent[] Components =
     [
         new(GameInstallationLayout.AudioDirectoryName,
-            Step("Extracting audio…", (bus, d) => SpcAudioAssetExtractor.Extract(bus, d), d => _ = ExtractedAudioAssetCatalog.Load(d))),
+            Step("Extracting audio…", (bus, d) => SpcAudioAssetExtractor.Extract(bus, d), d => _ = ExtractedAudioAssetCatalog.Load(d)),
+            Step("Rendering audio clips…", (_, d) => AudioClipExporter.Export(d), ClipAudioCatalog.ValidateStock)),
         new(GameInstallationLayout.MapDirectoryName,
             new InstallerStep("Extracting map presentation...",
                 (bus, d, cancellation) => MapPresentationExtractor.Extract(bus, d, SupportedCartridge.Sha256, cancellation),

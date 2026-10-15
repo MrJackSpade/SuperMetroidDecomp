@@ -41,6 +41,14 @@ internal static class AudioClipInventory
         MusicTrackAnalysis[] tracks = Timed(timings, "music structure (sequencer only)", trackKeys.Count, index =>
             MusicTrackAnalysis.Analyze(catalog, trackKeys[index].Bank, trackKeys[index].Track, trackKeys[index].Pointer));
 
+        // Loop passes until the tempo phase recurs: the shortest sample-exact loop for a drifting track.
+        MusicTrackAnalysis[] looping = [.. tracks.Where(track => track.Shape == MusicTrackShape.Loops)];
+        int[] phasePeriods = Timed(timings, "music tempo-phase periods (sequencer only)", looping.Length, index =>
+            MusicTrackAnalysis.TempoPhasePeriod(catalog, looping[index]));
+        string[] phaseLines = [.. looping.Select((track, index) => (track, period: phasePeriods[index]))
+            .Where(entry => entry.period > 1)
+            .Select(entry => $"{entry.track.Bank} track {entry.track.Track}: {entry.period} passes of {Seconds(entry.track.LoopSamples)} s")];
+
         // Music PCM: canonical render, seam check and entry-state perturbations with fixed donors.
         MusicTrackAnalysis[] periodic = [.. tracks.Where(track => track.Shape != MusicTrackShape.NoPeriodFound)];
         MusicTrackAnalysis echoDonor = periodic
@@ -118,7 +126,15 @@ internal static class AudioClipInventory
         var options = new JsonSerializerOptions { WriteIndented = true, IncludeFields = true };
         options.Converters.Add(new JsonStringEnumConverter());
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(inventory, options));
-        string summary = Summarize(catalog, inventory, contexts);
+        var phaseSection = new System.Text.StringBuilder();
+        phaseSection.AppendLine();
+        phaseSection.AppendLine("## Tempo-phase periods");
+        phaseSection.AppendLine();
+        phaseSection.AppendLine($"Looping tracks whose tempo phase recurs only after more than one pass: {phaseLines.Length}");
+        phaseSection.AppendLine();
+        foreach (string line in phaseLines)
+            phaseSection.AppendLine("- " + line);
+        string summary = Summarize(catalog, inventory, contexts) + phaseSection;
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.md"), summary);
         Console.WriteLine(summary);
         return 0;

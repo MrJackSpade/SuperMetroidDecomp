@@ -260,6 +260,7 @@ using static SuperMetroid.Verification.Rendering.RenderPacketCodecTestsVerificat
 using static SuperMetroid.Verification.Rendering.RenderPresentationGateTestsVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
 using static SuperMetroid.Verification.Harness.ReplayTraceCompactionVerification;
+using static SuperMetroid.Verification.Harness.ReplaySnapshotVerification;
 using static SuperMetroid.Verification.Hud.ReserveAutoFrontendVerification;
 using static SuperMetroid.Verification.Hud.ReserveModeVerification;
 using static SuperMetroid.Verification.Bosses.MotherBrain.ReserveRefillRainbowBeamVerification;
@@ -698,6 +699,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyRoomAssetRomData), () => VerifyRoomAssetRomData()),
         new(nameof(VerifyAreaMapAssets), () => VerifyAreaMapAssets()),
         new(nameof(VerifyReplayTraceCompaction), () => VerifyReplayTraceCompaction()),
+        new(nameof(VerifyReplaySnapshotSaveRamSizes), () => VerifyReplaySnapshotSaveRamSizes()),
         .. MapPresentationSuites(),
         new(nameof(VerifyBackgroundTilemapStreamer), () => VerifyBackgroundTilemapStreamer()),
         new(nameof(VerifyFourBitBackgroundRendering), () => VerifyFourBitBackgroundRendering()),

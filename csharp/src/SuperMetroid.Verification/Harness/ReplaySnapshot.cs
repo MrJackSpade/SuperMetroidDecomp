@@ -44,9 +44,10 @@ internal sealed class ReplaySnapshot
                 throw new InvalidDataException($"Snapshot repeats block {name}.");
             position += length;
         }
-        byte[] Block(string name, int length) =>
-            blocks.TryGetValue(name, out byte[]? data) && data.Length == length ? data
-                : throw new InvalidDataException($"Snapshot block {name} is missing or is not {length} bytes.");
-        return new ReplaySnapshot(Block("SRA", 0x80000));
+        // Snes9x builds freeze SRAM as 128 KiB or 512 KiB; the core's unfreeze reads either.
+        byte[] Block(string name, params int[] lengths) =>
+            blocks.TryGetValue(name, out byte[]? data) && lengths.Contains(data.Length) ? data
+                : throw new InvalidDataException($"Snapshot block {name} is missing or is not {string.Join(" or ", lengths)} bytes.");
+        return new ReplaySnapshot(Block("SRA", 128 * 1024, 512 * 1024));
     }
 }

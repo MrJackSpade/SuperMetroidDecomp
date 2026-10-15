@@ -954,7 +954,6 @@ csharp/src/SuperMetroid.Verification/Harness/NativeSnapshotMemory.cs	SME6340	303
 csharp/src/SuperMetroid.Verification/Harness/OperationContractsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Harness/Program.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Harness/ReplayMovie.cs	SME6340	9
-csharp/src/SuperMetroid.Verification/Harness/ReplaySnapshot.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Harness/StrictFailuresVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Harness/SyntheticEnemyCartridgeFixturesVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Harness/SyntheticRoomCartridgeFixturesVerification.cs	SME6340	15

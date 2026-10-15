@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -22,10 +23,6 @@ internal sealed class BoulderBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
-    /// <summary>Library-two cue published when a falling boulder touches ground.</summary>
-    private const ushort BoulderImpactSound = 0x0042;
-    /// <summary>Library-two cue replacing the impact cue when the boulder breaks into dust.</summary>
-    private const ushort BoulderBreakSound = 0x0043;
     /// <summary>Room-graphics dust animation selected by terminal impacts.</summary>
     private const MiscDustAnimation BoulderDustAnimationIndex = MiscDustAnimation.RockParticles;
 
@@ -140,21 +137,21 @@ internal sealed class BoulderBehavior : IEnemySpecies
         {
             state.BounceSpeedAccumulator = AddAndCapUnsigned(
                 state.BounceSpeedAccumulator,
-                0x0100,
-                0x5000);
+                256,
+                20480);
             return;
         }
 
         slot.Position = slot.Position.WithWholeY(state.InitialPosition.Y);
         state.Function = BoulderAiFunction.Rebound;
-        state.BounceSpeedAccumulator = 0x2000;
+        state.BounceSpeedAccumulator = 8192;
     }
 
     /// <summary>Applies upward quadratic motion while reducing bounce speed, adding sideways travel, then returns to falling.</summary>
     private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: true);
-        state.BounceSpeedAccumulator = unchecked((ushort)(state.BounceSpeedAccumulator - 0x0100));
+        state.BounceSpeedAccumulator = unchecked((ushort)(state.BounceSpeedAccumulator - 256));
         if (unchecked((short)state.BounceSpeedAccumulator) < 0)
         {
             state.BounceSpeedAccumulator = 0;
@@ -165,8 +162,8 @@ internal sealed class BoulderBehavior : IEnemySpecies
         AddBoulderHorizontalVelocity(slot, state);
         state.TravelSpeedAccumulator = AddAndCapUnsigned(
             state.TravelSpeedAccumulator,
-            0x0020,
-            0x5000);
+            32,
+            20480);
     }
 
     /// <summary>Accelerates through terrain contact; ordinary impacts consume bounce indexes while selector two breaks immediately.</summary>
@@ -177,14 +174,14 @@ internal sealed class BoulderBehavior : IEnemySpecies
             negative: false);
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
         {
-            LastBoulderSoundEffect = BoulderImpactSound;
+            LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderImpactSound;
             if (state.DirectionSelector == 2)
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 _projectiles.SpawnRoomGraphicsDustExplosion(
                     slot.Position.Whole,
                     BoulderDustAnimationIndex);
-                LastBoulderSoundEffect = BoulderBreakSound;
+                LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderBreakSound;
                 return;
             }
 
@@ -204,12 +201,12 @@ internal sealed class BoulderBehavior : IEnemySpecies
         }
 
         state.BounceSpeedAccumulator = unchecked((ushort)(
-            state.BounceSpeedAccumulator + 0x0100));
+            state.BounceSpeedAccumulator + 256));
         AddBoulderHorizontalVelocity(slot, state);
         state.TravelSpeedAccumulator = AddAndCapUnsigned(
             state.TravelSpeedAccumulator,
-            0x0020,
-            0x5000);
+            32,
+            20480);
     }
 
     /// <summary>Tracks the floor with vertical compensation and advances horizontally until a wall hides/deletes the actor and spawns dust.</summary>
@@ -231,18 +228,18 @@ internal sealed class BoulderBehavior : IEnemySpecies
             slot.Properties = slot.Properties.With(
                 EnemyProperties.Invisible | EnemyProperties.Deleted);
             state.Function = BoulderAiFunction.Inert;
-            LastBoulderSoundEffect = BoulderImpactSound;
+            LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderImpactSound;
             _projectiles.SpawnRoomGraphicsDustExplosion(
                 slot.Position.Whole,
                 BoulderDustAnimationIndex);
-            LastBoulderSoundEffect = BoulderBreakSound;
+            LastBoulderSoundEffect = EnemySoundEffectDefinitions.BoulderBreakSound;
         }
         else
         {
             state.TravelSpeedAccumulator = AddAndCapUnsigned(
                 state.TravelSpeedAccumulator,
-                0x0040,
-                0x4000);
+                64,
+                16384);
             if (slot.Position.Y.Whole == state.PreviousYPosition &&
                 slot.Position.Y.Fraction == state.PreviousYSubposition)
             {

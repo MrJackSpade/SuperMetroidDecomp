@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
@@ -22,9 +23,7 @@ internal sealed class RioBehavior : IEnemySpecies
     }
 
     /// <summary>Strict horizontal Samus proximity threshold that starts a dive.</summary>
-    private const ushort RioTriggerDistance = 0x00a0;
-    /// <summary>Library-two sound requested when an on-screen Rio begins its dive.</summary>
-    private const ushort RioDiveSound = 0x0065;
+    private const ushort RioTriggerDistance = 160;
     /// <summary>8.8 vertical velocity decrement applied during dive and rebound.</summary>
     private const ushort RioGravityStep = 24;
 
@@ -100,7 +99,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 // CheckIfEnemyIsOnScreen returns zero for an on-screen origin. The native
                 // branch consequently queues sound $65 only for the visible attack start.
                 if (!EnemyProcessingWindow.EnemyWithNormalSpritesIsOffScreen(slot, camera))
-                    LastRioSoundEffect = RioDiveSound;
+                    LastRioSoundEffect = EnemySoundEffectDefinitions.RioDiveSound;
                 return;
 
             case RioEnemyFunction.WaitingForLandingAnimation:
@@ -188,7 +187,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
                         new SnesSignedEightEight(state.SavedHorizontalVelocity),
-                        new SnesSignedEightEight(0xffff));
+                        new SnesSignedEightEight(unchecked((ushort)-1)));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
                 }
@@ -196,7 +195,7 @@ internal sealed class RioBehavior : IEnemySpecies
                 byte angle = EnemyMath.CalculateCartridgeAngle(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
                 state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(ReadRioSignedSineCosineSample(
-                    unchecked((byte)(angle + 0x40)))));
+                    unchecked((byte)(angle + EnemyByteAngleDefinitions.QuarterTurn)))));
                 state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(angle)));
                 _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level,

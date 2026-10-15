@@ -9,7 +9,7 @@ internal sealed class ChootBehavior : IEnemySpecies
 {
 
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
-    private const ushort ChootActivationDistance = 0x0050;
+    private const ushort ChootActivationDistance = 80;
 
     /// <summary>Population positions restored after the final falling-path loop.</summary>
     internal readonly Position16<RoomPixels>[] _chootSpawnPositions = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
@@ -131,7 +131,7 @@ internal sealed class ChootBehavior : IEnemySpecies
         fixedY = unchecked(fixedY + (uint)upwardDisplacement);
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
 
-        state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex - 0x0200));
+        state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex - 512));
         if (unchecked((short)state.YSpeedTableIndex) >= 0)
             return;
 
@@ -173,7 +173,7 @@ internal sealed class ChootBehavior : IEnemySpecies
 
         slot.Position = slot.Position.WithWhole(state.FallingOrigin + point.Offset);
         state.FallingPatternIndex = unchecked((ushort)(
-            state.FallingPatternIndex + 0x0100));
+            state.FallingPatternIndex + 256));
     }
 
     /// <summary>Ports <c>CalculateChootInitialJumpSpeed</c> at <c>$A2:DFE9</c>, integrating quadratic steps until they cover the requested height.</summary>
@@ -183,7 +183,7 @@ internal sealed class ChootBehavior : IEnemySpecies
         uint accumulatedDistance = 0;
         for (int iteration = 0; iteration < 128; iteration++)
         {
-            encodedIndex = unchecked((ushort)(encodedIndex + 0x0200));
+            encodedIndex = unchecked((ushort)(encodedIndex + 512));
             ushort tableIndex = unchecked((ushort)(SnesLittleEndian.HighByte(encodedIndex)));
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)EnemyMath.ReadQuadraticEnemySpeed(tableIndex, negative: false));

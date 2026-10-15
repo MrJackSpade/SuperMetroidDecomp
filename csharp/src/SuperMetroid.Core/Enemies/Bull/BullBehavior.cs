@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Bull.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -9,9 +10,9 @@ internal sealed class BullBehavior : IEnemySpecies
 {
 
     /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by $0018.</summary>
-    private const ushort BullAccelerationDelta = 0x0018;
+    private const ushort BullAccelerationDelta = 24;
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
-    private const ushort BullMovementDelayFrames = 0x0010;
+    private const ushort BullMovementDelayFrames = 16;
 
     /// <summary>Per-slot AI state for Bulls in the current room.</summary>
     internal readonly BullEnemyState?[] _bullStates = new BullEnemyState?[RoomEnemySystem.MaximumEnemyCount];
@@ -117,7 +118,7 @@ internal sealed class BullBehavior : IEnemySpecies
     /// <summary>Converts the signed displacement to Samus into Bull's quarter-turn-offset byte angle.</summary>
     private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         unchecked((byte)(EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - 0x40));
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - 64));
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
@@ -162,7 +163,7 @@ internal sealed class BullBehavior : IEnemySpecies
             difference |= 0xff00;
         if ((difference & 0x8000) != 0)
             difference = unchecked((ushort)-difference);
-        if (unchecked((short)(difference - 0x30)) < 0)
+        if (unchecked((short)(difference - 48)) < 0)
             return;
 
         state.Function = BullEnemyFunction.Decelerating;
@@ -174,7 +175,7 @@ internal sealed class BullBehavior : IEnemySpecies
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
             slot.Position.X,
-            ReadBullSignedSine(unchecked((byte)(state.Angle + 0x40))),
+            ReadBullSignedSine(unchecked((byte)(state.Angle + EnemyByteAngleDefinitions.QuarterTurn))),
             state.Speed));
         slot.Position = slot.Position.WithY(AddBullComponent(
             slot.Position.Y,
@@ -204,7 +205,7 @@ internal sealed class BullBehavior : IEnemySpecies
         if (sine < 0 && (whole != 0 || fraction != 0))
         {
             if (fraction == 0)
-                fraction = 0xffff;
+                fraction = RoomPixelMasks.LastFraction;
             else
                 fraction = unchecked((ushort)-fraction);
             whole = unchecked((ushort)~whole);
@@ -230,10 +231,10 @@ internal sealed class BullBehavior : IEnemySpecies
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
         int direction = projectileDirection & 0x000f;
         state.Angle = BullMovementDefinitions.ShotAngle(direction);
-        state.Acceleration = 0x0100;
-        state.Speed = 0x0600;
+        state.Acceleration = 256;
+        state.Speed = 1536;
         state.Function = BullEnemyFunction.Decelerating;
-        state.ShotReactionDisableTimer = NativeCountdown.Start(0x0030);
+        state.ShotReactionDisableTimer = NativeCountdown.Start(48);
         state.ShotReactionDisabled = true;
     }
 

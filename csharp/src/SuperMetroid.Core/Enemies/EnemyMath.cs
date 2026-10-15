@@ -122,7 +122,7 @@ internal static class EnemyMath
         int byteAngle = unchecked((byte)angle);
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
         int magnitude = SnesEightEight.Multiply(sample, SnesLittleEndian.LowByte(radius));
-        return byteAngle < 0x80 ? magnitude : -magnitude;
+        return byteAngle < EnemyByteAngleDefinitions.HalfTurn ? magnitude : -magnitude;
     }
 
     /// <summary>Ports <c>EightBitCosineMultiplication</c> at $A0:B0B2.</summary>
@@ -159,7 +159,7 @@ internal static class EnemyMath
         ushort product = unchecked((ushort)(sample * (SnesLittleEndian.LowByte(radius))));
         ushort whole = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
         ushort fraction = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
-        if (byteAngle >= 0x80)
+        if (byteAngle >= EnemyByteAngleDefinitions.HalfTurn)
         {
             // $A0:B11B and $B125 negate each word independently instead of carrying the
             // fractional increment into the whole word. Preserve that documented ROM bug.

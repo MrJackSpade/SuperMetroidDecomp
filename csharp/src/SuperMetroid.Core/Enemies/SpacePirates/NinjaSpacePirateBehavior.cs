@@ -39,7 +39,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>Native 8.8 speed assigned at the start of a divekick jump and descent.</summary>
-    private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
+    private const ushort NinjaPirateInitialDiveSpeed = 1536;
     /// <summary>Maximum horizontal distance at which an idle ninja activates.</summary>
     private const int NinjaPirateActivationDistance = 128;
     /// <summary>Strict distance on both axes for a reaction to the highest occupied projectile.</summary>
@@ -103,7 +103,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         ushort accumulatedDistance = 0;
         do
         {
-            speed = unchecked((ushort)(speed + 0x0020));
+            speed = unchecked((ushort)(speed + 32));
             accumulatedDistance = unchecked((ushort)(accumulatedDistance + speed));
         }
         while (unchecked((short)(accumulatedDistance - distanceInSubpixels)) < 0);
@@ -385,7 +385,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 
         if (rising)
         {
-            state.Speed = unchecked((ushort)(state.Speed + 0x0020));
+            state.Speed = unchecked((ushort)(state.Speed + 32));
             bool crossedMidpoint = movingRight
                 ? unchecked((short)(slot.Position.X.Whole - state.PostsMidpointX)) >= 0
                 : unchecked((short)(slot.Position.X.Whole - state.PostsMidpointX)) < 0;
@@ -398,7 +398,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             return;
         }
 
-        state.Speed = unchecked((ushort)(state.Speed - 0x0020));
+        state.Speed = unchecked((ushort)(state.Speed - 32));
         if (state.Speed != 0)
             return;
 
@@ -433,7 +433,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         bool movingRight)
     {
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed)))));
-        state.Speed = unchecked((ushort)(state.Speed - 0x0040));
+        state.Speed = unchecked((ushort)(state.Speed - 64));
         if (unchecked((short)state.Speed) >= 0)
             return;
 
@@ -473,7 +473,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
         if (!landed)
         {
-            state.Speed = unchecked((ushort)(state.Speed - 0x0040));
+            state.Speed = unchecked((ushort)(state.Speed - 64));
             landed = unchecked((short)state.Speed) < 0 || SnesUnsignedEightEight.Whole(state.Speed) == 0;
         }
         if (!landed)
@@ -583,7 +583,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(projectile.Position.X.Whole +
             (outbound ? direction * pixels : -direction * pixels))));
         projectile.Variable0 = unchecked((ushort)(projectile.Variable0 +
-            (outbound ? -0x0020 : 0x0020)));
+            (outbound ? -32 : 32)));
         if (outbound && projectile.Variable0 == 0)
             projectile.Variable1 = 0;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 1)));

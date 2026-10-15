@@ -93,9 +93,9 @@ internal sealed class EnemyProcessingWindow
     /// </summary>
     internal static bool EnemyCenterIsOnScreen(RoomEnemySlot slot, Position16<RoomPixels> camera) =>
         !EnemyMath.IsNegative16(slot.Position.X.Whole - camera.X) &&
-        !EnemyMath.IsNegative16(camera.X + 0x0100 - slot.Position.X.Whole) &&
+        !EnemyMath.IsNegative16(camera.X + 256 - slot.Position.X.Whole) &&
         !EnemyMath.IsNegative16(slot.Position.Y.Whole - camera.Y) &&
-        !EnemyMath.IsNegative16(camera.Y + 0x0100 - slot.Position.Y.Whole);
+        !EnemyMath.IsNegative16(camera.Y + 256 - slot.Position.Y.Whole);
 
     /// <summary>
     /// <c>CheckIfEnemyIsHorizontallyOffScreen</c> ($A0:C18E): a negative X, a right edge
@@ -106,7 +106,7 @@ internal sealed class EnemyProcessingWindow
         if (EnemyMath.IsNegative16(slot.Position.X.Whole))
             return true;
         ushort fromCamera = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - cameraX));
-        return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 0x100 - slot.Radius.X);
+        return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 256 - slot.Radius.X);
     }
 
     /// <summary>Uses the normal-sprite processing window to determine whether all bounds reject a slot.</summary>

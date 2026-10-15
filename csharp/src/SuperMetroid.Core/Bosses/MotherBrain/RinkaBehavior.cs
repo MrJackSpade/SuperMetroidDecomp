@@ -623,7 +623,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = respawns
-                ? unchecked((ushort)(slot.NativeIndex | 0x8000))
+                ? unchecked((ushort)(slot.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
                 : slot.NativeIndex;
             projectile.InstructionPointer = EnemyDeathExplosionDefinitions
                 .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);

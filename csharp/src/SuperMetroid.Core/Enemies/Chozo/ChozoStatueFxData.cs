@@ -4,8 +4,8 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 internal static class ChozoStatueFxData
 {
     /// <summary>$AA:E429, Instruction_Chozo_StartLoweringAcid: delay before motion.</summary>
-    public const ushort LoweringDelay = 0x20;
+    public const ushort LoweringDelay = 32;
 
     /// <summary>$AA:E42F, Instruction_Chozo_StartLoweringAcid: downward 8.8 velocity.</summary>
-    public const ushort LoweringVelocity = 0x40;
+    public const ushort LoweringVelocity = 64;
 }

@@ -23,9 +23,9 @@ internal sealed class PolypBehavior : IEnemySpecies
     }
 
     /// <summary>Samus must be within 64 pixels on each axis to trigger a launch.</summary>
-    private const ushort PolypProximity = 0x0040;
+    private const ushort PolypProximity = 64;
     /// <summary>Each Polyp initializer resets the shared enemy random seed to $0011.</summary>
-    private const ushort PolypRandomSeed = 0x0011;
+    private const ushort PolypRandomSeed = 17;
 
     /// <summary>Slot-indexed function and cooldown state for the active room's Polyp actors.</summary>
     internal readonly PolypEnemyState?[] _polypStates =
@@ -170,7 +170,7 @@ internal sealed class PolypBehavior : IEnemySpecies
     /// <summary>Each rock frame advances the quadratic speed-table index by two records.</summary>
     private const ushort PolypRockGravityStep = 2;
     /// <summary>Falling rocks stop accelerating at the native $0040 speed index.</summary>
-    private const ushort PolypRockTerminalSpeedIndex = 0x0040;
+    private const ushort PolypRockTerminalSpeedIndex = 64;
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> plus initializer $86:BBDB.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -124,7 +125,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     {
         PhantoonEnemyState state = Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
-        part.SpritemapPointer = EnemySpritemapDefinitions.Nothing;
+        part.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         part.InstructionTimer = NativeCountdown.Start(1);
         part.Timer = NativeCountdown.Start(0);
         part.PaletteIndex = state.Body.PaletteIndex;
@@ -823,7 +824,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
 
         RoomEnemySlot body = state.Body;
         if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
-            body.SpritemapPointer is 0 or EnemySpritemapDefinitions.Nothing ||
+            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(body.SpritemapPointer) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |

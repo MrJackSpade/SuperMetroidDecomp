@@ -18,7 +18,7 @@ internal sealed class FliesBehavior : IEnemySpecies
     }
 
     /// <summary>Maximum horizontal Samus distance, in pixels, that triggers an attack from circular flight.</summary>
-    private const int FlyAttackHorizontalRange = 0x70;
+    private const int FlyAttackHorizontalRange = 112;
     /// <summary>Per-slot motion state for active Mellow, Mella, and Menu enemies.</summary>
     internal readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -91,7 +91,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
 
         MoveFlyAccordingToAngle(slot, state);
-        state.Angle = unchecked((ushort)((state.Angle + (clockwise ? 0x20 : -0x20)) & 0x01ff));
+        state.Angle = unchecked((ushort)((state.Angle + (clockwise ? 32 : -32)) & 0x01ff));
         if (state.Angle == 0)
         {
             state.Function = clockwise

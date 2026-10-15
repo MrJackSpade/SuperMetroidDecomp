@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -26,27 +28,15 @@ internal sealed class DachoraBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
-    /// <summary>Library-two sound queued when Samus wakes the tutorial Dachora.</summary>
-    private const ushort DachoraActivationSound = 0x001d;
-    /// <summary>Library-two sound accompanying Dachora's Speed Booster run.</summary>
-    private const ushort DachoraSpeedBoosterSound = 0x0039;
-    /// <summary>Library-two sound queued while Dachora stores its shinespark.</summary>
-    private const ushort DachoraChargeSound = 0x003d;
-    /// <summary>Library-two sound queued when Dachora launches upward.</summary>
-    private const ushort DachoraLaunchSound = 0x003b;
-    /// <summary>Library-two sound queued on Dachora's ceiling contact.</summary>
-    private const ushort DachoraCeilingImpactSound = 0x003c;
-    /// <summary>Library-two sound queued at the scripted left wall turn.</summary>
-    private const ushort DachoraWallImpactSound = 0x0071;
 
     /// <summary>Native $A7:F4C9 horizontal proximity threshold for activating the bird.</summary>
-    private const int DachoraActivationXDistance = 0x60;
+    private const int DachoraActivationXDistance = 96;
     /// <summary>Native $A7:F4CB vertical proximity threshold for activating the bird.</summary>
-    private const int DachoraActivationYDistance = 0x40;
+    private const int DachoraActivationYDistance = 64;
     /// <summary>Native warning interval before Dachora starts its leftward run.</summary>
-    private const ushort DachoraBlinkDuration = 0x78;
+    private const ushort DachoraBlinkDuration = 120;
     /// <summary>Native stored-shine countdown before Dachora launches.</summary>
-    private const ushort DachoraChargeDuration = 0x3c;
+    private const ushort DachoraChargeDuration = 60;
     /// <summary>Accepted-frame interval between echo position captures.</summary>
     private const ushort DachoraEchoPositionInterval = 1;
     /// <summary>Accepted-frame lifetime of each Dachora shine echo.</summary>
@@ -58,11 +48,11 @@ internal sealed class DachoraBehavior : IEnemySpecies
     /// <summary>Whole half of Dachora's native 16.16 running acceleration.</summary>
     private const ushort DachoraAccelerationWhole = 0;
     /// <summary>Fraction half of Dachora's native 16.16 running acceleration.</summary>
-    private const ushort DachoraAccelerationFraction = 0x1000;
+    private const ushort DachoraAccelerationFraction = 4096;
     /// <summary>Scripted room X where Dachora reverses its leftward run.</summary>
-    private const ushort DachoraLeftTurnX = 0x0060;
+    private const ushort DachoraLeftTurnX = 96;
     /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
-    private const ushort DachoraShinesparkX = 0x0480;
+    private const ushort DachoraShinesparkX = 1152;
 
     /// <summary>Per-slot body and echo state reset when a new room population loads.</summary>
     internal readonly DachoraEnemyState?[] _dachoraStates =
@@ -80,7 +70,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
         // Population property $0400 already excludes these actors from host interaction.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -174,7 +164,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
                 : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
         state.PhaseTimer = NativeCountdown.Start(DachoraBlinkDuration);
-        LastDachoraSoundEffect = DachoraActivationSound;
+        LastDachoraSoundEffect = EnemySoundEffectDefinitions.DachoraActivationSound;
     }
 
     /// <summary>Ports the 120-frame warning countdown at $A7:F5BC.</summary>
@@ -231,7 +221,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         int displacement = AccelerateDachora(slot, state, level);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
         {
-            LastDachoraSoundEffect = DachoraWallImpactSound;
+            LastDachoraSoundEffect = EnemySoundEffectDefinitions.DachoraWallImpactSound;
             InstallDachoraInstruction(slot, state, DachoraProgram.RunningLeft);
             state.Function = DachoraAiFunction.RunningLeft;
             slot.Parameter1 = 0;
@@ -252,7 +242,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         state.Subspeed = 0;
         state.PaletteAnimationTimer = 0;
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 8)));
-        LastDachoraSoundEffect = DachoraChargeSound;
+        LastDachoraSoundEffect = EnemySoundEffectDefinitions.DachoraChargeSound;
     }
 
     /// <summary>
@@ -268,7 +258,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         if (unchecked((short)(state.Speed - DachoraMaximumSpeedWhole)) >= 0)
         {
             if (state.PaletteAnimationTimer == 1)
-                LastDachoraSoundEffect = DachoraSpeedBoosterSound;
+                LastDachoraSoundEffect = EnemySoundEffectDefinitions.DachoraSpeedBoosterSound;
 
             state.PaletteAnimationTimer = NativeWordCounter.Decrement(state.PaletteAnimationTimer).Value;
             if ((byte)state.PaletteAnimationTimer == 0)
@@ -336,7 +326,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         state.VerticalAcceleration = 0;
         state.VerticalSubaccelerationOrLifetime = 0;
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
-        LastDachoraSoundEffect = DachoraLaunchSound;
+        LastDachoraSoundEffect = EnemySoundEffectDefinitions.DachoraLaunchSound;
 
         DachoraProgram echoList = slot.Parameter1 != 0
             ? DachoraProgram.EchoRight
@@ -390,7 +380,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         state.Subspeed = 0;
         state.PaletteAnimationTimer = 0;
         LoadDachoraPalette(slot, DachoraPalettePhase.Default, frame: 0);
-        LastDachoraSoundEffect = DachoraCeilingImpactSound;
+        LastDachoraSoundEffect = EnemySoundEffectDefinitions.DachoraCeilingImpactSound;
     }
 
     /// <summary>Ports the gravity-capped return to the ground at $A7:F935.</summary>

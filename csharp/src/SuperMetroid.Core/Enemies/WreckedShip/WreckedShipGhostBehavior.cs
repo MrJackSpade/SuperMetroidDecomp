@@ -17,17 +17,17 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
     }
 
     /// <summary>$A8:9B17 combines the 120-frame appearance delay with an additional 160-frame startup wait.</summary>
-    private const ushort WreckedShipGhostInitialDelay = 0x0118;
+    private const ushort WreckedShipGhostInitialDelay = 280;
     /// <summary>Frames the ghost remains visible after its appearance cycle enters bobbing.</summary>
-    private const ushort WreckedShipGhostVisibleDuration = 0x0078;
+    private const ushort WreckedShipGhostVisibleDuration = 120;
     /// <summary>Samus tracking must remain within the positional margin this long before spawning.</summary>
-    private const ushort WreckedShipGhostStablePositionDuration = 0x0040;
+    private const ushort WreckedShipGhostStablePositionDuration = 64;
     /// <summary>Samus's facing must remain stable for this many tracking calls.</summary>
-    private const ushort WreckedShipGhostStableDirectionDuration = 0x0010;
+    private const ushort WreckedShipGhostStableDirectionDuration = 16;
     /// <summary>Initial whole-pixel vertical speed of the visible bobbing cycle.</summary>
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
     /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
-    private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
+    private const int WreckedShipGhostVerticalAccelerationFraction = 6144;
 
     /// <summary>Stores each native ghost slot's apparition timers, flicker phase, and target palette.</summary>
     internal readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =

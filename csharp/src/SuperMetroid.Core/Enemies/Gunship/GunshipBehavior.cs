@@ -195,10 +195,10 @@ internal sealed class GunshipBehavior
             bottom.VariableD = 70;
         }
 
-        // The native address-range test admits functions $A942-$AC1A. Idle function $A9BD
+        // The native address-range test admits functions $A942-$AC1A (two signed sums, an exact range). Idle function $A9BD
         // is inside that interval, so the landed ship continuously performs its four-phase
         // bob before dispatching the function itself.
-        if (!EnemyMath.IsNegative16(top.VariableF + 0x56be) && EnemyMath.IsNegative16(top.VariableF + 0x53e5))
+        if (top.VariableF is >= GunshipMotionDefinitions.BobbingFunctionsFirst and <= GunshipMotionDefinitions.BobbingFunctionsLast)
             StepGunshipBob(top);
 
         GunshipFunction function = ClosedNativeWords.Decode<GunshipFunction>(top.VariableF, "gunship function");
@@ -296,16 +296,16 @@ internal sealed class GunshipBehavior
         // $4.8000 pixels per call; below that threshold it slows to $2.8000 and clamps the
         // top hull to $045F before beginning the cartridge's seventeen-entry bounce table.
         // The clamp ($A2:A8B2) writes only whole positions; subpixels keep this call's sum.
-        uint delta = top.Position.Y.Whole < 0x0300 ? 0x0004_8000u : 0x0002_8000u;
+        uint delta = top.Position.Y.Whole < GunshipMotionDefinitions.SlowDescentY ? GunshipMotionDefinitions.FastDescentSpeed : GunshipMotionDefinitions.SlowDescentSpeed;
         AddGunshipYFixed(samus, top, delta);
-        if (top.Position.Y.Whole < 0x045f)
+        if (top.Position.Y.Whole < GunshipMotionDefinitions.LandedTopY)
             return;
 
         RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
-        top.Position = top.Position.WithWholeY(0x045f);
-        bottom.Position = bottom.Position.WithWholeY(0x0487);
-        pad.Position = pad.Position.WithWholeY(0x045e);
+        top.Position = top.Position.WithWholeY(GunshipMotionDefinitions.LandedTopY);
+        bottom.Position = bottom.Position.WithWholeY(GunshipMotionDefinitions.LandedBottomY);
+        pad.Position = pad.Position.WithWholeY(GunshipMotionDefinitions.LandedPadY);
         top.VariableF = (ushort)GunshipFunction.ApplyLandingBrakes;
         top.VariableE = 0;
     }
@@ -419,7 +419,7 @@ internal sealed class GunshipBehavior
             top.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
             // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
             // no horizontal motion from this alignment.
-            if (samus.Position.X.Whole != 0x0480)
+            if (samus.Position.X.Whole != GunshipMotionDefinitions.LandedX)
             {
                 samus.Position = samus.Position.WithWholeX(top.Position.X.Whole);
                 samus.WritePreviousXPosition(samus.Position.X.Whole);
@@ -562,7 +562,7 @@ internal sealed class GunshipBehavior
             // The six calls at `$A2:AC9B-$ACCA` happen after the frame counter reaches
             // exactly 64. Descending projectile allocation means parameter A occupies the
             // highest surviving slot, matching the ordinary bank-$86 scheduler.
-            for (ushort parameter = 0; parameter <= 0x000a; parameter += 2)
+            for (ushort parameter = 0; parameter <= 10; parameter += 2)
                 _projectiles.SpawnGunshipLiftoffDustCloud(parameter, samus);
         }
         if (bottom.VariableE >= 128)
@@ -581,7 +581,7 @@ internal sealed class GunshipBehavior
         if (EnemyMath.IsNegative16(top.Position.Y.Whole - 896))
         {
             top.VariableF = (ushort)GunshipFunction.AcceleratingLiftoff;
-            _slotTable._slots[top.SlotIndex + 1].VariableF = 0x0200;
+            _slotTable._slots[top.SlotIndex + 1].VariableF = GunshipMotionDefinitions.EscapeStartVelocity;
         }
     }
 
@@ -602,9 +602,9 @@ internal sealed class GunshipBehavior
         if (samus is null)
             throw new InvalidOperationException("Escaping gunship lost Samus.");
         RoomEnemySlot bottom = _slotTable._slots[top.SlotIndex + 1];
-        bottom.VariableF = unchecked((ushort)(bottom.VariableF + 0x0040));
-        if ((SnesLittleEndian.HighByteInPlace(bottom.VariableF)) >= 0x0a00)
-            bottom.VariableF = 0x0900;
+        bottom.VariableF = unchecked((ushort)(bottom.VariableF + GunshipMotionDefinitions.EscapeAcceleration));
+        if ((SnesLittleEndian.HighByteInPlace(bottom.VariableF)) >= GunshipMotionDefinitions.EscapeVelocityCapTrigger)
+            bottom.VariableF = GunshipMotionDefinitions.EscapeVelocityCap;
 
         uint samusY = samus.Kinematics.Position.Y.RawValue;
         samusY = unchecked(samusY - SnesSixteenSixteen.FromEightEight((uint)bottom.VariableF));

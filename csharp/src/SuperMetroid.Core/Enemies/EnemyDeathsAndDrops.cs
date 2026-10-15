@@ -80,7 +80,7 @@ internal sealed class EnemyDeathsAndDrops
         _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
-        if (enemy.AiHandlerBits == 1)
+        if (enemy.AiHandlerBits == EnemyAiHandlerMasks.Grappled)
         {
             if (_samusForEnemyDrops is null)
                 throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");
@@ -101,7 +101,7 @@ internal sealed class EnemyDeathsAndDrops
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
             explosion.EnemyHeaderPointer = enemy.EnemyDefinitionPointer;
             explosion.KilledEnemyNativeIndex = respawns
-                ? unchecked((ushort)(enemy.NativeIndex | 0x8000))
+                ? unchecked((ushort)(enemy.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
                 : enemy.NativeIndex;
             explosion.InstructionPointer =
                 EnemyDeathExplosionDefinitions.InstructionPointer(deathAnimation);
@@ -186,8 +186,8 @@ internal sealed class EnemyDeathsAndDrops
         for (int drop = 0; drop < count; drop++)
         {
             ushort random = _room.Random.Generate();
-            ushort x = unchecked((ushort)(origin.X + (random & 0x001f) - 16));
-            ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & 0x1f)) - 16));
+            ushort x = unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16));
+            ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
         }
     }
@@ -212,7 +212,7 @@ internal sealed class EnemyDeathsAndDrops
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.EnemyHeaderPointer = enemyHeaderPointer;
-        pickup.KilledEnemyNativeIndex = 0xffff;
+        pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
     }
@@ -237,7 +237,7 @@ internal sealed class EnemyDeathsAndDrops
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
         pickup.ItemDropChancesPointerOverride = itemDropChancesPointer;
-        pickup.KilledEnemyNativeIndex = 0xffff;
+        pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
     }
@@ -333,7 +333,7 @@ internal sealed class EnemyDeathsAndDrops
         }
         while (random == 0);
 
-        byte majorAdjustedBudget = 0xff;
+        byte majorAdjustedBudget = byte.MaxValue;
         ushort accumulated = 0;
         ushort combinedEnergy = unchecked((ushort)(
             samus.Health + samus.ReserveEnergy));
@@ -349,35 +349,35 @@ internal sealed class EnemyDeathsAndDrops
         if (_criticalEnergyDropBias)
         {
             pooledMinorWeight = unchecked((byte)(chances[0] + chances[1]));
-            enabledMask = 0x03;
+            enabledMask = EnemyDropMasks.Energy;
         }
         else
         {
             pooledMinorWeight = chances[3];
-            enabledMask = 0x08;
+            enabledMask = EnemyDropMasks.Nothing;
             if (samus.Health != samus.MaxHealth ||
                 samus.ReserveEnergy != samus.MaxReserveEnergy)
             {
                 pooledMinorWeight = unchecked((byte)(
                     pooledMinorWeight + chances[0] + chances[1]));
-                enabledMask |= 0x03;
+                enabledMask |= EnemyDropMasks.Energy;
             }
             if (samus.Missiles != samus.MaxMissiles)
             {
                 pooledMinorWeight = unchecked((byte)(pooledMinorWeight + chances[2]));
-                enabledMask |= 0x04;
+                enabledMask |= EnemyDropMasks.Missile;
             }
             if (samus.SuperMissiles != samus.MaxSuperMissiles)
             {
                 majorAdjustedBudget = unchecked((byte)(
                     majorAdjustedBudget - chances[4]));
-                enabledMask |= 0x10;
+                enabledMask |= EnemyDropMasks.SuperMissile;
             }
             if (samus.PowerBombs != samus.MaxPowerBombs)
             {
                 majorAdjustedBudget = unchecked((byte)(
                     majorAdjustedBudget - chances[5]));
-                enabledMask |= 0x20;
+                enabledMask |= EnemyDropMasks.PowerBomb;
             }
         }
 
@@ -638,7 +638,7 @@ internal sealed class EnemyDeathsAndDrops
         table.RegisterInstruction(EnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX, null,
             (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
             {
-                LastEnemyDeathSoundEffectLibrary2 = 0x0024;
+                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathSmallExplosionSound;
                 cursor = unchecked((ushort)(cursor + 2));
                 return EnemyProjectileInstructionOutcome.Continue;
             });
@@ -646,7 +646,7 @@ internal sealed class EnemyDeathsAndDrops
         table.RegisterInstruction(EnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX, null,
             (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
             {
-                LastEnemyDeathSoundEffectLibrary2 = 0x000b;
+                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathContactKilledSound;
                 cursor = unchecked((ushort)(cursor + 2));
                 return EnemyProjectileInstructionOutcome.Continue;
             });
@@ -670,7 +670,7 @@ internal sealed class EnemyDeathsAndDrops
                 if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
                 {
                     RespawnEnemyFromSnapshot(unchecked((ushort)(
-                        projectile.KilledEnemyNativeIndex & 0x7fff)));
+                        projectile.KilledEnemyNativeIndex & KilledEnemyIndexMasks.IndexBits)));
                 }
                 cursor = unchecked((ushort)(cursor + 2));
                 return EnemyProjectileInstructionOutcome.Continue;

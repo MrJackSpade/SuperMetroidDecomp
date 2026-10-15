@@ -28,7 +28,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     }
 
     /// <summary>Number of overlapping contacts between attached health drains.</summary>
-    private const ushort MochtroidAttachmentDamagePeriod = 0x0050;
+    private const ushort MochtroidAttachmentDamagePeriod = 80;
     /// <summary>Whole-pixel speed cap for proportional free flight.</summary>
     private const int MochtroidMaximumVelocity = 3;
     /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>

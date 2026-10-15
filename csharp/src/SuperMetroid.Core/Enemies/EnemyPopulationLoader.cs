@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies;
@@ -158,8 +159,8 @@ internal sealed class EnemyPopulationLoader
             // first instruction-list tick replaces it. Gunship properties contain $2000.
             slot.SpritemapPointer = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
                 ? slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)
-                    ? (ushort)0x804f
-                    : (ushort)0x804d
+                    ? (ushort)32847
+                    : CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap
                 : (ushort)0;
 
         }
@@ -191,7 +192,7 @@ internal sealed class EnemyPopulationLoader
         // LoadEnemyGfxIndexes uses standard sprite tile zero and OBJ palette five when an
         // actor has no room graphics-set record. That fallback supports invisible/control
         // enemies without synthesizing an asset association.
-        return (0, 0x0a00);
+        return (0, 2560);
     }
 
     /// <summary>Uses compiled retail definitions unless a constructed test bus explicitly supplies fixtures.</summary>

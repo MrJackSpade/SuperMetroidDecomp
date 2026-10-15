@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -92,7 +93,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         // Expressing the idempotent write documents the executable routine and keeps a
         // synthetic/debug population faithful to retail initialization.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = EscapeAnimalDefinitions.EmptySpritemap;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         RequireEscapeDachoraState(slot).Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);

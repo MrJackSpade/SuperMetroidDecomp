@@ -31,12 +31,6 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 internal static class EnemySpritemapDefinitions
 {
-    /// <summary>
-    /// The empty spritemap at $804D, at the same offset in every enemy bank (<c>Spritemap_Common_Nothing</c>): an actor
-    /// showing it draws nothing, and the shared collision handlers skip it.
-    /// </summary>
-    internal const ushort Nothing = 0x804d;
-
     /// <summary>Returns the number of named frames a document of <paramref name="schema"/> carries.</summary>
     internal static int FrameCount(EnemySpritemapSchema schema) => schema switch
     {

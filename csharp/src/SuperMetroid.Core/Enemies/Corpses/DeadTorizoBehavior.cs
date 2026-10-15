@@ -108,7 +108,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
 
             case DeadTorizoFunction.PreRot:
                 state.PreRotDelayCounter = unchecked((ushort)(state.PreRotDelayCounter + 1));
-                if (state.PreRotDelayCounter >= 0x10)
+                if (state.PreRotDelayCounter >= 16)
                 {
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                     slot.VariableA = (ushort)DeadTorizoFunction.Rotting;
@@ -135,7 +135,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
         state.SandFrameCounter = unchecked((ushort)(state.SandFrameCounter + 1));
-        if (state.SandFrameCounter >= 0x0f)
+        if (state.SandFrameCounter >= 15)
         {
             state.SandFrameCounter = 0;
             if (state.SandLineCounter != 0)

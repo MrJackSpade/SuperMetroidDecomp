@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Boyon.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -30,8 +32,6 @@ internal sealed class BoyonBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Library-two sound request emitted by Boyon's start-bounce instruction.</summary>
-    private const ushort BoyonBounceSound = 0x000e;
 
     /// <summary>Per-slot bounce state cleared whenever a new room loads.</summary>
     internal readonly BoyonEnemyState?[] _boyonStates =
@@ -55,7 +55,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
         // Initialization writes the ordinary common-bank empty map before selecting the
         // idle list. RoomEnemySystem's load tail intentionally restores the same transient
         // empty map; the first processed instruction frame installs real bank-$A2 art.
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
 
         var state = new BoyonEnemyState(slot)
         {
@@ -223,7 +223,7 @@ internal sealed class BoyonBehavior : IEnemySpecies
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;
-        LastBoyonSoundEffect = BoyonBounceSound;
+        LastBoyonSoundEffect = EnemySoundEffectDefinitions.BoyonBounceSound;
     }
 
     /// <summary>Registers Boyon's guarded native initialization routine.</summary>

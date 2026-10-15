@@ -53,8 +53,7 @@ internal static class RidleyBreakupProgramsVerification
             AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, fragment.SpritemapPointer,
                 "native breakup spawn installs empty frame before instruction processing");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
-            AssertTrue(fragment.SpritemapPointer is not CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap and
-                not 0, "first breakup instruction replaces empty frame");
+            AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(fragment.SpritemapPointer), "first breakup instruction replaces empty frame");
         }
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);

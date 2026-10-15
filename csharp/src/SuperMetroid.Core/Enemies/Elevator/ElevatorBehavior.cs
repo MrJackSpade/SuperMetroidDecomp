@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -25,16 +27,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         _audio = audio;
     }
 
-    /// <summary>$A3:804D is the invisible map assigned to an elevator actor.</summary>
-    private const ushort ElevatorNothingSpritemap = 0x804d;
     /// <summary>Native elevator travel advances one and a half pixels per enemy update.</summary>
-    private const int ElevatorSpeedFixed = 0x00018000;
-    /// <summary>Library-one selector $32 accompanies departure.</summary>
-    private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
-    /// <summary>Library-three selector $0B accompanies departure.</summary>
-    private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
-    /// <summary>Library-three selector $25 plays when arrival reaches the resting height.</summary>
-    private const ushort ElevatorArrivalSoundLibrary3 = 0x0025;
+    private const int ElevatorSpeedFixed = 98304;
 
     /// <summary>Per-slot resting height and direction retained while a room's elevator runs.</summary>
     internal readonly ElevatorEnemyState?[] _elevatorStates =
@@ -163,7 +157,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         var state = new ElevatorEnemyState(slot);
         _elevatorStates[slot.SlotIndex] = state;
 
-        slot.SpritemapPointer = ElevatorNothingSpritemap;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop);
@@ -251,12 +245,12 @@ internal sealed class ElevatorBehavior : IEnemySpecies
             return;
         }
 
-        LastElevatorSoundEffectLibrary3 = ElevatorDepartureSoundLibrary3;
-        LastElevatorSoundEffectLibrary1 = ElevatorDepartureSoundLibrary1;
+        LastElevatorSoundEffectLibrary3 = EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3;
+        LastElevatorSoundEffectLibrary1 = EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1;
         // $A3:9548 issues both calls in this order before changing Samus's pose. Keeping
         // them as two requests matters because each library owns an independent SPC port.
-        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorDepartureSoundLibrary3), maximumQueued: 6);
-        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, ElevatorDepartureSoundLibrary1), maximumQueued: 6);
+        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3), maximumQueued: 6);
+        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1), maximumQueued: 6);
         samus.PoseMetadata.SetupForElevator(_room.LoadedBus);
         samusProjectiles?.Reset();
         ElevatorClearedProjectileData = true;
@@ -273,7 +267,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies
     {
         if (state.DirectionTableByteOffset != 0)
         {
-            ElevatorDirection = 0x8000;
+            ElevatorDirection = 32768;
             AddElevatorYVelocity(slot, -ElevatorSpeedFixed);
         }
         else
@@ -310,8 +304,8 @@ internal sealed class ElevatorBehavior : IEnemySpecies
 
         ElevatorStatus = ElevatorActorStatus.Inactive;
         ElevatorFlags = 0;
-        LastElevatorSoundEffectLibrary3 = ElevatorArrivalSoundLibrary3;
-        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorArrivalSoundLibrary3), maximumQueued: 6);
+        LastElevatorSoundEffectLibrary3 = EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3;
+        _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3), maximumQueued: 6);
         slot.Position = slot.Position.WithWholeY(state.RestingYPosition);
         samus.InputLocked = false;
         PinSamusToElevator(slot, samus);

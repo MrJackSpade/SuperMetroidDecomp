@@ -749,7 +749,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }
 
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 14)));
-        body.AiHandlerBits |= 2;
+        body.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
     }
 
     /// <summary>Places a dust effect at the shot impact while preserving its component-relative offset.</summary>
@@ -778,7 +778,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));
-        body.AiHandlerBits |= 2;
+        body.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 
         StartCrocomireBodyProgram(state, SelectCrocomirePowerBombProgram(state));

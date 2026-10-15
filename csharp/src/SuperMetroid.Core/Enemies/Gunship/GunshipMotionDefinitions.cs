@@ -35,4 +35,43 @@ internal static class GunshipMotionDefinitions
                 $"Gunship idle-bob phase {phase} exceeds its four-record cycle.");
         return new(16, phase is 0 or 3 ? (sbyte)1 : (sbyte)-1);
     }
+
+    /// <summary>The first function the landed ship bobs through: the native range test admits $A942-$AC1A.</summary>
+    internal const ushort BobbingFunctionsFirst = 0xa942;
+
+    /// <summary>The last function the landed ship bobs through.</summary>
+    internal const ushort BobbingFunctionsLast = 0xac1a;
+
+    /// <summary>Above this Y the descending ship moves $4.8000 pixels per call; below it, $2.8000.</summary>
+    internal const ushort SlowDescentY = 0x0300;
+
+    /// <summary>The descending ship's speed above <see cref="SlowDescentY"/>, 16.16 pixels per call.</summary>
+    internal const uint FastDescentSpeed = 0x0004_8000u;
+
+    /// <summary>The descending ship's speed below <see cref="SlowDescentY"/>, 16.16 pixels per call.</summary>
+    internal const uint SlowDescentSpeed = 0x0002_8000u;
+
+    /// <summary>The landed top hull's Y, where the descent clamps.</summary>
+    internal const ushort LandedTopY = 0x045f;
+
+    /// <summary>The landed bottom hull's Y.</summary>
+    internal const ushort LandedBottomY = 0x0487;
+
+    /// <summary>The landed entrance pad's Y.</summary>
+    internal const ushort LandedPadY = 0x045e;
+
+    /// <summary>The landed ship's X, where Samus stands to board.</summary>
+    internal const ushort LandedX = 0x0480;
+
+    /// <summary>The escaping ship's starting 8.8 upward velocity.</summary>
+    internal const ushort EscapeStartVelocity = 0x0200;
+
+    /// <summary>The escaping ship's 8.8 acceleration per call.</summary>
+    internal const ushort EscapeAcceleration = 0x0040;
+
+    /// <summary>The escaping velocity whose whole byte reaching ten caps it.</summary>
+    internal const ushort EscapeVelocityCapTrigger = 0x0a00;
+
+    /// <summary>The escaping ship's capped 8.8 velocity.</summary>
+    internal const ushort EscapeVelocityCap = 0x0900;
 }

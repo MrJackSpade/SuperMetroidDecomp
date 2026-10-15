@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Magdollite.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -710,12 +711,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         if (following is not null)
         {
             following.FrozenTimer = current.FrozenTimer;
-            following.AiHandlerBits = unchecked((ushort)(following.AiHandlerBits | 4));
+            following.AiHandlerBits = unchecked((ushort)(following.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
         }
         if (secondFollowing is not null)
         {
             secondFollowing.FrozenTimer = current.FrozenTimer;
-            secondFollowing.AiHandlerBits = unchecked((ushort)(secondFollowing.AiHandlerBits | 4));
+            secondFollowing.AiHandlerBits = unchecked((ushort)(secondFollowing.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
         }
     }
 
@@ -812,9 +813,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
             });
     }
     /// <summary>Positive 8.8 speed used for rightward thrown lava.</summary>
-    private const ushort MagdolliteLavaHorizontalSpeed = 0x0300;
+    private const ushort MagdolliteLavaHorizontalSpeed = 768;
     /// <summary>Negative 8.8 value that the leftward routine reads from the projectile's Y velocity field.</summary>
-    private const ushort MagdolliteLavaUpwardSpeed = 0xfd00;
+    private const ushort MagdolliteLavaUpwardSpeed = unchecked((ushort)-768);
 
     /// <summary>Last drop request produced by a destroyed lava projectile this frame.</summary>
     public MagdolliteLavaDropRequest? LastMagdolliteLavaDropRequest { get; private set; }

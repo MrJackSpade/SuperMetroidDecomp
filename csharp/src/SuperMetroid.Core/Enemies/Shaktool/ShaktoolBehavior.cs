@@ -145,8 +145,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         ushort increment;
         if ((flags & ShaktoolMotionFlags.Straightening) != 0)
         {
-            state.TargetAngle = unchecked((ushort)(state.TargetAngle + 0x0100));
-            increment = 0x0100;
+            state.TargetAngle = unchecked((ushort)(state.TargetAngle + ShaktoolOrbitDefinitions.TableStep));
+            increment = ShaktoolOrbitDefinitions.TableStep;
         }
         else
         {
@@ -167,13 +167,13 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         RoomEnemySlot nextSlot = GetNextShaktoolSegment(slot);
         ShaktoolSegmentState next = RequireShaktoolState(nextSlot);
 
-        ushort oppositeAngle = unchecked((ushort)(state.OrbitAngle ^ 0x8000));
+        ushort oppositeAngle = unchecked((ushort)(state.OrbitAngle ^ SnesAngle.HalfTurn.RawValue));
         ushort midpoint = unchecked((ushort)(oppositeAngle +
             (unchecked((ushort)(next.OrbitAngle - oppositeAngle)) >> 1)));
-        if ((state.OrientationAndAcceleration & 0x8000) != 0)
-            midpoint ^= 0x8000;
+        if ((state.OrientationAndAcceleration & ShaktoolOrbitDefinitions.ReversedOrientationBit) != 0)
+            midpoint ^= SnesAngle.HalfTurn.RawValue;
 
-        ushort directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & 0x00e0));
+        ushort directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & ShaktoolOrbitDefinitions.DirectionBucketMask));
         state.OrientationAndAcceleration = unchecked((ushort)(
             (SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)) | directionBucket));
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
@@ -218,14 +218,14 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         if ((flags & ShaktoolMotionFlags.Straightening) != 0)
         {
             // DD25 deliberately adds a second $0100 after DCAC's first increment.
-            state.TargetAngle = unchecked((ushort)(state.TargetAngle + 0x0100));
+            state.TargetAngle = unchecked((ushort)(state.TargetAngle + ShaktoolOrbitDefinitions.TableStep));
             return;
         }
 
         if (SnesAngle.FromRaw(state.TargetAngle).TableIndex == SnesAngle.FromRaw(state.OrbitAngle).TableIndex)
         {
             SynchronizeShaktoolOrbitTargets(slot, state.TargetAngle);
-            state.OrientationAndAcceleration = 0x7800;
+            state.OrientationAndAcceleration = ShaktoolOrbitDefinitions.StraighteningStart;
             SetShaktoolGroupMotionFlags(
                 slot,
                 (ShaktoolMotionFlags)slot.Parameter1 & ~ShaktoolMotionFlags.ReversedOnce);
@@ -235,7 +235,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
 
         state.OrientationAndAcceleration = unchecked((ushort)(
             state.OrientationAndAcceleration + state.AngularVelocity));
-        if (state.OrientationAndAcceleration >= 0xf000)
+        if (state.OrientationAndAcceleration >= ShaktoolOrbitDefinitions.StraighteningThreshold)
         {
             SetShaktoolGroupMotionFlags(
                 slot,
@@ -255,7 +255,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             SetShaktoolGroupMotionFlags(
                 slot,
                 (flags ^ ShaktoolMotionFlags.Clockwise) &
-                (ShaktoolMotionFlags)0x8fff);
+                ShaktoolOrbitDefinitions.SecondReversalKeptFlags);
         }
         else
         {
@@ -276,8 +276,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
             new(unchecked((short)(slot.Position.X.Whole - owner.Position.X.Whole)), unchecked((short)(slot.Position.Y.Whole - owner.Position.Y.Whole))));
         ushort target = SnesAngle.FromTableIndex(angle).RawValue;
         target = ((ShaktoolMotionFlags)slot.Parameter1 & ShaktoolMotionFlags.Clockwise) != 0
-            ? unchecked((ushort)(target - 0x4000))
-            : unchecked((ushort)(target + 0x4000));
+            ? unchecked((ushort)(target - SnesAngle.QuarterTurn.RawValue))
+            : unchecked((ushort)(target + SnesAngle.QuarterTurn.RawValue));
         SetShaktoolGroupTargetAngle(slot, target);
 
         RoomEnemySlot[] group = GetShaktoolGroup(slot);
@@ -297,7 +297,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
     private void ReverseShaktoolChainEndpoints(RoomEnemySlot anySegment)
     {
         RoomEnemySlot[] group = GetShaktoolGroup(anySegment);
-        RequireShaktoolState(group[3]).OrientationAndAcceleration ^= 0x8000;
+        RequireShaktoolState(group[3]).OrientationAndAcceleration ^= ShaktoolOrbitDefinitions.ReversedOrientationBit;
 
         SwapMirroredShaktoolAngles(group[6], group[1]);
         SwapMirroredShaktoolAngles(group[5], group[2]);
@@ -309,7 +309,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
 
         for (int index = 1; index < ShaktoolSegmentCount - 1; index++)
         {
-            group[index].Position = group[index].Position.WithFractionX(0x8000).WithFractionY(0x8000);
+            group[index].Position = group[index].Position.WithFractionX(ShaktoolOrbitDefinitions.SwapFraction).WithFractionY(ShaktoolOrbitDefinitions.SwapFraction);
         }
     }
 
@@ -424,7 +424,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.LowerAwayFromCenter
-                        ? unchecked((byte)(centerDirection ^ 0x80))
+                        ? unchecked((byte)(centerDirection ^ EnemyByteAngleDefinitions.HalfTurn))
                         : centerDirection);
                 break;
             }
@@ -436,7 +436,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
                 MoveShaktoolSegmentForAnimation(
                     slot,
                     cue.Kind == ShaktoolCueKind.Lower
-                        ? unchecked((byte)(targetDirection ^ 0x80))
+                        ? unchecked((byte)(targetDirection ^ EnemyByteAngleDefinitions.HalfTurn))
                         : targetDirection);
                 break;
             }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -34,10 +35,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     private const int WallPirateSamusDetectionBand = 32;
     /// <summary>Pixels above the actor origin where the shared Pirate laser is emitted.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
-    /// <summary>Library-two cue requested after a successful laser allocation.</summary>
-    private const ushort WallPirateLaserSound = 0x0067;
-    /// <summary>Library-two cue requested by the wall-jump opcode.</summary>
-    private const ushort WallPirateJumpSound = 0x0066;
 
     /// <summary>Climb direction, arc geometry, and animation state indexed by physical enemy slot.</summary>
     internal readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
@@ -298,7 +295,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, movingRight, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;
-            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = WallPirateLaserSound;
+            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateLaserSound;
         }
     }
 
@@ -336,7 +333,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
                 state.Function = cue.Function;
                 return null;
             case WallSpacePirateCueKind.PlayAttackSound:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = WallPirateJumpSound;
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateJumpSound;
                 return null;
             default:
                 throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue.Kind} cue.");

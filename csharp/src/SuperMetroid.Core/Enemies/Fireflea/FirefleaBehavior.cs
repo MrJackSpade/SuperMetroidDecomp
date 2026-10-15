@@ -146,7 +146,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies
     private void AdvanceFirefleaDarknessLevel()
     {
         ushort next = unchecked((ushort)(_roomStatus.FirefleaDarknessLevel + 2));
-        if (unchecked((short)(next - 0x000e)) < 0)
+        if (unchecked((short)(next - 14)) < 0)
             _roomStatus.FirefleaDarknessLevel = next;
     }
 

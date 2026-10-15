@@ -17,13 +17,13 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
     }
 
     /// <summary>Quarter-turn sine-table offset used for the horizontal cosine magnitude.</summary>
-    private const ushort MultiviolaCosineOffset = 0x0040;
+    private const ushort MultiviolaCosineOffset = 64;
     /// <summary>Half-turn sine-table offset used for the vertical magnitude.</summary>
-    private const ushort MultiviolaSineOffset = 0x0080;
+    private const ushort MultiviolaSineOffset = 128;
     /// <summary>Angle bits toggled after collision with a vertical surface.</summary>
-    private const ushort MultiviolaHorizontalReflection = 0x0040;
+    private const ushort MultiviolaHorizontalReflection = 64;
     /// <summary>Angle bits toggled after collision with a horizontal surface.</summary>
-    private const ushort MultiviolaVerticalReflection = 0x00c0;
+    private const ushort MultiviolaVerticalReflection = 192;
 
     /// <summary>Per-slot velocity state created during Multiviola initialization.</summary>
     internal readonly MultiviolaEnemyState?[] _multiviolaStates =

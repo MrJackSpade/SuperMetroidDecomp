@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Yard;
@@ -30,13 +31,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
     }
 
     /// <summary>Native signed eight-eight leftward laser speed.</summary>
-    private const ushort WorkRobotFacingLeftVelocity = 0xfe00;
+    private const ushort WorkRobotFacingLeftVelocity = unchecked((ushort)-512);
     /// <summary>Native signed eight-eight rightward laser speed.</summary>
-    private const ushort WorkRobotFacingRightVelocity = 0x0200;
+    private const ushort WorkRobotFacingRightVelocity = 512;
     /// <summary>Pixels advanced by one robot walk instruction.</summary>
     private const int WorkRobotStepPixels = 4;
-    /// <summary>Library-two cue requested by the footstep opcode.</summary>
-    private const ushort WorkRobotFootstepSound = 0x0068;
 
     /// <summary>Movement, recoil, and laser cooldown state at native enemy slot indices.</summary>
     internal readonly WorkRobotEnemyState?[] _workRobotStates =
@@ -134,7 +133,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         // Enemy instruction processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
         slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 1)));
-        uint subvelocity = (uint)state.YSubvelocity + 0x8000;
+        uint subvelocity = (uint)state.YSubvelocity + 32768;
         state.YSubvelocity = unchecked((ushort)subvelocity);
         state.YVelocity = unchecked((ushort)(state.YVelocity + (SnesSixteenSixteen.WholeOf(subvelocity))));
     }
@@ -170,7 +169,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = 0 });
             case WorkRobotCueKind.Footstep:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
-                    LastWorkRobotSoundEffect = WorkRobotFootstepSound;
+                    LastWorkRobotSoundEffect = EnemySoundEffectDefinitions.WorkRobotFootstepSound;
                 return null;
             case WorkRobotCueKind.WalkLeft:
                 return WorkRobotProgram.FacingLeftWalkingForwards;
@@ -276,7 +275,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         }
 
         Func<ushort> readRandomNumber = _room.Random.Read;
-        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 0x001f) + 0x0010)));
+        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 0x001f) + 16)));
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingProgram;
     }
@@ -326,7 +325,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
                 : WorkRobotProgram.FacingRightShotSamusBehind);
         }
         robot.InstructionTimer = NativeCountdown.Start(1);
-        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 0x0040)));
+        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 64)));
     }
 
     /// <summary>Ports the global graphics-drawn palette hook at $A8:CC67.</summary>
@@ -440,8 +439,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,
             context => ResolveWorkRobotTouch(context.Slot, context.Samus));
     }
-    /// <summary>Library-two cue requested after a robot laser projectile is allocated.</summary>
-    private const ushort WorkRobotLaserSound = 0x0067;
 
     /// <summary>
     /// Allocates one of bank $86's five Work Robot laser definitions. Horizontal left/right
@@ -469,8 +466,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
-                unchecked((ushort)-0x0080),
-            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 0x0080,
+                unchecked((ushort)-128),
+            WorkRobotLaser.DownLeft or WorkRobotLaser.DownRight => 128,
             WorkRobotLaser.Horizontal => 0,
             _ => throw new InvalidOperationException(
                 $"Undefined Work Robot laser definition {definition}."),
@@ -494,12 +491,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         // top edge is above scanline 224, even when a lower room row is on screen.
         bool horizontallyVisible =
             unchecked((short)(robot.Position.X.Whole + robot.Radius.X - camera.X)) >= 0 &&
-            unchecked((short)(robot.Position.X.Whole - robot.Radius.X - 0x0101 - camera.X)) < 0;
+            unchecked((short)(robot.Position.X.Whole - robot.Radius.X - 257 - camera.X)) < 0;
         bool verticallyVisible =
             unchecked((short)(robot.Position.Y.Whole + robot.Radius.Y - camera.Y)) >= 0 &&
-            unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 0x00e0)) < 0;
+            unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 224)) < 0;
         if (horizontallyVisible && verticallyVisible)
-            LastWorkRobotSoundEffect = WorkRobotLaserSound;
+            LastWorkRobotSoundEffect = EnemySoundEffectDefinitions.WorkRobotLaserSound;
     }
 
     /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>

@@ -27,4 +27,13 @@ internal static class ChozoStatuePlmRomData
     public const int LowerNorfairTriggerY = 8;
     /// <summary>$84:D17B requires the complete blank-air level word, not only type zero.</summary>
     public const ushort BlankAirLevelWord = 0x00ff;
+
+    /// <summary>The Wrecked Ship hand's trigger block, where the hand PLM is also placed.</summary>
+    public static readonly Position16<RoomBlocks> WreckedShipHandBlock = new(0x4a, 0x17);
+
+    /// <summary>The block where the Wrecked Ship statue's slope-access PLMs are placed.</summary>
+    public static readonly Position16<RoomBlocks> WreckedShipSlopeAccessBlock = new(0x17, 0x1d);
+
+    /// <summary>The block where the Lower Norfair hand and room-plug PLMs are placed.</summary>
+    public static readonly Position16<RoomBlocks> LowerNorfairHandBlock = new(0x0c, 0x1d);
 }

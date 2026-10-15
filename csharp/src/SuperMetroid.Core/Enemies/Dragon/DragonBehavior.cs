@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -36,15 +37,13 @@ internal sealed class DragonBehavior : IEnemySpecies
     }
 
     /// <summary>Frames spent in each body rise or sink movement phase.</summary>
-    private const ushort DragonRiseOrSinkFrames = 0x0030;
+    private const ushort DragonRiseOrSinkFrames = 48;
     /// <summary>Fireballs requested by one attacking volley.</summary>
     private const ushort DragonShotCount = 3;
     /// <summary>Pause after attack completion before the body begins sinking.</summary>
-    private const ushort DragonWaitBeforeSinkFrames = 0x0060;
+    private const ushort DragonWaitBeforeSinkFrames = 96;
     /// <summary>Pause beneath the platform before the next rise attempt.</summary>
-    private const ushort DragonWaitBeforeRiseFrames = 0x0080;
-    /// <summary>Library-two cue published by a Dragon fireball volley.</summary>
-    private const ushort DragonFireballSound = 0x0061;
+    private const ushort DragonWaitBeforeRiseFrames = 128;
 
     /// <summary>Per-slot animation lists requested by Dragon AI before the instruction owner installs them.</summary>
     private readonly ushort[] _dragonRequestedInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
@@ -150,7 +149,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         // sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole)) < 0;
         bodyState.DirectionWord = unchecked((ushort)(
-            (bodyState.DirectionWord & 0x7fff) | (facingLeft ? 0x8000 : 0)));
+            (bodyState.DirectionWord & 0x7fff) | (facingLeft ? 32768 : 0)));
         bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
             bodyState.RequestedInstructionListIndex,
             facingLeft);
@@ -194,7 +193,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         // sleep opcode. That restart is what spaces the three fireballs by a full ROM list.
         bodyState.InstalledInstructionListIndex = DragonAnimationSelector.ForceReinstall;
         SpawnDragonFireball(body, bodyState);
-        LastDragonSoundEffect = DragonFireballSound;
+        LastDragonSoundEffect = EnemySoundEffectDefinitions.DragonFireballSound;
         bodyState.AttackCounter = bodyState.AttackCounter.Decrement().Remaining;
         if (!bodyState.AttackCounter.IsZero)
             return;
@@ -411,13 +410,13 @@ internal sealed class DragonBehavior : IEnemySpecies
             });
     }
     /// <summary>Native upward launch velocity of each Dragon fireball, in signed eight-eight units.</summary>
-    private const ushort DragonFireballInitialYVelocity = 0xfc3f;
+    private const ushort DragonFireballInitialYVelocity = unchecked((ushort)-961);
     /// <summary>Native leftward eight-eight fireball velocity.</summary>
-    private const ushort DragonFireballLeftXVelocity = 0xfd40;
+    private const ushort DragonFireballLeftXVelocity = unchecked((ushort)-704);
     /// <summary>Native rightward eight-eight fireball velocity.</summary>
-    private const ushort DragonFireballRightXVelocity = 0x02c0;
+    private const ushort DragonFireballRightXVelocity = 704;
     /// <summary>Eight-eight downward acceleration applied to a live fireball.</summary>
-    private const ushort DragonFireballGravity = 0x0020;
+    private const ushort DragonFireballGravity = 32;
 
     /// <summary>Ports projectile initializer $86:B4EF.</summary>
     internal void SpawnDragonFireball(RoomEnemySlot body, DragonEnemyState bodyState)

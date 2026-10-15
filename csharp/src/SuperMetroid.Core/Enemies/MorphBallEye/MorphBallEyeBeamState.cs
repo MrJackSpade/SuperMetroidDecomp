@@ -28,13 +28,13 @@ public sealed class MorphBallEyeBeamState
     public ushort ColorIndex { get; internal set; }
 
     /// <summary>Raw SNES COLDATA red selector/component byte.</summary>
-    public byte Red { get; internal set; } = 0x20;
+    public byte Red { get; internal set; } = MorphBallEyeBeamDefinitions.FadedRed;
 
     /// <summary>Raw SNES COLDATA green selector/component byte.</summary>
-    public byte Green { get; internal set; } = 0x40;
+    public byte Green { get; internal set; } = MorphBallEyeBeamDefinitions.FadedGreen;
 
     /// <summary>Raw SNES COLDATA blue selector/component byte.</summary>
-    public byte Blue { get; internal set; } = 0x80;
+    public byte Blue { get; internal set; } = MorphBallEyeBeamDefinitions.Blue;
 
     /// <summary>Clears the HDMA beam lifetime and restores neutral COLDATA selector bytes.</summary>
     internal void Reset()
@@ -46,8 +46,8 @@ public sealed class MorphBallEyeBeamState
         AngularWidthDelta = 0;
         AngularSubwidthDelta = 0;
         ColorIndex = 0;
-        Red = 0x20;
-        Green = 0x40;
-        Blue = 0x80;
+        Red = MorphBallEyeBeamDefinitions.FadedRed;
+        Green = MorphBallEyeBeamDefinitions.FadedGreen;
+        Blue = MorphBallEyeBeamDefinitions.Blue;
     }
 }

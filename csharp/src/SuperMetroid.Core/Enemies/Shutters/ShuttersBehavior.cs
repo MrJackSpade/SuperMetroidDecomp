@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Shutters.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
@@ -11,9 +12,9 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class ShuttersBehavior : IEnemySpecies
 {
     /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
-    private const ushort GrowingShutterSectionLength = 0x0010;
+    private const ushort GrowingShutterSectionLength = 16;
     /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
-    private const ushort GrowingShutterIntermediateInset = 0x0007;
+    private const ushort GrowingShutterIntermediateInset = 7;
 
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
     internal void InitializeGrowingShutter(RoomEnemySlot slot)
@@ -528,10 +529,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Library-two sound queued when an on-screen shutter begins moving.</summary>
-    private const ushort ShutterActivationSound = 0x000e;
     /// <summary>Rest-time sentinel selecting a permanent stop at an endpoint.</summary>
-    private const ushort PermanentStopRestTime = 0x0ff0;
+    private const ushort PermanentStopRestTime = 4080;
 
     /// <summary>Per-slot growth state for room-loaded expanding shutters.</summary>
     internal readonly GrowingShutterEnemyState?[] _growingShutterStates = new GrowingShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
@@ -613,9 +612,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
         unchecked((short)(slot.Position.X.Whole - camera.X)) >= 0 &&
-        unchecked((short)(camera.X + 0x0100 - slot.Position.X.Whole)) >= 0 &&
+        unchecked((short)(camera.X + 256 - slot.Position.X.Whole)) >= 0 &&
         unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
-        unchecked((short)(camera.Y + 0x0100 - slot.Position.Y.Whole)) >= 0;
+        unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
 
     /// <summary>Publishes the activation sound only when the shutter center lies in the 256-pixel camera square.</summary>
     private void QueueShutterActivationSoundIfOnScreen(
@@ -623,7 +622,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         Position16<RoomPixels> camera)
     {
         if (IsShutterCenterOnScreen(slot, camera))
-            LastShutterSoundEffect = ShutterActivationSound;
+            LastShutterSoundEffect = EnemySoundEffectDefinitions.ShutterActivationSound;
     }
 
     /// <summary>Finds a growing shutter's room state by its physical enemy slot.</summary>

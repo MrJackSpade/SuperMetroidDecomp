@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// under different meanings; each meaning is its own cell, declared as an alias of the root.
 /// </summary>
 [CpuBusBoundary("catalog: enemy staging WRAM")]
+[SnesEncodingOwner]
 public static class EnemyScratchWorkRam
 {
     /// <summary>

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Animals.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -25,20 +27,14 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         _earthquake = earthquake;
     }
 
-    /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
-    internal const ushort EtecoonWakeSound = 0x0035;
-    /// <summary>Library-two sound queued at an audible teaching hop.</summary>
-    private const ushort EtecoonJumpSound = 0x0033;
-    /// <summary>Library-two sound queued when an airborne Etecoon meets a wall.</summary>
-    private const ushort EtecoonWallSound = 0x0032;
     /// <summary>Vertical distance within which Samus can wake a dormant Etecoon.</summary>
-    private const int EtecoonActivationYDistance = 0x80;
+    private const int EtecoonActivationYDistance = 128;
     /// <summary>Strict proximity radius used before the initial Samus-facing pause.</summary>
-    private const int EtecoonNearbyDistance = 0x40;
+    private const int EtecoonNearbyDistance = 64;
     /// <summary>Axis band used to choose cardinal rather than diagonal facing.</summary>
-    private const int EtecoonDirectionBand = 0x20;
+    private const int EtecoonDirectionBand = 32;
     /// <summary>Horizontal range that lets Samus trigger the long demonstration run.</summary>
-    private const int EtecoonLongRunTriggerDistance = 0x30;
+    private const int EtecoonLongRunTriggerDistance = 48;
     /// <summary>Fixed-point lookahead distance for the right wall probe.</summary>
     private const int EtecoonRightWallProbe = 32 << 16;
     /// <summary>Room X where the left teaching route stops and begins hopping.</summary>
@@ -55,21 +51,21 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     // These are the literal eight ROM words at $A7:E900-$E90F. Keeping them named beside
     // their consumers avoids replacing authored fixed-point values with host-side tuning.
     /// <summary>Signed whole Y speed for an ordinary Etecoon hop.</summary>
-    private const ushort EtecoonJumpYVelocity = 0xfffd;
+    private const ushort EtecoonJumpYVelocity = unchecked((ushort)-3);
     /// <summary>Fractional Y speed paired with an ordinary hop.</summary>
-    private const ushort EtecoonJumpYSubvelocity = 0x0000;
+    private const ushort EtecoonJumpYSubvelocity = 0;
     /// <summary>Signed whole Y speed for the stronger long jump.</summary>
-    private const ushort EtecoonLongJumpYVelocity = 0xfffc;
+    private const ushort EtecoonLongJumpYVelocity = unchecked((ushort)-4);
     /// <summary>Fractional Y speed paired with the long jump.</summary>
-    private const ushort EtecoonLongJumpYSubvelocity = 0x0000;
+    private const ushort EtecoonLongJumpYSubvelocity = 0;
     /// <summary>Whole X speed used by rightward teaching runs.</summary>
-    private const ushort EtecoonRightVelocity = 0x0002;
+    private const ushort EtecoonRightVelocity = 2;
     /// <summary>Fractional X speed paired with rightward runs.</summary>
-    private const ushort EtecoonRightSubvelocity = 0x0000;
+    private const ushort EtecoonRightSubvelocity = 0;
     /// <summary>Signed whole X speed used by leftward teaching runs.</summary>
-    private const ushort EtecoonLeftVelocity = 0xfffe;
+    private const ushort EtecoonLeftVelocity = unchecked((ushort)-2);
     /// <summary>Fractional X speed paired with leftward runs.</summary>
-    private const ushort EtecoonLeftSubvelocity = 0x0000;
+    private const ushort EtecoonLeftSubvelocity = 0;
 
     /// <summary>Per-slot route function, velocity, and timer state cleared on room load.</summary>
     internal readonly EtecoonEnemyState?[] _etecoonStates =
@@ -88,7 +84,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         // same raw bit to admit the ROM instruction interpreter, so retain the authored
         // bit instead of inferring animation activity from the population record.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial);
@@ -107,7 +103,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         // Its low byte is the actor's permanent route (zero, one, or two) and must survive.
         if ((SnesLittleEndian.HighByteInPlace(slot.Parameter2)) != 0)
         {
-            slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - 0x0100));
+            slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - 256));
             return;
         }
 
@@ -209,7 +205,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             return;
 
         if ((slot.Parameter2 & 3) == 0)
-            LastEtecoonSoundEffect = EtecoonWakeSound;
+            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonWakeSound;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = NativeCountdown.Start(256);
     }
@@ -228,7 +224,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-            LastEtecoonSoundEffect = EtecoonJumpSound;
+            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
     }
 
     /// <summary>Finishes the initial hop and either faces nearby Samus or schedules another hop.</summary>
@@ -354,7 +350,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = NativeCountdown.Start(8);
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-                LastEtecoonSoundEffect = EtecoonWallSound;
+                LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonWallSound;
             return;
         }
 
@@ -499,7 +495,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         InstallEtecoonInstruction(slot, state, EtecoonProgram.JumpingRight);
         state.Function = EtecoonAiFunction.LongJumpLanding;
-        SetEtecoonVerticalVelocity(state, 0xffff, EtecoonLongJumpYSubvelocity);
+        SetEtecoonVerticalVelocity(state, unchecked((ushort)-1), EtecoonLongJumpYSubvelocity);
     }
 
     /// <summary>Waits for floor contact after the long route, then resumes the teaching-hop pause.</summary>
@@ -557,9 +553,9 @@ internal sealed class EtecoonBehavior : IEnemySpecies
 
         // Parameter one's high byte counts four teaching hops. Native then clears only
         // that byte, preserving the low-byte facing selector used by the airborne states.
-        slot.Parameter1 = unchecked((ushort)(slot.Parameter1 + 0x0100));
+        slot.Parameter1 = unchecked((ushort)(slot.Parameter1 + 256));
         bool fewerThanFourTeachingJumps =
-            unchecked((short)((SnesLittleEndian.HighByteInPlace(slot.Parameter1)) - 0x0400)) < 0;
+            unchecked((short)((SnesLittleEndian.HighByteInPlace(slot.Parameter1)) - 1024)) < 0;
         if (!fewerThanFourTeachingJumps)
         {
             // `$A7:EDFD` clears the completed high-byte counter before testing route two.
@@ -580,7 +576,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-            LastEtecoonSoundEffect = EtecoonJumpSound;
+            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
     }
 
     /// <summary>Starts the long run when Samus approaches; otherwise schedules another teaching hop.</summary>
@@ -605,7 +601,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
             state.Function = EtecoonAiFunction.TeachingJump;
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-                LastEtecoonSoundEffect = EtecoonJumpSound;
+                LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -810,6 +806,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         audio.QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2,
-            maximumQueued: LastEtecoonSoundEffect == EtecoonWakeSound ? (byte)15 : (byte)6);
+            maximumQueued: LastEtecoonSoundEffect == EnemySoundEffectDefinitions.EtecoonWakeSound ? (byte)15 : (byte)6);
     }
 }

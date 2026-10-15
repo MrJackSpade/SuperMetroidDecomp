@@ -575,7 +575,7 @@ internal sealed class EnemyProjectileEngine
                     : ((targetEdge & 8) >> 2) | (half & 1);
                 int tableIndex = 4 * collisionBlock.Bts.SlopeShape +
                     (quadrant ^ collisionBlock.Bts.SlopeOrientation);
-                if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) == 0)
+                if (!SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex))
                     continue;
 
                 // The square-slope reaction places the projectile at an eight-pixel
@@ -1467,7 +1467,7 @@ internal sealed class EnemyProjectileEngine
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphicsIndex: 0);
         LastEnemyProjectileDudSoundEffect = 0x003d;
-        projectile.Direction = unchecked((ushort)(projectile.Direction | 0x0010));
+        projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
     }
 
     /// <summary>

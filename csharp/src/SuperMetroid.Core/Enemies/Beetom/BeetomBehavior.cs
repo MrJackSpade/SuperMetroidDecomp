@@ -53,11 +53,11 @@ internal sealed class BeetomBehavior : IEnemySpecies
     }
 
     /// <summary>Strict distance around Samus that changes Beetom's action selection.</summary>
-    private const ushort BeetomProximityDistance = 0x0060;
+    private const ushort BeetomProximityDistance = 96;
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
-    private const ushort BeetomMashCount = 0x0040;
+    private const ushort BeetomMashCount = 64;
     /// <summary>Final quadratic speed-table index used in falling phases.</summary>
-    private const ushort BeetomMaximumYSpeedIndex = 0x0040;
+    private const ushort BeetomMaximumYSpeedIndex = 64;
 
     /// <summary>Per-slot speed indices for the short hop's target height.</summary>
     internal readonly ushort[] _beetomInitialShortLeapYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
@@ -96,11 +96,11 @@ internal sealed class BeetomBehavior : IEnemySpecies
         // Every Beetom initializer writes the global seed, even when several Beetoms share
         // a room. This is observable cartridge behavior, not a per-actor random stream.
         Action<ushort> setRandomNumber = _room.Random.Seed;
-        setRandomNumber(0x0017);
+        setRandomNumber(23);
 
-        state.InitialShortLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(0x3000, 4);
-        state.InitialLongLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(0x4000, 5);
-        state.InitialLungeYSpeedIndex = CalculateInitialBeetomYSpeedIndex(0x3000, 3);
+        state.InitialShortLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 4);
+        state.InitialLongLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(16384, 5);
+        state.InitialLungeYSpeedIndex = CalculateInitialBeetomYSpeedIndex(12288, 3);
 
         // The source label's branch name is reversed. A negative Samus-minus-enemy delta
         // selects the left-facing list; nonnegative selects the right-facing list.
@@ -133,7 +133,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
                 ChooseDistantBeetomAction(state);
                 return;
             case BeetomEnemyFunction.StartIdling:
-                state.FunctionTimer = NativeCountdown.Start(0x0020);
+                state.FunctionTimer = NativeCountdown.Start(32);
                 state.Function = BeetomEnemyFunction.Idling;
                 return;
             case BeetomEnemyFunction.StartCrawlingLeft:
@@ -332,7 +332,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         state.FunctionTimer = timer.Remaining;
         if (timer.IsNegative)
         {
-            state.FunctionTimer = NativeCountdown.Start(0x0040);
+            state.FunctionTimer = NativeCountdown.Start(64);
             state.Function = BeetomEnemyFunction.DecideAction;
             return;
         }
@@ -350,7 +350,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         }
 
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (left ? 8 : -8))));
-        int displacement = left ? unchecked((int)0xffffc000) : 0x00004000;
+        int displacement = left ? -(1 << 14) : 1 << 14;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             state.Function = left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
     }
@@ -371,8 +371,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
         // the function pointer. That ordering is easy to lose when expressing the two axes
         // as a single host movement vector.
         int displacement = lunge
-            ? (left ? unchecked((int)0xfffd0000) : 0x00030000)
-            : (left ? unchecked((int)0xffffc000) : 0x00004000);
+            ? (left ? -(3 << 16) : 3 << 16)
+            : (left ? -(1 << 14) : 1 << 14);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -439,11 +439,11 @@ internal sealed class BeetomBehavior : IEnemySpecies
         // Escape throws the Beetom sixteen pixels away. A wall reverses the direction and
         // applies an additional 32-pixel move, producing the native net sixteen-pixel throw
         // to the other side rather than merely cancelling the first displacement.
-        int initialDisplacement = left ? 16 << 16 : unchecked((int)0xfff00000);
+        int initialDisplacement = left ? 16 << 16 : -(16 << 16);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, initialDisplacement))
         {
             state.Direction = left ? (ushort)1 : (ushort)0;
-            int reflectedDisplacement = left ? unchecked((int)0xffe00000) : 32 << 16;
+            int reflectedDisplacement = left ? -(32 << 16) : 32 << 16;
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, reflectedDisplacement);
         }
         state.AttachedToSamus = false;
@@ -470,7 +470,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
 
         // Direction describes the pre-escape facing. The throw deliberately travels in the
         // opposite direction: zero moves right and one moves left.
-        int horizontal = state.Direction == 0 ? 2 << 16 : unchecked((int)0xfffe0000);
+        int horizontal = state.Direction == 0 ? 2 << 16 : -(2 << 16);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontal))
             return;
         state.Direction ^= 1;
@@ -526,7 +526,7 @@ internal sealed class BeetomBehavior : IEnemySpecies
         // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the
         // invincibility and knockback installed by common AI. Apply the suit-scaled health
         // subtraction directly, then reproduce those two clearing stores.
-        if ((slot.FrameCounter & 0x003f) != 0x003f)
+        if ((slot.FrameCounter & 63) != 63)
             return;
         ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? unchecked((ushort)(slot.Definition.Damage >> 2))

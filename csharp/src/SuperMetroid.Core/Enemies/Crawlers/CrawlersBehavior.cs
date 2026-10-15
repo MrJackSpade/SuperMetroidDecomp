@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Crawlers.Artwork;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -62,7 +63,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
             : slot.CurrentInstruction) & 3);
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             animationFamily, orientation));
-        slot.SpritemapPointer = 0x804d; // Spritemap_Common_Nothing.
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
@@ -126,7 +127,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         var orientation = (CrawlerSurfaceOrientation)(slot.CurrentInstruction & 3);
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
@@ -404,9 +405,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             // Parameter $FF is the native "choose default speed after first landing" path.
-            if (slot.Parameter1 == 0x00ff)
+            if (slot.Parameter1 == 255)
             {
-                state.Velocity = new EightEightVector<RoomPixels>(0x0080, 0x0080);
+                state.Velocity = new EightEightVector<RoomPixels>(128, 128);
             }
             state.FallingYSubvelocity = 0;
             state.FallingYVelocity = 0;
@@ -418,7 +419,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies
         if ((short)(state.FallingYVelocity - 4) < 0)
         {
             uint velocity = (SnesSixteenSixteen.FromWhole((uint)state.FallingYVelocity)) | state.FallingYSubvelocity;
-            velocity = unchecked(velocity + 0x00008000);
+            velocity = unchecked(velocity + 32768);
             state.FallingYVelocity = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
             state.FallingYSubvelocity = unchecked((ushort)velocity);
         }

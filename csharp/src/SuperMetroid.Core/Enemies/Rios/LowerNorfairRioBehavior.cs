@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
@@ -25,11 +26,9 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     }
 
     /// <summary>Samus must be strictly within $70 horizontal pixels to permit a swoop.</summary>
-    private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
+    private const ushort LowerNorfairRioHorizontalTriggerDistance = 112;
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const ushort LowerNorfairRioGravity = 32;
-    /// <summary>Library-two selector $64 is published when the Rio starts its return.</summary>
-    private const ushort LowerNorfairRioReturnSound = 0x0064;
 
     /// <summary>Per-slot flight and follower visibility state for the current room.</summary>
     internal readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
@@ -240,13 +239,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xffff));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1)));
         InstallLowerNorfairRioInstructionList(
             slot,
             state,
             LowerNorfairRioProgram.AscendingPart1);
         state.Function = LowerNorfairRioEnemyFunction.ReturnToPerch;
-        LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
+        LastLowerNorfairRioSoundEffect = EnemySoundEffectDefinitions.LowerNorfairRioReturnSound;
     }
 
     /// <summary>Advances the Rio horizontally and reverses its velocity on a wall collision.</summary>

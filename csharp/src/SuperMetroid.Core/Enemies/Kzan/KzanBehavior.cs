@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Kzan.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -16,14 +17,12 @@ internal sealed class KzanBehavior : IEnemySpecies
         _slotTable = slotTable;
     }
 
-    /// <summary>Library-two landing cue published when the falling top reaches its target.</summary>
-    private const ushort KzanLandingSoundEffect = 0x001b;
     /// <summary>NTSC pause at the bottom before the top begins to rise.</summary>
-    private const ushort KzanNtscRiseWaitFrames = 0x0040;
+    private const ushort KzanNtscRiseWaitFrames = 64;
     /// <summary>Fractional pixels subtracted each rising actor update.</summary>
-    private const ushort KzanNtscRisingSubspeed = 0x8000;
+    private const ushort KzanNtscRisingSubspeed = unchecked((ushort)-32768);
     /// <summary>Last speed-table offset permitted during falling acceleration.</summary>
-    private const ushort KzanMaximumFallingSpeedTableOffset = 0x0200;
+    private const ushort KzanMaximumFallingSpeedTableOffset = 512;
 
     /// <summary>Top-actor state indexed by native enemy slot.</summary>
     internal readonly KzanEnemyState?[] _kzanStates =
@@ -154,7 +153,7 @@ internal sealed class KzanBehavior : IEnemySpecies
             state.RiseWaitTimer = NativeCountdown.Start(KzanNtscRiseWaitFrames);
             state.Function = KzanEnemyFunction.WaitingToRise;
             slot.Position = slot.Position.WithWholeY(state.FallingTargetYPosition);
-            LastKzanSoundEffect = KzanLandingSoundEffect;
+            LastKzanSoundEffect = EnemySoundEffectDefinitions.KzanLandingSoundEffect;
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);

@@ -34,9 +34,9 @@ internal sealed class ZoaBehavior : IEnemySpecies
 
 
     /// <summary>Samus must be within 128 horizontal pixels before a hidden Zoa rises.</summary>
-    private const int ZoaActivationColumnDistance = 0x0080;
+    private const int ZoaActivationColumnDistance = 128;
     /// <summary>NTSC upward travel of half a pixel per gameplay frame.</summary>
-    private const int ZoaRisingSubpixelSpeed = 0x00008000;
+    private const int ZoaRisingSubpixelSpeed = 32768;
 
     /// <summary>Room-slot-indexed flight state, cleared when the next enemy population loads.</summary>
     internal readonly ZoaEnemyState?[] _zoaStates = new ZoaEnemyState?[RoomEnemySystem.MaximumEnemyCount];

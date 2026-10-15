@@ -823,7 +823,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             movingRight: true);
         if (laser is not null)
-            state.LastSoundEffect = WalkingSpacePirateBehavior.PirateMotherBrainLaserSound;
+            state.LastSoundEffect = EnemySoundEffectDefinitions.PirateMotherBrainLaserSound;
     }
 
     /// <summary>
@@ -1418,7 +1418,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (vulnerability == byte.MaxValue)
         {
             head.FrozenTimer = NativeCountdown.Start(400);
-            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 4));
+            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
             head.InvincibilityTimer = NativeCountdown.Start(10);
             return;
         }
@@ -1432,7 +1432,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
         head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 2));
+        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
         head.Health = damage >= head.Health
             ? (ushort)0
             : unchecked((ushort)(head.Health - damage));
@@ -1497,7 +1497,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (vulnerability.FreezeImmediately)
         {
             head.FrozenTimer = NativeCountdown.Start(400);
-            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 4));
+            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
             head.InvincibilityTimer = NativeCountdown.Start(10);
             return;
         }
@@ -1511,7 +1511,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
         head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 2));
+        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
         // The shared native no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
         if (projectileType.BeamCombination.HasPlasma)

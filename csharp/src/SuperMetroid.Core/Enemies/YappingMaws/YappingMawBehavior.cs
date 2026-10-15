@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -70,8 +71,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     private const ushort YappingMawGrabCooldownFrames = 48;
     /// <summary>Delay after full retraction before Samus input is released.</summary>
     private const ushort YappingMawRetractedDelayFrames = 64;
-    /// <summary>Library-two attack sound emitted only while the Maw is on screen.</summary>
-    private const ushort YappingMawAttackSound = 0x002f;
 
     /// <summary>Per-slot Maw state including body links, extension, and held-Samus offset.</summary>
     internal readonly YappingMawEnemyState?[] _yappingMawStates =
@@ -227,9 +226,9 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             : (ushort)1;
 
         state.Baseline = new Offset16<RoomPixels>(
-            unchecked((short)CalculateYappingMawX(0x0080, state.SegmentRadius)),
+            unchecked((short)CalculateYappingMawX(128, state.SegmentRadius)),
             unchecked((short)CalculateYappingMawY(
-                0x0080,
+                128,
                 unchecked((ushort)(state.SegmentRadius >> 1)))));
 
         ushort directionByteOffset = unchecked((ushort)(
@@ -498,7 +497,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         // only during the final 89 ticks. The strict signed comparison excludes timer 90.
         if (unchecked((short)(frozenTimer - 90)) < 0 && (frozenTimer & 2) == 0)
             return originalPaletteBits;
-        return 0x0c00;
+        return EnemyFrozenPaletteDefinitions.PaletteBits;
     }
 
     /// <summary>Animation callback used by all six held-Samus offset opcodes.</summary>
@@ -513,7 +512,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
-            LastYappingMawSoundEffect = YappingMawAttackSound;
+            LastYappingMawSoundEffect = EnemySoundEffectDefinitions.YappingMawAttackSound;
     }
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Powamp.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -32,15 +33,15 @@ internal sealed class PowampBehavior : IEnemySpecies
     }
 
     /// <summary>Ungrappled body rise measured from its balloon's spawn Y position.</summary>
-    private const ushort PowampUngrappledTravelDistance = 0x0040;
+    private const ushort PowampUngrappledTravelDistance = 64;
     /// <summary>Frames the underground body rests before reinflating its balloon.</summary>
-    private const ushort PowampRestFrames = 0x003c;
+    private const ushort PowampRestFrames = 60;
     /// <summary>Inflation or deflation transition duration.</summary>
-    private const ushort PowampTransitionFrames = 0x000a;
+    private const ushort PowampTransitionFrames = 10;
     /// <summary>Delay between fatal damage and deleting the balloon with a spike burst.</summary>
-    private const ushort PowampDeathDelayFrames = 0x0020;
+    private const ushort PowampDeathDelayFrames = 32;
     /// <summary>Frames between successive shared body and balloon horizontal wiggle offsets.</summary>
-    private const ushort PowampWiggleFramesPerOffset = 0x0005;
+    private const ushort PowampWiggleFramesPerOffset = 5;
 
     /// <summary>Per-slot body or balloon state, including native paired movement words.</summary>
     internal readonly PowampEnemyState?[] _powampStates =
@@ -55,7 +56,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -150,8 +151,8 @@ internal sealed class PowampBehavior : IEnemySpecies
         {
             state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
             // $FFFF:$8000 is exactly -0.5 pixels/frame on the NTSC cartridge.
-            state.YVelocity = 0xffff;
-            state.YSubvelocity = 0x8000;
+            state.YVelocity = unchecked((ushort)-1);
+            state.YSubvelocity = 32768;
             SetPowampProgram(body, state, PowampProgram.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
@@ -167,7 +168,7 @@ internal sealed class PowampBehavior : IEnemySpecies
     {
         // The ordinary rise changes dispatch and executes the grappled routine immediately
         // on the frame common grapple AI publishes bit one.
-        bool grappleAiActive = (body.AiHandlerBits & 1) != 0;
+        bool grappleAiActive = (body.AiHandlerBits & EnemyAiHandlerMasks.Grappled) != 0;
         if (!grappled && grappleAiActive)
         {
             state.Function = PowampEnemyFunction.GrappledRiseToTargetHeight;
@@ -220,7 +221,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         RoomLevelData level,
         bool grappled)
     {
-        bool grappleAiActive = (body.AiHandlerBits & 1) != 0;
+        bool grappleAiActive = (body.AiHandlerBits & EnemyAiHandlerMasks.Grappled) != 0;
         if (grappled && !grappleAiActive)
         {
             state.Function = PowampEnemyFunction.InflatedFinishWiggle;
@@ -250,7 +251,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         PowampEnemyState state,
         PowampBalloon balloon)
     {
-        if ((body.AiHandlerBits & 1) == 0)
+        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Grappled) == 0)
             StartPowampDeflating(state, balloon);
         AlignPowampBalloonY(body, balloon);
     }
@@ -355,15 +356,15 @@ internal sealed class PowampBehavior : IEnemySpecies
     private void ResolvePowampShotAfterCommon(RoomEnemySlot body)
     {
         PowampBalloon balloon = RequirePowampBalloon(body);
-        if ((body.AiHandlerBits & 4) != 0)
+        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0)
         {
             balloon.Slot.FrozenTimer = body.FrozenTimer;
-            balloon.Slot.AiHandlerBits = unchecked((ushort)(balloon.Slot.AiHandlerBits | 4));
+            balloon.Slot.AiHandlerBits = unchecked((ushort)(balloon.Slot.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
         }
-        if ((body.AiHandlerBits & 2) != 0)
+        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Hurt) != 0)
         {
             balloon.Slot.FlashTimer = body.FlashTimer;
-            balloon.Slot.AiHandlerBits = unchecked((ushort)(balloon.Slot.AiHandlerBits | 2));
+            balloon.Slot.AiHandlerBits = unchecked((ushort)(balloon.Slot.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
         }
         if (body.Health == 0)
         {

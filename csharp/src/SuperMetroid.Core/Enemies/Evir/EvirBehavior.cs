@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Evir.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
 
@@ -42,14 +43,12 @@ internal sealed class EvirBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Library-two sound emitted by the spit instruction.</summary>
-    private const ushort EvirSpitSound = 0x005e;
     /// <summary>Strict horizontal distance required before aiming the projectile.</summary>
-    private const ushort EvirActivationDistance = 0x0080;
+    private const ushort EvirActivationDistance = 128;
     /// <summary>Whole-pixel magnitude passed through the native trig multipliers.</summary>
     private const ushort EvirProjectileSpeed = 4;
     /// <summary>Margin beyond each camera edge that starts projectile regeneration.</summary>
-    private const ushort EvirFarOffscreenDistance = 0x0100;
+    private const ushort EvirFarOffscreenDistance = 256;
 
     /// <summary>Body, arms, and spit extensions indexed by physical enemy slot.</summary>
     internal readonly EvirEnemyState?[] _evirStates =
@@ -298,7 +297,7 @@ internal sealed class EvirBehavior : IEnemySpecies
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
         byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(activeSamus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(activeSamus.Position.Y.Whole - projectile.Position.Y.Whole))));
-        byte transformedAngle = unchecked((byte)-(byte)(cartridgeAngle - 0x40));
+        byte transformedAngle = unchecked((byte)-(byte)(cartridgeAngle - EnemyByteAngleDefinitions.QuarterTurn));
         (short xWhole, ushort xFraction) = EnemyMath.ReadEightBitCosineFixedProduct(
             transformedAngle,
             EvirProjectileSpeed);
@@ -385,7 +384,7 @@ internal sealed class EvirBehavior : IEnemySpecies
     }
 
     /// <summary>Instruction $A8:878F.</summary>
-    private void QueueEvirSpitSound() => LastEvirSoundEffect = EvirSpitSound;
+    private void QueueEvirSpitSound() => LastEvirSoundEffect = EnemySoundEffectDefinitions.EvirSpitSound;
 
     /// <summary>Instruction $A8:879B.</summary>
     private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
@@ -500,12 +499,12 @@ internal sealed class EvirBehavior : IEnemySpecies
         if (actor.FrozenTimer.IsZero)
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
-        firstRelative.AiHandlerBits = unchecked((ushort)(firstRelative.AiHandlerBits | 0x0004));
+        firstRelative.AiHandlerBits = unchecked((ushort)(firstRelative.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
         if (secondRelative.VariableC != (ushort)EvirAiFunction.ProjectileMoving)
         {
             secondRelative.FrozenTimer = actor.FrozenTimer;
             secondRelative.AiHandlerBits = unchecked((ushort)(
-                secondRelative.AiHandlerBits | 0x0004));
+                secondRelative.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
         }
     }
 

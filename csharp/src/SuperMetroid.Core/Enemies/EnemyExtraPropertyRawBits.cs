@@ -10,5 +10,5 @@ public static class EnemyExtraPropertyRawBits
     /// Bit `$0400` installed by Crocomire's initializer alongside the independently proven
     /// extended-spritemap flag. No translated common handler consumes this bit yet.
     /// </summary>
-    public const ushort CrocomireInitializerBit0400 = 0x0400;
+    public const ushort CrocomireInitializerBit0400 = 1024;
 }

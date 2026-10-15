@@ -84,7 +84,7 @@ public static class CorpseRottingTableProcessor
             if (entryIndex >= yLimit)
                 return false;
 
-            table.SetYOffset(entryIndex, 0xffff);
+            table.SetYOffset(entryIndex, unchecked((ushort)-1));
         }
 
         return true;

@@ -74,7 +74,7 @@ internal sealed class SkreeBehavior : IEnemySpecies
         switch (state.Function)
         {
             case SkreeEnemyFunction.Idling:
-                if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < 0x30)
+                if (Math.Abs(unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole))) < 48)
                 {
                     state.RequestedInstructionIndex =
                         SkreeMetareeAnimationPhase.PreparingAttack;

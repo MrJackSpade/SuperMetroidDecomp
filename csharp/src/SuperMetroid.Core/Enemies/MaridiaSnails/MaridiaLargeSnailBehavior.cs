@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.MaridiaSnails.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -22,25 +23,21 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     }
 
     /// <summary>Strict horizontal range in which Oum can push or carry Samus.</summary>
-    private const ushort MaridiaLargeSnailPushingXDistance = 0x0018;
+    private const ushort MaridiaLargeSnailPushingXDistance = 24;
     /// <summary>Strict vertical range required for Samus to be in Oum's pushing band.</summary>
-    private const ushort MaridiaLargeSnailPushingYDistance = 0x0020;
+    private const ushort MaridiaLargeSnailPushingYDistance = 32;
     /// <summary>Strict horizontal range used when a completed cooldown permits attack.</summary>
-    private const ushort MaridiaLargeSnailAttackXDistance = 0x0020;
+    private const ushort MaridiaLargeSnailAttackXDistance = 32;
     /// <summary>Frames initially held before Oum may rotate into an attack.</summary>
-    private const ushort MaridiaLargeSnailInitialAttackCooldown = 0x0080;
+    private const ushort MaridiaLargeSnailInitialAttackCooldown = 128;
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
     private const ushort MaridiaLargeSnailInitialBounceCount = 3;
     /// <summary>Per-frame 8.8 index change in the quadratic vertical speed table.</summary>
-    private const ushort MaridiaLargeSnailBounceAcceleration = 0x0180;
+    private const ushort MaridiaLargeSnailBounceAcceleration = 384;
     /// <summary>Maximum falling speed-table index before the next impact.</summary>
-    private const ushort MaridiaLargeSnailMaximumFallIndex = 0x4000;
+    private const ushort MaridiaLargeSnailMaximumFallIndex = 16384;
     /// <summary>Speed-table index removed at each floor impact.</summary>
-    private const ushort MaridiaLargeSnailImpactIndexLoss = 0x1000;
-    /// <summary>Library-two splash sound emitted at the water collision.</summary>
-    private const ushort MaridiaLargeSnailSplashSound = 0x000e;
-    /// <summary>Library-two sound from the private tail of Oum shot handling.</summary>
-    private const ushort MaridiaLargeSnailShotSound = 0x0057;
+    private const ushort MaridiaLargeSnailImpactIndexLoss = 4096;
 
     /// <summary>Oum state indexed by physical enemy slot during the current room load.</summary>
     internal readonly MaridiaLargeSnailEnemyState?[] _maridiaLargeSnailStates =
@@ -454,7 +451,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         switch (cue.Kind)
         {
             case MaridiaLargeSnailCueKind.PlaySplash:
-                LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
+                LastMaridiaLargeSnailSoundEffect = EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound;
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
@@ -514,7 +511,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
-        LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
+        LastMaridiaLargeSnailSoundEffect = EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
 
     /// <summary>Requires an initialized Oum extension for the physical enemy slot.</summary>
     private MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>

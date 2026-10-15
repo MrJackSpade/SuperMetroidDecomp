@@ -13,10 +13,10 @@ internal static class EnemyAiCodePointers
         /// <summary>Shared dud-shot callback at $A0:8046.</summary>
         public const ushort DudShot = 0x8046;
         /// <summary>Shared no-op interaction callback at $A0:804C.</summary>
-        public const ushort NoOp = 0x804c;
+        public const ushort NoOp = (ushort)EnemyNoOpRoutine.LongReturn;
 
         /// <summary>RTS_A0804B at $A0:804B, the shared short-return no-op identity rejected by collision dispatch.</summary>
-        public const ushort NoOpShortReturn = 0x804b;
+        public const ushort NoOpShortReturn = (ushort)EnemyNoOpRoutine.ShortReturn;
     }
 
     /// <summary>Bank-$A2 enemy interaction callbacks.</summary>

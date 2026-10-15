@@ -1829,7 +1829,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
     {
         RoomEnemySlot body = state.Body;
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.HurtAiTime + 8)));
-        body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | 2));
+        body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
     }
 
     /// <summary>

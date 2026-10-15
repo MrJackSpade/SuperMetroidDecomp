@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -17,21 +19,16 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
     }
 
     /// <summary>The eye responds to collected Morph Ball even when it is unequipped.</summary>
-    private const ushort MorphBallItemMask = 0x0004;
     /// <summary>Strict horizontal range for starting the opening animation.</summary>
-    private const ushort EyeActivateXDistance = 0x0080;
+    private const ushort EyeActivateXDistance = 128;
     /// <summary>Wider strict horizontal range that keeps an active beam open.</summary>
-    private const ushort EyeDeactivateXDistance = 0x00b0;
+    private const ushort EyeDeactivateXDistance = 176;
     /// <summary>Strict vertical range for initial activation.</summary>
-    private const ushort EyeActivateYDistance = 0x0080;
+    private const ushort EyeActivateYDistance = 128;
     /// <summary>Strict vertical range retained while tracking Samus.</summary>
-    private const ushort EyeDeactivateYDistance = 0x0080;
+    private const ushort EyeDeactivateYDistance = 128;
     /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
-    private const ushort EyeTransitionDuration = 0x0020;
-    /// <summary>Library-two cue when the eye finishes opening and requests its beam.</summary>
-    private const ushort EyeActivationSound = 0x0017;
-    /// <summary>Library-two cue when Samus leaves the active eye's range.</summary>
-    private const ushort EyeDeactivationSound = 0x0071;
+    private const ushort EyeTransitionDuration = 32;
 
     /// <summary>Body and mount phase state indexed by native enemy slot.</summary>
     internal readonly MorphBallEyeEnemyState?[] _morphBallEyeStates =
@@ -53,7 +50,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         _morphBallEyeStates[slot.SlotIndex] = state;
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
@@ -67,7 +64,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             return;
         }
 
-        int mountDirection = slot.Parameter2 & 0x000f;
+        int mountDirection = slot.Parameter2 & MorphBallEyeBeamDefinitions.MountDirectionBits;
         var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
         slot.Position += new Offset16<RoomPixels>(unchecked((short)(mount.X)), unchecked((short)(mount.Y)));
         state.Function = MorphBallEyeAiFunction.MountNoOp;
@@ -87,7 +84,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
     {
         // The cartridge tests collected_items ($09A4), not equipped_items ($09A2). This
         // matters after the player disables Morph Ball in the equipment menu.
-        if (samus is null || (samus.CollectedItems & MorphBallItemMask) == 0)
+        if (samus is null || (samus.CollectedItems & (ushort)SamusEquipmentFlags.MorphBall) == 0)
             return;
 
         switch (state.Function)
@@ -145,7 +142,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         if (!timer.IsZero && timer.IsNonNegative)
             return;
 
-        LastMorphBallEyeSoundEffect = EyeActivationSound;
+        LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeActivationSound;
         RequestMorphBallEyeBeam(eye);
         state.Function = MorphBallEyeAiFunction.Active;
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
@@ -162,7 +159,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             EnemyMath.IsWithinStrictModularDistance(samus.Position.X.Whole, eye.Position.X.Whole, EyeDeactivateXDistance);
         if (!inProximity)
         {
-            LastMorphBallEyeSoundEffect = EyeDeactivationSound;
+            LastMorphBallEyeSoundEffect = EnemySoundEffectDefinitions.EyeDeactivationSound;
             state.ActivatedFlag = 0;
             state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Parameter1 & 1) == 0
@@ -178,7 +175,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         // The native pointer is $8FAC plus the high angle nibble shifted down by two, one four-byte record per
         // pose: the tracking loop resumes at the pose that nibble selects.
         state.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active,
-            (state.Angle.TableIndex & 0x00f0) >> 4);
+            (state.Angle.TableIndex & MorphBallEyeBeamDefinitions.PoseAngleBits) >> 4);
         eye.InstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -247,9 +244,9 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         RoomEnemySlot body = RequireMorphBallEyeBeamBody();
         MorphBallEyeEnemyState state = RequireMorphBallEyeState(body);
 
-        MorphBallEyeBeam.Red = 0x30;
-        MorphBallEyeBeam.Green = 0x50;
-        MorphBallEyeBeam.Blue = 0x80;
+        MorphBallEyeBeam.Red = MorphBallEyeBeamDefinitions.InitialRed;
+        MorphBallEyeBeam.Green = MorphBallEyeBeamDefinitions.InitialGreen;
+        MorphBallEyeBeam.Blue = MorphBallEyeBeamDefinitions.Blue;
         MorphBallEyeBeam.AngularWidth = 0;
         MorphBallEyeBeam.AngularSubwidth = 0;
         MorphBallEyeBeam.AngularWidthDelta = 0;
@@ -262,7 +259,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
     /// <summary>Accelerates angular width in split whole/fraction words until the beam reaches four units.</summary>
     private void WidenMorphBallEyeBeam()
     {
-        uint deltaFraction = (uint)MorphBallEyeBeam.AngularSubwidthDelta + 0x4000u;
+        uint deltaFraction = (uint)MorphBallEyeBeam.AngularSubwidthDelta + MorphBallEyeBeamDefinitions.WidthFractionStep;
         MorphBallEyeBeam.AngularSubwidthDelta = unchecked((ushort)deltaFraction);
         MorphBallEyeBeam.AngularWidthDelta = unchecked((ushort)(
             MorphBallEyeBeam.AngularWidthDelta + SnesCarry.OutOfWord(deltaFraction)));
@@ -292,10 +289,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             return;
         }
 
-        int colorIndex = MorphBallEyeBeam.ColorIndex & 0x000f;
+        int colorIndex = MorphBallEyeBeam.ColorIndex & MorphBallEyeBeamDefinitions.ColorIndexBits;
         (MorphBallEyeBeam.Red, MorphBallEyeBeam.Green) = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
-        MorphBallEyeBeam.Blue = 0x80;
-        MorphBallEyeBeam.ColorIndex = unchecked((ushort)((colorIndex + 1) & 0x000f));
+        MorphBallEyeBeam.Blue = MorphBallEyeBeamDefinitions.Blue;
+        MorphBallEyeBeam.ColorIndex = unchecked((ushort)((colorIndex + 1) & MorphBallEyeBeamDefinitions.ColorIndexBits));
     }
 
     /// <summary>Decrements beam color channels toward the fixed base and deletes the HDMA object when green reaches $40.</summary>
@@ -304,17 +301,17 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         // $88:EAD6 tests green before updating the table or decrementing any component.
         // Once green reaches selector/component $40, it clears the table and deletes the
         // object on this pass. Reset publishes the same fixed-color base values.
-        if (MorphBallEyeBeam.Green == 0x40)
+        if (MorphBallEyeBeam.Green == MorphBallEyeBeamDefinitions.FadedGreen)
         {
             MorphBallEyeBeam.Reset();
             return;
         }
 
-        if (MorphBallEyeBeam.Red != 0x20)
+        if (MorphBallEyeBeam.Red != MorphBallEyeBeamDefinitions.FadedRed)
             MorphBallEyeBeam.Red = NativeWordCounter.DecrementByte(MorphBallEyeBeam.Red);
-        if (MorphBallEyeBeam.Green != 0x40)
+        if (MorphBallEyeBeam.Green != MorphBallEyeBeamDefinitions.FadedGreen)
             MorphBallEyeBeam.Green = NativeWordCounter.DecrementByte(MorphBallEyeBeam.Green);
-        if (MorphBallEyeBeam.Blue != 0x80)
+        if (MorphBallEyeBeam.Blue != MorphBallEyeBeamDefinitions.Blue)
             MorphBallEyeBeam.Blue = NativeWordCounter.DecrementByte(MorphBallEyeBeam.Blue);
     }
 

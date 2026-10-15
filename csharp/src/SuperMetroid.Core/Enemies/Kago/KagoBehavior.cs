@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Kago.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -209,15 +210,13 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
     /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>
-    private const ushort KagoBugGravity = 0x00e0;
+    private const ushort KagoBugGravity = 224;
     /// <summary>Signed eight-eight horizontal jump speed, negated for leftward launches.</summary>
-    private const ushort KagoBugHorizontalSpeed = 0x0200;
+    private const ushort KagoBugHorizontalSpeed = 512;
     /// <summary>Horizontal parent separation that enables the bug to block Samus's projectiles.</summary>
     private const ushort KagoBugSourceCollisionEnableDistance = 23;
     /// <summary>Beyond this parent separation, the next jump homes toward the shell.</summary>
     private const ushort KagoBugSourceHomingDistance = 48;
-    /// <summary>Library-two cue emitted when a live bug's sound countdown reaches zero.</summary>
-    private const ushort KagoBugSoundEffect = 0x006c;
 
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
     public ushort? LastKagoBugSoundEffect { get; private set; }
@@ -259,7 +258,7 @@ internal sealed class KagoBehavior : IEnemySpecies
 
         projectile.Variable0 = unchecked((ushort)(projectile.Variable0 - 1));
         if (projectile.Variable0 == 0)
-            LastKagoBugSoundEffect = KagoBugSoundEffect;
+            LastKagoBugSoundEffect = EnemySoundEffectDefinitions.KagoBugSoundEffect;
     }
 
     /// <summary>
@@ -362,7 +361,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & 0x0300) + 0x0800));
+        ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & 0x0300) + 2048));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
         RoomEnemySlot source = _slotTable.SlotFromNativeIndex(projectile.Variable1);

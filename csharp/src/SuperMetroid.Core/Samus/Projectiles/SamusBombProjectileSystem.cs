@@ -1154,9 +1154,9 @@ public sealed class SamusBombProjectileSystem
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
             if (slot.Damage == 0 ||
-                (slot.Type & 0x8000) != 0 ||
+                (slot.Type & SamusProjectileTypeWord.LiveMarker) != 0 ||
                 slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.BeamExplosion ||
-                (slot.Direction & 0x0010) != 0)
+                (slot.Direction & SamusProjectileDirectionMasks.Spent) != 0)
             {
                 continue;
             }

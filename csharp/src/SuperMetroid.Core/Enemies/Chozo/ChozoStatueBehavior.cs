@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Chozo.Artwork;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -39,8 +40,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         _roomFx = roomFx;
     }
 
-    /// <summary>Native blank bank-$AA map installed while the statue changes pose.</summary>
-    private const ushort EmptyBankAaSpritemap = 0x804d;
 
     /// <summary>Per-slot statue phase and carry-motion state cleared on room load.</summary>
     internal readonly ChozoStatueState?[] _chozoStatueStates =
@@ -112,7 +111,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             EnemyProperties.SolidToSamus |
             EnemyProperties.ProcessInstructions |
             EnemyProperties.ProcessOffScreen);
-        statue.SpritemapPointer = EmptyBankAaSpritemap;
+        statue.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
         statue.Parameter1 = 0;
@@ -133,14 +132,14 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
             LoadChozoStatuePalette(wreckedShip: true);
-            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, new Position16<RoomBlocks>(0x4a, 0x17));
-            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(0x17, 0x1d));
+            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatuePlmRomData.WreckedShipHandBlock);
+            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
             LoadChozoStatuePalette(wreckedShip: false);
-            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, new Position16<RoomBlocks>(0x0c, 0x1d));
+            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatuePlmRomData.LowerNorfairHandBlock);
         }
     }
 
@@ -166,8 +165,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
-        int triggerBlockX = statue.Parameter2 == 0 ? 0x4a : ChozoStatuePlmRomData.LowerNorfairTriggerX;
-        int triggerBlockY = statue.Parameter2 == 0 ? 0x17 : ChozoStatuePlmRomData.LowerNorfairTriggerY;
+        int triggerBlockX = statue.Parameter2 == 0 ? ChozoStatuePlmRomData.WreckedShipHandBlock.X : ChozoStatuePlmRomData.LowerNorfairTriggerX;
+        int triggerBlockY = statue.Parameter2 == 0 ? ChozoStatuePlmRomData.WreckedShipHandBlock.Y : ChozoStatuePlmRomData.LowerNorfairTriggerY;
         int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
@@ -175,7 +174,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         // visual block number survive until their subsequently spawned hardcoded PLM runs.
         level.SetForegroundEntry(
             triggerBlockIndex,
-            unchecked((ushort)(triggerBlock.LevelWord & 0x0fff)));
+            triggerBlock.PackedWord.VisualWord);
         statue.Parameter1 = 1;
         SetChozoStatueSamusControls(enabled: false);
         if (statue.Parameter2 != 0)
@@ -184,7 +183,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             _room.Services.Events.Set(EventNumber.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-                new Position16<RoomBlocks>(0x0c, 0x1d));
+                ChozoStatuePlmRomData.LowerNorfairHandBlock);
         }
         else
         {
@@ -197,7 +196,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             _room.Services.RoomScroll.Write(14, RoomScrollState.Blue);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.ClearSlopeAccessForWreckedShipChozo,
-                new Position16<RoomBlocks>(0x17, 0x1d));
+                ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
         }
     }
 
@@ -276,13 +275,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
                 return null;
 
             case ChozoStatueCueKind.PlayGrabSound:
-                LastChozoStatueSoundEffect = 0x001c;
+                LastChozoStatueSoundEffect = EnemySoundEffectDefinitions.ChozoGrabsSamusSound;
                 _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
                     LastChozoStatueSoundEffect.Value), maximumQueued: 6);
                 return null;
 
             case ChozoStatueCueKind.PlayFootstepSound:
-                LastChozoStatueSoundEffect = 0x004b;
+                LastChozoStatueSoundEffect = EnemySoundEffectDefinitions.ChozoFootstepsSound;
                 _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
                     LastChozoStatueSoundEffect.Value), maximumQueued: 6);
                 return null;
@@ -353,7 +352,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         RoomCollisionBlock current = level.GetCollisionBlockAtPixel(new Position16<RoomPixels>(probeX, probeY));
         int belowIndex = current.Index + level.Size.X;
         if ((uint)belowIndex >= (uint)level.ForegroundEntries.Length ||
-            (level.GetCollisionBlockByIndex(belowIndex).LevelWord & 0xf000) != 0xa000)
+            level.GetCollisionBlockByIndex(belowIndex).CollisionType != RoomCollisionType.SpikeBlock)
         {
             return;
         }
@@ -393,7 +392,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
 
         PublishHardcodedChozoPlm(
             PlmHeaderId.BlockSlopeAccessForWreckedShipChozo,
-            new Position16<RoomBlocks>(0x17, 0x1d));
+            ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
     }
 
     /// <summary>Publishes the statue's control lock to both the room service and observable state.</summary>

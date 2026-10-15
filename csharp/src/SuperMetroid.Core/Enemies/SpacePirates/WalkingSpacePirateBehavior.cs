@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -49,8 +50,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Library-two sound requested when the shared Pirate/Mother Brain laser launches.</summary>
-    internal const ushort PirateMotherBrainLaserSound = 0x0067;
     /// <summary>Fixed-point downward displacement used for the ground probe.</summary>
     private const int WalkingPirateOnePixelDown = 1 << 16;
     /// <summary>Left patrol edge is probed one pixel farther than the right edge.</summary>
@@ -58,9 +57,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     /// <summary>Right patrol ledge probe distance in room pixels.</summary>
     private const int WalkingPirateRightLedgeProbePixels = 16;
     /// <summary>Native signed fixed-point displacement for a left patrol step.</summary>
-    private const int WalkingPirateLeftStepDisplacement = -0x3801;
+    private const int WalkingPirateLeftStepDisplacement = -14337;
     /// <summary>Native signed fixed-point displacement for a right patrol step.</summary>
-    private const int WalkingPirateRightStepDisplacement = 0x3800;
+    private const int WalkingPirateRightStepDisplacement = 14336;
     /// <summary>Maximum vertical separation for choosing the laser attack.</summary>
     private const int WalkingPirateFiringBandPixels = 16;
     /// <summary>Horizontal collision window used by the pirate's projectile flinch path.</summary>
@@ -366,7 +365,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         if (projectile is null)
             return false;
 
-        LastSpacePirateSoundEffect = PirateMotherBrainLaserSound;
+        LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.PirateMotherBrainLaserSound;
         return true;
     }
 

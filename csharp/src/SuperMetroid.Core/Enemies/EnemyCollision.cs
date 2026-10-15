@@ -208,7 +208,7 @@ internal sealed class EnemyCollision
             // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
             // with no translated shot reaction is skipped.
             if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ||
-                enemy.SpritemapPointer is 0 or 0x804d ||
+                CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(enemy.SpritemapPointer) ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
@@ -261,7 +261,7 @@ internal sealed class EnemyCollision
                 // the empty extended frame. Its point hitbox remains live for Samus and
                 // bombs, whose extended passes have no such check.
                 if (usesExtendedHitboxes &&
-                    enemy.SpritemapPointer == CommonEnemyEmptyExtendedFrameDefinitions.Frame)
+                    CommonEnemyEmptyExtendedFrameDefinitions.IsFrame(enemy.SpritemapPointer))
                     continue;
                 if (usesExtendedHitboxes &&
                     IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer))
@@ -397,7 +397,7 @@ internal sealed class EnemyCollision
                 {
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
                     // explosion instructions retain their separate, later sound owner.
@@ -408,13 +408,13 @@ internal sealed class EnemyCollision
                     // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
-                    if ((projectileType & 0x0008) != 0)
+                    if (new SamusProjectileTypeWord(projectileType).BeamCombination.HasPlasma)
                         enemy.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
 
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&
-                        (projectileType & 0x0002) != 0 &&
-                        (shotVulnerability.RawBeamEntry & 0xf0) != 0x80 &&
+                        new SamusProjectileTypeWord(projectileType).BeamCombination.HasIce &&
+                        !EnemyVulnerabilityDefinitions.PreventsLethalFreeze(shotVulnerability.RawBeamEntry) &&
                         enemy.FrozenTimer.IsZero;
                     if (freezeInsteadOfKilling)
                     {
@@ -525,7 +525,7 @@ internal sealed class EnemyCollision
                         ? family != SamusProjectileFamily.Bomb ||
                           bomb.Position.X.Whole == 0
                         : family != SamusProjectileFamily.Bomb &&
-                          (bomb.Type & 0x8000) == 0))
+                          (bomb.Type & SamusProjectileTypeWord.LiveMarker) == 0))
                 {
                     continue;
                 }
@@ -567,7 +567,7 @@ internal sealed class EnemyCollision
                 // EnemyBombCollHandler marks the physical bomb before dispatch. Unlike an
                 // ordinary beam impact, the bomb is already running its explosion program;
                 // common shot AI must not replace it with a bank-$93 impact animation.
-                bomb.Direction = unchecked((ushort)(bomb.Direction | 0x0010));
+                bomb.Direction = unchecked((ushort)(bomb.Direction | SamusProjectileDirectionMasks.Spent));
                 var bombContext = new EnemyBombContext(
                     enemy,
                     bomb,
@@ -621,7 +621,7 @@ internal sealed class EnemyCollision
     /// such a header still scans components and may select `$A7:94B6` from an arm hitbox.
     /// </summary>
     internal static bool IsCanonicalMultiboxNoOpAi(ushort pointer) =>
-        pointer is 0x804b or 0x804c;
+        Enum.IsDefined((EnemyNoOpRoutine)pointer);
 
     /// <summary>
     /// Reports the bank-$A2/$A3 private shot callbacks whose family-$0500 path is translated.
@@ -718,7 +718,7 @@ internal sealed class EnemyCollision
             : EnemyVulnerabilityDefinitions.DefaultPointer;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(
             vulnerabilityPointer, EnemyVulnerabilityDefinitions.BombOffset);
-        int damage = (bomb.Damage >> 1) * (vulnerability & 0x7f);
+        int damage = (bomb.Damage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
 
         // A zero multiplier still consumes the collision and leaves direction bit $10 on
         // the bomb. Native emits a dud sprite/sound here; those presentation queues are not
@@ -728,7 +728,7 @@ internal sealed class EnemyCollision
 
         ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
         enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
         enemy.Health = damage >= enemy.Health
             ? (ushort)0
             : unchecked((ushort)(enemy.Health - damage));
@@ -789,7 +789,7 @@ internal sealed class EnemyCollision
             byte vulnerability = ReadProjectileVulnerability(
                 enemy,
                 (ushort)SamusProjectileFamily.PowerBomb);
-            if ((vulnerability & 0x7f) == 0)
+            if (EnemyVulnerabilityDefinitions.Multiplier(vulnerability) == 0)
                 continue;
 
             int xDistance = Math.Abs(unchecked((short)(explosionCenter.X - enemy.Position.X.Whole)));
@@ -821,15 +821,15 @@ internal sealed class EnemyCollision
             // `$FF` reaches the reaction dispatcher because the outer admission check masks
             // bit seven, then common AI explicitly returns without damage. It still receives
             // property $0800 afterward, an observable quirk preserved below.
-            if (vulnerability != 0xff)
+            if (!EnemyVulnerabilityDefinitions.IsSentinel(vulnerability))
             {
-                int damage = 100 * (vulnerability & 0x7f);
+                int damage = 100 * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
                 if (damage != 0)
                 {
                     enemy.InvincibilityTimer = NativeCountdown.Start(48);
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
@@ -880,14 +880,14 @@ internal sealed class EnemyCollision
             };
             byte familyEntry = EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
             return new NormalShotVulnerability(
-                Multiplier: familyEntry & 0x7f,
+                Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
                 FreezeImmediately: false,
                 RawBeamEntry: 0);
         }
 
         byte beamEntry = EnemyVulnerabilityDefinitions.Read(
             pointer, projectileType.BeamCombination.TableIndex);
-        if (beamEntry == 0xff)
+        if (EnemyVulnerabilityDefinitions.IsSentinel(beamEntry))
         {
             return new NormalShotVulnerability(
                 Multiplier: 0,
@@ -895,7 +895,7 @@ internal sealed class EnemyCollision
                 RawBeamEntry: beamEntry);
         }
 
-        int multiplier = beamEntry & 0x7f;
+        int multiplier = EnemyVulnerabilityDefinitions.Multiplier(beamEntry);
         if (projectileType.IsChargedBeam)
         {
             // Charged-beam vulnerability is a dedicated byte, not another beam-combination
@@ -903,7 +903,7 @@ internal sealed class EnemyCollision
             // than that sentinel do not contribute to the damage multiplier.
             byte chargedEntry = EnemyVulnerabilityDefinitions.Read(
                 pointer, EnemyVulnerabilityDefinitions.ChargedBeamOffset);
-            multiplier = chargedEntry == 0xff ? 0 : chargedEntry & 0x0f;
+            multiplier = EnemyVulnerabilityDefinitions.IsSentinel(chargedEntry) ? 0 : EnemyVulnerabilityDefinitions.LowNibbleMultiplier(chargedEntry);
         }
 
         return new NormalShotVulnerability(
@@ -927,7 +927,7 @@ internal sealed class EnemyCollision
         enemy.FrozenTimer = NativeCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400);
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0004));
+        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
         enemy.InvincibilityTimer = NativeCountdown.Start(10);
     }
 
@@ -977,7 +977,7 @@ internal sealed class EnemyCollision
         // Native multibox collision only accepts negative 16-bit spritemap pointers.
         // The common visually empty map `$804F` still owns a point hitbox, so it
         // must enter the same collision walker as other extended frames.
-        if ((enemy.SpritemapPointer & 0x8000) == 0)
+        if (!EnemyExtendedSpritemapPointers.IsExtended(enemy.SpritemapPointer))
             return false;
 
         var target = new ExtendedHitboxTarget(
@@ -1471,8 +1471,8 @@ internal sealed class EnemyCollision
             _ => throw new InvalidDataException(
                 $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
         };
-        int multiplier = EnemyVulnerabilityDefinitions.Read(
-            vulnerabilityPointer, vulnerabilityOffset) & 0x0f;
+        int multiplier = EnemyVulnerabilityDefinitions.LowNibbleMultiplier(EnemyVulnerabilityDefinitions.Read(
+            vulnerabilityPointer, vulnerabilityOffset));
         return multiplier is not (0 or 15)
             ? PirateHitboxShotAction.Normal
             : PirateHitboxShotAction.Reflect;
@@ -1567,7 +1567,7 @@ internal sealed class EnemyCollision
             : EnemyVulnerabilityDefinitions.DefaultPointer;
         byte vulnerability = EnemyVulnerabilityDefinitions.Read(
             vulnerabilityPointer, vulnerabilityOffset);
-        int damage = (baseDamage >> 1) * (vulnerability & 0x7f);
+        int damage = (baseDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
         if (damage == 0)
             return;
 
@@ -1575,7 +1575,7 @@ internal sealed class EnemyCollision
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
         enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
         enemy.Health = damage >= enemy.Health
@@ -1615,7 +1615,7 @@ internal sealed class EnemyCollision
         samus.Health = samus.Health <= damage
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
-        samus.InvincibilityTimer = NativeCountdown.Start(0x0060);
+        samus.InvincibilityTimer = NativeCountdown.Start(96);
         ushort direction = samus.Position.X.Whole >= damageSourceX ? (ushort)1 : (ushort)0;
         // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
         // knockback direction is installed. Damage can recur after invincibility

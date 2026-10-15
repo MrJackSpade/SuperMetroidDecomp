@@ -11,4 +11,7 @@ internal static class EnemyAiHandlerMasks
 
     /// <summary>AI-handler bit $0002: the enemy runs its hurt AI, set when a shot damages it.</summary>
     public const ushort Hurt = 0x0002;
+
+    /// <summary>AI-handler bit $0001: the grapple beam holds the enemy and its grapple AI runs.</summary>
+    public const ushort Grappled = 0x0001;
 }

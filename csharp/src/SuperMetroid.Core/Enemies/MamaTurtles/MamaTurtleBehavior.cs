@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -47,7 +49,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 StartMamaTurtleRisingToHover(RequireMamaTurtleState(slot), rightward: false);
                 return MamaTurtleProgram.MamaSpinning;
             case MamaTurtleCueKind.PlaySpinningSound:
-                LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
+                LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
                 return null;
             default:
                 throw new InvalidOperationException($"The Mama Turtle's animations have no {cue.Kind} cue.");
@@ -75,7 +77,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
                 RequireBabyTurtleState(slot).Function = BabyTurtleAiFunction.SpinningStoppable;
                 return null;
             case MamaTurtleCueKind.PlaySpinningSound:
-                LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
+                LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
                 return null;
             default:
                 throw new InvalidOperationException($"A baby turtle's animations have no {cue.Kind} cue.");
@@ -85,9 +87,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     /// <summary>Native solid property applied while Samus rides the sleeping shell contour.</summary>
     private const ushort MamaTurtleSolidProperty = 0x8000;
     /// <summary>Maximum crawl distance from a baby's spawn before its list reverses direction.</summary>
-    private const ushort BabyTurtleTravelDistance = 0x0030;
+    private const ushort BabyTurtleTravelDistance = 48;
     /// <summary>Upper room Y where Mama pauses after a rider-powered ascent.</summary>
-    private const ushort MamaTurtlePeakYPosition = 0x01e8;
+    private const ushort MamaTurtlePeakYPosition = 488;
     /// <summary>Whole pixels climbed per tick while Samus rides Mama toward the peak.</summary>
     private const ushort MamaTurtleRisingSpeed = 7;
     /// <summary>Ticks held at the ascent peak before Mama begins falling.</summary>
@@ -96,10 +98,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
     private const ushort MamaTurtleMaximumFallingSpeed = 4;
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
-    /// <summary>Library-two sound requested by the spinning animation instruction.</summary>
-    private const ushort MamaTurtleSpinSound = 0x003a;
-    /// <summary>Library-two sound requested on Mama's hover collision with a wall.</summary>
-    private const ushort MamaTurtleWallSound = 0x001b;
 
     /// <summary>Maps enemy slots to Mama Turtle's shell, hover, and ascent state.</summary>
     internal readonly MamaTurtleEnemyState?[] _mamaTurtleStates =
@@ -124,7 +122,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         // The population already supplies $A800, but the initializer explicitly ORs $2000.
         // Spell that write out because instruction processing is essential to leaving shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(0);
@@ -339,13 +337,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         // The two adjacent {sub,whole} pairs at $8D56 accelerate toward Samus's side.
         if (unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0)
         {
-            state.XSubAcceleration = 0x1000;
+            state.XSubAcceleration = 4096;
             state.XAcceleration = 0;
         }
         else
         {
-            state.XSubAcceleration = 0xf000;
-            state.XAcceleration = 0xffff;
+            state.XSubAcceleration = 61440;
+            state.XAcceleration = unchecked((ushort)-1);
         }
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.Zero);
         state.Function = MamaTurtleAiFunction.Hovering;
@@ -364,7 +362,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
             ReverseMamaTurtleAtWall(state);
             _earthquake.EarthquakeType = 0;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(16);
-            LastMamaTurtleSoundEffect = MamaTurtleWallSound;
+            LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleWallSound;
             return;
         }
 
@@ -483,7 +481,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         {
             // The $2000 fraction step carries into the whole word; both are one 16.16 add.
             state.Velocity = state.Velocity.WithY(
-                state.Velocity.Y + SnesSignedSixteenSixteen.FromParts(0, 0x2000));
+                state.Velocity.Y + SnesSignedSixteenSixteen.FromParts(0, 8192));
         }
 
         // Only the whole word is passed to MoveEnemyDown; the fraction influences later

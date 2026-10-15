@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Puyo.Artwork;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -23,7 +24,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
     /// <summary>Bytes per native whole/fraction quadratic-speed record.</summary>
     private const int QuadraticSpeedRecordSize = 8;
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
-    private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
+    private const ushort MaximumPuyoYSpeedTableIndex = 16384;
 
     /// <summary>Typed grounded, airborne and dropping state indexed by native enemy slot.</summary>
     internal readonly PuyoEnemyState?[] _puyoStates =
@@ -35,7 +36,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         // The native initializer writes the common empty map and clears Enemy.var0 before
         // installing the fast grounded list. Enemy.var0 is not one of the six exposed
         // per-family variable words; no later Puyo routine reads it.
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
 
         var state = new PuyoEnemyState(slot)
         {

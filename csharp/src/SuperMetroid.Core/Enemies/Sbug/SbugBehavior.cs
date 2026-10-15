@@ -21,13 +21,13 @@ internal sealed class SbugBehavior : IEnemySpecies
     }
 
     /// <summary>Random-wandering activation resets the shared enemy RNG to $000B.</summary>
-    private const ushort SbugRandomSeed = 0x000b;
+    private const ushort SbugRandomSeed = 11;
     /// <summary>Random and forward-then-wait legs last $20 enemy frames before selection changes.</summary>
-    private const ushort SbugMovementSegmentFrames = 0x0020;
+    private const ushort SbugMovementSegmentFrames = 32;
     /// <summary>Long wandering mode tracks $200 frames before dropping its distance-based reversal gate.</summary>
-    private const ushort SbugLongRandomLifetime = 0x0200;
+    private const ushort SbugLongRandomLifetime = 512;
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
-    private const int SbugReverseDistance = 0x0060;
+    private const int SbugReverseDistance = 96;
 
     /// <summary>Slot-indexed activation, velocity, and animation state for room Sbugs.</summary>
     internal readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
@@ -58,20 +58,20 @@ internal sealed class SbugBehavior : IEnemySpecies
         state.ForwardXVelocity = CalculateUnsignedSbugMagnitude(
             state.InitialAngle,
             state.Speed,
-            phase: 0x40);
+            phase: EnemyByteAngleDefinitions.QuarterTurn);
         state.ForwardYVelocity = CalculateUnsignedSbugMagnitude(
             state.InitialAngle,
             state.Speed,
-            phase: 0x80);
+            phase: EnemyByteAngleDefinitions.HalfTurn);
         CalculateSignedSbugVelocities(
-            unchecked((byte)(state.InitialAngle - 0x20)),
+            unchecked((byte)(state.InitialAngle - EnemyByteAngleDefinitions.EighthTurn)),
             state.Speed,
             out SbugVelocityWords leftX,
             out SbugVelocityWords leftY);
         state.LeftXVelocity = leftX;
         state.LeftYVelocity = leftY;
         CalculateSignedSbugVelocities(
-            unchecked((byte)(state.InitialAngle + 0x20)),
+            unchecked((byte)(state.InitialAngle + EnemyByteAngleDefinitions.EighthTurn)),
             state.Speed,
             out SbugVelocityWords rightX,
             out SbugVelocityWords rightY);
@@ -80,9 +80,9 @@ internal sealed class SbugBehavior : IEnemySpecies
 
         state.ForwardInstructionIndex = CalculateSbugInstructionIndex(state.InitialAngle);
         state.LeftInstructionIndex = CalculateSbugInstructionIndex(
-            unchecked((byte)(state.InitialAngle - 0x20)));
+            unchecked((byte)(state.InitialAngle - EnemyByteAngleDefinitions.EighthTurn)));
         state.RightInstructionIndex = CalculateSbugInstructionIndex(
-            unchecked((byte)(state.InitialAngle + 0x20)));
+            unchecked((byte)(state.InitialAngle + EnemyByteAngleDefinitions.EighthTurn)));
         SetSbugFacing(slot, state, state.ForwardInstructionIndex);
     }
 
@@ -182,7 +182,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         // adding $80 selects the exact opposite direction for behavior six.
         byte cartridgeAngle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-        state.CustomAngle = unchecked((byte)(0x40 - cartridgeAngle + (away ? 0x80 : 0)));
+        state.CustomAngle = unchecked((byte)(EnemyByteAngleDefinitions.QuarterTurn - cartridgeAngle + (away ? EnemyByteAngleDefinitions.HalfTurn : 0)));
         RecalculateSbugCustomDirection(slot, state);
         state.Function = away
             ? SbugEnemyFunction.MoveAwayFromSamus
@@ -194,7 +194,7 @@ internal sealed class SbugBehavior : IEnemySpecies
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
         // legs. It is sampled before the scheduler increments it for the current frame.
-        if ((slot.FrameCounter & 0x0010) == 0)
+        if ((slot.FrameCounter & SbugDefinitions.ZigZagLegFrameBit) == 0)
         {
             SetSbugFacing(slot, state, state.LeftInstructionIndex);
             AddSbugVelocity(slot, state.LeftXVelocity, state.LeftYVelocity);
@@ -285,7 +285,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta. Adding
         // that to the full word is intentional; all later trigonometry masks the low byte.
         ushort randomLow = unchecked((byte)_room.Random.Generate());
-        ushort angleDelta = unchecked((byte)(randomLow - 0x40));
+        ushort angleDelta = unchecked((byte)(randomLow - EnemyByteAngleDefinitions.QuarterTurn));
         state.CustomAngle = unchecked((ushort)(state.CustomAngle + angleDelta));
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
@@ -321,7 +321,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         // $A3:A565 masks with $0007 rather than the expected $000E. Preserve that oddity:
         // normal even indexes remain even, but directions in the upper half fold down.
         state.CustomInstructionIndex = unchecked((ushort)(
-            (state.CustomInstructionIndex + 4) & 0x0007));
+            (state.CustomInstructionIndex + 4) & SbugDefinitions.CustomFacingFoldMask));
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
@@ -336,8 +336,8 @@ internal sealed class SbugBehavior : IEnemySpecies
     {
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
         // testing the original mathematical angle independently for X and Y.
-        bool subtractX = ((state.InitialAngle + 0x40) & 0x80) != 0;
-        bool subtractY = ((state.InitialAngle + 0x80) & 0x80) != 0;
+        bool subtractX = ((state.InitialAngle + EnemyByteAngleDefinitions.QuarterTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
+        bool subtractY = ((state.InitialAngle + EnemyByteAngleDefinitions.HalfTurn) & EnemyByteAngleDefinitions.HalfTurn) != 0;
         slot.Position = slot.Position.WithX(AddRawSbugVelocity(
             slot.Position.X,
             state.ForwardXVelocity.RawFixed,
@@ -386,7 +386,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         // ConvertAngleToXy at $A0:B643 indexes a 128-word unsigned quarter-circle table,
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
-        int tableIndex = (angle + phase) & 0x7f;
+        int tableIndex = (angle + phase) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
         uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave(tableIndex) * speed;
         return new SbugVelocityWords(
             SnesFixedPosition.WholeOf(unchecked((int)product)),
@@ -400,8 +400,8 @@ internal sealed class SbugBehavior : IEnemySpecies
         out SbugVelocityWords xVelocity,
         out SbugVelocityWords yVelocity)
     {
-        xVelocity = CalculateSignedSbugComponent(angle, speed, phase: 0x40);
-        yVelocity = CalculateSignedSbugComponent(angle, speed, phase: 0x80);
+        xVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyByteAngleDefinitions.QuarterTurn);
+        yVelocity = CalculateSignedSbugComponent(angle, speed, phase: EnemyByteAngleDefinitions.HalfTurn);
     }
 
     /// <summary>Reproduces the native eight-bit sine multiply and independent negative-word conversion.</summary>
@@ -411,11 +411,11 @@ internal sealed class SbugBehavior : IEnemySpecies
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         byte tableAngle = unchecked((byte)(angle + phase));
-        int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & 0x7f);
+        int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         ushort product = unchecked((ushort)(sineMagnitude * speed));
         ushort pixel = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
         ushort subpixel = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
-        if ((tableAngle & 0x80) != 0)
+        if ((tableAngle & EnemyByteAngleDefinitions.HalfTurn) != 0)
         {
             pixel = unchecked((ushort)-pixel);
             subpixel = unchecked((ushort)-subpixel);
@@ -425,7 +425,7 @@ internal sealed class SbugBehavior : IEnemySpecies
 
     /// <summary>Quantizes an angle to one of eight two-byte facing-table offsets.</summary>
     private static ushort CalculateSbugInstructionIndex(byte angle) =>
-        unchecked((ushort)(2 * (unchecked((byte)(angle - 0x30)) >> 5)));
+        unchecked((ushort)(2 * (unchecked((byte)(angle - SbugDefinitions.FacingQuantizationOffset)) >> 5)));
 
     /// <summary>Restarts the selected animation only when its facing list differs from the installed one.</summary>
     private static void SetSbugFacing(

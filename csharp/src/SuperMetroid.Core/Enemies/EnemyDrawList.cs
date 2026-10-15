@@ -189,7 +189,7 @@ internal sealed class EnemyDrawList
         if (!slot.FrozenTimer.IsZero &&
             (slot.FrozenTimer.RawValue >= 0x005a || (slot.FrozenTimer.RawValue & 2) != 0))
         {
-            return 0x0c00;
+            return EnemyFrozenPaletteDefinitions.PaletteBits;
         }
 
         return slot.PaletteIndex;

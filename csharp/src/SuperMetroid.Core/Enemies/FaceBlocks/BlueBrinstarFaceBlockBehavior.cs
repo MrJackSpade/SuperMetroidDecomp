@@ -24,8 +24,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
-    /// <summary>Collected-items bit two, which gates both the palette hook and face-block activation.</summary>
-    private const ushort BlueBrinstarFaceBlockMorphBallItemMask = 0x0004;
     /// <summary>Enemy frames between shared face-block palette advances.</summary>
     private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
     /// <summary>Number of frames in the installed auxiliary-color sequence.</summary>
@@ -84,7 +82,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         // Native keeps only parameter two bit zero and moves it to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
         // *different* from this marker, so zero means left and $8000 means right.
-        slot.Parameter2 = (slot.Parameter2 & 1) != 0 ? (ushort)0x8000 : (ushort)0;
+        slot.Parameter2 = (slot.Parameter2 & 1) != 0 ? (ushort)32768 : (ushort)0;
         state.Activated = false;
         state.LastHorizontalDelta = 0;
     }
@@ -136,7 +134,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
     private static bool HasCollectedMorphBall([NotNullWhen(true)] SamusState? samus) =>
         samus is not null &&
-        (samus.CollectedItems & BlueBrinstarFaceBlockMorphBallItemMask) != 0;
+        (samus.CollectedItems & (ushort)SamusEquipmentFlags.MorphBall) != 0;
 
     /// <summary>
     /// Reproduces the native signed-magnitude helper over one wrapped 16-bit subtraction.

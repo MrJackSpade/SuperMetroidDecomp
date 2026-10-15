@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Crawlers;
@@ -68,8 +69,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Native invisible spritemap used while Yard waits for its next crawl instruction.</summary>
-    private const ushort YardNothingSpritemap = 0x804d;
 
     /// <summary>Species state indexed by the shared enemy slot and reset at room load.</summary>
     internal readonly YardEnemyState?[] _yardStates =
@@ -99,7 +98,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         };
         _yardStates[slot.SlotIndex] = state;
 
-        slot.SpritemapPointer = YardNothingSpritemap;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
@@ -199,7 +198,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             if (state.HidingProgram is { } hiding)
             {
                 state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
-                slot.SpritemapPointer = YardNothingSpritemap;
+                slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.Timer = NativeCountdown.Start(0);
                 state.Behavior = YardBehavior.Hiding;
@@ -412,7 +411,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
                 // it exactly zero; preserve that observable arithmetic quirk.
                 SnesSignedSixteenSixteen velocity = state.AirborneVelocity.X;
                 SnesSignedSixteenSixteen decelerated = velocity + SnesSignedSixteenSixteen.FromRaw(
-                    velocity.WholePixels < 0 ? 0x00001000 : unchecked((int)0xfffff000));
+                    velocity.WholePixels < 0 ? 4096 : -4096);
                 state.AirborneVelocity = state.AirborneVelocity.WithX(decelerated.WholePixels != 0
                     ? decelerated
                     : velocity.WithFraction(decelerated.Fraction));
@@ -435,7 +434,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
 
         // Gravity always stores the fraction word but stores the whole word only below four.
         SnesSignedSixteenSixteen fallingVelocity = state.AirborneVelocity.Y;
-        SnesSignedSixteenSixteen accelerated = fallingVelocity + SnesSignedSixteenSixteen.FromParts(0, 0x2000);
+        SnesSignedSixteenSixteen accelerated = fallingVelocity + SnesSignedSixteenSixteen.FromParts(0, 8192);
         state.AirborneVelocity = state.AirborneVelocity.WithY(unchecked((short)(accelerated.WholeWord - 4)) < 0
             ? accelerated
             : fallingVelocity.WithFraction(accelerated.Fraction));
@@ -468,7 +467,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
         CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot);
-        slot.SpritemapPointer = YardNothingSpritemap;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume."));

@@ -41,4 +41,7 @@ public static class SquareSlopeDefinitions
     /// </remarks>
     public static byte ReadEnemyQuadrant(int tableIndex) =>
         (byte)(ReadSamusQuadrant(tableIndex) | (tableIndex & 3));
+
+    /// <summary>Whether the enemy quadrant at native index 0..19 is solid: its byte's bit seven.</summary>
+    public static bool EnemyQuadrantIsSolid(int tableIndex) => (ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
 }

@@ -47,7 +47,7 @@ internal sealed class GrappleBehavior
 
             // The collision routine stores exactly one, rather than ORing it into an old
             // hurt/frozen handler. The next EnemyMain pass therefore dispatches grapple AI.
-            enemy.AiHandlerBits = 1;
+            enemy.AiHandlerBits = EnemyAiHandlerMasks.Grappled;
             GrappleEnemyReaction reaction = enemy.Definition.GrappleAiPointer switch
             {
                 GrappleAiRoutine.NoInteraction => GrappleEnemyReaction.None,
@@ -78,7 +78,7 @@ internal sealed class GrappleBehavior
     /// </summary>
     internal bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
-        if ((enemy.AiHandlerBits & 1) == 0)
+        if ((enemy.AiHandlerBits & EnemyAiHandlerMasks.Grappled) == 0)
             return false;
 
         switch (enemy.Definition.GrappleAiPointer)
@@ -93,7 +93,7 @@ internal sealed class GrappleBehavior
             case GrappleAiRoutine.Attach:
                 if (!enemy.FrozenTimer.IsZero)
                 {
-                    enemy.AiHandlerBits = 4;
+                    enemy.AiHandlerBits = EnemyAiHandlerMasks.Frozen;
                 }
                 else
                 {
@@ -112,13 +112,13 @@ internal sealed class GrappleBehavior
 
             case GrappleAiRoutine.Cancel:
             case GrappleAiRoutine.HurtSamus:
-                enemy.AiHandlerBits = 4;
+                enemy.AiHandlerBits = EnemyAiHandlerMasks.Frozen;
                 return true;
 
             case GrappleAiRoutine.AttachWithoutInvincibility:
                 if (!enemy.FrozenTimer.IsZero)
                 {
-                    enemy.AiHandlerBits = 4;
+                    enemy.AiHandlerBits = EnemyAiHandlerMasks.Frozen;
                     return true;
                 }
 

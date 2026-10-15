@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
@@ -20,9 +21,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
     /// <summary>8.8 velocity increment applied after each moving frame.</summary>
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
-    private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
-    /// <summary>Library-two sound emitted when a parent begins its jump.</summary>
-    private const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
+    private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = unchecked((ushort)-1024);
 
     /// <summary>Per-slot parent or follower state cleared on each room load.</summary>
     internal readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
@@ -87,7 +86,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
                 state.YVelocity = NorfairLavaJumpDefinitions.InitialVerticalVelocity(random);
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
-                LastNorfairLavaJumpingEnemySoundEffect = NorfairLavaJumpingEnemyJumpSound;
+                LastNorfairLavaJumpingEnemySoundEffect = EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound;
                 return;
 
             case NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch:
@@ -119,7 +118,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
                 // The low screen-row nibble is the retail lava-entry sentinel. Once the
                 // actor reaches row $xF0 it snaps to its exact population origin, restores
                 // the hidden list, and sleeps off-screen until the next jump begins.
-                if ((slot.Position.Y.Whole & 0x00f0) == 0x00f0)
+                if ((slot.Position.Y.Whole & 0x00f0) == 240)
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Hidden);

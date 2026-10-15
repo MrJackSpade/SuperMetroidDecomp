@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 
@@ -39,8 +41,6 @@ internal sealed class CacatacBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Library-two request emitted by the spike-release animation command.</summary>
-    private const ushort CacatacSpikeSound = 0x0034;
 
     /// <summary>Typed patrol and attack state indexed by native enemy slot.</summary>
     internal readonly CacatacEnemyState?[] _cacatacStates =
@@ -75,7 +75,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         }
 
         bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
 
         ushort distance = CacatacMovementDefinitions.TravelDistance((byte)distanceIndex);
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
@@ -180,7 +180,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
-    private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = CacatacSpikeSound;
+    private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = EnemySoundEffectDefinitions.CacatacSpikeSound;
 
     /// <summary>Starts a patrol or attack animation on the next instruction tick.</summary>
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
@@ -347,8 +347,8 @@ internal sealed class CacatacBehavior : IEnemySpecies
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        ushort right = unchecked((ushort)(camera.X + 0x0100));
-        ushort bottom = unchecked((ushort)(camera.Y + 0x0100));
+        ushort right = unchecked((ushort)(camera.X + 256));
+        ushort bottom = unchecked((ushort)(camera.Y + 256));
         bool outside = unchecked((short)(projectile.Position.X.Whole - camera.X)) < 0 ||
             unchecked((short)(right - projectile.Position.X.Whole)) < 0 ||
             unchecked((short)(projectile.Position.Y.Whole - camera.Y)) < 0 ||

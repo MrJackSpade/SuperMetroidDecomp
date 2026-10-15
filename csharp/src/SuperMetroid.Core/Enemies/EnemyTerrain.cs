@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
@@ -60,7 +61,7 @@ internal sealed class EnemyTerrain
 
         ushort topPixel = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
         ushort bottomPixel = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
-        int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & 0xfff0))) >> 4;
+        int spanMinusOne = unchecked((ushort)(bottomPixel - (topPixel & RoomPixelMasks.BlockStart))) >> 4;
         // $A0:C6E2-$C716: the 8-bit multiplier forms (top row & $FF) * width, the target
         // column is added unbounded, and each scanned row adds the width again.
         int firstIndex = unchecked((byte)(topPixel >> 4)) * level.Size.X + (targetEdge >> 4);
@@ -92,17 +93,17 @@ internal sealed class EnemyTerrain
         // center. That prevents a large corrupt displacement from snapping through a wall.
         if (movingLeft)
         {
-            ushort aligned = unchecked((ushort)((targetEdge | 0x000f) + slot.Radius.X + 1));
+            ushort aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.X + 1));
             if (aligned <= slot.Position.X.Whole)
                 slot.Position = slot.Position.WithWholeX(aligned);
             slot.Position = slot.Position.WithFractionX(0);
         }
         else
         {
-            ushort aligned = unchecked((ushort)((targetEdge & 0xfff0) - slot.Radius.X));
+            ushort aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.X));
             if (aligned >= slot.Position.X.Whole)
                 slot.Position = slot.Position.WithWholeX(aligned);
-            slot.Position = slot.Position.WithFractionX(0xffff);
+            slot.Position = slot.Position.WithFractionX(RoomPixelMasks.LastFraction);
         }
         return true;
     }
@@ -126,7 +127,7 @@ internal sealed class EnemyTerrain
 
         ushort leftPixel = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
         ushort rightPixel = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
-        int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & 0xfff0))) >> 4;
+        int spanMinusOne = unchecked((ushort)(rightPixel - (leftPixel & RoomPixelMasks.BlockStart))) >> 4;
         // $A0:C7D0-$C7F0: (target row & $FF) * width plus the left column, then each
         // scanned column steps to the next native block index.
         int firstIndex = unchecked((byte)(targetEdge >> 4)) * level.Size.X + (leftPixel >> 4);
@@ -151,17 +152,17 @@ internal sealed class EnemyTerrain
         // The native outer helper performs this conditional coarse alignment afterward.
         if (movingUp)
         {
-            ushort aligned = unchecked((ushort)((targetEdge | 0x000f) + slot.Radius.Y + 1));
+            ushort aligned = unchecked((ushort)((targetEdge | RoomPixelMasks.WithinBlock) + slot.Radius.Y + 1));
             if (aligned <= slot.Position.Y.Whole)
                 slot.Position = slot.Position.WithWholeY(aligned);
             slot.Position = slot.Position.WithFractionY(0);
         }
         else
         {
-            ushort aligned = unchecked((ushort)((targetEdge & 0xfff0) - slot.Radius.Y));
+            ushort aligned = unchecked((ushort)((targetEdge & RoomPixelMasks.BlockStart) - slot.Radius.Y));
             if (aligned >= slot.Position.Y.Whole)
                 slot.Position = slot.Position.WithWholeY(aligned);
-            slot.Position = slot.Position.WithFractionY(0xffff);
+            slot.Position = slot.Position.WithFractionY(RoomPixelMasks.LastFraction);
         }
         return true;
     }
@@ -463,17 +464,17 @@ internal sealed class EnemyTerrain
         if (remaining == 0)
         {
             if (((slot.Radius.Y + slot.Position.Y.Whole - 1) & 8) == 0)
-                return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
+                return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex);
         }
         else if (remaining == spanMinusOne &&
                  ((slot.Position.Y.Whole - slot.Radius.Y) & 8) != 0)
         {
-            return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
+            return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 2);
         }
 
-        if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0)
+        if (SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex))
             return true;
-        return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 2) & 0x80) != 0;
+        return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 2);
     }
 
     /// <summary>Tests the target half-tile quadrant and the enemy's horizontal span against a square slope.</summary>
@@ -489,17 +490,17 @@ internal sealed class EnemyTerrain
         if (remaining == 0)
         {
             if (((slot.Radius.X + slot.Position.X.Whole - 1) & 8) == 0)
-                return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0;
+                return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex);
         }
         else if (remaining == spanMinusOne &&
                  ((slot.Position.X.Whole - slot.Radius.X) & 8) != 0)
         {
-            return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
+            return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 1);
         }
 
-        if ((SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex) & 0x80) != 0)
+        if (SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex))
             return true;
-        return (SquareSlopeDefinitions.ReadEnemyQuadrant(tableIndex ^ 1) & 0x80) != 0;
+        return SquareSlopeDefinitions.EnemyQuadrantIsSolid(tableIndex ^ 1);
     }
 
     /// <summary>Checks slope height under the enemy center and snaps its Y position to the floor or underside.</summary>
@@ -515,14 +516,14 @@ internal sealed class EnemyTerrain
 
         RoomBlockBehavior bts = block.Bts;
         int xWithinBlock = (bts.SlopeFlipsHorizontally
-            ? slot.Position.X.Whole ^ 0x000f
-            : slot.Position.X.Whole) & 0x000f;
+            ? slot.Position.X.Whole ^ RoomPixelMasks.WithinBlock
+            : slot.Position.X.Whole) & RoomPixelMasks.WithinBlock;
         int height = ReadNonSquareSlopeHeight(bts, xWithinBlock);
         if (movingUp)
         {
             if (!bts.SlopeFlipsVertically)
                 return false;
-            int edgeWithinBlock = ((targetCenter - slot.Radius.Y) & 0x000f) ^ 0x000f;
+            int edgeWithinBlock = ((targetCenter - slot.Radius.Y) & RoomPixelMasks.WithinBlock) ^ RoomPixelMasks.WithinBlock;
             int adjustment = height - edgeWithinBlock - 1;
             if (adjustment > 0)
                 return false;
@@ -532,11 +533,11 @@ internal sealed class EnemyTerrain
 
         if (bts.SlopeFlipsVertically)
             return false;
-        int bottomWithinBlock = (slot.Radius.Y + targetCenter - 1) & 0x000f;
+        int bottomWithinBlock = (slot.Radius.Y + targetCenter - 1) & RoomPixelMasks.WithinBlock;
         int downwardAdjustment = height - bottomWithinBlock - 1;
         if (height - bottomWithinBlock != 1 && downwardAdjustment >= 0)
             return false;
-        slot.Position = slot.Position.WithY(new(unchecked((ushort)(targetCenter + downwardAdjustment)), 0xffff));
+        slot.Position = slot.Position.WithY(new(unchecked((ushort)(targetCenter + downwardAdjustment)), RoomPixelMasks.LastFraction));
         return true;
     }
 
@@ -588,9 +589,9 @@ internal sealed class EnemyTerrain
         if (underside != block.Bts.SlopeFlipsVertically)
             return false;
 
-        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? pixel.X ^ 0x000f : pixel.X) & 0x000f;
+        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? pixel.X ^ RoomPixelMasks.WithinBlock : pixel.X) & RoomPixelMasks.WithinBlock;
         int height = ReadNonSquareSlopeHeight(block.Bts, xWithinBlock);
-        int edgeWithinBlock = underside ? (pixel.Y & 0x000f) ^ 0x000f : pixel.Y & 0x000f;
+        int edgeWithinBlock = underside ? (pixel.Y & RoomPixelMasks.WithinBlock) ^ RoomPixelMasks.WithinBlock : pixel.Y & RoomPixelMasks.WithinBlock;
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
             return false;

@@ -476,7 +476,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>Thirty-two fixed physical enemy records in the native bank-$A0 scheduler, including unused and multipart slots.</summary>
     public const int MaximumEnemyCount = 32;
     /// <summary>Native enemy-record stride in bytes ($0040), used to translate host slot numbers into cartridge indexes $0000..$07C0.</summary>
-    public const int NativeSlotSize = 0x40;
+    public const int NativeSlotSize = 64;
     /// <summary>Maximum four enemy graphics-set entries accepted by the native room tileset arrays.</summary>
     public const int MaximumGraphicsSetCount = 4;
     /// <summary>Post-AI collision snapshots for active physical enemy slots.</summary>
@@ -849,7 +849,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // RTL. Hurt therefore delays frozen AI until flash housekeeping
                 // clears bit two; falling through here prematurely clears flash.
                 if (!ranActorAi &&
-                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    (slot.AiHandlerBits & EnemyAiHandlerMasks.Hurt) != 0 &&
                     Ai.FindHurt(slot) is { } hurt)
                 {
                     hurt(slot, frame);
@@ -858,7 +858,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // $A0:9044 selects the handler from the lowest set AI bit alone. A frozen
                 // clock without bit four (a Geruta flame sharing its parent's freeze)
                 // still runs main AI.
-                if (!ranActorAi && (slot.AiHandlerBits & 0x0004) != 0)
+                if (!ranActorAi && (slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0)
                 {
                     // Rinka's termination tail clears/replaces the current actor record.
                     // The active-index array was frozen before AI, so skip the remainder
@@ -879,7 +879,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                         slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
                     else
                     {
-                        slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
+                        slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~EnemyAiHandlerMasks.Frozen));
                         slot.FrozenTimer = NativeCountdown.FromRaw(slot.AiHandlerBits);
                     }
                     Ai.RunFrozen(slot);
@@ -901,7 +901,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
                     // incorrectly advanced a Metroid's body animation while its frozen
                     // callback still owned the two composited outer sprite objects.
-                    if ((slot.AiHandlerBits & 0x0004) == 0 &&
+                    if ((slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) == 0 &&
                         slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
                         Instructions.ProcessInstructions(
                             slot,
@@ -931,7 +931,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // eight. This is a signed comparison and applies even when another AI bit
                 // remains set; omitting it would strand Metroid in custom hurt forever.
                 if (unchecked((short)(slot.FlashTimer.RawValue - 8)) < 0)
-                    slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0002));
+                    slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~EnemyAiHandlerMasks.Hurt));
             }
         }
 

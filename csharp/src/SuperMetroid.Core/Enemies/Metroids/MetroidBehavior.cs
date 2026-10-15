@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -43,7 +44,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
         {
             case MetroidCueKind.PlayDrainingSound:
                 // The attached loop emits library-two sound $50.
-                LastMetroidSoundEffectLibrary2 = MetroidAnimationSoundEffect;
+                LastMetroidSoundEffectLibrary2 = EnemySoundEffectDefinitions.MetroidAnimationSoundEffect;
                 break;
             case MetroidCueKind.PlayRandomCry:
                 // GenerateRandomNumber advances exactly once and the low three result bits choose one of the eight
@@ -56,18 +57,6 @@ internal sealed class MetroidBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Frozen instruction list for the Metroid's first outer-body sprite object.</summary>
-    private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
-    /// <summary>Frozen instruction list for the Metroid's second outer-body sprite object.</summary>
-    private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;
-    /// <summary>OBJ palette bits installed on both frozen outer-body layers.</summary>
-    private const ushort MetroidFrozenSpritePalette = 0x0c00;
-    /// <summary>Library-three ice sound queued when an unfrozen Metroid takes an Ice shot.</summary>
-    private const ushort MetroidIceSoundEffect = 0x000a;
-    /// <summary>Library-two sound queued when an unfrozen Metroid recoils.</summary>
-    private const ushort MetroidRecoilSoundEffect = 0x005a;
-    /// <summary>Library-two sound selected by Metroid's private animation bytecode.</summary>
-    private const ushort MetroidAnimationSoundEffect = 0x0050;
     /// <summary>Native freeze lifetime once Ice damage exhausts the Metroid's threshold.</summary>
     private const ushort MetroidFrozenDuration = 400;
     /// <summary>Frames for the attached Metroid's Power Bomb escape function.</summary>
@@ -200,8 +189,8 @@ internal sealed class MetroidBehavior : IEnemySpecies
     {
         int lowByteDifference = unchecked((byte)(target - (byte)current));
         int shifted = lowByteDifference << 5;
-        if ((shifted & 0x1000) != 0)
-            shifted |= unchecked((int)0xffffe000);
+        // Sign-extend the 13-bit shifted byte difference.
+        shifted = (shifted << 19) >> 19;
         return Math.Clamp(
             (int)unchecked((short)shifted),
             -MetroidMaximumVelocity,
@@ -246,8 +235,8 @@ internal sealed class MetroidBehavior : IEnemySpecies
             slot.FlashTimer = NativeCountdown.Start(2);
         }
 
-        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyAFrozenInstructionList);
-        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyBFrozenInstructionList);
+        FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenInstructionList);
+        FreezeMetroidOuterBody(state.OuterBodyB, MetroidOuterBodyDefinitions.OuterBodyBFrozenInstructionList);
     }
 
     /// <summary>Ports the palette-bit modulation in custom hurt AI <c>$A3:EB33</c>.</summary>
@@ -319,10 +308,10 @@ internal sealed class MetroidBehavior : IEnemySpecies
     private static void DrainSamusWithMetroid(MetroidEnemyState state, SamusState samus)
     {
         ushort drainRate = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? (ushort)0x3000
+            ? MetroidBehaviorDefinitions.GravityDrainFraction
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? (ushort)0x6000
-                : (ushort)0xc000;
+                ? MetroidBehaviorDefinitions.VariaDrainFraction
+                : MetroidBehaviorDefinitions.PowerSuitDrainFraction;
         ushort oldAccumulator = state.DrainAccumulator;
         state.DrainAccumulator = unchecked((ushort)(oldAccumulator - drainRate));
         if (oldAccumulator >= drainRate)
@@ -364,21 +353,21 @@ internal sealed class MetroidBehavior : IEnemySpecies
         state.Function = MetroidAiFunction.Homing;
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
 
-        if ((collisionProjectileType & 0x0002) != 0)
+        if (new SamusProjectileTypeWord(collisionProjectileType).BeamCombination.HasIce)
         {
-            LastMetroidSoundEffectLibrary3 = MetroidIceSoundEffect;
+            LastMetroidSoundEffectLibrary3 = EnemySoundEffectDefinitions.MetroidIceSoundEffect;
             slot.FlashTimer = NativeCountdown.Start(4);
             if (collisionProjectileDamage >= slot.Parameter2)
             {
                 slot.Parameter2 = 0;
                 slot.FrozenTimer = NativeCountdown.Start(MetroidFrozenDuration);
-                slot.AiHandlerBits |= 0x0004;
+                slot.AiHandlerBits |= EnemyAiHandlerMasks.Frozen;
                 return;
             }
             slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - collisionProjectileDamage));
         }
 
-        LastMetroidSoundEffectLibrary2 = MetroidRecoilSoundEffect;
+        LastMetroidSoundEffectLibrary2 = EnemySoundEffectDefinitions.MetroidRecoilSoundEffect;
     }
 
     /// <summary>Releases an attached Metroid into its four-frame escape and clears Samus's drain palette flag.</summary>
@@ -416,8 +405,8 @@ internal sealed class MetroidBehavior : IEnemySpecies
             ushort random = _room.Random.Generate();
             // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
-                unchecked((short)((random & 0x001f) - 16)),
-                unchecked((short)(((SnesLittleEndian.HighByte(random) & 0x1f)) - 16)));
+                unchecked((short)((random & EnemyDropMasks.ScatterBits) - 16)),
+                unchecked((short)(((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16)));
             _metroidDropRequests.Add(new MetroidDropRequest());
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(origin + scatter, EnemyDefinitionId.Metroid);
         }
@@ -458,7 +447,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
         RoomSpriteObjectSlot outerBody,
         ushort frozenInstructionList)
     {
-        outerBody.GraphicsIndex = MetroidFrozenSpritePalette;
+        outerBody.GraphicsIndex = MetroidOuterBodyDefinitions.FrozenSpritePalette;
         outerBody.DisableFlags = 1;
         outerBody.InstructionPointer = frozenInstructionList;
         // Native drawing reads the selected record even while animation is disabled.
@@ -584,12 +573,12 @@ internal sealed class MetroidBehavior : IEnemySpecies
             c.Projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
 
             byte frozenVulnerability = EnemyCollision.ReadProjectileVulnerability(enemy, c.ProjectileType);
-            int frozenDamage = (c.ProjectileDamage >> 1) * (frozenVulnerability & 0x7f);
-            if (frozenVulnerability != 0xff && frozenDamage != 0)
+            int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(frozenVulnerability);
+            if (!EnemyVulnerabilityDefinitions.IsSentinel(frozenVulnerability) && frozenDamage != 0)
             {
                 ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                 enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                enemy.AiHandlerBits |= 0x0002;
+                enemy.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? (ushort)0
                     : unchecked((ushort)(enemy.Health - frozenDamage));

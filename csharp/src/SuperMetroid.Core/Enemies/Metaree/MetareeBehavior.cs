@@ -44,7 +44,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
     }
 
     /// <summary>Maximum strict horizontal separation for starting a dive, regardless of Samus's vertical side.</summary>
-    private const ushort MetareeHorizontalActivationDistance = 0x48;
+    private const ushort MetareeHorizontalActivationDistance = 72;
     /// <summary>Unsigned Y separation divisor used to choose NTSC dive speed.</summary>
     private const ushort MetareeDiveDivisorNtsc = 24;
     /// <summary>Whole-pixel downward speed added even for zero vertical separation.</summary>

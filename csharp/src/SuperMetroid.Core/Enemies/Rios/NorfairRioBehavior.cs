@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using SuperMetroid.Core.Fx;
 using System.Diagnostics.CodeAnalysis;
@@ -25,11 +26,9 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
     }
 
     /// <summary>Strict wrapped X-distance threshold for a random dive opportunity.</summary>
-    private const ushort NorfairRioHorizontalTriggerDistance = 0x00c0;
+    private const ushort NorfairRioHorizontalTriggerDistance = 192;
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
     private const ushort NorfairRioGravity = 32;
-    /// <summary>Library-two sound queued when a takeoff becomes a dive.</summary>
-    private const ushort NorfairRioDiveSound = 0x0065;
 
     /// <summary>Per-slot Rio and flame-follower state, cleared at room load.</summary>
     internal readonly NorfairRioEnemyState?[] _norfairRioStates =
@@ -131,7 +130,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
                     state,
                     NorfairRioProgram.Descending);
                 state.Function = NorfairRioEnemyFunction.Dive;
-                LastNorfairRioSoundEffect = NorfairRioDiveSound;
+                LastNorfairRioSoundEffect = EnemySoundEffectDefinitions.NorfairRioDiveSound;
                 return;
 
             case NorfairRioEnemyFunction.Dive:
@@ -262,7 +261,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         RoomEnemySlot slot,
         NorfairRioEnemyState state)
     {
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xffff));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1)));
         InstallNorfairRioInstructionList(
             slot,
             state,

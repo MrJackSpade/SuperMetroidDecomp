@@ -46,9 +46,9 @@ internal sealed class HoppersBehavior : IEnemySpecies
     }
 
     /// <summary>Native global RNG seed written when a Hopper initializes.</summary>
-    private const ushort HopperRandomSeed = 0x0025;
+    private const ushort HopperRandomSeed = 37;
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
-    private const ushort MaximumHopperYSpeedTableIndex = 0x0040;
+    private const ushort MaximumHopperYSpeedTableIndex = 64;
 
     /// <summary>Per-slot hop phase, direction and animation state cleared at room load.</summary>
     internal readonly HopperEnemyState?[] _hopperStates =
@@ -94,10 +94,10 @@ internal sealed class HoppersBehavior : IEnemySpecies
         // Both physics rows currently contain the same constants, but the header-dependent
         // byte offset and two independent calculations are part of the ROM contract.
         state.SmallHopInitialYSpeedTableIndex = CalculateInitialHopperYSpeedTableIndex(
-            jumpHeight: 0x1000,
+            jumpHeight: 4096,
             tableIndexDelta: 3);
         state.BigHopInitialYSpeedTableIndex = CalculateInitialHopperYSpeedTableIndex(
-            jumpHeight: 0x3000,
+            jumpHeight: 12288,
             tableIndexDelta: 4);
     }
 

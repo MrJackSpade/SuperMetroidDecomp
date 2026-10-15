@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -34,15 +35,15 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         {
             case AlcoonCueKind.FireUpward:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 0);
-                LastAlcoonSoundEffect = AlcoonFireSound;
+                LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonFireSound;
                 return null;
             case AlcoonCueKind.FireHorizontally:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 2);
-                LastAlcoonSoundEffect = AlcoonFireSound;
+                LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonFireSound;
                 return null;
             case AlcoonCueKind.FireDownward:
                 SpawnAlcoonFireball(slot, yVelocityTableByteOffset: 4);
-                LastAlcoonSoundEffect = AlcoonFireSound;
+                LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonFireSound;
                 return null;
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
@@ -56,13 +57,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     }
 
     /// <summary>Maximum horizontal distance for activation, after the landing-height check.</summary>
-    private const ushort AlcoonEmergeXDistance = 0x0050;
+    private const ushort AlcoonEmergeXDistance = 80;
     /// <summary>Distance from spawn that causes an emerged Alcoon to jump back underground.</summary>
-    private const ushort AlcoonHideXDistance = 0x0070;
-    /// <summary>Library-two sound queued when Alcoon emerges near Samus.</summary>
-    private const ushort AlcoonEmergeSound = 0x005e;
-    /// <summary>Library-two sound queued by each fireball instruction.</summary>
-    private const ushort AlcoonFireSound = 0x003f;
+    private const ushort AlcoonHideXDistance = 112;
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
@@ -174,7 +171,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         if (samus is null)
             throw new InvalidOperationException("Alcoon proximity AI requires the active Samus actor.");
 
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.Position.Y.Whole))) >= 0x20)
+        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.Position.Y.Whole))) >= 32)
             return;
 
         ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
@@ -193,7 +190,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             InstallAlcoonInstruction(slot, state, AlcoonProgram.AirborneRightLookingUp);
         }
         state.Function = AlcoonEnemyFunction.EmergingRising;
-        LastAlcoonSoundEffect = AlcoonEmergeSound;
+        LastAlcoonSoundEffect = EnemySoundEffectDefinitions.AlcoonEmergeSound;
     }
 
     /// <summary>Integrates the emerging ascent until vertical velocity ceases to be negative.</summary>
@@ -327,7 +324,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             SnesSignedSixteenSixteen.Zero, SnesSignedSixteenSixteen.FromParts(-12, 0));
         state.ClearedVariable = 0;
         state.YAcceleration = 0;
-        state.YSubacceleration = 0x8000;
+        state.YSubacceleration = 32768;
     }
 
     /// <summary>Adds the per-slot 16.16 acceleration to Alcoon's vertical velocity.</summary>
@@ -451,11 +448,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             state.Program = cursor;
         });
     /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
-    private const ushort AlcoonFireballGraphicsHorizontalSpeed = 0x0400;
+    private const ushort AlcoonFireballGraphicsHorizontalSpeed = 1024;
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
-    private const ushort AlcoonFireballTerminalHorizontalSpeed = 0x0200;
+    private const ushort AlcoonFireballTerminalHorizontalSpeed = 512;
     /// <summary>Native 8.8 horizontal speed reduction applied per fireball update.</summary>
-    private const ushort AlcoonFireballHorizontalDeceleration = 0x0040;
+    private const ushort AlcoonFireballHorizontalDeceleration = 64;
 
     /// <summary>
     /// Ports <c>InitAI_EnemyProjectile_AlcoonFireball</c> at <c>$86:9EB2</c>. The parameter

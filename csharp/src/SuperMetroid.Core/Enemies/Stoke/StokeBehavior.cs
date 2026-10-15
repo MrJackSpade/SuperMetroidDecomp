@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -81,7 +82,7 @@ internal sealed class StokeBehavior : IEnemySpecies
         // Initialization writes the common empty map, then picks the left list by default.
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
         // restores the transient empty map, and the first instruction tick supplies art.
-        slot.SpritemapPointer = 0x804d;
+        slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         SetStokeProgram(slot, state, StokeProgram.MovingLeft);
         if (slot.Parameter1 != 0)
         {

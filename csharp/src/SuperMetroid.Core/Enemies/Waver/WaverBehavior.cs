@@ -32,7 +32,7 @@ internal sealed class WaverBehavior : IEnemySpecies
     }
 
     /// <summary>Native horizontal speed of one and a half pixels per update in signed 16.16 form.</summary>
-    private const int WaverHorizontalSpeedFixed = 0x00018000;
+    private const int WaverHorizontalSpeedFixed = 98304;
     /// <summary>Four-pixel amplitude used by Waver's negative-sine vertical motion.</summary>
     private const int WaverVerticalRadius = 4;
 
@@ -102,7 +102,7 @@ internal sealed class WaverBehavior : IEnemySpecies
             {
                 // Vertical collision reflects the sine phase by half a turn. The explicit
                 // byte mask matters when a debugger has written high garbage into var3.
-                state.Angle = unchecked((ushort)(unchecked((byte)(state.Angle + 0x80))));
+                state.Angle = unchecked((ushort)(unchecked((byte)(state.Angle + EnemyByteAngleDefinitions.HalfTurn))));
             }
             else
             {
@@ -112,7 +112,7 @@ internal sealed class WaverBehavior : IEnemySpecies
 
         // Once per half-wave, angle low seven bits equal $38. Waver temporarily swaps to
         // the four-map spin list without changing the facing bit.
-        if ((state.Angle & 0x7f) == 0x38)
+        if ((state.Angle & 0x7f) == 56)
         {
             state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
             SetWaverProgram(slot, state);

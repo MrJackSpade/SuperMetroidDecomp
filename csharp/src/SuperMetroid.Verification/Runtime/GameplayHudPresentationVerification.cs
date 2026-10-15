@@ -40,10 +40,12 @@ internal static class GameplayHudPresentationVerification
                 InHudRange(address, GameplayHudDefinitions.AmmoDigitsAddress, 20) ||
                 InHudRange(address, GameplayHudDefinitions.AutoReserveTableAddress, 24),
             address => $"Unexpected gameplay HUD presentation ROM read ${address:X6}.");
-        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-            { Artwork = { MapPresentation = original } };
+        var topRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        // A queue restored from before presentation was bound still sources the row from $80:988B; binding the
+        // presentation rebinds that pending transfer to the installed asset, as a fresh HUD setup queues it.
         topRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
             GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
+        topRowRuntime.Artwork.MapPresentation = original;
         topRowRuntime.VramWrites.DrainTo(topRowRuntime.Vram, ReferenceMutableMemory.From(guard), topRowRuntime.Artwork);
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
@@ -115,8 +117,9 @@ internal static class GameplayHudPresentationVerification
             "gameplay HUD override changes selected catalog identity");
         var editedTopRowRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
             { Artwork = { MapPresentation = edited } };
-        editedTopRowRuntime.VramWrites.Enqueue(GameplayHudDefinitions.TopRowByteCount,
-            GameplayHudDefinitions.TopRowAddress, VramDmaDestination.FromNative(0x5800));
+        // With presentation bound, the HUD setup queues the immutable row as its installed asset.
+        editedTopRowRuntime.VramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
+            VramDmaDestination.FromNative(0x5800));
         editedTopRowRuntime.VramWrites.DrainTo(editedTopRowRuntime.Vram, ReferenceMutableMemory.From(guard),
             editedTopRowRuntime.Artwork);
         AssertTrue(editedTopRowRuntime.Vram.Bytes.Slice(0xb000,

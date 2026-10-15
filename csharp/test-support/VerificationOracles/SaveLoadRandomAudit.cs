@@ -79,6 +79,12 @@ internal static class SaveLoadRandomAudit
             for (int call = 0; call < 426 + wait; call++) probe.NextRandom();
             if (probe.RandomNumber != nativeLoaded[wait])
                 throw new InvalidDataException("RNG generator no longer matches its recorded original-CPU words.");
+            // State six built the runtime in its loading dispatch, then waits for its NMIs
+            // ($82:8000); those continuations make no main-loop RNG call.
+            while (game.NextUpdateResumesNmiWait)
+                Step(0);
+            if (runtime.System.RandomNumber != expected.RandomNumber)
+                throw new InvalidDataException("State six's loading waits must not advance RNG.");
             Step(0);
             expected.NextRandom();
             if (runtime.System.RandomNumber != expected.RandomNumber)
@@ -89,8 +95,11 @@ internal static class SaveLoadRandomAudit
             game.GameState = SuperMetroidGameState.FileSelectMap;
             for (int tick = 0; tick < 1000 && (game.RuntimeForVerification is null || ReferenceEquals(runtime, game.RuntimeForVerification)); tick++)
             {
+                // The map's final dispatch resumes after its forced-blank NMI wait without a main-loop call.
+                bool resumesNmiWait = game.NextUpdateResumesNmiWait;
                 game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : (ushort)0, ++sequence, 1);
-                expected.NextRandom();
+                if (!resumesNmiWait)
+                    expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)
                     throw new InvalidDataException("Continued save lost the live runtime RNG at the file-map/load handoff.");
             }

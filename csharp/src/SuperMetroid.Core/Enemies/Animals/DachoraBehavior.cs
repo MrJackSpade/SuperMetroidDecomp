@@ -271,9 +271,9 @@ internal sealed class DachoraBehavior : IEnemySpecies
                 }
                 LoadDachoraPalette(slot, DachoraPalettePhase.Speed, paletteIndex);
                 state.PaletteAnimationTimer = unchecked((ushort)(
-                    state.PaletteAnimationTimer + 0x0110));
-                if (unchecked((short)(state.PaletteAnimationTimer - 0x0410)) >= 0)
-                    state.PaletteAnimationTimer = 0x0310;
+                    state.PaletteAnimationTimer + DachoraPaletteDefinitions.SpeedStep));
+                if (unchecked((short)(state.PaletteAnimationTimer - DachoraPaletteDefinitions.SpeedEnd)) >= 0)
+                    state.PaletteAnimationTimer = DachoraPaletteDefinitions.SpeedRestart;
             }
         }
 
@@ -456,7 +456,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         if (lifetime != 0)
         {
             state.VerticalSubaccelerationOrLifetime = unchecked((ushort)(lifetime - 1));
-            bool oddNativeSlot = (slot.NativeIndex & 0x0040) != 0;
+            bool oddNativeSlot = (slot.SlotIndex & 1) != 0;
             bool visible = oddNativeSlot
                 ? (nmiFrameCounter8 & 1) != 0
                 : (nmiFrameCounter8 & 1) == 0;
@@ -479,8 +479,8 @@ internal sealed class DachoraBehavior : IEnemySpecies
                 $"Dachora shine palette index {paletteIndex} exceeds the retail table.");
         }
         LoadDachoraPalette(slot, DachoraPalettePhase.Shine, paletteIndex);
-        state.PaletteAnimationTimer = unchecked((ushort)(state.PaletteAnimationTimer + 0x0100));
-        if (unchecked((short)(state.PaletteAnimationTimer - 0x0400)) >= 0)
+        state.PaletteAnimationTimer = unchecked((ushort)(state.PaletteAnimationTimer + DachoraPaletteDefinitions.ShineStep));
+        if (unchecked((short)(state.PaletteAnimationTimer - DachoraPaletteDefinitions.ShineEnd)) >= 0)
             state.PaletteAnimationTimer = 0;
     }
 

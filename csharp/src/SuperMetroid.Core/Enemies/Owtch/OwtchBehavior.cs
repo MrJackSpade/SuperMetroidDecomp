@@ -135,7 +135,7 @@ internal sealed class OwtchBehavior : IEnemySpecies
                     // gameplay runtime supplies that read seam; isolated callers without it
                     // retain the established advancing fallback used by other translated AI.
                     ushort random = _room.Random.Read();
-                    state.Behavior = (random & 0x0100) == 0
+                    state.Behavior = (random & OwtchMovementDefinitions.BehaviorRandomBit) == 0
                         ? OwtchBehaviorState.MovingLeft
                         : OwtchBehaviorState.MovingRight;
                 }

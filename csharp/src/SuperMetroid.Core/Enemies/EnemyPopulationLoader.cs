@@ -97,9 +97,9 @@ internal sealed class EnemyPopulationLoader
                 "Enemy population requires installed palette artwork."))
                 .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(unchecked((byte)vramDestination)));
 
-            int byteCount = definition.TileDataSize & 0x7fff;
-            int stagingOffset = (definition.TileDataSize & 0x8000) != 0
-                ? (vramDestination & 0x3000) >> 3
+            int byteCount = definition.TileDataSize & EnemyTileDataMasks.ByteCountBits;
+            int stagingOffset = (definition.TileDataSize & EnemyTileDataMasks.FixedStagingBit) != 0
+                ? (vramDestination & EnemyTileDataMasks.StagingBlockBits) >> 3
                 : nextStagingOffset;
             int vramByteOffset = RoomEnemyRomLayout.VramByteBase + stagingOffset;
             if (vramByteOffset < 0 || stagingOffset + byteCount > new EnemyVram(vram).EnemyTiles.ByteCount)
@@ -185,7 +185,7 @@ internal sealed class EnemyPopulationLoader
             {
                 return (
                     entry.VramTilesIndex,
-                    unchecked((ushort)((entry.VramDestination & 0x000f) << 9)));
+                    unchecked((ushort)((entry.VramDestination & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
             }
         }
 

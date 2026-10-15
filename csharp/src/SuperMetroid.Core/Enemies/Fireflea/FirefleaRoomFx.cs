@@ -38,8 +38,8 @@ internal static class FirefleaRoomFx
             FirefleaFxDefinitions.DarknessShade(darkness)));
         byte shade = SnesLittleEndian.HighByte(combined);
         var fixedColor = new FixedColorMemory(bus);
-        fixedColor.Green = (byte)(shade | 0x80);
-        fixedColor.Blue = (byte)(shade | 0x40);
-        fixedColor.Red = (byte)(shade | 0x20);
+        fixedColor.Green = (byte)(shade | FirefleaFxDefinitions.FixedColorGreenBits);
+        fixedColor.Blue = (byte)(shade | FirefleaFxDefinitions.FixedColorBlueBits);
+        fixedColor.Red = (byte)(shade | FirefleaFxDefinitions.FixedColorRedBits);
     }
 }

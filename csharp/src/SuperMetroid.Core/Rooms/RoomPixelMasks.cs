@@ -11,4 +11,10 @@ internal static class RoomPixelMasks
 
     /// <summary>The largest fraction: the position sits just short of the next whole pixel.</summary>
     internal const ushort LastFraction = 0xffff;
+
+    /// <summary>Clears the coordinate's offset within an eight-pixel half block.</summary>
+    internal const int HalfBlockStart = 0xfff8;
+
+    /// <summary>Bits 4-7: a coordinate's block row within its 256-pixel screen.</summary>
+    internal const int BlockRowWithinScreenBits = 0x00f0;
 }

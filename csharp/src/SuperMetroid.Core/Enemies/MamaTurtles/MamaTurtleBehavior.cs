@@ -84,8 +84,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Native solid property applied while Samus rides the sleeping shell contour.</summary>
-    private const ushort MamaTurtleSolidProperty = 0x8000;
     /// <summary>Maximum crawl distance from a baby's spawn before its list reverses direction.</summary>
     private const ushort BabyTurtleTravelDistance = 48;
     /// <summary>Upper room Y where Mama pauses after a rider-powered ascent.</summary>
@@ -249,7 +247,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
         short contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(unchecked((ushort)-contourOffset));
-        mama.Properties = unchecked((ushort)(mama.Properties | MamaTurtleSolidProperty));
+        mama.Properties = unchecked((ushort)(mama.Properties | (ushort)EnemyProperties.SolidToSamus));
 
         if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
             return;
@@ -714,7 +712,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if ((mama.Properties & MamaTurtleSolidProperty) != 0)
+        if ((mama.Properties & (ushort)EnemyProperties.SolidToSamus) != 0)
             return;
         _collision.ResolveNormalEnemyTouch(mama, samus);
         state.Function = MamaTurtleAiFunction.Falling;

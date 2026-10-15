@@ -137,7 +137,7 @@ internal sealed class SparkBehavior : IEnemySpecies
         if (unchecked((short)baseTime) < 0)
         {
             Func<ushort> nextRandom = _room.Random.Generate;
-            baseTime = unchecked((ushort)((nextRandom() & 0x003f) + 4));
+            baseTime = unchecked((ushort)((nextRandom() & 63) + 4));
         }
 
         state.FunctionTimer = unchecked((ushort)(baseTime + additionalTime));

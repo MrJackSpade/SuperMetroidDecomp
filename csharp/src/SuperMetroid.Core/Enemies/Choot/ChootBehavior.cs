@@ -98,7 +98,7 @@ internal sealed class ChootBehavior : IEnemySpecies
         // In particular, $8000 remains $8000 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
         ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        if ((distance & 0x8000) != 0)
+        if (EnemyMath.IsNegative16(distance))
             distance = unchecked((ushort)-distance);
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
             return;

@@ -97,5 +97,5 @@ public sealed class FirefleaEnemyState
     }
 
     /// <summary>Native init0/parameter-one bit $0002 selects circular motion; otherwise the actor moves vertically between its saved extrema.</summary>
-    public bool UsesCircularMovement => (_slot.Parameter1 & 0x0002) != 0;
+    public bool UsesCircularMovement => (_slot.Parameter1 & FirefleaMovementDefinitions.CircularMovementParameterBit) != 0;
 }

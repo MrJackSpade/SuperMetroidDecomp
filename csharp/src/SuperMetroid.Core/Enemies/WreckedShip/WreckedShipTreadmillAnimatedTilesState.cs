@@ -125,7 +125,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         for (int guard = 0; guard < 64; guard++)
         {
             ushort word = ReadMechanicsWord(cursor);
-            if ((word & 0x8000) == 0)
+            if (!EnemyMath.IsNegative16(word))
             {
                 if (word == 0)
                 {

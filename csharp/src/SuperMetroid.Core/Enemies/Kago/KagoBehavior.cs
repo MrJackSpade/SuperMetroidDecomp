@@ -303,14 +303,14 @@ internal sealed class KagoBehavior : IEnemySpecies
         {
             // A wall ends the rising phase immediately in the cartridge: both X velocity
             // and the upward component are replaced before selecting the falling list.
-            projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0x0100));
+            projectile.Velocity = new(new SnesSignedEightEight(0), SnesSignedEightEight.FromSignedRaw(256));
             BeginKagoBugFall(projectile);
             return;
         }
 
         if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
         {
-            projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0x0100));
+            projectile.Velocity = projectile.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(256));
             BeginKagoBugFall(projectile);
             return;
         }
@@ -361,7 +361,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & 0x0300) + 2048));
+        ushort upwardMagnitude = unchecked((ushort)((ReadKagoRandomNumber() & KagoDefinitions.JumpHeightRandomBits) + 2048));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-upwardMagnitude)));
 
         RoomEnemySlot source = _slotTable.SlotFromNativeIndex(projectile.Variable1);
@@ -376,7 +376,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         {
             // Inside that band the cartridge reuses bit $0100 of the chosen vertical speed
             // as a direction bit instead of requesting a second random sample.
-            jumpLeft = (upwardMagnitude & 0x0100) != 0;
+            jumpLeft = (upwardMagnitude & KagoDefinitions.LeftJumpBit) != 0;
         }
 
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(jumpLeft
@@ -390,7 +390,7 @@ internal sealed class KagoBehavior : IEnemySpecies
     internal void StartKagoBugIdle(RoomEnemyProjectileSlot projectile)
     {
         projectile.CollidedProjectileType = unchecked((ushort)(
-            (ReadKagoRandomNumber() & 0x001f) + 1));
+            (ReadKagoRandomNumber() & 31) + 1));
         projectile.PreInstruction =
             (ushort)EnemyProjectilePreInstruction.KagoBug_Idle;
     }

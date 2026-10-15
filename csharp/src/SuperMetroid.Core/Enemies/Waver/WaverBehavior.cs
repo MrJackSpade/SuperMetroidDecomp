@@ -112,7 +112,7 @@ internal sealed class WaverBehavior : IEnemySpecies
 
         // Once per half-wave, angle low seven bits equal $38. Waver temporarily swaps to
         // the four-map spin list without changing the facing bit.
-        if ((state.Angle & 0x7f) == 56)
+        if ((state.Angle & EnemyByteAngleDefinitions.HalfWaveIndexMask) == 56)
         {
             state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
             SetWaverProgram(slot, state);

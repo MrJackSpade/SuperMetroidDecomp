@@ -37,5 +37,5 @@ internal readonly record struct EnemyShotContext(
     /// blocks plasma.
     /// </summary>
     internal bool MarksCollision =>
-        Enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) || (Projectile.Type & 0x0008) == 0;
+        Enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) || !new SamusProjectileTypeWord(Projectile.Type).BeamCombination.HasPlasma;
 }

@@ -137,8 +137,8 @@ internal sealed class EnemyDrawList
                     foreach (EnemyExtendedDrawComponent component in installed.Span)
                     {
                         Position16<OamPixels> componentOrigin = origin.ToOam() + component.Offset;
-                        if (((componentOrigin.X + 128) & 0xfe00) != 0 ||
-                            ((componentOrigin.Y + 128) & 0xfe00) != 0)
+                        if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
+                            ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
                             continue;
                         oam.AddEnemySpritemap(component.Parts, componentOrigin, drawPaletteIndex, slot.VramTilesIndex,
                             clipVerticalWrap: true,
@@ -187,7 +187,7 @@ internal sealed class EnemyDrawList
             return 0;
 
         if (!slot.FrozenTimer.IsZero &&
-            (slot.FrozenTimer.RawValue >= 0x005a || (slot.FrozenTimer.RawValue & 2) != 0))
+            (slot.FrozenTimer.RawValue >= 90 || (slot.FrozenTimer.RawValue & 2) != 0))
         {
             return EnemyFrozenPaletteDefinitions.PaletteBits;
         }

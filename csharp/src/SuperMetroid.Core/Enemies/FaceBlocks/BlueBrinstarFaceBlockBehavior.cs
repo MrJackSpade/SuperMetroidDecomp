@@ -115,7 +115,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         if (AbsoluteFaceBlockDelta(horizontalDelta) >= slot.Parameter1)
             return;
 
-        ushort horizontalSign = unchecked((ushort)(horizontalDelta & 0x8000));
+        ushort horizontalSign = unchecked((ushort)(horizontalDelta & EnemyWordMasks.SignBit));
         if (horizontalSign == slot.Parameter2)
             return;
 

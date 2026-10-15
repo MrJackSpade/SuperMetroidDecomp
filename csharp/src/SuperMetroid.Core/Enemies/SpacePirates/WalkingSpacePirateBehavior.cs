@@ -560,14 +560,14 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         if (pirateAction == EnemyCollision.PirateHitboxShotAction.Reflect)
         {
             c.Enemy.InvincibilityTimer = NativeCountdown.Start(10);
-            c.Projectile.Direction = (c.Projectile.Direction & 0x000f) switch
+            c.Projectile.Direction = (c.Projectile.Direction & SamusProjectileDirectionMasks.Direction) switch
             {
                 (ushort)SamusProjectileDirection.Left => (ushort)SamusProjectileDirection.UpRight,
                 (ushort)SamusProjectileDirection.Right => (ushort)SamusProjectileDirection.UpLeft,
                 _ => (ushort)SamusProjectileDirection.DownFacingLeft,
             };
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Bus, c.Projectile.SlotIndex);
-            LastSpacePirateSoundEffect = 0x0066;
+            LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;
             return true;
         }
         return false;

@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Bank-qualified decoding of the raw 16-bit callback words enemy headers and hitboxes store.</summary>
 internal static class EnemyInteractionCallbacks
 {
-    /// <summary>Bank of the shared-prologue copies that value the common members.</summary>
-    private const int CommonPrologueBank = 0xa0;
 
     /// <summary>
     /// Names the callback a raw word selects in <paramref name="bank"/>, or null for a routine
@@ -13,7 +11,7 @@ internal static class EnemyInteractionCallbacks
     /// </summary>
     internal static EnemyInteractionCallback? TryDecode(byte bank, ushort pointer)
     {
-        var common = (EnemyInteractionCallback)(((int)new SnesAddress(checked((byte)CommonPrologueBank), pointer)));
+        var common = (EnemyInteractionCallback)(((int)new SnesAddress(EnemyAiCodePointers.BankA0.Bank, pointer)));
         if (common is EnemyInteractionCallback.NormalEnemyTouch or EnemyInteractionCallback.NormalEnemyShot or
             EnemyInteractionCallback.DudShot or EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
             return common;

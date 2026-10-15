@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Unrelated WRAM words that enemy code reads through native table or operand quirks (#629).</summary>
 [CpuBusBoundary("catalog: enemy over-read WRAM words")]
+[SnesEncodingOwner]
 public static class EnemyOverreadWorkRam
 {
     /// <summary>

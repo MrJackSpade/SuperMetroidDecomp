@@ -32,4 +32,7 @@ internal static class DeadSidehopperCorpseDefinitions
         RotationTablePointer: 0xe240,
         FinishFunction: 0xdc08,
         WrapOffset: 0x0094);
+
+    /// <summary>The palette stage of a corpse that has not started its palette sequence.</summary>
+    internal const ushort NoPaletteStage = 0xffff;
 }

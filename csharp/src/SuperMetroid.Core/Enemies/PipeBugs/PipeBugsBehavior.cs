@@ -227,7 +227,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             return;
 
         ushort deltaX = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
-        state.VariableA = (ushort)(state.VariableA & 0x7fff | (deltaX & 0x8000));
+        state.VariableA = (ushort)(state.VariableA & EnemyWordMasks.BelowSignBits | (deltaX & EnemyWordMasks.SignBit));
         if (EnemyMath.WrappedMagnitude(unchecked((ushort)(slot.Position.X.Whole - samus.Position.X.Whole))) >=
             BrinstarPipeBugTriggerWidth)
         {
@@ -237,7 +237,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.BrinstarEmerge;
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         slot.Timer = NativeCountdown.Start(0);
-        state.AnimationState = (state.VariableA & 0x8000) != 0
+        state.AnimationState = EnemyMath.IsNegative16(state.VariableA)
             ? PipeBugAnimationSelector.None
             : PipeBugAnimationSelector.FacingRight;
         SelectBrinstarPipeBugAnimation(slot, state);
@@ -275,7 +275,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         ushort cameraX)
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
-            ((state.VariableA & 0x8000) != 0 ? -2 : 2))));
+            (EnemyMath.IsNegative16(state.VariableA) ? -2 : 2))));
         // $B3:8949 tests only the horizontal screen extent.
         if (!EnemyProcessingWindow.EnemyIsHorizontallyOffScreen(slot, cameraX))
             return;

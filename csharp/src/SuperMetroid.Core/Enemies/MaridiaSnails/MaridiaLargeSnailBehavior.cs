@@ -281,7 +281,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
                 // native AND $7F00 is retained even though valid bounce indexes stay below
                 // $4000; it documents the exact table-index formation seen in a debugger.
                 ushort tableIndex = unchecked((ushort)(
-                    SnesEightEight.WholeOf(state.YSpeedTableIndex & 0x7f00)));
+                    SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits)));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,

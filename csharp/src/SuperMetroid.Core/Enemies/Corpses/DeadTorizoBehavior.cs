@@ -301,11 +301,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
         state.LastFinishedEntryIndex = entryIndex;
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)((random & 0x001f) + 272)), 188),
+            new(unchecked((ushort)((random & CorpseDustDefinitions.TorizoSpreadBits) + 272)), 188),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)
-            LastDeadTorizoSoundEffect = 0x0010;
+            LastDeadTorizoSoundEffect = EnemySoundEffectDefinitions.DeadTorizoRotSound;
     }
 
     /// <summary>Copies the first bitplane word of eighteen spaced source rows into sand scratch WRAM.</summary>
@@ -400,7 +400,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
 
     /// <summary>Applies the cartridge's unsigned-word two's-complement absolute operation.</summary>
     private static ushort NativeAbsolute(ushort value) =>
-        (value & 0x8000) == 0 ? value : unchecked((ushort)(~value + 1));
+        !EnemyMath.IsNegative16(value) ? value : unchecked((ushort)(~value + 1));
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

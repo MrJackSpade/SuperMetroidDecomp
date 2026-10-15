@@ -587,7 +587,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     {
         IReadOnlyList<ushort> collisions = samus.Kinematics.SolidEnemyCollisionIndexes;
         ushort combined = unchecked((ushort)(collisions[0] & collisions[1] & collisions[2] & collisions[3]));
-        return combined != 0xffff &&
+        return combined != ShutterContactDefinitions.NoSolidEnemy &&
             combined == slot.NativeIndex &&
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
     }

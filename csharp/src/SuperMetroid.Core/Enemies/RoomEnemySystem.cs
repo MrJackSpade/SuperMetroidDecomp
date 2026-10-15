@@ -1502,7 +1502,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                                            c.SelectedShotAi == EnemyInteractionCallback.SparkShot ||
                                            c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
                                            c.SelectedShotAi == EnemyInteractionCallback.BlueBrinstarFaceBlockShot,
-            c => c.Bomb.Direction = unchecked((ushort)(c.Bomb.Direction & 0xffef)));
+            c => c.Bomb.Direction = unchecked((ushort)(c.Bomb.Direction & ~SamusProjectileDirectionMasks.Spent)));
         PhantoonBehavior.RegisterPhantoonBombReactions(table);
         MamaTurtleBehavior.RegisterMamaTurtleBombReactions(table);
         RinkaBehavior.RegisterRinkaBombReactions(table);
@@ -1692,7 +1692,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // family to explosion `$0700`. Blue Brinstar's face block shares that behavior.
         EnemyShotStage passThrough = (in EnemyShotContext c) =>
         {
-            c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction & 0xffef));
+            c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction & ~SamusProjectileDirectionMasks.Spent));
             return true;
         };
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&

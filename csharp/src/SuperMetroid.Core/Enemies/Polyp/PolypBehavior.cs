@@ -112,7 +112,7 @@ internal sealed class PolypBehavior : IEnemySpecies
     private static bool IsWithinPolypAxis(ushort samusCoordinate, ushort enemyCoordinate)
     {
         ushort difference = unchecked((ushort)(samusCoordinate - enemyCoordinate));
-        ushort magnitude = (difference & 0x8000) != 0
+        ushort magnitude = EnemyMath.IsNegative16(difference)
             ? unchecked((ushort)-difference)
             : difference;
         return unchecked((short)(magnitude - PolypProximity)) < 0;

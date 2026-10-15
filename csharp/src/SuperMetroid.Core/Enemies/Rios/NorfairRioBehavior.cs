@@ -90,7 +90,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
                 // The retail gate tests bits eight and zero of the newly-generated random
                 // word, then the strict modular X distance. Failure also consumes a pending
                 // animation signal and restores the idle list without starting an attack.
-                if (samus is null || (random & 0x0101) == 0 ||
+                if (samus is null || (random & RioLaunchDefinitions.AttackRandomBits) == 0 ||
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
@@ -247,7 +247,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
         // following child, +$7C0 reaches the parent's family-extra block: some_flag is the
         // installed-list word and field_4 is its signed follower Y offset. The drawing-queue
         // offsets in the same routine alias the parent's live X/Y position words.
-        NorfairRioProgram followerList = (parentState.FollowerYOffset & 0x8000) != 0
+        NorfairRioProgram followerList = EnemyMath.IsNegative16(parentState.FollowerYOffset)
             ? NorfairRioProgram.FlamesDescending
             : NorfairRioProgram.FlamesAscending;
         InstallNorfairRioInstructionList(follower, followerState, followerList);
@@ -312,7 +312,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
     {
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
         if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Geruta ||
-            (parent.Parameter1 & 0x8000) != 0)
+            (parent.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
         {
             throw new InvalidDataException(
                 $"Norfair Rio follower in slot {follower.SlotIndex} must immediately follow " +

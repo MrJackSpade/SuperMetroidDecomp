@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public static class EnemyPropertyFlagExtensions
 {
-    /// <summary>
-    /// All independently composable high-byte bits in a cartridge enemy-property word.
-    /// The low byte remains family-owned data and is deliberately preserved by every helper.
-    /// </summary>
-    public const ushort KnownPropertyFlagMask = 0xff00;
 
     /// <summary>
     /// Reads the typed high-byte flags while retaining the family-specific low byte in the
@@ -114,7 +109,7 @@ public static class EnemyPropertyFlagExtensions
     /// <summary>Rejects low-byte values before changing the named high-byte property flags.</summary>
     private static void ValidateKnown(EnemyProperties flags)
     {
-        if (((ushort)flags & ~KnownPropertyFlagMask) != 0)
+        if (((ushort)flags & ~EnemyPropertyMasks.KnownFlags) != 0)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(flags), flags, "EnemyProperties accepts only named high-byte flags.");

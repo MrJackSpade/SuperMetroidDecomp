@@ -120,7 +120,7 @@ internal static class EnemyMath
     internal static int ReadEightBitSineProduct(ushort angle, ushort radius)
     {
         int byteAngle = unchecked((byte)angle);
-        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
+        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         int magnitude = SnesEightEight.Multiply(sample, SnesLittleEndian.LowByte(radius));
         return byteAngle < EnemyByteAngleDefinitions.HalfTurn ? magnitude : -magnitude;
     }
@@ -155,7 +155,7 @@ internal static class EnemyMath
         ushort radius)
     {
         int byteAngle = unchecked((byte)angle);
-        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
+        int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         ushort product = unchecked((ushort)(sample * (SnesLittleEndian.LowByte(radius))));
         ushort whole = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
         ushort fraction = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
@@ -198,7 +198,7 @@ internal static class EnemyMath
         ushort magnitude,
         ushort angleOffset)
     {
-        int tableIndex = unchecked((ushort)(angle + angleOffset)) & 0x007f;
+        int tableIndex = unchecked((ushort)(angle + angleOffset)) & EnemyByteAngleDefinitions.HalfWaveIndexMask;
         ushort sample = EnemyTrigonometryTables.UnsignedHalfWave(tableIndex);
         uint product = (uint)sample * magnitude;
         return unchecked((int)product);

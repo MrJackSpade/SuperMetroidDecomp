@@ -51,7 +51,7 @@ internal sealed class RipperBehavior : IEnemySpecies
         // with a nonzero speed field selects the positive pair, even when bit eight is set.
         ushort packedSelector = slot.CurrentInstruction;
         state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
-        bool selectsPositiveVelocity = (packedSelector & 0xfeff) != 0;
+        bool selectsPositiveVelocity = (packedSelector & RipperMasks.VelocitySelectorBits) != 0;
         LoadRipperVelocity(slot, selectsPositiveVelocity);
         SetRipperProgram(
             slot,

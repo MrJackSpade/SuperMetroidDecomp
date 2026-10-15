@@ -112,7 +112,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         int paletteNumber = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
             slot.PaletteIndex).PaletteIndex;
         _magdollitePaletteBaseByteOffset = unchecked((ushort)(
-            paletteNumber * 0x20 + 0x0100));
+            paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase));
         _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);
         _magdollitePaletteAnimationIndex = 0;
     }

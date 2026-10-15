@@ -275,7 +275,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         }
 
         Func<ushort> readRandomNumber = _room.Random.Read;
-        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 0x001f) + 16)));
+        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 31) + 16)));
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingProgram;
     }

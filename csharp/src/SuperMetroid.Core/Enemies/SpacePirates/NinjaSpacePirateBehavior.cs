@@ -314,7 +314,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if ((slot.FrameCounter & 0x003f) != 0)
+        if ((slot.FrameCounter & 63) != 0)
             return;
 
         if (slot.Position.X.Whole == state.LeftPostX)
@@ -560,7 +560,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             : SpacePirateProjectileInstructionProgramDefinitions.ClawRight;
         projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
-        projectile.Variable0 = 0x0800;
+        projectile.Variable0 = 2048;
         projectile.Variable1 = 1;
         state.SpawnedClawCount++;
     }

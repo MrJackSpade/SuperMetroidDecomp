@@ -63,5 +63,5 @@ public sealed class NorfairLavaJumpingEnemyState
     /// Population parameter-one bit 15 selects the visual follower half. It is not a
     /// freely combinable runtime flag, so expose it as a predicate rather than an enum.
     /// </summary>
-    public bool IsFollower => (_slot.Parameter1 & 0x8000) != 0;
+    public bool IsFollower => (_slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
 }

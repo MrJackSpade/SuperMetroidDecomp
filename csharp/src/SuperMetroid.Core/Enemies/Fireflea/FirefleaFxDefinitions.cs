@@ -52,4 +52,13 @@ internal static class FirefleaFxDefinitions
 
         return byteOffset == 12 ? AdjacentOpcodeShade : (ushort)(Math.Min(3 * byteOffset, 25) << 8);
     }
+
+    /// <summary>The bits the darkening routine ORs onto the green fixed-colour shade.</summary>
+    internal const byte FixedColorGreenBits = 0x80;
+
+    /// <summary>The bits the darkening routine ORs onto the blue fixed-colour shade.</summary>
+    internal const byte FixedColorBlueBits = 0x40;
+
+    /// <summary>The bits the darkening routine ORs onto the red fixed-colour shade.</summary>
+    internal const byte FixedColorRedBits = 0x20;
 }

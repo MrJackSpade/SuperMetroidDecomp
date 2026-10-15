@@ -156,7 +156,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
 
         // QueueSound_Lib2_Max6 receives $5B at $A3:89EB. Audio mixing remains an outer
         // subsystem, so expose the exact event word for the frontend/debugger seam.
-        LastMetareeSoundEffect = 0x005b;
+        LastMetareeSoundEffect = EnemySoundEffectDefinitions.DiveSound;
     }
 
     /// <summary>Probes solid terrain ahead before whole-pixel descent; ground contact begins burrowing while airborne frames steer toward Samus.</summary>
@@ -173,7 +173,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
         // Bits zero/one are still unnamed because their general engine semantics are not
         // proven. Metaree writes the literal mask `$0003`; retaining it raw avoids inventing
         // a flags-enum contract while preserving collision/processing behavior exactly.
-        slot.Properties = unchecked((ushort)(slot.Properties | 0x0003));
+        slot.Properties = unchecked((ushort)(slot.Properties | MetareeDefinitions.DescentPropertyBits));
         if (EnemyTerrain.EnemyHasSolidHighBitAhead(
                 level,
                 slot,
@@ -183,7 +183,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);
             state.Function = MetareeEnemyFunction.Burrowing;
-            LastMetareeSoundEffect = 0x005c;
+            LastMetareeSoundEffect = EnemySoundEffectDefinitions.BurrowSound;
             return;
         }
 

@@ -274,7 +274,7 @@ internal sealed class StokeBehavior : IEnemySpecies
             ? (ushort)StokeProjectileFunction.MoveLeft
             : (ushort)StokeProjectileFunction.MoveRight;
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));
-        projectile.Velocity = new(new SnesSignedEightEight(0x0100), new SnesSignedEightEight(0xff00));
+        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(256), SnesSignedEightEight.FromSignedRaw(-256));
     }
 
     /// <summary>Ports pre-instruction <c>$86:DB5B</c> and its two indirect movers.</summary>

@@ -87,7 +87,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
                 return;
 
             case LowerNorfairRioEnemyFunction.WaitForAttackOpportunity:
-                if (samus is null || (random & 0x0101) == 0 ||
+                if (samus is null || (random & RioLaunchDefinitions.AttackRandomBits) == 0 ||
                     !EnemyMath.IsWithinStrictModularDistance(
                         samus.Position.X.Whole,
                         slot.Position.X.Whole,
@@ -303,7 +303,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
         if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Holtz ||
-            (parent.Parameter1 & 0x8000) != 0)
+            (parent.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio follower in slot {follower.SlotIndex} must immediately " +

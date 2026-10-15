@@ -72,7 +72,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
         {
             InstructionListPointerTableCursor = FuneNamiheDefinitions.FuneIdleLeftCursor,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
-            VariantIndex = unchecked((ushort)(slot.Parameter1 & 0x000f)),
+            VariantIndex = unchecked((ushort)(slot.Parameter1 & FuneNamiheParameterMasks.VariantBits)),
             YProximity = SnesLittleEndian.HighByte(slot.Parameter2),
             CooldownTime = SnesLittleEndian.HighByte(slot.Parameter1),
             CooldownTimer = 0,
@@ -89,7 +89,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
 
         // Any bit in parameter one's upper low-byte nibble selects right-facing art. The
         // code does not mask to a single direction flag before making this decision.
-        if ((slot.Parameter1 & 0x00f0) != 0)
+        if ((slot.Parameter1 & FuneNamiheParameterMasks.RightFacingBits) != 0)
         {
             state.InstructionListPointerTableCursor = unchecked((ushort)(
                 state.InstructionListPointerTableCursor + FuneNamiheDefinitions.FacingRightCursorDelta));
@@ -276,7 +276,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
 
         // The initializer tests the actor parameter's species nibble, not the projectile
         // definition. Namihe's mouth is four pixels lower than Fune's in the shared art.
-        if ((source.Parameter1 & 0x000f) != 0)
+        if ((source.Parameter1 & FuneNamiheParameterMasks.VariantBits) != 0)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
         var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(source.Parameter2);

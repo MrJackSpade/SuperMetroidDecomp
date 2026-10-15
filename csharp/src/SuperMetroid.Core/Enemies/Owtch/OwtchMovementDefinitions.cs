@@ -34,4 +34,7 @@ internal static class OwtchMovementDefinitions
                 $"Owtch underground-timer index {index} is outside the six authored values.");
         return (ushort)(32 * (index + 1));
     }
+
+    /// <summary>The random bit that selects the Owtch's behaviour.</summary>
+    internal const ushort BehaviorRandomBit = 0x0100;
 }

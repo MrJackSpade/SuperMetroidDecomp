@@ -57,10 +57,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Native solid-to-Samus bit installed when palette transformation finishes.</summary>
-    private const ushort DeadMonsterSolidProperty = 0x8000;
-    /// <summary>Native corpse bit that rejects later shot callbacks once decomposition begins.</summary>
-    internal const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
 
     /// <summary>Each dead Sidehopper slot's typed animation (#641), started before its corpse state exists.</summary>
     internal readonly AnimationProgramCursor<DeadTourianProgram>[] _deadSidehopperPrograms =
@@ -146,7 +142,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
             slot,
             graphicsVariant: 2,
             DeadSidehopperCorpseDefinitions.InitiallyDead);
-        state.PaletteStage = 0xffff;
+        state.PaletteStage = DeadSidehopperCorpseDefinitions.NoPaletteStage;
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
     }
 
@@ -249,7 +245,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
                 {
                     state.Function = DeadSidehopperAiFunction.Rotting;
                     slot.Properties = unchecked((ushort)(
-                        slot.Properties | DeadMonsterInteractionRejectedProperty));
+                        slot.Properties | (ushort)EnemyProperties.IgnoreSamusCollision));
                 }
                 return;
 
@@ -365,7 +361,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
 
         SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
-        slot.Properties = unchecked((ushort)(slot.Properties | DeadMonsterSolidProperty));
+        slot.Properties = unchecked((ushort)(slot.Properties | (ushort)EnemyProperties.SolidToSamus));
         slot.Radius = slot.Radius.WithY(12);
     }
 
@@ -394,7 +390,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     private void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        if ((slot.Properties & DeadMonsterInteractionRejectedProperty) != 0 ||
+        if ((slot.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) != 0 ||
             state.PaletteStage < 8)
         {
             return;
@@ -529,7 +525,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         state.LastFinishedEntryIndex = entryIndex;
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(slot.Position.X.Whole + (random & 0x001a) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
+            new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)

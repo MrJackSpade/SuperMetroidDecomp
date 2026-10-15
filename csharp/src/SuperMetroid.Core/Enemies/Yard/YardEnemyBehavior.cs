@@ -140,7 +140,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched) &&
-            _earthquake.EarthquakeTimer.RawValue == 0x001e && _earthquake.EarthquakeType == 0x0014)
+            _earthquake.EarthquakeTimer.RawValue == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration && _earthquake.EarthquakeType == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType)
         {
             DropYard(slot, state);
         }
@@ -402,7 +402,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
-                LastYardSoundEffect = 0x0070;
+                LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
             }
             else
             {
@@ -463,7 +463,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         // Yard deliberately tail-calls the common crawler initializer after landing, but
         // retains its own state and main AI. Reproduce only those shared velocity/sign words.
         slot.Properties = unchecked((ushort)(
-            (slot.Properties & 0xfffc) | state.AirborneFacingDirection));
+            (slot.Properties & ~YardPropertyMasks.FacingBits) | state.AirborneFacingDirection));
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
         CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot);
@@ -513,7 +513,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(state.Direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
         slot.Properties = unchecked((ushort)(
-            (slot.Properties & 0xfffc) | definition.PropertyBits));
+            (slot.Properties & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, state.Direction);
@@ -584,7 +584,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         if (kickRequested)
         {
             KickYardIntoAir(slot, state, samus);
-            LastYardSoundEffect = 0x0070;
+            LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
             return;
         }
 
@@ -628,7 +628,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     {
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
             ShootYardIntoAir(slot, state, samus);
-        LastYardSoundEffect = 0x0070;
+        LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
     }
 
     /// <summary>Recombines native whole and fraction velocity words without losing their signed 16.16 bit pattern.</summary>

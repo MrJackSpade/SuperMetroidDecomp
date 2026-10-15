@@ -149,7 +149,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         // sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole)) < 0;
         bodyState.DirectionWord = unchecked((ushort)(
-            (bodyState.DirectionWord & 0x7fff) | (facingLeft ? 32768 : 0)));
+            (bodyState.DirectionWord & EnemyWordMasks.BelowSignBits) | (facingLeft ? EnemyWordMasks.SignBit : 0)));
         bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
             bodyState.RequestedInstructionListIndex,
             facingLeft);

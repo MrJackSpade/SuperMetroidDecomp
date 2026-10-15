@@ -591,7 +591,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             return unchecked((ushort)(2 * (SnesLittleEndian.HighByte(product))));
 
         ushort negatedProduct = unchecked((ushort)-product);
-        return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | 0xff00));
+        return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | EnemyWordMasks.SignExtendedHighByte));
     }
 
     /// <summary>Requires the state installed by Maw initialization for a given enemy slot.</summary>

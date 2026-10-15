@@ -139,7 +139,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             {
                 slot.VariableA = profile.RottingFunction;
                 slot.Properties = unchecked((ushort)(
-                    slot.Properties | DeadSidehopperBehavior.DeadMonsterInteractionRejectedProperty));
+                    slot.Properties | (ushort)EnemyProperties.IgnoreSamusCollision));
             }
             return;
         }
@@ -170,7 +170,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
     private void ResolveDeadTourianCorpsePowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTourianCorpseState(slot);
-        if ((slot.Properties & DeadSidehopperBehavior.DeadMonsterInteractionRejectedProperty) == 0)
+        if ((slot.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0)
             TriggerDeadTourianCorpseRotting(slot);
     }
 
@@ -247,7 +247,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         state.LastFinishedEntryIndex = entryIndex;
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
-            new(unchecked((ushort)(slot.Position.X.Whole + (random & DeadTourianCorpseProfileDefinitions.DustXRandomBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
+            new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)

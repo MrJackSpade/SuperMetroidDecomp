@@ -79,4 +79,7 @@ public static class WreckedShipGhostAppearanceDefinitions
         int stage = index / 4;
         return (short)((index & 1) == 0 ? Math.Max(1, stage) : 8 - stage);
     }
+
+    /// <summary>Adds one to each of a colour word's three five-bit channels ($0421).</summary>
+    internal const ushort ColorStepEachChannel = 0x0421;
 }

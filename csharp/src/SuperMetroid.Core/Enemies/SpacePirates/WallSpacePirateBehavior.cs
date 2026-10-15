@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -198,9 +199,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
         // eight-pixel boundary; 11..15 round up to the next sixteen-pixel boundary.
-        slot.Position = slot.Position.WithWholeX((slot.Position.X.Whole & 0x000f) < 11
-            ? unchecked((ushort)(slot.Position.X.Whole & 0xfff8))
-            : unchecked((ushort)((slot.Position.X.Whole & 0xfff0) + 16)));
+        slot.Position = slot.Position.WithWholeX((slot.Position.X.Whole & RoomPixelMasks.WithinBlock) < 11
+            ? unchecked((ushort)(slot.Position.X.Whole & RoomPixelMasks.HalfBlockStart))
+            : unchecked((ushort)((slot.Position.X.Whole & RoomPixelMasks.BlockStart) + 16)));
     }
 
     /// <summary>Starts a selected wall-Pirate list on its first instruction frame.</summary>

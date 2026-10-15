@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Bull.Artwork;
 using SuperMetroid.Core.Samus;
@@ -159,9 +160,9 @@ internal sealed class BullBehavior : IEnemySpecies
         // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
         // takes the absolute value and CMP/BMI tests it against $30.
         ushort difference = unchecked((ushort)(state.AngleToSamus - state.Angle));
-        if ((difference & 0x0080) != 0)
-            difference |= 0xff00;
-        if ((difference & 0x8000) != 0)
+        if ((difference & EnemyWordMasks.LowByteSignBit) != 0)
+            difference |= EnemyWordMasks.SignExtendedHighByte;
+        if (EnemyMath.IsNegative16(difference))
             difference = unchecked((ushort)-difference);
         if (unchecked((short)(difference - 48)) < 0)
             return;
@@ -229,7 +230,7 @@ internal sealed class BullBehavior : IEnemySpecies
         bull.InstructionTimer = NativeCountdown.Start(1);
         bull.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
-        int direction = projectileDirection & 0x000f;
+        int direction = projectileDirection & SamusProjectileDirectionMasks.Direction;
         state.Angle = BullMovementDefinitions.ShotAngle(direction);
         state.Acceleration = 256;
         state.Speed = 1536;

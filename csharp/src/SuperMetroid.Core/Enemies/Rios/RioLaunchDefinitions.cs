@@ -16,4 +16,7 @@ public static class RioLaunchDefinitions
 
     /// <summary>$A2:C1C1: RNG bit two selects one of two adjacent downward velocities.</summary>
     public static ushort NorfairYVelocity(ushort random) => (random & 4) == 0 ? (ushort)0x700 : (ushort)0x5c0;
+
+    /// <summary>The two random bits ($0101) of which at least one must be set for a Norfair or Lower Norfair Rio to attack.</summary>
+    internal const ushort AttackRandomBits = 0x0101;
 }

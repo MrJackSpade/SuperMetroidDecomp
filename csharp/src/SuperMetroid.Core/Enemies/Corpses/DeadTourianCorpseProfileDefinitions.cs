@@ -3,9 +3,6 @@
 /// <summary>The dead Zoomer, Ripper and Skree corpses' native AI function pointers and installed art layouts.</summary>
 internal static class DeadTourianCorpseProfileDefinitions
 {
-    /// <summary>The random bits that spread a corpse's dust clouds across its width ($1A: 0-26 pixels, even).</summary>
-    internal const int DustXRandomBits = 0x001a;
-
     /// <summary>The shared inert AI function selected after all rotting rows finish.</summary>
     internal const ushort NoOperationFunction = 0xda63;
 

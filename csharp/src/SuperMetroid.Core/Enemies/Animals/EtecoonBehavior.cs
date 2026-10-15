@@ -89,7 +89,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial);
         state.Function = EtecoonAiFunction.WaitingForSamus;
-        state.FunctionTimer = NativeCountdown.Start(0xffff);
+        state.FunctionTimer = NativeCountdown.Start(ushort.MaxValue);
     }
 
     /// <summary>Ports <c>Etecoon_Main</c> and its indirect function dispatcher.</summary>
@@ -643,7 +643,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies
         if (_earthquake.EarthquakeTimer.IsZero)
             return;
 
-        slot.Parameter2 = unchecked((ushort)((byte)slot.Parameter2 | 0x8000));
+        slot.Parameter2 = unchecked((ushort)((byte)slot.Parameter2 | EtecoonParameterMasks.QuakePausedBit));
         slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 128)));
     }
 

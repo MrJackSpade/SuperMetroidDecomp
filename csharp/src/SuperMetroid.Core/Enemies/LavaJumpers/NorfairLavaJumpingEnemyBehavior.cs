@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
@@ -118,7 +119,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
                 // The low screen-row nibble is the retail lava-entry sentinel. Once the
                 // actor reaches row $xF0 it snaps to its exact population origin, restores
                 // the hidden list, and sleeps off-screen until the next jump begins.
-                if ((slot.Position.Y.Whole & 0x00f0) == 240)
+                if ((slot.Position.Y.Whole & RoomPixelMasks.BlockRowWithinScreenBits) == 240)
                 {
                     slot.Position = slot.Position.WithWhole(state.SpawnPosition);
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Hidden);
@@ -167,7 +168,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         // Requiring a live definition here rejects valid retained-WRAM reads (#322).
 
         follower.FrozenTimer = parent.FrozenTimer;
-        if (!parent.FrozenTimer.IsZero || (parent.VariableC & 0x8000) == 0)
+        if (!parent.FrozenTimer.IsZero || !EnemyMath.IsNegative16(parent.VariableC))
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.
@@ -196,7 +197,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
         if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Squeept ||
-            (parent.Parameter1 & 0x8000) != 0)
+            (parent.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +

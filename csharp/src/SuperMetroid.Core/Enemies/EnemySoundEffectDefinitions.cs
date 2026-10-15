@@ -142,4 +142,19 @@ internal static class EnemySoundEffectDefinitions
 
     /// <summary>Library-two sound queued by an enemy death explosion when contact killed the enemy.</summary>
     internal const ushort DeathContactKilledSound = 0x000b;
+
+    /// <summary>Library-two sound queued as a Metaree or Skree releases its dive.</summary>
+    internal const ushort DiveSound = 0x005b;
+
+    /// <summary>Library-two sound queued as a Metaree or Skree hits the floor and burrows.</summary>
+    internal const ushort BurrowSound = 0x005c;
+
+    /// <summary>Library-two sound queued with every eighth finished Dead Torizo rot row.</summary>
+    internal const ushort DeadTorizoRotSound = 0x0010;
+
+    /// <summary>Library-two sound queued when an airborne Yard bounces off a wall or the floor.</summary>
+    internal const ushort YardBounceSound = 0x0070;
+
+    /// <summary>Library-two sound queued when a walking Space Pirate reflects a projectile.</summary>
+    internal const ushort WalkingPirateReflectSound = 0x0066;
 }

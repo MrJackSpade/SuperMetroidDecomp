@@ -67,7 +67,7 @@ internal sealed class FallingSparksBehavior
                 return;
             }
 
-            uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 0x4000;
+            uint acceleratedFraction = (uint)projectile.Velocity.X.RawValue + 16384;
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)acceleratedFraction)));
             ushort acceleratedWhole = unchecked((ushort)(
                 projectile.Velocity.Y.RawValue + SnesCarry.OutOfWord(acceleratedFraction)));
@@ -128,7 +128,7 @@ internal sealed class FallingSparksBehavior
         // The same aliased pair now represents vertical -0.5 in 16.16. Because the whole
         // word is negative, later frames skip collision and gravity while the impact spark
         // arcs upward through its eleven-frame blinking animation.
-        projectile.Velocity = new(new SnesSignedEightEight(0x8000), new SnesSignedEightEight(0xffff));
+        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(short.MinValue), SnesSignedEightEight.FromSignedRaw(-1));
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 2)));
     }
 

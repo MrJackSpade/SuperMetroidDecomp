@@ -59,7 +59,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
         // direction vector that can simply be negated after collision.
         CalculateMultiviolaVelocityMagnitudes(slot, state);
 
-        if ((unchecked((ushort)(slot.Parameter1 + MultiviolaCosineOffset)) & 0x0080) == 0)
+        if ((unchecked((ushort)(slot.Parameter1 + MultiviolaCosineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
         {
             NativeMultiviolaNegate(ref state, horizontal: true);
         }
@@ -77,7 +77,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies
             return;
         }
 
-        if ((unchecked((ushort)(slot.Parameter1 + MultiviolaSineOffset)) & 0x0080) == 0)
+        if ((unchecked((ushort)(slot.Parameter1 + MultiviolaSineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
             NativeMultiviolaNegate(ref state, horizontal: false);
 
         int verticalDisplacement = state.Velocity.Y.RawValue;

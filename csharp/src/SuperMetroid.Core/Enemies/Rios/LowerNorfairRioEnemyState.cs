@@ -48,5 +48,5 @@ public sealed class LowerNorfairRioEnemyState
     }
 
     /// <summary>Whether population parameter 1's sign bit selects the lower flame follower instead of the parent; a follower must immediately follow a parent of the same enemy definition.</summary>
-    public bool IsFollower => (_slot.Parameter1 & 0x8000) != 0;
+    public bool IsFollower => (_slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
 }

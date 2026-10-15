@@ -18,4 +18,7 @@ internal static class FirefleaMovementDefinitions
                 $"Fireflea radius index {index} is outside the 8-entry native table.");
         return (ushort)(8 * (index + 1));
     }
+
+    /// <summary>Parameter-one bit 1: the Fireflea moves in a circle rather than vertically.</summary>
+    internal const ushort CircularMovementParameterBit = 0x0002;
 }

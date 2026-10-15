@@ -91,7 +91,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
 
         MoveFlyAccordingToAngle(slot, state);
-        state.Angle = unchecked((ushort)((state.Angle + (clockwise ? 32 : -32)) & 0x01ff));
+        state.Angle = unchecked((ushort)((state.Angle + (clockwise ? 32 : -32)) & FliesDefinitions.AngleBits));
         if (state.Angle == 0)
         {
             state.Function = clockwise

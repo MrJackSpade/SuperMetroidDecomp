@@ -6,6 +6,9 @@ internal static class EnemyAiCodePointers
     /// <summary>Shared bank-$A0 enemy interaction callbacks.</summary>
     public static class BankA0
     {
+        /// <summary>The shared enemy bank, $A0, whose common prologue callbacks every enemy header can name.</summary>
+        public const byte Bank = 0xa0;
+
         /// <summary><c>NormalEnemyTouchAI</c> at $A0:8023.</summary>
         public const ushort NormalEnemyTouch = 0x8023;
         /// <summary><c>NormalEnemyShotAI</c> at $A0:802D.</summary>

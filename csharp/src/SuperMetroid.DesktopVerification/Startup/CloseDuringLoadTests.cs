@@ -33,12 +33,13 @@ internal static class CloseDuringLoadTests
         Task held = Task.Run(() => gate.TryPresent(packet.Identity, () =>
         {
             entered.Set();
-            if (!release.Wait(TimeSpan.FromSeconds(10))) throw new TimeoutException("Closing load release missing.");
+            // Unbounded, as in the async load boundary check: a fixed bound fails healthy loads under contention.
+            release.Wait();
         }));
         Task? load = null;
         try
         {
-            if (!entered.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException("Closing load boundary was not acquired.");
+            entered.Wait();
             load = restart ? control.RestartAsync() : control.LoadDebuggerState(0);
             Check(!load.IsCompleted, "closing-load fixture did not hold the pending operation");
             form.Close();

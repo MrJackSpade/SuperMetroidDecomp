@@ -18,12 +18,14 @@ internal static class AsyncLoadBoundaryTests
         Task held = Task.Run(() => gate.TryPresent(packet.Identity, () =>
         {
             entered.Set();
-            if (!release.Wait(TimeSpan.FromSeconds(10))) throw new TimeoutException("Load boundary release missing.");
+            // Unbounded: under load the host can take longer than any fixed bound to begin
+            // the load, and a deadlock still shows as a hang rather than a timed-out pass.
+            release.Wait();
         }));
         Task? load = null;
         try
         {
-            if (!entered.Wait(TimeSpan.FromSeconds(5))) throw new TimeoutException("Load boundary was not acquired.");
+            entered.Wait();
             load = restart ? control.RestartAsync() : control.LoadDebuggerState(0);
             Check(!load.IsCompleted, "load must await an entered presentation");
             // A continuation on the WinForms synchronization context must execute

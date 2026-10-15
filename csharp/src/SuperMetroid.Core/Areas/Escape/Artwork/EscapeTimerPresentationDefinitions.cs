@@ -37,16 +37,23 @@ public static class EscapeTimerPresentationDefinitions
     /// <summary>Required JSON anchor keys: the label origin and the tens-digit origins of the three time pairs; their coordinates are pixel offsets from the live timer origin.</summary>
     /// <remarks>The readonly field fixes the shared array reference, not its elements; callers must not modify this schema-name array.</remarks>
     public static readonly string[] AnchorNames = ["Label", "Minutes", "Seconds", "Centiseconds"];
+    /// <summary>Every composition name: the TIME label, then Digit.0 through Digit.9.</summary>
+    internal static IEnumerable<string> FrameNames => [LabelFrame, .. Enumerable.Range(0, DecimalDigitCount).Select(DigitFrame)];
+    /// <summary>The last OBJ character a square part of <paramref name="size"/> pixels reads from <paramref name="tileNumber"/>.</summary>
+    internal static int LastCharacterRead(int tileNumber, int size) =>
+        tileNumber + (size / 8 - 1) * (SpriteArtwork.CharactersPerRow + 1);
     /// <summary>$80:9FEA..A05F: decimal glyphs are eight-pixel-wide, two-tile-high small OBJs.</summary>
     private const int GlyphWidth = 8;
     /// <summary>$80:9FF2: first upper decimal glyph tile; lower glyphs follow all ten upper glyphs.</summary>
     private const int FirstDigitTile = 0x1e0;
+    /// <summary>OBJ character $1E0, where the timer's first character lands; timer artwork character 0.</summary>
+    internal const int FirstCharacter = FirstDigitTile;
     /// <summary>$80:A065..A07A: twenty decimal tiles are followed by two separators, then three TIME label tiles.</summary>
     private const int DecimalDigitCount = 10;
     /// <summary>$80:A065..A06F: TIME uses three consecutive font tiles, emitted right-to-left.</summary>
     private const int LabelTileCount = EscapeTimerTileAtlasFormat.TileCount - 2 * DecimalDigitCount - 2;
     /// <summary>$80:9FEA..A07A: timer OBJs use highest sprite priority and inherit the selected timer palette.</summary>
-    private const int TimerPriority = 3;
+    internal const int TimerPriority = 3;
 
     /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
     internal static Offset16<OamPixels> DefaultAnchor(string name)

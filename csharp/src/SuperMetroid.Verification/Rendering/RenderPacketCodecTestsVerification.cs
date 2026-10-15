@@ -57,15 +57,15 @@ internal static class RenderPacketCodecTestsVerification
         var wrapping = registers with { FillOutsideWithCharacterZero = false, WrapOutsideMap = true };
         var wrapPacket = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, wrapping, 3, 15));
         AssertEqual(wrapping, ((RoundTripRenderPacket(wrapPacket).Mode7 ?? throw new InvalidOperationException("Verification requires RoundTripRenderPacket(wrapPacket).Mode7.")).Background ?? throw new InvalidOperationException("Verification requires (RoundTripRenderPacket(wrapPacket).Mode7 ?? throw new InvalidOperationException(\"Verifi....")), "Mode 7 wrap policy survives packet round trip");
-        byte[] oldWrap = RenderFrameSnapshotWriter.Serialize(wrapPacket);
+        byte[] oldWrap = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(wrapPacket);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldWrap.AsSpan(RenderPacketFormat.Signature.Length), 21);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(oldWrap), "version 21 cannot claim Mode 7 wrapping");
-        byte[] legacyFill = RenderFrameSnapshotWriter.Serialize(mode7);
+        byte[] legacyFill = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(mode7);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(legacyFill.AsSpan(RenderPacketFormat.Signature.Length), 21);
         AssertEqual(registers, ((RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7 ?? throw new InvalidOperationException("Verification requires RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7.")).Background ?? throw new InvalidOperationException("Verification requires (RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7 ?? throw new InvalidOperationEx....")), "legacy boolean overflow retains character-zero semantics");
         var insertedMode7 = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Mode7RenderLayer(registers) }, 3, 15));
-        byte[] invalidOldVersion = RenderFrameSnapshotWriter.Serialize(insertedMode7);
+        byte[] invalidOldVersion = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(insertedMode7);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
             invalidOldVersion.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FirstSupportedVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(invalidOldVersion),
@@ -80,14 +80,14 @@ internal static class RenderPacketCodecTestsVerification
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(badLayer), "reject unknown layer kind");
         var fixedColor = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new FixedColorAddRenderLayer(31, 15, 1) }, 3, 15));
-        byte[] versionTwo = RenderFrameSnapshotWriter.Serialize(fixedColor);
+        byte[] versionTwo = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(fixedColor);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
             versionTwo.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7LayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionTwo),
             "version-two cannot claim a version-three color operation");
         var viewport = new RenderFrameSnapshot(new(4, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Bg2BppViewportRenderLayer(0, 0, 255, true, null) }, 3, 15));
-        byte[] versionThree = RenderFrameSnapshotWriter.Serialize(viewport);
+        byte[] versionThree = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(viewport);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
             versionThree.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FixedColorLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionThree),

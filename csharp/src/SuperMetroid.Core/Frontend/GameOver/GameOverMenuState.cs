@@ -241,7 +241,7 @@ public sealed class GameOverMenuState
 
         PrepareRenderOam();
         Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objectLayer, oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
+        SnesObjRenderer.Render(objectLayer, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
         SnesLayerCompositor.Composite(output,
             objectLayer);
         MasterBrightnessFilter.Apply(output, (byte)brightness);

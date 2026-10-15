@@ -8,7 +8,7 @@ public sealed record EscapeTimerVisualPart
     public required int OffsetX { get; init; }
     /// <summary>Signed vertical pixel offset from the composition's anchor, from -128 through 127, encoded as a signed byte.</summary>
     public required int OffsetY { get; init; }
-    /// <summary>Gameplay OBJ character number, 0 through 511 including its tile-page bit; this is not a column or row in the extracted timer artwork.</summary>
+    /// <summary>Gameplay OBJ character number from $1E0, the timer's first character, through $1F8, its last; a 16-pixel part must also fit its other three characters in that range.</summary>
     public required int TileNumber { get; init; }
     /// <summary>Square sprite side length in pixels, either 8 or 16, selecting the small or large gameplay OBJ size.</summary>
     public required int Size { get; init; }

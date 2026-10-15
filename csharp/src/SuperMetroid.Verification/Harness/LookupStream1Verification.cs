@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Verification.Enemies.Cacatac;
@@ -1528,24 +1529,25 @@ internal static class LookupStream1Verification
         for (int digit = 0; digit < 10; digit++)
         {
             timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
-            var native = new OamBuffer(); var actual = new OamBuffer();
+            var native = new OamBuffer();
             DrawImportedEscapeTimer(rom, timer, native);
-            stock.Draw(timer, actual);
-            EqualOam(native, actual, "Every calculated decimal glyph draws exact native OAM");
+            EscapeTimerDrawChecks.AssertSameSprites(native, EscapeTimerDrawChecks.Draw(timer, stock),
+                "Every calculated decimal glyph draws the native OAM sprites");
         }
         foreach (string name in document.Frames.Keys)
         {
             var edited = Read();
+            // A 16-pixel part reads four characters; $1E1 keeps all of them inside the timer's own artwork.
             edited.Frames[name][0] = edited.Frames[name][0] with { OffsetX = edited.Frames[name][0].OffsetX + 3,
-                OffsetY = edited.Frames[name][0].OffsetY + 2, TileNumber = edited.Frames[name][0].TileNumber ^ 1,
+                OffsetY = edited.Frames[name][0].OffsetY + 2, TileNumber = EscapeTimerPresentationDefinitions.FirstCharacter + 1,
                 Size = 16, Priority = 1, Palette = 2, FlipX = true, FlipY = true };
             var compiled = Load(edited);
             AssertEqual(1, compiled.frames.Count, "One timer frame edit stores exactly one independent frame");
             AssertEqual(0, compiled.anchors.Count, "Frame edits do not store unchanged timer anchors");
             int digit = name == "Label" ? 0 : int.Parse(name.AsSpan(6));
             timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
-            var actual = new OamBuffer(); compiled.Draw(timer, actual);
-            EqualOam(DrawDocument(edited), actual, "Edited timer geometry, size, tile, priority, palette and flips remain exact");
+            EscapeTimerDrawChecks.AssertSameSprites(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled),
+                "Edited timer geometry, size, tile, priority, palette and flips remain exact");
         }
         foreach (string anchor in document.Anchors.Keys)
         {
@@ -1555,21 +1557,22 @@ internal static class LookupStream1Verification
             AssertEqual(1, compiled.anchors.Count, "One timer anchor edit stores exactly one independent anchor");
             AssertEqual(0, compiled.frames.Count, "Anchor, spacing and palette edits do not store native frames");
             timer.SetTime(PackedBcd.FromDecimal(12), PackedBcd.FromDecimal(34), PackedBcd.FromDecimal(56));
-            var actual = new OamBuffer(); compiled.Draw(timer, actual);
-            EqualOam(DrawDocument(edited), actual, "Independent anchor, digit spacing and palette edits preserve selected document");
+            EscapeTimerDrawChecks.AssertSameSprites(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled),
+                "Independent anchor, digit spacing and palette edits preserve selected document");
         }
-        Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal OAM fixtures and independent frame/anchor/spacing/palette edits pass.");
+        foreach (int tile in new[] { EscapeTimerPresentationDefinitions.FirstCharacter - 1, EscapeTimerPresentationDefinitions.FirstCharacter + EscapeTimerTileAtlasFormat.TileCount })
+        {
+            var outside = Read();
+            outside.Frames["Label"][0] = outside.Frames["Label"][0] with { TileNumber = tile };
+            AssertThrows<InvalidDataException>(() => Load(outside), $"Timer part reading OBJ character ${tile:X3} outside the timer artwork is rejected");
+        }
+        Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal draw fixtures, independent frame/anchor/spacing/palette edits and out-of-artwork rejection pass.");
 
         EscapeTimerPresentationDocument Read() => RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
         static EscapeTimerPresentation Load(EscapeTimerPresentationDocument value)
         {
             using var stream = new MemoryStream(); EscapeTimerPresentation.Write(stream, value); stream.Position = 0;
             return EscapeTimerPresentation.Load(stream);
-        }
-        static void EqualOam(OamBuffer expected, OamBuffer actual, string message)
-        {
-            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, message + " count");
-            AssertTrue(expected.ImageEquals(actual), message);
         }
         OamBuffer DrawDocument(EscapeTimerPresentationDocument selected)
         {

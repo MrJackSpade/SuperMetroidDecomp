@@ -34,7 +34,11 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
             if (EscapeTimerGlyphDefinitions.SourcePixel(index) == index && !IsFill(index) &&
                 pixels[index] != EscapeTimerGlyphDefinitions.Outline(index, IsFill))
                 pixelOverrides.Add(index, pixels[index]);
+        Artwork = new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.EscapeTimerTiles), Transfer());
     }
+
+    /// <summary>The 25 timer characters as owned sprite artwork, in transfer order: character 0 is OBJ character $1E0.</summary>
+    public SpriteArtwork Artwork { get; }
 
     /// <summary>Determines whether a pixel uses the glyph fill ink, honoring an independently edited shared pixel.</summary>
     private bool IsFill(int index)

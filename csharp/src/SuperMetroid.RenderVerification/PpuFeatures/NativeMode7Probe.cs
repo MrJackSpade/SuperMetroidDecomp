@@ -40,7 +40,7 @@ internal static class NativeMode7Probe
         var oam = new OamBuffer(); oam.LoadUploadPayload(snapshot.Memory.Oam, snapshot.Memory.ModeledSpriteCount);
         var objects = new Rgba32[pixels.Length];
         var palettes = new byte[pixels.Length];
-        SnesObjRenderer.RenderResolved(oam, vram, cgram, snapshot.ObjectSelection, new ObjRasterTargets(objects, new byte[pixels.Length], palettes));
+        SnesObjRenderer.RenderResolved(new ObjSpriteImage(oam, snapshot.Memory.SpriteDraws), vram, cgram, snapshot.ObjectSelection, new ObjRasterTargets(objects, new byte[pixels.Length], palettes));
         SnesLayerCompositor.Composite(pixels, objects);
         for (int i = 0; i < pixels.Length; i++)
             if (!snapshot.Gradient.IsEmpty)

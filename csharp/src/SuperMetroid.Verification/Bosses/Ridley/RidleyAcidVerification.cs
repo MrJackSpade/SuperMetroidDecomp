@@ -46,7 +46,7 @@ internal static class RidleyAcidVerification
         state.FunctionTimer = NativeCountdown.Start(0);
         state.FadePaletteOffset = 0;
         for (int frame = 0; frame < 200 && state.Function == RidleyAiFunction.WaitBeforeLiftoff; frame++)
-            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
+            runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual((ushort)440, fx.TargetYPosition, "native reveal writes acid rise target to shared FX");
         AssertEqual(unchecked((ushort)-96), fx.PackedYVelocity, "native reveal writes rising velocity");
         AssertEqual((ushort)32, fx.Timer.RawValue, "native reveal writes rise delay once");
@@ -55,7 +55,7 @@ internal static class RidleyAcidVerification
         AssertAcidVisible(true);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = NativeCountdown.Start(0);
-        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
+        runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 256), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData, SharedProjectiles = runtime.BombProjectiles });
         AssertEqual((ushort)528, fx.TargetYPosition, "native death roar writes acid drain target");
         AssertEqual((ushort)64, fx.PackedYVelocity, "native death writes draining velocity");
         AssertEqual((ushort)1, fx.Timer.RawValue, "native death writes drain delay once");
@@ -66,7 +66,7 @@ internal static class RidleyAcidVerification
 
         void AssertAcidVisible(bool expectedVisible)
         {
-            var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam);
+            var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites);
             var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")));
             var baseline = SoftwareLayeredSnapshotRenderer.Render(new(memory, [], 3, 15));
             var actual = SoftwareLayeredSnapshotRenderer.Render(new(memory,

@@ -100,8 +100,8 @@ public sealed class DoorTransitionState
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 if (PaletteTransition.Step(runtime.Cgram))
                 {
-                    runtime.Oam.BeginFrame();
-                    runtime.Oam.FinalizeFrame();
+                    runtime.Sprites.BeginFrame();
+                    runtime.Sprites.FinalizeFrame();
                     Phase = DoorTransitionPhase.LoadDoorHeader;
                 }
                 else

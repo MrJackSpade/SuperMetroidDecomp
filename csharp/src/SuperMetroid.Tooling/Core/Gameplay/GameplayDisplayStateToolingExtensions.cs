@@ -12,7 +12,7 @@ internal static class GameplayDisplayStateToolingExtensions
     extension(GameplayDisplayState self)
     {
         /// <summary>
-        /// Morph-ball eye beam geometry published with <see cref="SuperMetroidRuntime.DisplayedOam"/>. A nullable
+        /// Morph-ball eye beam geometry published with <see cref="SuperMetroidRuntime.DisplayedSprites"/>. A nullable
         /// record distinguishes a genuinely inactive beam from a malformed active slot.
         /// </summary>
         public MorphBallEyeBeamRenderSnapshot? DisplayedMorphBallEyeBeam => self.Latched.MorphBallEyeBeam;

@@ -177,7 +177,7 @@ public sealed class FileSelectAreaMapGraphics
         OamBuffer oam = PrepareLabels(usedStationMasks);
         // CGADSUB excludes OBJ: labels are composited after BG1/subscreen addition.
         Rgba32[] objects = objScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, oam, ppu.Vram, ppu.Cgram, obsel: 3);
+        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: 3);
         SnesLayerCompositor.Composite(frame, objects);
         return frame;
     }

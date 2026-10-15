@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -33,7 +35,7 @@ public static class RenderFrameSnapshotCodec
                 frame = new(identity, new Rgba32(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()), fades);
             else if (kind is RenderPacketKind.Mode7Obj or RenderPacketKind.Layered)
             {
-                PpuMemorySnapshot memory = ReadMemory(reader);
+                PpuMemorySnapshot memory = ReadMemory(reader, version);
                 byte obsel = reader.ReadByte();
                 byte brightness = reader.ReadByte();
                 if (kind == RenderPacketKind.Mode7Obj)
@@ -68,15 +70,55 @@ public static class RenderFrameSnapshotCodec
         }
     }
 
-    /// <summary>Reads the packet's complete VRAM, CGRAM, OAM, and modeled sprite count.</summary>
-    private static PpuMemorySnapshot ReadMemory(BinaryReader reader)
+    /// <summary>Reads the packet's complete VRAM, CGRAM, OAM, modeled sprite count and, from version 30, its sprite draws.</summary>
+    private static PpuMemorySnapshot ReadMemory(BinaryReader reader, ushort version)
     {
         byte[] vram = ReadExact(reader, SnesPpuLayout.VramByteCount);
         var cgram = new Bgr555[SnesPpuLayout.CgramColorCount];
         for (int i = 0; i < cgram.Length; i++) cgram[i] = Bgr555.FromWord(reader.ReadUInt16());
         byte[] oam = ReadExact(reader, SnesPpuLayout.OamUploadByteCount);
-        return new(vram, cgram, oam, reader.ReadInt32());
+        int modeledSpriteCount = reader.ReadInt32();
+        ImmutableArray<OrderedSpriteDraw> draws = version >= RenderPacketFormat.SpriteDrawVersion ? ReadSpriteDraws(reader) : [];
+        return new(vram, cgram, oam, modeledSpriteCount, draws);
     }
+
+    /// <summary>Reads the artwork table and then the ordered draws that index it.</summary>
+    private static ImmutableArray<OrderedSpriteDraw> ReadSpriteDraws(BinaryReader reader)
+    {
+        var artworks = new SpriteArtwork[ReadCount(reader)];
+        for (int i = 0; i < artworks.Length; i++)
+        {
+            var id = new SpriteArtworkId((SpriteArtworkKind)reader.ReadInt32(), reader.ReadInt32());
+            int byteCount = reader.ReadInt32();
+            if (byteCount is <= 0 or > RenderPacketFormat.MaximumPacketBytes)
+                throw new InvalidDataException($"Invalid sprite artwork size {byteCount}.");
+            artworks[i] = new SpriteArtwork(id, ReadExact(reader, byteCount));
+        }
+        var draws = ImmutableArray.CreateBuilder<OrderedSpriteDraw>(ReadCount(reader));
+        for (int i = 0; i < draws.Capacity; i++)
+        {
+            int ordinal = reader.ReadInt32();
+            var source = new SpriteSource((SpriteSourceKind)reader.ReadInt32(), reader.ReadInt32());
+            string name = reader.ReadString();
+            var parts = ImmutableArray.CreateBuilder<SpriteFramePart>(ReadCount(reader));
+            for (int part = 0; part < parts.Capacity; part++)
+                parts.Add(new(new Offset16<ScreenPixels>(reader.ReadInt16(), reader.ReadInt16()),
+                    new Extent16<ScreenPixels>(reader.ReadByte(), reader.ReadByte()), reader.ReadInt32(), (SnesTileFlipFlags)reader.ReadUInt16(), ReadOptionalByte(reader),
+                    ReadOptionalByte(reader)));
+            int artwork = reader.ReadInt32();
+            if ((uint)artwork >= (uint)artworks.Length)
+                throw new InvalidDataException($"Sprite draw {i} names missing artwork {artwork}.");
+            var origin = new Position16<ScreenPixels>(reader.ReadUInt16(), reader.ReadUInt16());
+            var flip = (SnesTileFlipFlags)reader.ReadUInt16();
+            byte palette = reader.ReadByte(), priority = reader.ReadByte();
+            draws.Add(new(ordinal, new SpriteDraw(source, new SpriteFrame(name, parts.MoveToImmutable()), artworks[artwork],
+                origin, flip, palette, priority)));
+        }
+        return draws.MoveToImmutable();
+    }
+
+    /// <summary>Reads a byte that is absent when written as 255.</summary>
+    private static byte? ReadOptionalByte(BinaryReader reader) => reader.ReadByte() is var value && value == byte.MaxValue ? null : value;
 
     /// <summary>Reads the required byte count or rejects a truncated display packet.</summary>
     private static byte[] ReadExact(BinaryReader reader, int count)
@@ -241,7 +283,7 @@ public static class RenderFrameSnapshotCodec
     private static WindowedSceneRenderLayer ReadWindowedScene(BinaryReader reader, ushort version)
     {
         int left = reader.ReadInt32(), top = reader.ReadInt32(), right = reader.ReadInt32(), bottom = reader.ReadInt32();
-        PpuMemorySnapshot memory = ReadMemory(reader);
+        PpuMemorySnapshot memory = ReadMemory(reader, version);
         byte obsel = reader.ReadByte(), brightness = reader.ReadByte();
         var layers = new RenderLayer[ReadCount(reader)];
         for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version, childScene: true);

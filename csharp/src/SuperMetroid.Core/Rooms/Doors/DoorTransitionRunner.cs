@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Maridia;
@@ -42,6 +43,8 @@ internal sealed class DoorTransitionRunner
     private readonly NmiClock _nmi;
     /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
     private readonly NmiHandler _nmiHandler;
+    /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
+    private readonly SpriteFrameBuffer _sprites;
     /// <summary>Collects transition actor sprites for the current frame.</summary>
     private readonly OamBuffer _oam;
     /// <summary>Provides the locked Samus state and its presentation during transitions.</summary>
@@ -73,7 +76,8 @@ internal sealed class DoorTransitionRunner
         _maridiaElevatube = dependencies.MaridiaElevatube;
         _nmi = dependencies.Nmi;
         _nmiHandler = dependencies.NmiHandler;
-        _oam = dependencies.Oam;
+        _sprites = dependencies.Sprites;
+        _oam = _sprites.Oam;
         _player = dependencies.Player;
         _plms = dependencies.Plms;
         _room = dependencies.Room;
@@ -226,7 +230,7 @@ internal sealed class DoorTransitionRunner
     /// </param>
     internal void DrawDoorTransitionActors(bool runEnemyProjectiles)
     {
-        _oam.BeginFrame();
+        _sprites.BeginFrame();
         _actorDrawing.LastSamusBodyDrawn = false;
         _actorDrawing.LastShinesparkCrashDrawingHandlerActive = false;
         _actorDrawing.LastGrappleDrawingHandlerActive = false;
@@ -245,7 +249,7 @@ internal sealed class DoorTransitionRunner
         if (_enemies.ElevatorBehavior.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
             _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(_addressSpace, _oam,
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
-        _oam.FinalizeFrame();
+        _sprites.FinalizeFrame();
     }
     /// <summary>
     /// <c>Enemy_Projectile_Handler</c> ($86:8104). State eight calls it unconditionally and it

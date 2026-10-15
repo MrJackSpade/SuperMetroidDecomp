@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–10
+# Portable display fixtures (.smframe), versions 1–30
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 10, reader supports 1 through 10 |
+| Version | UInt16; writer emits 30, reader supports 1 through 30 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -50,6 +50,27 @@ been rendered or on producer arrays retaining their contents.
 and Int32 modeled sprite count (0–128). The count is deliberate host-model metadata:
 existing OBJ raster kernels stop there. Physical OAM bytes alone would not preserve
 the current model's treatment of unused large sprites.
+
+Versions 11 through 29 add the layer kinds and fields named by the feature-version
+constants in `RenderPacketFormat`; each reader branch is gated on its constant.
+
+### Sprite draws (version 30)
+
+Version 30 appends the frame's whole-frame sprite draws to every memory image,
+including a windowed child scene's. Older versions read as having none.
+
+| Field | Encoding |
+| --- | --- |
+| Artwork count | Int32, 0–1024 |
+| Each artwork | Int32 kind, Int32 variant, Int32 byte count (a positive multiple of 32), then that many 4-bpp planar character bytes |
+| Draw count | Int32, 0–1024, in emission order |
+| Each draw | Int32 OAM ordinal (0–128), Int32 source kind, Int32 source instance, length-prefixed UTF-8 frame name, Int32 part count (0–1024), the parts, Int32 artwork index, UInt16 origin X and Y (signed screen pixels), UInt16 flip flags, byte palette (0–7), byte priority (0–3) |
+| Each part | Int16 offset X and Y, byte width and height (8, 16, 32 or 64), Int32 first character, UInt16 flip flags, byte palette and byte priority (255 = use the draw's) |
+
+Each artwork is written once and draws refer to it by index. Characters sit sixteen to a
+row, so a part reads character `first + row * 16 + column`; every character a draw
+reads must exist in its artwork. A draw is in front of OAM sprite `ordinal` and every
+later one, and within a draw the first part is in front.
 
 ## Layer records
 

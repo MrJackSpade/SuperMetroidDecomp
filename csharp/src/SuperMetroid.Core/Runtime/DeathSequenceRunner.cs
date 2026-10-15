@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -21,6 +22,8 @@ internal sealed class DeathSequenceRunner
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one accepted NMI before each isolated death-state frame.</summary>
     private readonly NmiHandler _nmiHandler;
+    /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
+    private readonly SpriteFrameBuffer _sprites;
     /// <summary>Frame-local OBJ buffer shared by Samus pose and explosion drawing.</summary>
     private readonly OamBuffer _oam;
     /// <summary>Owns Samus and records the last death-sequence step result.</summary>
@@ -40,7 +43,8 @@ internal sealed class DeathSequenceRunner
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
         _nmiHandler = dependencies.NmiHandler;
-        _oam = dependencies.Oam;
+        _sprites = dependencies.Sprites;
+        _oam = _sprites.Oam;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
@@ -83,13 +87,13 @@ internal sealed class DeathSequenceRunner
             throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
 
         _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        _oam.BeginFrame();
+        _sprites.BeginFrame();
         _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
             _addressSpace,
             _oam,
             _room.Camera.PixelPosition,
             mode7Transform: _display.ActiveSamusMode7Transform);
-        _oam.FinalizeFrame();
+        _sprites.FinalizeFrame();
     }
 
     /// <summary>
@@ -103,7 +107,7 @@ internal sealed class DeathSequenceRunner
             throw new InvalidOperationException("The bank-$9B death sequence is not active.");
 
         _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        _oam.BeginFrame();
+        _sprites.BeginFrame();
         _actorDrawing.LastSamusBodyDrawn = false;
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _addressSpace,
@@ -123,7 +127,7 @@ internal sealed class DeathSequenceRunner
         {
             _player.Samus.DeathSequence.DrawExplosion(_addressSpace, _oam, _artwork.SamusBodyArt?.Spritemaps);
         }
-        _oam.FinalizeFrame();
+        _sprites.FinalizeFrame();
         return _player.LastDeathSequenceStep.Value;
     }
 }

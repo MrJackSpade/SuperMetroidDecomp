@@ -135,7 +135,7 @@ internal static class FileMapSnapshotTestsVerification
         byte[] bytes = RenderFrameSnapshotWriter.Serialize(packet);
         bytes[^1] = (byte)RenderPacketLayerKind.WindowedScene;
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "nested on-disk scene rejected before recursive parsing");
-        bytes = RenderFrameSnapshotWriter.Serialize(packet);
+        bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7GameplayLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "old header rejects window operation");
     }

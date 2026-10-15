@@ -12,32 +12,39 @@ public sealed class EscapeTimerPresentation
     /// <summary>Only edited screen-relative offsets; stock anchors are calculated when absent.</summary>
     internal readonly Dictionary<string, Offset16<OamPixels>> anchors;
 
-    /// <summary>Retains validated visual overrides and packs the shared OBJ palette selector.</summary>
+    /// <summary>Whole frames over the timer artwork, one per composition name.</summary>
+    private readonly Dictionary<string, SpriteFrame> spriteFrames;
+
+    /// <summary>Retains validated visual overrides and converts every composition to a whole frame over the timer artwork.</summary>
     private EscapeTimerPresentation(Dictionary<string, SpriteComposition> frames,
         Dictionary<string, Offset16<OamPixels>> anchors, int digitSpacing, int palette)
     {
         this.frames = frames;
         this.anchors = anchors;
         DigitSpacing = digitSpacing;
-        PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits;
+        Palette = checked((byte)palette);
+        spriteFrames = EscapeTimerPresentationDefinitions.FrameNames.ToDictionary(name => name,
+            name => (frames.TryGetValue(name, out var supplied) ? supplied : EscapeTimerPresentationDefinitions.DefaultFrame(name))
+                .ToFrame(name, EscapeTimerPresentationDefinitions.FirstCharacter), StringComparer.Ordinal);
     }
 
     /// <summary>Horizontal pixel displacement from each pair's tens-digit origin to its ones-digit origin; stock spacing is eight pixels.</summary>
     public int DigitSpacing { get; }
-    /// <summary>The shared OBJ palette selector packed into attribute bits 9 through 11, applied only to parts that inherit their palette.</summary>
-    public ushort PaletteBits { get; }
+    /// <summary>The shared OBJ palette 0..7, applied only to parts that inherit their palette.</summary>
+    public byte Palette { get; }
 
-    /// <summary>Draws the timer using installed visual data while retaining live BCD/countdown state.</summary>
+    /// <summary>Publishes the timer as whole-frame draws while retaining live BCD/countdown state.</summary>
     /// <param name="timer">Live timer supplying packed-BCD minutes, seconds and centiseconds and the integer pixel origin of its moving position.</param>
-    /// <param name="oam">Destination sprite buffer; label parts and the three digit pairs are appended in that order without clearing existing sprites.</param>
+    /// <param name="sprites">Frame receiving the TIME label and then the tens and ones digit of each pair, after any sprites already emitted.</param>
+    /// <param name="artwork">The installed timer characters the frames index.</param>
     /// <remarks>The caller controls visibility. This method neither checks whether the timer is active nor advances its countdown.</remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="timer"/> or <paramref name="oam"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">A timer byte contains a nondecimal BCD nibble; earlier sprite parts may already have been emitted.</exception>
-    public void Draw(EscapeTimer timer, OamBuffer oam)
+    /// <exception cref="ArgumentNullException">An argument is null.</exception>
+    /// <exception cref="InvalidOperationException">A timer byte contains a nondecimal BCD nibble; earlier draws may already have been added.</exception>
+    public void Draw(EscapeTimer timer, SpriteFrameBuffer sprites, SpriteArtwork artwork)
     {
         Ensure.NotNull(timer);
-        Ensure.NotNull(oam);
-
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(artwork);
         DrawFrame(EscapeTimerPresentationDefinitions.LabelFrame, Anchor("Label"));
         DrawPair(timer.Minutes, Anchor("Minutes"));
         DrawPair(timer.Seconds, Anchor("Seconds"));
@@ -52,12 +59,10 @@ public sealed class EscapeTimerPresentation
                 anchor + new Offset16<OamPixels>(checked((short)DigitSpacing), 0));
         }
 
-        void DrawFrame(string name, Offset16<OamPixels> anchor)
-        {
-            Position16<OamPixels> origin = timer.PixelPosition.ToOam() + anchor;
-            (frames.TryGetValue(name, out var supplied) ? supplied : EscapeTimerPresentationDefinitions.DefaultFrame(name))
-                .DrawOnScreen(oam, origin, PaletteBits);
-        }
+        void DrawFrame(string name, Offset16<OamPixels> anchor) =>
+            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.EscapeTimer), spriteFrames[name], artwork,
+                timer.PixelPosition + new Offset16<ScreenPixels>(anchor.X, anchor.Y), SnesTileFlipFlags.None, Palette,
+                EscapeTimerPresentationDefinitions.TimerPriority));
     }
 
     /// <summary>Resolves an edited timer anchor or its calculated stock position.</summary>
@@ -110,7 +115,9 @@ public sealed class EscapeTimerPresentation
                 EscapeTimerVisualPart part = parts[index] ??
                     throw new InvalidDataException($"Escape timer frame {name} part {index} is null.");
                 if (part.OffsetX is < -256 or > 255 || part.OffsetY is < -128 or > 127 ||
-                    part.TileNumber is < 0 or > 511 || part.Size is not (8 or 16) ||
+                    part.Size is not (8 or 16) || part.TileNumber < EscapeTimerPresentationDefinitions.FirstCharacter ||
+                    EscapeTimerPresentationDefinitions.LastCharacterRead(part.TileNumber, part.Size) >
+                        EscapeTimerPresentationDefinitions.FirstCharacter + EscapeTimerTileAtlasFormat.TileCount - 1 ||
                     (uint)part.Priority > 3 || part.Palette is < 0 or > 7)
                     throw new InvalidDataException($"Escape timer frame {name} part {index} has invalid OAM presentation data.");
                 var attributes = SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? 0,

@@ -218,7 +218,7 @@ public sealed class FileSelectMenuState
 
         PrepareRenderOam();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
+        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
         SnesLayerCompositor.Composite(background, objects);
         ApplyBrightness(background);
         return background;

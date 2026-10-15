@@ -163,17 +163,17 @@ public sealed class SuperMetroidRuntime
         HudSetup = new GameplayHudSetup(new GameplayHudSetupDependencies { Artwork = Artwork, Display = Display, Enemies = Enemies, Hud = Hud, Player = Player, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
         GameplayWindows = new GameplayWindowRegisters(Enemies, Projectiles, Room, RoomLayer3Fx);
         Xray = new XrayReveal(BackgroundScroll, Player, Plms, Room, System, Vram, _addressSpace);
-        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Controller1 = Controller1, Display = Display, DisplayedOam = DisplayedOam, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Oam = Oam, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, SuitPickup = SuitPickup, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
+        NmiHandler = new NmiHandler(new NmiHandlerDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Controller1 = Controller1, Display = Display, DisplayedSprites = DisplayedSprites, Enemies = Enemies, GameplayWindows = GameplayWindows, Nmi = Nmi, Sprites = Sprites, Options = Options, Player = Player, Room = Room, RoomLayer3Fx = RoomLayer3Fx, SuitPickup = SuitPickup, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, Xray = Xray, AddressSpace = _addressSpace });
         BackgroundPhase = new BackgroundScrollPhase(BackgroundScroll, Room, Vram);
         ActorDrawing = new GameplayActorDrawing(new GameplayActorDrawingDependencies { Artwork = Artwork, AttractSession = AttractSession, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, Freeze = Freeze, Nmi = Nmi, Oam = Oam, Player = Player, Projectiles = Projectiles, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
         EnemyRoomEffects = new EnemyRoomEffects(new EnemyRoomEffectsDependencies { Cgram = Cgram, Display = Display, Enemies = Enemies, EscapeTimer = EscapeTimer, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, System = System, AddressSpace = _addressSpace });
         EnemyPhase = new EnemyFramePhase(new EnemyFramePhaseDependencies { BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Display = Display, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeTimer = EscapeTimer, Freeze = Freeze, Nmi = Nmi, Oam = Oam, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomLayer3Fx = RoomLayer3Fx, VramWrites = VramWrites, AddressSpace = _addressSpace });
         HdmaPhase = new HdmaObjectPhase(Freeze, RoomLayer3Fx, System, TourianStatues);
-        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Nmi = Nmi, NmiHandler = NmiHandler, Oam = Oam, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, System = System, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
+        DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Nmi = Nmi, NmiHandler = NmiHandler, Sprites = Sprites, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, System = System, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
         EscapeEffects = new EscapeRoomEffects(Enemies, Freeze, Nmi, Room, System);
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, CeresHaze = CeresHaze, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, MaridiaElevatube = MaridiaElevatube, Nmi = Nmi, Options = Options, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, Tester = Tester, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
         AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, HudSetup = HudSetup, NmiHandler = NmiHandler, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AddressSpace = _addressSpace });
-        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, NmiHandler = NmiHandler, Oam = Oam, Player = Player, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, NmiHandler = NmiHandler, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
         MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Enemies = Enemies, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
         ShotBlockVisuals = new PlmShotBlockVisuals(Plms);
@@ -248,15 +248,17 @@ public sealed class SuperMetroidRuntime
     /// <summary>Bank-$8D palette objects selected by the active room's bank-$83 FX record.</summary>
     public RoomPaletteFxSystem RoomPaletteFx { get; } = new();
 
+    /// <summary>The sprite frame the main loop is building for the next NMI: OAM sprites plus whole-frame draws.</summary>
+    public SpriteFrameBuffer Sprites { get; } = new();
+
     /// <summary>Current 544-byte sprite table prepared for the next PPU OAM upload.</summary>
-    public OamBuffer Oam { get; } = new();
+    public OamBuffer Oam => Sprites.Oam;
 
     /// <summary>
-    /// Sprite table made PPU-visible by the most recent accepted NMI. Renderers use this
-    /// buffer; debugger watches can compare it with <see cref="Oam"/>, which the current
-    /// main-loop pass is preparing for the following NMI.
+    /// Sprite frame made visible by the most recent accepted NMI. Renderers use it; debugger watches
+    /// can compare it with <see cref="Sprites"/>, which the current main-loop pass is preparing.
     /// </summary>
-    public OamBuffer DisplayedOam { get; } = new();
+    public SpriteFrameBuffer DisplayedSprites { get; } = new();
 
     /// <summary>Active room's fixed 32-slot bank-$A0 enemy system.</summary>
     public RoomEnemySystem Enemies { get; } = new();
@@ -371,8 +373,8 @@ public sealed class SuperMetroidRuntime
     public void RunBlankGameplayFrame(SnesButton controllerInput)
     {
         NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        Oam.BeginFrame();
-        Oam.FinalizeFrame();
+        Sprites.BeginFrame();
+        Sprites.FinalizeFrame();
         RoomLoader.PublishDoorScrollingIrqNmiRequest();
     }
 
@@ -539,7 +541,7 @@ public sealed class SuperMetroidRuntime
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the
         // escape timer so lower OAM indices retain their normal overlap precedence.
-        Oam.BeginFrame();
+        Sprites.BeginFrame();
         ActorDrawing.LastSamusBodyDrawn = false;
         ActorDrawing.LastShinesparkCrashDrawingHandlerActive = false;
         ActorDrawing.LastGrappleDrawingHandlerActive = false;
@@ -983,10 +985,12 @@ public sealed class SuperMetroidRuntime
             RoomPaletteFx.DisableHandler();
         }
         if (runEscapeTimerHandler && EscapeTimer.IsActive)
-            EscapeTimerRenderer.Draw(EscapeTimer, Oam,
-                (Artwork.MapPresentation ?? throw new InvalidOperationException(
-                    "Escape timer requires installed presentation assets.")).EscapeTimer);
-        Oam.FinalizeFrame();
+        {
+            var presentation = Artwork.MapPresentation ?? throw new InvalidOperationException(
+                "Escape timer requires installed presentation assets.");
+            EscapeTimerRenderer.Draw(EscapeTimer, Sprites, presentation.EscapeTimer, presentation.EscapeTimerTiles.Artwork);
+        }
+        Sprites.FinalizeFrame();
 
         // $80:9B44 appends the mutable three-row HUD upload during main-thread logic; it
         // becomes visible when the next accepted NMI drains this queue. The first frame's
@@ -1142,7 +1146,7 @@ public sealed class SuperMetroidRuntime
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep, _addressSpace),
             TourianStatues.Enabled);
-        return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedOam));
+        return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedSprites));
     }
 
     /// <summary>

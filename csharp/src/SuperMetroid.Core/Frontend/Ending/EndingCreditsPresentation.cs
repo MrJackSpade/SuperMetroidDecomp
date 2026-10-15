@@ -204,7 +204,7 @@ internal sealed class EndingCreditsPresentation
     {
         OamBuffer oam = PrepareSprites();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, oam, _ending.vram, _ending.cgram, obsel);
+        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), _ending.vram, _ending.cgram, obsel);
         if (RewardSubscreenAddition) SnesLayerCompositor.AddSubscreen(pixels, objects);
         else SnesLayerCompositor.Composite(pixels, objects);
     }

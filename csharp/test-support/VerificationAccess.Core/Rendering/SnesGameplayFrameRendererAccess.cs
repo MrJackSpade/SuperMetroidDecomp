@@ -39,7 +39,7 @@ internal static class SnesGameplayFrameRendererAccess
         internal static Rgba32[] RenderHudRoomAndObjs(
             SnesVram vram,
             SnesCgram cgram,
-            OamBuffer oam,
+            SpriteFrameBuffer sprites,
             ReadOnlySpan<Rgba32> roomPixels,
             Extent16<RoomPixels> roomSize,
             Position16<RoomPixels> camera,
@@ -64,7 +64,7 @@ internal static class SnesGameplayFrameRendererAccess
                     .CopyTo(output.AsSpan(screenY * SnesGameplayFrameRenderer.Width, SnesGameplayFrameRenderer.Width));
             }
 
-            SnesGameplayFrameRenderer.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), (OamBuffer)(oam), (byte)(obsel));
+            SnesGameplayFrameRenderer.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), sprites, (byte)(obsel));
             return output;
         }
 

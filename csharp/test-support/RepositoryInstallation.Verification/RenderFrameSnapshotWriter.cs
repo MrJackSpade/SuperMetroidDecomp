@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 
@@ -22,13 +23,28 @@ internal static class RenderFrameSnapshotWriter
         return stream.ToArray();
     }
 
+    /// <summary>
+    /// The current layout without the version-30 sprite-draw section, still headed with the current version: the base
+    /// that legacy-version fixtures patch down to an older version. The frame must have no sprite draws.
+    /// </summary>
+    public static byte[] SerializeBeforeSpriteDraws(RenderFrameSnapshot frame)
+    {
+        Ensure.NotNull(frame);
+        using var stream = new MemoryStream(SnesPpuLayout.VramByteCount + 16 * 1024);
+        Serialize(frame, stream, spriteDraws: false);
+        return stream.ToArray();
+    }
+
     /// <summary>Writes the packet encoding to <paramref name="output"/>, e.g. a hash for comparison.</summary>
-    public static void Serialize(RenderFrameSnapshot frame, Stream output)
+    public static void Serialize(RenderFrameSnapshot frame, Stream output) => Serialize(frame, output, spriteDraws: true);
+
+    /// <summary>Writes the packet, with or without the version-30 sprite-draw section.</summary>
+    private static void Serialize(RenderFrameSnapshot frame, Stream output, bool spriteDraws)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(output);
         var counted = new CountingStream(output);
-        using var writer = new BinaryWriter(counted, System.Text.Encoding.UTF8, leaveOpen: true);
+        using var writer = new PacketWriter(counted, spriteDraws);
         writer.Write(RenderPacketFormat.Signature);
         writer.Write(RenderPacketFormat.Version);
         writer.Write(frame.Identity.Sequence);
@@ -107,17 +123,65 @@ internal static class RenderFrameSnapshotWriter
         public override void WriteByte(byte value) { inner.WriteByte(value); Written++; }
     }
 
-    /// <summary>Writes complete VRAM, CGRAM, OAM, and sprite-count images in packet order.</summary>
-    private static void WriteMemory(BinaryWriter writer, PpuMemorySnapshot memory)
+    /// <summary>Writes complete VRAM, CGRAM, OAM, sprite-count images and the sprite draws in packet order.</summary>
+    private static void WriteMemory(PacketWriter writer, PpuMemorySnapshot memory)
     {
         writer.Write(memory.Vram);
         foreach (Bgr555 color in memory.Cgram) writer.Write(color.ToWord());
         writer.Write(memory.Oam);
         writer.Write(memory.ModeledSpriteCount);
+        if (writer.SpriteDraws)
+            WriteSpriteDraws(writer, memory.SpriteDraws.AsSpan());
+        else if (!memory.SpriteDraws.IsEmpty)
+            throw new InvalidOperationException("A packet before version 30 cannot carry sprite draws.");
+    }
+
+    /// <summary>Writes each distinct artwork once, then the ordered draws that index it.</summary>
+    private static void WriteSpriteDraws(PacketWriter writer, ReadOnlySpan<OrderedSpriteDraw> draws)
+    {
+        var artworks = new List<SpriteArtwork>();
+        var indexes = new Dictionary<SpriteArtwork, int>(ReferenceEqualityComparer.Instance);
+        foreach (OrderedSpriteDraw draw in draws)
+            if (indexes.TryAdd(draw.Draw.Artwork, artworks.Count))
+                artworks.Add(draw.Draw.Artwork);
+        WriteCount(writer, artworks.Count);
+        foreach (SpriteArtwork artwork in artworks)
+        {
+            writer.Write((int)artwork.Id.Kind);
+            writer.Write(artwork.Id.Variant);
+            writer.Write(artwork.Characters.Length);
+            writer.Write(artwork.Characters);
+        }
+        WriteCount(writer, draws.Length);
+        foreach (OrderedSpriteDraw ordered in draws)
+        {
+            SpriteDraw draw = ordered.Draw;
+            writer.Write(ordered.OamOrdinal);
+            writer.Write((int)draw.Source.Kind);
+            writer.Write(draw.Source.Instance);
+            writer.Write(draw.Frame.Name);
+            WriteCount(writer, draw.Frame.Parts.Length);
+            foreach (SpriteFramePart part in draw.Frame.Parts)
+            {
+                writer.Write(part.Offset.X);
+                writer.Write(part.Offset.Y);
+                writer.Write(checked((byte)part.Size.X));
+                writer.Write(checked((byte)part.Size.Y));
+                writer.Write(part.Character);
+                writer.Write((ushort)part.Flip);
+                writer.Write(part.Palette ?? byte.MaxValue);
+                writer.Write(part.Priority ?? byte.MaxValue);
+            }
+            writer.Write(indexes[draw.Artwork]);
+            WritePosition(writer, draw.Origin);
+            writer.Write((ushort)draw.Flip);
+            writer.Write(draw.Palette);
+            writer.Write(draw.Priority);
+        }
     }
 
     /// <summary>Writes an operation count after enforcing the format's maximum.</summary>
-    private static void WriteCount(BinaryWriter writer, int count)
+    private static void WriteCount(PacketWriter writer, int count)
     {
         if (count > RenderPacketFormat.MaximumOperations)
             throw new InvalidDataException("Too many display operations for this format version.");
@@ -125,7 +189,7 @@ internal static class RenderFrameSnapshotWriter
     }
 
     /// <summary>Writes an unsigned spatial position as X then Y 16-bit components.</summary>
-    private static void WritePosition<TSpace>(BinaryWriter writer, Position16<TSpace> position)
+    private static void WritePosition<TSpace>(PacketWriter writer, Position16<TSpace> position)
         where TSpace : ISpatialSpace
     {
         writer.Write(position.X);
@@ -133,21 +197,21 @@ internal static class RenderFrameSnapshotWriter
     }
 
     /// <summary>Writes a signed spatial offset as X then Y 16-bit components.</summary>
-    private static void WriteOffset<TSpace>(BinaryWriter writer, Offset16<TSpace> offset) where TSpace : ISpatialSpace
+    private static void WriteOffset<TSpace>(PacketWriter writer, Offset16<TSpace> offset) where TSpace : ISpatialSpace
     {
         writer.Write(offset.X);
         writer.Write(offset.Y);
     }
 
     /// <summary>Writes tilemap width and height as 32-bit values.</summary>
-    private static void WriteMapSize(BinaryWriter writer, Extent16<TilemapCells> size)
+    private static void WriteMapSize(PacketWriter writer, Extent16<TilemapCells> size)
     {
         writer.Write((int)size.X);
         writer.Write((int)size.Y);
     }
 
     /// <summary>Encodes ordinary gameplay scroll, map, window, mosaic, and per-line registers.</summary>
-    private static void WriteGameplayLayer(BinaryWriter writer, OrdinaryGameplayRenderLayer layer)
+    private static void WriteGameplayLayer(PacketWriter writer, OrdinaryGameplayRenderLayer layer)
     {
         OrdinaryGameplayRegisters r = layer.Registers;
         WritePosition(writer, r.Bg1Scroll); WritePosition(writer, r.Bg2Scroll);
@@ -166,14 +230,14 @@ internal static class RenderFrameSnapshotWriter
     }
 
     /// <summary>Marks whether optional line-scroll values exist before writing their words.</summary>
-    private static void WriteScrolls(BinaryWriter writer, ReadOnlySpan<ushort> values)
+    private static void WriteScrolls(PacketWriter writer, ReadOnlySpan<ushort> values)
     {
         writer.Write(!values.IsEmpty);
         foreach (ushort value in values) writer.Write(value);
     }
 
     /// <summary>Writes a layer discriminator and its matching payload, recursively for nested scenes.</summary>
-    private static void WriteLayer(BinaryWriter writer, RenderLayer layer)
+    private static void WriteLayer(PacketWriter writer, RenderLayer layer)
     {
         switch (layer)
         {
@@ -290,7 +354,7 @@ internal static class RenderFrameSnapshotWriter
     }
 
     /// <summary>Encodes Mode 7 matrix, HUD placement, and optional floor projection.</summary>
-    private static void WriteMode7Gameplay(BinaryWriter writer, Mode7GameplayRenderLayer layer)
+    private static void WriteMode7Gameplay(PacketWriter writer, Mode7GameplayRenderLayer layer)
     {
         Mode7RenderRegisters m = layer.Registers;
         writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
@@ -304,5 +368,13 @@ internal static class RenderFrameSnapshotWriter
             WritePosition(writer, f.Scroll);
             WriteMapSize(writer, f.MapSize);
         }
+    }
+
+    /// <summary>Packet output that knows whether it writes the version-30 sprite-draw section.</summary>
+    private sealed class PacketWriter(Stream output, bool spriteDraws)
+        : BinaryWriter(output, System.Text.Encoding.UTF8, leaveOpen: true)
+    {
+        /// <summary>Whether memory images are followed by their sprite draws.</summary>
+        public bool SpriteDraws { get; } = spriteDraws;
     }
 }

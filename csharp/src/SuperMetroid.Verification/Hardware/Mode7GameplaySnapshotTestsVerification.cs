@@ -34,8 +34,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
             var layer = new Mode7GameplayRenderLayer(m, GameplayVramLayout.HudTilemapWord,
                 GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
             Rgba32[] expected = floorEnabled
-                ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Oam, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
-                : SnesGameplayFrameRenderer.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Oam, m);
+                ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
+                : SnesGameplayFrameRenderer.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
             var restored = RoundTripRenderPacket(packet);
             AssertTrue(expected.SequenceEqual(RenderForComparison(restored)),
@@ -43,7 +43,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
             AssertEqual(layer, (Mode7GameplayRenderLayer)(restored.Layers ?? throw new InvalidOperationException("Verification requires restored.Layers.")).Layers[0], "Mode-7 band codec preserves all register fields");
             if (samples == 1)
             {
-                byte[] old = RenderFrameSnapshotWriter.Serialize(packet);
+                byte[] old = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(old.AsSpan(RenderPacketFormat.Signature.Length),
                     RenderPacketFormat.BgColorMathLayerVersion);
                 AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old), "old format rejects Mode-7 bands");

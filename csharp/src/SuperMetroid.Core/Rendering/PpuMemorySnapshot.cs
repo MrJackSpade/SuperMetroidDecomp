@@ -1,4 +1,6 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -38,13 +40,23 @@ public sealed class PpuMemorySnapshot
     /// </summary>
     public int ModeledSpriteCount { get; }
 
+    /// <summary>The displayed whole-frame sprite draws, each placed among the OAM sprites by its ordinal.</summary>
+    public ImmutableArray<OrderedSpriteDraw> SpriteDraws { get; }
+
     /// <summary>
     /// Copies complete memory images. No caller-owned arrays or mutable hardware
     /// references survive construction, including when loading a serialized fixture.
     /// </summary>
     public PpuMemorySnapshot(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,
         ReadOnlySpan<byte> oam, int modeledSpriteCount = SnesPpuLayout.OamSpriteCount)
-        : this(vram.ToArray(), cgram.ToArray(), oam.ToArray(), modeledSpriteCount)
+        : this(vram.ToArray(), cgram.ToArray(), oam.ToArray(), modeledSpriteCount, [])
+    {
+    }
+
+    /// <summary>Copies complete memory images and keeps the frame's whole-frame sprite draws.</summary>
+    public PpuMemorySnapshot(ReadOnlySpan<byte> vram, ReadOnlySpan<Bgr555> cgram,
+        ReadOnlySpan<byte> oam, int modeledSpriteCount, ImmutableArray<OrderedSpriteDraw> spriteDraws)
+        : this(vram.ToArray(), cgram.ToArray(), oam.ToArray(), modeledSpriteCount, spriteDraws)
     {
     }
 
@@ -52,10 +64,16 @@ public sealed class PpuMemorySnapshot
     /// Takes ownership of arrays nothing will write again. Capture passes
     /// <see cref="SnesVram.CaptureImage"/>, so snapshots of an unchanged VRAM share one image.
     /// </summary>
-    private PpuMemorySnapshot(byte[] vram, Bgr555[] cgram, byte[] oam, int modeledSpriteCount)
+    private PpuMemorySnapshot(byte[] vram, Bgr555[] cgram, byte[] oam, int modeledSpriteCount,
+        ImmutableArray<OrderedSpriteDraw> spriteDraws)
     {
         if ((uint)modeledSpriteCount > SnesPpuLayout.OamSpriteCount)
             throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
+        if (spriteDraws.IsDefault)
+            throw new ArgumentException("A frame requires a draw list.", nameof(spriteDraws));
+        foreach (OrderedSpriteDraw draw in spriteDraws)
+            if ((uint)draw.OamOrdinal > SnesPpuLayout.OamSpriteCount || draw.Draw is null)
+                throw new ArgumentException("Each sprite draw needs an OAM ordinal of 0..128 and an entry.", nameof(spriteDraws));
         if (vram.Length != SnesPpuLayout.VramByteCount)
             throw new ArgumentException("A frame requires a complete VRAM image.", nameof(vram));
         if (cgram.Length != SnesPpuLayout.CgramColorCount)
@@ -66,6 +84,7 @@ public sealed class PpuMemorySnapshot
         this.cgram = cgram;
         this.oam = oam;
         ModeledSpriteCount = modeledSpriteCount;
+        SpriteDraws = spriteDraws;
     }
 
     /// <summary>Captures currently published memories without changing their owners.</summary>
@@ -77,6 +96,14 @@ public sealed class PpuMemorySnapshot
         Span<byte> payload = stackalloc byte[SnesPpuLayout.OamUploadByteCount];
         oam.LowTable.CopyTo(payload);
         oam.HighTable.CopyTo(payload[SnesPpuLayout.OamLowTableByteCount..]);
-        return new(vram.CaptureImage(), cgram.Colors.ToArray(), payload.ToArray(), oam.LastFinalizedSpriteCount);
+        return new(vram.CaptureImage(), cgram.Colors.ToArray(), payload.ToArray(), oam.LastFinalizedSpriteCount, []);
+    }
+
+    /// <summary>Captures currently published memories and the displayed frame's whole-frame sprite draws.</summary>
+    public static PpuMemorySnapshot Capture(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites)
+    {
+        Ensure.NotNull(sprites);
+        PpuMemorySnapshot memories = Capture(vram, cgram, sprites.Oam);
+        return new(memories.vram, memories.cgram, memories.oam, memories.ModeledSpriteCount, sprites.Draws);
     }
 }

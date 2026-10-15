@@ -6,7 +6,9 @@ public static class RenderPacketFormat
     /// <summary>Eight-byte marker checked before the reader interprets a packet payload.</summary>
     internal static ReadOnlySpan<byte> Signature => "SMFRAME\0"u8;
     /// <summary>Current writer revision; readers retain older feature thresholds below.</summary>
-    internal const ushort Version = 29;
+    internal const ushort Version = 30;
+    /// <summary>First revision carrying whole-frame sprite draws and their artwork.</summary>
+    internal const ushort SpriteDrawVersion = 30;
     /// <summary>First revision carrying per-line subscreen scroll.</summary>
     internal const ushort SubscreenLineScrollVersion = 29;
     /// <summary>First revision carrying gameplay main-screen HDMA state.</summary>

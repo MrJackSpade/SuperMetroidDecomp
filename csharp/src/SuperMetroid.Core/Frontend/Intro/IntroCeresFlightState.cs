@@ -565,7 +565,7 @@ internal sealed class IntroCeresFlightState
         // the renderer's width parameter, not its priority filter, and would request a
         // nonsensical zero-to-three-pixel framebuffer during the first Ceres frame.
         Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(layer, oam, vram, cgram, obsel: 3, priority: priority);
+        SnesObjRenderer.Render(layer, ObjSpriteImage.OamOnly(oam), vram, cgram, obsel: 3, priority: priority);
         SnesLayerCompositor.Composite(pixels, layer);
     }
 

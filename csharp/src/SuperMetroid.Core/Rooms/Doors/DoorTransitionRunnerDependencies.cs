@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
@@ -48,8 +49,8 @@ internal sealed record DoorTransitionRunnerDependencies
     /// <summary>Nmi handler.</summary>
     public required NmiHandler NmiHandler { get; init; }
 
-    /// <summary>Oam.</summary>
-    public required OamBuffer Oam { get; init; }
+    /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
+    public required SpriteFrameBuffer Sprites { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

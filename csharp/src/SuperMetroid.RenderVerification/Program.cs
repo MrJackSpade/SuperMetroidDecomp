@@ -173,8 +173,8 @@ internal static class Program
                 return;
             }
             // No argument runs the device contract suite: shader failure, readback, solid compute and threading.
-            if (args.Length > 1 || args.Length == 1 && args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio"))
-                throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --frame-fixtures]");
+            if (args.Length > 1 || args.Length == 1 && args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--sprite-draw-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio"))
+                throw new ArgumentException("Usage: SuperMetroid.RenderVerification [--solid-smoke | --tile-smoke | --obj-smoke | --sprite-draw-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --frame-fixtures]");
             foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
             {
                 using var device = new D3D11RenderDevice(kind);
@@ -190,6 +190,7 @@ internal static class Program
                 if (args is ["--window-smoke"]) { ColorWindowSmokeTests.Run(device, renderer); continue; }
                 if (args is ["--mode7-smoke"]) { Mode7SmokeTests.Run(device, renderer); continue; }
                 if (args is ["--obj-smoke"]) { ObjectSmokeTests.Run(device, renderer); continue; }
+                if (args is ["--sprite-draw-smoke"]) { SpriteDrawSmokeTests.Run(device, renderer); continue; }
                 if (args is ["--tile-smoke"]) { TileSmokeTests.Run(device, renderer); continue; }
                 bool rejected = false;
                 ShaderFailureTests.Run(device);

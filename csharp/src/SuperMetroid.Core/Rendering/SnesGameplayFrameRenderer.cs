@@ -33,7 +33,7 @@ public static class SnesGameplayFrameRenderer
     public static Rgba32[] RenderHudOrdinaryBackgroundsAndObjs(
         SnesVram vram,
         SnesCgram cgram,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         OrdinaryGameplayRenderLayer layer,
         byte obsel = DefaultObjectSelection,
         Rgba32[]? outputBuffer = null)
@@ -61,7 +61,7 @@ public static class SnesGameplayFrameRenderer
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
+            SnesObjRenderer.RenderResolved(ObjSpriteImage.Of(sprites), vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
             CompositeOrdinaryGameplayViewport(output, vram, cgram, objectPixels, objectPriorities, layer, windowMasks);
         }
         finally
@@ -318,7 +318,7 @@ public static class SnesGameplayFrameRenderer
     /// interleaved VRAM as Mode-1 4-bpp tiles produces regular one-pixel color stripes—the
     /// conspicuous failure this dedicated path prevents.
     /// </remarks>
-    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, byte obsel = DefaultObjectSelection, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudMode7AndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, byte obsel = DefaultObjectSelection, Rgba32[]? outputBuffer = null)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         SnesMode7Renderer.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
@@ -328,7 +328,7 @@ public static class SnesGameplayFrameRenderer
         // DrawHudAndObjects replaces its upper band with BG3 rather than cropping a separate
         // 192-line transform whose Y coordinate would incorrectly restart at zero.
 
-        DrawHudAndObjects(output, vram, cgram, oam, obsel);
+        DrawHudAndObjects(output, vram, cgram, sprites, obsel);
         return output;
     }
 
@@ -337,11 +337,11 @@ public static class SnesGameplayFrameRenderer
     /// generic Mode-7 elevator path does not have: BG3 owns the HUD, Mode 7 owns the arena,
     /// and the final sixteen scanlines switch back to Mode 1 with only BG2 and OBJ enabled.
     /// </summary>
-    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, OamBuffer oam, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = DefaultObjectSelection, Rgba32[]? outputBuffer = null)
+    public static Rgba32[] RenderHudCeresRidleyGetawayAndObjs(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, Mode7RenderRegisters registers, CeresGetawayFloor floor, byte obsel = DefaultObjectSelection, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         const int floorHeight = 16;
         const int floorFirstScanline = Height - floorHeight;
@@ -349,7 +349,7 @@ public static class SnesGameplayFrameRenderer
         using var scratch = new RenderScratch();
         Rgba32[] mode7 = scratch.Colors(Width * Height);
         SnesMode7Renderer.CompositeViewport(mode7, vram, cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = registers.Center, Scroll = registers.Scroll });
-        ResolvedObjFrame objects = scratch.ResolveObjects(oam, vram, cgram, obsel);
+        ResolvedObjFrame objects = scratch.ResolveObjects(sprites, vram, cgram, obsel);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep
         // scanlines 32..207 in Mode 7 with BG1/BG2/OBJ selected. The existing Mode-7
@@ -911,12 +911,12 @@ public static class SnesGameplayFrameRenderer
         Rgba32[] output,
         SnesVram vram,
         SnesCgram cgram,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         byte obsel)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         // IRQ command 4 writes BG3SC=$5A and TM=$04 for scanlines 0-31. That exposes the
         // four HUD rows at tilemap word $5800 while disabling OBJ in the HUD band.
@@ -929,7 +929,7 @@ public static class SnesGameplayFrameRenderer
         {
             Span<Rgba32> objectPixels = rentedObjectPixels.AsSpan(0, pixelCount);
             Span<byte> objectPriorities = rentedObjectPriorities.AsSpan(0, pixelCount);
-            SnesObjRenderer.RenderResolved(oam, vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
+            SnesObjRenderer.RenderResolved(ObjSpriteImage.Of(sprites), vram, cgram, obsel, new ObjRasterTargets(objectPixels, objectPriorities));
             for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
             {
                 // Every resolved OBJ priority is above Mode 7 in this PPU configuration.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rendering;
@@ -10,8 +11,8 @@ internal sealed class SoftwarePpuSnapshotMemory
     internal SnesVram Vram { get; } = new();
     /// <summary>Palette copy populated color by color from the current snapshot.</summary>
     internal SnesCgram Cgram { get; } = new();
-    /// <summary>Sprite tables and modeled sprite count restored from the upload payload.</summary>
-    internal OamBuffer Oam { get; } = new();
+    /// <summary>Sprite tables, modeled sprite count and whole-frame draws restored from the snapshot.</summary>
+    internal SpriteFrameBuffer Sprites { get; } = new();
 
     /// <summary>Creates scratch PPU memory already populated from one render snapshot.</summary>
     internal SoftwarePpuSnapshotMemory(PpuMemorySnapshot snapshot) => Load(snapshot);
@@ -23,6 +24,7 @@ internal sealed class SoftwarePpuSnapshotMemory
         Vram.LoadBytes(0, snapshot.Vram);
         for (int index = 0; index < SnesCgram.ColorCount; index++)
             Cgram.SetColor(index, snapshot.Cgram[index]);
-        Oam.LoadUploadPayload(snapshot.Oam, snapshot.ModeledSpriteCount);
+        Sprites.Oam.LoadUploadPayload(snapshot.Oam, snapshot.ModeledSpriteCount);
+        Sprites.LoadDraws(snapshot.SpriteDraws);
     }
 }

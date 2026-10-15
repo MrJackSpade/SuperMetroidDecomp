@@ -105,9 +105,9 @@ internal static void VerifyMode7Rendering()
     // colors so a compositor that accidentally extends Mode 7 to line 223 fails directly.
     var splitVram = new SnesVram();
     var splitCgram = new SnesCgram();
-    var emptyOam = new OamBuffer();
-    emptyOam.BeginFrame();
-    emptyOam.FinalizeFrame();
+    var emptySprites = new SpriteFrameBuffer();
+    emptySprites.BeginFrame();
+    emptySprites.FinalizeFrame();
     splitCgram.SetColor(1, Bgr555.FromWord(0x001f)); // Red Mode-1 BG2 floor.
     splitCgram.SetColor(2, Bgr555.FromWord(0x03e0)); // Green Mode-7 arena.
 
@@ -122,7 +122,7 @@ internal static void VerifyMode7Rendering()
     splitVram.ExecuteWordTransfer([0x0001], destinationWord: 0x4800 + 26 * 32, wordIncrement: 1);
     splitVram.LoadBytes((0x6000 + 16) * 2, [0xff, 0x00]);
 
-    Rgba32[] split = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptyOam, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
+    Rgba32[] split = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
     AssertEqual(splitCgram.GetRgba(2), split[207 * 256],
         "Ceres Ridley scanline 207 remains Mode 7");
     AssertEqual(splitCgram.GetRgba(1), split[208 * 256],

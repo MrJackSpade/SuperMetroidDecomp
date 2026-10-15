@@ -371,7 +371,7 @@ public sealed class TitleSequenceState
 
         PrepareRenderOam();
         Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, oam,
+        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam),
             vram,
             cgram,
             obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
@@ -379,7 +379,7 @@ public sealed class TitleSequenceState
         if (gradientEnabled)
         {
             byte[] palettes = gradientPaletteScratch ??= new byte[background.Length];
-            SnesObjRenderer.RenderResolved(oam, vram, cgram, TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, new ObjRasterTargets(objects, gradientPriorityScratch ??= new byte[background.Length], palettes));
+            SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, new ObjRasterTargets(objects, gradientPriorityScratch ??= new byte[background.Length], palettes));
             ReadOnlySpan<TitleGradientLine> gradient = ResolveTitleGradient();
             for (int pixel = 0; pixel < background.Length; pixel++)
                 background[pixel] = TitleGradientColorMath.Apply(background[pixel], gradient[pixel / 256],

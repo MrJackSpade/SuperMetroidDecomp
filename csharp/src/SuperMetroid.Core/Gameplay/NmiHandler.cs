@@ -37,16 +37,16 @@ internal sealed class NmiHandler
     private readonly SamusBombProjectileSystem _bombProjectiles;
     /// <summary>Retains the accepted-NMI display latch.</summary>
     private readonly GameplayDisplayState _display;
-    /// <summary>Last finalized OAM image uploaded by an accepted NMI.</summary>
-    private readonly OamBuffer _displayedOam;
+    /// <summary>Sprite frame made visible at each accepted NMI.</summary>
+    private readonly SpriteFrameBuffer _displayedSprites;
     /// <summary>Provides boss-specific display windows and latches Phantoon presentation.</summary>
     private readonly RoomEnemySystem _enemies;
     /// <summary>Window register cache latched with the accepted frame.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
     /// <summary>Owns accepted, lagged, and all-NMI frame counters.</summary>
     private readonly NmiClock _nmi;
-    /// <summary>Finalized main-loop OAM awaiting the next accepted upload.</summary>
-    private readonly OamBuffer _oam;
+    /// <summary>Sprite frame the main loop finalized for the next NMI.</summary>
+    private readonly SpriteFrameBuffer _sprites;
     /// <summary>Controller bindings used to normalize physical buttons before the shared input latch.</summary>
     private readonly GameplayOptions _options;
     /// <summary>Supplies Samus graphics DMA for accepted NMI transfers.</summary>
@@ -76,11 +76,11 @@ internal sealed class NmiHandler
         _bombProjectiles = dependencies.BombProjectiles;
         _controller1 = dependencies.Controller1;
         _display = dependencies.Display;
-        _displayedOam = dependencies.DisplayedOam;
+        _displayedSprites = dependencies.DisplayedSprites;
         _enemies = dependencies.Enemies;
         _gameplayWindows = dependencies.GameplayWindows;
         _nmi = dependencies.Nmi;
-        _oam = dependencies.Oam;
+        _sprites = dependencies.Sprites;
         _options = dependencies.Options;
         _player = dependencies.Player;
         _room = dependencies.Room;
@@ -178,7 +178,7 @@ internal sealed class NmiHandler
         // Samus DMA. `$80:95A7` subsequently copies the Mode 7 shadow words to
         // $211B..$2120. Retain both displayed values so software rendering sees one
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
-        _displayedOam.CopyFinalizedFrom(_oam);
+        _displayedSprites.LatchFrom(_sprites);
         _gameplayWindows.Cache.LatchNmi(mainLoopRequestedNmi: true);
         var bg2Window = _enemies.DraygonBehavior.Draygon is { } boss
             ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, _backgroundScroll.Layer1Position,

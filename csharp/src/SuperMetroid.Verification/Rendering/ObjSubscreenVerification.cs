@@ -35,14 +35,14 @@ internal static class ObjSubscreenVerification
         var pixels = SoftwareFrameSnapshotRenderer.Render(restored);
         AssertEqual(new Rgba32(255, 0, 255), pixels[8 * 256 + 8], "OBJ subscreen adds blue to red backdrop");
         AssertEqual(new Rgba32(255, 0, 0), pixels[0], "transparent OBJ preserves backdrop");
-        byte[] unsupported = RenderFrameSnapshotWriter.Serialize(packet);
+        byte[] unsupported = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 13);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported),
             "version 13 cannot claim additive OBJ composition");
         var ordinary = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new ObjRenderLayer() }, 0, 15));
         // Version 13's final OBJ descriptor has no version-19 fixed-color presence byte.
-        byte[] oldPacket = RenderFrameSnapshotWriter.Serialize(ordinary)[..^1];
+        byte[] oldPacket = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(ordinary)[..^1];
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPacket.AsSpan(RenderPacketFormat.Signature.Length), 13);
         AssertEqual(new Rgba32(57, 0, 255), SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPacket))[8 * 256 + 8],
             "legacy packets retain replacing OBJ composition");
@@ -73,7 +73,7 @@ internal static class ObjSubscreenVerification
             AssertEqual(expected, pixels[8 * 256 + 8], "Mode7 main priority and OBJ palette eligibility before addition");
             AssertEqual(opaqueBg ? new Rgba32(0, 132, 0) : new Rgba32(0, 0, 24), pixels[0],
                 "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
-            byte[] old = RenderFrameSnapshotWriter.Serialize(packet);
+            byte[] old = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
             System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(old.AsSpan(RenderPacketFormat.Signature.Length), 22);
             AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old), "old packet rejects unrepresentable BG1 addition");
             AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
@@ -101,7 +101,7 @@ internal static class ObjSubscreenVerification
         AssertEqual(new Rgba32(198, 99, 0), pixels[8 * 256 + 8], "Mode7 minus OBJ clamps each five-bit component without halving");
         AssertEqual(new Rgba32(255, 99, 0), pixels[0], "transparent OBJ leaves Mode7 color unchanged");
 
-        byte[] unsupported = RenderFrameSnapshotWriter.Serialize(packet);
+        byte[] unsupported = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 14);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
     }
@@ -143,7 +143,7 @@ internal static class ObjSubscreenVerification
             new PpuMemorySnapshot(vram, ToColors(palette), new byte[SnesPpuLayout.OamUploadByteCount], 0),
             new RenderLayer[] { new ObjPriorityRenderLayer(2) }, 0, 15));
         // Version 19 ends this layer after its priority byte; version 20 adds color presence.
-        byte[] oldPriority = RenderFrameSnapshotWriter.Serialize(legacyPriority)[..^1];
+        byte[] oldPriority = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(legacyPriority)[..^1];
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPriority.AsSpan(RenderPacketFormat.Signature.Length), 19);
         AssertTrue(SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPriority))
             .SequenceEqual(RenderForComparison(legacyPriority)), "legacy priority packets remain readable without color payload");
@@ -167,7 +167,7 @@ internal static class ObjSubscreenVerification
         AssertTrue(SoftwareFrameSnapshotRenderer.Render(restored).All(pixel => pixel == new Rgba32(255, 0, 255)),
             "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
 
-        byte[] unsupported = RenderFrameSnapshotWriter.Serialize(packet);
+        byte[] unsupported = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 15);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packets cannot claim four-bit subscreen layers");
         for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;

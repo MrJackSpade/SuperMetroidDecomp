@@ -489,8 +489,8 @@ internal static class FrontendRomFreeVerification
                 while (firstVram < nativeVram.Length && nativeVram[firstVram] == installedVram[firstVram])
                     firstVram++;
                 int firstOam = 0;
-                ReadOnlySpan<byte> nativeOam = native.GameplayRuntimeForVerification.DisplayedOam.LowTable;
-                ReadOnlySpan<byte> installedOam = installed.GameplayRuntimeForVerification.DisplayedOam.LowTable;
+                ReadOnlySpan<byte> nativeOam = native.GameplayRuntimeForVerification.DisplayedSprites.Oam.LowTable;
+                ReadOnlySpan<byte> installedOam = installed.GameplayRuntimeForVerification.DisplayedSprites.Oam.LowTable;
                 while (firstOam < nativeOam.Length && nativeOam[firstOam] == installedOam[firstOam])
                     firstOam++;
                 throw new InvalidOperationException(

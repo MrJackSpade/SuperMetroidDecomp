@@ -50,6 +50,8 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11Buffer memoryBuffer;
     /// <summary>Shader read view of the packed PPU memory upload.</summary>
     private readonly ID3D11ShaderResourceView memoryView;
+    /// <summary>The scene's whole-frame sprite draws, bound at register t1.</summary>
+    private readonly D3D11SpriteDrawBuffer spriteDraws;
     /// <summary>Per-pixel resolved OBJ winner shared across priority passes.</summary>
     private readonly ID3D11Texture2D resolvedObjects;
     /// <summary>Compute write view for resolved OBJ winners.</summary>
@@ -102,6 +104,7 @@ public sealed class D3D11FrameRenderer : IDisposable
             memoryBuffer = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.PpuMemoryWords * sizeof(uint),
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
             memoryView = Own(owner.Device.CreateShaderResourceView(memoryBuffer));
+            spriteDraws = Own(new D3D11SpriteDrawBuffer(owner.Device));
             resolvedObjects = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
                 SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
             objectView = Own(owner.Device.CreateUnorderedAccessView(resolvedObjects));
@@ -463,9 +466,12 @@ public sealed class D3D11FrameRenderer : IDisposable
         for (int i = 0; i < scene.Memory.Cgram.Length; i++) memory[D3D11ShaderLayout.VramPackedWords + i] = scene.Memory.Cgram[i].ToWord();
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Oam).CopyTo(memory.AsSpan(D3D11ShaderLayout.OamPackedWordOffset));
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
+        spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan());
+        fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
+        owner.Context.CSSetShaderResource(1, spriteDraws.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
@@ -636,6 +642,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
+        owner.Context.CSSetShaderResource(1, spriteDraws.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
     }

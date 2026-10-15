@@ -59,7 +59,7 @@ internal static class WindowPixelsVerification
                 // nine window bytes, TMW, v26's mosaic byte and the later
                 // per-line main-screen presence flag (empty in this fixture). It must decode
                 // with windowing and mosaic disabled.
-                byte[] modern = RenderFrameSnapshotWriter.Serialize(packet);
+                byte[] modern = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
                 byte[] old = modern.AsSpan(0, modern.Length - 12).ToArray();
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
                     old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.ObjPriorityFixedColorVersion);
@@ -68,7 +68,8 @@ internal static class WindowPixelsVerification
                     "v20 gameplay has no invented window registers");
                 AssertTrue(reference[layers].SequenceEqual(RenderForComparison(legacy)),
                     "v20 gameplay pixels remain unchanged");
-                AssertThrows<EndOfStreamException>(() => RenderFrameSnapshotCodec.Deserialize(modern.AsSpan(0, modern.Length - 1)),
+                byte[] current = RenderFrameSnapshotWriter.Serialize(packet);
+                AssertThrows<EndOfStreamException>(() => RenderFrameSnapshotCodec.Deserialize(current.AsSpan(0, current.Length - 1)),
                     "truncated current gameplay data remains a loud error");
             }
             for (int y = 0; y < 224; y++)
@@ -90,7 +91,7 @@ internal static class WindowPixelsVerification
 
         Rgba32[] Draw(SnesMainScreenLayers enabled, SnesWindowRegisters windows = default,
             SnesMainScreenLayers admission = SnesMainScreenLayers.None) =>
-            SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Oam,
+            SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(memory.Vram, memory.Cgram, memory.Sprites,
                 new OrdinaryGameplayRenderLayer(new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
                     new Extent16<TilemapCells>(64, 32), GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                     enabled, Windows: windows, MainScreenWindowMask: admission)));

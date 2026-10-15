@@ -12,11 +12,13 @@ public static class TitleGradientColorMath
     public static Rgba32 Apply(Rgba32 pixel, TitleGradientLine line, byte? objectPalette = null)
     {
         if (objectPalette is > 7) throw new ArgumentOutOfRangeException(nameof(objectPalette));
+        // Bit tests, not Enum.HasFlag: unoptimized JIT code boxes HasFlag's operands on every pixel.
+        var control = (ColorMathControlFlags)line.Control;
         bool enabled = objectPalette.HasValue
-            ? objectPalette >= 4 && ((ColorMathControlFlags)line.Control).HasFlag(ColorMathControlFlags.Obj)
-            : ((ColorMathControlFlags)line.Control).HasFlag(ColorMathControlFlags.Bg1);
+            ? objectPalette >= 4 && (control & ColorMathControlFlags.Obj) != 0
+            : (control & ColorMathControlFlags.Bg1) != 0;
         if (!enabled || pixel.A == 0) return pixel;
-        bool subtract = ((ColorMathControlFlags)line.Control).HasFlag(ColorMathControlFlags.Subtract);
+        bool subtract = (control & ColorMathControlFlags.Subtract) != 0;
         byte Component(byte source, byte color)
         {
             int value = subtract ? Math.Max(0, (source >> 3) - color) : Math.Min(31, (source >> 3) + color);

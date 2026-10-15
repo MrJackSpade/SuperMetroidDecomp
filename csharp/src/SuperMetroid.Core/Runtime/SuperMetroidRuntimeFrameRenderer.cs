@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Fx;
@@ -36,7 +37,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         SoftwarePpuSnapshotMemory memory = scratch.Memory(frame.Memory);
         SnesVram vram = memory.Vram;
         SnesCgram cgram = memory.Cgram;
-        OamBuffer oam = memory.Oam;
+        SpriteFrameBuffer sprites = memory.Sprites;
         GameplayPpuRenderSnapshot displayedPpu = latched.Ppu;
         GameplayLatchedSceneRegisters scene = latched.Scene;
         GameplayLatchedBossBackgrounds bosses = latched.Bosses;
@@ -53,7 +54,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             // Ceres room main $A6:AAAF temporarily replaces ordinary mode-nine BG1/BG2
             // below the HUD with the rotating Ridley/Baby Mode-7 map. OAM stays live, so
             // Samus and the timer retain the usual gameplay compositor and priority rules.
-            pixels = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(vram, cgram, oam, getaway with { Scroll = new Offset16<Mode7Pixels>(unchecked((short)(getaway.Scroll.X + shake.Bg1.X)), unchecked((short)(getaway.Scroll.Y + shake.Bg1.Y))) }, new CeresGetawayFloor { Bg2Scroll = bg2Scroll, Bg2CharacterBaseWord = GameplayRenderDefinitions.CeresCharacterWord }, outputBuffer: outputBuffer);
+            pixels = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(vram, cgram, sprites, getaway with { Scroll = new Offset16<Mode7Pixels>(unchecked((short)(getaway.Scroll.X + shake.Bg1.X)), unchecked((short)(getaway.Scroll.Y + shake.Bg1.Y))) }, new CeresGetawayFloor { Bg2Scroll = bg2Scroll, Bg2CharacterBaseWord = GameplayRenderDefinitions.CeresCharacterWord }, outputBuffer: outputBuffer);
         }
         else if (scene.CeresElevatorMode7)
         {
@@ -66,7 +67,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             SamusMode7Transform mode7 = latched.SamusMode7Transform
                 ?? throw new InvalidOperationException(
                     "The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
-            pixels = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(vram, cgram, oam, new Mode7RenderRegisters { MatrixA = unchecked((short)mode7.MatrixA), MatrixB = unchecked((short)mode7.MatrixB), MatrixC = unchecked((short)mode7.MatrixC), MatrixD = unchecked((short)mode7.MatrixA), Center = mode7.Center.AsMode7Register(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)bg1Scroll.X), unchecked((short)bg1Scroll.Y)) }, outputBuffer: outputBuffer);
+            pixels = SnesGameplayFrameRenderer.RenderHudMode7AndObjs(vram, cgram, sprites, new Mode7RenderRegisters { MatrixA = unchecked((short)mode7.MatrixA), MatrixB = unchecked((short)mode7.MatrixB), MatrixC = unchecked((short)mode7.MatrixC), MatrixD = unchecked((short)mode7.MatrixA), Center = mode7.Center.AsMode7Register(), Scroll = new Offset16<Mode7Pixels>(unchecked((short)bg1Scroll.X), unchecked((short)bg1Scroll.Y)) }, outputBuffer: outputBuffer);
         }
         else
         {
@@ -141,7 +142,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             pixels = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 vram,
                 cgram,
-                oam,
+                sprites,
                 new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(horizontalScrolls, verticalScrolls),
                     live.DoorTransitionMainScreenLayers is null && live.MotherBrainRisingHdmaActive
                     ? MotherBrainAscentDisplayDefinitions.BuildGameplayLayers() : default),

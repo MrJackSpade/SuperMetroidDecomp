@@ -23,7 +23,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
         SoftwarePpuSnapshotMemory memory = scratch.Memory(snapshot.Memory);
         SnesVram vram = memory.Vram;
         SnesCgram cgram = memory.Cgram;
-        OamBuffer oam = memory.Oam;
+        SpriteFrameBuffer sprites = memory.Sprites;
 
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram,
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, outputBuffer);
@@ -34,7 +34,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
             SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, bg);
         }
         if (snapshot.Gradient.IsEmpty)
-            SnesObjRenderer.CompositeUnfiltered(oam, vram, cgram, snapshot.ObjectSelection, pixels);
+            SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(sprites), vram, cgram, snapshot.ObjectSelection, pixels);
         else
         {
             // Only winning palette identity is needed by title color math. Rent this
@@ -43,7 +43,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
             try
             {
                 Span<byte> palettes = rented.AsSpan(0, pixels.Length);
-                SnesObjRenderer.CompositeUnfiltered(oam, vram, cgram, snapshot.ObjectSelection, pixels, palettes);
+                SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(sprites), vram, cgram, snapshot.ObjectSelection, pixels, palettes);
                 for (int i = 0; i < pixels.Length; i++)
                     pixels[i] = TitleGradientColorMath.Apply(pixels[i], snapshot.Gradient[i / 256],
                         palettes[i] == byte.MaxValue ? null : palettes[i]);

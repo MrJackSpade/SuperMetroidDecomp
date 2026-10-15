@@ -101,17 +101,15 @@ internal static class EscapeTimerPresentationVerification
         timer.Clear();
         timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
         var native = new OamBuffer();
-        var installed = new OamBuffer();
         native.BeginFrame();
-        installed.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);
-        EscapeTimerRenderer.Draw(timer, installed, presentation);
-        AssertEqual(native.NextByteOffset, installed.NextByteOffset,
-            "installed timer emits the native number of OAM parts");
-        AssertTrue(native.LowTable.SequenceEqual(installed.LowTable),
-            "installed timer label/digits exactly match native low OAM");
-        AssertTrue(native.HighTable.SequenceEqual(installed.HighTable),
-            "installed timer label/digits exactly match native high OAM");
+        IReadOnlyList<OrderedSpriteDraw> installed = EscapeTimerDrawChecks.Draw(timer, presentation, tileAtlas.Artwork);
+        EscapeTimerDrawChecks.AssertSameSprites(native, installed, "installed timer label/digits match the native OAM sprites");
+        AssertEqual(7, installed.Count, "timer publishes the label and six digits as whole-frame draws");
+        AssertTrue(installed.All(draw => ReferenceEquals(tileAtlas.Artwork, draw.Draw.Artwork)),
+            "every timer draw binds the installed timer artwork");
+        AssertEqual("Label|Digit.0|Digit.1|Digit.2|Digit.3|Digit.4|Digit.5",
+            string.Join('|', installed.Select(draw => draw.Draw.Frame.Name)), "01:23:45 publishes its label and digit frames in order");
 
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(extracted,
             ArtworkJson.Options);
@@ -127,16 +125,13 @@ internal static class EscapeTimerPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "timer override changes catalog identity");
 
-        var moved = new OamBuffer();
-        moved.BeginFrame();
-        EscapeTimerRenderer.Draw(timer, moved, edited.EscapeTimer);
-        // Label occupies the first five OAM entries. The next two parts are the minute tens.
-        AssertTrue(native.LowTable[..20].SequenceEqual(moved.LowTable[..20]),
-            "editing minute anchor leaves TIME label untouched");
-        AssertEqual(unchecked((byte)(native.LowTable[20] + 1)), moved.LowTable[20],
-            "edited minute anchor reaches the first minute OAM part");
-        AssertEqual(unchecked((byte)(native.LowTable[24] + 1)), moved.LowTable[24],
-            "edited minute anchor reaches the second minute OAM part");
+        IReadOnlyList<OrderedSpriteDraw> moved = EscapeTimerDrawChecks.Draw(timer, edited.EscapeTimer, tileAtlas.Artwork);
+        // Draw 0 is the TIME label; draws 1 and 2 are the minute tens and ones.
+        AssertEqual(installed[0].Draw.Origin, moved[0].Draw.Origin, "editing minute anchor leaves TIME label untouched");
+        AssertEqual(installed[1].Draw.Origin.X + 1, (int)moved[1].Draw.Origin.X,
+            "edited minute anchor reaches the minute tens draw");
+        AssertEqual(installed[2].Draw.Origin.X + 1, (int)moved[2].Draw.Origin.X,
+            "edited minute anchor reaches the minute ones draw");
 
         File.WriteAllText(replacement, "{ broken timer JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
@@ -176,7 +171,7 @@ internal static class EscapeTimerPresentationVerification
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides),
             "wrong-size timer PNG fails loudly");
 
-        Console.WriteLine("Escape timer presentation: exact stock OAM/PNG transfers, ROM-free drawing/uploads, edits, rebind and strict failures pass.");
+        Console.WriteLine("Escape timer presentation: native-equivalent draws, exact PNG transfers, ROM-free drawing/uploads, edits, rebind and strict failures pass.");
 
         static byte[] ReadVram(SnesVram vram, int byteAddress, int count)
         {
@@ -218,17 +213,12 @@ internal static class EscapeTimerPresentationVerification
         timer.Clear();
         timer.SetTime(PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(23), PackedBcd.FromDecimal(45));
         var native = new OamBuffer();
-        var guarded = new OamBuffer();
         native.BeginFrame();
-        guarded.BeginFrame();
         DrawImportedEscapeTimer(bus, timer, native);
-        EscapeTimerRenderer.Draw(timer, guarded,
-            EscapeTimerPresentation.Load(new MemoryStream(guardedExtraction)));
-        AssertEqual(native.NextByteOffset, guarded.NextByteOffset,
-            "compiled timer pointers preserve native OAM part count");
-        AssertTrue(native.ImageEquals(guarded),
+        EscapeTimerDrawChecks.AssertSameSprites(native,
+            EscapeTimerDrawChecks.Draw(timer, EscapeTimerPresentation.Load(new MemoryStream(guardedExtraction))),
             "native timer draw no longer rereads the immutable digit pointer table");
-        Console.WriteLine("Escape timer digit pointers: ten cartridge words, exact extraction and OAM, no runtime pointer-table reads.");
+        Console.WriteLine("Escape timer digit pointers: ten cartridge words, exact extraction and native-equivalent draws, no runtime pointer-table reads.");
     }
 
     /// <summary>Verifies the installed timer against import-time cartridge parts.</summary>

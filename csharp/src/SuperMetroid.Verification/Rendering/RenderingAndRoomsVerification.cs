@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Rooms.Backgrounds.RoomSkyTilemapsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Buffers.Binary;
@@ -1136,7 +1137,7 @@ internal static void VerifyFourBitBackgroundRendering()
     // Put its only pixel on character row one: old zero-based BG sampling fails.
     var gameplayVram = new SnesVram();
     var gameplayCgram = new SnesCgram();
-    var gameplayOam = new OamBuffer();
+    var gameplaySprites = new SpriteFrameBuffer();
     var redCharacter = new byte[32];
     var blueCharacter = new byte[32];
     redCharacter[2] = 0x80;
@@ -1153,7 +1154,7 @@ internal static void VerifyFourBitBackgroundRendering()
     Rgba32[] gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
         gameplayVram,
         gameplayCgram,
-        gameplayOam,
+        gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0x00e0),
                 new Extent16<TilemapCells>(32, 64), GameplayVramLayout.Bg2TilemapWord, 0, 0,
@@ -1176,7 +1177,7 @@ internal static void VerifyFourBitBackgroundRendering()
     gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
         gameplayVram,
         gameplayCgram,
-        gameplayOam,
+        gameplaySprites,
         new OrdinaryGameplayRenderLayer(
             new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0),
                 new Extent16<TilemapCells>(64, 64), kraidBg2BaseWord, 0, 0,
@@ -1222,11 +1223,11 @@ internal static void VerifyHostRoomViewportAlignment()
 
     var vram = new SnesVram();
     var cgram = new SnesCgram();
-    var oam = new OamBuffer();
+    var sprites = new SpriteFrameBuffer();
     Rgba32[] frame = SnesGameplayFrameRenderer.RenderHudRoomAndObjs(
         vram,
         cgram,
-        oam,
+        sprites,
         room,
         new Extent16<RoomPixels>(roomWidth, roomHeight),
         new Position16<RoomPixels>(cameraX, cameraY));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Input;
@@ -28,8 +29,8 @@ internal sealed record NmiHandlerDependencies
     /// <summary>Display.</summary>
     public required GameplayDisplayState Display { get; init; }
 
-    /// <summary>Displayed oam.</summary>
-    public required OamBuffer DisplayedOam { get; init; }
+    /// <summary>Sprite frame the NMI makes visible.</summary>
+    public required SpriteFrameBuffer DisplayedSprites { get; init; }
 
     /// <summary>Enemies.</summary>
     public required RoomEnemySystem Enemies { get; init; }
@@ -40,8 +41,8 @@ internal sealed record NmiHandlerDependencies
     /// <summary>Nmi.</summary>
     public required NmiClock Nmi { get; init; }
 
-    /// <summary>Oam.</summary>
-    public required OamBuffer Oam { get; init; }
+    /// <summary>Sprite frame the main loop finalized.</summary>
+    public required SpriteFrameBuffer Sprites { get; init; }
 
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }

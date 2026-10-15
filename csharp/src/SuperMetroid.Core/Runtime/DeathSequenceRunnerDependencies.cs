@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
@@ -22,8 +23,8 @@ internal sealed record DeathSequenceRunnerDependencies
     /// <summary>Nmi handler.</summary>
     public required NmiHandler NmiHandler { get; init; }
 
-    /// <summary>Oam.</summary>
-    public required OamBuffer Oam { get; init; }
+    /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
+    public required SpriteFrameBuffer Sprites { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

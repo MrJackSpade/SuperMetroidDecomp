@@ -44,7 +44,7 @@ internal static class GameplaySnapshotTestsVerification
                 GameplayVramLayout.HudCharacterWord, layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, new Bg2HdmaScrollTables(x, y));
             Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                live.Vram, live.Cgram, live.Oam, layer);
+                live.Vram, live.Cgram, live.Sprites, layer);
             // Mutating both caller arrays after capture must not alter retained HDMA.
             Array.Fill(x, (ushort)1234);
             Array.Fill(y, (ushort)5678);
@@ -54,7 +54,7 @@ internal static class GameplaySnapshotTestsVerification
                 $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
             {
-                byte[] old = RenderFrameSnapshotWriter.Serialize(packet);
+                byte[] old = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
                     old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Bg2ViewportLayerVersion);
                 AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old),

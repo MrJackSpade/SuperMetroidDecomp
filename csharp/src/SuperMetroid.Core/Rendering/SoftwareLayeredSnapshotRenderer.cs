@@ -67,7 +67,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         if (sub.MainObjects)
                         {
                             palettes = scratch.Bytes(subscreen.Length);
-                            SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                            SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
                                 snapshot.ObjectSelection, scratch.Colors(subscreen.Length), palettes);
                             highMain = scratch.Colors(256 * 224);
                             SnesBgTilemapRenderer.Composite4BppViewport(highMain, memory.Vram, memory.Cgram, new BgVramAddresses { TilemapBaseWord = coverage.TilemapWord, CharacterBaseWord = coverage.CharacterWord }, new BgViewport { Scroll = coverage.Scroll, Size = SnesPpuLayout.ScreenSize, TilemapSize = coverage.MapSize }, priority: true);
@@ -99,7 +99,7 @@ public static class SoftwareLayeredSnapshotRenderer
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayRegisters r = gameplay.Registers;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                        memory.Vram, memory.Cgram, memory.Oam, gameplay, snapshot.ObjectSelection, gameplayOutputBuffer);
+                        memory.Vram, memory.Cgram, memory.Sprites, gameplay, snapshot.ObjectSelection, gameplayOutputBuffer);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = scratch.Colors(256 * 32 * 8);
@@ -125,7 +125,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     if (mode7.AddBg1Subscreen)
                     {
                         var palettes = scratch.Bytes(output.Length);
-                        SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                        SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
                             snapshot.ObjectSelection, scratch.Colors(output.Length), palettes);
                         for (int i = 0; i < output.Length; i++)
                         {
@@ -153,7 +153,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     {
                         var palettes = scratch.Bytes(output.Length);
                         var coloredObjects = scratch.Colors(output.Length);
-                        SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                        SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
                             snapshot.ObjectSelection, coloredObjects, palettes);
                         for (int i = 0; i < output.Length; i++)
                         {
@@ -171,7 +171,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     if (obj.FixedColor is not null)
                     {
                         priorityPalettes = scratch.Bytes(output.Length);
-                        SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                        SnesObjRenderer.CompositeUnfiltered(ObjSpriteImage.Of(memory.Sprites), memory.Vram, memory.Cgram,
                             snapshot.ObjectSelection, scratch.Colors(output.Length), priorityPalettes);
                     }
                     for (int pixel = 0; pixel < output.Length; pixel++)

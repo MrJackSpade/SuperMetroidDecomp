@@ -53,6 +53,9 @@ public sealed class OamBuffer
     [PpuLayoutAccess]
     public int NextByteOffset { get; private set; }
 
+    /// <summary>Sprites appended since <see cref="BeginFrame"/>, counted by the record cursor (a wrapped cursor counts from zero again).</summary>
+    public int AppendedSpriteCount => NextByteOffset / LowRecordByteCount;
+
     /// <summary>
     /// Number of sprites written before the most recent <see cref="FinalizeFrame"/> reset.
     /// This host-side diagnostic has no separate original WRAM field.

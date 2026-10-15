@@ -970,7 +970,7 @@ internal sealed class CeresDestructionCinematicState
     private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
     {
         Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(layer, oam,
+        SnesObjRenderer.Render(layer, ObjSpriteImage.OamOnly(oam),
             vram,
             cgram,
             obsel: 3,

@@ -1448,7 +1448,7 @@ public sealed class IntroCinematicState
         Rgba32[] sprites = objScratch ??= new Rgba32[ScreenWidth * ScreenHeight];
         SnesObjRenderer.Render(
             sprites,
-            oam,
+            ObjSpriteImage.OamOnly(oam),
             vram,
             cgram,
             obsel: 3,

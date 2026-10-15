@@ -13,14 +13,14 @@ internal static class GameplayDisplayStateAccess
     {
         /// <summary>
         /// Ceres Mode 7 matrix made PPU-visible by the most recent accepted NMI. This is the
-        /// register-phase companion to <see cref="SuperMetroidRuntime.DisplayedOam"/>: software rendering must use
+        /// register-phase companion to <see cref="SuperMetroidRuntime.DisplayedSprites"/>: software rendering must use
         /// both displayed values together rather than mixing current main-loop shadow words
         /// with the preceding NMI's sprites.
         /// </summary>
         public SamusMode7Transform? DisplayedSamusMode7Transform => self.Latched.SamusMode7Transform;
         /// <summary>
         /// Ordinary BG scroll registers and room-shake deltas published by the most recent
-        /// accepted NMI. These belong to the same PPU-visible frame as <see cref="SuperMetroidRuntime.DisplayedOam"/>.
+        /// accepted NMI. These belong to the same PPU-visible frame as <see cref="SuperMetroidRuntime.DisplayedSprites"/>.
         /// </summary>
         public GameplayPpuRenderSnapshot DisplayedGameplayPpu => self.Latched.Ppu;
         /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>

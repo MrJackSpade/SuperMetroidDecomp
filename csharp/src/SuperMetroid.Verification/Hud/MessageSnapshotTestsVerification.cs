@@ -97,7 +97,7 @@ internal static class MessageSnapshotTestsVerification
                     $"message geometry {rows} rows, radius {radius}, line {y}");
             if (rows == 3 && radius == 0)
             {
-                byte[] bytes = RenderFrameSnapshotWriter.Serialize(packet);
+                byte[] bytes = RenderFrameSnapshotWriter.SerializeBeforeSpriteDraws(packet);
                 AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(bytes[..^1]), "truncated message rejected");
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
                     RenderPacketFormat.ScanlineColorLayerVersion);

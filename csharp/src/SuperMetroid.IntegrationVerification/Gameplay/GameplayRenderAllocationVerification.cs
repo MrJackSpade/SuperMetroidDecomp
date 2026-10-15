@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
@@ -12,13 +13,13 @@ internal static class GameplayRenderAllocationVerification
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();
-        var oam = new OamBuffer();
+        var sprites = new SpriteFrameBuffer();
         cgram.SetColor(0, Bgr555.FromWord(0x1234));
         var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32), 0, 0, 0, 0,
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
-        var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, oam),
+        var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, sprites),
             [new OrdinaryGameplayRenderLayer(registers)], 3, 15);
-        var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, oam,
+        var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, sprites,
             new OrdinaryGameplayRenderLayer(registers));
         for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(snapshot);
         long before = GC.GetAllocatedBytesForCurrentThread();
@@ -40,7 +41,7 @@ internal static class GameplayRenderAllocationVerification
         if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).SequenceEqual(expected))
             throw new InvalidDataException("Reusable output retained previous frame pixels.");
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
-        var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
+        var memory = PpuMemorySnapshot.Capture(vram, cgram, sprites);
         var xray = new LayeredRenderSnapshot(memory,
             [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 3, 15);
         var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);

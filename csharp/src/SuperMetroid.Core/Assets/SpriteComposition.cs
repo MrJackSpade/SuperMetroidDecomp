@@ -1,8 +1,14 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
 public sealed class SpriteComposition
 {
+    /// <summary>Edge of a small gameplay OBJ (OBSEL size mode 0).</summary>
+    private const byte GameplaySmallObjectPixels = 8;
+    /// <summary>Edge of a large gameplay OBJ (OBSEL size mode 0).</summary>
+    private const byte GameplayLargeObjectPixels = 16;
     /// <summary>Ordered immutable OAM parts, including per-part palette inheritance choices.</summary>
     internal readonly IReadOnlyList<CompiledSpritePart> parts;
     /// <summary>Copies authored parts so later document edits cannot alter a compiled composition.</summary>
@@ -33,6 +39,23 @@ public sealed class SpriteComposition
             content.Append("inherit-palette", part.InheritPalette ? 1 : 0);
         }
     }
+    /// <summary>
+    /// The composition as a whole frame over artwork whose character 0 is OBJ character <paramref name="firstCharacter"/>.
+    /// Small parts are 8x8 and large ones 16x16, the gameplay OBSEL sizes.
+    /// </summary>
+    internal SpriteFrame ToFrame(string name, int firstCharacter)
+    {
+        var converted = ImmutableArray.CreateBuilder<SpriteFramePart>(parts.Count);
+        foreach (CompiledSpritePart part in parts)
+        {
+            byte size = part.X.IsLarge ? GameplayLargeObjectPixels : GameplaySmallObjectPixels;
+            converted.Add(new(new Offset16<ScreenPixels>(checked((short)part.X.SignedOffset), unchecked((sbyte)part.Y)),
+                new Extent16<ScreenPixels>(size, size), part.Attributes.TileNumber - firstCharacter, part.Attributes.FlipFlags,
+                part.InheritPalette ? null : (byte)part.Attributes.PaletteIndex, (byte)part.Attributes.Priority));
+        }
+        return new(name, converted.MoveToImmutable());
+    }
+
     /// <summary>Appends all parts using the ordinary on-screen origin clipping path.</summary>
     /// <param name="oam">Object-attribute buffer that receives the ordered parts.</param>
     /// <param name="origin">Composition origin in screen-space pixels.</param>

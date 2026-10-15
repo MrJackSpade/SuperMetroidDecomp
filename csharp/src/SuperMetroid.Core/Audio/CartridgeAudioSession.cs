@@ -24,8 +24,8 @@ public sealed class CartridgeAudioSession
     /// <summary>Interleaved left/right samples in one update's PCM frame.</summary>
     public const int PcmSamplesPerFrame = StereoFramesPerVideoFrame * ChannelCount;
 
-    /// <summary>Synthesis-free SPC port model that produces the acknowledgements gameplay reads.</summary>
-    private readonly SpcCommandPorts ports = new();
+    /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
+    private readonly CartridgeAudioEventSource eventSource = new();
     /// <summary>The emulated driver's state, kept with the session so a restored session continues its PCM.</summary>
     internal ManagedSpcPlayer? player;
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
@@ -39,7 +39,7 @@ public sealed class CartridgeAudioSession
 
     /// <summary>The acknowledgement bytes published by the most recent update, for the next one.</summary>
     /// <remarks>The music echo on port zero belongs to the sequencer and is never read by gameplay; it is published as zero.</remarks>
-    public CartridgeAudioAcknowledgements Acknowledgements { get; private set; }
+    public CartridgeAudioAcknowledgements Acknowledgements => eventSource.Acknowledgements;
 
     /// <summary>
     /// Binds the extracted audio catalog so each following update also synthesizes host PCM. A
@@ -71,56 +71,14 @@ public sealed class CartridgeAudioSession
     /// <exception cref="ArgumentOutOfRangeException">A port write selects a port outside 0..3.</exception>
     internal IReadOnlyList<AudioEvent> Advance(IReadOnlyList<CartridgeAudioCommand> commands)
     {
-        Ensure.NotNull(commands);
-        var events = new List<AudioEvent>(commands.Count + SpcCommandPorts.MaximumTicksPerFrame);
-        foreach (CartridgeAudioCommand command in commands)
-        {
-            switch (command.Kind)
-            {
-                case CartridgeAudioCommandKind.Upload:
-                    ports.ResetForUpload();
-                    events.Add(AudioEvent.LoadAudioBank(command.Bank));
-                    break;
-                case CartridgeAudioCommandKind.WritePort:
-                    ports.WritePort(command.InputPort, command.Value);
-                    if (command.InputPort == ApuPort.Music)
-                        events.Add(AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(command.Value)));
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown cartridge audio command {command.Kind}.");
-            }
-        }
-        Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
-        int tickCount = ports.AdvanceFrame(schedule);
-        foreach (SpcDriverTick tick in schedule[..tickCount])
-        {
-            events.Add(AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
-            if (!tick.SoundEffectsPolled)
-                continue;
-            AddStart(events, tick, SoundEffectLibrary.Library1, tick.Library1);
-            AddStart(events, tick, SoundEffectLibrary.Library2, tick.Library2);
-            AddStart(events, tick, SoundEffectLibrary.Library3, tick.Library3);
-        }
+        AudioEvent[] frameEvents = eventSource.Advance(commands);
         hasAdvanced = true;
-        Acknowledgements = new CartridgeAudioAcknowledgements(
-            0,
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary1),
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary2),
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary3));
-        AudioEvent[] frameEvents = [.. events];
         if (backend is not null)
         {
             lastPcm ??= new short[PcmSamplesPerFrame];
             backend.Render(new AudioFrameEvents(frameEvents), lastPcm);
         }
         return frameEvents;
-    }
-
-    /// <summary>The driver starts a sound only for a changed nonzero request latched at the previous poll.</summary>
-    private static void AddStart(List<AudioEvent> events, SpcDriverTick tick, SoundEffectLibrary library, SpcSoundEffectPoll poll)
-    {
-        if (poll.Changed && poll.Command != 0)
-            events.Add(AudioEvent.StartSoundEffect(new SoundEffectId(library, poll.Command), tick.DspCycleOffset));
     }
 
     /// <summary>

@@ -99,4 +99,82 @@ internal sealed class ManagedSpcMusicChannel
     internal byte FineTune;
     /// <summary>Pattern effect that suppresses normal key-off handling for this voice.</summary>
     internal byte CutKey;
+
+    /// <summary>Appends every field of this music voice, in declaration order, to a driver-state snapshot (#1305).</summary>
+    internal void WriteState(List<byte> state)
+    {
+        state.AddRange([Index, NoteTicksLeft, NoteKeyOffTicksLeft, SubroutineLoops, VolumeFadeTicks, PanTicks, PitchSlideLength, PitchSlideDelayLeft, VibratoHoldCount, VibratoDepth, TremoloHoldCount, TremoloDepth, VibratoChangeCount, NoteLength, NoteGateOffFixedPoint, ChannelVolumeMaster, InstrumentId, PitchEnvelopeTicks, PitchEnvelopeDelay, PitchEnvelopeDirection, PitchEnvelopeSlide, VibratoCount, VibratoRate, VibratoDelayTicks, VibratoFadeTicks, VibratoFadeAddPerTick, VibratoDepthTarget, TremoloCount, TremoloRate, TremoloDelayTicks, ChannelTransposition, VolumeFadeTarget, FinalVolume, PanTarget, PanFlags, PitchTarget, FineTune, CutKey]);
+        state.Add(SnesLittleEndian.LowByte(PatternOrderPointer));
+        state.Add(SnesLittleEndian.HighByte(PatternOrderPointer));
+        state.Add(SnesLittleEndian.LowByte(InstrumentPitchBase));
+        state.Add(SnesLittleEndian.HighByte(InstrumentPitchBase));
+        state.Add(SnesLittleEndian.LowByte(SavedPatternPointer));
+        state.Add(SnesLittleEndian.HighByte(SavedPatternPointer));
+        state.Add(SnesLittleEndian.LowByte(PatternStartPointer));
+        state.Add(SnesLittleEndian.HighByte(PatternStartPointer));
+        state.Add(SnesLittleEndian.LowByte(ChannelVolume));
+        state.Add(SnesLittleEndian.HighByte(ChannelVolume));
+        state.Add(SnesLittleEndian.LowByte(VolumeFadeAddPerTick));
+        state.Add(SnesLittleEndian.HighByte(VolumeFadeAddPerTick));
+        state.Add(SnesLittleEndian.LowByte(PanValue));
+        state.Add(SnesLittleEndian.HighByte(PanValue));
+        state.Add(SnesLittleEndian.LowByte(PanAddPerTick));
+        state.Add(SnesLittleEndian.HighByte(PanAddPerTick));
+        state.Add(SnesLittleEndian.LowByte(Pitch));
+        state.Add(SnesLittleEndian.HighByte(Pitch));
+        state.Add(SnesLittleEndian.LowByte(PitchAddPerTick));
+        state.Add(SnesLittleEndian.HighByte(PitchAddPerTick));
+    }
+
+    /// <summary>Copies every field except the hardware voice <see cref="Index"/> from <paramref name="donor"/>, for entry-state analysis (#1305).</summary>
+    internal void CopyFrom(ManagedSpcMusicChannel donor)
+    {
+        PatternOrderPointer = donor.PatternOrderPointer;
+        NoteTicksLeft = donor.NoteTicksLeft;
+        NoteKeyOffTicksLeft = donor.NoteKeyOffTicksLeft;
+        SubroutineLoops = donor.SubroutineLoops;
+        VolumeFadeTicks = donor.VolumeFadeTicks;
+        PanTicks = donor.PanTicks;
+        PitchSlideLength = donor.PitchSlideLength;
+        PitchSlideDelayLeft = donor.PitchSlideDelayLeft;
+        VibratoHoldCount = donor.VibratoHoldCount;
+        VibratoDepth = donor.VibratoDepth;
+        TremoloHoldCount = donor.TremoloHoldCount;
+        TremoloDepth = donor.TremoloDepth;
+        VibratoChangeCount = donor.VibratoChangeCount;
+        NoteLength = donor.NoteLength;
+        NoteGateOffFixedPoint = donor.NoteGateOffFixedPoint;
+        ChannelVolumeMaster = donor.ChannelVolumeMaster;
+        InstrumentId = donor.InstrumentId;
+        InstrumentPitchBase = donor.InstrumentPitchBase;
+        SavedPatternPointer = donor.SavedPatternPointer;
+        PatternStartPointer = donor.PatternStartPointer;
+        PitchEnvelopeTicks = donor.PitchEnvelopeTicks;
+        PitchEnvelopeDelay = donor.PitchEnvelopeDelay;
+        PitchEnvelopeDirection = donor.PitchEnvelopeDirection;
+        PitchEnvelopeSlide = donor.PitchEnvelopeSlide;
+        VibratoCount = donor.VibratoCount;
+        VibratoRate = donor.VibratoRate;
+        VibratoDelayTicks = donor.VibratoDelayTicks;
+        VibratoFadeTicks = donor.VibratoFadeTicks;
+        VibratoFadeAddPerTick = donor.VibratoFadeAddPerTick;
+        VibratoDepthTarget = donor.VibratoDepthTarget;
+        TremoloCount = donor.TremoloCount;
+        TremoloRate = donor.TremoloRate;
+        TremoloDelayTicks = donor.TremoloDelayTicks;
+        ChannelTransposition = donor.ChannelTransposition;
+        ChannelVolume = donor.ChannelVolume;
+        VolumeFadeAddPerTick = donor.VolumeFadeAddPerTick;
+        VolumeFadeTarget = donor.VolumeFadeTarget;
+        FinalVolume = donor.FinalVolume;
+        PanValue = donor.PanValue;
+        PanAddPerTick = donor.PanAddPerTick;
+        PanTarget = donor.PanTarget;
+        PanFlags = donor.PanFlags;
+        Pitch = donor.Pitch;
+        PitchAddPerTick = donor.PitchAddPerTick;
+        PitchTarget = donor.PitchTarget;
+        FineTune = donor.FineTune;
+        CutKey = donor.CutKey;
+    }
 }

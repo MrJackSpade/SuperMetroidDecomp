@@ -113,8 +113,8 @@ public sealed class ManagedSpcPlayer
     /// <summary>Installs an instrument's source, envelope, gain and pitch base without replacing the channel's remembered ID.</summary>
     private void SetInstrumentWithoutSavingId(ManagedSpcMusicChannel channel, byte instrument)
     {
-        if ((instrument & 0x80) != 0) // cartridge-encoding: allow(BitMask) - percussion instrument marker
-            instrument = unchecked((byte)(instrument + 54 + percussionBaseId)); // cartridge-encoding: allow(HardwareMagnitude) - native percussion table bias
+        if ((instrument & SpcDriverDefinitions.Instruments.PercussionMarker) != 0)
+            instrument = unchecked((byte)(instrument + SpcDriverDefinitions.Instruments.PercussionBias + percussionBaseId));
         int address = SpcDriverDefinitions.Ram.InstrumentTable + instrument * SpcDriverDefinitions.Ram.InstrumentRecordSize;
         if ((channelOnMask & currentChannelBit) != 0)
             return;
@@ -564,6 +564,7 @@ public sealed class ManagedSpcPlayer
         }
 
     NextPhrase:
+        observer?.PhraseStarting();
         ushort patternTable;
         for (int records = 0; ; records++)
         {
@@ -1143,7 +1144,7 @@ public sealed class ManagedSpcPlayer
             musicChannel.PanFlags = 0;
             WriteVolume(musicChannel, SpcFixedPoint.FromWhole(ReadSoundByte(soundChannel)));
             command = ReadSoundByte(soundChannel);
-            if (command != 0xf6) // cartridge-encoding: allow(DomainDiscriminator) - retain prior SFX note opcode
+            if (command != SpcDriverDefinitions.SoundEffects.RetainedNote)
             {
                 soundChannel.Note = command;
                 soundChannel.Subnote = 0;
@@ -1476,6 +1477,34 @@ public sealed class ManagedSpcPlayer
                 $"Audio destination requires {SpcDriverDefinitions.HostStereoFramesPerVideoFrame * 2} samples.",
                 nameof(destination));
         }
+        RunFrame(schedule, synthesize: true);
+        dsp.CopyResampledSamples(destination, SpcDriverDefinitions.HostStereoFramesPerVideoFrame);
+    }
+
+    /// <summary>
+    /// Advances one 60-Hz frame like <see cref="GenerateFrame"/> but returns the S-DSP's native
+    /// 32.04-kHz output (<see cref="ManagedSnesDsp.NativeStereoFramesPerVideoFrame"/> interleaved
+    /// stereo frames) before the host resample, for the offline clip renderer (#1305).
+    /// </summary>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> is too short.</exception>
+    /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame, or the driver state cannot be synthesized.</exception>
+    internal void GenerateNativeFrame(ReadOnlySpan<SpcDriverTick> schedule, Span<short> destination)
+    {
+        RunFrame(schedule, synthesize: true);
+        dsp.CopyNativeSamples(destination);
+    }
+
+    /// <summary>
+    /// Advances the sequencer and sound-effect driver through one frame's ticks without clocking
+    /// the S-DSP. The driver never reads DSP state back, so its state evolves exactly as in
+    /// <see cref="GenerateFrame"/>; the DSP only receives the register writes.
+    /// </summary>
+    /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame.</exception>
+    internal void AdvanceSequencer(ReadOnlySpan<SpcDriverTick> schedule) => RunFrame(schedule, synthesize: false);
+
+    /// <summary>Services the frame's driver ticks in order, clocking the DSP up to each tick when synthesizing.</summary>
+    private void RunFrame(ReadOnlySpan<SpcDriverTick> schedule, bool synthesize)
+    {
         if (dsp.BufferedStereoFrameCount != 0)
             throw new InvalidDataException("S-DSP sample cursor is not at a frame boundary.");
 
@@ -1484,15 +1513,116 @@ public sealed class ManagedSpcPlayer
         {
             if (tick.DspCycleOffset < cycle || tick.DspCycleOffset >= SpcCommandPorts.DspCyclesPerFrame)
                 throw new InvalidDataException($"Driver tick at DSP cycle {tick.DspCycleOffset} is out of order or outside the frame.");
-            for (; cycle < tick.DspCycleOffset; cycle++)
+            for (; synthesize && cycle < tick.DspCycleOffset; cycle++)
                 dsp.Cycle();
+            cycle = tick.DspCycleOffset;
+            observer?.TickStarting(tick);
             LoopPartTwo(tick);
             LoopPartOne();
         }
-        for (; cycle < SpcCommandPorts.DspCyclesPerFrame; cycle++)
+        for (; synthesize && cycle < SpcCommandPorts.DspCyclesPerFrame; cycle++)
             dsp.Cycle();
+    }
 
-        dsp.CopyResampledSamples(destination, SpcDriverDefinitions.HostStereoFramesPerVideoFrame);
+    /// <summary>
+    /// Writes the complete sequencer and sound-effect driver state that determines all future
+    /// driver behavior, for offline loop and entry-state analysis (#1305). The DSP, APU RAM and
+    /// observer are excluded. <paramref name="includeTempoPhase"/> false omits the sub-tick tempo
+    /// accumulator, whose phase shifts music ticks by less than one driver tick. The global repeat
+    /// counter is written by behavior class: zero and $81-$FF all reload at the next repeat record.
+    /// </summary>
+    internal void WriteSequencerState(List<byte> state, bool includeTempoPhase)
+    {
+        Ensure.NotNull(state);
+        state.AddRange(
+        [
+            musicInputLatch, musicPortToSnes, affectedVolumeOrPitch, channelOnMask, fastForward,
+            blockCount is 0 or > SpcDriverDefinitions.Music.RepeatReloadClassMinimum ? (byte)0 : blockCount,
+            keyOn, keyOff, currentChannelBit, dspFlags, noiseEnable, echoEnable, echoStoredTime, echoDelay,
+            echoFeedback, globalTransposition, includeTempoPhase ? mainTempoAccumulator : (byte)0,
+            tempoFadeTicks, tempoFadeTarget, masterVolumeFadeTicks, masterVolumeFadeTarget, volumeDirty,
+            percussionBaseId, echoVolumeFadeTicks, echoVolumeFadeTargetLeft, echoVolumeFadeTargetRight,
+            lastWrittenEchoDelay,
+        ]);
+        foreach (ushort word in (ReadOnlySpan<ushort>)[
+            counter, musicTopLevelPointer, tempo, tempoFadeAdd, masterVolume, masterVolumeFadeAdd,
+            echoVolumeLeft, echoVolumeRight, echoVolumeFadeAddLeft, echoVolumeFadeAddRight])
+        {
+            state.Add(SnesLittleEndian.LowByte(word));
+            state.Add(SnesLittleEndian.HighByte(word));
+        }
+        foreach (ManagedSpcMusicChannel channel in channels)
+            channel.WriteState(state);
+        foreach (ManagedSpcSoundLibrary library in soundLibraries)
+            library.WriteState(state);
+        foreach (ManagedSpcSoundChannel[] libraryChannels in soundChannels)
+        {
+            foreach (ManagedSpcSoundChannel channel in libraryChannels)
+                channel.WriteState(state);
+        }
+    }
+
+    /// <summary>The analysis observer, or null during playback; never part of saved driver state.</summary>
+    [NonSerialized]
+    internal ISpcDriverObserver? observer;
+
+    /// <summary>The address of the next top-level music record, for offline loop analysis (#1305).</summary>
+    internal ushort ReadMusicTopLevelPointer() => musicTopLevelPointer;
+
+    /// <summary>
+    /// Replaces one group of the state that track starts and uploads leave in place with
+    /// <paramref name="donor"/>'s, so offline analysis (#1305) can test whether a track's output
+    /// depends on it at an unchanged timer and tempo phase. Echo copies the driver's echo fields,
+    /// its echo-write-disable flag and the DSP's delay, buffer page and FIR registers (not the
+    /// buffer contents); noise copies the noise-enable mask and noise rate; channels copies every
+    /// music-voice field.
+    /// </summary>
+    internal void CopyEntryGroup(SpcEntryStateGroup group, ManagedSpcPlayer donor)
+    {
+        Ensure.NotNull(donor);
+        switch (group)
+        {
+            case SpcEntryStateGroup.Echo:
+                echoEnable = donor.echoEnable;
+                echoStoredTime = donor.echoStoredTime;
+                echoDelay = donor.echoDelay;
+                echoFeedback = donor.echoFeedback;
+                lastWrittenEchoDelay = donor.lastWrittenEchoDelay;
+                echoVolumeLeft = donor.echoVolumeLeft;
+                echoVolumeRight = donor.echoVolumeRight;
+                echoVolumeFadeAddLeft = donor.echoVolumeFadeAddLeft;
+                echoVolumeFadeAddRight = donor.echoVolumeFadeAddRight;
+                echoVolumeFadeTicks = donor.echoVolumeFadeTicks;
+                echoVolumeFadeTargetLeft = donor.echoVolumeFadeTargetLeft;
+                echoVolumeFadeTargetRight = donor.echoVolumeFadeTargetRight;
+                dspFlags = unchecked((byte)((dspFlags & ~SpcDriverDefinitions.Echo.WriteDisable) |
+                    (donor.dspFlags & SpcDriverDefinitions.Echo.WriteDisable)));
+                CopyEchoDspRegisters(donor);
+                break;
+            case SpcEntryStateGroup.Noise:
+                noiseEnable = donor.noiseEnable;
+                dspFlags = unchecked((byte)((dspFlags & ~SnesDspRegisterLayout.Fields.NoiseRateMask) |
+                    (donor.dspFlags & SnesDspRegisterLayout.Fields.NoiseRateMask)));
+                break;
+            case SpcEntryStateGroup.Channels:
+                for (int index = 0; index < channels.Length; index++)
+                    channels[index].CopyFrom(donor.channels[index]);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(group), group, "Unknown SPC entry-state group.");
+        }
+    }
+
+    /// <summary>Writes <paramref name="donor"/>'s echo delay, echo buffer page and eight FIR coefficients through this DSP's register writes.</summary>
+    [DspRegisterBoundary("analysis: entry-state transplant copies raw register values between two DSPs")]
+    private void CopyEchoDspRegisters(ManagedSpcPlayer donor)
+    {
+        CopyDspRegister((byte)DspGlobalRegister.EchoDelay);
+        CopyDspRegister((byte)DspGlobalRegister.EchoBufferAddress);
+        for (int tap = 0; tap < SpcDriverDefinitions.Echo.FirTapCount; tap++)
+            CopyDspRegister(unchecked((byte)(SnesDspRegisterLayout.FirstFirCoefficient + tap * SnesDspRegisterLayout.VoiceStride)));
+
+        void CopyDspRegister(byte address) => dsp.WriteRegister(address, donor.dsp.registers[address]);
     }
 
     /// <summary>Resets DSP/work RAM and publishes the driver's initial echo and master-register state.</summary>
@@ -1520,6 +1650,7 @@ public sealed class ManagedSpcPlayer
     /// for1165; the pending key masks clear only after publication.</summary>
     internal void LoopPartOne()
     {
+        observer?.KeysPublished(keyOn, keyOff);
         Dsp.Global.KeyOff(new DspVoiceMask(keyOff));
         Dsp.Global.WritePitchModulation(DspVoiceMask.None);
         Dsp.Global.WriteNoiseEnable(new DspVoiceMask(noiseEnable));

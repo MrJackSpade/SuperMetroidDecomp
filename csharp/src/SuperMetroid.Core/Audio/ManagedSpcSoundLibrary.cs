@@ -35,4 +35,18 @@ internal sealed class ManagedSpcSoundLibrary
     internal byte InitializationFlag;
     /// <summary>DSP register-pair index assigned to the currently allocated voice.</summary>
     internal byte VoiceIndex;
+
+    /// <summary>Appends every field of this sound-effect library, in declaration order, to a driver-state snapshot (#1305).</summary>
+    internal void WriteState(List<byte> state)
+    {
+        state.AddRange([Priority, ChannelIndexTimesTwo, CurrentSound, Mode, EnabledVoices, VoicesToSetup, ChannelIndex, VoicesRemaining, CurrentSoundIndex, VoiceId, InitializationFlag, VoiceIndex]);
+        state.Add(SnesLittleEndian.LowByte(ChannelVoiceBitsetPointer));
+        state.Add(SnesLittleEndian.HighByte(ChannelVoiceBitsetPointer));
+        state.Add(SnesLittleEndian.LowByte(ChannelVoiceMaskPointer));
+        state.Add(SnesLittleEndian.HighByte(ChannelVoiceMaskPointer));
+        state.Add(SnesLittleEndian.LowByte(ChannelVoiceIndexPointer));
+        state.Add(SnesLittleEndian.HighByte(ChannelVoiceIndexPointer));
+        state.Add(SnesLittleEndian.LowByte(CurrentPointer));
+        state.Add(SnesLittleEndian.HighByte(CurrentPointer));
+    }
 }

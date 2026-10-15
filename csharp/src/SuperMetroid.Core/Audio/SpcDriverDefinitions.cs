@@ -126,6 +126,12 @@ internal static class SpcDriverDefinitions
         internal const byte PatternPointerHighByteMinimum = 1;
         /// <summary>Driver ticks spent initializing a selected track before its pattern runs.</summary>
         internal const int TrackStartupTicks = 2;
+        /// <summary>
+        /// The global top-level repeat counter reloads its record's count on the decrement after any
+        /// value above this, and after zero; $01-$80 count down instead. Values in the reloading
+        /// class therefore behave identically.
+        /// </summary>
+        internal const byte RepeatReloadClassMinimum = 0x80;
     }
 
     /// <summary>Instrument source-byte encoding shared by sampled and noise voices.</summary>
@@ -133,6 +139,10 @@ internal static class SpcDriverDefinitions
     {
         /// <summary>High bit selecting a DSP noise rate instead of a BRR source number.</summary>
         internal const byte NoiseMarker = 0x80;
+        /// <summary>An instrument byte with this bit selects a percussion instrument, offset by the native bias and the track's percussion base.</summary>
+        internal const byte PercussionMarker = 0x80;
+        /// <summary>Added with the track's percussion base to a percussion instrument byte to index the instrument table.</summary>
+        internal const int PercussionBias = 54;
     }
 
     /// <summary>Three native sound-effect libraries and their voice allocation limits.</summary>
@@ -148,5 +158,7 @@ internal static class SpcDriverDefinitions
         internal const byte VoiceSearchStart = 9;
         /// <summary>All bits set denotes an active sound-effect slot.</summary>
         internal const byte Active = byte.MaxValue;
+        /// <summary>A note-packet note byte of $F6 keeps the channel's previous note instead of setting one.</summary>
+        internal const byte RetainedNote = 0xf6;
     }
 }

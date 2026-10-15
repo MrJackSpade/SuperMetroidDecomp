@@ -18,9 +18,12 @@ internal static class SpcCommandPortsVerification
     /// </summary>
     private const string EmulatedAcknowledgementsSha256 =
         "069F5A367FA36A896F9CEC9A45949DE1C517DA16DEC7B3195083898FFECBFF59";
-    /// <summary>SHA-256 of the same scenario's 48-kHz PCM from the emulated driver.</summary>
+    /// <summary>
+    /// SHA-256 of the same scenario's 48-kHz PCM from the emulated driver, re-recorded when key-on
+    /// began restarting the S-DSP interpolation position and envelope counter (#1305).
+    /// </summary>
     private const string EmulatedPcmSha256 =
-        "5D07590F2219F6AC6C69D61BF3B9BFDB69E988A2C0E34AD8C4037FD35C6B8633";
+        "1EDAB958070306151583376ED9EE5E30BF1043ADE91AA6FD4011000FB2BD8CFF";
 
     /// <summary>Audio data bank index of the Green Brinstar music upload.</summary>
     private static byte GreenBrinstarDataIndex => AudioAssetCatalogDefinitions.Get(AudioBank.GreenBrinstar).DataIndex;
@@ -107,9 +110,9 @@ internal static class SpcCommandPortsVerification
             Convert.ToHexString(SHA256.HashData(acknowledgementBytes.ToArray())),
             "session acknowledgements match the pre-extraction recording");
         AssertEqual(EmulatedPcmSha256, Convert.ToHexString(pcm.GetHashAndReset()),
-            "backend PCM from the session's events matches the pre-extraction recording");
+            "backend PCM from the session's events matches the recorded PCM");
         Console.WriteLine($"  SPC command ports: {ScenarioFrames} frames of commands, acknowledgements, ticks and " +
-            $"{starts.Count} sound starts match the port model; acknowledgements and PCM match the pre-extraction recording.");
+            $"{starts.Count} sound starts match the port model; acknowledgements match the pre-extraction recording and PCM matches its recording.");
     }
 
     /// <summary>

@@ -34,7 +34,21 @@ public sealed class ManagedSpcAudioBackend : IAudioBackend
     /// Polls without a start service each library's playing sound. Processing is not
     /// transactional: a failing event may leave earlier events applied.
     /// </remarks>
-    public void Render(in AudioFrameEvents frame, Span<short> stereo48k)
+    public void Render(in AudioFrameEvents frame, Span<short> stereo48k) =>
+        Player.GenerateFrame(Schedule(frame), stereo48k);
+
+    /// <summary>Renders the update like <see cref="Render"/> into native 32.04-kHz PCM, before the host resample (#1305).</summary>
+    /// <exception cref="InvalidDataException">An event is malformed or out of order, or the driver cannot synthesize it.</exception>
+    internal void RenderNative(in AudioFrameEvents frame, Span<short> native) =>
+        Player.GenerateNativeFrame(Schedule(frame), native);
+
+    /// <summary>Applies the update to the driver without clocking the DSP; driver state evolves exactly as in <see cref="Render"/> (#1305).</summary>
+    /// <exception cref="InvalidDataException">An event is malformed or out of order.</exception>
+    internal void AdvanceSequencer(in AudioFrameEvents frame) =>
+        Player.AdvanceSequencer(Schedule(frame));
+
+    /// <summary>Applies the update's bank loads and music commands, and builds its driver schedule with each sound-effect start at its poll.</summary>
+    private ReadOnlySpan<SpcDriverTick> Schedule(in AudioFrameEvents frame)
     {
         IReadOnlyList<AudioEvent> events = Ensure.NotNull(frame.Events);
         int ticks = 0;
@@ -66,7 +80,7 @@ public sealed class ManagedSpcAudioBackend : IAudioBackend
                     throw new InvalidDataException($"Unknown audio event {audioEvent.Kind}.");
             }
         }
-        Player.GenerateFrame(schedule.AsSpan(0, ticks), stereo48k);
+        return schedule.AsSpan(0, ticks);
     }
 
     /// <summary>Installs one bank's upload and its decoded definitions, as the cartridge upload does.</summary>

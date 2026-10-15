@@ -288,6 +288,19 @@ public sealed class ManagedSnesDsp
         }
     }
 
+    /// <summary>Copies the completed frame's native 32.04-kHz interleaved stereo samples unchanged and starts the next frame.</summary>
+    /// <exception cref="InvalidDataException">The frame is incomplete.</exception>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> is shorter than one native frame.</exception>
+    public void CopyNativeSamples(Span<short> destination)
+    {
+        if (sampleOffset != NativeStereoFramesPerVideoFrame)
+            throw new InvalidDataException($"S-DSP frame holds {sampleOffset} of {NativeStereoFramesPerVideoFrame} samples.");
+        if (destination.Length < sampleBuffer.Length)
+            throw new ArgumentException($"Native destination requires {sampleBuffer.Length} samples.", nameof(destination));
+        sampleBuffer.CopyTo(destination);
+        sampleOffset = 0;
+    }
+
     /// <summary>
     /// Converts the native 32.04-kHz frame to the host rate without zero-order-hold imaging.
     /// </summary>
@@ -311,6 +324,11 @@ public sealed class ManagedSnesDsp
         voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
+        // Hardware key-on restarts the interpolation position, so every note starts its waveform
+        // at the same phase. The envelope counter restarts with it, timing envelope steps from
+        // the key-on rather than from whatever the voice's previous note left.
+        voice.PitchCounter = 0;
+        voice.RateCounter = 0;
         voice.Gain = 0;
         voice.AdsrState = voice.UseGain ? EnvelopeState.Gain : EnvelopeState.Attack;
     }

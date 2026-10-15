@@ -49,4 +49,14 @@ internal sealed class ManagedSpcSoundChannel
     internal byte SubnoteDelta;
     /// <summary>Requests writing the inline ADSR override to the borrowed voice.</summary>
     internal byte UpdateAdsr;
+
+    /// <summary>Appends every field of this sound-effect channel, in declaration order, to a driver-state snapshot (#1305).</summary>
+    internal void WriteState(List<byte> state)
+    {
+        state.AddRange([VoiceBitset, InstructionTimer, Subnote, RepeatPoint, Note, PointerIndex, VoiceIndex, VoiceIndexTimesEight, ReleaseTimer, Volume, TargetNote, PhaseInvert, RepeatCounter, EnablePitchSlide, ReleaseFlag, EnablePitchSlideLegato, ChannelMask, Legato, Disabled, SubnoteDelta, UpdateAdsr]);
+        state.Add(SnesLittleEndian.LowByte(Pointer));
+        state.Add(SnesLittleEndian.HighByte(Pointer));
+        state.Add(SnesLittleEndian.LowByte(AdsrSettings));
+        state.Add(SnesLittleEndian.HighByte(AdsrSettings));
+    }
 }

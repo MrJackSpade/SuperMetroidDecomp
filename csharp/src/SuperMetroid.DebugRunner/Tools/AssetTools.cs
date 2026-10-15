@@ -12,6 +12,8 @@ internal static class AssetTools
     {
         switch (args)
         {
+            case ["--audio-clip-inventory", var audioDirectory, var inventoryDirectory]:
+                return AudioClipInventory.Run(audioDirectory, inventoryDirectory);
             case ["--dump-instruction-layouts", var outputPath]:
                 InstructionLayoutDump.DumpInstructionLayouts(outputPath);
                 return 0;

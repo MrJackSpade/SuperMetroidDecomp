@@ -1512,7 +1512,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
     /// test is the real communication channel from bank-$86 goop; no host-only encounter
     /// flag or proximity shortcut is used to start this branch.
     /// </summary>
-    private void ChaseAndTryToGrabSamus(
+    internal void ChaseAndTryToGrabSamus(
         DraygonEnemyState state,
         SamusState? samus,
         byte frameCounterLow)
@@ -1563,6 +1563,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
         }
 
         samus.DraygonGrabbed.Begin(_room.LoadedBus, samus, state.FacingRight);
+        _roomStatus.DraygonDiscardedSamusPoseRequestsThisFrame = true;
         state.SpiralCenter = FixedPosition<RoomPixels>.FromWhole(DraygonSpiralTarget);
         state.SpiralXRadius = 0;
         state.SpiralXSubradius = 0;
@@ -1838,12 +1839,12 @@ internal sealed class DraygonBehavior : IEnemySpecies
 
     /// <summary>
     /// Runs <c>ReleaseSamusFromDraygon</c> ($90:E2DE) from Draygon's AI and publishes it so the
-    /// runtime clears the prospective poses alpha already chose.
+    /// runtime clears the prospective poses alpha already chose, as the grab does.
     /// </summary>
     private void ReleaseSamusDuringEnemyMain(SamusState samus)
     {
         samus.DraygonGrabbed.Release(_room.LoadedBus, samus);
-        _roomStatus.SamusReleasedByDraygonThisFrame = true;
+        _roomStatus.DraygonDiscardedSamusPoseRequestsThisFrame = true;
     }
 
     /// <summary>Requires the active Samus actor for Draygon's carry and release phases.</summary>

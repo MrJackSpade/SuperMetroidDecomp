@@ -135,10 +135,11 @@ internal sealed class EnemyFramePhase
                 // behind after the palette handler becomes inactive.
                 _player.IntroducedSamus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
             }
-            if (_enemies.RoomStatus.SamusReleasedByDraygonThisFrame)
+            if (_enemies.RoomStatus.DraygonDiscardedSamusPoseRequestsThisFrame)
             {
-                // `$90:E329-$E332` discards the transitions alpha chose for the old pose,
-                // including the no-input fallback that shares the prospective-pose slot.
+                // The grab (`$90:E289-$E295`) and release (`$90:E329-$E332`) discard the transitions
+                // alpha chose for the old pose, including the no-input fallback that shares the
+                // prospective-pose slot.
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }

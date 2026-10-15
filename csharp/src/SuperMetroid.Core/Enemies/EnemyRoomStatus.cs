@@ -26,11 +26,11 @@ internal sealed class EnemyRoomStatus
     public bool CeresEscapeStartedThisFrame { get; internal set; }
 
     /// <summary>
-    /// One-frame publication of a Draygon-owned <c>ReleaseSamusFromDraygon</c> ($90:E2DE)
-    /// during EnemyMain. The release writes $FFFF to all three prospective-pose slots, which
-    /// the runtime owns and clears after EnemyMain.
+    /// One-frame publication of Draygon grabbing Samus (<c>SetSamusIntoTheGrabbedByDraygonPose</c>,
+    /// $90:E23B) or releasing her (<c>ReleaseSamusFromDraygon</c>, $90:E2DE) during EnemyMain. Both
+    /// write $FFFF to all three prospective-pose slots, which the runtime owns and clears after EnemyMain.
     /// </summary>
-    public bool SamusReleasedByDraygonThisFrame { get; internal set; }
+    public bool DraygonDiscardedSamusPoseRequestsThisFrame { get; internal set; }
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
@@ -39,6 +39,6 @@ internal sealed class EnemyRoomStatus
     internal void BeginFrame()
     {
         CeresEscapeStartedThisFrame = false;
-        SamusReleasedByDraygonThisFrame = false;
+        DraygonDiscardedSamusPoseRequestsThisFrame = false;
     }
 }

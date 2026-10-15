@@ -83,6 +83,9 @@ public sealed class SamusDraygonGrabbedState
         OwnerFacingRight = draygonFacingRight;
         // Forced grab owns its history shift; no ordinary input slot is consumed.
         samus.CommitPoseHistory(bus);
+        // `$90:E289-$E295` empties every prospective-pose slot. The super-special one is Samus's;
+        // the runtime clears the others after EnemyMain (EnemyRoomStatus publishes the grab).
+        samus.PendingTransitionalPose = null;
     }
 
     /// <summary>

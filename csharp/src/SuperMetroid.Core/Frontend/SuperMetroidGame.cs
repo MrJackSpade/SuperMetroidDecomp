@@ -604,7 +604,10 @@ public sealed class SuperMetroidGame
                         optionSlot?.IconCancelEnabled ?? false,
                         optionSlot?.MoonwalkEnabled ?? false,
                         japaneseText: optionSlot?.JapaneseText ?? false,
-                        mapPresentation: Artwork.MapPresentation);
+                        mapPresentation: Artwork.MapPresentation)
+                    {
+                        LoadingGameState = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
+                    };
                     GameState = SuperMetroidGameState.GameOptionsMenu;
                     display.PublishMenu(options);
                 }

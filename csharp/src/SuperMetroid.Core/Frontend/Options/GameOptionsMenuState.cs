@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -124,6 +125,12 @@ public sealed class GameOptionsMenuState
 
     /// <summary>Current menu row within the active page.</summary>
     public int SelectedItem { get; private set; }
+
+    /// <summary>
+    /// The selected save's loading game state (<c>SRAMMirror_LoadingGameState</c>, loaded by file select).
+    /// A new game's is zero, the opening-cinematic route.
+    /// </summary>
+    public SaveLoadingGameState LoadingGameState { get; init; }
 
     /// <summary>Gets whether the Japanese-language options pages are selected.</summary>
     public bool JapaneseText { get; private set; }
@@ -322,7 +329,11 @@ public sealed class GameOptionsMenuState
         switch (row)
         {
             case GameOptionsPrimaryRow.StartGame:
-                Phase = GameOptionsPhase.FadeOutToIntro;
+                // $82:EDBD: a save that resumes ordinary gameplay starts at once (index four);
+                // a new game and the cinematic routes fade out first (index $0C).
+                Phase = LoadingGameState == SaveLoadingGameState.MainGame
+                    ? GameOptionsPhase.StartGame
+                    : GameOptionsPhase.FadeOutToIntro;
                 break;
             case GameOptionsPrimaryRow.EnglishText:
             case GameOptionsPrimaryRow.JapaneseText:

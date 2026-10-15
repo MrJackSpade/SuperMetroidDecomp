@@ -1095,16 +1095,6 @@ internal sealed class EnemyProjectileEngine
             return FakeKraidProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
-        if (projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball)
-        {
-            return AlcoonFireballInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (projectile.Kind == RoomEnemyProjectileKind.PolypRock)
-        {
-            return PolypRockInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (projectile.Kind == RoomEnemyProjectileKind.StokeProjectile)
         {
             return StokeProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
@@ -1119,14 +1109,6 @@ internal sealed class EnemyProjectileEngine
         if (projectile.Kind == RoomEnemyProjectileKind.CacatacSpike)
         {
             return CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord(
-                address);
-        }
-
-        if (projectile.Kind is
-            RoomEnemyProjectileKind.FuneFireball or
-            RoomEnemyProjectileKind.NamiheFireball)
-        {
-            return FuneNamiheFireballInstructionProgramDefinitions.ReadMechanicsWord(
                 address);
         }
 

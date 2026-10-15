@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Alcoon;
@@ -91,9 +92,13 @@ internal static class DefinitionAudit
     private static string SelectorSource(string root, int bank, int address)
     {
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
-        string calculatedMethod = bank == 0x86 ? AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) ? "AlcoonFireballFrameAt" : "FuneNamiheFireballFrameAt" : "FrameAt";
+        string calculatedMethod = bank == 0x86 ? "Spritemap" : "FrameAt";
         string relative = calculated
-            ? bank == 0x86 ? "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs" : "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
+            ? bank == 0x86
+                ? AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _)
+                    ? "csharp/src/SuperMetroid.Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameDefinitions.cs"
+                    : "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameDefinitions.cs"
+                : "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
             : $"csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))

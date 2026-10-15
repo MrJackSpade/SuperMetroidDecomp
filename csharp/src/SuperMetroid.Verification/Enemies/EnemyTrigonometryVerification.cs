@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.FuneNamihe;
+using SuperMetroid.Verification.Enemies.Alcoon;
 using SuperMetroid.Verification.Enemies.WorkRobots;
 using SuperMetroid.Verification.Enemies.KiHunters;
 using SuperMetroid.Verification.Enemies.FallingSparks;
@@ -35,7 +37,6 @@ using SuperMetroid.Verification.Enemies.Nuclear;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.AbsoluteTangentDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonFireballInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Alcoon.AlcoonInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Atomic.AtomicMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamCallbackTablesVerification;
@@ -127,7 +128,6 @@ using static SuperMetroid.Verification.Enemies.Flies.FlyAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Flies.FlyBehaviorVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleBodyPlacementVerification;
 using static SuperMetroid.Verification.Samus.Grapple.GrappleCompiledMathVerification;
@@ -197,7 +197,6 @@ using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveMathVerificat
 using static SuperMetroid.Verification.Enemies.PipeBugs.PipeBugAnimationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Platforms.PlatformInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Polyp.PolypLaunchDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Polyp.PolypRockInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseCollisionDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseDispatchDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Poses.PoseInputDefinitionsVerification;
@@ -325,7 +324,8 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyCacatacProjectileInstructionProgramDefinitions), () => VerifyCacatacProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(FallingSparkAnimationsVerification.VerifyFallingSparkAnimations), () => FallingSparkAnimationsVerification.VerifyFallingSparkAnimations(LoadRepositoryRom())),
         new(nameof(FallingSparkBehaviorVerification.VerifyFallingSparkBehavior), () => FallingSparkBehaviorVerification.VerifyFallingSparkBehavior(LoadRepositoryRom())),
-        new(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(FuneNamiheFireballAnimationsVerification.VerifyFuneNamiheFireballAnimations), () => FuneNamiheFireballAnimationsVerification.VerifyFuneNamiheFireballAnimations(LoadRepositoryRom())),
+        new(nameof(FuneNamiheFireballBehaviorVerification.VerifyFuneNamiheFireballBehavior), () => FuneNamiheFireballBehaviorVerification.VerifyFuneNamiheFireballBehavior(LoadRepositoryRom())),
         new(nameof(VerifyMagdolliteLavaInstructionProgramDefinitions), () => VerifyMagdolliteLavaInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(DragonFireballAnimationsVerification.VerifyDragonFireballAnimations), () => DragonFireballAnimationsVerification.VerifyDragonFireballAnimations(LoadRepositoryRom())),
         new(nameof(DragonFireballBehaviorVerification.VerifyDragonFireballBehavior), () => DragonFireballBehaviorVerification.VerifyDragonFireballBehavior(LoadRepositoryRom())),
@@ -333,12 +333,14 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifyEyeDoorSweatInstructionProgramDefinitions), () => VerifyEyeDoorSweatInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(AlcoonFireballAnimationsVerification.VerifyAlcoonFireballAnimations), () => AlcoonFireballAnimationsVerification.VerifyAlcoonFireballAnimations(LoadRepositoryRom())),
+        new(nameof(AlcoonFireballBehaviorVerification.VerifyAlcoonFireballBehavior), () => AlcoonFireballBehaviorVerification.VerifyAlcoonFireballBehavior(LoadRepositoryRom())),
         new(nameof(WorkRobotLaserAnimationsVerification.VerifyWorkRobotLaserAnimations), () => WorkRobotLaserAnimationsVerification.VerifyWorkRobotLaserAnimations(LoadRepositoryRom())),
         new(nameof(WorkRobotLaserBehaviorVerification.VerifyWorkRobotLaserBehavior), () => WorkRobotLaserBehaviorVerification.VerifyWorkRobotLaserBehavior(LoadRepositoryRom())),
         new(nameof(PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations), () => PowampSpikeAnimationsVerification.VerifyPowampSpikeAnimations(LoadRepositoryRom())),
         new(nameof(PowampSpikeBehaviorVerification.VerifyPowampSpikeBehavior), () => PowampSpikeBehaviorVerification.VerifyPowampSpikeBehavior(LoadRepositoryRom())),
-        new(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(PolypRockAnimationsVerification.VerifyPolypRockAnimations), () => PolypRockAnimationsVerification.VerifyPolypRockAnimations(LoadRepositoryRom())),
+        new(nameof(PolypRockBehaviorVerification.VerifyPolypRockBehavior), () => PolypRockBehaviorVerification.VerifyPolypRockBehavior(LoadRepositoryRom())),
         new(nameof(KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations), () => KiHunterAcidSpitAnimationsVerification.VerifyKiHunterAcidSpitAnimations(LoadRepositoryRom())),
         new(nameof(KiHunterAcidSpitBehaviorVerification.VerifyKiHunterAcidSpitBehavior), () => KiHunterAcidSpitBehaviorVerification.VerifyKiHunterAcidSpitBehavior(LoadRepositoryRom())),
         new(nameof(VerifyStokeProjectileInstructionProgramDefinitions), () => VerifyStokeProjectileInstructionProgramDefinitions(LoadRepositoryRom())),

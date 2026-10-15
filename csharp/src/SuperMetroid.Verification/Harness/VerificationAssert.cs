@@ -107,7 +107,7 @@ using static SuperMetroid.Verification.Frontend.FileSelect.FileSelectNavigationL
 using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaFxVerification;
 using static SuperMetroid.Verification.Enemies.Fireflea.FirefleaMovementDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheFireballAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.FuneNamihe.FuneNamiheInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverBabyAnimationVerification;
 using static SuperMetroid.Verification.Frontend.GameOver.GameOverBabyColorsVerification;
@@ -3657,7 +3657,6 @@ internal static class VerificationAssert
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
             "Fune/Namihe fireball oracle is NTSC J/U v1.0");
-        Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(oracle));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;
     }

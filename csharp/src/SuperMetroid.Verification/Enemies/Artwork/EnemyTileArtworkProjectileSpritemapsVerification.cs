@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
+using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
@@ -142,11 +144,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             nativeCeres.ImageEquals(installedCeres),
             "Ceres Ridley fireball uses installed OAM without visual ROM reads");
         for (int index = 0;
-             index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount;
+             index < AlcoonFireballFrameDefinitions.PoseCount;
              index++)
         {
-            ushort operand = AlcoonFireballInstructionProgramDefinitions
-                .PresentationWordAddress(index);
+            ushort operand = AlcoonFireballFrameDefinitions.PresentationKey(new(index));
             OamBuffer nativeAlcoon = DrawReferenceProgramFrame(operand, bus,
                 RoomEnemyProjectileKind.AlcoonFireball);
             OamBuffer installedAlcoon = DrawProgramFrame(stock, operand,
@@ -284,8 +285,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
                 index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index))),
             ("Fune/Namihe fireball", RoomEnemyProjectileKind.FuneFireball,
-                FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
-                FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress),
+                FuneNamiheFireballFrameDefinitions.PoseCount,
+                index => FuneNamiheFireballFrameDefinitions.PresentationKey(new(index))),
             ("Dragon fireball", RoomEnemyProjectileKind.DragonFireball,
                 DragonFireballFrameDefinitions.PoseCount,
                 index => DragonFireballFrameDefinitions.PresentationKey(new(index))),
@@ -388,8 +389,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .Single(frame => frame.OperandAddress == ceresOperand).Name;
         SpriteVisualPart[] ceres = document.ProgramFrames[ceresFrameName];
         ceres[0] = ceres[0] with { OffsetX = ceres[0].OffsetX + 1 };
-        ushort alcoonOperand = AlcoonFireballInstructionProgramDefinitions
-            .PresentationWordAddress(0);
+        ushort alcoonOperand = AlcoonFireballFrameDefinitions
+            .PresentationKey(new(0));
         string alcoonFrameName = EnemyProjectilePresentationFrameDefinitions.All
             .Single(frame => frame.OperandAddress == alcoonOperand).Name;
         SpriteVisualPart[] alcoon = document.ProgramFrames[alcoonFrameName];
@@ -681,8 +682,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             .SequenceEqual(installedCeres.LowTable),
             "version-three overrides inherit newly extracted Ceres Ridley frames");
         var alcoonOperands = Enumerable.Range(0,
-                AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)
-            .Select(AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress)
+                AlcoonFireballFrameDefinitions.PoseCount)
+            .Select(index => AlcoonFireballFrameDefinitions.PresentationKey(new(index)))
             .ToHashSet();
         var versionFourFrames = EnemyProjectilePresentationFrameDefinitions.PreGoldenTorizo
             

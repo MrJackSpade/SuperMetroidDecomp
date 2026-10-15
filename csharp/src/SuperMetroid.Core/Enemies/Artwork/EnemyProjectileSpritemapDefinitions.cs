@@ -1,31 +1,8 @@
-using SuperMetroid.Core.Enemies.Alcoon;
-using SuperMetroid.Core.Enemies.FuneNamihe;
-
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
 public static class EnemyProjectileSpritemapDefinitions
 {
-    /// <summary>Four consecutive fireball maps at $8D:8404, each with a
-    /// two-byte count and one five-byte OAM record, selected in animation order.</summary>
-    internal static ushort AlcoonFireballFrameAt(ushort operandAddress)
-    {
-        if (!AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            throw new InvalidDataException(
-                $"Alcoon fireball visual operand $86:{operandAddress:X4} is not compiled.");
-        int frame = (operandAddress - (AlcoonFireballInstructionProgramDefinitions.Initial + 2)) / 4;
-        return (ushort)(0x8404 + 7 * frame);
-    }
-    /// <summary>Three fireball frames per facing at $8D:AAB9, each with a
-    /// two-byte count and one five-byte OAM record; right-facing maps follow left.</summary>
-    internal static ushort FuneNamiheFireballFrameAt(ushort operandAddress)
-    {
-        if (!FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-            throw new InvalidDataException(
-                $"Fune/Namihe fireball visual operand $86:{operandAddress:X4} is not compiled.");
-        int offset = operandAddress - (FuneNamiheFireballInstructionProgramDefinitions.Left + 2);
-        return (ushort)(0xaab9 + 7 * (3 * (offset / 16) + (offset % 16) / 4));
-    }
     /// <summary>
     /// EnemyProjSpritemaps_Blank_Default at $8D:8000; the native count is zero.
     /// Newly initialized bank-$86 slots select it before their first timed frame.

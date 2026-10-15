@@ -263,9 +263,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies
             projectile,
             kind,
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
-        projectile.InstructionPointer = movingRight
-            ? FuneNamiheFireballInstructionProgramDefinitions.Right
-            : FuneNamiheFireballInstructionProgramDefinitions.Left;
+        projectile.InstallAnimation(new FuneNamiheFireballAnimation(movingRight ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
         projectile.PreInstruction = NamiFuneFireballPreInstruction;
         projectile.Variable0 = movingRight
             ? (ushort)NamiFuneFireballFunction.MovingRight

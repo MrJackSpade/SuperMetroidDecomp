@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
+using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks.Artwork;
@@ -207,8 +210,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "yapping_maw", YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordCount,
             YappingMawBodyProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "alcoon_fireball", AlcoonFireballInstructionProgramDefinitions.PresentationWordCount,
-            AlcoonFireballInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "alcoon_fireball", AlcoonFireballFrameDefinitions.PoseCount,
+            index => AlcoonFireballFrameDefinitions.PresentationKey(new(index)));
         if (generation >= CatalogGeneration.PreGoldenTorizoEgg)
         {
             AddTorizo(frames, "golden_torizo_super_missile", TorizoProjectileFamily.SuperMissile);
@@ -261,8 +264,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 KiHunterAcidSpitFrameDefinitions.PoseCount,
                 index => KiHunterAcidSpitFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "fune_namihe_fireball",
-                FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount,
-                FuneNamiheFireballInstructionProgramDefinitions.PresentationWordAddress);
+                FuneNamiheFireballFrameDefinitions.PoseCount,
+                index => FuneNamiheFireballFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "dragon_fireball",
                 DragonFireballFrameDefinitions.PoseCount,
                 index => DragonFireballFrameDefinitions.PresentationKey(new(index)));
@@ -291,7 +294,7 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 index => WorkRobotLaserFrameDefinitions.PresentationKey(new(index)));
         }
         if (generation >= CatalogGeneration.Current)
-            frames.Add(PolypRockInstructionProgramDefinitions.PresentationWord, "polyp_rock_00");
+            frames.Add(PolypRockFrameDefinitions.PresentationKey(new(0)), "polyp_rock_00");
 
         return frames.OrderBy(entry => entry.Key)
             .Select(entry => new EnemyProjectilePresentationFrameDefinition(entry.Key, entry.Value))

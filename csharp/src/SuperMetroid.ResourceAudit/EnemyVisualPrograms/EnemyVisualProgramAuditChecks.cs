@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -74,14 +75,14 @@ internal static class EnemyVisualProgramAuditChecks
 
         var projectileExports = new ResourceIndex();
         projectileExports.Add(ResourceDomains.EnemyProjectileProgram,
-            ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, PolypRockInstructionProgramDefinitions.PresentationWord));
+            ResourceIndex.Address(ResourceBanks.EnemyProjectilePrograms, PolypRockFrameDefinitions.PresentationKey(new(0))));
         var boundProjectile = new AuditReport();
         EnemyVisualProgramAudit.RequireResolvedOperand(ResourceBanks.EnemyProjectilePrograms,
-            PolypRockInstructionProgramDefinitions.PresentationWord, null, "PolypRock", "fixture", projectileExports, boundProjectile);
+            PolypRockFrameDefinitions.PresentationKey(new(0)), null, "PolypRock", "fixture", projectileExports, boundProjectile);
         Require(boundProjectile.Findings.Count == 0, "installed projectile operands do not require a redundant pointer lookup");
         var missingProjectile = new AuditReport();
         EnemyVisualProgramAudit.RequireResolvedOperand(ResourceBanks.EnemyProjectilePrograms,
-            PolypRockInstructionProgramDefinitions.PresentationWord, null, "PolypRock", "fixture", new ResourceIndex(), missingProjectile);
+            PolypRockFrameDefinitions.PresentationKey(new(0)), null, "PolypRock", "fixture", new ResourceIndex(), missingProjectile);
         Require(missingProjectile.Findings.Count == 1, "missing projectile binding/selector is rejected");
 
         Console.WriteLine("Enemy visual audit contracts: owner discovery, missing selector/artwork, bank isolation, and projectile binding pass.");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -152,15 +153,7 @@ public sealed class EnemyProjectileSpritemapCatalog
     /// <summary>Identifies Alcoon fireball presentation operands omitted by the pre-Alcoon legacy schema.</summary>
     private static bool IsAlcoonFireballOperand(ushort operandAddress)
     {
-        for (int index = 0;
-             index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            if (operandAddress == AlcoonFireballInstructionProgramDefinitions
-                    .PresentationWordAddress(index))
-                return true;
-        }
-        return false;
+        return AlcoonFireballFrameDefinitions.TryFrame(operandAddress, out _);
     }
 
     /// <summary>Validates ordered editable sprite parts against OBJ bounds and packs X, Y, tile, palette, priority and flip words.</summary>

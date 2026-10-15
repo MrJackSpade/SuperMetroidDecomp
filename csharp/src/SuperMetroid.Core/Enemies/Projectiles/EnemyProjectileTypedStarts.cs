@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies.Polyp;
+using SuperMetroid.Core.Enemies.FuneNamihe;
+using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.KiHunters;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.FallingSparks;
@@ -25,6 +28,10 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.PowampSpike] = () => new PowampSpikeAnimation(PowampSpikeProgram.Initial),
         [RoomEnemyProjectileKind.KiHunterAcidSpitLeft] = () => new KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram.Left),
         [RoomEnemyProjectileKind.KiHunterAcidSpitRight] = () => new KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram.Right),
+        [RoomEnemyProjectileKind.AlcoonFireball] = () => new AlcoonFireballAnimation(AlcoonFireballProgram.Initial),
+        [RoomEnemyProjectileKind.FuneFireball] = () => new FuneNamiheFireballAnimation(FuneNamiheFireballProgram.Left),
+        [RoomEnemyProjectileKind.NamiheFireball] = () => new FuneNamiheFireballAnimation(FuneNamiheFireballProgram.Left),
+        [RoomEnemyProjectileKind.PolypRock] = () => new PolypRockAnimation(PolypRockProgram.Initial),
     };
 
     /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>

@@ -1,5 +1,5 @@
 using static SuperMetroid.Verification.Enemies.Polyp.PolypBehaviorVerification;
-using static SuperMetroid.Verification.Enemies.Polyp.PolypRockInstructionProgramDefinitionsVerification;
+using static SuperMetroid.Verification.Enemies.Polyp.PolypRockAnimationsVerification;
 using static SuperMetroid.Verification.Enemies.Artwork.SingleFrameEnemyVisualsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
@@ -45,7 +45,8 @@ internal static class KzanBehaviorVerification
         Suite(nameof(KzanAnimationsVerification.VerifyKzanAnimations), () => KzanAnimationsVerification.VerifyKzanAnimations(rom));
         Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior(rom));
         Suite(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(rom));
-        Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions());
+        Suite(nameof(VerifyPolypRockAnimations), () => VerifyPolypRockAnimations(rom));
+        Suite(nameof(PolypRockBehaviorVerification.VerifyPolypRockBehavior), () => PolypRockBehaviorVerification.VerifyPolypRockBehavior(rom));
         Suite(nameof(VerifySingleFrameEnemyVisuals), () => VerifySingleFrameEnemyVisuals());
         return 0;
     }

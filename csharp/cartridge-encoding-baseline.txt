@@ -34,7 +34,6 @@ csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlmProgramDefinitions.c
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonFireballInstructionProgramDefinitions.cs	SME6341	5
-csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacProjectileInstructionProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Enemies/Choot/ChootFallingPathDefinitions.cs	SME6342	3
 csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoTourianDustInstructionProgramDefinitions.cs	SME6341	6

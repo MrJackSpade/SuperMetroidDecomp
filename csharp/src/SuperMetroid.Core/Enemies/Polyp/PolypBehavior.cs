@@ -189,7 +189,7 @@ internal sealed class PolypBehavior : IEnemySpecies
             projectile,
             RoomEnemyProjectileKind.PolypRock,
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
-        projectile.InstructionPointer = PolypRockInstructionProgramDefinitions.Initial;
+        projectile.InstallAnimation(new PolypRockAnimation(PolypRockProgram.Initial));
         projectile.PreInstruction = PolypRockPreInstruction;
         projectile.Variable0 = (ushort)PolypRockFunction.Rising;
         projectile.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(initialYSpeed));

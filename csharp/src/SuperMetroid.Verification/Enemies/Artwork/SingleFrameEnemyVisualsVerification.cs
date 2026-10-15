@@ -1,8 +1,8 @@
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
-using static SuperMetroid.Verification.Enemies.Polyp.PolypRockInstructionProgramDefinitionsVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Kzan;
@@ -89,10 +89,10 @@ internal static class SingleFrameEnemyVisualsVerification
             "schema-12 projectile edit survives new stock");
         AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(projectileLegacyBytes)),
             "old projectile stock requests reimport");
-        var rockParts = projectileMerged.GetProgramFrame(PolypRockInstructionProgramDefinitions.PresentationWord);
+        var rockParts = projectileMerged.GetProgramFrame(PolypRockFrameDefinitions.PresentationKey(new(0)));
         var rockActual = new OamBuffer();
         rockActual.AddEnemySpritemap(rockParts.Span, new Position16<OamPixels>(128, 112), 0x0c00, 0x20);
-        ushort rockPointer = ReadPolypRockInstructionWord(rom, PolypRockInstructionProgramDefinitions.PresentationWord);
+        ushort rockPointer = PolypRockFrameDefinitions.Spritemap(new(0));
         var rockExpected = new OamBuffer();
         ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, new EnemySpritemapDraw { Bank = 0x8d, Pointer = rockPointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
         CompareOam(rockExpected, rockActual, "Polyp rock");

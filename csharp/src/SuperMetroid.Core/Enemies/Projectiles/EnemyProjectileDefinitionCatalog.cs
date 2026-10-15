@@ -240,7 +240,7 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0808, 0x3000, 0x0000,
             GunshipDustVisualDefinitions.DefinitionList),
         RoomEnemyProjectileKind.AlcoonFireball => new(
-0x9EFF, AlcoonFireballInstructionProgramDefinitions.Initial,
+0x9EFF, 0x9E9E,
             0x0404, 0x0014, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PowampSpike => new(
 0xD263, 0xD208,
@@ -294,7 +294,7 @@ internal static class EnemyProjectileDefinitionCatalog
 0xA05B, 0x0000, 0x0808, 0x1014, 0x0000,
             CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.PolypRock => new(
-0xBC0F, PolypRockInstructionProgramDefinitions.Initial,
+0xBC0F, 0xBBD5,
             0x0202, 0x0010, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.CacatacSpike => new(0xD9DB, 0xD92E, 0x0202, 0x0005, 0x0000, 0x84FC),
         RoomEnemyProjectileKind.StokeProjectile => new(
@@ -302,14 +302,14 @@ internal static class EnemyProjectileDefinitionCatalog
             0x0202, 0x0005, 0x0000, CommonEnemyProjectileInstructionProgramDefinitions.Delete),
         RoomEnemyProjectileKind.NamiheFireball => new(
             0xDF39,
-            FuneNamiheFireballInstructionProgramDefinitions.Left,
+            0xDE96,
             0x0804,
             0x00C8,
             0x0000,
             0x84FC),
         RoomEnemyProjectileKind.FuneFireball => new(
             0xDF39,
-            FuneNamiheFireballInstructionProgramDefinitions.Left,
+            0xDE96,
             0x0804,
             0x003C,
             0x0000,

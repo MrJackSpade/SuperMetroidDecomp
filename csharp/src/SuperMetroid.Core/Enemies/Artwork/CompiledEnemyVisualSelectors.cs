@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Enemies.Polyp.Artwork;
+using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
+using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Atomic;
@@ -38,15 +41,15 @@ internal static partial class CompiledEnemyVisualSelectors
         Enum.IsDefined((EnemyInstructionBank)SnesAddressMath.BankNumber(address)) &&
         (EnemyInstructionBank)SnesAddressMath.BankNumber(address) switch
     {
-        EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _) || FuneNamiheFireballFrameDefinitions.TryFrame((ushort)address, out _),
         _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${SnesAddressMath.BankNumber(address):X2}."),
     };
     /// <summary>Resolves special and calculated sprite operands, then searches literal bank entries.</summary>
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
     {
-        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockInstructionProgramDefinitions.IsPresentationWord(operandAddress))
+        if ((EnemyInstructionBank)bank == EnemyInstructionBank.Bank86 && PolypRockFrameDefinitions.TryFrame(operandAddress, out PolypRockFrame rock))
         {
-            pointer = PolypRockInstructionProgramDefinitions.FrameAt(operandAddress);
+            pointer = PolypRockFrameDefinitions.Spritemap(rock);
             return true;
         }
         int key = ((int)new SnesAddress(bank, operandAddress));
@@ -54,9 +57,11 @@ internal static partial class CompiledEnemyVisualSelectors
         {
             pointer = (EnemyInstructionBank)bank switch
             {
-                EnemyInstructionBank.Bank86 => AlcoonFireballInstructionProgramDefinitions.IsPresentationWord(operandAddress)
-                    ? EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(operandAddress)
-                    : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
+                EnemyInstructionBank.Bank86 => AlcoonFireballFrameDefinitions.TryFrame(operandAddress, out AlcoonFireballFrame fireball)
+                    ? AlcoonFireballFrameDefinitions.Spritemap(fireball)
+                    : FuneNamiheFireballFrameDefinitions.TryFrame(operandAddress, out FuneNamiheFireballFrame fune)
+                        ? FuneNamiheFireballFrameDefinitions.Spritemap(fune)
+                        : throw new InvalidDataException($"Calculated selector $86:{operandAddress:X4} names no fireball frame."),
                 _ => throw new InvalidOperationException($"Undefined enemy instruction bank ${bank:X2}."),
             };
             return true;

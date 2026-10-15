@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Deaths.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Verification.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
@@ -239,11 +241,11 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             Func<int, ushort> AddressAt)[]
         {
             ("enemy pickup", RoomEnemyProjectileKind.EnemyDeathPickup,
-                EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
-                EnemyPickupInstructionProgramDefinitions.PresentationWordAddress),
+                EnemyDeathProjectileFrameDefinitions.PoseCount - EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
+                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(EnemyProjectilePresentationFrameDefinitions.DeathFrameCount + index))),
             ("enemy death", RoomEnemyProjectileKind.EnemyDeathExplosion,
-                EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
-                EnemyDeathInstructionProgramDefinitions.PresentationWordAddress),
+                EnemyProjectilePresentationFrameDefinitions.DeathFrameCount,
+                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(index))),
         };
         foreach ((string family, RoomEnemyProjectileKind kind, int count,
                      Func<int, ushort> addressAt) in genericDeathFamilies)
@@ -278,8 +280,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 MagdolliteLavaFrameDefinitions.PoseCount,
                 index => MagdolliteLavaFrameDefinitions.PresentationKey(new(index))),
             ("Chozo/Tourian dust", RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep,
-                ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
-                ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress),
+                ChozoTourianDustFrameDefinitions.PoseCount,
+                index => ChozoTourianDustFrameDefinitions.PresentationKey(new(index))),
             ("eye-door sweat", RoomEnemyProjectileKind.EyeDoorSweat,
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress),

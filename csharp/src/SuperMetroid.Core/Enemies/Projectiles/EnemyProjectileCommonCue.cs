@@ -6,4 +6,8 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// </summary>
 /// <param name="Kind">What the cue does.</param>
 /// <param name="PreInstruction">The movement routine a <see cref="EnemyProjectileCommonCueKind.SetPreInstruction"/> cue installs.</param>
-internal readonly record struct EnemyProjectileCommonCue(EnemyProjectileCommonCueKind Kind, EnemyProjectilePreInstruction PreInstruction = default);
+/// <param name="Scatter">The random repositioning a <see cref="EnemyProjectileCommonCueKind.Scatter"/> cue performs.</param>
+internal readonly record struct EnemyProjectileCommonCue(
+    EnemyProjectileCommonCueKind Kind,
+    EnemyProjectilePreInstruction PreInstruction = default,
+    EnemyProjectileScatter Scatter = default);

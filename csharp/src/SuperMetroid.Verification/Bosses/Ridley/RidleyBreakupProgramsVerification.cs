@@ -1,3 +1,5 @@
+using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
@@ -105,8 +107,8 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
         AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.EnemyHeaderPointer, "fragment drop retains native header");
-        AssertEqual(EnemyDeathExplosionDefinitions.InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion),
-            explosion.InstructionPointer, "fragment expiry selects native small death animation");
+        AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
+            ProgramOf(explosion), "fragment expiry selects native small death animation");
         AssertEqual((ushort)1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");
         Console.WriteLine("Ridley breakup: death while grabbing releases Samus and runs all twelve fragment programs without cartridge access.");
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");

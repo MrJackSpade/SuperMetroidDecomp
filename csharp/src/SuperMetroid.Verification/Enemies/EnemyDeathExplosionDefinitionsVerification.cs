@@ -1,3 +1,6 @@
+using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
+using SuperMetroid.Core.Enemies.Deaths;
+using SuperMetroid.Verification.Enemies.Deaths;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -21,8 +24,8 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + animation * 2));
             AssertEqual(expected,
-                EnemyDeathExplosionDefinitions.InstructionPointer(animation),
-                $"enemy death explosion instruction {animation}");
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosionDefinitions.Program(animation)),
+                $"enemy death explosion program {animation}");
 
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(guarded);
@@ -35,8 +38,8 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive);
             AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
                 $"production enemy death explosion kind {animation}");
-            AssertEqual(expected, explosion.InstructionPointer,
-                $"production enemy death explosion instruction {animation}");
+            AssertEqual(EnemyDeathExplosionDefinitions.Program(animation), ProgramOf(explosion),
+                $"production enemy death explosion program {animation}");
             AssertEqual(unchecked((ushort)(0xfff0 + animation)), explosion.Position.X.Whole,
                 $"production enemy death explosion X {animation}");
             AssertEqual(unchecked((ushort)(0x0100 + animation)), explosion.Position.Y.Whole,
@@ -48,13 +51,12 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
         clampedEnemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, 5);
-        AssertEqual(EnemyDeathExplosionDefinitions.InstructionPointer(
-                (ushort)EnemyDeathAnimation.SmallExplosion),
-            clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive).InstructionPointer,
+        AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
+            ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),
             "production enemy death out-of-range animation clamps to small explosion");
 
         AssertThrows<ArgumentOutOfRangeException>(
-            () => EnemyDeathExplosionDefinitions.InstructionPointer(5),
+            () => EnemyDeathExplosionDefinitions.Program(5),
             "enemy death animation past table");
         Console.WriteLine(
             "Enemy death explosion definitions: five native selectors, five real variants and the generic clamp path pass with the pointer table forbidden.");

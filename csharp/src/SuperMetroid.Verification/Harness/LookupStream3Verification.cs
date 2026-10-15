@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Shaktool;
 using SuperMetroid.Verification.Enemies.Sparks;
 using SuperMetroid.Verification.Enemies;
@@ -2106,74 +2107,21 @@ internal static class LookupStream3Verification
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
     {
         for (int kind = 0; kind < 6; kind++)
-            AssertEqual(new EnemyPickupAnimationDefinition((ushort)(2 * kind), CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind))),
-                EnemyPickupDefinitions.Animation((EnemyPickupKind)kind), "stream 3 pickup kind dispatch");
+        {
+            EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation((EnemyPickupKind)kind);
+            AssertEqual((ushort)(2 * kind), animation.TableOffset, "stream 3 pickup kind table offset");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + 2 * kind)),
+                animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0, "stream 3 pickup kind dispatch");
+        }
         for (ushort animation = 0; animation < 5; animation++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)), EnemyDeathExplosionDefinitions.InstructionPointer(animation),
-                "stream 3 death variant dispatch");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86efd5 + 2 * animation)),
+                EnemyDeathProjectileNativeListAddresses.Entry(EnemyDeathExplosionDefinitions.Program(animation)), "stream 3 death variant dispatch");
         foreach (ushort invalid in new ushort[] { 6, 7, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => EnemyPickupDefinitions.Animation((EnemyPickupKind)invalid),
                 "stream 3 invalid pickup kind");
         foreach (ushort invalid in new ushort[] { 5, 6, ushort.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosionDefinitions.InstructionPointer(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EnemyDeathExplosionDefinitions.Program(invalid),
                 "stream 3 invalid death variant");
-
-        ushort[] pickupMechanics =
-        [
-            0xed8d, 0xed91, 0xed95, 0xed99, 0xed9d, 0xed9f, 0xeda1,
-            0xeda3, 0xeda7, 0xedab, 0xedaf, 0xedb3, 0xedb5, 0xedb7,
-            0xedb9, 0xedbd, 0xedc1, 0xedc3, 0xedc5,
-            0xeddd, 0xede1, 0xede5, 0xede7, 0xede9,
-            0xedeb, 0xedef, 0xedf3, 0xedf7, 0xedfb, 0xedfd,
-        ];
-        ushort[] pickupPresentation =
-        [
-            0xed8f, 0xed93, 0xed97, 0xed9b, 0xeda5, 0xeda9, 0xedad, 0xedb1,
-            0xedbb, 0xedbf, 0xeddf, 0xede3, 0xeded, 0xedf1, 0xedf5, 0xedf9,
-        ];
-        AssertEqual(pickupMechanics.Length, EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWordCount,
-            "stream 3 pickup mechanic count");
-        AssertEqual(pickupPresentation.Length, EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
-            "stream 3 pickup visual operand count");
-        for (int index = 0; index < pickupMechanics.Length; index++)
-        {
-            ushort address = pickupMechanics[index];
-            AssertEqual(new InstructionMechanicsWord(address, CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address))),
-                EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(index), "stream 3 native pickup mechanic");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x860000 | address)), EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "stream 3 pickup mechanic dispatch");
-        }
-        for (int index = 0; index < pickupPresentation.Length; index++)
-        {
-            ushort address = pickupPresentation[index];
-            AssertEqual(address, EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(index),
-                "stream 3 pickup visual operand address");
-            AssertThrows<InvalidDataException>(() => EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address),
-                "stream 3 pickup visual operand remains excluded");
-        }
-        var mechanicsSet = pickupMechanics.ToHashSet();
-        var byteSet = pickupMechanics.SelectMany(address => new[] { (int)address, address + 1 }).ToHashSet();
-        for (int address = 0; address <= ushort.MaxValue; address++)
-        {
-            bool owned = mechanicsSet.Contains((ushort)address);
-            AssertEqual(owned, EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.EnemyDeathPickup, (ushort)address),
-                "stream 3 pickup ownership domain");
-            AssertEqual(owned, EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.EnemyDeathExplosion, (ushort)address),
-                "stream 3 explosion pickup ownership domain");
-            AssertEqual(byteSet.Contains(address), EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0x860000 | address),
-                "stream 3 pickup byte ownership domain");
-        }
-        AssertTrue(!EnemyPickupInstructionProgramDefinitions.Owns(RoomEnemyProjectileKind.ShaktoolAttackFrontCircle, pickupMechanics[0]),
-            "stream 3 unrelated actor does not own pickup instructions");
-        AssertTrue(!EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(0xa3ed8d),
-            "stream 3 pickup excludes other bank");
-
-        foreach (int invalid in new[] { -1, 30, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitionsTooling.MechanicsWord(invalid),
-                "stream 3 pickup mechanic bounds");
-        foreach (int invalid in new[] { -1, 16, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => EnemyPickupInstructionProgramDefinitions.PresentationWordAddress(invalid),
-                "stream 3 pickup visual bounds");
     }
 
     /// <summary>Checks six four-color Work Robot palette frames against ROM and edited RGB5 source colors.</summary>

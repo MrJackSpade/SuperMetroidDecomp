@@ -1,3 +1,5 @@
+using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -368,21 +370,21 @@ internal static class EnemyDropsVerification
         AssertEqual((ushort)0x8000, explosion.KilledEnemyNativeIndex,
             "respawning slot zero is retained as high-bit native enemy index");
         AssertEqual(
-            EnemyDeathExplosionDefinitions.InstructionPointer(0),
-            explosion.InstructionPointer,
+            EnemyDeathExplosionDefinitions.Program(0),
+            ProgramOf(explosion),
             "out-of-range death variant clamps to native table entry zero");
         AssertEqual((ushort)0, explosion.GraphicsIndex,
             "enemy-death initializer replaces the dying actor's room graphics with zero");
 
-        fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);
+        EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "EEAF converts death actor in place without rewriting its definition identity");
         AssertEqual((ushort)2, explosion.Variable0,
             "converted death actor stores selected small-energy identity");
         AssertEqual((ushort)0xefe0, explosion.PreInstruction,
             "converted death actor enters shared pickup pre-instruction");
-        AssertEqual((ushort)0xed8d, explosion.InstructionPointer,
-            "converted death actor selects the compiled small-energy list");
+        AssertEqual(EnemyDeathProjectileProgram.SmallEnergy, converted,
+            "converted death actor continues at the small-energy drop program");
     }
 
     /// <summary>Creates a centered Samus fixture with full ordinary energy for pickup comparisons.</summary>

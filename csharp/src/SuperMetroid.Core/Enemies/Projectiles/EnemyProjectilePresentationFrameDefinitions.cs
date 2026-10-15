@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Deaths.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
@@ -234,11 +236,11 @@ internal static class EnemyProjectilePresentationFrameDefinitions
         if (generation >= CatalogGeneration.PreEnvironmentAndAttack)
         {
             Add(frames, "enemy_pickup",
-                EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
-                EnemyPickupInstructionProgramDefinitions.PresentationWordAddress);
+                EnemyDeathProjectileFrameDefinitions.PoseCount - DeathFrameCount,
+                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(DeathFrameCount + index)));
             Add(frames, "enemy_death",
-                EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
-                EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
+                DeathFrameCount,
+                index => EnemyDeathProjectileFrameDefinitions.PresentationKey(new(index)));
         }
         if (generation >= CatalogGeneration.PreMotherBrainAndStatue)
         {
@@ -256,8 +258,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
                 MagdolliteLavaFrameDefinitions.PoseCount,
                 index => MagdolliteLavaFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "chozo_tourian_dust",
-                ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount,
-                ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
+                ChozoTourianDustFrameDefinitions.PoseCount,
+                index => ChozoTourianDustFrameDefinitions.PresentationKey(new(index)));
             Add(frames, "eye_door_sweat",
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
                 EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress);
@@ -301,6 +303,9 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             .Select(entry => new EnemyProjectilePresentationFrameDefinition(entry.Key, entry.Value))
             .ToArray();
     }
+
+    /// <summary>The generic death explosions' frames, which install first; the drops' frames follow them.</summary>
+    internal const int DeathFrameCount = 31;
 
     /// <summary>Orders frame definitions by physical bank-$86 operand address for binary search.</summary>
     private sealed class AddressComparer : IComparer<EnemyProjectilePresentationFrameDefinition>

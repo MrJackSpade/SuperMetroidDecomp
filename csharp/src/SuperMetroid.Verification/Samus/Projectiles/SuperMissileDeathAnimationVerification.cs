@@ -1,3 +1,5 @@
+using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -20,15 +22,15 @@ internal static class SuperMissileDeathAnimationVerification
     /// </summary>
     internal static void VerifySuperMissileDeathAnimation()
     {
-        AssertEqual(EnemyDeathInstructionProgramDefinitions.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
+        AssertEqual(EnemyDeathProjectileProgram.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
             "a Super Missile kill keeps the Dragon's big explosion");
-        AssertEqual(EnemyDeathInstructionProgramDefinitions.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
+        AssertEqual(EnemyDeathProjectileProgram.NormalExplosion, SuperMissileKillProgram(EnemyDefinitionId.Sova),
             "a Super Missile kill raises Sova's small explosion to explosion two");
         Console.WriteLine("  Super Missile death animation: headers three and four are kept, lower ones become two.");
     }
 
     /// <summary>Kills the selected retail enemy with a Super Missile and returns the spawned explosion's program.</summary>
-    private static ushort SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
+    private static EnemyDeathProjectileProgram SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -58,7 +60,7 @@ internal static class SuperMissileDeathAnimationVerification
 
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
-        return explosion.InstructionPointer;
+        return ProgramOf(explosion);
     }
 
     /// <summary>Runs the focused Super Missile death-program check.</summary>

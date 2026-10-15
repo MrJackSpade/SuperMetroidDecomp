@@ -95,7 +95,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     /// <summary>Carries out one shared bank-$86 command of a typed projectile program.</summary>
-    private static void ApplyCommonCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EnemyProjectileCommonCue cue)
+    private void ApplyCommonCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EnemyProjectileCommonCue cue)
     {
         switch (cue.Kind)
         {
@@ -107,6 +107,12 @@ internal sealed class EnemyProjectileEngine
                 break;
             case EnemyProjectileCommonCueKind.ClearPreInstruction:
                 projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_868170;
+                break;
+            case EnemyProjectileCommonCueKind.Scatter:
+                Scatter(projectile, cue.Scatter);
+                break;
+            case EnemyProjectileCommonCueKind.ReturnToOrigin:
+                projectile.Position = projectile.Position.WithWhole(new(projectile.Variable0, projectile.Variable1));
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(EnemyProjectileCommonCueKind)} {cue.Kind}.");
@@ -985,14 +991,6 @@ internal sealed class EnemyProjectileEngine
                     projectile.GraphicsIndex = 0;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20:
-                    SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x003f, center: 32);
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
-                case EnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10:
-                    SpawnRandomEnemyDeathSprite(projectile, cursor, mask: 0x001f, center: 16);
-                    cursor = unchecked((ushort)(cursor + 4));
-                    break;
                 default:
                     throw new InvalidDataException(
                         $"Enemy projectile instruction $86:{word:X4} at $86:{cursor:X4} is not translated.");
@@ -1125,24 +1123,9 @@ internal sealed class EnemyProjectileEngine
             return EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address);
         }
 
-        if (EnemyPickupInstructionProgramDefinitions.Owns(projectile.Kind, address))
-        {
-            return EnemyPickupInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (EnemyDeathInstructionProgramDefinitions.Owns(projectile.Kind, address))
-        {
-            return EnemyDeathInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
         if (ShaktoolProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return ShaktoolProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (ChozoTourianDustInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return ChozoTourianDustInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (TourianStatueProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
@@ -1162,10 +1145,10 @@ internal sealed class EnemyProjectileEngine
     /// CreateSpriteAtPos owns a separate finite bank-$B4 pool, so these decorations never
     /// consume one of the eighteen pickup/death projectile slots.
     /// </summary>
-    private void SpawnRandomEnemyDeathSprite(
+    internal void SpawnRandomEnemyDeathSprite(
         RoomEnemyProjectileSlot projectile,
-        ushort instructionPointer,
-        ushort mask,
+        RoomSpriteObjectKind kind,
+        int mask,
         int center)
     {
         ushort random = _room.Random.Generate();
@@ -1173,10 +1156,6 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.X.Whole + (random & mask) - center));
         ushort y = unchecked((ushort)(
             projectile.Position.Y.Whole + (SnesLittleEndian.HighByte(unchecked((ushort)random)) & mask) - center));
-        RoomSpriteObjectKind kind = (RoomSpriteObjectKind)
-            ReadEnemyProjectileInstructionMechanicsWord(
-                projectile,
-                unchecked((ushort)(instructionPointer + 2)));
         _ = _spriteObjects.SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
     }
 

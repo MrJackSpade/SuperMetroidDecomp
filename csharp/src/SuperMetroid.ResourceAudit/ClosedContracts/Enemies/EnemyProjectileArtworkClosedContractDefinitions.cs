@@ -13,7 +13,7 @@ internal static class EnemyProjectileArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectilePresentationFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Projectiles/EnemyProjectileInstructionMechanicsDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/SmallExplosionAnimationDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Enemies/EnemyDeathInstructionProgramDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/Enemies/Deaths/Artwork/EnemyDeathProjectileFrameDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Enemies/Artwork/SkreeMetareeParticleVisualDefinitions.cs")]),
     ];
 }

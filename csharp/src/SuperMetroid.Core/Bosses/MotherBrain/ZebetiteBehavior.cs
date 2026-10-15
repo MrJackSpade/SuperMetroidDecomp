@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -275,9 +276,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
             projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
             projectile.KilledEnemyNativeIndex = slot.NativeIndex;
-            projectile.InstructionPointer = EnemyDeathExplosionDefinitions
-                .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 
         int slotIndex = slot.SlotIndex;

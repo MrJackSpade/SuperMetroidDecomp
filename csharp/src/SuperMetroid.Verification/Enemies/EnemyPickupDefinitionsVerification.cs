@@ -1,3 +1,7 @@
+using SuperMetroid.Verification.Harness;
+using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
+using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -18,8 +22,8 @@ internal static class EnemyPickupDefinitionsVerification
             AssertEqual(index * 2, animation.TableOffset,
                 $"enemy pickup table offset {kind}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86ef04 + index * 2)),
-                animation.InstructionList,
-                $"enemy pickup instruction {kind}");
+                animation.Program is { } program ? EnemyDeathProjectileNativeListAddresses.Entry(program) : (ushort)0,
+                $"enemy pickup program {kind}");
         }
 
         for (int index = 1; index <= 5; index++)
@@ -38,8 +42,8 @@ internal static class EnemyPickupDefinitionsVerification
             EnemyPickupAnimationDefinition expected = EnemyPickupDefinitions.Animation(kind);
             AssertEqual(expected.TableOffset, projectile.Variable0,
                 $"production pickup table offset {kind}");
-            AssertEqual(expected.InstructionList, projectile.InstructionPointer,
-                $"production pickup instruction {kind}");
+            AssertEqual(expected.Program, ProgramOf(projectile),
+                $"production pickup program {kind}");
             AssertEqual(1, projectile.InstructionTimer.RawValue,
                 $"production pickup instruction timer {kind}");
             AssertEqual(400, projectile.Variable1,
@@ -56,5 +60,14 @@ internal static class EnemyPickupDefinitionsVerification
             "no-drop pickup has no animation entry");
         Console.WriteLine(
             "Enemy pickup definitions: six native selectors and all five live pickup initialization paths pass without the pointer table.");
+    }
+
+    /// <summary>Runs the pickup selector and initialization checks against the retail cartridge.</summary>
+    [VerificationCommand("--enemy-pickup-definitions")]
+    internal static int EnemyPickupDefinitionsCommand()
+    {
+        Suite(nameof(VerifyEnemyPickupDefinitions),
+            () => VerifyEnemyPickupDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

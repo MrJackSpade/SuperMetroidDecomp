@@ -1,3 +1,5 @@
+using SuperMetroid.Verification.Enemies.Chozo;
+using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Magdollite;
 using SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Enemies.Alcoon;
@@ -73,7 +75,6 @@ using static SuperMetroid.Verification.Samus.Projectiles.ChargeFlarePlacementVer
 using static SuperMetroid.Verification.Enemies.Choot.ChootPatternDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatuePlmDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.Chozo.ChozoTourianDustInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Rooms.Doors.ColoredDoorPlmDrawDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.CompiledProjectileMathVerification;
 using static SuperMetroid.Verification.Enemies.Crawlers.CrawlerAnimationDefinitionsVerification;
@@ -100,13 +101,11 @@ using static SuperMetroid.Verification.Bosses.Draygon.DraygonIntroDanceDefinitio
 using static SuperMetroid.Verification.Enemies.Elevator.ElevatorInputDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyBreakableTerrainDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDeathExplosionDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyDeathInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropChanceDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyFireballLaunchDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyInstructionOwnerCoverageVerification;
 using static SuperMetroid.Verification.Enemies.EnemyLinearSpeedsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyPickupDefinitionsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyPickupInstructionProgramDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileInstructionOwnerCoverageVerification;
 using static SuperMetroid.Verification.Enemies.EnemyQuadraticSpeedsVerification;
@@ -355,10 +354,11 @@ internal static class EnemyTrigonometryVerification
         new(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifyCeresFallingDebrisAnimations), () => VerifyCeresFallingDebrisAnimations(LoadRepositoryRom())),
         new(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations), () => EnemyDeathProjectileAnimationsVerification.VerifyEnemyDeathProjectileAnimations(LoadRepositoryRom())),
+        new(nameof(EnemyDeathProjectileBehaviorVerification.VerifyEnemyDeathProjectileBehavior), EnemyDeathProjectileBehaviorVerification.VerifyEnemyDeathProjectileBehavior),
         new(nameof(VerifyShaktoolProjectileInstructionProgramDefinitions), () => VerifyShaktoolProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
-        new(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(LoadRepositoryRom())),
+        new(nameof(ChozoTourianDustAnimationsVerification.VerifyChozoTourianDustAnimations), () => ChozoTourianDustAnimationsVerification.VerifyChozoTourianDustAnimations(LoadRepositoryRom())),
+        new(nameof(ChozoTourianDustBehaviorVerification.VerifyChozoTourianDustBehavior), () => ChozoTourianDustBehaviorVerification.VerifyChozoTourianDustBehavior(LoadRepositoryRom())),
         new(nameof(VerifyTourianStatueProjectileInstructionProgramDefinitions), () => VerifyTourianStatueProjectileInstructionProgramDefinitions(LoadRepositoryRom())),
         new(nameof(VerifySporeSpawnAnimations), () => VerifySporeSpawnAnimations(LoadRepositoryRom())),
         new(nameof(VerifyTorizoAnimations), () => VerifyTorizoAnimations(LoadRepositoryRom())),

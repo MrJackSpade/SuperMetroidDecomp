@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Deaths;
+using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Magdollite;
 using SuperMetroid.Core.Enemies.Polyp;
@@ -43,6 +45,11 @@ internal static class EnemyProjectileTypedStarts
         [RoomEnemyProjectileKind.MetareeParticleUpRight] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
         [RoomEnemyProjectileKind.MetareeParticleDownLeft] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
         [RoomEnemyProjectileKind.MetareeParticleUpLeft] = () => new SkreeMetareeParticleAnimation(SkreeMetareeParticleProgram.Metaree),
+        [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep] = () => new ChozoTourianDustAnimation(ChozoTourianDustProgram.Footsteps),
+        [RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate] = () => new ChozoTourianDustAnimation(ChozoTourianDustProgram.SpikeClearingExplosions),
+        [RoomEnemyProjectileKind.TourianStatueDescentDust] = () => new ChozoTourianDustAnimation(ChozoTourianDustProgram.TourianDescentDust),
+        [RoomEnemyProjectileKind.EnemyDeathPickup] = () => new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallEnergy),
+        [RoomEnemyProjectileKind.EnemyDeathExplosion] = () => new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallEnergy),
     };
 
     /// <summary>A new animation running the typed initial program of <paramref name="kind"/>, or null when the kind has none.</summary>

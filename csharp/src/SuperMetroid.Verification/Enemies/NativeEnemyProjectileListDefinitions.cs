@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.VerificationImporters;
@@ -41,6 +42,8 @@ internal static class NativeEnemyProjectileListDefinitions
         RepeatWhileCounting,
         /// <summary>An owner callback with no operands, recorded rather than run.</summary>
         Callback,
+        /// <summary>The random scatter and its two packed operand words, recorded rather than run.</summary>
+        Scatter,
     }
 
     /// <summary>The bank-$86 opcodes the reader decodes besides frames.</summary>
@@ -61,6 +64,8 @@ internal static class NativeEnemyProjectileListDefinitions
         [(ushort)EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.Spores_SpawnEnemyDrops] = WordKind.Callback,
         [(ushort)EnemyProjectileInstruction.MagdolliteFlame_SpawnDrops] = WordKind.Callback,
+        [(ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius] = WordKind.Scatter,
+        [(ushort)TourianStatueInstruction.ResetDustPosition] = WordKind.Callback,
     };
 
     /// <summary>Decodes a native projectile list word, rejecting words outside the compared set.</summary>
@@ -149,6 +154,9 @@ internal static class NativeEnemyProjectileListDefinitions
                     case WordKind.Callback:
                         Callbacks.Add((EnemyProjectileInstruction)word);
                         cursor = unchecked((ushort)(cursor + 2));
+                        continue;
+                    case WordKind.Scatter:
+                        cursor = unchecked((ushort)(cursor + 6));
                         continue;
                     default:
                         throw new InvalidOperationException($"Undefined {nameof(WordKind)}.");

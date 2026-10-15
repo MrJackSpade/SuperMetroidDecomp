@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+﻿using SuperMetroid.Core.Enemies.Deaths;
+using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -625,9 +626,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
             projectile.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(slot.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
                 : slot.NativeIndex;
-            projectile.InstructionPointer = EnemyDeathExplosionDefinitions
-                .InstructionPointer((ushort)EnemyDeathAnimation.SmallExplosion);
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
 
         int slotIndex = slot.SlotIndex;

@@ -11,6 +11,10 @@ public enum RoomSpriteObjectKind : ushort
     None = 0xffff,
     /// <summary>Selector $03, <c>$B4:BEA4 InstList_SpriteObject_3_SmallExplosion</c>: finite small explosion used by Spore Spawn, Draygon, and escape effects.</summary>
     SporeSpawnDyingExplosion = 0x0003,
+    /// <summary>Alias of selector $03's small-explosion program, as the generic enemy-death explosions spawn it.</summary>
+    SmallExplosion = SporeSpawnDyingExplosion,
+    /// <summary>Selector $0C, <c>$B4:BF56 InstList_SpriteObject_C_Smoke</c>: finite smoke the generic enemy-death explosions scatter.</summary>
+    Smoke = 0x000c,
     /// <summary>Selector $06, <c>$B4:BEEA InstList_SpriteObject_6_DudShot</c>: finite impact flash for shots rejected by enemy collision handlers.</summary>
     EnemyProjectileDud = 0x0006,
     /// <summary>Selector $0A, <c>$B4:BF32 InstList_SpriteObject_A_SpacePirateLandingDustCloud</c>: finite dust animation spawned at a Ninja Pirate's landing.</summary>

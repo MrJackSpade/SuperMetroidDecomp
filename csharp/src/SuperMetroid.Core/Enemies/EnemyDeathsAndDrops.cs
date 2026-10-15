@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
@@ -103,9 +105,7 @@ internal sealed class EnemyDeathsAndDrops
             explosion.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(enemy.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
                 : enemy.NativeIndex;
-            explosion.InstructionPointer =
-                EnemyDeathExplosionDefinitions.InstructionPointer(deathAnimation);
-            explosion.InstructionTimer = NativeCountdown.Start(1);
+            explosion.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathExplosionDefinitions.Program(deathAnimation)));
         }
 
         enemy.Clear();
@@ -251,62 +251,56 @@ internal sealed class EnemyDeathsAndDrops
         // path X still holds the spawn routine's projectile ID ($F337), never zero, so any
         // slot can become a pickup. Its `...,X` header store therefore lands at $7F:E6FF,
         // intro/credits tilemap scratch, and the drop roll reads it back from there.
-        if (kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop)
-        {
-            MakeEnemyPickupDormant(pickup);
-            return;
-        }
-
-        BeginEnemyPickup(pickup, kind);
+        pickup.StartAnimation(new EnemyDeathProjectileAnimation(kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
+            ? ConfigureDormantPickup(pickup)
+            : ConfigurePickup(pickup, kind)));
     }
 
     /// <summary>
-    /// Converts a completed enemy-death explosion in place. Keeping the actor in its
-    /// existing slot preserves both the slot-zero bug and the retained respawn index:
-    /// $86:EEAF branches on the restored projectile index, so slot zero never converts.
+    /// Converts a completed enemy-death explosion in place and returns the program it continues at: its drop's, or the
+    /// respawn tail's. Keeping the actor in its existing slot preserves both the slot-zero bug and the retained respawn
+    /// index: $86:EEAF branches on the restored projectile index, so slot zero never converts.
     /// </summary>
-    internal void ConvertEnemyDeathExplosionToPickup(RoomEnemyProjectileSlot projectile)
+    internal EnemyDeathProjectileProgram ConvertEnemyDeathExplosionToPickup(RoomEnemyProjectileSlot projectile)
     {
         EnemyPickupKind kind = SelectRandomEnemyDrop(projectile);
-        if (projectile.SlotIndex == 0 ||
-            kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop)
-        {
-            MakeEnemyPickupDormant(projectile);
-            return;
-        }
-
-        BeginEnemyPickup(projectile, kind);
+        return projectile.SlotIndex == 0 || kind is EnemyPickupKind.None or EnemyPickupKind.NoDrop
+            ? ConfigureDormantPickup(projectile)
+            : ConfigurePickup(projectile, kind);
     }
 
-    /// <summary>Installs the selected pickup's animation, 400-frame life, and collision callback.</summary>
-    internal static void BeginEnemyPickup(
-        RoomEnemyProjectileSlot projectile,
-        EnemyPickupKind kind)
+    /// <summary>Starts the selected pickup's program, 400-frame life and collision callback.</summary>
+    internal static void BeginEnemyPickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind) =>
+        projectile.StartAnimation(new EnemyDeathProjectileAnimation(ConfigurePickup(projectile, kind)));
+
+    /// <summary>Gives the projectile the selected pickup's identity, 400-frame life and collision callback, and returns its program.</summary>
+    private static EnemyDeathProjectileProgram ConfigurePickup(RoomEnemyProjectileSlot projectile, EnemyPickupKind kind)
     {
         EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
         projectile.Variable0 = animation.TableOffset;
-        projectile.InstructionPointer = animation.InstructionList;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.Variable1 = EnemyPickupLifetime;
         projectile.PreInstruction = EnemyPickupPreInstruction;
 
         // $86:EEAF clears property $4000 but retains the other definition bits. The typed
         // representation stores the three collision flags separately from the low damage.
         projectile.PersistsOnSamusContact = false;
+        return animation.Program ?? throw new InvalidOperationException($"Enemy pickup kind {kind} has no drop program.");
     }
 
     /// <summary>Switches a consumed or rejected drop to the blank, non-interactive deletion tail.</summary>
-    private static void MakeEnemyPickupDormant(RoomEnemyProjectileSlot projectile)
+    private static void MakeEnemyPickupDormant(RoomEnemyProjectileSlot projectile) =>
+        projectile.StartAnimation(new EnemyDeathProjectileAnimation(ConfigureDormantPickup(projectile)));
+
+    /// <summary>Makes the projectile a blank, non-interactive drop and returns the deletion tail it runs.</summary>
+    private static EnemyDeathProjectileProgram ConfigureDormantPickup(RoomEnemyProjectileSlot projectile)
     {
         // The blank map lasts 64 frames before $EF10 handles a retained respawning enemy
         // and $8154 deletes the actor. Collection and natural expiry use this same tail.
-        projectile.InstructionPointer =
-            EnemyDeathExplosionDefinitions.NoDropTailInstruction;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86EFDF;
         projectile.CanDamageSamus = false;
         projectile.PersistsOnSamusContact = false;
         projectile.BlocksSamusProjectiles = false;
+        return EnemyDeathExplosionDefinitions.NoDropTail;
     }
 
     /// <summary>
@@ -619,61 +613,47 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>
     internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = 9;
 
-    /// <summary>Registers death sounds, explosion-to-pickup conversion, and retained-enemy respawn opcodes.</summary>
-    internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table)
+    /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
+    internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table) =>
+        table.RegisterBranchingCue<EnemyDeathProjectileProgram, EnemyDeathProjectileCue>(ApplyEnemyDeathProjectileCue);
+
+    /// <summary>
+    /// Carries out one cue of the death and drop programs, returning the program a converted explosion continues at, or
+    /// null to run on.
+    /// </summary>
+    private EnemyDeathProjectileProgram? ApplyEnemyDeathProjectileCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EnemyDeathProjectileCue cue)
     {
-        table.RegisterInstruction(EnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
-                // The native dispatcher passes a pointer to the first byte after the
-                // opcode into EprojInstr_QueueSfx2_9, and that routine returns the same
-                // pointer unchanged. Therefore the timed duration begins immediately
-                // after $EE8B. Treating that duration as an operand skips two bytes and
-                // interprets the following spritemap pointer as another opcode.
+        switch (cue.Kind)
+        {
+            case EnemyDeathProjectileCueKind.Delete:
+                projectile.Clear();
+                return null;
+            case EnemyDeathProjectileCueKind.SpawnSpriteWithin32:
+                _projectiles.SpawnRandomEnemyDeathSprite(projectile, cue.SpriteObject, mask: 63, center: 32);
+                return null;
+            case EnemyDeathProjectileCueKind.SpawnSpriteWithin16:
+                _projectiles.SpawnRandomEnemyDeathSprite(projectile, cue.SpriteObject, mask: 31, center: 16);
+                return null;
+            case EnemyDeathProjectileCueKind.PlayEnemyKilledSound:
+                // EprojInstr_QueueSfx2_9 returns the pointer it was passed, so the following duration starts the next frame.
                 QueueEnemyKilledSound();
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+                return null;
+            case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:
                 LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathSmallExplosionSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+                return null;
+            case EnemyDeathProjectileCueKind.PlayContactKilledSound:
                 LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathContactKilledSound;
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+                return null;
+            case EnemyDeathProjectileCueKind.BecomePickup:
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)
-                {
-                    throw new InvalidDataException(
-                        $"Enemy projectile $86:{(ushort)projectile.Kind:X4} reached death-drop opcode $EEAF.");
-                }
-                ConvertEnemyDeathExplosionToPickup(projectile);
-                cursor = projectile.InstructionPointer;
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
-
-        table.RegisterInstruction(EnemyProjectileInstruction.Pickup_HandleRespawningEnemy, null,
-            (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
-            {
+                    throw new InvalidDataException($"Enemy projectile {projectile.Kind} reached the death-drop command $EEAF.");
+                return ConvertEnemyDeathExplosionToPickup(projectile);
+            case EnemyDeathProjectileCueKind.HandleRespawningEnemy:
                 if (unchecked((short)projectile.KilledEnemyNativeIndex) <= -2)
-                {
-                    RespawnEnemyFromSnapshot(unchecked((ushort)(
-                        projectile.KilledEnemyNativeIndex & KilledEnemyIndexMasks.IndexBits)));
-                }
-                cursor = unchecked((ushort)(cursor + 2));
-                return EnemyProjectileInstructionOutcome.Continue;
-            });
+                    RespawnEnemyFromSnapshot(unchecked((ushort)(projectile.KilledEnemyNativeIndex & KilledEnemyIndexMasks.IndexBits)));
+                return null;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EnemyDeathProjectileCueKind)} {cue.Kind}.");
+        }
     }
 }

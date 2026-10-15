@@ -4,8 +4,6 @@ namespace SuperMetroid.Game;
 [Flags]
 internal enum ProcessErrorModes : uint
 {
-    /// <summary>No flag.</summary>
-    None = 0,
     /// <summary><c>SEM_FAILCRITICALERRORS</c>: no critical-error dialogs for process I/O faults.</summary>
     FailCriticalErrors = 0x0001,
     /// <summary><c>SEM_NOGPFAULTERRORBOX</c>: no general-protection-fault dialog taking focus.</summary>

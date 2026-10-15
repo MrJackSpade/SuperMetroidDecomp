@@ -9,9 +9,6 @@ internal static class DeadTourianFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa9;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 13;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(DeadTourianFrame frame) => frame.Pose switch
     {

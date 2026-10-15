@@ -4,8 +4,6 @@ namespace SuperMetroid.Desktop.Audio;
 [Flags]
 internal enum WaveHeaderFlags : uint
 {
-    /// <summary>No flag.</summary>
-    None = 0,
     /// <summary><c>WHDR_DONE</c>: Windows has finished playing the buffer.</summary>
     Done = 0x0000_0001,
 }

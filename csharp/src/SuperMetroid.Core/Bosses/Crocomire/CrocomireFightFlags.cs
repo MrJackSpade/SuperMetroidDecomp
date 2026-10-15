@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [Flags]
 public enum CrocomireFightFlags : ushort
 {
-    /// <summary>No latch is set.</summary>
-    None = 0,
     /// <summary>The low-nibble hit count field. It is a counter, not a flag.</summary>
     HitCountField = 0x000f,
     /// <summary>Bit $0100: makes the unused attack chooser at <c>$A4:891B</c> take the move-until-claw-contact branch.</summary>

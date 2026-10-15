@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>The pre-instructions the cinematic sprite lists install, by their bank-$8B routines.</summary>
 internal enum CinematicSpritePreInstruction : ushort
 {
-    /// <summary>No pre-instruction installed by a list.</summary>
-    None = 0,
     /// <summary><c>PreInstruction_MetroidEgg_DeleteAfterCrossFade</c> at $8B:A903.</summary>
     MetroidEggDeleteAfterCrossFade = 0xa903,
     /// <summary><c>PreInstruction_IntroMotherBrain_CrossFading</c> at $8B:B82E.</summary>

@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Skree.Artwork;
 /// </summary>
 internal static class SkreeMetareeParticleFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 2;
 
     /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
     internal static ushort PresentationKey(SkreeMetareeParticleFrame frame) => frame.Pose switch

@@ -9,9 +9,6 @@ internal static class ElevatorFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa3;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 2;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(ElevatorFrame frame) => frame.Pose switch
     {

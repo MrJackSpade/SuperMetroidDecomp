@@ -9,9 +9,6 @@ internal static class WreckedShipGhostFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 3;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(WreckedShipGhostFrame frame) => frame.Pose switch
     {

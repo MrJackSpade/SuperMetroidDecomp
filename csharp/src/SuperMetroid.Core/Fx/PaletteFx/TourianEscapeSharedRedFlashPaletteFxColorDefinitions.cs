@@ -23,9 +23,6 @@ public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
     /// <summary>The shared timed-record loop at <c>$8D:F94D</c>.</summary>
     public const ushort FirstFramePointer = 0xf94d;
 
-    /// <summary>The terminal <c>goto</c> at <c>$8D:FA65</c>.</summary>
-    public const ushort LoopInstructionPointer = 0xfa65;
-
     /// <summary>The shared loop contains fourteen records.</summary>
     public const int FrameCount = 14;
 

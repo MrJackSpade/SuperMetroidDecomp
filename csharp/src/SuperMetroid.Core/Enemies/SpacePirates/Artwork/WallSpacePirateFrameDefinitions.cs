@@ -9,9 +9,6 @@ internal static class WallSpacePirateFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xb2;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 18;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(WallSpacePirateFrame frame) => frame.Pose switch
     {

@@ -48,8 +48,6 @@ public static class AudioRomData
         public const ushort TrackMask = 0x007f;
         /// <summary>Largest canonical track selector, $7F; zero instead denotes stopping music.</summary>
         public const byte MaximumTrack = 0x7f;
-        /// <summary>Music-timer sign bit tested after decrement at <c>$80:8F12</c>; a set bit takes the next-entry fetch path, rather than continuing an active positive countdown.</summary>
-        public const ushort ActiveTimerBit = 0x8000;
     }
 
     /// <summary>Physical shape and safety bounds of a native APU upload stream.</summary>

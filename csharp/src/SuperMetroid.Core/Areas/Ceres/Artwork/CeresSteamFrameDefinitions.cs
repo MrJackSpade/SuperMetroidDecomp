@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// </summary>
 internal static class CeresSteamFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa6;
-
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 28;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(CeresSteamFrame frame) => frame.Pose switch

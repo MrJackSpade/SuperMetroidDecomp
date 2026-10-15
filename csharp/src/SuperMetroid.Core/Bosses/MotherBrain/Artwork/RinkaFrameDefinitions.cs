@@ -9,9 +9,6 @@ internal static class RinkaFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa2;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 5;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(RinkaFrame frame) => frame.Pose switch
     {

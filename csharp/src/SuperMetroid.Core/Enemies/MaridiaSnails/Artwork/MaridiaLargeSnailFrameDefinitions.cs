@@ -9,9 +9,6 @@ internal static class MaridiaLargeSnailFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa2;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 30;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(MaridiaLargeSnailFrame frame) => frame.Pose switch
     {

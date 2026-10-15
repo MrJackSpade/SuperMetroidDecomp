@@ -68,9 +68,6 @@ public static class TourianStatueGreyPaletteFxColorDefinitions
     /// <summary>Bytes from one duration word through its terminal wait command.</summary>
     public const int FrameByteCount = 20;
 
-    /// <summary>Terminal <c>delete</c> instruction at $8D:E2DE.</summary>
-    public const ushort DeleteInstructionPointer = 0xe2de;
-
     /// <summary>Returns the timed-record pointer for one zero-based fade frame.</summary>
     public static ushort FramePointer(int frame)
     {

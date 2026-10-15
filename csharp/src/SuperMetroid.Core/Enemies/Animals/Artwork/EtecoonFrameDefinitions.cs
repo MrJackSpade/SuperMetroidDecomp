@@ -9,9 +9,6 @@ internal static class EtecoonFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa7;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 31;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(EtecoonFrame frame) => frame.Pose switch
     {

@@ -6,11 +6,6 @@ namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
 /// </summary>
 internal static class GunshipFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa2;
-
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 13;
 
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(GunshipFrame frame) => frame.Pose switch

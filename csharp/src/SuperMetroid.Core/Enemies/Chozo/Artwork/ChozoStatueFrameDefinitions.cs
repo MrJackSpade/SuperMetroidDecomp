@@ -9,9 +9,6 @@ internal static class ChozoStatueFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xaa;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 26;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(ChozoStatueFrame frame) => frame.Pose switch
     {

@@ -9,9 +9,6 @@ internal static class TourianEntranceStatueFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xaa;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 0;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(TourianEntranceStatueFrame frame) => frame.Pose switch
     {

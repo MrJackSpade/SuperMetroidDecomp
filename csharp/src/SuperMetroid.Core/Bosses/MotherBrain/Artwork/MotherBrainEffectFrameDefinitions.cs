@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainEffectFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 62;
 
     /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
     internal static ushort PresentationKey(MotherBrainEffectFrame frame) => frame.Pose switch

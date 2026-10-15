@@ -9,9 +9,6 @@ internal static class MagdolliteFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 29;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(MagdolliteFrame frame) => frame.Pose switch
     {

@@ -9,9 +9,6 @@ internal static class BeetomFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa8;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 22;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(BeetomFrame frame) => frame.Pose switch
     {

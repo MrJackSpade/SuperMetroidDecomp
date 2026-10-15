@@ -115,8 +115,6 @@ public static class IntroCinematicRomData
     {
         /// <summary>Initial fixed-point counter used by cinematic palette crossfades.</summary>
         public const ushort CrossfadeInitialCounter = 0x007f;
-        /// <summary>Bit that identifies a negative signed crossfade counter.</summary>
-        public const ushort CounterSignBit = 0x8000;
         /// <summary>Mask that advances a palette step once every four updates.</summary>
         public const ushort StepEveryFourFramesMask = 0x0003;
         /// <summary>Palette spans faded for the gameplay flashback.</summary>
@@ -259,12 +257,6 @@ public static class IntroCinematicRomData
         /// <summary>First baby Metroid cry sound.</summary>
         public static readonly SoundEffectId BabyCry1 =
             new(SoundEffectLibrary.Library3, 0x23);
-        /// <summary>Second baby Metroid cry sound.</summary>
-        public static readonly SoundEffectId BabyCry2 =
-            new(SoundEffectLibrary.Library3, 0x26);
-        /// <summary>Third baby Metroid cry sound.</summary>
-        public static readonly SoundEffectId BabyCry3 =
-            new(SoundEffectLibrary.Library3, 0x27);
         /// <summary>Typewriter sound used while narration characters appear.</summary>
         public static readonly SoundEffectId Typewriter =
             new(SoundEffectLibrary.Library3, 0x0d);

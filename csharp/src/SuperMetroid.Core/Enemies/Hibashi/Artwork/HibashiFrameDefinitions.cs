@@ -9,9 +9,6 @@ internal static class HibashiFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa6;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 23;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(HibashiFrame frame) => frame.Pose switch
     {

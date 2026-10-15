@@ -9,9 +9,6 @@ internal static class NuclearWaffleFrameDefinitions
     /// <summary>The bank holding the spritemaps.</summary>
     internal const byte Bank = 0xa6;
 
-    /// <summary>The poses.</summary>
-    internal const int PoseCount = 8;
-
     /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(NuclearWaffleFrame frame) => frame.Pose switch
     {

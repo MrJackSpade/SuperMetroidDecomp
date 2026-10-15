@@ -3,8 +3,6 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>The bank-$8C spritemap each cinematic sprite pose shows; zero is the blank pose, which draws nothing.</summary>
 internal static class CinematicSpritePoseDefinitions
 {
-    /// <summary>The number of poses.</summary>
-    internal const int PoseCount = 210;
 
     /// <summary>The spritemap pose <paramref name="pose"/> shows.</summary>
     internal static ushort Spritemap(CinematicSpritePose pose) => pose.Index switch

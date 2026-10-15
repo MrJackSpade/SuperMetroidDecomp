@@ -26,12 +26,6 @@ internal readonly struct InstructionItem
         return new(InstructionItemKind.Words, words, 0);
     }
 
-    /// <summary>
-    /// The largest positive frame timer, <c>$7FFF</c>: the pose holds until a callback or other
-    /// state moves the instruction pointer, rather than expiring on a chosen cadence.
-    /// </summary>
-    internal const ushort IndefiniteDuration = (ushort)short.MaxValue;
-
     /// <summary>A timed frame: its duration followed by its presentation operand.</summary>
     internal static InstructionItem Frame(ushort duration) =>
         new(InstructionItemKind.Words, [duration, InstructionWord.Presentation], 0);

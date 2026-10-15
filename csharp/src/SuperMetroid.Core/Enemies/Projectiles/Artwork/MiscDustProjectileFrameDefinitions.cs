@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Enemies.Projectiles.Artwork;
 /// </summary>
 internal static class MiscDustProjectileFrameDefinitions
 {
-    /// <summary>The poses, in installed artwork order.</summary>
-    internal const int PoseCount = 192;
 
     /// <summary>The installed artwork key of <paramref name="frame"/>.</summary>
     internal static ushort PresentationKey(MiscDustProjectileFrame frame) => frame.Pose switch

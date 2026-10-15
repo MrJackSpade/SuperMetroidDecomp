@@ -7,6 +7,7 @@ using SuperMetroid.Core.Frontend.Recording;
 using SuperMetroid.Desktop.Audio;
 using SuperMetroid.Desktop.Diagnostics;
 using SuperMetroid.Desktop.Window;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>Verification views of private desktop audio and error-reporting state.</summary>
 internal static class DesktopAccess
@@ -75,7 +76,7 @@ internal static class DesktopAccess
         ClipAudioCatalog.Load(audioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory());
 
     /// <summary>A standalone synthesizing session over that audio, for fixtures that drive the cartridge audio types directly.</summary>
-    internal static CartridgeAudioSession CreateAudioSession(string? audioDirectory = null) =>
+    internal static SynthesizingAudioSession CreateAudioSession(string? audioDirectory = null) =>
         CartridgeAudioSessionAccess.CreateSynthesizing(LoadAudioAssets(audioDirectory));
 
     /// <summary>

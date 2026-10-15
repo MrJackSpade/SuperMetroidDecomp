@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>
-/// Plays pre-rendered clips (#1305) as an <see cref="IAudioBackend"/>, reproducing the driver's
+/// Plays pre-rendered clips (#1305) from the session's audio events, reproducing the driver's
 /// command semantics from the session's events.
 /// <list type="bullet">
 /// <item>A music-port write is latched and consumed at the next music tick: a carry of the tempo
@@ -17,13 +17,13 @@ namespace SuperMetroid.Core.Audio;
 /// Clips mix in the native 32.04-kHz domain and resample to 48 kHz exactly as the emulated DSP's
 /// output does, so a clip-only update matches it byte for byte.
 /// </summary>
-public sealed class ClipAudioBackend : IAudioBackend
+public sealed class ClipAudioBackend
 {
     /// <summary>Frames of the key-off release a cut clip fades over: the S-DSP's 8-ms release from full envelope.</summary>
     internal const int ReleaseFrames = 256;
 
     /// <summary>Native stereo frames in one update.</summary>
-    private const int FramesPerUpdate = ManagedSnesDsp.NativeStereoFramesPerVideoFrame;
+    private const int FramesPerUpdate = SpcPortDefinitions.NativeStereoFramesPerVideoFrame;
 
     /// <summary>The installed clips.</summary>
     private readonly ClipAudioCatalog catalog;
@@ -45,7 +45,7 @@ public sealed class ClipAudioBackend : IAudioBackend
     /// <summary>The playback state this backend advances.</summary>
     public ClipPlaybackState State { get; }
 
-    /// <inheritdoc />
+    /// <summary>Applies one update's events in order and writes its interleaved 48-kHz stereo PCM.</summary>
     /// <exception cref="InvalidDataException">
     /// An event is malformed or out of order, a pause or resume command arrives, a track is
     /// requested with no music bank loaded, or a requested sound has no clip in the bank context.
@@ -100,7 +100,7 @@ public sealed class ClipAudioBackend : IAudioBackend
         ReleaseMusic(now);
         State.Music = null;
         State.MusicPort = 0;
-        State.MusicLatch = (byte)MusicPortCommand.None;
+        State.MusicLatch = SpcPortDefinitions.MusicLatchEmpty;
         State.Context = bank == AudioAssetCatalogDefinitions.Common.Bank ? null : bank;
         for (int index = 0; index < State.Libraries.Length; index++)
         {
@@ -154,11 +154,9 @@ public sealed class ClipAudioBackend : IAudioBackend
     private void MusicTick(long now)
     {
         byte command = State.MusicLatch;
-        State.MusicLatch = (byte)MusicPortCommand.None;
-        if (command == (byte)MusicPortCommand.None || command == State.MusicPort)
+        State.MusicLatch = SpcPortDefinitions.MusicLatchEmpty;
+        if (command == SpcPortDefinitions.MusicLatchEmpty || command == State.MusicPort)
             return;
-        if (command is (byte)MusicPortCommand.Pause or (byte)MusicPortCommand.Resume)
-            throw new InvalidDataException($"Music command ${command:X2} (pause/resume) is not part of the clip runtime's vocabulary.");
         if (State.Music is MusicClipEntry playing)
             State.Tempo = TempoAt(playing, now - State.MusicStart);
         ReleaseMusic(now);
@@ -180,7 +178,7 @@ public sealed class ClipAudioBackend : IAudioBackend
         ClipLibraryState library = State.Libraries[index];
         SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect.Library, soundEffect.Value);
         bool rejected =
-            (!policy.IgnoresLowHealthMode && library.LowHealthMode == SpcDriverDefinitions.SoundEffects.LowHealthMode) ||
+            (!policy.IgnoresLowHealthMode && library.LowHealthMode == SpcPortDefinitions.LowHealthMode) ||
             (!policy.IgnoresPriority && library.Priority != 0);
         if (rejected)
             return;
@@ -207,7 +205,7 @@ public sealed class ClipAudioBackend : IAudioBackend
         {
             LowHealthModeEffect.Unchanged => library.LowHealthMode,
             LowHealthModeEffect.Clear => 0,
-            LowHealthModeEffect.Enter => SpcDriverDefinitions.SoundEffects.LowHealthMode,
+            LowHealthModeEffect.Enter => SpcPortDefinitions.LowHealthMode,
             _ => throw new InvalidDataException($"Unknown low-health mode effect {policy.LowHealthMode}."),
         };
     }

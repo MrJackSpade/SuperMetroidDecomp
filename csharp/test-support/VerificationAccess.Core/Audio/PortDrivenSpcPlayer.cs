@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Core.Audio;
 
 /// <summary>

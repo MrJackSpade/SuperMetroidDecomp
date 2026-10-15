@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Frontend.FileSelect;
 using SuperMetroid.Verification.Harness;
 

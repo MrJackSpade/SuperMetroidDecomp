@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Audio;
 

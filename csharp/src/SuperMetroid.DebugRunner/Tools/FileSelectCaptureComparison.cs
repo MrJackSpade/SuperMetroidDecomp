@@ -27,10 +27,10 @@ internal static class FileSelectCaptureComparison
         // Caller must select a reset-origin journal, not a debugger-state continuation.
         SaveRamImage.Load(bus, recording.InitialSaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
-        var assets = RepositoryInstallation.Installation.LoadAudio();
-        game.BindAudio(RepositoryInstallation.Installation.LoadAudioClips());
+        ClipAudioCatalog clips = RepositoryInstallation.Installation.LoadAudioClips();
+        game.BindAudio(clips);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        var muted = new ManagedSpcAudioBackend(assets);
+        var muted = new ClipAudioBackend(clips);
         var suppressed = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         var expected = new List<double>();
         var control = new List<double>();

@@ -5,6 +5,7 @@ using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Audio;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Audio;
 using SuperMetroid.Verification.Harness;
 

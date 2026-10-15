@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 /// <see cref="SourceContentIdentity"/>.
 /// </summary>
 /// <param name="FormatVersion">Must equal <see cref="CurrentFormatVersion"/>.</param>
-/// <param name="SourceContentIdentity">The rendered <see cref="ExtractedAudioAssetCatalog.ContentIdentity"/>.</param>
+/// <param name="SourceContentIdentity">The content identity of the extracted audio catalog the clips were rendered from.</param>
 /// <param name="SampleRate">The clips' rate in stereo frames per second: the native S-DSP rate.</param>
 /// <param name="Music">One clip per (bank, track).</param>
 /// <param name="SoundEffects">One entry per renderable (bank context, effect).</param>

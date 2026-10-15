@@ -95,7 +95,7 @@ public sealed class ClipAudioCatalog
             throw new InvalidDataException(
                 $"Audio clip manifest '{manifestPath}' uses format {manifest.FormatVersion}; expected {AudioClipManifest.CurrentFormatVersion}.");
         }
-        if (manifest.SampleRate != ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 60)
+        if (manifest.SampleRate != SpcPortDefinitions.NativeStereoFramesPerVideoFrame * 60)
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' has rate {manifest.SampleRate}.");
         if (string.IsNullOrWhiteSpace(manifest.SourceContentIdentity))
             throw new InvalidDataException($"Audio clip manifest '{manifestPath}' names no source content identity.");

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Samus;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.IntegrationVerification.Installation;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 

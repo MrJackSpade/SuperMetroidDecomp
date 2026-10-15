@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.AssetExtraction.Audio;
 
 /// <summary>
@@ -33,7 +34,7 @@ public static class AudioAssetOverrideInstaller
         {
             CopyDirectory(source, staging);
             // Validate the isolated copy before it can become the selected override.
-            _ = SuperMetroid.Core.Audio.ExtractedAudioAssetCatalog.Load(source, staging);
+            _ = SuperMetroid.AssetExtraction.Audio.Synthesis.ExtractedAudioAssetCatalog.Load(source, staging);
             Directory.Move(staging, destination);
             return destination;
         }

@@ -4,6 +4,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.Verification.Audio;
 

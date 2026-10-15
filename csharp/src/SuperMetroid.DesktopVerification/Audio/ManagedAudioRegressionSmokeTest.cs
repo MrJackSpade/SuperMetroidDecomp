@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 using SuperMetroid.Desktop;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.DesktopVerification.Audio;
 
@@ -190,12 +191,12 @@ public static class ManagedAudioRegressionSmokeTest
             else if (frame == 270)
             {
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    ApuPort.Music, AudioRomData.Apu.PauseMusic));
+                    ApuPort.Music, (byte)MusicPortCommand.Pause));
             }
             else if (frame == 330)
             {
                 commands.Add(CartridgeAudioCommand.WritePort(
-                    ApuPort.Music, AudioRomData.Apu.ResumeMusic));
+                    ApuPort.Music, (byte)MusicPortCommand.Resume));
             }
             else if (frame == 390)
             {
@@ -214,7 +215,7 @@ public static class ManagedAudioRegressionSmokeTest
     /// <summary>Feeds the scenario name, rendered PCM and four acknowledgement bytes into the corpus digests after one audio update.</summary>
     private static void HashFrame(
         string scenario,
-        CartridgeAudioSession engine,
+        SynthesizingAudioSession engine,
         IReadOnlyList<CartridgeAudioCommand> commands,
         AudioCorpusTally tally)
     {

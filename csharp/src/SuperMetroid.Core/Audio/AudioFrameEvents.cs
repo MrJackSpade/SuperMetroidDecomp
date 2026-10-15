@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Audio;
 
-/// <summary>One 60-Hz update's audio instructions for an <see cref="IAudioBackend"/> (#1304).</summary>
+/// <summary>One 60-Hz update's audio instructions for an <see cref="ClipAudioBackend"/> (#1304).</summary>
 /// <remarks>
 /// <see cref="Events"/> is ordered: first the update's bank loads and music commands, in the
 /// order the 65816 issued them, then each driver tick in time order, each immediately followed

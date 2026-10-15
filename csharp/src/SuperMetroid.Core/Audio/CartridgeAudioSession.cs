@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Audio;
 /// The game session's per-update audio advance (#1303, #1304): it applies the update's
 /// cartridge port writes and uploads to the SPC port model, runs the driver timer for one
 /// update, publishes the acknowledgements the next update's sound handlers read, and turns the
-/// update into semantic <see cref="AudioEvent"/>s for an <see cref="IAudioBackend"/>.
+/// update into semantic <see cref="AudioEvent"/>s for an <see cref="ClipAudioBackend"/>.
 /// </summary>
 /// <remarks>
 /// Acknowledgements come only from the synthesis-free <see cref="SpcCommandPorts"/>, so they are
@@ -26,15 +26,13 @@ public sealed class CartridgeAudioSession
 
     /// <summary>Synthesis-free command-to-event conversion that also produces the acknowledgements gameplay reads.</summary>
     private readonly CartridgeAudioEventSource eventSource = new();
-    /// <summary>The emulated driver's state, kept with the session so a restored session continues its PCM.</summary>
-    internal ManagedSpcPlayer? player;
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
     /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>
     internal ClipPlaybackState? clipState;
     /// <summary>Host-bound backend that renders each update's events.</summary>
     [NonSerialized]
-    private IAudioBackend? backend;
+    private ClipAudioBackend? backend;
     /// <summary>The most recent update's interleaved 48-kHz PCM, copied out by hosts.</summary>
     [NonSerialized]
     private short[]? lastPcm;
@@ -44,40 +42,15 @@ public sealed class CartridgeAudioSession
     public CartridgeAudioAcknowledgements Acknowledgements => eventSource.Acknowledgements;
 
     /// <summary>
-    /// Binds the extracted audio catalog so each following update also synthesizes host PCM. A
-    /// restored session keeps its saved player; otherwise the binding must precede the first update,
-    /// because the player has to see the reset upload.
-    /// </summary>
-    /// <exception cref="ArgumentNullException"><paramref name="assets"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">The session has already advanced without a synthesizer.</exception>
-    public void BindSynthesis(ExtractedAudioAssetCatalog assets)
-    {
-        if (clipState is not null)
-            throw new InvalidOperationException("This session already plays installed clips.");
-        Ensure.NotNull(assets);
-        if (player is null)
-        {
-            if (hasAdvanced)
-                throw new InvalidOperationException(
-                    "Audio synthesis must be bound before the session's first update; this session advanced without it.");
-            player = new ManagedSpcPlayer();
-        }
-        backend = new ManagedSpcAudioBackend(assets, player);
-        lastPcm = null;
-    }
-
-    /// <summary>
     /// Binds the installed clips (#1305) so each following update also renders host PCM from them.
     /// A restored session keeps its saved playback state; otherwise the binding must precede the
     /// first update, because the backend has to see the reset upload.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="clips"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">The session has already advanced without clips, or synthesizes.</exception>
+    /// <exception cref="InvalidOperationException">The session has already advanced without clips.</exception>
     public void BindClips(ClipAudioCatalog clips)
     {
         Ensure.NotNull(clips);
-        if (player is not null)
-            throw new InvalidOperationException("This session already synthesizes its audio.");
         if (clipState is null)
         {
             if (hasAdvanced)

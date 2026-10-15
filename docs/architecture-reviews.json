@@ -33,7 +33,7 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Audio.ManagedSpcPlayer",
+      "type": "SuperMetroid.AssetExtraction.Audio.Synthesis.ManagedSpcPlayer",
       "flags": [
         "large"
       ],

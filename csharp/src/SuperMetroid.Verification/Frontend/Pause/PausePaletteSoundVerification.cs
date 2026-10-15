@@ -4,6 +4,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 /// <summary>Checks the pause palette's 54-tick loop queues its map beep and

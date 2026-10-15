@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.Verification.Audio;
 

@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Audio;
 
@@ -162,32 +163,39 @@ internal static class AudioClipExporter
     }
 
     /// <summary>
-    /// The request's acceptance and start policy, read from the driver's own rules: its
-    /// configuration applied to a library holding values no configuration writes shows which
-    /// fields it sets, and the rejection rule shows which states it ignores.
+    /// The request's acceptance and start policy, read from the driver's own rules: applying its
+    /// configuration from each possible priority and low-health mode shows whether it sets them or
+    /// keeps them, and the rejection rule shows which states it ignores.
     /// </summary>
     internal static SoundEffectClipPolicy Policy(int libraryIndex, byte command, byte configuration)
     {
-        const byte UnsetPriority = 2;
-        const byte UnsetMode = 1;
-        var library = new ManagedSpcSoundLibrary { Priority = UnsetPriority, Mode = UnsetMode };
-        ManagedSpcPlayer.ConfigureSoundLibrary(libraryIndex, library, configuration);
-        SoundEffectPriorityEffect priority = library.Priority switch
+        ManagedSpcSoundLibrary Configure(byte priority, byte mode)
         {
-            0 => SoundEffectPriorityEffect.Low,
-            1 => SoundEffectPriorityEffect.High,
-            UnsetPriority => SoundEffectPriorityEffect.Unchanged,
-            _ => throw new InvalidDataException($"Configuration {configuration} set priority {library.Priority}."),
-        };
-        LowHealthModeEffect mode = library.Mode switch
+            var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
+            ManagedSpcPlayer.ConfigureSoundLibrary(libraryIndex, library, configuration);
+            return library;
+        }
+
+        ManagedSpcSoundLibrary fromLow = Configure(0, 0);
+        ManagedSpcSoundLibrary fromHigh = Configure(1, SpcDriverDefinitions.SoundEffects.LowHealthMode);
+        SoundEffectPriorityEffect priority = (fromLow.Priority, fromHigh.Priority) switch
         {
-            UnsetMode => LowHealthModeEffect.Unchanged,
-            0 => LowHealthModeEffect.Clear,
-            SpcDriverDefinitions.SoundEffects.LowHealthMode => LowHealthModeEffect.Enter,
-            _ => throw new InvalidDataException($"Configuration {configuration} set low-health mode {library.Mode}."),
+            (0, 0) => SoundEffectPriorityEffect.Low,
+            (1, 1) => SoundEffectPriorityEffect.High,
+            (0, 1) => SoundEffectPriorityEffect.Unchanged,
+            _ => throw new InvalidDataException($"Configuration {configuration} sets priority {fromLow.Priority}/{fromHigh.Priority}."),
         };
+        LowHealthModeEffect mode = (fromLow.Mode, fromHigh.Mode) switch
+        {
+            (0, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Unchanged,
+            (0, 0) => LowHealthModeEffect.Clear,
+            (SpcDriverDefinitions.SoundEffects.LowHealthMode, SpcDriverDefinitions.SoundEffects.LowHealthMode) => LowHealthModeEffect.Enter,
+            _ => throw new InvalidDataException($"Configuration {configuration} sets low-health mode {fromLow.Mode}/{fromHigh.Mode}."),
+        };
+        if (fromLow.VoicesToSetup != fromHigh.VoicesToSetup)
+            throw new InvalidDataException($"Configuration {configuration} allocates voices by state.");
         return new SoundEffectClipPolicy(
-            library.VoicesToSetup,
+            fromLow.VoicesToSetup,
             priority,
             mode,
             IgnoresPriority: !ManagedSpcPlayer.RejectsRequest(libraryIndex, command, priority: 1, mode: 0),

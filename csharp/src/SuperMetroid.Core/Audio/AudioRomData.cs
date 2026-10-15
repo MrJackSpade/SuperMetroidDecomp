@@ -76,10 +76,6 @@ public static class AudioRomData
         /// <summary>Number of byte-wide bidirectional APU I/O ports, indexed zero through three and mapped to SNES registers <c>$2140-$2143</c>.</summary>
         public const int PortCount = 4;
 
-        /// <summary>SPC driver command that freezes music sequencing without discarding it.</summary>
-        public const byte PauseMusic = 0xf0;
 
-        /// <summary>SPC driver command that resumes a previously paused sequence.</summary>
-        public const byte ResumeMusic = 0xf1;
     }
 }

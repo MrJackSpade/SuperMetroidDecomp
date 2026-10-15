@@ -28,6 +28,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.Core;
 

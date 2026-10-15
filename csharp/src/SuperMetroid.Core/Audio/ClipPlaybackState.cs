@@ -24,13 +24,13 @@ public sealed class ClipPlaybackState
     internal byte MusicPort;
 
     /// <summary>The music-port write the driver consumes at its next music tick.</summary>
-    internal byte MusicLatch = (byte)MusicPortCommand.None;
+    internal byte MusicLatch = SpcPortDefinitions.MusicLatchEmpty;
 
     /// <summary>The eight-bit tempo accumulator; each carry is a music tick.</summary>
     internal byte TempoAccumulator;
 
     /// <summary>The tempo in force while no track plays: the driver's power-on tempo, then each track's last.</summary>
-    internal byte Tempo = SpcDriverDefinitions.Music.InitialTempo;
+    internal byte Tempo = SpcPortDefinitions.InitialTempo;
 
     /// <summary>The playing music clip, or null.</summary>
     internal MusicClipEntry? Music;

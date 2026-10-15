@@ -34,17 +34,19 @@ internal static class PhantoonReport1196Verification
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         foreach (var request in enemies.Audio.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-        var writes = new List<CartridgeAudioCommand>();
+        // The handshake rewrites a request each update until the driver echoes it ($82:8A55), so
+        // the CPU writes it twice; the driver starts a sound only on a changed latch, so count the
+        // sound starts the session publishes.
+        var starts = new List<SoundEffectId>();
         for (int frame = 0; frame < 8; frame++)
         {
-            var commands = audio.AdvanceFrame(renderer.Acknowledgements);
-            writes.AddRange(commands.Where(command => command.Kind == CartridgeAudioCommandKind.WritePort));
-            renderer.RenderFrame(commands);
+            IReadOnlyList<AudioEvent> events = renderer.Advance(audio.AdvanceFrame(renderer.Acknowledgements));
+            starts.AddRange(events.Where(audioEvent => audioEvent.Kind == AudioEventKind.StartSoundEffect).Select(audioEvent => audioEvent.SoundEffect));
         }
-        AssertEqual(1, writes.Count(command => command.InputPort == ApuPort.SoundLibrary3 && command.Value == 0x1d),
-            "opening blue flame sends native sound 1D to library three");
-        AssertEqual(0, writes.Count(command => command.InputPort == ApuPort.SoundLibrary2 && command.Value == 0x1d),
-            "opening flame never sends materialization-library 1D");
+        AssertEqual(1, starts.Count(sound => sound == new SoundEffectId(SoundEffectLibrary.Library3, 0x1d)),
+            "opening blue flame starts native sound 1D in library three once");
+        AssertEqual(0, starts.Count(sound => sound == new SoundEffectId(SoundEffectLibrary.Library2, 0x1d)),
+            "opening flame never starts materialization-library 1D");
         AssertEqual(6, enemies.Audio.SoundRequests.Single().MaximumQueued, "opening flame uses native Max6");
         Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());
         Console.WriteLine("Phantoon intro flame: actual spawn sends library 3 / 1D / Max6 through the production audio queue.");

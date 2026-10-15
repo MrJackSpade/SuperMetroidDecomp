@@ -5,6 +5,10 @@ music, sound-effect, instrument, echo or upload logic. APU RAM addresses, byte o
 wrapping live in the typed driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports
 are the `ApuPort` enum end to end.
 
+Since #1305 the driver port is the offline clip renderer: `ManagedSpcPlayer` and its views live in
+`SuperMetroid.AssetExtraction/Audio/Synthesis`. The runtime keeps only the port model,
+`SpcCommandPorts`, which shares the `[SpcMemoryAccess]`/`[SpcMemoryBoundary]` markers in Core.
+
 ## Boundary and enforcement
 
 - `[SpcMemoryAccess]`: the player's APU RAM array, `SpcCommandPorts`' port arrays, the stored debugger byte

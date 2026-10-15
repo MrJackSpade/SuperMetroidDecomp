@@ -5,6 +5,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.AssetExtraction.Audio.SpcExtractionAddresses;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 namespace SuperMetroid.AssetExtraction.Audio;
 

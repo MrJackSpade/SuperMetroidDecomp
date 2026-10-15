@@ -48,7 +48,6 @@ internal static class RoomPlmProgramDefinitions
         DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(address, out value) ||
         BlueDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ColoredDoorPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
@@ -73,7 +72,6 @@ internal static class RoomPlmProgramDefinitions
         DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         ColoredDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         GreyDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||

@@ -98,7 +98,7 @@ csharp/src/SuperMetroid.Core/Rooms/Doors/BlueDoorPlmProgramDefinitions.cs	SME634
 csharp/src/SuperMetroid.Core/Rooms/Doors/CartridgeDoorOrientation.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorPlmProgramDefinitions.cs	SME6341	9
 csharp/src/SuperMetroid.Core/Rooms/Doors/DoorCameraAlignmentState.cs	SME6340	1
-csharp/src/SuperMetroid.Core/Rooms/Doors/DoorPlms.cs	SME6340	7
+csharp/src/SuperMetroid.Core/Rooms/Doors/DoorPlms.cs	SME6340	6
 csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorBehavior.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPlmProgramDefinitions.cs	SME6341	5
 csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPlms.cs	SME6340	4
@@ -674,10 +674,10 @@ csharp/src/SuperMetroid.Verification/Enemies/Cacatac/CacatacProjectileDefinition
 csharp/src/SuperMetroid.Verification/Enemies/Choot/ChootPatternDefinitionsVerification.cs	SME6340	21
 csharp/src/SuperMetroid.Verification/Enemies/Choot/ChootPatternDefinitionsVerification.cs	SME6345	4
 csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoGrabAnimationVerification.cs	SME6340	5
-csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatuePlmDefinitionsVerification.cs	SME6340	8
+csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatuePlmDefinitionsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatuePlmDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatueVisualsVerification.cs	SME6340	29
-csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatueVisualsVerification.cs	SME6341	10
+csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatueVisualsVerification.cs	SME6341	8
 csharp/src/SuperMetroid.Verification/Enemies/Chozo/ChozoStatueVisualsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Enemies/Chozo/LookupChozoLayoutsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Enemies/Chozo/LookupChozoProgramVerification.cs	SME6340	29

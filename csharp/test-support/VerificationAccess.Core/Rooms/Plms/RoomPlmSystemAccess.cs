@@ -429,7 +429,7 @@ internal static class RoomPlmSystemAccess
                 {
                     // `$94:9E8D-$9E9E` indexes the current area's eight-entry table before
                     // Spawn_PLM. Every retail entry at `$94:9F46-$9FC4` is PLMEntries_nothing.
-                    slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+                    PlmProgramStart.Delete.StartOn(slot);
                     return true;
                 }
 
@@ -474,7 +474,7 @@ internal static class RoomPlmSystemAccess
                     return true;
                 }
 
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+                PlmProgramStart.Delete.StartOn(slot);
                 return true;
             }
 

@@ -12,14 +12,14 @@ public static class BombSpecialBlockReactions
     /// <summary>Selects crumble reveal, speed reveal, or the $84:B62F no-op PLM's
     /// deletion list. Normal indices $10..4F alias adjacent area tables;
     /// $1A..1D therefore select Brinstar's four speed-block entries.</summary>
-    public static ushort InstructionListAt(int index)
+    internal static PlmProgramStart ProgramAt(int index)
     {
         if ((uint)index >= Count)
             throw new IndexOutOfRangeException();
         if (index < 8)
-            return RoomPlmInstructionLists.CrumbleRevealBySize(index & 3);
+            return PlmProgramStart.Native(RoomPlmInstructionLists.CrumbleRevealBySize(index & 3));
         return index is 0x0e or 0x0f or >= 0x1a and <= 0x1d
-            ? RoomPlmInstructionLists.BombReactionSpeedBlock
-            : RoomPlmInstructionLists.Delete;
+            ? PlmProgramStart.Native(RoomPlmInstructionLists.BombReactionSpeedBlock)
+            : PlmProgramStart.Delete;
     }
 }

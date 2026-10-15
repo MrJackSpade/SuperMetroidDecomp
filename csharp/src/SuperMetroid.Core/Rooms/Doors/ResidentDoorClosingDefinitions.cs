@@ -69,30 +69,30 @@ public static class ResidentDoorClosingDefinitions
     /// by bank-82 E91C. Only these twenty resident grey/coloured/eye-door/gate identities
     /// are supported; all other headers throw, including blue collision PLMs.
     /// </summary>
-    internal static ushort Resolve(PlmHeaderId header) => header switch
+    internal static PlmProgramStart Resolve(PlmHeaderId header) => header switch
     {
-        PlmHeaderId.BombTorizoGreyDoor => BombTorizoGreyDoor,
-        PlmHeaderId.GreyDoorFacingLeft => GreyFacingLeft,
-        PlmHeaderId.GreyDoorFacingRight => GreyFacingRight,
-        PlmHeaderId.GreyDoorFacingUp => GreyFacingUp,
-        PlmHeaderId.GreyDoorFacingDown => GreyFacingDown,
-        PlmHeaderId.YellowDoorFacingLeft => YellowFacingLeft,
-        PlmHeaderId.YellowDoorFacingRight => YellowFacingRight,
-        PlmHeaderId.YellowDoorFacingUp => YellowFacingUp,
-        PlmHeaderId.YellowDoorFacingDown => YellowFacingDown,
-        PlmHeaderId.GreenDoorFacingLeft => GreenFacingLeft,
-        PlmHeaderId.GreenDoorFacingRight => GreenFacingRight,
-        PlmHeaderId.GreenDoorFacingUp => GreenFacingUp,
-        PlmHeaderId.GreenDoorFacingDown => GreenFacingDown,
-        PlmHeaderId.RedDoorFacingLeft => RedFacingLeft,
-        PlmHeaderId.RedDoorFacingRight => RedFacingRight,
-        PlmHeaderId.RedDoorFacingUp => RedFacingUp,
-        PlmHeaderId.RedDoorFacingDown => RedFacingDown,
-        PlmHeaderId.MotherBrainEscapeRoomGate => RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing,
+        PlmHeaderId.BombTorizoGreyDoor => PlmProgramStart.Native(BombTorizoGreyDoor),
+        PlmHeaderId.GreyDoorFacingLeft => PlmProgramStart.Native(GreyFacingLeft),
+        PlmHeaderId.GreyDoorFacingRight => PlmProgramStart.Native(GreyFacingRight),
+        PlmHeaderId.GreyDoorFacingUp => PlmProgramStart.Native(GreyFacingUp),
+        PlmHeaderId.GreyDoorFacingDown => PlmProgramStart.Native(GreyFacingDown),
+        PlmHeaderId.YellowDoorFacingLeft => PlmProgramStart.Native(YellowFacingLeft),
+        PlmHeaderId.YellowDoorFacingRight => PlmProgramStart.Native(YellowFacingRight),
+        PlmHeaderId.YellowDoorFacingUp => PlmProgramStart.Native(YellowFacingUp),
+        PlmHeaderId.YellowDoorFacingDown => PlmProgramStart.Native(YellowFacingDown),
+        PlmHeaderId.GreenDoorFacingLeft => PlmProgramStart.Native(GreenFacingLeft),
+        PlmHeaderId.GreenDoorFacingRight => PlmProgramStart.Native(GreenFacingRight),
+        PlmHeaderId.GreenDoorFacingUp => PlmProgramStart.Native(GreenFacingUp),
+        PlmHeaderId.GreenDoorFacingDown => PlmProgramStart.Native(GreenFacingDown),
+        PlmHeaderId.RedDoorFacingLeft => PlmProgramStart.Native(RedFacingLeft),
+        PlmHeaderId.RedDoorFacingRight => PlmProgramStart.Native(RedFacingRight),
+        PlmHeaderId.RedDoorFacingUp => PlmProgramStart.Native(RedFacingUp),
+        PlmHeaderId.RedDoorFacingDown => PlmProgramStart.Native(RedFacingDown),
+        PlmHeaderId.MotherBrainEscapeRoomGate => PlmProgramStart.Native(RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing),
         // $84:DB4C/DB5A carry $84:AAE3 as their secondary list: $82:E91C deletes a resident
         // eye door on entry instead of animating a closing cap.
-        PlmHeaderId.EyeDoorFacingRight => RoomPlmInstructionLists.Delete,
-        PlmHeaderId.EyeDoorFacingLeft => RoomPlmInstructionLists.Delete,
+        PlmHeaderId.EyeDoorFacingRight => PlmProgramStart.Delete,
+        PlmHeaderId.EyeDoorFacingLeft => PlmProgramStart.Delete,
         _ => throw new InvalidDataException(
             $"Resident door header $84:{(int)header:X4} has no compiled closing definition."),
     };

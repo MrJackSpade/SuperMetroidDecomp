@@ -256,7 +256,7 @@ internal sealed class BossRoomMutationPlms
             slot.LoopTimer = 0;
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
-            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+            PlmProgramStart.Delete.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
 
             // Both setup routines walk downward through ten blocks in the same column.

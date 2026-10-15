@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -167,8 +168,8 @@ internal static class ChozoStatueVisualsVerification
                      address <= (0x840000 | ChozoStatuePlmProgramDefinitions.ClearSlopeEnd)) ||
                     (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeStart) &&
                      address <= (0x840000 | ChozoStatuePlmProgramDefinitions.BlockSlopeEnd)) ||
-                    (address >= (0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start) &&
-                     address <= (0x840000 | RoomPlmSharedDeleteProgramDefinitions.End)) ||
+                    (address >= (0x840000 | PlmProgramStartOracle.SharedDeleteEntry) &&
+                     address <= (0x840000 | (PlmProgramStartOracle.SharedDeleteEntry + 1))) ||
                     ChozoStatuePlmDrawDefinitions.All.Any(draw =>
                     {
                         int first = 0x840000 | draw.Pointer;

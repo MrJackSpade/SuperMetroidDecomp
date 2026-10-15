@@ -70,15 +70,7 @@ internal sealed class DoorPlms
 
             // Header+4 is definition metadata, not active memory. All resident
             // closing actors, including the escape gate, resolve it by identity.
-            ushort closingList = ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer);
-            if (closingList < 0x8000)
-            {
-                throw new InvalidDataException(
-                    $"Door-cap PLM $84:{(int)resident.HeaderPointer:X4} at block {blockIndex} " +
-                    $"has invalid second instruction list $84:{closingList:X4}.");
-            }
-
-            resident.InstructionPointer = closingList;
+            ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer).StartOn(resident);
             resident.InstructionTimer = NativeCountdown.Start(1);
 
             // Native retains every scalar owned by the resident slot while only replacing

@@ -266,7 +266,7 @@ internal sealed class BlockReactionPlms
                 // Table entries 8..15 are all `$84:B62F`, whose setup is a bare RTS and
                 // whose instruction list is the one-word delete stream at `$84:AAE3`.
                 slot.RestoreLevelWord = 0;
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+                PlmProgramStart.Delete.StartOn(slot);
                 return true;
             }
 
@@ -353,7 +353,7 @@ internal sealed class BlockReactionPlms
             {
                 // Every retail area-table target at `$94:9FC6-$9FD4` is the nothing entry.
                 // Spawn_PLM still consumes a slot until its delete instruction runs.
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+                PlmProgramStart.Delete.StartOn(slot);
                 return true;
             }
 
@@ -362,7 +362,7 @@ internal sealed class BlockReactionPlms
                 // Setup ends the projectile scan and forces its collision counter;
                 // the caller publishes those scratch effects only after successful
                 // allocation. This actor does not mutate terrain and deletes next pass.
-                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+                PlmProgramStart.Delete.StartOn(slot);
                 return true;
             }
 
@@ -439,7 +439,7 @@ internal sealed class BlockReactionPlms
 
             // `$94:9EA6` entries C..F all point to `$84:B62F`. Its empty setup leaves the
             // block alone and its one-word `$AAE3` list deletes on the next handler pass.
-            slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+            PlmProgramStart.Delete.StartOn(slot);
             return true;
         }
 
@@ -467,14 +467,14 @@ internal sealed class BlockReactionPlms
                 "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
 
-        ushort instructionPointer;
+        PlmProgramStart program;
         if (!bts.UsesAreaReactionTable)
         {
             if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.Count))
                 throw new ArgumentOutOfRangeException(nameof(bts),
                     "Area-independent special-block BTS is outside the cartridge reaction table.");
 
-            instructionPointer = BombSpecialBlockReactions.InstructionListAt(bts.NormalReactionIndex);
+            program = BombSpecialBlockReactions.ProgramAt(bts.NormalReactionIndex);
         }
         else
         {
@@ -486,9 +486,9 @@ internal sealed class BlockReactionPlms
                     "Area-dependent bomb-special BTS must address one of its eight native entries.");
             }
 
-            instructionPointer = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
-                ? RoomPlmInstructionLists.BombReactionSpeedBlock
-                : RoomPlmInstructionLists.Delete;
+            program = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
+                ? PlmProgramStart.Native(RoomPlmInstructionLists.BombReactionSpeedBlock)
+                : PlmProgramStart.Delete;
         }
 
         for (int slotIndex = _slotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
@@ -501,7 +501,7 @@ internal sealed class BlockReactionPlms
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = instructionPointer;
+            program.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }

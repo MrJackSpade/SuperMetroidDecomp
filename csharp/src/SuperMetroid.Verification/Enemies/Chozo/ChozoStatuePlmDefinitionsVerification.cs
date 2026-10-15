@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
 using static SuperMetroid.Verification.Enemies.Chozo.LookupChozoLayoutsVerification;
@@ -22,14 +23,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
         Suite(nameof(VerifyChozoProgramTargets), () => VerifyChozoProgramTargets(rom));
         Suite(nameof(VerifyChozoProgramCallback), () => VerifyChozoProgramCallback(rom));
         Suite(nameof(VerifyChozoProgramEvent), () => VerifyChozoProgramEvent(rom));
-        AssertTrue(RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
-            RoomPlmSharedDeleteProgramDefinitions.Start, out ushort sharedDelete),
-            "shared delete list is compiled");
-        AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | RoomPlmSharedDeleteProgramDefinitions.Start)),
-            sharedDelete, "shared delete list matches cartridge");
-        AssertTrue(!RoomPlmSharedDeleteProgramDefinitions.TryReadMechanicsWord(
-            RoomPlmSharedDeleteProgramDefinitions.End, out _),
-            "shared delete list refuses a word crossing its boundary");
+        Suite(nameof(RoomPlmProgramsVerification.VerifySharedPrograms), () => RoomPlmProgramsVerification.VerifySharedPrograms(rom));
         Suite(nameof(VerifyChozoLayoutGeometry), () => VerifyChozoLayoutGeometry(rom));
         Suite(nameof(VerifyChozoLayoutCollision), () => VerifyChozoLayoutCollision(rom));
         Suite(nameof(VerifyChozoLayoutVisuals), () => VerifyChozoLayoutVisuals(rom));
@@ -55,7 +49,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             {
                 var selected = ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header);
                 AssertEqual(header, (ushort)selected.HeaderPointer, "Chozo dispatch header identity");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2))), selected.InstructionListPointer,
+                AssertEqual(PlmProgramStartOracle.ForNativeList(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)))), selected.Program,
                     "Chozo dispatch original initial list");
                 AssertEqual(definitions.Single(d => (ushort)d.HeaderPointer == header), selected, "Chozo named/enumerated dispatch agreement");
             }
@@ -64,9 +58,9 @@ internal static class ChozoStatuePlmDefinitionsVerification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.HeaderPointer + 2))));
             AssertEqual(
-                expected,
-                definition.InstructionListPointer,
-                $"Chozo PLM ${(int)definition.HeaderPointer:X4} initial list matches cartridge");
+                PlmProgramStartOracle.ForNativeList(expected),
+                definition.Program,
+                $"Chozo PLM ${(int)definition.HeaderPointer:X4} initial program matches cartridge");
 
             const int width = 32;
             const int height = 16;
@@ -85,10 +79,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             AssertEqual(39, slot.NativeSlotIndex, "Chozo PLM uses highest free native slot");
             AssertEqual(definition.HeaderPointer, slot.HeaderPointer, "Chozo PLM header identity");
             AssertEqual(4 * width + 3, slot.BlockIndex, "Chozo PLM requested block coordinate");
-            AssertEqual(
-                definition.InstructionListPointer,
-                slot.InstructionPointer,
-                "Chozo PLM compiled initial instruction list");
+            AssertTrue(PlmProgramStartOracle.IsRunning(definition.Program, slot), "Chozo PLM starts its first program");
             AssertEqual(1, slot.InstructionTimer, "Chozo PLM starts on timer one");
 
             if (definition.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)

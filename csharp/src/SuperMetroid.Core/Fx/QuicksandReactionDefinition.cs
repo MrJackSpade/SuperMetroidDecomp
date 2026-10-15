@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Rooms.Plms;
+
 namespace SuperMetroid.Core.Fx;
 
-/// <summary>One quicksand PLM header paired with its setup routine and initial list.</summary>
-public readonly record struct QuicksandReactionDefinition(
+/// <summary>One quicksand PLM header paired with its setup routine and first program.</summary>
+internal readonly record struct QuicksandReactionDefinition(
     SpecialAirReactionSetup SetupPointer,
-    ushort InstructionListPointer);
+    PlmProgramStart Program);

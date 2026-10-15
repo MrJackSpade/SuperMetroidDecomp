@@ -167,9 +167,9 @@ internal static class RoomPlmPopulationVerification
                  ResidentDoorClosingDefinitions.All)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 4))));
-            AssertEqual(expected, definition.ClosingInstructionList,
+            AssertEqual(PlmProgramStartOracle.ForNativeList(expected), definition.Closing,
                 $"resident door $84:{(int)definition.Header:X4} closing list matches cartridge");
-            AssertEqual(expected,
+            AssertEqual(PlmProgramStartOracle.ForNativeList(expected),
                 ResidentDoorClosingDefinitions.Resolve((PlmHeaderId)definition.Header),
                 $"resident door $84:{(int)definition.Header:X4} resolves by identity");
 
@@ -210,8 +210,8 @@ internal static class RoomPlmPopulationVerification
                 SetupCodePointer: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
                 $"resident door $84:{(int)definition.Header:X4} accepts transition redirect");
-            AssertEqual(expected, plms.PopulationSlots.Single().InstructionPointer,
-                $"resident door $84:{(int)definition.Header:X4} installs compiled closing list");
+            AssertTrue(PlmProgramStartOracle.IsRunning(definition.Closing, plms.PopulationSlots.Single()),
+                $"resident door $84:{(int)definition.Header:X4} starts its closing program");
             definitionIndex++;
         }
 

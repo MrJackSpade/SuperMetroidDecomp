@@ -45,7 +45,7 @@ internal sealed class QuicksandPlms
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = definition.InstructionListPointer;
+            definition.Program.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }

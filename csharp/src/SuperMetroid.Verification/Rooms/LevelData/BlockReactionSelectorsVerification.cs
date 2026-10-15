@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -131,7 +132,7 @@ internal static class BlockReactionSelectorsVerification
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,
-            BombSpecialBlockReactions.InstructionListAt, "bomb special including adjacent area aliases"));
+            index => PlmProgramStartOracle.NativeListOf(BombSpecialBlockReactions.ProgramAt(index)), "bomb special including adjacent area aliases"));
     }
 
     /// <summary>Compares a selector with the native header indirection and rejects indexes outside its domain.</summary>

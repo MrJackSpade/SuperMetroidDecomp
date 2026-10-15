@@ -2,7 +2,6 @@
 # A file may only lose occurrences. Regenerate after a migration with
 #   dotnet run --project csharp/src/SuperMetroid.CartridgeEncodingAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write
 # path<TAB>rule<TAB>count
-csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessPlmProgramDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueSequence.cs	SME6340	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueSequence.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Areas/Tourian/TourianUnlockBehavior.cs	SME6340	3
@@ -10,7 +9,6 @@ csharp/src/SuperMetroid.Core/Areas/Tourian/TourianUnlockBehavior.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireMeltingCopySequence.cs	SME6340	4
 csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireMeltingUploadSequence.cs	SME6340	3
 csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonPlmProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidBehavior.cs	SME6340	5
 csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidProjectileInstructionProgramDefinitions.cs	SME6341	7
 csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidBehavior.cs	SME6341	1
@@ -24,7 +22,6 @@ csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteWorkRam.cs	SME
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs	SME6340	25
 csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingPlmProgramDefinitions.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoGreyDoorPlmProgramDefinitions.cs	SME6341	4
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlmProgramDefinitions.cs	SME6341	3
 csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6340	1
@@ -34,7 +31,6 @@ csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdollitePhaseDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Core/Enemies/Shutters/ShuttersBehavior.cs	SME6349	1
-csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPlmRomData.cs	SME6341	6
 csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectTilemaps.cs	SME6340	21
 csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceInstructionDefinitions.cs	SME6341	2
 csharp/src/SuperMetroid.Core/Fx/Artwork/EndingGunshipPaletteColorDefinitions.cs	SME6341	1
@@ -322,9 +318,8 @@ csharp/src/SuperMetroid.Verification/Areas/Tourian/LookupTourianDescriptorsVerif
 csharp/src/SuperMetroid.Verification/Areas/Tourian/LookupTourianProgramVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Areas/Tourian/LookupTourianSpawnVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmDefinitionsVerification.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6340	57
-csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6341	4
-csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6342	5
+csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6340	21
+csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessPlmProgramsVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianAccessVisualsVerification.cs	SME6340	27
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianEntranceStatueInstructionProgramDefinitionsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Areas/Tourian/TourianStatueDescentRoundingVerification.cs	SME6340	1
@@ -583,9 +578,8 @@ csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyPogoDefinitionsVerifica
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleySamusDrawReferenceVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleyShotHealthStageVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Bosses/Ridley/RidleySupplementalArtworkVerification.cs	SME6340	8
-csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6340	44
-csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6341	1
-csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6342	4
+csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6340	20
+csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingPlmsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnCeilingVisualsVerification.cs	SME6340	27
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileDefinitionsVerification.cs	SME6340	23
 csharp/src/SuperMetroid.Verification/Bosses/SporeSpawn/SporeSpawnProjectileDefinitionsVerification.cs	SME6345	2
@@ -1306,7 +1300,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Plms/RightFacingGateGlitchVerificatio
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmHeaderCatalogVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmInstructionListCatalogVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationDefinitionsVerification.cs	SME6340	7
-csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6340	408
+csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6340	407
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RoomPlmPopulationVerification.cs	SME6342	17
 csharp/src/SuperMetroid.Verification/Rooms/Plms/SamusEaterPlmDefinitionsVerification.cs	SME6340	16

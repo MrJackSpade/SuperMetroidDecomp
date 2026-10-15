@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
@@ -74,6 +76,20 @@ internal static class RoomPlmNativeListAddresses
 
     /// <summary>The bytes from a sleeping gate list's entry to the continuation after its sleep.</summary>
     internal const int DownwardGateSleepContinuationOffset = 12;
+
+    /// <summary>The Tourian elevator access lists (<c>InstList_PLM_CrumbleAccessToTourianElevator_0..1</c>, <c>..ClearAccess..</c>).</summary>
+    internal static IReadOnlyList<(TourianAccessProgram Program, ushort Entry)> TourianAccessEntries { get; } =
+    [
+        (TourianAccessProgram.Crumble, 0xaae5),
+        (TourianAccessProgram.CrumbleRow, 0xaae8),
+        (TourianAccessProgram.Clear, 0xab0c),
+    ];
+
+    /// <summary>The Wrecked Ship attic's list (<c>InstList_PLM_WreckedShipAttic</c>, $84:BAFF).</summary>
+    internal static IReadOnlyList<(WreckedShipAtticProgram Program, ushort Entry)> WreckedShipAtticEntries { get; } =
+    [
+        (WreckedShipAtticProgram.Attic, 0xbaff),
+    ];
 
     /// <summary>The lavaquake list's length in words: three install-and-sleep phases.</summary>
     internal const int SpeedBoosterEscapeWordCount = 9;

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -55,4 +57,26 @@ internal static class BossRoomPlmNativeListAddresses
     /// <summary>Whether a bank-$84 offset lies in one of these typed families' native lists or routines.</summary>
     internal static bool IsTypedProgramByte(int offset) =>
         offset is >= 0xab31 and < 0xabe3 or >= 0xac05 and < 0xac89 or >= 0xafca and < 0xafe8;
+
+    /// <summary>Spore Spawn's ceiling lists (<c>InstList_PLM_CrumbleSporeSpawnCeiling</c>, <c>..ClearSporeSpawnCeiling</c>).</summary>
+    internal static IReadOnlyList<(SporeSpawnCeilingProgram Program, ushort Entry)> SporeSpawnCeilingEntries { get; } =
+    [
+        (SporeSpawnCeilingProgram.Crumble, 0xab12),
+        (SporeSpawnCeilingProgram.Clear, 0xab21),
+    ];
+
+    /// <summary>Draygon's cannon lists, right then left (<c>InstList_PLM_DraygonCannon..FacingRight/Left_0..2</c>).</summary>
+    internal static IReadOnlyList<(DraygonCannonProgram Program, ushort Entry)> DraygonCannonEntries { get; } =
+    [
+        (DraygonCannonProgram.RightStart, 0xdcde),
+        (DraygonCannonProgram.RightIdle, 0xdce6),
+        (DraygonCannonProgram.RightHit, 0xdcf0),
+        (DraygonCannonProgram.RightDestroy, 0xdd11),
+        (DraygonCannonProgram.RightSmoke, 0xdd13),
+        (DraygonCannonProgram.LeftStart, 0xddb9),
+        (DraygonCannonProgram.LeftIdle, 0xddc1),
+        (DraygonCannonProgram.LeftHit, 0xddcb),
+        (DraygonCannonProgram.LeftDestroy, 0xddec),
+        (DraygonCannonProgram.LeftSmoke, 0xddee),
+    ];
 }

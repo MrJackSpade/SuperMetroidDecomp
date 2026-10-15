@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -50,6 +52,71 @@ internal static class BossRoomPlmProgramsVerification
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainFakeDeathPlmProgramDefinitions.Programs,
             MotherBrainFakeDeathEntries, draw => (ushort)draw, NoCues<PlmNoCue>(), "Mother Brain fake death");
         Console.WriteLine($"  Mother Brain fake-death programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>Spore Spawn's ceiling programs equal their native lists.</summary>
+    internal static void VerifySporeSpawnCeilingPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SporeSpawnCeilingPlmProgramDefinitions.Programs, SporeSpawnCeilingEntries,
+            draw => (ushort)draw,
+            (IImportCartridgeSource cartridge, ushort cursor, out SporeSpawnCeilingCue cue, out int length) =>
+            {
+                (cue, length) = (SporeSpawnCeilingCue.QueueCrumbleSound, 3);
+                if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.QueueSoundLibrary2Maximum6)
+                    return false;
+                AssertEqual(SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundId, ReadOperandByte(cartridge, cursor + 2), "Spore Spawn ceiling sound");
+                AssertEqual((byte)6, SporeSpawnCeilingPlmProgramDefinitions.CrumbleSoundMaximumQueued, "Spore Spawn ceiling sound queue cap");
+                return true;
+            }, "Spore Spawn ceiling");
+        Console.WriteLine($"  Spore Spawn ceiling programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>Draygon's cannon programs equal their native lists, each facing's links and branches staying on its side.</summary>
+    internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DraygonCannonPlmProgramDefinitions.Programs, DraygonCannonEntries,
+            draw => (ushort)draw, DraygonCannonCueAt, "Draygon cannon");
+        Console.WriteLine($"  Draygon cannon programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The cannon's link, missile-wake, hit-count and damage instructions with their operands.</summary>
+    private static bool DraygonCannonCueAt(IImportCartridgeSource cartridge, ushort cursor, out DraygonCannonCue cue, out int length)
+    {
+        ushort leftStart = DraygonCannonEntries.Single(entry => entry.Program == DraygonCannonProgram.LeftStart).Entry;
+        bool right = cursor < leftStart;
+        DraygonCannonProgram Entry(ushort address) => DraygonCannonEntries.Single(entry => entry.Entry == address).Program;
+        RoomPlmInstruction instruction = InstructionAt<RoomPlmInstruction>(cartridge, cursor);
+        (DraygonCannonCue Cue, int Length)? decoded = instruction switch
+        {
+            RoomPlmInstruction.LinkInstruction => (DraygonCannonCue.LinkHit, 4),
+            RoomPlmInstruction.InstallPreInstruction => (DraygonCannonCue.ArmMissileWake, 4),
+            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => (DraygonCannonCue.CountHit, 5),
+            RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => (DraygonCannonCue.Damage, 2),
+            _ => null,
+        };
+        (cue, length) = decoded ?? default;
+        if (decoded is null)
+            return false;
+        switch (cue)
+        {
+            case DraygonCannonCue.LinkHit:
+                AssertEqual(right ? DraygonCannonProgram.RightHit : DraygonCannonProgram.LeftHit,
+                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2))), "cannon links its own hit program");
+                break;
+            case DraygonCannonCue.ArmMissileWake:
+                AssertEqual(DraygonCannonRomData.MissileHitPreInstruction, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "cannon missile wake");
+                break;
+            case DraygonCannonCue.CountHit:
+                AssertEqual(DraygonCannonRomData.HitsToDestroy, ReadOperandByte(cartridge, cursor + 2), "cannon hits to destroy");
+                AssertEqual(right ? DraygonCannonProgram.RightDestroy : DraygonCannonProgram.LeftDestroy,
+                    Entry(cartridge.ReadCartridgeWord(ProgramBank | (cursor + 3))), "cannon destroys its own side");
+                break;
+            case DraygonCannonCue.Damage:
+                AssertEqual(right ? RoomPlmInstruction.DamageDraygonCannonFacingRight : RoomPlmInstruction.DamageDraygonCannonFacingLeft,
+                    instruction, "cannon damage faces its own side");
+                break;
+        }
+        return true;
     }
 
     /// <summary>Botwoon's scroll, crumble-sound and move-down instructions.</summary>

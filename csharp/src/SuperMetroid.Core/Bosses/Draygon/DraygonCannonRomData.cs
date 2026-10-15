@@ -20,4 +20,7 @@ internal static class DraygonCannonRomData
     /// byte in instruction <c>$8A91</c> immediately clears the three-hit threshold.
     /// </summary>
     public const ushort SuperMissileHitCounterSeed = 0x0077;
+
+    /// <summary>The hits a shielded cannon takes before it is destroyed.</summary>
+    public const byte HitsToDestroy = 3;
 }

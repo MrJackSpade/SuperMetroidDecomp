@@ -134,7 +134,7 @@ internal sealed class TourianPlms
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = level.GetBlockIndex(new(6, 12));
-            slot.InstructionPointer = definition.InstructionListPointer;
+            slot.StartAnimation(new TourianAccessPlmAnimation(definition.Program));
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }

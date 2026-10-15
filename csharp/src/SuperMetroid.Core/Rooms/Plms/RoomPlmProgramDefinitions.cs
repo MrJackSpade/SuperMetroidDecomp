@@ -32,10 +32,7 @@ internal static class RoomPlmProgramDefinitions
         OldTourianEscapeShaftWallPlmDefinitions.TryReadMechanicsWord(address, out value) ||
         CrateriaMainstreetEscapePassagePlmDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out value) ||
-        TourianAccessPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MaridiaElevatubePlmDefinitions.TryReadMechanicsWord(address, out value) ||
-        WreckedShipAtticPlmRomData.TryReadInstructionWord(address, out value) ||
         ShaktoolRoomPlmRomData.TryReadInstructionWord(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord(address, out value) ||
@@ -43,7 +40,6 @@ internal static class RoomPlmProgramDefinitions
         RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
-        DraygonCannonPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         BombTorizoHandPlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ChozoStatuePlmProgramDefinitions.TryReadMechanicsWord(address, out value) ||
         ElevatorPlatformPlmDefinitions.TryReadMechanicsWord(address, out value) ||
@@ -57,15 +53,12 @@ internal static class RoomPlmProgramDefinitions
     /// <summary>Dispatches byte reads for compiled PLM instruction streams, including unaligned operands.</summary>
     internal static bool TryReadByte(ushort address, out byte value) =>
         EscapeAnimalPlmProgramDefinitions.TryReadByte(address, out value) ||
-        TourianAccessPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         MaridiaElevatubePlmDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmShotBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmBombBlockProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         MotherBrainGlassPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
-        DraygonCannonPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         BombTorizoHandPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         ChozoStatuePlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||
         BlueDoorPlmProgramDefinitions.TryReadMechanicsByte(address, out value) ||

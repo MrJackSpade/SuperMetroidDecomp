@@ -48,11 +48,13 @@ internal sealed class DraygonCannonPlms
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.
-            slot.RoomArgument = 3;
+            slot.RoomArgument = DraygonCannonRomData.HitsToDestroy;
+            slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.FirstProgram(orientation, destroyed: true)));
             return;
         }
 
         slot.RoomArgument = 0;
+        slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.FirstProgram(orientation, destroyed: false)));
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
@@ -85,80 +87,34 @@ internal sealed class DraygonCannonPlms
 
         slot.LoopTimer = 0;
         state.HasPendingHit = false;
-        slot.InstructionPointer = slot.LinkInstruction;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.WakeAtLink();
     }
 
-    /// <summary>Handles cannon link, hit-count branch, and facing-specific destruction opcodes while advancing the PLM cursor.</summary>
-    internal bool TryExecuteDraygonCannonInstruction(
-        ISnesAddressSpace bus,
-        RoomLevelData level,
-        PlmSlot slot,
-        RoomPlmInstruction instruction)
+    /// <summary>
+    /// <c>$84:8ACD</c> on the cannon's hit counter: counts a hit and reports whether it destroys the cannon. The
+    /// destroying hit marks the counter spent and removes the missile wake.
+    /// </summary>
+    internal static bool CountHit(PlmSlot slot)
     {
-        DraygonCannonPlmState? state = slot.DraygonCannon;
-        if (state is null)
-            return false;
-
-        ushort cursor = slot.InstructionPointer;
-        if (instruction is not (
-            RoomPlmInstruction.LinkInstruction or
-            RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual or
-            RoomPlmInstruction.DamageDraygonCannonFacingRight or
-            RoomPlmInstruction.DamageDraygonCannonFacingLeft))
-            return false;
-
-        switch (instruction)
+        byte next = unchecked((byte)(slot.RoomArgument + 1));
+        if (next < DraygonCannonRomData.HitsToDestroy)
         {
-            case RoomPlmInstruction.LinkInstruction:
-                slot.LinkInstruction = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 2)));
-                slot.InstructionPointer = unchecked((ushort)(cursor + 4));
-                return true;
-
-            case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
-            {
-                byte threshold = RoomPlmSystem.ReadProgramByte(bus, unchecked((ushort)(cursor + 2)));
-                ushort destination = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(cursor + 3)));
-                byte next = unchecked((byte)(slot.RoomArgument + 1));
-                if (next >= threshold)
-                {
-                    slot.RoomArgument = ushort.MaxValue;
-                    slot.PreInstruction = 0;
-                    slot.InstructionPointer = destination;
-                }
-                else
-                {
-                    slot.RoomArgument = next;
-                    slot.InstructionPointer = unchecked((ushort)(cursor + 5));
-                }
-                return true;
-            }
-
-            case RoomPlmInstruction.DamageDraygonCannonFacingRight:
-                if (state.Orientation != DraygonCannonOrientation.Right)
-                    throw new InvalidDataException("Right-facing cannon damage opcode reached a left-facing PLM.");
-                DamageDraygonCannon(level, slot, state);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            case RoomPlmInstruction.DamageDraygonCannonFacingLeft:
-                if (state.Orientation != DraygonCannonOrientation.Left)
-                    throw new InvalidDataException("Left-facing cannon damage opcode reached a right-facing PLM.");
-                DamageDraygonCannon(level, slot, state);
-                slot.InstructionPointer = unchecked((ushort)(cursor + 2));
-                return true;
-
-            default:
-                throw new InvalidOperationException($"Unhandled RoomPlmInstruction {instruction}.");
+            slot.RoomArgument = next;
+            return false;
         }
+        slot.RoomArgument = ushort.MaxValue;
+        slot.PreInstruction = 0;
+        return true;
     }
 
     /// <summary>Disables the matching bank-$A5 cannon firing word and changes both room blocks to destroyed terrain.</summary>
-    private void DamageDraygonCannon(
+    /// <summary>Destroys the cannon: disables its bank-$A5 firing word and writes its destroyed terrain.</summary>
+    internal void DamageDraygonCannon(
         RoomLevelData level,
-        PlmSlot slot,
-        DraygonCannonPlmState state)
+        PlmSlot slot)
     {
+        DraygonCannonPlmState state = slot.DraygonCannon
+            ?? throw new InvalidOperationException("Draygon cannon damage reached a slot without cannon state.");
         (_bindings.Enemies ?? throw new InvalidOperationException(
             "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
                 DraygonCannonWorkRamAddresses.Decode(state.VariablePointer));

@@ -1,3 +1,4 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -21,9 +22,8 @@ internal static class SporeSpawnCeilingPlmsVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling oracle revision");
-        Suite(nameof(VerifySporeSpawnCeilingProgramControls), () => VerifySporeSpawnCeilingProgramControls(rom));
-        Suite(nameof(VerifySporeSpawnCeilingProgramDraws), () => VerifySporeSpawnCeilingProgramDraws(rom));
-        Suite(nameof(VerifySporeSpawnCeilingProgramSound), () => VerifySporeSpawnCeilingProgramSound(rom));
+        Suite(nameof(BossRoomPlmProgramsVerification.VerifySporeSpawnCeilingPrograms), () => BossRoomPlmProgramsVerification.VerifySporeSpawnCeilingPrograms(rom));
+        Suite(nameof(VerifySporeSpawnCeilingFrameSelector), () => VerifySporeSpawnCeilingFrameSelector(rom));
 
         Suite(nameof(VerifySporeSpawnCeilingDrawMapping), () => VerifySporeSpawnCeilingDrawMapping(rom));
 
@@ -33,14 +33,9 @@ internal static class SporeSpawnCeilingPlmsVerification
             "Spore Spawn ceiling: two native lists and four 2x2 physical draws match ROM; crumble/clear, sound and deletion run with source bytes forbidden.");
     }
 
-    /// <summary>Checks control-word ownership and cartridge values independently of draw operands.</summary>
-    private static void VerifySporeSpawnCeilingProgramControls(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, false));
-
-    /// <summary>Checks four draw operands and bounds the three-frame crumble selector.</summary>
-    private static void VerifySporeSpawnCeilingProgramDraws(SuperMetroidAddressSpace rom)
+    /// <summary>Bounds the three-frame crumble selector against the native program's draw operands.</summary>
+    private static void VerifySporeSpawnCeilingFrameSelector(SuperMetroidAddressSpace rom)
     {
-        Suite(nameof(VerifySporeSpawnCeilingProgramField), () => VerifySporeSpawnCeilingProgramField(rom, true));
         ushort[] originalOperands = [0xab17,0xab1b,0xab1f];
         for (int frame = 0; frame < originalOperands.Length; frame++)
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | originalOperands[frame]),
@@ -48,44 +43,6 @@ internal static class SporeSpawnCeilingPlmsVerification
         foreach (int invalid in new[] {int.MinValue,-1,3,4,255,256,int.MaxValue})
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnCeilingPlmDrawDefinitions.CrumbleFramePointer(invalid),
                 "Spore ceiling frame selector bounds");
-    }
-
-    /// <summary>Scans all word addresses for exact compiled ownership, including holes around the packed sound byte.</summary>
-    private static void VerifySporeSpawnCeilingProgramField(SuperMetroidAddressSpace rom, bool draw)
-    {
-        ushort[] controls = [0xab12,0xab15,0xab19,0xab1d,0xab21,0xab25];
-        ushort[] operands = [0xab17,0xab1b,0xab1f,0xab23];
-        ushort[] expectedOrder = [0xab12,0xab15,0xab17,0xab19,0xab1b,0xab1d,0xab1f,0xab21,0xab23,0xab25];
-        AssertTrue(expectedOrder.SequenceEqual(SporeSpawnCeilingPlmProgramDefinitions.NativeWordAddresses()),
-            "Spore ceiling original instruction enumeration");
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            ushort address = (ushort)raw;
-            bool owned = controls.Contains(address) || operands.Contains(address);
-            AssertEqual(owned, SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort actual),
-                "Spore ceiling complete word ownership including packed-byte gaps");
-            if (!owned) AssertEqual((ushort)0, actual, "Spore ceiling unowned word zero");
-            else if ((draw ? operands : controls).Contains(address))
-            {
-                AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | raw), actual, "Spore ceiling original program field");
-                AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "Spore ceiling shared word reader");
-                AssertEqual(actual, shared, "Spore ceiling shared reader value");
-            }
-        }
-    }
-
-    /// <summary>Confirms the single byte-sized sound operand and its native value.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn ceiling program sound")]
-    private static void VerifySporeSpawnCeilingProgramSound(SuperMetroidAddressSpace rom)
-    {
-        for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        {
-            AssertEqual(raw == 0xab14,
-                SporeSpawnCeilingPlmProgramDefinitions.TryReadMechanicsByte((ushort)raw, out byte actual),
-                "Spore ceiling byte ownership is exactly its sound operand");
-            AssertEqual(raw == 0xab14 ? rom.ReadCartridgeByte(0x84ab14) : (byte)0, actual,
-                "Spore ceiling original sound or cleared missing byte");
-        }
     }
 
     /// <summary>Compares four two-by-two physical draw layouts and exact pointer ownership with the cartridge.</summary>
@@ -208,8 +165,8 @@ internal static class SporeSpawnCeilingPlmsVerification
             {
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
-                    ((pointer >= SporeSpawnCeilingPlmProgramDefinitions.Crumble &&
-                      pointer < SporeSpawnCeilingPlmProgramDefinitions.EndExclusive) ||
+                    ((pointer >= BossRoomPlmNativeListAddresses.SporeSpawnCeilingEntries[0].Entry &&
+                      pointer < BossRoomPlmNativeListAddresses.SporeSpawnCeilingEntries[1].Entry + 6) ||
                      (pointer >= (ushort)SporeSpawnCeilingDraw.Clear &&
                       pointer < SporeSpawnCeilingPlmDrawDefinitions.EndExclusive));
             },

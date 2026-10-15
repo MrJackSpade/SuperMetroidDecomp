@@ -1,10 +1,10 @@
+using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.Draygon.DraygonCannonVisualsVerification;
 using static SuperMetroid.Verification.Bosses.Draygon.LookupCannonLayoutsVerification;
-using static SuperMetroid.Verification.Bosses.Draygon.LookupCannonProgramVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Progression;
@@ -28,11 +28,7 @@ internal static class DraygonCannonPlmProgramVerification
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Cannon oracle revision");
-        VerifyCannonControls(rom);
-        VerifyCannonDraws(rom);
-        VerifyCannonTargets(rom);
-        VerifyCannonCallback(rom);
-        VerifyCannonHitCount(rom);
+        BossRoomPlmProgramsVerification.VerifyDraygonCannonPrograms(rom);
         VerifyCannonLayoutGeometry(rom);
         VerifyCannonLayoutCollision(rom);
         VerifyCannonLayoutVisuals(rom);

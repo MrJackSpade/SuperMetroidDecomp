@@ -529,24 +529,10 @@ internal static class RoomPlmPopulationVerification
         SuperMetroidAddressSpace? rom = File.Exists("Super Metroid.smc")
             ? SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc")
             : null;
+        if (rom is not null)
+            RoomPlmProgramsVerification.VerifyWreckedShipAtticPrograms(rom);
         for (int index = 0; index < 3; index++)
-        {
-            ushort address = checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + index * 2));
-            AssertTrue(WreckedShipAtticPlmRomData.TryReadInstructionWord(address,
-                    out ushort compiled),
-                $"Wrecked Ship attic list word ${address:X4} is compiled");
-            if (rom is not null)
-            {
-                int source = 0x840000 | address;
-                AssertEqual(ReadRetailPlmProgramWord(rom, source),
-                    compiled,
-                    $"Wrecked Ship attic list word ${address:X4} matches cartridge");
-            }
-            SeedPlmProgramWords(bus, address, 0xdead);
-        }
-        AssertTrue(!WreckedShipAtticPlmRomData.TryReadInstructionWord(
-                checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 6)), out _),
-            "Wrecked Ship attic list owner excludes its adjacent header");
+            SeedPlmProgramWords(bus, checked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + index * 2)), 0xdead);
         SeedRoomPlmPopulation(bus, population,
         [
             0x05, 0xbb, blockX, blockY, 0x34, 0x12,
@@ -565,8 +551,7 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSlotSnapshot loaded = plms.PopulationSlots.Single();
         AssertEqual(39, loaded.NativeSlotIndex,
             "Wrecked Ship attic actor receives the native highest free slot");
-        AssertEqual(RoomPlmInstructionLists.WreckedShipAttic, loaded.InstructionPointer,
-            "Wrecked Ship attic actor starts at cartridge list BAFF");
+        AssertTrue(loaded.Animation is WreckedShipAtticPlmAnimation, "Wrecked Ship attic actor starts its typed program");
         AssertEqual(0, loaded.PreInstruction,
             "Wrecked Ship attic callback is not installed before its first handler pass");
 
@@ -575,10 +560,8 @@ internal static class RoomPlmPopulationVerification
         RoomPlmSlotSnapshot sleeping = plms.PopulationSlots.Single();
         AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, sleeping.PreInstruction,
             "Wrecked Ship attic list installs exact BAFA pre-instruction");
-        AssertEqual(
-            unchecked((ushort)(RoomPlmInstructionLists.WreckedShipAttic + 4)),
-            sleeping.InstructionPointer,
-            "Wrecked Ship attic actor sleeps permanently at list word BB03");
+        AssertTrue(sleeping.Animation is WreckedShipAtticPlmAnimation { Cursor.Position: 1 },
+            "Wrecked Ship attic actor sleeps permanently on its program's sleep");
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "inert attic callback leaves its resident actor alive");

@@ -47,13 +47,11 @@ internal static class PlmInterpreterSourceContract
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "TryExecuteBombTorizoHandInstruction/3",
         "TryExecuteChozoStatueInstruction/4",
-        "TryExecuteDraygonCannonInstruction/4",
         // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "TryExecuteEyeDoorInstruction/4",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "TryExecuteMotherBrainGlassInstruction/3",
-        "TryExecuteNoobTubeInstruction/3",
         // #142 drops the unused Samus accessor; no program reads or operand widths change.
         "TryRunRoomPopulationSetup/5",
         // #1255 suspends before the existing Empty draw/delete continuation; no new program reads or operand widths;

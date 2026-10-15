@@ -1,63 +1,33 @@
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Fx;
+using Step = SuperMetroid.Core.Fx.AnimationProgramStep<SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingProgram, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingDraw, SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnCeilingCue>;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>
-/// The two bounded bank-$84 Spore Spawn ceiling instruction lists. The
-/// crumble list intentionally falls through into the clear list after its
-/// three timed frames; adjacent Botwoon setup code is not instruction data.
+/// Spore Spawn's ceiling PLM programs (#1296), in place of their bank-$84 instruction lists: the crumble plays its
+/// sound and three images and runs into the clear.
 /// </summary>
 internal static class SporeSpawnCeilingPlmProgramDefinitions
 {
-    /// <summary><c>$84:AB12</c>: sound followed by three four-frame crumble draws.</summary>
-    internal const ushort Crumble = RoomPlmInstructionLists.CrumbleSporeSpawnCeiling;
-    /// <summary><c>$84:AB21</c>: four-frame clear followed by deletion.</summary>
-    internal const ushort Clear = RoomPlmInstructionLists.ClearSporeSpawnCeiling;
-    /// <summary><c>$84:AB14</c>: library-two block-crumble sound <c>$0A</c>.</summary>
+    /// <summary>The crumble sound, library 2.</summary>
     internal const byte CrumbleSoundId = 0x0a;
-    /// <summary>Native duration of each ceiling appearance.</summary>
+    /// <summary>The crumble sound's native queue cap.</summary>
+    internal const byte CrumbleSoundMaximumQueued = 6;
+    /// <summary>How long each image shows.</summary>
     internal const ushort FrameDuration = 4;
 
-    /// <summary>Reads the crumble and clear lists' timing, draw, and delete words without claiming adjacent setup code.</summary>
-    internal static bool TryReadMechanicsWord(ushort address, out ushort value)
-    {
-        if (address is >= (Crumble + 3) and < Clear)
+    /// <summary>Both ceiling programs.</summary>
+    internal static AnimationProgramSet<SporeSpawnCeilingProgram, SporeSpawnCeilingDraw, SporeSpawnCeilingCue> Programs { get; } = new(
+        new Dictionary<SporeSpawnCeilingProgram, Step[]>
         {
-            int offset = address - Crumble - 3;
-            if (offset % 4 == 0)
-            {
-                value = FrameDuration;
-                return true;
-            }
-            if (offset % 4 == 2)
-            {
-                value = SporeSpawnCeilingPlmDrawDefinitions.CrumbleFramePointer(
-                    offset / 4);
-                return true;
-            }
-        }
-        // Word positions are byte offsets from Crumble; the clear list starts at Clear.
-        ushort? word = (address - Crumble) switch
-        {
-            0 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
-            Clear - Crumble => FrameDuration,
-            Clear + 2 - Crumble => (ushort)SporeSpawnCeilingDraw.Clear,
-            Clear + 4 - Crumble => (ushort)RoomPlmInstruction.Delete,
-            _ => null,
-        };
-        value = word ?? 0;
-        return word.HasValue;
-    }
-
-    /// <summary>Reads the packed crumble sound ID following its library-two queue command.</summary>
-    internal static bool TryReadMechanicsByte(ushort address, out byte value)
-    {
-        if (address == Crumble + 2)
-        {
-            value = CrumbleSoundId;
-            return true;
-        }
-        value = 0;
-        return false;
-    }
+            [SporeSpawnCeilingProgram.Crumble] =
+            [
+                Step.Publish(SporeSpawnCeilingCue.QueueCrumbleSound),
+                Step.Show(SporeSpawnCeilingDraw.CrumbleFirst, FrameDuration),
+                Step.Show(SporeSpawnCeilingDraw.CrumbleSecond, FrameDuration),
+                Step.Show(SporeSpawnCeilingDraw.CrumbleThird, FrameDuration),
+                Step.FallInto(SporeSpawnCeilingProgram.Clear),
+            ],
+            [SporeSpawnCeilingProgram.Clear] = [Step.Show(SporeSpawnCeilingDraw.Clear, FrameDuration), Step.Stop],
+        });
 }

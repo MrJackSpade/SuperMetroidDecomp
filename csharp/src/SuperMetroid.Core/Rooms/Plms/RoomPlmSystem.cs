@@ -420,12 +420,6 @@ public sealed class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 
-                case RoomPlmInstruction.MoveTourianAccessDown:
-                    // Native PLM_BlockIndices are byte offsets, so AB00 adds room width
-                    // twice. C# stores logical word indexes; adding width once is identical.
-                    slot.BlockIndex = checked(slot.BlockIndex + level.Size.X);
-                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-                    continue;
 
                 case RoomPlmInstruction.GotoIfSamusHasNoBombs:
                     // Native receives Y on the operand after the JSR address. Owning Bombs
@@ -485,8 +479,6 @@ public sealed class RoomPlmSystem
                     if (MotherBrainGlass.TryExecuteMotherBrainGlassInstruction(bus, slot, code))
                         continue;
                     if (EyeDoors.TryExecuteEyeDoorInstruction(bus, level, slot, code))
-                        continue;
-                    if (DraygonCannons.TryExecuteDraygonCannonInstruction(bus, level, slot, code))
                         continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached untranslated bank-$84 instruction ${instruction:X4}.");

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Botwoon;
+﻿using SuperMetroid.Core.Bosses.SporeSpawn;
+using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -107,9 +108,9 @@ internal sealed class BossRoomMutationPlms
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.InstructionPointer = header == PlmHeaderId.CrumbleSporeSpawnCeiling
-                ? RoomPlmInstructionLists.CrumbleSporeSpawnCeiling
-                : RoomPlmInstructionLists.ClearSporeSpawnCeiling;
+            slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
+                ? SporeSpawnCeilingProgram.Crumble
+                : SporeSpawnCeilingProgram.Clear));
             slot.InstructionTimer = NativeCountdown.Start(1);
             return true;
         }

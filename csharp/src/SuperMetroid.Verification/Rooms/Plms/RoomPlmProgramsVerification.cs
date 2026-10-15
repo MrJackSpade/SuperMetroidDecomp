@@ -1,5 +1,7 @@
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using static SuperMetroid.Verification.Rooms.Plms.NativePlmListDefinitions;
@@ -150,6 +152,35 @@ internal static class RoomPlmProgramsVerification
             AssertEqual((byte)6, DownwardGatePlmProgramDefinitions.MovementSoundMaximumQueued, "downward gate movement sound queue cap");
         }
         return true;
+    }
+
+    /// <summary>The Tourian elevator access programs equal their native lists.</summary>
+    internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), TourianAccessPlmProgramDefinitions.Programs, TourianAccessEntries,
+            draw => (ushort)draw,
+            (IImportCartridgeSource cartridge, ushort cursor, out TourianAccessCue cue, out int length) =>
+            {
+                (cue, length) = (TourianAccessCue.MoveDown, 2);
+                return InstructionAt<RoomPlmInstruction>(cartridge, cursor) == RoomPlmInstruction.MoveTourianAccessDown;
+            }, "Tourian access");
+        Console.WriteLine($"  Tourian access programs: {steps} typed steps match bank $84.");
+    }
+
+    /// <summary>The Wrecked Ship attic's program equals its native list.</summary>
+    internal static void VerifyWreckedShipAtticPrograms(ISnesAddressSpace rom)
+    {
+        int steps = CompareProgramSet(CartridgeImportSource.Require(rom), WreckedShipAtticPlmProgramDefinitions.Programs, WreckedShipAtticEntries,
+            draw => throw new InvalidOperationException($"The attic program never draws; got {draw}."),
+            (IImportCartridgeSource cartridge, ushort cursor, out WreckedShipAtticCue cue, out int length) =>
+            {
+                (cue, length) = (WreckedShipAtticCue.InstallInertPreInstruction, 4);
+                if (InstructionAt<RoomPlmInstruction>(cartridge, cursor) != RoomPlmInstruction.InstallPreInstruction)
+                    return false;
+                AssertEqual(WreckedShipAtticPlmRomData.NoOpCallback, cartridge.ReadCartridgeWord(ProgramBank | (cursor + 2)), "attic pre-instruction");
+                return true;
+            }, "Wrecked Ship attic");
+        Console.WriteLine($"  Wrecked Ship attic program: {steps} typed steps match bank $84.");
     }
 
     /// <summary>The Brinstar plants' programs equal their native lists.</summary>

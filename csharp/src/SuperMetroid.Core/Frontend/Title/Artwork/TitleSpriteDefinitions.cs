@@ -26,8 +26,7 @@ public static class TitleSpriteDefinitions
         }
     }
 
-    /// <summary>Reads the spritemap operand following an indexed timed title-text instruction.</summary>
+    /// <summary>The spritemap of the card's indexed timed frame.</summary>
     private static ushort Frame(TitleTextSequenceDefinition sequence, int frame) =>
-        TitleSequenceInstructionDefinitions.ReadWord(sequence.InstructionAddress +
-            frame * TitleSequenceRomData.TextSequences.TimedEntryByteCount + sizeof(ushort));
+        TitleCardDefinitions.Steps(sequence.Phase)[frame].Spritemap;
 }

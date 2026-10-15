@@ -6,7 +6,7 @@ internal static class FileSelectTilemapFormat
     /// <summary>Bank containing the file-select text streams.</summary>
     public const int Bank = FileSelectMapRomData.TilemapTextBank;
     /// <summary>Terminates one tilemap text stream.</summary>
-    public const ushort End = 0xffff;
+    public const ushort End = ushort.MaxValue;
     /// <summary>Moves the output cursor to the same column on the following row.</summary>
-    public const ushort NextRow = 0xfffe;
+    public const ushort NextRow = ushort.MaxValue - 1;
 }

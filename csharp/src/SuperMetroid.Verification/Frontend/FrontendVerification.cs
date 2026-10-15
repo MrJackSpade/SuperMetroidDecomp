@@ -189,45 +189,45 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // terminator so the cartridge-backed loader cannot wander into zero-filled ROM.
     int[] unusedLabelAddresses =
     [
-        0x810000 | FileSelectTilemaps.SamusData,
-        0x810000 | FileSelectTilemaps.SlotLabel(0),
-        0x810000 | FileSelectTilemaps.SlotLabel(1),
-        0x810000 | FileSelectTilemaps.SlotLabel(2),
-        0x810000 | FileSelectTilemaps.Exit,
-        0x810000 | FileSelectTilemaps.DataCopyMode,
-        0x810000 | FileSelectTilemaps.DataClearMode,
-        0x810000 | FileSelectTilemaps.CopyWhichData,
-        0x810000 | FileSelectTilemaps.CopySamusToWhere,
-        0x810000 | FileSelectTilemaps.CopySamusToSamus,
-        0x810000 | FileSelectTilemaps.IsThisOkay,
-        0x810000 | FileSelectTilemaps.Yes,
-        0x810000 | FileSelectTilemaps.No,
-        0x810000 | FileSelectTilemaps.CopyCompleted,
-        0x810000 | FileSelectTilemaps.ClearWhichData,
-        0x810000 | FileSelectTilemaps.ClearSamus,
-        0x810000 | FileSelectTilemaps.DataCleared,
+        0x810000 | FileSelectTilemapDefinitions.SamusData,
+        0x810000 | FileSelectTilemapDefinitions.SlotLabel(0),
+        0x810000 | FileSelectTilemapDefinitions.SlotLabel(1),
+        0x810000 | FileSelectTilemapDefinitions.SlotLabel(2),
+        0x810000 | FileSelectTilemapDefinitions.Exit,
+        0x810000 | FileSelectTilemapDefinitions.DataCopyMode,
+        0x810000 | FileSelectTilemapDefinitions.DataClearMode,
+        0x810000 | FileSelectTilemapDefinitions.CopyWhichData,
+        0x810000 | FileSelectTilemapDefinitions.CopySamusToWhere,
+        0x810000 | FileSelectTilemapDefinitions.CopySamusToSamus,
+        0x810000 | FileSelectTilemapDefinitions.IsThisOkay,
+        0x810000 | FileSelectTilemapDefinitions.Yes,
+        0x810000 | FileSelectTilemapDefinitions.No,
+        0x810000 | FileSelectTilemapDefinitions.CopyCompleted,
+        0x810000 | FileSelectTilemapDefinitions.ClearWhichData,
+        0x810000 | FileSelectTilemapDefinitions.ClearSamus,
+        0x810000 | FileSelectTilemapDefinitions.DataCleared,
     ];
     foreach (int address in unusedLabelAddresses)
         WriteRomWord(rom, address, 0xffff);
     // These two visible main-menu entries were the reported omission. Give each stream a
     // unique first tile so the fixture asserts ROM-authored rendering rather than merely
     // checking that selection index three/four became reachable.
-    WriteRomWord(rom, 0x810000 | FileSelectTilemaps.DataCopy, 0x20c0);
-    WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.DataCopy + 2), 0xffff);
-    WriteRomWord(rom, 0x810000 | FileSelectTilemaps.DataClear, 0x20c1);
-    WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.DataClear + 2), 0xffff);
+    WriteRomWord(rom, 0x810000 | FileSelectTilemapDefinitions.DataCopy, 0x20c0);
+    WriteRomWord(rom, 0x810000 | (FileSelectTilemapDefinitions.DataCopy + 2), 0xffff);
+    WriteRomWord(rom, 0x810000 | FileSelectTilemapDefinitions.DataClear, 0x20c1);
+    WriteRomWord(rom, 0x810000 | (FileSelectTilemapDefinitions.DataClear + 2), 0xffff);
 
     // The retail menu always loads the static TIME caption for each slot. Only the adjacent
     // HH:MM digits are conditional on a valid save. Reproduce the exact `$81:B4A0` stream so
     // an empty-slot fixture verifies that important distinction instead of hiding it.
     ushort[] timeWords = [0x20ad, 0x20ae, 0x20af, 0xffff];
     for (int index = 0; index < timeWords.Length; index++)
-        WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.Time + index * 2), timeWords[index]);
+        WriteRomWord(rom, 0x810000 | (FileSelectTilemapDefinitions.Time + index * 2), timeWords[index]);
     ushort[] energyWords = [0x209d, 0x209e, 0x209f, 0x20cc, 0xffff];
     for (int index = 0; index < energyWords.Length; index++)
-        WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.Energy + index * 2), energyWords[index]);
-    WriteRomWord(rom, 0x810000 | FileSelectTilemaps.TimeColon, 0x208c);
-    WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.TimeColon + 2), 0xffff);
+        WriteRomWord(rom, 0x810000 | (FileSelectTilemapDefinitions.Energy + index * 2), energyWords[index]);
+    WriteRomWord(rom, 0x810000 | FileSelectTilemapDefinitions.TimeColon, 0x208c);
+    WriteRomWord(rom, 0x810000 | (FileSelectTilemapDefinitions.TimeColon + 2), 0xffff);
 
     // This is the literal retail structure at $81:B4AC: one leading blank, "NO DATA",
     // and three trailing blanks. Keeping the exact words makes the test cover both the
@@ -243,7 +243,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         0xffff,
     ];
     for (int index = 0; index < noDataWords.Length; index++)
-        WriteRomWord(rom, 0x810000 | (FileSelectTilemaps.NoData + index * 2), noDataWords[index]);
+        WriteRomWord(rom, 0x810000 | (FileSelectTilemapDefinitions.NoData + index * 2), noDataWords[index]);
 
     // Use two sparse bytes that the real compiled Crateria codec exports. This proves SRAM
     // persists the packed representation and ReadSlot reconstructs the seven-plane domain

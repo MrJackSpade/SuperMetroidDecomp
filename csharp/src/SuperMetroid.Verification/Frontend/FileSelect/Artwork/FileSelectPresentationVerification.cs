@@ -211,7 +211,7 @@ internal static class FileSelectPresentationVerification
         InFileSelectRange(address, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount) ||
         address is >= 0x81b40a and < 0x81b800 ||
         InFileSelectRange(address,
-            MenuPpuState.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
+            FileSelectMapRomData.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
             (0x4d - 0x2c + 1) * sizeof(ushort));
 
     /// <summary>Tests membership in a half-open cartridge byte range.</summary>

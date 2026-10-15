@@ -11,6 +11,8 @@ public static class FileSelectMapRomData
     public const ushort RoomFrameVerticalScroll = 24;
     /// <summary>Bank $82 contains menu spritemaps and save-point coordinate lists.</summary>
     public const int MenuObjectBank = 0x820000;
+    /// <summary>Native bank-$82 table of menu spritemap pointers.</summary>
+    public const int SpritemapPointerTableAddress = 0x82c569;
     /// <summary><c>$81:B71A</c>, AreaSelectForegroundTilemap, one 32x32 BG1 page.</summary>
     public const int AreaForeground = 0x81b71a;
     /// <summary><c>$81:BF1A</c>, six 32x32 BG3 area-background pages.</summary>

@@ -9,8 +9,6 @@ internal static class PauseEquipmentCategories
     public const int PlasmaItem = 4;
     /// <summary>$82:AFDB ordinary Right entry starts at suit/misc table byte offset four.</summary>
     public const int BeamRightSuitItem = 2;
-    /// <summary>$82:B568 target offsets are relative to EquipmentScreenBG1Tilemap at $7E:3800.</summary>
-    public const int TilemapWramBase = 0x3800;
     /// <summary>The three inventory categories in native scan order; reserves use separate controls.</summary>
     public static IReadOnlyList<PauseEquipmentCategory> InventoryCategories { get; } =
         [PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits, PauseEquipmentCategory.Boots];

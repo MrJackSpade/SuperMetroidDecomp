@@ -154,7 +154,7 @@ internal static class MapSpritesVerification
         Add(FileSelectMapRomData.LabelSpritemapBase, 2);
         foreach (var frame in MapSpriteDefinitions.Frames)
         {
-            int entry = MenuPpuState.SpritemapPointerTableAddress + (int)frame.NativeId * 2;
+            int entry = FileSelectMapRomData.SpritemapPointerTableAddress + (int)frame.NativeId * 2;
             int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(cartridge, entry);
             Add(entry, 2); Add(pointer, 2 + 5 * RomDataReader.ReadWordFixedBank(cartridge, pointer));
         }

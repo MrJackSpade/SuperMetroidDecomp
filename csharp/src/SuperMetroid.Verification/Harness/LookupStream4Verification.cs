@@ -1660,22 +1660,8 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for title card layout")]
     internal static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
     {
-        for (int address = TitleSequenceInstructionDefinitions.StartAddress;
-             address < TitleSequenceInstructionDefinitions.EndAddress; address++)
-        {
-            AssertEqual(rom.ReadCartridgeByte(address), TitleSequenceInstructionDefinitions.ReadByte(address), "native title program byte");
-            if (address + 1 < TitleSequenceInstructionDefinitions.EndAddress)
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(address), TitleSequenceInstructionDefinitions.ReadWord(address), "native title aligned/unaligned word");
-        }
-        foreach (int invalid in new[] { int.MinValue, TitleSequenceInstructionDefinitions.StartAddress - 1,
-            TitleSequenceInstructionDefinitions.EndAddress, int.MaxValue })
-        {
-            AssertThrows<InvalidDataException>(() => TitleSequenceInstructionDefinitions.ReadByte(invalid), "title byte domain");
-            AssertThrows<InvalidDataException>(() => TitleSequenceInstructionDefinitions.ReadWord(invalid), "title word domain");
-        }
-        AssertThrows<InvalidDataException>(() => TitleSequenceInstructionDefinitions.ReadWord(
-            TitleSequenceInstructionDefinitions.EndAddress - 1), "title trailing partial word rejected");
-        Console.WriteLine("Title card layout: 140 native bytes, 139 aligned/unaligned word windows and bounds pass.");
+        int steps = SuperMetroid.Verification.Frontend.Title.TitleCardOracle.CompareAll(rom);
+        Console.WriteLine($"Title card layout: {steps} typed title-card steps match their native lists.");
     }
 
     /// <summary>Checks room sprite dispatch identities and their native table ordering.</summary>

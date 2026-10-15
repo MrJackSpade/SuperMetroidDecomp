@@ -22,7 +22,8 @@ public sealed class HudState
     /// <summary>$00C0 bytes in the little-endian mutable HUD upload, two bytes for each of the ninety-six tile words.</summary>
     public const int MutableByteCount = MutableTileCount * 2;
     /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
-    public const ushort VramDestination = 0x5820;
+    [PpuLayoutBoundary("rendering view: the HUD's mutable BG3 rows, one row below the BG3 tilemap base")]
+    public static ushort VramDestination => GameplayVramLayout.HudTilemapWord + WidthInTiles;
 
     /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
     internal readonly ushort[] _tiles = new ushort[MutableTileCount];
@@ -238,7 +239,7 @@ public sealed class HudState
         // One area-map tile represents one 256x256 room screen. The native Y formula has
         // an intentional +1 because the HUD map convention places the room header's Y one
         // row above the screen containing Samus.
-        int centerX = (frame.RoomMap.X + (SnesLittleEndian.HighByte(frame.Samus.X))) & 0x3f;
+        int centerX = (frame.RoomMap.X + (SnesLittleEndian.HighByte(frame.Samus.X))) & 63;
         int centerY = frame.RoomMap.Y + (SnesLittleEndian.HighByte(frame.Samus.Y)) + 1;
         if ((uint)centerY >= 32)
             return;
@@ -257,7 +258,7 @@ public sealed class HudState
             {
                 var output = new Position16<TilemapCells>((ushort)outputX, (ushort)outputY);
                 int destination = presentation?.MinimapCellIndex(output) ?? NativeMinimapCellIndex(output);
-                int mapX = (centerX + outputX - 2) & 0x3f;
+                int mapX = (centerX + outputX - 2) & 63;
                 if ((uint)mapY >= 32)
                 {
                     _tiles[destination] = (ushort)MapTileWords.HudBlank;

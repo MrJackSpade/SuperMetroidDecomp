@@ -20,23 +20,6 @@ public static class GameplayMessageRomData
         public const int BankBase = 0x850000;
     }
 
-    /// <summary>Bank-$85 routine identities stored in the message definition table.</summary>
-    public static class Routines
-    {
-        /// <summary>$85:825A, writes the large message-box border layout.</summary>
-        public const ushort DrawLargeTilemap = 0x825a;
-        /// <summary>$85:8289, writes the small message-box border layout.</summary>
-        public const ushort DrawSmallTilemap = 0x8289;
-        /// <summary>$85:83C5, patches the configured shoot-button glyph and selects the large box.</summary>
-        public const ushort PatchShootButton = 0x83c5;
-        /// <summary>$85:83CC, patches the configured run-button glyph and selects the large box.</summary>
-        public const ushort PatchRunButton = 0x83cc;
-        /// <summary>$85:8436, configures PPU state for a small message box.</summary>
-        public const ushort SetupSmall = 0x8436;
-        /// <summary>$85:8441, configures PPU state for a large message box.</summary>
-        public const ushort SetupLarge = 0x8441;
-    }
-
     /// <summary>Message tilemap dimensions, transfer offsets, and window placement.</summary>
     public static class Layout
     {
@@ -166,12 +149,4 @@ public static class GameplayMessageRomData
         }
     }
 
-    /// <summary>Whether a message definition's setup routine is the small-box setup.</summary>
-    public static bool IsSmallSetup(ushort routine) => routine == Routines.SetupSmall;
-
-    /// <summary>Whether a message definition's draw routine draws the small tilemap.</summary>
-    public static bool IsSmallTilemapDraw(ushort routine) => routine == Routines.DrawSmallTilemap;
-
-    /// <summary>Whether a message definition's draw routine draws the large tilemap.</summary>
-    public static bool IsLargeTilemapDraw(ushort routine) => routine == Routines.DrawLargeTilemap;
 }

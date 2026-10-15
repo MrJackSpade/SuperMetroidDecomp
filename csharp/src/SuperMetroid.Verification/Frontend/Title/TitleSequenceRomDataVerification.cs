@@ -182,20 +182,19 @@ internal static class TitleSequenceRomDataVerification
         TitleTextSequenceDefinition definition,
         ushort sceneCommand)
     {
-        // Timing/selector identities are compiled now. Keep synthetic blank
+        // Timing/selector identities are typed now. Keep synthetic blank
         // artwork, but provide the complete selector inventory to the extractor.
         int pointer = definition.InstructionAddress;
-        while (true)
+        foreach (TitleCardStep step in TitleCardDefinitions.Steps(definition.Phase))
         {
-            ushort durationOrCommand = TitleSequenceInstructionDefinitions.ReadWord(pointer);
-            WriteRomWord(rom, pointer, durationOrCommand);
-            if ((durationOrCommand & TitleSequenceRomData.TextSequences.CommandBit) != 0)
+            if (step.Command is { } command)
             {
-                AssertEqual(sceneCommand, durationOrCommand, "constructed title scene command");
+                WriteRomWord(rom, pointer, (ushort)command);
+                AssertEqual(sceneCommand, (ushort)command, "constructed title scene command");
                 break;
             }
-            WriteRomWord(rom, pointer + sizeof(ushort),
-                TitleSequenceInstructionDefinitions.ReadWord(pointer + sizeof(ushort)));
+            WriteRomWord(rom, pointer, step.Duration);
+            WriteRomWord(rom, pointer + sizeof(ushort), step.Spritemap);
             pointer += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
         }
     }

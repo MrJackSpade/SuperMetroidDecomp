@@ -51,8 +51,10 @@ public sealed class TitleSequenceState
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
     internal int phaseTimer;
-    /// <summary>Bank-$8B cursor into the current timed title text instruction list.</summary>
-    private int sequenceEntry;
+    /// <summary>The title card whose steps are running.</summary>
+    private TitleSequencePhase textCard = TitleSequencePhase.YearText;
+    /// <summary>The next step of the running title card.</summary>
+    private int textCardStep;
     /// <summary>Frames left before the next title text list entry is interpreted.</summary>
     private int sequenceEntryTimer;
     /// <summary>Spritemap selected by the active title text or logo entry.</summary>
@@ -246,7 +248,7 @@ public sealed class TitleSequenceState
                     zoom++;
                 if (zoom >= TitleSequenceRomData.Scenes.IdentityScale)
                 {
-                    activeSpritemap = ReadWord(TitleSequenceRomData.Sprites.LogoPointerAddress);
+                    activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
                     activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
                     activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
                     Phase = TitleSequencePhase.TitleLogoFade;
@@ -441,7 +443,7 @@ public sealed class TitleSequenceState
         oam.FinalizeFrame();
     }
 
-    /// <summary>Advances timed text records and executes scene or delete commands from the compiled bank-$8B list.</summary>
+    /// <summary>Advances the running title card's timed frames and runs its scene or delete commands.</summary>
     private void StepTextSequence()
     {
         if (--sequenceEntryTimer > 0)
@@ -449,23 +451,15 @@ public sealed class TitleSequenceState
 
         while (true)
         {
-            int entryAddress = sequenceEntry;
-            ushort durationOrCommand = ReadWord(entryAddress);
-            if ((durationOrCommand & TitleSequenceRomData.TextSequences.CommandBit) == 0)
+            TitleCardStep step = TitleCardDefinitions.Steps(textCard)[textCardStep++];
+            if (step.Command is not { } command)
             {
-                sequenceEntryTimer = durationOrCommand;
-                activeSpritemap = ReadWord(entryAddress + 2);
-                sequenceEntry = AddWithinBank(
-                    entryAddress,
-                    TitleSequenceRomData.TextSequences.TimedEntryByteCount);
+                sequenceEntryTimer = step.Duration;
+                activeSpritemap = step.Spritemap;
                 return;
             }
 
-            sequenceEntry = AddWithinBank(
-                entryAddress,
-                TitleSequenceRomData.TextSequences.InstructionWordByteCount);
-            switch (CinematicInstructionWords.Decode<TitleSequenceInstruction>(
-                        durationOrCommand, (ushort)entryAddress))
+            switch (command)
             {
                 case TitleSequenceInstruction.TriggerScene0:
                     Phase = TitleSequencePhase.SceneZeroPan;
@@ -498,7 +492,7 @@ public sealed class TitleSequenceState
                     return;
 
                 default:
-                    throw new InvalidOperationException($"Undefined TitleSequenceInstruction {durationOrCommand}.");
+                    throw new InvalidOperationException($"Undefined TitleSequenceInstruction {command}.");
             }
         }
     }
@@ -507,7 +501,8 @@ public sealed class TitleSequenceState
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
-        sequenceEntry = definition.InstructionAddress;
+        textCard = definition.Phase;
+        textCardStep = 0;
         sequenceEntryTimer = 1;
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
         activeOrigin = definition.Origin;
@@ -592,13 +587,6 @@ public sealed class TitleSequenceState
         new TitleVram(vram).LoadBabyMetroidPage(
             babyMetroidCharacters.AsSpan(source, TitleSequenceRomData.Vram.BabyCharacterPageByteCount));
     }
-
-    /// <summary>Reads a compiled bank-$8B title instruction word without a cartridge access.</summary>
-    private static ushort ReadWord(int address) => TitleSequenceInstructionDefinitions.ReadWord(address);
-
-    /// <summary>Advances a title list cursor within its original SNES bank.</summary>
-    private static int AddWithinBank(int address, int bytes) =>
-        (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);
 
     /// <summary>Installs a compiled Mode 7 scene's position and scale while clearing the previous text sprite.</summary>
     private void ApplyScene(TitleMode7SceneDefinition definition)

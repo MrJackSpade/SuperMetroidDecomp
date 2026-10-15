@@ -21,6 +21,6 @@ internal static class FileSelectHelmetAnimation
     internal static ushort SpritemapId(int frame)
     {
         if ((uint)frame >= NativeEntryCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(0x2c + Math.Min(frame, FrameCount - 1));
+        return (ushort)(44 + Math.Min(frame, FrameCount - 1));
     }
 }

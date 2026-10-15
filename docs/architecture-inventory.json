@@ -43863,6 +43863,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectTilemapDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectTilemapDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectTilemapFormat",
       "kind": "static class",
       "scope": "product",
@@ -43874,19 +43887,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectTilemaps",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectTilemaps.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.FrontendDisplay",
@@ -50634,6 +50634,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.SamusDeathRomData",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/SamusDeathRomData.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.SamusDeathRomData.Music",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/SamusDeathRomData.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.ScreenFade",
       "kind": "class",
       "scope": "product",
@@ -51001,6 +51027,32 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Title.TitleCardDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.TitleCardStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Title.TitleGradientRomData",
       "kind": "static class",
       "scope": "product",
@@ -51038,19 +51090,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Title.TitleSequenceInstructionDefinitions",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceInstructionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Title.TitleSequencePhase",
@@ -58885,7 +58924,7 @@
         "csharp/src/SuperMetroid.Core/Hud/GameplayMessageRomData.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Hud.GameplayMessageRomData.Assets",
@@ -58940,7 +58979,7 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Hud.GameplayMessageRomData.Routines",
+      "type": "SuperMetroid.Core.Hud.GameplayMessageRomData.Timing",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
@@ -58953,17 +58992,17 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Hud.GameplayMessageRomData.Timing",
-      "kind": "static class",
+      "type": "SuperMetroid.Core.Hud.GameplayMessageRoutine",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Hud/GameplayMessageRomData.cs"
+        "csharp/src/SuperMetroid.Core/Hud/GameplayMessageRoutine.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Hud.HudMemory",
@@ -59050,14 +59089,14 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Hud.HudWorkRam",
+      "type": "SuperMetroid.Core.Hud.HudWorkRamAddresses",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Hud/HudWorkRam.cs"
+        "csharp/src/SuperMetroid.Core/Hud/HudWorkRamAddresses.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -59959,6 +59998,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Map.MapTileWordMasks",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Map/MapTileWordMasks.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Map.MapTileWords",
@@ -81323,6 +81375,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Desktop.Audio.WaveHeaderFlags",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Audio/WaveHeaderFlags.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Desktop.Audio.WaveOutAudioDevice",
       "kind": "class",
       "scope": "product",
@@ -81594,6 +81659,19 @@
       ],
       "partial": "none",
       "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Desktop.Diagnostics.ReportedPointerBank",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Desktop"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Desktop/Diagnostics/ReportedPointerBank.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Desktop.Diagnostics.SessionConsoleWriter",
@@ -83932,6 +84010,19 @@
       "disposition": "generated-boundary"
     },
     {
+      "type": "SuperMetroid.Game.ProcessErrorModes",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Game"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Game/ProcessErrorModes.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Game.Program",
       "kind": "static class",
       "scope": "product",
@@ -85787,7 +85878,7 @@
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.Presentation.DxgiPresentationStatus",
-      "kind": "static class",
+      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Rendering.Direct3D11"
@@ -85796,7 +85887,7 @@
         "csharp/src/SuperMetroid.Rendering.Direct3D11/Presentation/DxgiPresentationStatus.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Rendering.Direct3D11.RenderingAccess",
@@ -102502,6 +102593,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Frontend/Title/TitleArtworkReferencesVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Verification.Frontend.Title.TitleCardOracle",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Frontend/Title/TitleCardOracle.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

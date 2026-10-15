@@ -86,12 +86,12 @@ internal static class FileSelectSlotDestinationsVerification
         {
             AssertEqual((byte)0xa0, FileSelectSlotLabelSourcesRomByte(rom, view[slot]), "native slot label LDY");
             ushort source = ReadVerificationWord(rom, view[slot] + 1);
-            AssertEqual(source, FileSelectTilemaps.SlotLabel(slot), "original slot label source");
+            AssertEqual(source, FileSelectTilemapDefinitions.SlotLabel(slot), "original slot label source");
             AssertEqual((ushort)0xffff, ReadVerificationWord(rom, 0x810000 | (source + 30)),
                 "slot label record includes terminal word");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemaps.SlotLabel(invalid), "slot label source bounds");
+            AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemapDefinitions.SlotLabel(invalid), "slot label source bounds");
     }
 
     /// <summary>Reads native slot-label source instructions for the layout comparison.</summary>

@@ -177,7 +177,7 @@ public sealed class FileSelectAreaMapGraphics
         OamBuffer oam = PrepareLabels(usedStationMasks);
         // CGADSUB excludes OBJ: labels are composited after BG1/subscreen addition.
         Rgba32[] objects = objScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, oam, ppu.Vram, ppu.Cgram, obsel: 0x03);
+        SnesObjRenderer.Render(objects, oam, ppu.Vram, ppu.Cgram, obsel: 3);
         SnesLayerCompositor.Composite(frame, objects);
         return frame;
     }
@@ -206,7 +206,7 @@ public sealed class FileSelectAreaMapGraphics
         void DrawArea(ushort area)
         {
             Draw(MapSpriteDefinitions.WorldLabel((AreaId)area), labels.Get(area),
-                area == SelectedArea ? (ushort)0 : (ushort)0x200);
+                area == SelectedArea ? (ushort)0 : SnesObjPalettes.Index1.PaletteBits);
         }
 
         void Draw(MapSpriteId id, Position16<OamPixels> origin, ushort palette)

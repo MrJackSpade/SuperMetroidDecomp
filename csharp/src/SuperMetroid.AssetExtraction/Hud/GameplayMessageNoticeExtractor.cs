@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -28,11 +29,11 @@ public static class GameplayMessageNoticeExtractor
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
             int rowCount = GameplayMessageNoticeDefinitions.ContentRows(id);
-            ushort expectedSetup = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
-                ? GameplayMessageRomData.Routines.SetupLarge
-                : GameplayMessageRomData.Routines.SetupSmall;
-            if (setup != expectedSetup ||
-                !GameplayMessageRomData.IsSmallTilemapDraw(draw))
+            GameplayMessageRoutine expectedSetup = GameplayMessageNoticeDefinitions.IsSaveConfirmation(id)
+                ? GameplayMessageRoutine.SetupLarge
+                : GameplayMessageRoutine.SetupSmall;
+            if (ClosedNativeWords.Decode<GameplayMessageRoutine>(setup, "message setup routine") != expectedSetup ||
+                ClosedNativeWords.Decode<GameplayMessageRoutine>(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap)
             {
                 throw new InvalidDataException(
                     $"Gameplay message {id} is not the expected completion/save notice.");

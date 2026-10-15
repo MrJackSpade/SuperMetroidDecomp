@@ -15,8 +15,6 @@ internal sealed class MenuPpuState
 {
     /// <summary>OBJ palette seven bits used by shared menu spritemaps.</summary>
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
-    /// <summary>Native bank-$82 table of menu spritemap pointers.</summary>
-    public const int SpritemapPointerTableAddress = 0x82c569;
 
     /// <summary>Installs shared world, map, sprite, and palette assets into menu PPU memory.</summary>
     public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null,
@@ -74,7 +72,7 @@ internal sealed class MenuPpuState
     /// <summary>Copies a complete 2048-byte BG1 tilemap into the menu VRAM region.</summary>
     public void LoadBg1(ReadOnlySpan<byte> tilemapBytes)
     {
-        Ensure.LengthEqual(tilemapBytes, 0x0800);
+        Ensure.LengthEqual(tilemapBytes, 2048);
         new MenuVram(Vram).Bg1Tilemap.Load(tilemapBytes);
     }
 }

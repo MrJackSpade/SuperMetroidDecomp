@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -28,8 +29,8 @@ public static class GameplayMessageTitleExtractor
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
             ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
-            if (!GameplayMessageRomData.IsSmallSetup(setup) ||
-                !GameplayMessageRomData.IsSmallTilemapDraw(draw) ||
+            if (ClosedNativeWords.Decode<GameplayMessageRoutine>(setup, "message setup routine") != GameplayMessageRoutine.SetupSmall ||
+                ClosedNativeWords.Decode<GameplayMessageRoutine>(draw, "message draw routine") != GameplayMessageRoutine.DrawSmallTilemap ||
                 next - pointer != GameplayMessageRomData.Layout.TilemapWidth * sizeof(ushort))
             {
                 throw new InvalidDataException(

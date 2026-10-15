@@ -58,15 +58,7 @@ internal static class TitleGradientVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for title graphics streams and the year text pointer")]
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
-        for (int address = TitleSequenceInstructionDefinitions.StartAddress;
-            address < TitleSequenceInstructionDefinitions.EndAddress; address++)
-            AssertEqual(CpuBusRegionRead.Read(bus, address),
-                TitleSequenceInstructionDefinitions.ReadByte(address),
-                $"compiled title-card byte ${address:X6}");
-        AssertThrows<InvalidDataException>(() =>
-            TitleSequenceInstructionDefinitions.ReadWord(
-                TitleSequenceInstructionDefinitions.EndAddress),
-            "installed title card reader rejects adjacent bank-$8B code");
+        _ = TitleCardOracle.CompareAll(bus);
         var cartridgeReads = new HashSet<int>();
         var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =

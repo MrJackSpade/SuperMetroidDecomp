@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.FileSelect;
 
 /// <summary>Bank-$81 source pointers for cartridge-authored file-select tilemaps.</summary>
-internal static class FileSelectTilemaps
+internal static class FileSelectTilemapDefinitions
 {
     /// <summary>SAMUS DATA heading at $81:B40A.</summary>
     public const ushort SamusData = 0xb40a;

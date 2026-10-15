@@ -99,7 +99,7 @@ internal static class MapSpriteCasesVerification
         foreach (var frame in MapSpriteRoleOracle())
         {
             int pointer = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                MenuPpuState.SpritemapPointerTableAddress + frame.NativeId * 2);
+                FileSelectMapRomData.SpritemapPointerTableAddress + frame.NativeId * 2);
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 128, 223, 224, 255, 65535 })
             for (int palette = 0; palette < 8; palette++)

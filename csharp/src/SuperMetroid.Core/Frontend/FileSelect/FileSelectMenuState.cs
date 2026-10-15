@@ -309,8 +309,8 @@ public sealed class FileSelectMenuState
         }
         // Native `ClearMenuTilemap` fills every word with character $00F (blank).
         Array.Fill(bg1Tilemap, FileSelectLayout.BlankTile);
-        LoadMenuTilemap(FileSelectLayout.SamusDataDestination, FileSelectTilemaps.SamusData);
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
+        LoadMenuTilemap(FileSelectLayout.SamusDataDestination, FileSelectTilemapDefinitions.SamusData);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemapDefinitions.SlotLabel(0));
         // `$81:A08E-$81:A096` adds one complete $40-byte tilemap row to the slot's
         // energy-field origin before loading NO DATA. The leading blank word in the ROM
         // string then places N at column 15. Using $01BC here would instead begin at column
@@ -322,30 +322,30 @@ public sealed class FileSelectMenuState
         // `$81:9F3A` conditionally draws only the numeric HH:MM value. The following
         // `$81:9F3D-$81:9F43` tilemap load is unconditional, so the static TIME caption
         // remains visible even when slot A is empty and its numeric fields are omitted.
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(1));
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemapDefinitions.Time);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemapDefinitions.SlotLabel(1));
         DrawFileSlot(
             saveSlots[1],
             FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.Energy),
             FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeValue));
         // Slot B repeats the same native split between conditional digits and an
         // unconditional ROM-authored caption (`$81:9F70-$81:9F79`).
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(2));
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemapDefinitions.Time);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemapDefinitions.SlotLabel(2));
         DrawFileSlot(
             saveSlots[2],
             FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.Energy),
             FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeValue));
         // Slot C's caption is likewise loaded unconditionally at `$81:9FA9-$81:9FAF`.
-        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.MainSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemapDefinitions.Time);
         if (saveSlots.Any(slot => slot is not null))
         {
             // Native index 16 exposes both data-management entries only when at least one
             // checksummed slot exists; an all-empty SRAM image skips directly from C to Exit.
-            LoadMenuTilemap(FileSelectLayout.DataCopyDestination, FileSelectTilemaps.DataCopy);
-            LoadMenuTilemap(FileSelectLayout.DataClearDestination, FileSelectTilemaps.DataClear);
+            LoadMenuTilemap(FileSelectLayout.DataCopyDestination, FileSelectTilemapDefinitions.DataCopy);
+            LoadMenuTilemap(FileSelectLayout.DataClearDestination, FileSelectTilemapDefinitions.DataClear);
         }
-        LoadMenuTilemap(FileSelectLayout.ExitDestination, FileSelectTilemaps.Exit);
+        LoadMenuTilemap(FileSelectLayout.ExitDestination, FileSelectTilemapDefinitions.Exit);
     }
 
     /// <summary>Ports <c>Draw_FileSelection_Energy/Time</c> at $81:A087/$A14E.</summary>
@@ -360,20 +360,20 @@ public sealed class FileSelectMenuState
             // leading blank and NO DATA text. The tilemap is already blank everywhere else.
             LoadMenuTilemap(
                 energyOrigin + FileSelectLayout.NextTilemapRowByteOffset,
-                FileSelectTilemaps.NoData);
+                FileSelectTilemapDefinitions.NoData);
             return;
         }
 
-        LoadMenuTilemap(energyOrigin, FileSelectTilemaps.Energy);
+        LoadMenuTilemap(energyOrigin, FileSelectTilemapDefinitions.Energy);
         int healthRemainder = slot.Health % 100;
-        WriteMenuDigit(energyOrigin + 0x42, healthRemainder / 10);
-        WriteMenuDigit(energyOrigin + 0x44, healthRemainder % 10);
+        WriteMenuDigit(energyOrigin + 66, healthRemainder / 10);
+        WriteMenuDigit(energyOrigin + 68, healthRemainder % 10);
 
         int hours = Math.Min(slot.GameTimeHours, (ushort)99);
         int minutes = Math.Min(slot.GameTimeMinutes, (ushort)99);
         WriteMenuDigit(timeOrigin, hours / 10);
         WriteMenuDigit(timeOrigin + 2, hours % 10);
-        LoadMenuTilemap(timeOrigin + 4, FileSelectTilemaps.TimeColon);
+        LoadMenuTilemap(timeOrigin + 4, FileSelectTilemapDefinitions.TimeColon);
         WriteMenuDigit(timeOrigin + 6, minutes / 10);
         WriteMenuDigit(timeOrigin + 8, minutes % 10);
     }
@@ -793,9 +793,9 @@ public sealed class FileSelectMenuState
             return;
         }
         BuildDataManagementBase(
-            FileSelectTilemaps.DataCopyMode,
+            FileSelectTilemapDefinitions.DataCopyMode,
             FileSelectLayout.DataModeCopyDestination,
-            FileSelectTilemaps.CopyWhichData,
+            FileSelectTilemapDefinitions.CopyWhichData,
             FileSelectLayout.CopySourcePromptDestination);
     }
 
@@ -809,9 +809,9 @@ public sealed class FileSelectMenuState
             return;
         }
         BuildDataManagementBase(
-            FileSelectTilemaps.DataCopyMode,
+            FileSelectTilemapDefinitions.DataCopyMode,
             FileSelectLayout.DataModeCopyDestination,
-            FileSelectTilemaps.CopySamusToWhere,
+            FileSelectTilemapDefinitions.CopySamusToWhere,
             FileSelectLayout.CopyDestinationPromptDestination);
         bg1Tilemap[FileSelectLayout.CopyDestinationSourceLetterDestination / 2] =
             unchecked((ushort)(FileSelectLayout.SamusLetterTileBase + operationSourceSlot));
@@ -827,9 +827,9 @@ public sealed class FileSelectMenuState
             return;
         }
         BuildDataManagementBase(
-            FileSelectTilemaps.DataCopyMode,
+            FileSelectTilemapDefinitions.DataCopyMode,
             FileSelectLayout.DataModeCopyDestination,
-            FileSelectTilemaps.CopySamusToSamus,
+            FileSelectTilemapDefinitions.CopySamusToSamus,
             FileSelectLayout.CopyConfirmationPromptDestination);
         bg1Tilemap[FileSelectLayout.CopyConfirmationSourceLetterDestination / 2] =
             unchecked((ushort)(FileSelectLayout.SamusLetterTileBase + operationSourceSlot));
@@ -849,7 +849,7 @@ public sealed class FileSelectMenuState
         }
         BuildCopyConfirmationTilemap();
         currentPresentationPage = FileSelectPresentationDefinitions.CopyCompletedPage;
-        LoadMenuTilemap(FileSelectLayout.CopyCompletedDestination, FileSelectTilemaps.CopyCompleted);
+        LoadMenuTilemap(FileSelectLayout.CopyCompletedDestination, FileSelectTilemapDefinitions.CopyCompleted);
     }
 
     /// <summary>Builds the Clear page that asks which occupied slot to erase.</summary>
@@ -862,9 +862,9 @@ public sealed class FileSelectMenuState
             return;
         }
         BuildDataManagementBase(
-            FileSelectTilemaps.DataClearMode,
+            FileSelectTilemapDefinitions.DataClearMode,
             FileSelectLayout.DataModeClearDestination,
-            FileSelectTilemaps.ClearWhichData,
+            FileSelectTilemapDefinitions.ClearWhichData,
             FileSelectLayout.ClearPromptDestination);
     }
 
@@ -878,9 +878,9 @@ public sealed class FileSelectMenuState
             return;
         }
         BuildDataManagementBase(
-            FileSelectTilemaps.DataClearMode,
+            FileSelectTilemapDefinitions.DataClearMode,
             FileSelectLayout.DataModeClearDestination,
-            FileSelectTilemaps.ClearSamus,
+            FileSelectTilemapDefinitions.ClearSamus,
             FileSelectLayout.ClearPromptDestination);
         bg1Tilemap[FileSelectLayout.ClearConfirmationSourceLetterDestination / 2] =
             unchecked((ushort)(FileSelectLayout.SamusLetterTileBase + operationSourceSlot));
@@ -898,7 +898,7 @@ public sealed class FileSelectMenuState
         }
         BuildClearConfirmationTilemap();
         currentPresentationPage = FileSelectPresentationDefinitions.ClearCompletedPage;
-        LoadMenuTilemap(FileSelectLayout.DataClearedDestination, FileSelectTilemaps.DataCleared);
+        LoadMenuTilemap(FileSelectLayout.DataClearedDestination, FileSelectTilemapDefinitions.DataCleared);
         DrawDataManagementSlots();
     }
 
@@ -912,30 +912,30 @@ public sealed class FileSelectMenuState
         Array.Fill(bg1Tilemap, FileSelectLayout.BlankTile);
         LoadMenuTilemap(modeDestination, modeLabel);
         LoadMenuTilemap(promptDestination, promptLabel);
-        LoadMenuTilemap(FileSelectLayout.ExitDestination, FileSelectTilemaps.Exit);
+        LoadMenuTilemap(FileSelectLayout.ExitDestination, FileSelectTilemapDefinitions.Exit);
         DrawDataManagementSlots();
     }
 
     /// <summary>Draws all three slot labels, energy values, and time captions on a submenu page.</summary>
     private void DrawDataManagementSlots()
     {
-        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemapDefinitions.SlotLabel(0));
         DrawFileSlot(saveSlots[0], FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeValue));
-        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(1));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.TimeLabel), FileSelectTilemapDefinitions.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Label), FileSelectTilemapDefinitions.SlotLabel(1));
         DrawFileSlot(saveSlots[1], FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeValue));
-        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
-        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(2));
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(1, FileSelectSlotField.TimeLabel), FileSelectTilemapDefinitions.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Label), FileSelectTilemapDefinitions.SlotLabel(2));
         DrawFileSlot(saveSlots[2], FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.Energy), FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeValue));
-        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
+        LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemapDefinitions.Time);
     }
 
     /// <summary>Adds the native question and Yes/No labels to a confirmation page.</summary>
     private static void AddConfirmationText()
     {
-        LoadMenuTilemap(FileSelectLayout.ConfirmationQuestionDestination, FileSelectTilemaps.IsThisOkay);
-        LoadMenuTilemap(FileSelectLayout.ConfirmationYesDestination, FileSelectTilemaps.Yes);
-        LoadMenuTilemap(FileSelectLayout.ConfirmationNoDestination, FileSelectTilemaps.No);
+        LoadMenuTilemap(FileSelectLayout.ConfirmationQuestionDestination, FileSelectTilemapDefinitions.IsThisOkay);
+        LoadMenuTilemap(FileSelectLayout.ConfirmationYesDestination, FileSelectTilemapDefinitions.Yes);
+        LoadMenuTilemap(FileSelectLayout.ConfirmationNoDestination, FileSelectTilemapDefinitions.No);
     }
 
     /// <summary>Finds the initial data-management selection and rejects entry with no occupied slot.</summary>

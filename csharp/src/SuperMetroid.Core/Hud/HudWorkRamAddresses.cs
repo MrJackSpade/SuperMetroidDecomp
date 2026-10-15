@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Hud;
 
 /// <summary>The gameplay HUD's WRAM tilemap buffer (#629).</summary>
 [CpuBusBoundary("catalog: gameplay HUD WRAM")]
-public static class HudWorkRam
+public static class HudWorkRamAddresses
 {
     /// <summary>
     /// <c>$7E:C608</c>, the first byte of <see cref="MutableTilemap"/>. The queued VRAM DMA names it

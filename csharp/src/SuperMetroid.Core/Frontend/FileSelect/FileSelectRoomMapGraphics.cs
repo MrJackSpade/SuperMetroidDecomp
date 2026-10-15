@@ -115,7 +115,7 @@ public sealed class FileSelectRoomMapGraphics
         Rgba32[] pixels = RenderBackgrounds(scroll);
         OamBuffer oam = PrepareIcons(scroll, marker, animations);
         Rgba32[] objects = objScratch ??= new Rgba32[256 * 224];
-        SnesObjRenderer.Render(objects, oam, Vram, Cgram, obsel: 0x03);
+        SnesObjRenderer.Render(objects, oam, Vram, Cgram, obsel: 3);
         SnesLayerCompositor.Composite(pixels, objects);
         return pixels;
     }

@@ -14,7 +14,7 @@ internal static class MenuSpriteExtractor
     /// <summary>Decodes an indexed bank-$82 spritemap into bounded OAM parts, leaving palette choice to the caller as native menu rendering does.</summary>
     public static SpriteVisualPart[] Read(ISnesAddressSpace bus, ushort id)
     {
-        int address = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), MenuPpuState.SpritemapPointerTableAddress + id * 2);
+        int address = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.SpritemapPointerTableAddress + id * 2);
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
         if (count > MapSpriteFormat.MaximumParts) throw new InvalidDataException($"Menu sprite {id:X4} exceeds OAM capacity.");
         var parts = new SpriteVisualPart[count];

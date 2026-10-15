@@ -311,7 +311,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Hud.HudWorkRam",
+      "owner": "SuperMetroid.Core.Hud.HudWorkRamAddresses",
       "name": "MutableTilemap",
       "region": "WorkRam",
       "address": "$7E:C608",

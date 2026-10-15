@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -28,17 +29,15 @@ public static class GameplayMessagePanelExtractor
             ushort draw = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 2));
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + 4));
             ushort next = CartridgeImportSource.Require(bus).ReadCartridgeWord((definition + GameplayMessageRomData.Layout.DefinitionBytes + 4));
-            ushort expectedSetup = GameplayMessagePanelDefinitions.ButtonBinding(id) switch
+            GameplayMessageRoutine expectedSetup = GameplayMessagePanelDefinitions.ButtonBinding(id) switch
             {
-                GameplayMessagePanelButtonBinding.Shoot =>
-                    GameplayMessageRomData.Routines.PatchShootButton,
-                GameplayMessagePanelButtonBinding.Run =>
-                    GameplayMessageRomData.Routines.PatchRunButton,
+                GameplayMessagePanelButtonBinding.Shoot => GameplayMessageRoutine.PatchShootButton,
+                GameplayMessagePanelButtonBinding.Run => GameplayMessageRoutine.PatchRunButton,
                 _ => throw new InvalidDataException(
                     $"Gameplay-message panel {id} lacks a compiled button binding."),
             };
-            if (setup != expectedSetup ||
-                !GameplayMessageRomData.IsLargeTilemapDraw(draw) ||
+            if (ClosedNativeWords.Decode<GameplayMessageRoutine>(setup, "message setup routine") != expectedSetup ||
+                ClosedNativeWords.Decode<GameplayMessageRoutine>(draw, "message draw routine") != GameplayMessageRoutine.DrawLargeTilemap ||
                 next - pointer != GameplayMessagePanelDefinitions.ContentWords * sizeof(ushort))
             {
                 throw new InvalidDataException(

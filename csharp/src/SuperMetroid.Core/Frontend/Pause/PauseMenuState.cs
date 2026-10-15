@@ -368,12 +368,13 @@ internal sealed class PauseMenuState
     }
 
     /// <summary>Renders one priority half of the retained gameplay HUD BG3 layer.</summary>
+    [PpuLayoutBoundary("rendering view: the retained gameplay HUD BG3 layer")]
     private void CompositePauseBg3(Span<Rgba32> output, bool priority)
     {
         Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
         // The renderer skips tiles of the other priority, so clear the reused plane first.
         plane.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(plane, vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x5800, CharacterBaseWord = 0x4000 }, rowCount: 32, transparentColorZero: true, priority: priority);
+        SnesBgTilemapRenderer.Render2Bpp(plane, vram, cgram, new BgVramAddresses { TilemapBaseWord = GameplayVramLayout.HudTilemapWord, CharacterBaseWord = GameplayVramLayout.HudCharacterWord }, rowCount: 32, transparentColorZero: true, priority: priority);
         SnesLayerCompositor.Composite(output, plane.AsSpan(
             SnesPpuLayout.FirstVisibleBackgroundScanline * SnesPpuLayout.ScreenWidthPixels,
             output.Length));
@@ -644,7 +645,7 @@ internal sealed class PauseMenuState
 
         ushort verticalMiddle = unchecked((ushort)(
             minimumY + unchecked((ushort)(maximumY - minimumY)) / 2 + 16));
-        ushort verticalCenterOffset = unchecked((ushort)((0x80 - verticalMiddle) & 0xfff8));
+        ushort verticalCenterOffset = unchecked((ushort)((128 - verticalMiddle) & ~7));
         ushort vertical = unchecked((ushort)-verticalCenterOffset);
         ushort playerMapY = unchecked((ushort)(player.Y + verticalCenterOffset));
         short distanceFromTopClamp = unchecked((short)(64 - playerMapY));
@@ -743,7 +744,10 @@ internal sealed class PauseMenuState
         // These indexes are words relative to native WRAM $3000. The mutable cartridge
         // template begins at $3400, or word index $200; subtract that origin before
         // indexing the local byte array.
-        void SetPalette(int nativeWordIndex, int wordCount, ushort paletteBits)
+        // Labels draw bright in BG palette two and dim in palette five.
+        const int BrightLabelPalette = 2;
+        const int DimLabelPalette = 5;
+        void SetPalette(int nativeWordIndex, int wordCount, int palette)
         {
             int localWordIndex = nativeWordIndex - PauseMenuLayout.ButtonSourceWordOrigin;
             for (int word = 0; word < wordCount; word++)
@@ -751,7 +755,7 @@ internal sealed class PauseMenuState
                 int byteOffset = (localWordIndex + word) * 2;
                 ushort tile = unchecked((ushort)(
                     SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1])));
-                tile = unchecked((ushort)((tile & 0xe3ff) | paletteBits));
+                tile = new SnesBgTilemapWord(tile).WithPaletteIndex(palette);
                 pauseButtonTilemap[byteOffset] = unchecked((byte)tile);
                 pauseButtonTilemap[byteOffset + 1] = SnesLittleEndian.HighByte(tile);
             }
@@ -760,30 +764,30 @@ internal sealed class PauseMenuState
         switch (mode)
         {
             case 0: // Stable map page: MAP bright, EQUIPMENT/START dim.
-                SetPalette(822, 5, 0x0800);
-                SetPalette(854, 5, 0x0800);
-                SetPalette(812, 4, 0x0800);
-                SetPalette(844, 4, 0x0800);
-                SetPalette(805, 5, 0x1400);
-                SetPalette(837, 5, 0x1400);
+                SetPalette(822, 5, BrightLabelPalette);
+                SetPalette(854, 5, BrightLabelPalette);
+                SetPalette(812, 4, BrightLabelPalette);
+                SetPalette(844, 4, BrightLabelPalette);
+                SetPalette(805, 5, DimLabelPalette);
+                SetPalette(837, 5, DimLabelPalette);
                 break;
 
             case 1: // Start/unpause highlight.
-                SetPalette(812, 4, 0x0800);
-                SetPalette(844, 4, 0x0800);
-                SetPalette(805, 5, 0x1400);
-                SetPalette(837, 5, 0x1400);
-                SetPalette(822, 5, 0x1400);
-                SetPalette(854, 5, 0x1400);
+                SetPalette(812, 4, BrightLabelPalette);
+                SetPalette(844, 4, BrightLabelPalette);
+                SetPalette(805, 5, DimLabelPalette);
+                SetPalette(837, 5, DimLabelPalette);
+                SetPalette(822, 5, DimLabelPalette);
+                SetPalette(854, 5, DimLabelPalette);
                 break;
 
             case 2: // Stable equipment page: EQUIPMENT bright, MAP/START dim.
-                SetPalette(805, 5, 0x0800);
-                SetPalette(837, 5, 0x0800);
-                SetPalette(812, 4, 0x0800);
-                SetPalette(844, 4, 0x0800);
-                SetPalette(822, 5, 0x1400);
-                SetPalette(854, 5, 0x1400);
+                SetPalette(805, 5, BrightLabelPalette);
+                SetPalette(837, 5, BrightLabelPalette);
+                SetPalette(812, 4, BrightLabelPalette);
+                SetPalette(844, 4, BrightLabelPalette);
+                SetPalette(822, 5, DimLabelPalette);
+                SetPalette(854, 5, DimLabelPalette);
                 break;
 
             default:

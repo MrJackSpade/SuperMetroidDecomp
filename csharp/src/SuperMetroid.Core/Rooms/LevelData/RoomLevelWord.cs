@@ -12,15 +12,15 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public readonly record struct RoomLevelWord(ushort Raw)
 {
     /// <summary>Low ten bits selecting a room metatile definition.</summary>
-    private const ushort VisualBlockIndexMask = 0x03ff;
+    private const ushort VisualBlockIndexMask = (1 << 10) - 1;
     /// <summary>Two parent-metatile horizontal and vertical flip bits.</summary>
-    internal const ushort VisualFlipMask = 0x0c00;
+    internal const ushort VisualFlipMask = 3 << 10;
     /// <summary>All twelve presentation bits, excluding physical collision dispatch.</summary>
     private const ushort VisualBitsMask = VisualBlockIndexMask | VisualFlipMask;
     /// <summary>High nibble selecting the native collision handler.</summary>
-    private const ushort CollisionTypeMask = 0xf000;
+    private const ushort CollisionTypeMask = 15 << CollisionTypeShift;
     /// <summary>High bit checked by the native solid-attachment probe.</summary>
-    private const ushort SolidProbeMask = 0x8000;
+    private const ushort SolidProbeMask = 1 << 15;
     /// <summary>Distance from the low bit to the collision dispatch nibble.</summary>
     private const int CollisionTypeShift = 12;
 
@@ -120,7 +120,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// <summary>Rejects a collision dispatch value that cannot fit in the native high nibble.</summary>
     private static void ValidateCollisionType(RoomCollisionType collisionType)
     {
-        if ((byte)collisionType > 0x0f)
+        if ((byte)collisionType > 15)
             throw new ArgumentOutOfRangeException(nameof(collisionType));
     }
 

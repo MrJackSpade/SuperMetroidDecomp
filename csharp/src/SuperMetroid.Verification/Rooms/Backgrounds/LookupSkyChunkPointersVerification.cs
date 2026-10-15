@@ -25,20 +25,20 @@ internal static class LookupSkyChunkPointersVerification
         for (int index = 0; index <= 256; index++)
         {
             if (index is < 9 or 255)
-                AssertEqual(Original(index), ScrollingSkyChunkPointerDefinitions.Get(table, index),
+                AssertEqual(Original(index), ScrollingSkyChunkDefinitions.Get(table, index),
                     "Sky original pointer including adjacent data/code");
             else
-                AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkPointerDefinitions.Get(table, index),
+                AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkDefinitions.Get(table, index),
                     "Sky rejects unreachable indices");
         }
         foreach (int index in new[] { int.MinValue, -1, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkPointerDefinitions.Get(table, index),
+            AssertThrows<ArgumentOutOfRangeException>(() => ScrollingSkyChunkDefinitions.Get(table, index),
                 "Sky int index endpoints reject");
         foreach (int invalidTable in new[] { int.MinValue, 0, (int)table - 1, (int)table + 1, int.MaxValue })
         foreach (int index in new[] { -1, 0, 8, 255 })
         {
             var exception = AssertThrows<ArgumentOutOfRangeException>(
-                () => ScrollingSkyChunkPointerDefinitions.Get((ScrollingSkyChunkTable)invalidTable, index), "Unknown sky table rejects first");
+                () => ScrollingSkyChunkDefinitions.Get((ScrollingSkyChunkTable)invalidTable, index), "Unknown sky table rejects first");
             AssertEqual("pointerTable", exception.ParamName, "Table rejection precedes index handling");
         }
 

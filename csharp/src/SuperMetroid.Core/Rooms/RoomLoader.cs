@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
@@ -700,7 +701,7 @@ internal sealed class RoomLoader
                 _player.Samus.Position = _player.Samus.Position.WithWholeX(unchecked((ushort)(_player.Samus.Position.X.Whole | (7))));
                 break;
             case DoorDirection.Left:
-                _player.Samus.Position = _player.Samus.Position.WithWholeX(unchecked((ushort)(_player.Samus.Position.X.Whole & (0xfff8))));
+                _player.Samus.Position = _player.Samus.Position.WithWholeX(unchecked((ushort)(_player.Samus.Position.X.Whole & ~7)));
                 break;
             case DoorDirection.Down:
             case DoorDirection.Up:
@@ -724,14 +725,8 @@ internal sealed class RoomLoader
         if (_pendingLoaderSamusPlacement is not null)
             throw new InvalidOperationException("The door loader's Samus placement is still pending.");
 
-        ushort x = _player.Samus.Position.X.Whole;
-        if ((x & 0x00f0) == 0x0010)
-            x = unchecked((ushort)((x | 0x000f) + 8));
-        else if ((x & 0x00f0) == 0x00e0)
-            x = unchecked((ushort)((x & 0xfff0) - 8));
-        ushort y = _player.Samus.Position.Y.Whole;
-        if ((y & 0x00f0) == 0x0010)
-            y = unchecked((ushort)((y | 0x000f) + 8));
+        ushort x = NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(_player.Samus.Position.X.Whole));
+        ushort y = NudgeOffScreenLeftEdge(_player.Samus.Position.Y.Whole);
         _player.Samus.Position = _player.Samus.Position.WithWhole(new(x, y));
 
         if (_enemies.ElevatorBehavior.ElevatorFlags != 0)
@@ -768,7 +763,7 @@ internal sealed class RoomLoader
         RoomLevelData sourceLevel = _room.LevelData;
         CartridgeDoorHeader door = sourceLevel.PendingDoorTransition
             ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
-        if ((door.DestinationRoomPointer & 0x8000) == 0)
+        if (door.DestinationRoomPointer < SnesBusLayout.RomWindowStart)
         {
             throw new InvalidOperationException(
                 $"Elevator pseudo-door $83:{door.Pointer:X4} cannot enter the normal room loader.");
@@ -885,7 +880,7 @@ internal sealed class RoomLoader
         // producer. Ordinary doors clear it so stale Mode-7 math cannot leak across rooms.
         SamusMode7Transform? initialMode7Transform = door.UsesCeresElevatorMode7
             ? new SamusMode7Transform(
-                MatrixA: 0x0100,
+                MatrixA: 256, // 1.0 in Mode 7's 8.8 fixed point.
                 MatrixB: 0,
                 MatrixC: 0,
                 Center: CeresElevatorShaftRoomMainState.CeresShaftMode7Center)
@@ -934,7 +929,7 @@ internal sealed class RoomLoader
             room.State.SetupCallback is RoomSetupCallback.ScrollingSkyLand or
                 RoomSetupCallback.ScrollingSkyOcean or RoomSetupCallback.ShakeScreenAndCallScrollingSkyLandDuringEscape;
         _room.BackgroundStreamer = _room.LevelData.CreateBackgroundStreamer(
-            sizeOfBg2: skyHdmaConfigured ? (ushort)0 : (ushort)0x0800);
+            sizeOfBg2: skyHdmaConfigured ? (ushort)0 : (ushort)2048);
         _room.ScrollingSky = ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCallback)
             ? new ScrollingSkyState(skyHdmaConfigured)
             : null;
@@ -1200,16 +1195,12 @@ internal sealed class RoomLoader
 
         ushort finalX = samus.X.Whole;
         ushort finalY = samus.Y.Whole;
-        if ((finalX & 0x00f0) == 0x0010)
-            finalX = unchecked((ushort)((finalX | 0x000f) + 8));
-        else if ((finalX & 0x00f0) == 0x00e0)
-            finalX = unchecked((ushort)((finalX & 0xfff0) - 8));
-        if ((finalY & 0x00f0) == 0x0010)
-            finalY = unchecked((ushort)((finalY | 0x000f) + 8));
+        finalX = NudgeOffScreenRightEdge(NudgeOffScreenLeftEdge(finalX));
+        finalY = NudgeOffScreenLeftEdge(finalY);
 
         // LoadMoreThings applies this eight-pixel doorway alignment only horizontally.
         if (!direction.IsVertical())
-            finalX = direction == DoorDirection.Right ? (ushort)(finalX | 7) : (ushort)(finalX & 0xfff8);
+            finalX = direction == DoorDirection.Right ? (ushort)(finalX | 7) : unchecked((ushort)(finalX & ~7));
         samus = samus.WithWhole(new Position16<RoomPixels>(finalX, finalY));
         // `$80:ADC8` adds $20 to door_destination_y_pos after using the unmodified value
         // for Samus's setup origin. The IRQ completion later snaps an upward transition's
@@ -1317,4 +1308,18 @@ internal sealed class RoomLoader
             : throw new InvalidOperationException(
                 "Room loading requires installed character, palette, metatile, visual-layout, and level-stream assets.");
 
+
+    /// <summary>The 16-pixel block a coordinate lies in within its 256-pixel screen.</summary>
+    private static int BlockInScreen(ushort pixel) => (pixel >> 4) & 15;
+
+    /// <summary>
+    /// The doorway nudge of <c>$82:E6A2</c> and <c>LoadMoreThings</c>: a coordinate in its screen's second block moves
+    /// to eight pixels past that block.
+    /// </summary>
+    private static ushort NudgeOffScreenLeftEdge(ushort pixel) =>
+        BlockInScreen(pixel) == 1 ? unchecked((ushort)((pixel | 15) + 8)) : pixel;
+
+    /// <summary>The doorway nudge's other edge: a coordinate in its screen's fifteenth block moves to eight pixels before it.</summary>
+    private static ushort NudgeOffScreenRightEdge(ushort pixel) =>
+        BlockInScreen(pixel) == 14 ? unchecked((ushort)((pixel & ~15) - 8)) : pixel;
 }

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 public readonly struct RoomScrollMemory(ISnesMemoryBus bus)
 {
     /// <summary>The 50 scroll-zone bytes.</summary>
-    public WorkRamByteTable Zones => new(bus, RoomScrollWorkRam.Zones);
+    public WorkRamByteTable Zones => new(bus, RoomScrollWorkRamAddresses.Zones);
 
     /// <summary>
     /// The byte a bank-$80 scroll calculation reads at <paramref name="index"/> from the first
@@ -15,8 +15,8 @@ public readonly struct RoomScrollMemory(ISnesMemoryBus bus)
     /// </summary>
     public byte ReadIndexed(int index)
     {
-        if ((uint)index > 0xffff)
+        if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index), index, "A 16-bit index register cannot select this byte.");
-        return bus.ReadWorkRamByte(RoomScrollWorkRam.Zones.Address + index);
+        return bus.ReadWorkRamByte(RoomScrollWorkRamAddresses.Zones.Address + index);
     }
 }

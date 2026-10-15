@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 public sealed class RoomScrollGrid
 {
     /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
-    public const int StorageByteCount = 0x32;
+    public const int StorageByteCount = 50;
 
     /// <summary>Owned copy of the fixed WRAM scroll allocation, including bytes past logical room cells.</summary>
     internal readonly byte[] _cells = new byte[StorageByteCount];
@@ -113,7 +113,7 @@ public sealed class RoomScrollGrid
     /// </remarks>
     public byte ReadNativeStorage(int index)
     {
-        if ((uint)index > 0xffff)
+        if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));
         return index < StorageByteCount
             ? _cells[index]

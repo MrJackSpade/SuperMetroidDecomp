@@ -134,7 +134,7 @@ internal static class VramDmaDomains
             {
                 ushort position = unchecked((ushort)((camera & RoomFxRomData.ScrollingSky.SourcePositionMask) + offset));
                 int source = RoomFxRomData.Banks.Tilemaps | unchecked((ushort)(
-                    ScrollingSkyChunkPointerDefinitions.Get(table, SnesLittleEndian.HighByte(position)) +
+                    ScrollingSkyChunkDefinitions.Get(table, SnesLittleEndian.HighByte(position)) +
                     (position & VramDmaDomainGeometry.WithinScreenMask) * VramDmaDomainGeometry.TileRowPixels));
                 yield return (source, RoomFxRomData.ScrollingSky.TilemapRowByteCount);
                 yield return (source + RoomFxRomData.ScrollingSky.TilemapRowByteCount, RoomFxRomData.ScrollingSky.TilemapRowByteCount);

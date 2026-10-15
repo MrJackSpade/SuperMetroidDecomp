@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// are explicit; all other indices reject. Every result is independently verified
 /// against NTSC J/U v1.0 and pinned bank_88.asm
 /// (362be646929cf8e483f692b73a6561cfc2dc1d0d). No pointer array or cache remains.</remarks>
-public static class ScrollingSkyChunkPointerDefinitions
+public static class ScrollingSkyChunkDefinitions
 {
     /// <summary>First sky tilemap page at $8A:B180; native pages occupy800 bytes each.</summary>
     private const int FirstPage = 0xb180;

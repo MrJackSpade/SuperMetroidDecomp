@@ -323,7 +323,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundWorkRam",
+      "owner": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundWorkRamAddresses",
       "name": "TilemapStaging",
       "region": "WorkRam",
       "address": "$7E:4000",
@@ -336,7 +336,7 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollWorkRam",
+      "owner": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollWorkRamAddresses",
       "name": "Zones",
       "region": "WorkRam",
       "address": "$7E:CD20",
@@ -354,7 +354,7 @@
       "address": "$7E:4000",
       "byteCount": 4096,
       "encoding": "BG2 tilemap words (u16[] little-endian)",
-      "aliasOf": "LibraryBackgroundWorkRam.TilemapStaging",
+      "aliasOf": "LibraryBackgroundWorkRamAddresses.TilemapStaging",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayMemory.cs"
       ]

@@ -16,6 +16,9 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// </remarks>
 public sealed class RoomLevelData
 {
+    /// <summary>The solid word an out-of-room block reads as: the allocation is prefilled with solid air.</summary>
+    private static readonly ushort PrefilledSolidWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
+
     /// <summary>Mutable logical BG1 level words shared by terrain collision and room rendering.</summary>
     internal readonly ushort[] _foregroundEntries;
     /// <summary>Parallel BTS bytes interpreted according to each BG1 word's collision nibble.</summary>
@@ -61,7 +64,7 @@ public sealed class RoomLevelData
         ReadOnlySpan<ushort> backgroundEntries = planes.Background;
         ReadOnlySpan<ushort> streamingForegroundAllocation = streaming.Foreground;
         ReadOnlySpan<ushort> streamingBackgroundAllocation = streaming.Background;
-        if (size.X is <= 0 or > 0xff)
+        if (size.X is <= 0 or > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(size), "Room width must be 1..255 blocks.");
         if (size.Y <= 0)
             throw new ArgumentOutOfRangeException(nameof(size), "Room height must be positive.");
@@ -142,12 +145,10 @@ public sealed class RoomLevelData
                 throw new InvalidDataException("Installed room layout dimensions do not match the native allocation.");
             for (int index = 0; index < expectedBlocks; index++)
             {
-                _visualStreamingForegroundAllocation[index] = unchecked((ushort)(
-                    (_foregroundEntries[index] & 0xf000) |
-                    visualLayout.ForegroundVisualWords.Span[index]));
-                _visualStreamingBackgroundAllocation[index] = unchecked((ushort)(
-                    (_backgroundEntries[index] & 0xf000) |
-                    visualLayout.BackgroundVisualWords.Span[index]));
+                _visualStreamingForegroundAllocation[index] =
+                    new RoomLevelWord(_foregroundEntries[index]).WithVisualWord(visualLayout.ForegroundVisualWords.Span[index]).Raw;
+                _visualStreamingBackgroundAllocation[index] =
+                    new RoomLevelWord(_backgroundEntries[index]).WithVisualWord(visualLayout.BackgroundVisualWords.Span[index]).Raw;
             }
         }
     }
@@ -326,7 +327,7 @@ public sealed class RoomLevelData
         {
             return new RoomCollisionBlock(
                 Index: -1,
-                LevelWord: 0x8000,
+                LevelWord: PrefilledSolidWord,
                 Behavior: 0);
         }
 
@@ -343,7 +344,7 @@ public sealed class RoomLevelData
         {
             return new RoomCollisionBlock(
                 Index: -1,
-                LevelWord: 0x8000,
+                LevelWord: PrefilledSolidWord,
                 Behavior: 0);
         }
 

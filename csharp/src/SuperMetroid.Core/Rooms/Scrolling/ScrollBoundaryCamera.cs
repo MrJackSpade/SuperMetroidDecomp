@@ -14,6 +14,9 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// </remarks>
 public sealed class ScrollBoundaryCamera
 {
+    /// <summary>Half a 256-pixel screen: the camera's centre.</summary>
+    private const int HalfScreen = 128;
+
 
     /// <summary>Creates a camera constrained by the supplied mutable room scroll grid.</summary>
     /// <param name="scrolls">Room-sized grid of native directional scroll states.</param>
@@ -92,7 +95,7 @@ public sealed class ScrollBoundaryCamera
         // The vertical maximum depends on blue/green scroll alignment. Starting with the
         // room-wide conservative +$1F allowance matches $80:A731's largest legal result;
         // the first vertical movement applies the cell-specific exact maximum.
-        int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + 0x1f;
+        int maxY = (RoomGridConversions.ScreenToPixels(Scrolls.Size.Y - 1)) + 31;
         var clamped = new Position16<RoomPixels>(
             (ushort)Math.Clamp(requested.X, 0, maxX),
             (ushort)Math.Clamp(requested.Y, 0, maxY));
@@ -305,7 +308,7 @@ public sealed class ScrollBoundaryCamera
         if (Position.X.Whole > roomMaximum)
             SetWholeX(roomMaximum);
 
-        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + 0x0080))) * Scrolls.Size.X;
+        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int currentCell = row + (SnesEightEight.WholeOf(Position.X.Whole));
 
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
@@ -358,7 +361,7 @@ public sealed class ScrollBoundaryCamera
         if (timeIsFrozen)
             return;
 
-        int centeredXScreen = SnesEightEight.WholeOf((ushort)(Position.X.Whole + 0x0080));
+        int centeredXScreen = SnesEightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
         int preClampCell = (SnesEightEight.WholeOf(Position.Y.Whole)) * Scrolls.Size.X + centeredXScreen;
 
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
@@ -366,7 +369,7 @@ public sealed class ScrollBoundaryCamera
         // alignment is selected before Y is clamped and remains fixed for this invocation.
         ushort verticalAlignment = Scrolls.ReadNativeState(preClampCell) == RoomScrollState.Blue
             ? (ushort)0
-            : (ushort)0x001f;
+            : (ushort)31;
         ushort proposed = Position.Y.Whole;
 
         if ((short)Position.Y.Whole < 0)
@@ -444,7 +447,7 @@ public sealed class ScrollBoundaryCamera
 
         // The horizontal routines sample the row containing the screen's vertical center
         // (Y+$80), then the screen immediately to the right of the camera's high X byte.
-        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + 0x0080))) * Scrolls.Size.X;
+        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int rightCell = row + (SnesEightEight.WholeOf(Position.X.Whole)) + 1;
         if (Scrolls.ReadNativeState(rightCell) != RoomScrollState.RedBoundary)
             return;
@@ -472,7 +475,7 @@ public sealed class ScrollBoundaryCamera
             return;
         }
 
-        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + 0x0080))) * Scrolls.Size.X;
+        int row = (SnesEightEight.WholeOf((ushort)(Position.Y.Whole + HalfScreen))) * Scrolls.Size.X;
         int currentCell = row + (SnesEightEight.WholeOf(Position.X.Whole));
         if (Scrolls.ReadNativeState(currentCell) != RoomScrollState.RedBoundary)
             return;
@@ -494,7 +497,7 @@ public sealed class ScrollBoundaryCamera
         // This is the LDY #0 / CMP #1 / LDY #$1F sequence at $80:A8A8-$80:A8C8.
         ushort verticalAlignment = Scrolls.ReadNativeState(currentCell) == RoomScrollState.Blue
             ? (ushort)0
-            : (ushort)0x001f;
+            : (ushort)31;
 
         if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
@@ -558,7 +561,7 @@ public sealed class ScrollBoundaryCamera
     /// <summary>Samples the scroll cell at the camera's horizontal midpoint for vertical boundaries.</summary>
     private int VerticalCellIndex()
     {
-        int xScreenAtCenter = SnesEightEight.WholeOf((ushort)(Position.X.Whole + 0x0080));
+        int xScreenAtCenter = SnesEightEight.WholeOf((ushort)(Position.X.Whole + HalfScreen));
         int yScreen = SnesEightEight.WholeOf(Position.Y.Whole);
         return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
@@ -570,7 +573,7 @@ public sealed class ScrollBoundaryCamera
     private static ushort ScreenStart(ushort pixel) => (ushort)(SnesLittleEndian.HighByteInPlace(pixel));
 
     /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
-    private static ushort NextScreenStart(ushort pixel) => unchecked((ushort)(ScreenStart(pixel) + 0x0100));
+    private static ushort NextScreenStart(ushort pixel) => unchecked((ushort)(ScreenStart(pixel) + 2 * HalfScreen));
 
     /// <summary>
     /// $90:96C3/$90:9702: compares only the integer words as signed 16-bit values, then
@@ -583,8 +586,8 @@ public sealed class ScrollBoundaryCamera
         SnesFixedPosition current)
     {
         uint distance = SignedDifference(current.Whole, previous.Whole) >= 0
-            ? unchecked(current.RawValue - previous.RawValue + 0x0001_0000u)
-            : unchecked(previous.RawValue - current.RawValue + 0x0001_0000u);
+            ? unchecked(current.RawValue - previous.RawValue + 65536u)
+            : unchecked(previous.RawValue - current.RawValue + 65536u);
         return SnesSignedSixteenSixteen.FromRaw(unchecked((int)distance));
     }
 

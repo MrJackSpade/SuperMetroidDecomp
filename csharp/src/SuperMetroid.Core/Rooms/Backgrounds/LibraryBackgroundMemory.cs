@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 internal readonly struct LibraryBackgroundMemory(ISnesMemoryBus bus)
 {
     /// <summary>Projects the declared $7E:4000 staging cell into bounded byte and word writes on the live bus.</summary>
-    private WorkRamByteTable Staging => new(bus, LibraryBackgroundWorkRam.TilemapStaging);
+    private WorkRamByteTable Staging => new(bus, LibraryBackgroundWorkRamAddresses.TilemapStaging);
 
     /// <summary>Writes a decompressed tilemap at bank-$7E <paramref name="destination"/>, in address order.</summary>
     internal void WriteDecompressed(ushort destination, ReadOnlySpan<byte> bytes, int sourceAddress)
@@ -30,8 +30,8 @@ internal readonly struct LibraryBackgroundMemory(ISnesMemoryBus bus)
     /// <summary>Validates a requested decompression or fill span against the 4 KiB tilemap buffer before any write.</summary>
     private static int StagingOffset(ushort destination, int byteCount, int? sourceAddress)
     {
-        int first = destination - SnesAddress.FromBusAddress(LibraryBackgroundWorkRam.TilemapStaging.Address).Offset;
-        if (first < 0 || first + byteCount > LibraryBackgroundWorkRam.TilemapStaging.ByteCount)
+        int first = destination - SnesAddress.FromBusAddress(LibraryBackgroundWorkRamAddresses.TilemapStaging.Address).Offset;
+        if (first < 0 || first + byteCount > LibraryBackgroundWorkRamAddresses.TilemapStaging.ByteCount)
             throw new InvalidDataException(sourceAddress is int source
                 ? $"Library-background decompression from ${source:X6} to $7E:{destination:X4} leaves the tilemap staging buffer."
                 : $"Library-background fill of {byteCount} bytes at $7E:{destination:X4} leaves the tilemap staging buffer.");

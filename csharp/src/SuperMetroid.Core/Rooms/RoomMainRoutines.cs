@@ -150,8 +150,8 @@ internal sealed class RoomMainRoutines
         _room.RoomMainScratch.Countdown = NativeCountdown.Start(8);
         ushort random = _system.RandomNumber;
         _enemies.Projectiles.SpawnCeresFallingDebris(
-            CeresFallingDebrisX(random & 0x000f),
-            dark: (random & 0x8000) != 0);
+            CeresFallingDebrisX(random & 15),
+            dark: unchecked((short)random) < 0);
     }
 
     /// <summary>
@@ -159,6 +159,6 @@ internal sealed class RoomMainRoutines
     /// thirty-two pixels apart through $190.
     /// </summary>
     internal static ushort CeresFallingDebrisX(int column) => (uint)column < 16
-        ? (ushort)(column <= 10 ? 0x0050 + 0x10 * column : 0x00f0 + 0x20 * (column - 10))
+        ? (ushort)(column <= 10 ? 80 + 16 * column : 240 + 32 * (column - 10))
         : throw new ArgumentOutOfRangeException(nameof(column));
 }

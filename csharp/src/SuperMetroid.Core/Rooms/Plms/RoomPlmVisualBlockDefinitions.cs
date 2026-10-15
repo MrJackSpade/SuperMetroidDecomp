@@ -25,4 +25,11 @@ internal static class RoomPlmVisualBlockDefinitions
     /// authored animation list replaces it.
     /// </summary>
     public const ushort ContactCrumbleParent = 0x00bc;
+
+    /// <summary>Visual block $052: the shot block a beam break restores after its respawn delay.</summary>
+    public const ushort ShotBlockParent = 0x0052;
+    /// <summary>Visual block $057: the power-bomb block a power bomb restores after its respawn delay.</summary>
+    public const ushort PowerBombBlockParent = 0x0057;
+    /// <summary>Visual block $09F: the Super Missile block a Super Missile restores after its respawn delay.</summary>
+    public const ushort SuperMissileBlockParent = 0x009f;
 }

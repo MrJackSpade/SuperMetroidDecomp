@@ -111,7 +111,7 @@ internal sealed class RoomSpriteObjectPool
                 // Repeat-last backs up to the timed record that preceded the opcode and
                 // pins its timer at $7FFF. Its already selected spritemap remains visible.
                 slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer - 4));
-                slot.InstructionTimer = 0x7fff;
+                slot.InstructionTimer = (ushort)short.MaxValue;
                 return;
 
             case RoomSpriteObjectInstruction.Terminate:
@@ -170,9 +170,9 @@ internal sealed class RoomSpriteObjectPool
             // `(y - 272)`. Unsigned host comparisons incorrectly discarded partially visible
             // objects whose wrapped screen coordinate represented a small negative offset.
             if (unchecked((short)(screen.X + 16)) < 0 ||
-                unchecked((short)(screen.X - 0x0110)) >= 0 ||
+                unchecked((short)(screen.X - 272)) >= 0 ||
                 unchecked((short)screen.Y) < 0 ||
-                unchecked((short)(screen.Y - 0x0110)) >= 0)
+                unchecked((short)(screen.Y - 272)) >= 0)
             {
                 continue;
             }

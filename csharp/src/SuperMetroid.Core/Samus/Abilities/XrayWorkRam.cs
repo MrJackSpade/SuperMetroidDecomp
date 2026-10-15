@@ -20,5 +20,5 @@ public static class XrayWorkRam
     /// </summary>
     public static readonly CpuBusCell RevealTilemap = CpuBusCell.WramWords(nameof(RevealTilemap), 0x7e4000,
         XrayTilemapLayout.BufferWords, "BG2 tilemap words (u16[] little-endian)",
-        aliasOf: LibraryBackgroundWorkRam.TilemapStaging);
+        aliasOf: LibraryBackgroundWorkRamAddresses.TilemapStaging);
 }

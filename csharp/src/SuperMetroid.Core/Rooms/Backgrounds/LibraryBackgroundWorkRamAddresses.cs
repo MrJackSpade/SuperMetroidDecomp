@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>The bank-$7E staging buffer the bank-$82 library-background commands fill (#629).</summary>
 [CpuBusBoundary("catalog: library-background WRAM staging")]
-public static class LibraryBackgroundWorkRam
+public static class LibraryBackgroundWorkRamAddresses
 {
     /// <summary>
     /// <c>$7E:4000-$7E:4FFF</c>: the BG tilemap staging buffer that library-background command

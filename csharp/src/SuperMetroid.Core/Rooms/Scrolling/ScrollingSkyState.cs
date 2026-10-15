@@ -122,7 +122,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         int upperChunk = SnesLittleEndian.HighByte(upperPosition);
         int upperByteOffset = (SnesLittleEndian.LowByte(upperPosition)) * 8;
         int upperSource = RoomFxRomData.Banks.Tilemaps |
-            unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
+            unchecked((ushort)(ScrollingSkyChunkDefinitions.Get(
                 pointerTable, upperChunk) + upperByteOffset));
 
         // Second pair: two rows just below the 224-line screen, based on cameraY+$F0.
@@ -132,7 +132,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         int lowerChunk = SnesLittleEndian.HighByte(lowerPosition);
         int lowerByteOffset = (SnesLittleEndian.LowByte(lowerPosition)) * 8;
         int lowerSource = RoomFxRomData.Banks.Tilemaps |
-            unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
+            unchecked((ushort)(ScrollingSkyChunkDefinitions.Get(
                 pointerTable, lowerChunk) + lowerByteOffset));
 
         int upperRow = 4 * (unchecked((ushort)(

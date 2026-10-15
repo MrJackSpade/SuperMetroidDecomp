@@ -24,4 +24,7 @@ public static class RoomBlockBehaviorValues
 
     /// <summary>Resident scroll-trigger PLM collision seam.</summary>
     public static readonly RoomBlockBehavior ScrollTrigger = new(0x46);
+
+    /// <summary>BTS $10 on a shootable block: the collision probe's no-op sentinel.</summary>
+    public static readonly RoomBlockBehavior ShootableCollisionProbe = new(0x10);
 }

@@ -39,8 +39,8 @@ internal sealed class ScrollPlms
             if (!slot.Scroll.Triggered)
             {
                 slot.Scroll.Triggered = true;
-                slot.RestoreLevelWord = 0x8000;
-                slot.InstructionPointer = 0xaf8c;
+                slot.RestoreLevelWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
+                slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerTriggered;
                 slot.InstructionTimer = NativeCountdown.Start(1);
             }
             return true;
@@ -76,7 +76,7 @@ internal sealed class ScrollPlms
                 throw new InvalidDataException(
                     $"Scroll PLM program $8F:{slot.RoomArgument:X4} ended without a terminator.");
             byte scrollIndex = program.Span[offset];
-            if ((scrollIndex & 0x80) != 0)
+            if (unchecked((sbyte)scrollIndex) < 0)
             {
                 FinishScrollMutation(level, slot);
                 return true;
@@ -108,7 +108,7 @@ internal sealed class ScrollPlms
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         level.SetForegroundEntry(
             slot.BlockIndex,
-            (ushort)((triggerWord & 0x0fff) | 0x3000));
+            new RoomLevelWord(triggerWord).WithCollisionType(RoomCollisionType.SpecialAir).Raw);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 
@@ -118,20 +118,20 @@ internal sealed class ScrollPlms
     {
         if (header != PlmHeaderId.ScrollTrigger)
         {
-            (int collisionType, int behavior) = header switch
+            (RoomCollisionType collisionType, sbyte offset) = header switch
             {
-                PlmHeaderId.RightwardsScrollExtension => (5, 0xff),
-                PlmHeaderId.LeftwardsScrollExtension => (5, 0x01),
-                PlmHeaderId.DownwardsScrollExtension => (13, 0xff),
-                PlmHeaderId.UpwardsScrollExtension => (13, 0x01),
+                PlmHeaderId.RightwardsScrollExtension => (RoomCollisionType.HorizontalExtension, (sbyte)-1),
+                PlmHeaderId.LeftwardsScrollExtension => (RoomCollisionType.HorizontalExtension, (sbyte)1),
+                PlmHeaderId.DownwardsScrollExtension => (RoomCollisionType.VerticalExtension, (sbyte)-1),
+                PlmHeaderId.UpwardsScrollExtension => (RoomCollisionType.VerticalExtension, (sbyte)1),
                 _ => throw new InvalidOperationException(
                     "Validated scroll extension escaped its setup table."),
             };
             ushort originalWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
             level.SetForegroundEntry(
                 slot.BlockIndex,
-                unchecked((ushort)((originalWord & 0x0fff) | (collisionType << 12))));
-            level.SetBehavior(slot.BlockIndex, unchecked((byte)behavior));
+                new RoomLevelWord(originalWord).WithCollisionType(collisionType).Raw);
+            level.SetBehavior(slot.BlockIndex, unchecked((byte)offset));
 
             // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
             // what permits the following ROM record to reuse the same highest native ID.
@@ -149,7 +149,7 @@ internal sealed class ScrollPlms
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
         level.SetForegroundEntry(
             slot.BlockIndex,
-            unchecked((ushort)((triggerWord & 0x0fff) | 0x3000)));
+            new RoomLevelWord(triggerWord).WithCollisionType(RoomCollisionType.SpecialAir).Raw);
         level.SetBehavior(slot.BlockIndex, RoomBlockBehaviorValues.ScrollTrigger);
     }
 

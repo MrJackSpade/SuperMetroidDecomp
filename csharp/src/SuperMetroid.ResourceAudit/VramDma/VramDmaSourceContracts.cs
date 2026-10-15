@@ -64,7 +64,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Fx/RoomFxAnimatedTileMechanicsDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Areas/Tourian/TourianStatueAnimatedTileMechanicsDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipTreadmillMechanicsDefinitions.cs"),
-        new("csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunkPointerDefinitions.cs"),
+        new("csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunkDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollBoundaryCamera.cs"),
         new("csharp/src/SuperMetroid.Core/Fx/RoomFxRomData.cs"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs"),

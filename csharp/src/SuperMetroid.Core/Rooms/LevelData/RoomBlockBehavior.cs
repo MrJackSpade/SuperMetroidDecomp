@@ -12,20 +12,29 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="Value">The unchanged block-type-specific BTS byte from the room's behavior data.</param>
 public readonly record struct RoomBlockBehavior(byte Value)
 {
+    /// <summary>The low five bits: a slope's shape.</summary>
+    private const int SlopeShapeBits = (1 << 5) - 1;
+    /// <summary>Bit six: a slope's horizontal reflection.</summary>
+    private const int HorizontalFlipBit = 1 << 6;
+    /// <summary>Bit seven: a slope's vertical reflection, or the area/grapple table selector.</summary>
+    private const int HighBit = 1 << 7;
+    /// <summary>The low seven bits: an area or grapple reaction index.</summary>
+    private const int LowSevenBits = HighBit - 1;
+
     /// <summary>Signed block displacement used by horizontal and vertical extensions.</summary>
     public sbyte ExtensionOffset => unchecked((sbyte)Value);
 
     /// <summary>Low-five-bit index into the bank-$94 slope-shape tables.</summary>
-    public byte SlopeShape => unchecked((byte)(Value & 0x1f));
+    public byte SlopeShape => unchecked((byte)(Value & SlopeShapeBits));
 
     /// <summary>Whether the slope selects the non-square height-table dispatcher.</summary>
     public bool IsNonSquareSlope => SlopeShape >= 5;
 
     /// <summary>Horizontal reflection bit when this byte belongs to a slope block.</summary>
-    public bool SlopeFlipsHorizontally => (Value & 0x40) != 0;
+    public bool SlopeFlipsHorizontally => (Value & HorizontalFlipBit) != 0;
 
     /// <summary>Vertical reflection bit when this byte belongs to a slope block.</summary>
-    public bool SlopeFlipsVertically => (Value & 0x80) != 0;
+    public bool SlopeFlipsVertically => (Value & HighBit) != 0;
 
     /// <summary>Two-bit slope orientation/quadrant selector stored in bits six and seven.</summary>
     public byte SlopeOrientation => unchecked((byte)(Value >> 6));
@@ -34,10 +43,10 @@ public readonly record struct RoomBlockBehavior(byte Value)
     /// Whether a projectile/bomb reaction selects the area-dependent table. This is the
     /// same physical bit as the slope vertical reflection bit, but only in this context.
     /// </summary>
-    public bool UsesAreaReactionTable => (Value & 0x80) != 0;
+    public bool UsesAreaReactionTable => (Value & HighBit) != 0;
 
     /// <summary>Low-seven-bit index used by area-dependent reaction tables.</summary>
-    public byte AreaReactionIndex => unchecked((byte)(Value & 0x7f));
+    public byte AreaReactionIndex => unchecked((byte)(Value & LowSevenBits));
 
     /// <summary>Whether this is a valid index into a normal table of the given size.</summary>
     public bool IsNormalReactionIndex(int entryCount) =>
@@ -48,10 +57,10 @@ public readonly record struct RoomBlockBehavior(byte Value)
         UsesAreaReactionTable && AreaReactionIndex < entryCount;
 
     /// <summary>Whether grapple collision rejects the indexed reaction via bit seven.</summary>
-    public bool RejectsGrappleReaction => (Value & 0x80) != 0;
+    public bool RejectsGrappleReaction => (Value & HighBit) != 0;
 
     /// <summary>Low-seven-bit grapple reaction-table index.</summary>
-    public byte GrappleReactionIndex => unchecked((byte)(Value & 0x7f));
+    public byte GrappleReactionIndex => unchecked((byte)(Value & LowSevenBits));
 
     /// <summary>Persistent grapple anchors are table entries zero and three.</summary>
     public bool IsPersistentGrappleReaction =>
@@ -83,10 +92,10 @@ public readonly record struct RoomBlockBehavior(byte Value)
     /// Shootable-table entry $10 selects header <c>$84:B974</c>. Bank $94 also publishes
     /// its collision-result sentinel before spawning that one-frame no-op PLM.
     /// </summary>
-    public bool IsShootableCollisionProbe => Value == 0x10;
+    public bool IsShootableCollisionProbe => Value == RoomBlockBehaviorValues.ShootableCollisionProbe.Value;
 
     /// <summary>$94:9EA6 entries $11..$3F and $4E point to the native nothing PLM.</summary>
-    public bool IsUnusedShootableReaction => Value is >= 0x11 and <= 0x3f or 0x4e;
+    public bool IsUnusedShootableReaction => Value is >= 17 and <= 63 or 78;
 
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
     public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation)

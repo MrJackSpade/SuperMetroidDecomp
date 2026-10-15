@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>The room scroll-zone buffer in WRAM (#629).</summary>
 [CpuBusBoundary("catalog: room scroll-zone WRAM")]
-public static class RoomScrollWorkRam
+public static class RoomScrollWorkRamAddresses
 {
     /// <summary>
     /// <c>$7E:CD20-$7E:CD51</c> <c>Scrolls</c>: one scroll-zone byte per 256-pixel room screen,

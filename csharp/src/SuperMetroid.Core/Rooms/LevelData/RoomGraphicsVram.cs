@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public readonly struct RoomGraphicsVram(SnesVram vram)
 {
     /// <summary>Words in one collectible character slot: two 16x16 frames of four characters.</summary>
-    public const int CollectibleSlotWordCount = 0x80;
+    public const int CollectibleSlotWordCount = 128;
 
     /// <summary>The area tileset's characters.</summary>
     public VramRegion AreaCharacters => new(vram, RoomGraphicsLayout.AreaCharacters);

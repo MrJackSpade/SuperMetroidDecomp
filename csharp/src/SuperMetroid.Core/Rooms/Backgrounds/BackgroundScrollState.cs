@@ -61,7 +61,7 @@ public sealed class BackgroundScrollState
     public Position16<RoomBlocks> PreviousLayer2Block { get; private set; }
 
     /// <summary>Stores $FFFF to the previous layer-one X block, as Kraid's dead-room tail does.</summary>
-    internal void ResetPreviousLayer1XBlock() => PreviousLayer1Block = PreviousLayer1Block.WithX(0xffff);
+    internal void ResetPreviousLayer1XBlock() => PreviousLayer1Block = PreviousLayer1Block.WithX(ushort.MaxValue);
 
     /// <summary>
     /// Publishes a room actor's direct writes to the PPU BG2 scroll mirrors. Mother Brain
@@ -431,7 +431,7 @@ public sealed class BackgroundScrollState
         // The hardware implementation performs two 8x8 multiplies: factor*low contributes
         // its high product byte, and factor*high contributes its low product word. Together
         // they equal floor(position * (mode & $FE) / $100), modulo 16 bits.
-        uint factor = (uint)(scrollMode & 0xfe);
+        uint factor = (uint)(scrollMode & ~1);
         result = unchecked((ushort)SnesEightEight.WholeOf((uint)layer1Position * factor));
         return true;
     }

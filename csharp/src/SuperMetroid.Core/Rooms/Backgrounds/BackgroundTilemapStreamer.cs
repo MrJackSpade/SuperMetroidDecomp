@@ -36,7 +36,7 @@ public sealed class BackgroundTilemapStreamer
         ReadOnlySpan<byte> blockDefinitions,
         ushort sizeOfBg2 = 0)
     {
-        if (roomWidthInBlocks is <= 0 or > 0xff)
+        if (roomWidthInBlocks is <= 0 or > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
         if ((blockDefinitions.Length & 7) != 0)
             throw new ArgumentException("Every block definition must contain four 16-bit tile words.", nameof(blockDefinitions));
@@ -105,19 +105,19 @@ public sealed class BackgroundTilemapStreamer
 
         int blockX = blockIndex % RoomWidthInBlocks;
         int blockY = blockIndex / RoomWidthInBlocks;
-        int ringX = blockX & 0x1f;
-        int ringY = blockY & 0x0f;
-        ushort screenBase = ringX < 0x10 ? (ushort)0x5000 : (ushort)0x53e0;
+        int ringX = blockX & Bg1TilemapLayout.RingColumnMask;
+        int ringY = blockY & Bg1TilemapLayout.RingRowMask;
+        ushort screenBase = ringX < Bg1TilemapLayout.ScreenBlocks ? Bg1TilemapLayout.FirstScreen : Bg1TilemapLayout.SecondScreenColumnBase;
         ushort destination = unchecked((ushort)(
-            screenBase + ringY * 0x40 + ringX * 2));
+            screenBase + ringY * Bg1TilemapLayout.BlockRowWords + ringX * 2));
 
         // The native routine swaps the two 32x32 tilemap screens whenever the BG1 offset
         // crosses $0100. This preserves the ring identity after horizontal wrap.
-        if ((bg1XOffset & 0x0100) != 0)
+        if ((bg1XOffset & Bg1TilemapLayout.ScreenSwapScrollBit) != 0)
         {
-            destination = ringX < 0x10
-                ? unchecked((ushort)(destination + 0x0400))
-                : unchecked((ushort)(destination - 0x0400));
+            destination = ringX < Bg1TilemapLayout.ScreenBlocks
+                ? unchecked((ushort)(destination + Bg1TilemapLayout.ScreenWords))
+                : unchecked((ushort)(destination - Bg1TilemapLayout.ScreenWords));
         }
 
         ExpandedBlockTiles tiles = LevelBlockTilemapExpander.Expand(
@@ -167,15 +167,15 @@ public sealed class BackgroundTilemapStreamer
 
         // VRAM is a two-screen-wide, one-screen-tall ring buffer. The current vertical
         // block modulo 16 determines where a 32-tile column wraps from bottom back to top.
-        int wrappedBytes = (4 * request.VramBlock.Y) & 0x003c;
-        int unwrappedBytes = (wrappedBytes ^ 0x003f) + 1;
+        int wrappedBytes = (4 * request.VramBlock.Y) & (Bg1TilemapLayout.ColumnBytes - 4);
+        int unwrappedBytes = Bg1TilemapLayout.ColumnBytes - wrappedBytes;
         int unwrappedWords = unwrappedBytes / 2;
         int wrappedWords = wrappedBytes / 2;
 
-        int yWordOffset = (request.VramBlock.Y & 0x000f) * 0x0040;
-        int xBlock = request.VramBlock.X & 0x001f;
+        int yWordOffset = (request.VramBlock.Y & Bg1TilemapLayout.RingRowMask) * Bg1TilemapLayout.BlockRowWords;
+        int xBlock = request.VramBlock.X & Bg1TilemapLayout.RingColumnMask;
         int xWordOffset = xBlock * 2;
-        ushort screenBase = xBlock >= 0x10 ? (ushort)0x53e0 : (ushort)0x5000;
+        ushort screenBase = xBlock >= Bg1TilemapLayout.ScreenBlocks ? Bg1TilemapLayout.SecondScreenColumnBase : Bg1TilemapLayout.FirstScreen;
         if (request.Layer == BackgroundLayer.Background)
             screenBase = unchecked((ushort)(screenBase - SizeOfBg2));
 
@@ -216,21 +216,21 @@ public sealed class BackgroundTilemapStreamer
             bottomTiles[destination + 1] = tiles.BottomRight;
         }
 
-        int xWithinScreen = request.VramBlock.X & 0x000f;
+        int xWithinScreen = request.VramBlock.X & (Bg1TilemapLayout.ScreenBlocks - 1);
         int unwrappedBytes = 4 * (16 - xWithinScreen);
         int wrappedBytes = 4 * (xWithinScreen + 1);
         int unwrappedWords = unwrappedBytes / 2;
         int wrappedWords = wrappedBytes / 2;
 
-        int yWordOffset = (request.VramBlock.Y & 0x000f) * 0x0040;
-        int xBlock = request.VramBlock.X & 0x001f;
+        int yWordOffset = (request.VramBlock.Y & Bg1TilemapLayout.RingRowMask) * Bg1TilemapLayout.BlockRowWords;
+        int xBlock = request.VramBlock.X & Bg1TilemapLayout.RingColumnMask;
         int xWordOffset = xBlock * 2;
-        ushort wrappedScreenBase = 0x5400;
-        ushort unwrappedScreenBase = 0x5000;
-        if (xBlock >= 0x10)
+        ushort wrappedScreenBase = Bg1TilemapLayout.SecondScreen;
+        ushort unwrappedScreenBase = Bg1TilemapLayout.FirstScreen;
+        if (xBlock >= Bg1TilemapLayout.ScreenBlocks)
         {
-            wrappedScreenBase = 0x5000;
-            unwrappedScreenBase = 0x53e0;
+            wrappedScreenBase = Bg1TilemapLayout.FirstScreen;
+            unwrappedScreenBase = Bg1TilemapLayout.SecondScreenColumnBase;
         }
         if (request.Layer == BackgroundLayer.Background)
         {
@@ -243,9 +243,9 @@ public sealed class BackgroundTilemapStreamer
         var segments = new List<TilemapDmaSegment>(capacity: 4)
         {
             new(topTiles, 0, unwrappedWords, unwrappedDestination, TilemapDmaDirection.Row),
-            new(bottomTiles, 0, unwrappedWords, (ushort)(unwrappedDestination | 0x0020), TilemapDmaDirection.Row),
+            new(bottomTiles, 0, unwrappedWords, (ushort)(unwrappedDestination | Bg1TilemapLayout.TileRowWords), TilemapDmaDirection.Row),
             new(topTiles, unwrappedWords, wrappedWords, wrappedDestination, TilemapDmaDirection.Row),
-            new(bottomTiles, unwrappedWords, wrappedWords, (ushort)(wrappedDestination | 0x0020), TilemapDmaDirection.Row),
+            new(bottomTiles, unwrappedWords, wrappedWords, (ushort)(wrappedDestination | Bg1TilemapLayout.TileRowWords), TilemapDmaDirection.Row),
         };
         return new TilemapStreamUpdate(segments);
     }

@@ -23,23 +23,23 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 27817,
-    "PointerDispatch": 112,
+    "RawHexLiteral": 27679,
+    "PointerDispatch": 109,
     "OpaqueWordArray": 963,
-    "CatalogHexLiteral": 99034,
+    "CatalogHexLiteral": 99046,
     "JustifiedHexLiteral": 150,
     "RawWidthOperation": 44,
     "OwnedWidthOperation": 71,
     "JustifiedWidthOperation": 3,
     "CountdownSignTest": 3,
     "CountdownSelfDecrement": 18,
-    "class:NumericQuantity": 53913,
-    "class:DomainIdentity": 8486,
-    "class:ComposableBits": 1177,
+    "class:NumericQuantity": 53872,
+    "class:DomainIdentity": 8475,
+    "class:ComposableBits": 1119,
     "class:StructuredInstruction": 40983,
-    "class:CartridgeAddress": 22913,
-    "class:Unknown": 743,
-    "storageWidthMembers": 1513
+    "class:CartridgeAddress": 22909,
+    "class:Unknown": 728,
+    "storageWidthMembers": 1514
   },
   "subsystems": [
     {
@@ -21842,9 +21842,9 @@
     {
       "name": "PLMs and doors",
       "totals": {
-        "CatalogHexLiteral": 9235,
+        "CatalogHexLiteral": 9239,
         "JustifiedHexLiteral": 3,
-        "class:NumericQuantity": 7259,
+        "class:NumericQuantity": 7263,
         "class:DomainIdentity": 1393,
         "class:ComposableBits": 5,
         "class:StructuredInstruction": 5,
@@ -22353,8 +22353,8 @@
           "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmInstructionLists.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 52,
-            "class:NumericQuantity": 52
+            "CatalogHexLiteral": 53,
+            "class:NumericQuantity": 53
           }
         },
         {
@@ -22431,8 +22431,8 @@
           "path": "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmVisualBlockDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 3,
-            "class:NumericQuantity": 3
+            "CatalogHexLiteral": 6,
+            "class:NumericQuantity": 6
           }
         },
         {
@@ -23560,39 +23560,29 @@
     {
       "name": "Rooms: setup, scrolling and level data",
       "totals": {
-        "RawHexLiteral": 138,
-        "PointerDispatch": 3,
-        "CatalogHexLiteral": 10025,
+        "CatalogHexLiteral": 10033,
         "OwnedWidthOperation": 3,
-        "class:NumericQuantity": 8699,
-        "class:DomainIdentity": 785,
-        "class:ComposableBits": 64,
-        "class:CartridgeAddress": 606,
-        "class:Unknown": 15,
-        "storageWidthMembers": 24
+        "class:NumericQuantity": 8654,
+        "class:DomainIdentity": 774,
+        "class:ComposableBits": 6,
+        "class:CartridgeAddress": 602,
+        "storageWidthMembers": 25
       },
-      "addressInterpretingTypes": [
-        "ScrollingSkyChunkPointerDefinitions"
-      ],
+      "addressInterpretingTypes": [],
       "files": [
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/BackgroundScrollState.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 1
-          }
-        },
         {
           "path": "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/BackgroundTilemapStreamer.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 30,
-            "class:NumericQuantity": 13,
-            "class:ComposableBits": 12,
-            "class:Unknown": 5,
             "storageWidthMembers": 1
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/Bg1TilemapLayout.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "CatalogHexLiteral": 4,
+            "class:NumericQuantity": 4
           }
         },
         {
@@ -23627,19 +23617,11 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundWorkRam.cs",
+          "path": "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundWorkRamAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
+            "CatalogHexLiteral": 2,
             "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/BlockReactionPlms.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 13,
-            "class:ComposableBits": 13
           }
         },
         {
@@ -23648,15 +23630,6 @@
           "totals": {
             "CatalogHexLiteral": 3,
             "class:CartridgeAddress": 3
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/BombSpecialBlockReactions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 4,
-            "class:DomainIdentity": 2,
-            "class:Unknown": 2
           }
         },
         {
@@ -23671,10 +23644,6 @@
           "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockBehavior.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 11,
-            "class:DomainIdentity": 2,
-            "class:ComposableBits": 7,
-            "class:Unknown": 2,
             "storageWidthMembers": 6
           }
         },
@@ -23682,8 +23651,8 @@
           "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomBlockBehaviorValues.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 6,
-            "class:NumericQuantity": 6
+            "CatalogHexLiteral": 7,
+            "class:NumericQuantity": 7
           }
         },
         {
@@ -23695,14 +23664,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomCreBitsets.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsLayout.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -23711,21 +23672,10 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 2,
-            "class:ComposableBits": 2,
-            "class:Unknown": 1
+            "storageWidthMembers": 1
           }
         },
         {
@@ -23740,8 +23690,6 @@
           "path": "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelWord.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 5,
             "storageWidthMembers": 3
           }
         },
@@ -23791,16 +23739,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomIdentities.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 5,
-            "class:NumericQuantity": 2,
-            "class:DomainIdentity": 1,
-            "class:Unknown": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Core/Rooms/RoomIdentity.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -23811,11 +23749,6 @@
           "path": "csharp/src/SuperMetroid.Core/Rooms/RoomLoader.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 23,
-            "class:NumericQuantity": 1,
-            "class:DomainIdentity": 6,
-            "class:ComposableBits": 15,
-            "class:Unknown": 1,
             "storageWidthMembers": 1
           }
         },
@@ -23833,15 +23766,6 @@
           "totals": {
             "CatalogHexLiteral": 15,
             "class:CartridgeAddress": 15
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/RoomMainRoutines.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 6,
-            "class:NumericQuantity": 4,
-            "class:ComposableBits": 2
           }
         },
         {
@@ -23904,56 +23828,19 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollGrid.cs",
+          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollWorkRamAddresses.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "class:NumericQuantity": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollMemory.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
+            "CatalogHexLiteral": 1,
             "class:NumericQuantity": 1
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollWorkRam.cs",
+          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunkDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "class:NumericQuantity": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollBoundaryCamera.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 11,
-            "class:NumericQuantity": 9,
-            "class:Unknown": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollPlms.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 12,
-            "class:NumericQuantity": 5,
-            "class:ComposableBits": 6,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunkPointerDefinitions.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "PointerDispatch": 3,
             "CatalogHexLiteral": 7,
-            "class:NumericQuantity": 7,
-            "class:CartridgeAddress": 3
+            "class:NumericQuantity": 7
           }
         },
         {
@@ -24004,14 +23891,6 @@
             "CatalogHexLiteral": 21,
             "class:DomainIdentity": 20,
             "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Rooms/SpriteObjects/RoomSpriteObjectPool.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 3,
-            "class:NumericQuantity": 3
           }
         },
         {

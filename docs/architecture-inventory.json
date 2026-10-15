@@ -62438,14 +62438,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundWorkRam",
+      "type": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundWorkRamAddresses",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundWorkRam.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundWorkRamAddresses.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -70295,14 +70295,14 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollWorkRam",
+      "type": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollWorkRamAddresses",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollWorkRam.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollWorkRamAddresses.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -70392,14 +70392,14 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Scrolling.ScrollingSkyChunkPointerDefinitions",
+      "type": "SuperMetroid.Core.Rooms.Scrolling.ScrollingSkyChunkDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunkPointerDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/ScrollingSkyChunkDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

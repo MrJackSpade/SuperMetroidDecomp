@@ -7,5 +7,5 @@ public static class RoomCreBitsets
     /// Bit tested by door IRQ handlers $80:96F1/$80:9771/$80:97DA. If either adjacent
     /// room sets it, the transition disables BG1 below the HUD and displays OBJ alone.
     /// </summary>
-    public const byte SuppressDoorTransitionBg1 = 0x01;
+    public const byte SuppressDoorTransitionBg1 = 1;
 }

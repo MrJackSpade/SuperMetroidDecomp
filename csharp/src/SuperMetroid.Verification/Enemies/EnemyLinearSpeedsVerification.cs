@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Cacatac;
+using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Ripper;
@@ -34,9 +36,9 @@ internal static class EnemyLinearSpeedsVerification
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Stoke and Ripper do not need any bus for their speed setup.
         enemies.BindFixtureBus(new TestAddressSpace());
-        var cacatac = new Action<RoomEnemySlot>(enemies.CacatacBehavior.InitializeCacatac);
+        var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);
         var owtch = new Action<RoomEnemySlot>(enemies.OwtchBehavior.InitializeOwtch);
-        var stoke = new Action<RoomEnemySlot>(enemies.StokeBehavior.InitializeStoke);
+        var stoke = new Action<RoomEnemySlot>(StokeBehavior.InitializeStoke);
         Action<RoomEnemySlot, bool> ripper = RipperBehavior.LoadRipperVelocity;
         var slot = enemies.SlotTable.Slots[0];
         for (int index = 0; index < 65; index++)

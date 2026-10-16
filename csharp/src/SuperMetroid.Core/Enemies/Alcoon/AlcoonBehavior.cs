@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Fx;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Alcoon;
 
 /// <summary>The Alcoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class AlcoonBehavior : IEnemySpecies
+internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Alcoon];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AlcoonEntity(this, slot, common);
+
     /// <summary>Provides RNG for the randomized post-volley walk count.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves Alcoon's jump landing and its walking collisions.</summary>
@@ -74,9 +81,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     internal readonly ushort[] _alcoonLandingYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Walking steps remaining before Alcoon may fire at Samus.</summary>
     internal readonly ushort[] _alcoonStepCounters = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Active Alcoon state indexed by enemy slot.</summary>
-    internal readonly AlcoonEnemyState?[] _alcoonStates =
-        new AlcoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
@@ -94,7 +98,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             _alcoonSpawnXPositions,
             _alcoonLandingYPositions,
             _alcoonStepCounters);
-        _alcoonStates[slot.SlotIndex] = state;
+        (slot.Entity as AlcoonEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Alcoon.")).State = state;
 
         state.StepCounter = NativeCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
@@ -403,8 +408,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     }
 
     /// <summary>Requires per-slot state created by the Alcoon initializer.</summary>
-    private AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
-        _alcoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
+        (slot.Entity as AlcoonEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Alcoon state.");
 
     /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>
@@ -416,38 +421,30 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.AlcoonFireball);
     }
 
-    /// <summary>Registers initialization only for the Alcoon enemy header.</summary>
-    internal void RegisterAlcoonInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Alcoon's initialization AI.</summary>
+    internal void RunAlcoonInitializationAi(RoomEnemySlot slot, RoomLevelData? level, SamusState? _, SnesButton _1, ushort _2)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Alcoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeAlcoon(slot, level);
-        });
+        InitializeAlcoon(slot, level);
     }
 
-    /// <summary>Registers Alcoon's seven-phase main dispatcher.</summary>
-    internal void RegisterAlcoonMainAi(EnemyAiTable table)
+    /// <summary>Ports Alcoon's main AI.</summary>
+    internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Alcoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunAlcoonMain(slot, RequireAlcoonState(slot), frame.Samus, frame.Level);
-        });
+        RunAlcoonMain(slot, RequireAlcoonState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Alcoon's walking, fireball and airborne animations as typed programs (#641); its steps need the room's collision data.</summary>
-    internal void RegisterAlcoonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireAlcoonState(slot);
-            AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Alcoon's typed animation.</summary>
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireAlcoonState(slot);
+        AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.Spritemap,
+                (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
+        state.Program = cursor;
+    }
+
     /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 1024;
     /// <summary>Horizontal speed at which fireball deceleration stops.</summary>
@@ -527,7 +524,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastAlcoonSoundEffect = null;
-        Array.Clear(_alcoonStates);
         Array.Clear(_alcoonYAccelerations);
         Array.Clear(_alcoonYSubaccelerations);
         Array.Clear(_alcoonSpawnXPositions);

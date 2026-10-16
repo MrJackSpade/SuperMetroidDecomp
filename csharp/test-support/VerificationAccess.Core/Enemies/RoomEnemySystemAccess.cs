@@ -113,14 +113,16 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<SkreeEnemyState?> SkreeStates => self.SkreeBehavior._skreeStates;
 
         /// <summary>Typed Spark state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<SparkEnemyState?> SparkStates => self.SparkBehavior._sparkStates;
+        internal IReadOnlyList<SparkEnemyState?> SparkStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SparkEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by a Zoa.</summary>
         internal IReadOnlyList<ZoaEnemyState?> ZoaStates =>
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ZoaEntity)?.State)];
 
         /// <summary>Typed state for both graphics and hitbox records in all physical slots.</summary>
-        internal IReadOnlyList<HibashiEnemyState?> HibashiStates => self.HibashiBehavior._hibashiStates;
+        internal IReadOnlyList<HibashiEnemyState?> HibashiStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as HibashiEntity)?.State)];
 
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => self.ElevatorBehavior._elevatorStates;
@@ -139,7 +141,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates => self.WorkRobotBehavior._workRobotStates;
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rio.</summary>
-        internal IReadOnlyList<RioEnemyState?> RioStates => self.RioBehavior._rioStates;
+        internal IReadOnlyList<RioEnemyState?> RioStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as RioEntity)?.State)];
 
         /// <summary>Typed state for each live or previously allocated physical enemy slot.</summary>
         internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates => self.ZebetiteBehavior._zebetiteStates;
@@ -166,7 +169,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates => self.FuneNamiheBehavior._funeNamiheStates;
 
         /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
-        internal IReadOnlyList<StokeEnemyState?> StokeStates => self.StokeBehavior._stokeStates;
+        internal IReadOnlyList<StokeEnemyState?> StokeStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as StokeEntity)?.State)];
 
         /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => self.FakeKraidBehavior._fakeKraidStates;
@@ -206,7 +210,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Nuclear Waffle extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
-            self.NuclearWaffleBehavior._nuclearWaffleStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as NuclearWaffleEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by the hopper family.</summary>
         internal IReadOnlyList<HopperEnemyState?> HopperStates => self.HoppersBehavior._hopperStates;
@@ -228,7 +232,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as AtomicEntity)?.State)];
 
         /// <summary>Typed state for every physical Cacatac-capable enemy slot.</summary>
-        internal IReadOnlyList<CacatacEnemyState?> CacatacStates => self.CacatacBehavior._cacatacStates;
+        internal IReadOnlyList<CacatacEnemyState?> CacatacStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as CacatacEntity)?.State)];
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
         internal IReadOnlyList<RinkaEnemyState?> RinkaStates => self.RinkaBehavior._rinkaStates;
@@ -260,7 +265,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ushort> InteractiveEnemyIndexes => self.ProcessingWindow._interactiveEnemyIndexes;
 
         /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates => self.AlcoonBehavior._alcoonStates;
+        internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as AlcoonEntity)?.State)];
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates => self.DragonBehavior._dragonStates;
@@ -269,17 +275,20 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader._graphicsSet;
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
-        internal IReadOnlyList<PuyoEnemyState?> PuyoStates => self.PuyoBehavior._puyoStates;
+        internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as PuyoEntity)?.State)];
 
         /// <summary>Typed Bull state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<BullEnemyState?> BullStates =>
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BullEntity)?.State)];
 
         /// <summary>Typed Skultera state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<SkulteraEnemyState?> SkulteraStates => self.SkulteraBehavior._skulteraStates;
+        internal IReadOnlyList<SkulteraEnemyState?> SkulteraStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SkulteraEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by Sbug/Sbug2.</summary>
-        internal IReadOnlyList<SbugEnemyState?> SbugStates => self.SbugBehavior._sbugStates;
+        internal IReadOnlyList<SbugEnemyState?> SbugStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SbugEntity)?.State)];
 
         /// <summary>Typed state for every physical Pipe Bug enemy slot.</summary>
         internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates => self.PipeBugsBehavior._pipeBugStates;

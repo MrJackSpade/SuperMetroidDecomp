@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Puyo.Artwork;
 using SuperMetroid.Core.Fx;
@@ -8,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Puyo;
 
 /// <summary>The Puyo species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PuyoBehavior : IEnemySpecies
+internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puyo];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PuyoEntity(this, slot, common);
+
     /// <summary>Supplies the shared room RNG used when choosing Puyo hop type and bounce height.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves the room collisions that reverse, land or drop an airborne Puyo.</summary>
@@ -27,12 +34,8 @@ internal sealed class PuyoBehavior : IEnemySpecies
     /// <summary>Upper bound applied to the airborne speed-table index.</summary>
     private const ushort MaximumPuyoYSpeedTableIndex = 16384;
 
-    /// <summary>Typed grounded, airborne and dropping state indexed by native enemy slot.</summary>
-    internal readonly PuyoEnemyState?[] _puyoStates =
-        new PuyoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Puyo</c> at $A2:9A3F.</summary>
-    internal void InitializePuyo(RoomEnemySlot slot)
+    internal static void InitializePuyo(RoomEnemySlot slot)
     {
         // The native initializer writes the common empty map and clears Enemy.var0 before
         // installing the fast grounded list. Enemy.var0 is not one of the six exposed
@@ -58,7 +61,8 @@ internal sealed class PuyoBehavior : IEnemySpecies
             InitialYSpeedTableIndexThreeQuarters = 0,
             InitialYSpeedTableIndexHalf = 0,
         };
-        _puyoStates[slot.SlotIndex] = state;
+        (slot.Entity as PuyoEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Puyo.")).State = state;
         SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
     }
 
@@ -430,47 +434,36 @@ internal sealed class PuyoBehavior : IEnemySpecies
     }
 
     /// <summary>Requires initialized per-slot Puyo state before its AI dispatcher runs.</summary>
-    private PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
-        _puyoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
+        (slot.Entity as PuyoEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");
 
-    /// <summary>Runs Puyo's grounded loops and airborne poses as typed programs (#641).</summary>
-    internal void RegisterPuyoTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequirePuyoState(slot);
-            AnimationProgramCursor<PuyoProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Routes bank-$A2 Puyo initialization to matching enemy definitions.</summary>
-    internal void RegisterPuyoInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Puyo's typed animation.</summary>
+    internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Puyo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializePuyo(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequirePuyoState(slot);
+        AnimationProgramCursor<PuyoProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers Puyo's grounded, airborne, giant-hop and dropping dispatch.</summary>
-    internal void RegisterPuyoMainAi(EnemyAiTable table)
+    /// <summary>Ports Puyo's initialization AI.</summary>
+    internal static void RunPuyoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializePuyo(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Puyo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puyo, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPuyoMain(slot, RequirePuyoState(slot), frame.Samus, frame.Level);
-        });
+    /// <summary>Ports Puyo's main AI.</summary>
+    internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunPuyoMain(slot, RequirePuyoState(slot), frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_puyoStates);
     }
 
     /// <inheritdoc/>

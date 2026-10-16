@@ -27,14 +27,16 @@ internal static class HibashiDefinitionsVerification
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewHibashiDefinitionGuard(new TestAddressSpace()));
-        Action<RoomEnemySlot> initialize = enemies.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemySlot> initialize = HibashiBehavior.InitializeHibashi;
         Action<RoomEnemySlot, int> applyFrame = enemies.HibashiBehavior.ApplyHibashiActivityFrame;
 
         RoomEnemySlot graphics = enemies.SlotTable.Slots[0];
+        graphics.Bind(EnemyDefinitionId.Hibashi, graphics.Definition);
         graphics.Parameter2 = 0;
         graphics.Position = graphics.Position.WithWholeY(0x0200);
         initialize(graphics);
         RoomEnemySlot hitbox = enemies.SlotTable.Slots[1];
+        hitbox.Bind(EnemyDefinitionId.Hibashi, hitbox.Definition);
         hitbox.Parameter2 = 1;
         hitbox.Position = hitbox.Position.WithWholeY(graphics.Position.Y.Whole);
         initialize(hitbox);
@@ -69,7 +71,7 @@ internal static class HibashiDefinitionsVerification
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = new RoomEnemySystem();
         programSystem.BindFixtureBus(rom);
-        Action<RoomEnemySlot> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
+        Action<RoomEnemySlot> initializeProgram = HibashiBehavior.InitializeHibashi;
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
         programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -7,8 +8,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Sbug;
 
 /// <summary>The Sbug species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class SbugBehavior : IEnemySpecies
+internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Sbug, EnemyDefinitionId.Sbug2];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SbugEntity(this, slot, common);
+
     /// <summary>Provides the shared random seed and draws for wandering variants.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves wall and floor collisions for random movement segments.</summary>
@@ -30,11 +37,8 @@ internal sealed class SbugBehavior : IEnemySpecies
     /// <summary>Both axes must be at least six blocks from Samus for the special reversal.</summary>
     private const int SbugReverseDistance = 96;
 
-    /// <summary>Slot-indexed activation, velocity, and animation state for room Sbugs.</summary>
-    internal readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
-    internal void InitializeSbug(RoomEnemySlot slot)
+    internal static void InitializeSbug(RoomEnemySlot slot)
     {
         byte behavior = SnesLittleEndian.HighByte(slot.Parameter2);
         if (behavior > (byte)SbugActivationBehavior.MoveAwayFromSamus)
@@ -51,7 +55,8 @@ internal sealed class SbugBehavior : IEnemySpecies
             InstalledProgram = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
-        _sbugStates[slot.SlotIndex] = state;
+        (slot.Entity as SbugEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Sbug.")).State = state;
 
         // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
         // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
@@ -457,46 +462,36 @@ internal sealed class SbugBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a Sbug dispatch before its slot's initializer has run.</summary>
-    private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
-        _sbugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
+        (slot.Entity as SbugEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
 
-    /// <summary>Runs Sbug's directional loops as typed programs (#641).</summary>
-    internal void RegisterSbugTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireSbugState(slot);
-            AnimationProgramCursor<SbugProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Routes both Sbug definitions through the parameter-selected initializer.</summary>
-    internal void RegisterSbugInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Sbug's typed animation.</summary>
+    internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Sbug, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeSbug(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireSbugState(slot);
+        AnimationProgramCursor<SbugProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Advances either Sbug definition through its active movement function.</summary>
-    internal void RegisterSbugMainAi(EnemyAiTable table)
+    /// <summary>Ports Sbug's initialization AI.</summary>
+    internal static void RunSbugInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeSbug(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Sbug, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Sbug or EnemyDefinitionId.Sbug2, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunSbugMain(slot, frame.Samus, frame.Level);
-        });
+    /// <summary>Ports Sbug's main AI.</summary>
+    internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunSbugMain(slot, frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_sbugStates);
     }
 
     /// <inheritdoc/>

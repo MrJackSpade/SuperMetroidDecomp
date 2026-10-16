@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -6,8 +8,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Skultera;
 
 /// <summary>The Skultera species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class SkulteraBehavior : IEnemySpecies
+internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Skultera];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SkulteraEntity(this, slot, common);
+
     /// <summary>Room collision helper used by Skultera's horizontal and vertical swim steps.</summary>
     private readonly EnemyTerrain _terrain;
 
@@ -52,9 +60,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies
     internal readonly ushort[] _skulteraPreviousYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Current sine Y offset retained after successful movement or vertical collision.</summary>
     internal readonly ushort[] _skulteraCurrentYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Initialized species state associated with each room enemy slot.</summary>
-    internal readonly SkulteraEnemyState?[] _skulteraStates =
-        new SkulteraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Skultera</c> at <c>$A3:90B5</c>.</summary>
     internal void InitializeSkultera(RoomEnemySlot slot)
@@ -66,7 +71,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies
             _skulteraAngleDeltas,
             _skulteraPreviousYOffsets,
             _skulteraCurrentYOffsets);
-        _skulteraStates[slot.SlotIndex] = state;
+        (slot.Entity as SkulteraEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Skultera.")).State = state;
 
         // Parameter one's high byte selects initial facing: zero means right, any nonzero
         // value means left. Its low byte is multiplied by eight because each common speed
@@ -209,48 +215,37 @@ internal sealed class SkulteraBehavior : IEnemySpecies
     }
 
     /// <summary>Gets the initialized state for a Skultera slot, rejecting calls before its setup.</summary>
-    private SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
-        _skulteraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
+        (slot.Entity as SkulteraEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");
 
-    /// <summary>Registers bank-$A3 initialization only for the Skultera enemy definition.</summary>
-    internal void RegisterSkulteraInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Skultera's initialization AI.</summary>
+    internal void RunSkulteraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Skultera, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeSkultera(slot);
-        });
+        InitializeSkultera(slot);
     }
 
-    /// <summary>Registers swimming and turn-completion dispatch with the room enemy AI table.</summary>
-    internal void RegisterSkulteraMainAi(EnemyAiTable table)
+    /// <summary>Ports Skultera's main AI.</summary>
+    internal void RunSkulteraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Skultera, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunSkulteraMain(slot, RequireSkulteraState(slot), frame.Level);
-        });
+        RunSkulteraMain(slot, RequireSkulteraState(slot), frame.Level);
     }
 
-    /// <summary>Runs Skultera's swimming and turning animations as typed programs (#641).</summary>
-    internal void RegisterSkulteraTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Skultera, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireSkulteraState(slot);
-            AnimationProgramCursor<SkulteraProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, SkulteraAnimations.Programs, ref cursor, SkulteraFrameDefinitions.Spritemap,
-                    (cue, _) => ApplySkulteraCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Skultera's typed animation.</summary>
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireSkulteraState(slot);
+        AnimationProgramCursor<SkulteraProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, SkulteraAnimations.Programs, ref cursor, SkulteraFrameDefinitions.Spritemap,
+                (cue, _) => ApplySkulteraCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_skulteraStates);
         Array.Clear(_skulteraRadii);
         Array.Clear(_skulteraTurnFinishedFlags);
         Array.Clear(_skulteraAngleDeltas);

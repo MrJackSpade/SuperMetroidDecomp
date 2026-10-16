@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Samus;
@@ -6,8 +8,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class WreckedShipGhostBehavior : IEnemySpecies
+internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Coven];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WreckedShipGhostEntity(this, slot, common);
+
     /// <summary>Owns the live OBJ palette row whitened and restored during each apparition.</summary>
     private readonly EnemyPresentation _presentation;
 
@@ -29,10 +37,6 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
     /// <summary>Fractional vertical acceleration applied to the bobbing ghost.</summary>
     private const int WreckedShipGhostVerticalAccelerationFraction = 6144;
-
-    /// <summary>Stores each native ghost slot's apparition timers, flicker phase, and target palette.</summary>
-    internal readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
-        new WreckedShipGhostEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>WreckedShipGhost_Init</c> at <c>$A8:9AEE</c>.</summary>
     internal void InitializeWreckedShipGhost(RoomEnemySlot slot)
@@ -70,7 +74,8 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
         state.MutableTargetPalette.Clear();
         WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
-        _wreckedShipGhostStates[slot.SlotIndex] = state;
+        (slot.Entity as WreckedShipGhostEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a WreckedShipGhost.")).State = state;
     }
 
     /// <summary>Ports the indirect dispatch in <c>WreckedShipGhost_Main</c>.</summary>
@@ -412,45 +417,36 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
 
     /// <summary>Rejects a ghost main callback before its slot has initialized apparition state.</summary>
-    private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
-        _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
+        (slot.Entity as WreckedShipGhostEntity)?.State ?? throw new InvalidOperationException(
             $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
 
-    /// <summary>Runs the ghost's floating loop as a typed program (#641).</summary>
-    internal void RegisterWreckedShipGhostTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireWreckedShipGhostState(slot);
-            AnimationProgramCursor<WreckedShipGhostProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, WreckedShipGhostAnimations.Programs, ref cursor, WreckedShipGhostFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Routes the native Coven initialization callback to the ghost's slot-zero setup.</summary>
-    internal void RegisterWreckedShipGhostInitializationAi(EnemyAiTable table)
+    /// <summary>Advances WreckedShipGhost's typed animation.</summary>
+    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Coven, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeWreckedShipGhost(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireWreckedShipGhostState(slot);
+        AnimationProgramCursor<WreckedShipGhostProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, WreckedShipGhostAnimations.Programs, ref cursor, WreckedShipGhostFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Routes Coven main AI through the ghost's six apparition and tracking phases.</summary>
-    internal void RegisterWreckedShipGhostMainAi(EnemyAiTable table)
+    /// <summary>Ports WreckedShipGhost's initialization AI.</summary>
+    internal void RunWreckedShipGhostInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeWreckedShipGhost(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Coven, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), frame.Samus);
-        });
+    /// <summary>Ports WreckedShipGhost's main AI.</summary>
+    internal void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), frame.Samus);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_wreckedShipGhostStates);
     }
 
     /// <inheritdoc/>

@@ -48,6 +48,7 @@ internal static class NuclearWaffleDefinitionsVerification
             enemies.BindFixtureBus(NewNuclearWaffleDefinitionReadGuard(rom));
             Action<RoomEnemySlot> initialize = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
             slot.Parameter1 = 0x2001;
             slot.Parameter2 = (ushort)(0x2000 | direction);
             slot.Position = slot.Position.WithWhole(new(0x0180, 0x0200));

@@ -27,7 +27,7 @@ internal static class SbugMovementDefinitionsVerification
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewSbugMovementReadGuard(new TestAddressSpace()));
-        Action<RoomEnemySlot> initialize = enemies.SbugBehavior.InitializeSbug;
+        Action<RoomEnemySlot> initialize = SbugBehavior.InitializeSbug;
         Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);

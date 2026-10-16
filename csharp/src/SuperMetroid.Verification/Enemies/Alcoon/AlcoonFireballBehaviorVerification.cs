@@ -25,14 +25,13 @@ internal static class AlcoonFireballBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, AlcoonFireballNativeListAddresses.Extent, "Alcoon-fireball");
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(guard);
-        var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
-        {
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
-            VramTilesIndex = 512,
-            PaletteIndex = 3072,
-        };
+        RoomEnemySlot source = enemies.SlotTable.Slots[0];
+        source.Bind(EnemyDefinitionId.Alcoon, source.Definition);
+        source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
+        source.VramTilesIndex = 512;
+        source.PaletteIndex = 3072;
         var state = new AlcoonEnemyState(source, new ushort[32], new ushort[32], new ushort[32], new ushort[32], new ushort[32]);
-        enemies.AlcoonBehavior._alcoonStates[0] = state;
+        (source.Entity as AlcoonEntity ?? throw new InvalidOperationException("Slot 0 is not bound to an Alcoon.")).State = state;
         foreach (short direction in new short[] { -2, 2 })
         {
             state.Velocity = state.Velocity.WithWholeX(direction);

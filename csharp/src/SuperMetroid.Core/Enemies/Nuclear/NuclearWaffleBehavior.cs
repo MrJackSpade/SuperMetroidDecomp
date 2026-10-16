@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,8 +10,14 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>The nuclear waffle species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class NuclearWaffleBehavior : IEnemySpecies
+internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Puromi];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NuclearWaffleEntity(this, slot, common);
+
     /// <summary>Allocates the four collidable links in the articulated body.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Allocates visual body links and turn overlays.</summary>
@@ -21,10 +30,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         _spriteObjects = spriteObjects;
     }
 
-    /// <summary>Per-slot orbit state, cleared when a new room loads.</summary>
-    internal readonly NuclearWaffleEnemyState?[] _nuclearWaffleStates =
-        new NuclearWaffleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Last library-two sound requested by a joint turn during this enemy frame.</summary>
     public ushort? LastNuclearWaffleSoundEffect { get; private set; }
 
@@ -32,7 +37,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
         var state = new NuclearWaffleEnemyState(slot);
-        _nuclearWaffleStates[slot.SlotIndex] = state;
+        (slot.Entity as NuclearWaffleEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a NuclearWaffle.")).State = state;
 
         state.Program = AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -341,48 +347,38 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         unchecked((short)(left - right)) >= 0;
 
     /// <summary>Gets the orbit state attached to a Puromi slot and rejects an uninitialized slot.</summary>
-    private NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
-        _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
+        (slot.Entity as NuclearWaffleEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
 
-    /// <summary>Runs the body's animation as a typed program (#641).</summary>
-    internal void RegisterNuclearWaffleTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            NuclearWaffleEnemyState state = _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
-                $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
-            AnimationProgramCursor<NuclearWaffleProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, NuclearWaffleAnimations.Programs, ref cursor, NuclearWaffleFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Registers the Puromi initialization routine that creates the full articulated body.</summary>
-    internal void RegisterNuclearWaffleInitializationAi(EnemyAiTable table)
+    /// <summary>Advances NuclearWaffle's typed animation.</summary>
+    internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Puromi, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNuclearWaffle(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        NuclearWaffleEnemyState state = (slot.Entity as NuclearWaffleEntity)?.State ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
+        AnimationProgramCursor<NuclearWaffleProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, NuclearWaffleAnimations.Programs, ref cursor, NuclearWaffleFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers the Puromi main routine that alternates waiting and sweeping.</summary>
-    internal void RegisterNuclearWaffleMainAi(EnemyAiTable table)
+    /// <summary>Ports NuclearWaffle's initialization AI.</summary>
+    internal void RunNuclearWaffleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeNuclearWaffle(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Puromi, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
-        });
+    /// <summary>Ports NuclearWaffle's main AI.</summary>
+    internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    {
+        RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastNuclearWaffleSoundEffect = null;
-        Array.Clear(_nuclearWaffleStates);
     }
 
     /// <inheritdoc/>

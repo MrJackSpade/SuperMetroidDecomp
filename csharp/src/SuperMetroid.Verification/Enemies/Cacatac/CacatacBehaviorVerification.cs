@@ -60,7 +60,7 @@ internal static class CacatacBehaviorVerification
         slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank });
         slot.Parameter1 = upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0;
-        enemies.CacatacBehavior.InitializeCacatac(slot);
+        CacatacBehavior.InitializeCacatac(slot);
         return (enemies, slot, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));
     }
 

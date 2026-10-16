@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
@@ -8,8 +11,14 @@ using SuperMetroid.Core.Enemies.Projectiles;
 namespace SuperMetroid.Core.Enemies.Cacatac;
 
 /// <summary>The Cacatac species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CacatacBehavior : IEnemySpecies
+internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Cacatac];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CacatacEntity(this, slot, common);
+
     /// <summary>Supplies shared room RNG for the three-in-256 spike attack gate.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates spike projectiles with source position and OBJ attributes.</summary>
@@ -42,16 +51,11 @@ internal sealed class CacatacBehavior : IEnemySpecies
         return null;
     }
 
-
-    /// <summary>Typed patrol and attack state indexed by native enemy slot.</summary>
-    internal readonly CacatacEnemyState?[] _cacatacStates =
-        new CacatacEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Last library-two spike-release sound requested in this enemy frame.</summary>
     public ushort? LastCacatacSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Cacatac</c> at $A2:9F48.</summary>
-    internal void InitializeCacatac(RoomEnemySlot slot)
+    internal static void InitializeCacatac(RoomEnemySlot slot)
     {
         var direction = (CacatacDirection)SnesLittleEndian.LowByte(slot.Parameter1);
         int distanceIndex = SnesLittleEndian.LowByte(slot.Parameter2);
@@ -100,7 +104,8 @@ internal sealed class CacatacBehavior : IEnemySpecies
             MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - distance)),
             UpsideUp = upsideUp,
         };
-        _cacatacStates[slot.SlotIndex] = state;
+        (slot.Entity as CacatacEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Cacatac.")).State = state;
         SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 
@@ -192,8 +197,8 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
     /// <summary>Requires an initialized typed state before a Cacatac AI or list callback runs.</summary>
-    private CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
-        _cacatacStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
+        (slot.Entity as CacatacEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
@@ -206,39 +211,29 @@ internal sealed class CacatacBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.CacatacSpike);
     }
 
-    /// <summary>Routes bank-$A2 initialization only to Cacatac definitions.</summary>
-    internal void RegisterCacatacInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Cacatac's initialization AI.</summary>
+    internal static void RunCacatacInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Cacatac, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCacatac(slot);
-        });
+        InitializeCacatac(slot);
     }
 
-    /// <summary>Routes Cacatac's three-state patrol and attack dispatcher through the enemy table.</summary>
-    internal void RegisterCacatacMainAi(EnemyAiTable table)
+    /// <summary>Ports Cacatac's main AI.</summary>
+    internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Cacatac, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCacatacMain(slot, RequireCacatacState(slot));
-        });
+        RunCacatacMain(slot, RequireCacatacState(slot));
     }
 
-    /// <summary>Runs Cacatac's idle and spike-attack animations as typed programs (#641).</summary>
-    internal void RegisterCacatacTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Cacatac, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireCacatacState(slot);
-            AnimationProgramCursor<CacatacProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyCacatacCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Cacatac's typed animation.</summary>
+    internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireCacatacState(slot);
+        AnimationProgramCursor<CacatacProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.Spritemap,
+                (cue, _) => ApplyCacatacCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.
@@ -361,7 +356,6 @@ internal sealed class CacatacBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_cacatacStates);
     }
 
     /// <inheritdoc/>

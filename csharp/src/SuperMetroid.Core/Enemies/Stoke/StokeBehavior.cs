@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
@@ -9,8 +11,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Stoke;
 
 /// <summary>The Stoke species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class StokeBehavior : IEnemySpecies
+internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Stoke];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new StokeEntity(this, slot, common);
+
     /// <summary>Supplies the shared room RNG for Stoke's fireball attack branch.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Probes the floor and resolves Stoke's horizontal collision and turn.</summary>
@@ -49,12 +57,8 @@ internal sealed class StokeBehavior : IEnemySpecies
     /// <summary>Two-pixel downward probe used to test for a solid floor without moving Stoke.</summary>
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
-    /// <summary>Typed movement and attack state indexed by native enemy slot.</summary>
-    internal readonly StokeEnemyState?[] _stokeStates =
-        new StokeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
-    internal void InitializeStoke(RoomEnemySlot slot)
+    internal static void InitializeStoke(RoomEnemySlot slot)
     {
         if (slot.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
         {
@@ -77,7 +81,8 @@ internal sealed class StokeBehavior : IEnemySpecies
             Function = StokeAiFunction.MovingLeft,
             Direction = (StokeDirection)slot.Parameter1,
         };
-        _stokeStates[slot.SlotIndex] = state;
+        (slot.Entity as StokeEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Stoke.")).State = state;
 
         // Initialization writes the common empty map, then picks the left list by default.
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
@@ -193,8 +198,8 @@ internal sealed class StokeBehavior : IEnemySpecies
     }
 
     /// <summary>Looks up initialized Stoke dispatch state, failing if a slot reached AI before initialization.</summary>
-    private StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
-        _stokeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
+        (slot.Entity as StokeEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
 
     /// <summary>Instruction <c>$A2:8990</c>: resume leftward movement.</summary>
@@ -221,38 +226,29 @@ internal sealed class StokeBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.StokeFireball);
     }
 
-    /// <summary>Registers bank-$A2 Stoke initialization for matching enemy definitions.</summary>
-    internal void RegisterStokeInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Stoke's initialization AI.</summary>
+    internal static void RunStokeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Stoke, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeStoke(slot);
-        });
+        InitializeStoke(slot);
     }
 
-    /// <summary>Registers Stoke's per-frame movement and random fireball attack dispatcher.</summary>
-    internal void RegisterStokeMainAi(EnemyAiTable table)
+    /// <summary>Ports Stoke's main AI.</summary>
+    internal void RunStokeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Stoke, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunStokeMain(slot, RequireStokeState(slot), frame.Level);
-        });
+        RunStokeMain(slot, RequireStokeState(slot), frame.Level);
     }
 
-    /// <summary>Runs Stoke's walking and fire-spitting animations as typed programs (#641).</summary>
-    internal void RegisterStokeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Stoke, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireStokeState(slot);
-            AnimationProgramCursor<StokeProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyStokeCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Stoke's typed animation.</summary>
+    internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireStokeState(slot);
+        AnimationProgramCursor<StokeProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.Spritemap,
+                (cue, _) => ApplyStokeCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile
@@ -300,7 +296,6 @@ internal sealed class StokeBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_stokeStates);
     }
 
     /// <inheritdoc/>

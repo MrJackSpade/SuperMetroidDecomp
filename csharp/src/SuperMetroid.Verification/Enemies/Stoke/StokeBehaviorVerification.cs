@@ -58,7 +58,7 @@ internal static class StokeBehaviorVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = StokeFrameToolingDefinitions.Bank });
         slot.Parameter1 = (ushort)direction;
         slot.Position = slot.Position.WithWhole(new(128, 128));
-        enemies.StokeBehavior.InitializeStoke(slot);
+        StokeBehavior.InitializeStoke(slot);
         return (enemies, slot, enemies.StokeStates[0] ?? throw new InvalidOperationException("Stoke has no state."));
     }
 

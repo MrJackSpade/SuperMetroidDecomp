@@ -26,6 +26,7 @@ internal static class SparkMovementDefinitionsVerification
         enemies.BindFixtureBus(new TestAddressSpace());
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
         for (ushort selector = 0; selector < 4; selector++)
         {
             ushort nativeList = CartridgeImportSource.Require(rom).ReadCartridgeWord(SparkNativeValues.InstructionListTable + selector * 2);

@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks;
@@ -7,8 +10,14 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Enemies.Sparks;
 
 /// <summary>The Spark species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class SparkBehavior : IEnemySpecies
+internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SparkEntity(this, slot, common);
+
     /// <summary>Room services for the live RNG, boss flag, and memory bus consulted during spark setup.</summary>
     private readonly EnemyRoomBinding _room;
 
@@ -43,16 +52,12 @@ internal sealed class SparkBehavior : IEnemySpecies
         return null;
     }
 
-
-    /// <summary>Per-slot function and timer state, cleared when a new room loads.</summary>
-    internal readonly SparkEnemyState?[] _sparkStates =
-        new SparkEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Spark</c> at <c>$A8:E637</c>.</summary>
     internal void InitializeSpark(RoomEnemySlot slot)
     {
         var state = new SparkEnemyState(slot);
-        _sparkStates[slot.SlotIndex] = state;
+        (slot.Entity as SparkEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Spark.")).State = state;
 
         // Native masks the selector to two bits, but both tables contain only three authored
         // words. The compiled definition preserves selector three's two adjacent-code reads;
@@ -152,49 +157,39 @@ internal sealed class SparkBehavior : IEnemySpecies
     }
 
     /// <summary>Returns initialized state for the enemy slot or reports a broken lifecycle.</summary>
-    private SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
-        _sparkStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
+        (slot.Entity as SparkEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Spark state.");
 
-    /// <summary>Registers Spark initialization with the room enemy AI dispatcher.</summary>
-    internal void RegisterSparkInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Spark's initialization AI.</summary>
+    internal void RunSparkInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Spark, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeSpark(slot);
-        });
+        InitializeSpark(slot);
     }
 
-    /// <summary>Registers the timer-driven Spark function dispatcher.</summary>
-    internal void RegisterSparkMainAi(EnemyAiTable table)
+    /// <summary>Ports Spark's main AI.</summary>
+    internal void RunSparkMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Spark, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunSparkMain(slot, RequireSparkState(slot));
-        });
+        RunSparkMain(slot, RequireSparkState(slot));
     }
 
-    /// <summary>Runs Spark's animations as typed programs (#641).</summary>
-    internal void RegisterSparkTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Spark, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            SparkEnemyState state = RequireSparkState(slot);
-            // Selector three's list word is the main-AI function pointer that follows the table: code, not a list.
-            AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidDataException(
-                "Spark selector three starts at the main-AI function pointer, which is not an animation list.");
-            EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.Spritemap,
-                (cue, _) => ApplySparkCue(slot, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Spark's typed animation.</summary>
+    internal static void AdvanceSparkTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        SparkEnemyState state = RequireSparkState(slot);
+        // Selector three's list word is the main-AI function pointer that follows the table: code, not a list.
+        AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidDataException(
+            "Spark selector three starts at the main-AI function pointer, which is not an animation list.");
+        EnemyProgramAnimation.Run(slot, SparkAnimations.Programs, ref cursor, SparkFrameDefinitions.Spritemap,
+            (cue, _) => ApplySparkCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_sparkStates);
     }
 
     /// <inheritdoc/>

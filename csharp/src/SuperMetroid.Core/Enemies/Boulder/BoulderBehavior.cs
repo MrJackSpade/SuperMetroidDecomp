@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
@@ -10,8 +11,14 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Boulder;
 
 /// <summary>The Boulder species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BoulderBehavior : IEnemySpecies
+internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boulder];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BoulderEntity(this, slot, common);
+
     /// <summary>Moves the actor through room collision during fall and roll phases.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Creates the dust explosion when a rolling or brittle boulder breaks.</summary>
@@ -27,18 +34,15 @@ internal sealed class BoulderBehavior : IEnemySpecies
     /// <summary>Room-graphics dust animation selected by terminal impacts.</summary>
     private const MiscDustAnimation BoulderDustAnimationIndex = MiscDustAnimation.RockParticles;
 
-    /// <summary>Per-slot trigger, bounce, speed, and last-position state.</summary>
-    internal readonly BoulderEnemyState?[] _boulderStates =
-        new BoulderEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two sound emitted by a landing or terminal impact.</summary>
     public ushort? LastBoulderSoundEffect { get; private set; }
 
     /// <summary>Interprets both spawn parameters as direction, trigger windows, vertical compensation, and initial height; a zero offset starts rolling without bounces.</summary>
-    internal void InitializeBoulder(RoomEnemySlot slot)
+    internal static void InitializeBoulder(RoomEnemySlot slot)
     {
         var state = new BoulderEnemyState(slot);
-        _boulderStates[slot.SlotIndex] = state;
+        (slot.Entity as BoulderEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Boulder.")).State = state;
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;
@@ -286,47 +290,37 @@ internal sealed class BoulderBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects main AI before the slot's Boulder state has been initialized.</summary>
-    private BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
-        _boulderStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
+        (slot.Entity as BoulderEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");
 
-    /// <summary>Runs the Boulder's rolling loops as typed programs (#641).</summary>
-    internal void RegisterBoulderTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireBoulderState(slot);
-            AnimationProgramCursor<BoulderProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Binds Boulder setup only to its matching enemy definition.</summary>
-    internal void RegisterBoulderInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Boulder's typed animation.</summary>
+    internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Boulder, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBoulder(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireBoulderState(slot);
+        AnimationProgramCursor<BoulderProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Binds the Boulder phase dispatcher to its native main-AI routine.</summary>
-    internal void RegisterBoulderMainAi(EnemyAiTable table)
+    /// <summary>Ports Boulder's initialization AI.</summary>
+    internal static void RunBoulderInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeBoulder(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Boulder, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boulder, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBoulderMain(slot, RequireBoulderState(slot), frame.Samus, frame.Level);
-        });
+    /// <summary>Ports Boulder's main AI.</summary>
+    internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunBoulderMain(slot, RequireBoulderState(slot), frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastBoulderSoundEffect = null;
-        Array.Clear(_boulderStates);
     }
 
     /// <inheritdoc/>

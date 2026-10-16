@@ -19,6 +19,7 @@ internal static class NuclearWaffleProjectileBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(guard);
         RoomEnemySlot owner = enemies.SlotTable.Slots[0];
+        owner.Bind(EnemyDefinitionId.Puromi, owner.Definition);
         owner.Parameter1 = 8193;
         owner.Parameter2 = 8192;
         owner.Position = owner.Position.WithWhole(new(384, 512));

@@ -1,11 +1,20 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>The Hibashi species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class HibashiBehavior : IEnemySpecies
+internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Hibashi];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new HibashiEntity(this, slot, common);
+
     /// <summary>Locates the hitbox record immediately after each visible geyser record.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Receives each eruption's sound in call order, as the cartridge queues it.</summary>
@@ -39,15 +48,12 @@ internal sealed class HibashiBehavior : IEnemySpecies
         return null;
     }
 
-    /// <summary>Per-slot geyser timing and shape state cleared at room load.</summary>
-    internal readonly HibashiEnemyState?[] _hibashiStates =
-        new HibashiEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Hibashi</c> at <c>$A6:8FFC</c>.</summary>
-    internal void InitializeHibashi(RoomEnemySlot slot)
+    internal static void InitializeHibashi(RoomEnemySlot slot)
     {
         var state = new HibashiEnemyState(slot);
-        _hibashiStates[slot.SlotIndex] = state;
+        (slot.Entity as HibashiEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Hibashi.")).State = state;
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.
@@ -176,43 +182,33 @@ internal sealed class HibashiBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects geyser AI or instruction dispatch for an uninitialized slot.</summary>
-    private HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
-        _hibashiStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
+        (slot.Entity as HibashiEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hibashi state.");
 
-    /// <summary>Registers initialization of paired graphics and collision records.</summary>
-    internal void RegisterHibashiInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Hibashi's initialization AI.</summary>
+    internal static void RunHibashiInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Hibashi, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeHibashi(slot);
-        });
+        InitializeHibashi(slot);
     }
 
-    /// <summary>Registers inactive-countdown and active-eruption AI dispatch.</summary>
-    internal void RegisterHibashiMainAi(EnemyAiTable table)
+    /// <summary>Ports Hibashi's main AI.</summary>
+    internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Hibashi, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunHibashiMain(slot, RequireHibashiState(slot));
-        });
+        RunHibashiMain(slot, RequireHibashiState(slot));
     }
 
-    /// <summary>Runs the Hibashi's eruption and collision-part animations as typed programs (#641).</summary>
-    internal void RegisterHibashiTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Hibashi, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireHibashiState(slot);
-            AnimationProgramCursor<HibashiProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyHibashiCue(slot, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Hibashi's typed animation.</summary>
+    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireHibashiState(slot);
+        AnimationProgramCursor<HibashiProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.Spritemap,
+                (cue, _) => ApplyHibashiCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>
     /// Zero-based index of the bank-$A6 fire-geyser shape command executed this frame.
@@ -225,7 +221,6 @@ internal sealed class HibashiBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastHibashiActivityFrameIndex = null;
-        Array.Clear(_hibashiStates);
     }
 
     /// <inheritdoc/>

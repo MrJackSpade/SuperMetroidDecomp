@@ -224,19 +224,6 @@
       "consumers": [
         "csharp/src/SuperMetroid.Core/Saves/SaveMirrorMemory.cs"
       ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Saves.SaveRamLayout",
-      "name": "Image",
-      "region": "SaveRam",
-      "address": "$70:0000",
-      "byteCount": 8192,
-      "encoding": "native SRAM image (u8[], little-endian words)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Saves/SaveRamImage.cs",
-        "csharp/src/SuperMetroid.Core/Saves/SuperMetroidSaveRam.cs"
-      ]
     }
   ]
 }

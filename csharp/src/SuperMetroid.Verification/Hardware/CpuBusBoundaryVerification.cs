@@ -27,7 +27,6 @@ internal static class CpuBusBoundaryVerification
         Suite(nameof(VerifyCpuBusTableBounds), VerifyCpuBusTableBounds);
         Suite(nameof(VerifyCpuBusCellShapeRejection), VerifyCpuBusCellShapeRejection);
         Suite(nameof(VerifyWramLowWindowMirror), VerifyWramLowWindowMirror);
-        Suite(nameof(VerifySramWindowMapping), VerifySramWindowMapping);
         Suite(nameof(VerifyCpuBusWritesLowByteFirst), VerifyCpuBusWritesLowByteFirst);
         Suite(nameof(VerifyCpuBusTypedRoundTrips), VerifyCpuBusTypedRoundTrips);
         Console.WriteLine($"CPU-bus boundary: {entries.Count} catalog cells, " +
@@ -118,7 +117,7 @@ internal static class CpuBusBoundaryVerification
     }
 
     /// <summary>Tables and ranges reject indexes outside their cell.</summary>
-    [CpuBusBoundary("exact bus test: WramWords, WramBytes and SramBytes bounds")]
+    [CpuBusBoundary("exact bus test: WramWords and WramBytes bounds")]
     private static void VerifyCpuBusTableBounds()
     {
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -131,9 +130,6 @@ internal static class CpuBusBoundaryVerification
         AssertThrows<ArgumentOutOfRangeException>(() => bytes.Read(4), "byte range rejects index Length");
         AssertThrows<ArgumentOutOfRangeException>(() => bytes.Write(4, 1), "byte range rejects a write at Length");
         AssertThrows<ArgumentException>(() => bytes.Write(new byte[3]), "byte range rejects a short whole-range write");
-        var sram = new SramBytes(bus, CpuBusCell.SramBytes("BoundSram", 0x700000, 2));
-        AssertThrows<ArgumentOutOfRangeException>(() => sram.Read(2), "SRAM range rejects index Length");
-        AssertThrows<ArgumentOutOfRangeException>(() => sram.WriteWord(1, 0), "SRAM word cannot straddle the range end");
     }
 
     /// <summary>Primitives reject a cell of the wrong store or width.</summary>
@@ -143,12 +139,8 @@ internal static class CpuBusBoundaryVerification
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         CpuBusCell wramByte = CpuBusCell.WramByte("ShapeByte", 0x7e1000);
         CpuBusCell wramWord = CpuBusCell.WramWord("ShapeWord", 0x7e1000);
-        CpuBusCell sram = CpuBusCell.SramBytes("ShapeSram", 0x700000, 2);
         AssertThrows<ArgumentException>(() => new WramWord(bus, wramByte), "a word primitive rejects a byte cell");
         AssertThrows<ArgumentException>(() => new WramByte(bus, wramWord), "a byte primitive rejects a word cell");
-        AssertThrows<ArgumentException>(() => new WramWord(bus, sram), "a WRAM primitive rejects an SRAM cell");
-        AssertThrows<ArgumentException>(() => new WramBytes(bus, sram), "a WRAM range rejects an SRAM cell");
-        AssertThrows<ArgumentException>(() => new SramBytes(bus, wramWord), "an SRAM range rejects a WRAM cell");
         AssertThrows<ArgumentException>(() => new WramWords(bus, CpuBusCell.WramBytes("Odd", 0x7e1000, 3)),
             "a word table rejects an odd byte count");
         AssertThrows<ArgumentOutOfRangeException>(() => CpuBusCell.WramByte("Wide", 0x1000000), "a cell address must fit in 24 bits");
@@ -173,22 +165,6 @@ internal static class CpuBusBoundaryVerification
             "bank $40 has no low-window mirror");
     }
 
-    /// <summary>SRAM banks $70-$7D/$F0-$FF below $8000 all reach the one 8-KiB image.</summary>
-    [CpuBusBoundary("exact bus test: SRAM window mapping")]
-    private static void VerifySramWindowMapping()
-    {
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        new SramBytes(bus, CpuBusCell.SramBytes("Home", 0x700010, 2)).WriteWord(0, 0xc3d4);
-        foreach (int window in new[] { 0xf00010, 0x7d0010, 0xff0010, 0x702010, 0x706010 })
-            AssertEqual((ushort)0xc3d4, new SramBytes(bus, CpuBusCell.SramBytes("Window", window, 2)).ReadWord(0),
-                $"${SnesAddressMath.BankNumber(window):X2}:{SnesAddressMath.OffsetInBank(window):X4} reads the same SRAM bytes");
-        AssertEqual((byte)0xd4, SaveRamImage.Capture(bus)[0x10], "the SRAM image codec sees the window write");
-        AssertThrows<ArgumentOutOfRangeException>(() => new SramBytes(bus, CpuBusCell.SramBytes("Rom", 0x708000, 1)).Read(0),
-            "offset $8000 of an SRAM bank is cartridge ROM");
-        AssertThrows<InvalidOperationException>(() => new SramBytes(bus, CpuBusCell.SramBytes("Rom", 0x708000, 1)).Write(0, 1),
-            "a write to cartridge ROM is rejected");
-    }
-
     /// <summary>Every word write stores its low byte before its high byte.</summary>
     [CpuBusBoundary("exact bus test: write ordering")]
     private static void VerifyCpuBusWritesLowByteFirst()
@@ -196,12 +172,10 @@ internal static class CpuBusBoundaryVerification
         var bus = new WriteOrderRecordingBus();
         new WramWord(bus, CpuBusCell.WramWord("Order", 0x7e1000)).Write(0xabcd);
         new WramWords(bus, CpuBusCell.WramWords("OrderTable", 0x7e2000, 2))[1].Write(0x1234);
-        new SramBytes(bus, CpuBusCell.SramBytes("OrderSram", 0x700020, 2)).WriteWord(0, 0x5678);
         AssertTrue(bus.Writes.SequenceEqual(new (int, byte)[]
             {
                 (0x7e1000, 0xcd), (0x7e1001, 0xab),
                 (0x7e2002, 0x34), (0x7e2003, 0x12),
-                (0x700020, 0x78), (0x700021, 0x56),
             }), "word writes are low byte then high byte, in call order");
     }
 
@@ -243,9 +217,6 @@ internal static class CpuBusBoundaryVerification
 
         /// <summary>Uses the real WRAM bank mapping when inspecting a recorded write.</summary>
         public byte ReadWorkRamByte(int cpuAddress) => inner.ReadWorkRamByte(cpuAddress);
-
-        /// <summary>Uses the real SRAM bank mapping when inspecting a recorded write.</summary>
-        public byte ReadSaveRamByte(int cpuAddress) => inner.ReadSaveRamByte(cpuAddress);
     }
 
     /// <summary>Runs the CPU-bus catalog and primitive boundary suite from the verification command.</summary>

@@ -179,8 +179,7 @@ internal sealed class InstalledSamusIsolationTests
         internal void Check(string context)
         {
             new SamusMechanicsSnapshot(Stock.Samus).RequireSame(new(Edited.Samus), context);
-            Require(Stock.Memory.WorkRam.SequenceEqual(Edited.Memory.WorkRam) &&
-                Stock.Memory.SaveRam.SequenceEqual(Edited.Memory.SaveRam), context + ": mutable memory changed");
+            Require(Stock.Memory.WorkRam.SequenceEqual(Edited.Memory.WorkRam), context + ": mutable memory changed");
             Require(Stock.Level.ForegroundEntries.Span.SequenceEqual(Edited.Level.ForegroundEntries.Span),
                 context + ": collision room changed");
             tests.comparisons++;

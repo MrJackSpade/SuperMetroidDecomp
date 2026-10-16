@@ -130,7 +130,6 @@ internal static class LibraryBackgroundProgramImporter
         {
             SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(source).ReadCartridgeByte(address),
             SnesDmaSourceKind.WorkRam => (source as ISnesMutableMemory ?? throw new InvalidOperationException("Import list requires WRAM.")).ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => (source as ISnesMutableMemory ?? throw new InvalidOperationException("Import list requires SRAM.")).ReadSaveRamByte(address),
             _ => throw new InvalidDataException($"Import background byte ${address:X6} is unmapped."),
         };
 }

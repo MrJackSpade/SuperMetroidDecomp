@@ -9,19 +9,20 @@ other caller works with typed, domain-named members.
 | Layer | Lives in | May know addresses? |
 |---|---|---|
 | Address-space implementation | `SuperMetroidAddressSpace` (`ISnesMemoryBus`), cartridge import source | yes — `[CpuBusBoundary("CPU-bus implementation …")]` |
-| Cell catalogs | static classes of `CpuBusCell` descriptors, one per domain (e.g. `SaveMirrorWorkRamAddresses`, `SaveRamLayout`) | yes — the only place an address literal appears; `[CpuBusBoundary("catalog …")]` |
+| Cell catalogs | static classes of `CpuBusCell` descriptors, one per domain (e.g. `SaveMirrorWorkRamAddresses`) | yes — the only place an address literal appears; `[CpuBusBoundary("catalog …")]` |
 | Domain memory views | classes over `ISnesMemoryBus` exposing typed properties/operations/tables (e.g. `SaveMirrorMemory.LoadingGameState`) | through cells only — `[CpuBusBoundary("domain view …")]` |
-| Native-layout codecs | save/SRAM codecs, WRAM snapshot import/export, ROM import decoders | through cells only — `[CpuBusBoundary("codec …")]` |
+| Native-layout codecs | WRAM snapshot import/export, ROM import decoders | through cells only — `[CpuBusBoundary("codec …")]` |
 | Exact bus tests | mapping/mirror/wrap/side-effect tests and bus test doubles | `[CpuBusBoundary("exact bus test …")]` on the narrowest type or method |
 | Everyone else | gameplay, runtime, rendering, frontend, verification of behaviour | **no** — typed members only |
 
 `[CpuBusAccess]` marks the raw API: `ISnesAddressSpace`, `ISnesMutableMemory`, `ISnesMemoryBus`,
 `ISnesCpuPeripheralSource`, `IImportCartridgeSource`, `SnesWorkRam`,
 `CpuBusCell` and the cell primitives `WramByte`,
-`WramWord`, `WramBytes`, `WramWords`, `SramBytes`. Import-time raw decoders shared by several
+`WramWord`, `WramBytes`, `WramWords`. Import-time raw decoders shared by several
 codecs (`CartridgePaletteImporter`, `CartridgeBankWindow`) are themselves `[CpuBusAccess]`
-primitives, not boundaries: each importer that calls them is the codec boundary. The address space exposes no raw WRAM/SRAM
-buffer: whole-image SRAM import/export goes through the `SaveRamImage` codec. Views hand callers
+primitives, not boundaries: each importer that calls them is the codec boundary. The address space exposes no raw WRAM
+buffer and maps no SRAM (#1322): saves are `SaveSlotStore` state, and `SaveRamCodec` decodes and encodes the 8 KiB SRAM image
+as bytes at the import and export boundaries (legacy `.srm`, recording headers, recorder seeds). Views hand callers
 bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cells.
 
 ## Rules (analyzer)
@@ -42,21 +43,21 @@ or lambda has no effect; extract a named method.
 
 **Declaration baseline.** `csharp/cpu-bus-declaration-baseline.txt` activates SME6292 for Core only.
 Each reviewed per-file count may only fall, and each group names the ticket that removes it: saves
-(#1322), the host-supplied address space (#1322, #1327), the progression mirror (#1330) and the NMI
-drain's address-sourced VRAM entries (#1350). Import and adapter code is not baselined; it declares a
+(removed by #1322), the host-supplied WRAM address space (#1327), the progression mirror (#1330) and the
+NMI drain's address-sourced VRAM entries (#1350). Import and adapter code is not baselined; it declares a
 boundary, for example `[CpuBusBoundary("import: ...")]` on `SnesMemoryBusRequirement.Require`.
 
 **Code fix (SME6290).** A view property that returns exactly one cell's raw value — same width and
 signedness, no validation or conversion — declares `[CpuBusViewOf(typeof(Catalog), nameof(Cell))]`.
-The IDE fix (`SuperMetroid.EnsureAnalyzer.CodeFixes`) rewrites a constant-address WRAM word/byte or
-SRAM byte read, or a primitive read over a named cell, to `new View(bus).Member` only when the
+The IDE fix (`SuperMetroid.EnsureAnalyzer.CodeFixes`) rewrites a constant-address WRAM word/byte
+read, or a primitive read over a named cell, to `new View(bus).Member` only when the
 address, width and region identify one catalog cell and exactly one member declares it with the
 read's own type. Every other mapping is ambiguous and is migrated by hand.
 
 **Test doubles.** Shared exact bus doubles live in `csharp/test-support/CpuBusTestDoubles`
 (`CartridgeReadGuard`, `MutableCartridgeReadGuard`, `SyntheticCartridge`). A double that wraps a
 source reads through `CpuBusRegionRead`, which routes each address to the source's typed cartridge,
-WRAM or SRAM contract and fails when the source lacks it. Raw seeding of the sparse
+or WRAM contract and fails when the source lacks it. Raw seeding of the sparse
 `TestAddressSpace` (`WriteTestByte/Word/Words`, `WriteBytes`) happens only inside named synthetic
 cartridge fixture builders.
 
@@ -79,7 +80,7 @@ public static class SamusWorkRam
   meaning in its XML summary. Two meanings that share bytes are two cells; the second declares
   `aliasOf:` the first.
 - Primitives bind from cells (`new WramWord(bus, SamusWorkRam.Health)`), which checks region and
-  width. Tables are `WramWords`/`WramBytes`/`SramBytes` with bounds-checked element access; callers
+  width. Tables are `WramWords`/`WramBytes` with bounds-checked element access; callers
   never compute element addresses.
 - Encoding text records the domain type: `"u16 little-endian"`, `"SamusPose (u16)"`,
   `"signed 8.8 (u16)"`, `"ScrollState[] (u8)"`.

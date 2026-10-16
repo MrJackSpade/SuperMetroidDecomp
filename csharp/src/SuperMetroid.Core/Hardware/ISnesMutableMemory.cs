@@ -9,7 +9,4 @@ public interface ISnesMutableMemory
 {
     /// <summary>Reads WRAM through bank $7E/$7F or a low-window system-bank mirror.</summary>
     byte ReadWorkRamByte(int cpuAddress);
-
-    /// <summary>Reads a byte from a bank-$70-$7D/$F0-$FF SRAM window.</summary>
-    byte ReadSaveRamByte(int cpuAddress);
 }

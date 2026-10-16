@@ -146,7 +146,7 @@ public sealed class SnesVram
     /// <summary>
     /// Performs the transfer produced by <c>$80:8C83</c>'s DMA channel 1 setup.
     /// </summary>
-    /// <param name="memory">Live WRAM/SRAM from which DMA channel 1 reads. Artwork uses a separate transfer API.</param>
+    /// <param name="memory">Live WRAM from which DMA channel 1 reads. Artwork uses a separate transfer API.</param>
     /// <param name="sourceAddress">Fixed source bank plus initial 16-bit offset.</param>
     /// <param name="sizeInBytes">Number of source bytes copied.</param>
     /// <param name="encodedDestination">
@@ -207,7 +207,6 @@ public sealed class SnesVram
             _bytes[vramByteOffset] = SnesDmaSourceMap.Classify(currentSource) switch
             {
                 SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)currentSource),
-                SnesDmaSourceKind.SaveRam => memory.ReadSaveRamByte((int)currentSource),
                 SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
                     $"VRAM DMA source {currentSource} requires installed artwork bytes."),
                 _ => throw new InvalidOperationException(

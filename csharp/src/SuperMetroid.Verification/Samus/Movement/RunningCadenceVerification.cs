@@ -228,8 +228,6 @@ internal static class RunningCadenceVerification
             address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ SnesLittleEndian.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
         /// <summary>Exposes the mutable delay alias and otherwise forwards WRAM reads.</summary>
         public byte ReadWorkRamByte(int address) => address == 0x7e0303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
-        /// <summary>Forwards SRAM reads to the underlying mutable address space.</summary>
-        public byte ReadSaveRamByte(int address) => SourceMemory.ReadSaveRamByte(address);
         /// <summary>Forwards writes without changing the constructed read behavior.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 
@@ -241,7 +239,6 @@ internal static class RunningCadenceVerification
         private byte ReadSourceByte(int address) => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {
             SnesDmaSourceKind.WorkRam => SourceMemory.ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => SourceMemory.ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
             _ => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),

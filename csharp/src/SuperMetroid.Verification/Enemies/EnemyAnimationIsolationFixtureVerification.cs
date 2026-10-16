@@ -150,7 +150,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
             context + " preserves WRAM below the enemy BG2 staging image");
         AssertSameBytes(baseline.Memory.WorkRam[bg2End..], edited.Memory.WorkRam[bg2End..],
             context + " preserves WRAM above the enemy BG2 staging image");
-        AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
         AssertTrue(baseline.Enemies.Audio.SoundRequests.SequenceEqual(edited.Enemies.Audio.SoundRequests), context + " preserves audio calls");
         AssertTrue(baseline.Enemies.Audio.MusicRequests.SequenceEqual(edited.Enemies.Audio.MusicRequests), context + " preserves music calls");
         AssertEqual(baseline.RandomWord, edited.RandomWord, context + " preserves RNG state");

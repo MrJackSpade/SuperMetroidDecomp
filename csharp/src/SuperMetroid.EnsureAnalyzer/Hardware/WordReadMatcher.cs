@@ -9,7 +9,7 @@ namespace SuperMetroid.EnsureAnalyzer.Hardware;
 public static class WordReadMatcher
 {
     /// <summary>Byte operations eligible for replacement by an owned word read.</summary>
-    private static readonly string[] ByteMethods = ["ReadCartridgeByte", "ReadWorkRamByte", "ReadSaveRamByte"];
+    private static readonly string[] ByteMethods = ["ReadCartridgeByte", "ReadWorkRamByte"];
     /// <summary>Interfaces that identify a read as coming from supported memory rather than an unrelated helper.</summary>
     private static readonly string[] Sources =
         ["SuperMetroid.AssetExtraction.Cartridge.IImportCartridgeSource", "SuperMetroid.Core.Hardware.ISnesMutableMemory"];

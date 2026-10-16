@@ -219,8 +219,6 @@ internal static class CoreAccess
     {
         /// <summary>Mutable emulated WRAM for focused verifier setup.</summary>
         internal Span<byte> WorkRam => bus._workRam;
-        /// <summary>Mutable emulated SRAM for focused verifier setup.</summary>
-        internal Span<byte> SaveRam => bus._saveRam;
     }
 
     /// <summary>Reads queued VRAM writes before the display upload consumes them.</summary>

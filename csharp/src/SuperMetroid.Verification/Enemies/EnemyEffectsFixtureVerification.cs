@@ -86,7 +86,6 @@ internal static class EnemyEffectsFixtureVerification
         AssertTrue(expected.Effect.MeltingColumnHeights.SequenceEqual(actual.Effect.MeltingColumnHeights), context + " erase schedule");
         AssertTrue(expected.Effect.Bg2ScrollByScanline.SequenceEqual(actual.Effect.Bg2ScrollByScanline), context + " HDMA geometry");
         AssertSameBytes(expected.Memory.WorkRam, actual.Memory.WorkRam, context + " WRAM");
-        AssertSameBytes(expected.Memory.SaveRam, actual.Memory.SaveRam, context + " SRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");
         AssertTrue(expected.Enemies.LastEnemyFrame.RoomEffects.CrocomirePlms.SequenceEqual(actual.Enemies.LastEnemyFrame.RoomEffects.CrocomirePlms), context + " room changes");

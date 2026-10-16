@@ -32,9 +32,6 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
     public static CpuBusCell WramWords(string name, int address, int count, string encoding = "u16[] little-endian", CpuBusCell? aliasOf = null) =>
         new(name, CpuBusRegion.WorkRam, address, count * 2, encoding, aliasOf);
 
-    /// <summary>A bounded SRAM byte range.</summary>
-    public static CpuBusCell SramBytes(string name, int address, int length, string encoding = "u8[]", CpuBusCell? aliasOf = null) =>
-        new(name, CpuBusRegion.SaveRam, address, length, encoding, aliasOf);
 
     /// <summary>A bounded cartridge range read by the asset importer.</summary>
     public static CpuBusCell CartridgeBytes(string name, int address, int length, string encoding, CpuBusCell? aliasOf = null) =>

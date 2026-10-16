@@ -98,7 +98,7 @@ internal sealed class ControllerInputRecorder : IDisposable
             throw new InvalidDataException(
                 "Installed content identity does not name the supported source cartridge revision.");
         }
-        Ensure.LengthEqual(initialSaveRam, SuperMetroidAddressSpace.SaveRamByteCount);
+        Ensure.LengthEqual(initialSaveRam, SuperMetroid.Core.Saves.SaveRamLayout.ImageByteCount);
         return StartCore(
             System.IO.Path.Combine(System.IO.Path.GetFullPath(dataDirectory), RecordingDirectoryName),
             SupportedCartridge.CreateSha256Digest(),

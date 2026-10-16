@@ -22,7 +22,7 @@ internal static class CpuBusCodeFixTests
             "[AttributeUsage(AttributeTargets.All)] sealed class CpuBusAccessAttribute : Attribute { } " +
             "[AttributeUsage(AttributeTargets.All)] sealed class CpuBusBoundaryAttribute(string reason) : Attribute { } " +
             "[AttributeUsage(AttributeTargets.Property)] sealed class CpuBusViewOfAttribute(Type catalog, string cell) : Attribute { } " +
-            "[CpuBusAccess] interface ISnesMemoryBus { byte ReadWorkRamByte(int address); byte ReadSaveRamByte(int address); } " +
+            "[CpuBusAccess] interface ISnesMemoryBus { byte ReadWorkRamByte(int address); } " +
             "[CpuBusAccess] static class SnesWordReads { public static ushort ReadWorkRamWordFixedBank(this ISnesMemoryBus bus, int address) => 0; } " +
             "[CpuBusAccess] sealed record CpuBusCell(int Address) { " +
             "public static CpuBusCell WramWord(string name, int address, string encoding = \"\") => new(address); " +

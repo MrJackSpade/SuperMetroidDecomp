@@ -132,9 +132,6 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     /// <inheritdoc />
     public virtual byte ReadWorkRamByte(int address) => Mutable.ReadWorkRamByte(address);
 
-    /// <inheritdoc />
-    public virtual byte ReadSaveRamByte(int address) => Mutable.ReadSaveRamByte(address);
-
     /// <summary>The source's WRAM/SRAM, which serves mutable-memory reads.</summary>
     private protected ISnesMutableMemory Mutable => Source as ISnesMutableMemory ?? throw new InvalidOperationException(
         $"Bus guard source {Source.GetType().Name} does not expose WRAM/SRAM.");

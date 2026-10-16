@@ -58,7 +58,6 @@ internal static class ImportedVramOracle
                 SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(source)
                     .ReadCartridgeByte((int)address),
                 SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)address),
-                SnesDmaSourceKind.SaveRam => memory.ReadSaveRamByte((int)address),
                 _ => throw new InvalidOperationException($"Reference DMA source {address} is unmapped."),
             };
         }

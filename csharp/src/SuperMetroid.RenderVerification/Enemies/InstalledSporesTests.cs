@@ -84,7 +84,7 @@ internal static class InstalledSporesTests
         {
             records++;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            byte[] initialRam = memory.WorkRam.ToArray(), initialSram = memory.SaveRam.ToArray();
+            byte[] initialRam = memory.WorkRam.ToArray();
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
             var colors = new SnesCgram(); var editedColors = new SnesCgram();
             RoomLayer3FxState baseline = Create(stock), replacement = Create(edited);
@@ -145,7 +145,7 @@ internal static class InstalledSporesTests
                 }
                 comparisons++;
             }
-            Require(memory.WorkRam.SequenceEqual(initialRam) && memory.SaveRam.SequenceEqual(initialSram),
+            Require(memory.WorkRam.SequenceEqual(initialRam),
                 "Spore presentation mutated active game RAM.");
         }
         Require(records > 0 && alteredTransfers > 0, "Source-selected spore records or edits were not exercised.");

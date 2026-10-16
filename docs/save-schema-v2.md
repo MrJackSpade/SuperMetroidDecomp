@@ -4,6 +4,10 @@
 bytes. It duplicated the named slot data and checksums in 32 hexadecimal pages.
 Version 2 removes it. The named state is authoritative and native SRAM is rebuilt.
 
+At runtime the saves are `SaveSlotStore` state (#1322): `GameSaveJsonCodec` maps the document to and from the
+store, and the address space has no SRAM. `SaveRamCodec` rebuilds the native SRAM image from the store only at
+the import and export boundaries: legacy `.srm`, recording `InitialSaveRam` and recorder seeds.
+
 The four previously omitted meanings are:
 
 | JSON field | Native meaning | Runtime owner |
@@ -75,5 +79,5 @@ by older builds; keep the original backup when downgrading.
 Focused command: `dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --game-save-json`.
 It checks canonical round trips, missing field restoration, real frontend completion
 production/consumption, item setup counting, strict errors, named-over-raw precedence,
-legacy imports, atomic persistence, and the v1 backup. Fixtures use fresh SRAM arrays and
+legacy imports, atomic persistence, and the v1 backup. Fixtures use fresh stores, SRAM images and
 temporary files, never player saves.

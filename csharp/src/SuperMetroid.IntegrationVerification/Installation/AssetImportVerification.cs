@@ -67,8 +67,7 @@ try
             throw new InvalidOperationException("Complete ROM-free installation was not reopened."))
             .OpenRuntimeAddressSpace();
         Check(!MetadataShape.DeclaresProperty(romFreeMemory.GetType(), "Rom") &&
-            romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount &&
-            romFreeMemory.SaveRam.Length == SuperMetroidAddressSpace.SaveRamByteCount,
+            romFreeMemory.WorkRam.Length == SuperMetroidAddressSpace.WorkRamByteCount,
             "installed runtime starts with mutable memory but no cartridge allocation");
         using (var romFreeSession = new SuperMetroid.Diagnostics.Android.AndroidSessionData(root))
         {

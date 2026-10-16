@@ -233,8 +233,6 @@ internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace s
         WorkRamReads++;
         return source.ReadWorkRamByte(address);
     }
-    /// <summary>Preserves save-RAM behavior when a fixture bus requests it.</summary>
-    public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
     /// <summary>Forwards writes so fixture setup retains the source bus's address mapping.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 }

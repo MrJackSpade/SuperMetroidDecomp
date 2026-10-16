@@ -91,8 +91,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
                 return Constant(receiver, arguments[0].Expression, 2, "WorkRam");
             case (_, "ReadWorkRamByte", 1) when receiver is not null:
                 return Constant(receiver, arguments[0].Expression, 1, "WorkRam");
-            case (_, "ReadSaveRamByte", 1) when receiver is not null:
-                return Constant(receiver, arguments[0].Expression, 1, "SaveRam");
             case ("WramWord" or "WramByte", "Read", 0) when receiver is BaseObjectCreationExpressionSyntax
             {
                 ArgumentList.Arguments: [{ Expression: { } bus }, { Expression: { } cellExpression }],
@@ -227,8 +225,6 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
         {
             "WramWord" => (2, "WorkRam"),
             "WramByte" => (1, "WorkRam"),
-            "SramBytes" when arguments.Count >= 3 &&
-                model.GetConstantValue(arguments[2].Expression, token) is { HasValue: true, Value: 1 } => (1, "SaveRam"),
             _ => null,
         };
         return shape is { } known ? (address, known.width, known.region) : null;

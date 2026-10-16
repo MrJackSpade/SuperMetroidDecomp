@@ -194,11 +194,6 @@ internal static class KraidHeadInstructionsVerification
             (source as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
-        /// <summary>Forwards SRAM reads to the mutable source.</summary>
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
-
         /// <summary>Preserves ordinary writes through the guarded address space.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }

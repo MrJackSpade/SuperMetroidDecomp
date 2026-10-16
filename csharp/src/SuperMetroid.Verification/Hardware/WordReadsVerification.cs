@@ -132,9 +132,6 @@ internal static class WordReadsVerification
         /// <summary>Records a WRAM byte read or raises an unmapped-address error.</summary>
         public byte ReadWorkRamByte(int cpuAddress) => Read(cpuAddress);
 
-        /// <summary>Records a save-RAM byte read or raises an unmapped-address error.</summary>
-        public byte ReadSaveRamByte(int cpuAddress) => Read(cpuAddress);
-
         /// <summary>Records a cartridge byte read or raises an unmapped-address error.</summary>
         public byte ReadCartridgeByte(int cpuAddress) => Read(cpuAddress);
 

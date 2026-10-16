@@ -83,7 +83,6 @@ internal static class KraidMouthHitboxesVerification
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {
             SnesDmaSourceKind.WorkRam => rom.ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => rom.ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge => rom.ReadCartridgeByte(address),
             _ => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),

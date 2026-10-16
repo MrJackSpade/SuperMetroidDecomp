@@ -134,7 +134,7 @@ public sealed record SuperMetroidSaveSnapshot
     /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
     /// <param name="system">Source of persistent events, bosses, room bits, maps, and load state.</param>
     /// <param name="context">The save location, timer, bindings and options a save snapshot records with Samus and system state (#633).</param>
-    /// <returns>A detached copy safe to pass to <see cref="SuperMetroidSaveRam.SaveSlot"/>.</returns>
+    /// <returns>A detached copy safe to pass to <see cref="SaveSlotStore.SaveSlot"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> or <paramref name="system"/> is <see langword="null"/>.</exception>
     public static SuperMetroidSaveSnapshot Capture(SamusState samus, Bank80SystemState system, SaveSnapshotContext context)
     {

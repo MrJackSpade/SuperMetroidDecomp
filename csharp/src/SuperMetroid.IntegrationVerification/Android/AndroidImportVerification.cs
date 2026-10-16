@@ -61,15 +61,14 @@ internal static class AndroidImportVerification
         Console.WriteLine("PASS Android imports: corrupt rejection preserves slots/pending save, valid state bytes and backups, next-launch regular save activation.");
     }
 
-    /// <summary>Confirms ROM-free memory retains WRAM and SRAM writes while refusing cartridge capability.</summary>
-    [CpuBusBoundary("exact bus test: a cartridge-free address space retains WRAM/SRAM writes and rejects cartridge reads")]
+    /// <summary>Confirms ROM-free memory retains WRAM writes while refusing cartridge capability.</summary>
+    [CpuBusBoundary("exact bus test: a cartridge-free address space retains WRAM writes and rejects cartridge reads")]
     private static void VerifyMutableMemoryWithoutCartridge()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         memory.WriteByte(0x7e1234, 0x56);
-        memory.WriteByte(0x700123, 0x78);
-        if (memory.ReadWorkRamByte(0x7e1234) != 0x56 || memory.ReadSaveRamByte(0x700123) != 0x78)
-            throw new InvalidDataException("Cartridge-free address space did not retain mutable WRAM/SRAM.");
+        if (memory.ReadWorkRamByte(0x7e1234) != 0x56)
+            throw new InvalidDataException("Cartridge-free address space did not retain mutable WRAM.");
 
         bool rejectedRomRead = false;
         try { _ = memory.ReadCartridgeByte(0x808000); }

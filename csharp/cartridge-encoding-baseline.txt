@@ -44,7 +44,7 @@ csharp/src/SuperMetroid.DesktopVerification/Startup/RomPickerStartupVerification
 csharp/src/SuperMetroid.DesktopVerification/Window/DraygonTerrainPriorityTests.cs	SME6340	3
 csharp/src/SuperMetroid.EnsureVerification/PaletteFx/PaletteFxContractTests.cs	SME6340	2
 csharp/src/SuperMetroid.EnsureVerification/Program.cs	SME6340	3
-csharp/src/SuperMetroid.IntegrationVerification/Android/AndroidImportVerification.cs	SME6340	9
+csharp/src/SuperMetroid.IntegrationVerification/Android/AndroidImportVerification.cs	SME6340	5
 csharp/src/SuperMetroid.IntegrationVerification/Gameplay/GameplayRenderAllocationVerification.cs	SME6340	2
 csharp/src/SuperMetroid.IntegrationVerification/Gameplay/ProjectileHostBindingVerification.cs	SME6340	2
 csharp/src/SuperMetroid.IntegrationVerification/Installation/RomDecompressionVerification.cs	SME6340	64
@@ -101,7 +101,7 @@ csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelector
 csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameDefinitionsTooling.cs	SME6340	5
 csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/SpacePirateProjectileInstructionProgramDefinitionsTooling.cs	SME6341	1
 csharp/src/SuperMetroid.Tooling/Core/Fx/RoomFxRomDataBanksTooling.cs	SME6340	1
-csharp/src/SuperMetroid.Tooling/Core/Hardware/CpuBusCatalogInventory.cs	SME6340	8
+csharp/src/SuperMetroid.Tooling/Core/Hardware/CpuBusCatalogInventory.cs	SME6340	7
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Doors/DoorHeaderRomDataTooling.cs	SME6340	1
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6340	9
 csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs	SME6341	1
@@ -898,13 +898,13 @@ csharp/src/SuperMetroid.Verification/Hardware/Bgr555DomainVerification.cs	SME634
 csharp/src/SuperMetroid.Verification/Hardware/ColorWindowSnapshotTestsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6340	55
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	76
-csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6342	2
+csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	56
+csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6340	12
-csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	25
+csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Hardware/EyeWindowSnapshotTestsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Hardware/GenericSpriteArtworkVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6340	286
+csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6340	278
 csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6342	8
 csharp/src/SuperMetroid.Verification/Hardware/HighlightTilePixelsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Hardware/HighlightTilePixelsVerification.cs	SME6342	1

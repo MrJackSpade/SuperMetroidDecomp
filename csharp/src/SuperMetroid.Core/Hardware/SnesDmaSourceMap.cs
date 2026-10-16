@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class SnesDmaSourceMap
 {
-    /// <summary>Classifies one DMA A-bus address after offset wrapping, honoring direct WRAM, mirrors, SRAM, and LoROM windows.</summary>
+    /// <summary>Classifies one DMA A-bus address after offset wrapping, honoring direct WRAM, mirrors and LoROM windows; SRAM windows are unmapped.</summary>
     internal static SnesDmaSourceKind Classify(SnesAddress address)
     {
         byte bank = address.Bank;
@@ -18,12 +18,6 @@ internal static class SnesDmaSourceMap
         if ((bank & SnesBusLayout.MirrorBankMask) < SnesBusLayout.SystemBankLimit &&
             offset < SnesBusLayout.WorkRamMirrorEnd)
             return SnesDmaSourceKind.WorkRam;
-        if ((bank is >= LoRomMemoryBankLayout.FirstSaveRamLowBank and
-                <= LoRomMemoryBankLayout.LastSaveRamLowBank or
-                 >= LoRomMemoryBankLayout.FirstSaveRamHighBank and
-                <= LoRomMemoryBankLayout.LastSaveRamHighBank) &&
-            offset < SnesBusLayout.RomWindowStart)
-            return SnesDmaSourceKind.SaveRam;
         return offset >= SnesBusLayout.RomWindowStart
             ? SnesDmaSourceKind.Cartridge
             : SnesDmaSourceKind.Unmapped;

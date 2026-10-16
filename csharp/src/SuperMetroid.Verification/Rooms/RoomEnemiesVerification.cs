@@ -283,9 +283,6 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     /// <summary>Forwards WRAM reads; the tile guard applies only to cartridge art ranges.</summary>
     public byte ReadWorkRamByte(int address) => source.ReadWorkRamByte(address);
 
-    /// <summary>Forwards save RAM reads needed by the room fixture.</summary>
-    public byte ReadSaveRamByte(int address) => source.ReadSaveRamByte(address);
-
     /// <summary>Forwards fixture writes outside the guarded read path.</summary>
     public void WriteByte(int address, byte value) => source.WriteByte(address, value);
 

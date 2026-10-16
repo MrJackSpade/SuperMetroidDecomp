@@ -44,9 +44,6 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     /// <summary>Reads the exact seeded WRAM alias without synthesizing mirrored banks.</summary>
     public byte ReadWorkRamByte(int address) => ReadByte(address);
 
-    /// <summary>Reads the exact seeded SRAM alias without synthesizing mirrored banks.</summary>
-    public byte ReadSaveRamByte(int address) => ReadByte(address);
-
     /// <summary>Seeds one validated 24-bit CPU address for a focused fixture.</summary>
     public void WriteByte(int address, byte value)
     {

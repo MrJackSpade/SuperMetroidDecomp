@@ -152,7 +152,7 @@ internal static class VramDmaAudit
         {
             SnesAddress source = SnesAddress.FromBusAddress(transfer.SourceAddress).AddWithinBank(offset);
             SnesDmaSourceKind kind = SnesDmaSourceMap.Classify(source);
-            if (kind is not (SnesDmaSourceKind.WorkRam or SnesDmaSourceKind.SaveRam))
+            if (kind is not SnesDmaSourceKind.WorkRam)
                 return $"Native source ${transfer.SourceAddress:X6}+${transfer.ByteCount:X} has no installed resolver; " +
                     $"byte {source} maps to {kind}, not mutable RAM.";
         }

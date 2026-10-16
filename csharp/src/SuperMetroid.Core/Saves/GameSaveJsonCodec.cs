@@ -490,10 +490,10 @@ public static class GameSaveJsonCodec
     private static byte[] DecodeLegacyPages(JsonArray pages)
     {
         int size = GameSaveJsonFormat.PreservationPageByteCount;
-        int expectedPages = SuperMetroidAddressSpace.SaveRamByteCount / size;
+        int expectedPages = SaveRamLayout.ImageByteCount / size;
         if (pages.Count != expectedPages)
             throw new InvalidDataException($"preservedUntranslatedSram must contain {expectedPages} pages");
-        var sram = new byte[SuperMetroidAddressSpace.SaveRamByteCount];
+        var sram = new byte[SaveRamLayout.ImageByteCount];
         for (int page = 0; page < pages.Count; page++)
         {
             var entry = pages[page]?.Deserialize<LegacySramPage>(CreateOptions()) ??

@@ -204,11 +204,11 @@ public sealed record ControllerInputRecording
         var mapReveal = (MapRevealMode)mapRevealBits;
 
         int saveRamLength = BinaryPrimitives.ReadInt32LittleEndian(header[60..]);
-        if (saveRamLength != Hardware.SuperMetroidAddressSpace.SaveRamByteCount)
+        if (saveRamLength != Saves.SaveRamLayout.ImageByteCount)
         {
             throw new InvalidDataException(
                 $"Controller recording contains {saveRamLength} SRAM bytes; expected " +
-                $"{Hardware.SuperMetroidAddressSpace.SaveRamByteCount}.");
+                $"{Saves.SaveRamLayout.ImageByteCount}.");
         }
 
         int inputCount = BinaryPrimitives.ReadInt32LittleEndian(header[64..]);
@@ -296,7 +296,7 @@ public sealed record ControllerInputRecording
         {
             throw new InvalidDataException(
                 $"A controller recording requires exactly " +
-                $"{Hardware.SuperMetroidAddressSpace.SaveRamByteCount} SRAM bytes.");
+                $"{Saves.SaveRamLayout.ImageByteCount} SRAM bytes.");
         }
     }
 

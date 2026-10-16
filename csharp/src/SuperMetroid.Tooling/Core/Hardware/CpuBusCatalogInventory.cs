@@ -102,7 +102,6 @@ internal static class CpuBusCatalogInventory
             CpuBusRegion.WorkRam when bank is 0x7e or 0x7f => (bank - 0x7e) * 0x10000 + offset,
             CpuBusRegion.WorkRam when (bank & 0x7f) < 0x40 && offset < 0x2000 => offset,
             CpuBusRegion.WorkRam => throw new InvalidDataException($"{cell} is not a WRAM address."),
-            CpuBusRegion.SaveRam => offset & 0x1fff,
             CpuBusRegion.Cartridge => cell.Address,
             _ => throw new InvalidOperationException($"Undefined {nameof(CpuBusRegion)} {(int)cell.Region}."),
         };

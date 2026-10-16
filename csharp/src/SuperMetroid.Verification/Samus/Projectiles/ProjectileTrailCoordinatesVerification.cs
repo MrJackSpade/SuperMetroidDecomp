@@ -212,8 +212,6 @@ internal static class ProjectileTrailCoordinatesVerification
                 SnesDmaSourceKind.Cartridge => ReadRetailTrailOperandByte(bus, source),
                 SnesDmaSourceKind.WorkRam =>
                     ((ISnesMutableMemory)bus).ReadWorkRamByte(source),
-                SnesDmaSourceKind.SaveRam =>
-                    ((ISnesMutableMemory)bus).ReadSaveRamByte(source),
                 _ => ReadNativeTrailOperandDeviceByte(bus, source),
             };
         }

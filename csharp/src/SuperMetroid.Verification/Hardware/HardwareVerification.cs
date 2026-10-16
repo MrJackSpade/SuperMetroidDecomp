@@ -557,10 +557,10 @@ internal static void VerifyFrameRuntime()
 }
 
 /// <summary>
-/// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, SRAM mirrors,
+/// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, unmapped SRAM windows,
 /// and deliberate failures for unimplemented hardware and ROM writes.
 /// </summary>
-[CpuBusBoundary("exact bus test: LoROM, WRAM and SRAM mapping, mirror and rejection behaviour of the address-space implementation")]
+[CpuBusBoundary("exact bus test: LoROM and WRAM mapping, unmapped SRAM, mirror and rejection behaviour of the address-space implementation")]
 internal static void VerifySuperMetroidAddressSpace()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -607,17 +607,10 @@ internal static void VerifySuperMetroidAddressSpace()
         () => mutable.ReadWorkRamByte(0x002000),
         "typed WRAM read rejects hardware registers outside the mirror");
 
-    bus.WriteByte(0x700123, 0x77);
-    AssertEqual(0x77, bus.ReadSaveRamByte(0x702123), "8 KiB SRAM offset mirror");
-    AssertEqual(0x77, bus.ReadSaveRamByte(0xf00123), "8 KiB SRAM bank mirror");
-    AssertEqual(0x77, mutable.ReadSaveRamByte(0x702123),
-        "typed SRAM read retains the physical 8 KiB mirror");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadSaveRamByte(0x7e1234),
-        "typed SRAM read rejects WRAM");
-    AssertThrows<ArgumentOutOfRangeException>(
-        () => mutable.ReadSaveRamByte(0x708000),
-        "typed SRAM read rejects the bank's cartridge upper window");
+    // Saves are SaveSlotStore state: the SRAM windows are outside the runtime address map.
+    AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x700123, 0x77), "SRAM window writes are unmapped");
+    AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x700123)),
+        "DMA cannot read an SRAM window");
 
     var noCartridge = SuperMetroidAddressSpace.CreateWithoutCartridge();
     noCartridge.WriteByte(0x7e1234, 0x98);
@@ -633,11 +626,10 @@ internal static void VerifySuperMetroidAddressSpace()
     AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x004000)),
         "unimplemented register/expansion window is outside the runtime address map");
     AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadWorkRamByte(0x004000), "unimplemented register/expansion read rejected as WRAM");
-    AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadSaveRamByte(0x004000), "unimplemented register/expansion read rejected as SRAM");
     AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadCartridgeByte(0x004000), "unimplemented register/expansion read rejected as ROM");
     AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace.ToRomOffset(0x800000), "lower LoROM offset rejected");
 
-    Console.WriteLine("  Bus: LoROM, WRAM, SRAM mirrors and protection agree.");
+    Console.WriteLine("  Bus: LoROM, WRAM mirrors, unmapped SRAM and protection agree.");
 }
 
 /// <summary>

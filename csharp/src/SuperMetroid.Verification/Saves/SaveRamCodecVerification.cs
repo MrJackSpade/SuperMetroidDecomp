@@ -1,5 +1,3 @@
-using SuperMetroid.Core;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
@@ -12,25 +10,25 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 namespace SuperMetroid.Verification.Saves;
 
 /// <summary>
-/// Checks <see cref="SaveRamCodec"/> and <see cref="SaveSlotStore"/> against the bus-backed SRAM path they replace
-/// (#1322): decoding applies the cartridge's validity and boot-carry rules to an image as given, and store operations
-/// encode to the bytes the SRAM path writes.
+/// Checks <see cref="SaveRamCodec"/> and <see cref="SaveSlotStore"/> (#1322): decoding applies the cartridge's validity,
+/// selection and boot-carry rules to an image as given, and every store operation encodes to an image that decodes back
+/// to the same store.
 /// </summary>
 internal static class SaveRamCodecVerification
 {
     /// <summary>
-    /// An image with one invalid slot and a noncanonical completion marker decodes to an empty slot, the same valid
-    /// slots, selection and boot carry as the bus implementation reads from that image.
+    /// An image with one invalid slot and a noncanonical completion marker decodes to an empty slot, the other slots and
+    /// selection as written, and the boot carry of the raw marker words; a later save keeps that carry, as SRAM keeps the
+    /// marker words.
     /// </summary>
     internal static void VerifyInvalidSlotAndNoncanonicalMarker()
     {
         IAreaMapSource maps = RetailPresentationFixture();
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var sram = new SuperMetroidSaveRam(bus, maps);
-        sram.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
-        sram.SaveSlot(1, Snapshot(health: 77, area: AreaId.Norfair));
-        sram.SelectSlot(1);
-        byte[] image = bus.SaveRam.ToArray();
+        var written = new SaveSlotStore(maps);
+        written.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
+        written.SaveSlot(1, Snapshot(health: 77, area: AreaId.Norfair));
+        written.SelectSlot(1);
+        byte[] image = SaveRamCodec.Encode(written, maps);
         // Damage slot 1's payload under both directories, then mark the image with a non-signature marker.
         image[SaveRamLayout.SlotOffset(1) + SaveRamLayout.HealthOffset] ^= 16;
 
@@ -43,66 +41,66 @@ internal static class SaveRamCodecVerification
                  })
         {
             marker.CopyTo(image, SaveRamLayout.CompletionMarkerOffset);
-            var old = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            image.CopyTo(old.SaveRam);
-            var oldSram = new SuperMetroidSaveRam(old, maps);
             SaveSlotStore decoded = SaveRamCodec.Decode(image, maps);
 
-            AssertTrue(oldSram.ReadSlot(1) is null && decoded.ReadSlot(1) is null && !decoded.IsSlotValid(1),
-                "a slot failing both checksum pairs decodes empty");
-            AssertTrue(PayloadOf(decoded.ReadSlot(0), maps).SequenceEqual(PayloadOf(oldSram.ReadSlot(0), maps)),
-                "a valid slot decodes to the record the bus implementation reads");
-            AssertEqual(oldSram.ReadSelectedSlot(), decoded.ReadSelectedSlot(), "selected slot decodes as the bus implementation reads it");
-            AssertEqual(expectedCarry, oldSram.DetermineBootMainLoopCarry(), "the bus implementation's boot carry for the marker");
+            AssertTrue(decoded.ReadSlot(1) is null && !decoded.IsSlotValid(1), "a slot failing both checksum pairs decodes empty");
+            AssertTrue(PayloadOf(decoded.ReadSlot(0), maps).SequenceEqual(PayloadOf(written.ReadSlot(0), maps)),
+                "a valid slot decodes to the record that was written");
+            AssertEqual(1, decoded.ReadSelectedSlot(), "the selection decodes as written, whatever the selected slot holds");
             AssertEqual(expectedCarry, decoded.DetermineBootMainLoopCarry(), "the decoded boot carry compares the raw marker words");
             AssertTrue(!decoded.HasCompletedGame, "a noncanonical marker is not the completed-game signature");
-            // Saving a slot leaves SRAM's marker words, so the raw comparison still decides the next boot.
-            SuperMetroidSaveSnapshot later = Snapshot(health: 33, area: AreaId.Crateria);
-            oldSram.SaveSlot(2, later);
-            decoded.SaveSlot(2, later);
-            AssertEqual(oldSram.DetermineBootMainLoopCarry(), decoded.DetermineBootMainLoopCarry(),
+            decoded.SaveSlot(2, Snapshot(health: 33, area: AreaId.Crateria));
+            AssertEqual(expectedCarry, decoded.DetermineBootMainLoopCarry(),
                 "a later save keeps the raw marker comparison for the next boot");
         }
-        Console.WriteLine("SRAM decode: an invalid slot decodes empty; noncanonical markers keep the bus implementation's boot carry.");
+        Console.WriteLine("SRAM decode: an invalid slot decodes empty; noncanonical markers keep their raw boot carry across saves.");
     }
 
-    /// <summary>Every store operation encodes to the SRAM bytes the same operations write through the bus.</summary>
-    internal static void VerifyStoreMatchesSramPath()
+    /// <summary>Each store operation has the cartridge's effect and encodes to an image that decodes back to the same store.</summary>
+    internal static void VerifyStoreOperationsRoundTrip()
     {
         IAreaMapSource maps = RetailPresentationFixture();
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var sram = new SuperMetroidSaveRam(bus, maps);
         var store = new SaveSlotStore(maps);
-        void Both(Action<SuperMetroidSaveRam> onSram, Action<SaveSlotStore> onStore, string step)
+        void RoundTrips(string step)
         {
-            onSram(sram);
-            onStore(store);
-            AssertTrue(SaveRamCodec.Encode(store, maps).SequenceEqual(bus.SaveRam.ToArray()), $"store encodes the SRAM image after {step}");
-            AssertTrue(SaveRamCodec.Encode(SaveRamCodec.Decode(bus.SaveRam, maps), maps).SequenceEqual(bus.SaveRam.ToArray()),
+            byte[] image = SaveRamCodec.Encode(store, maps);
+            AssertTrue(SaveRamCodec.Encode(SaveRamCodec.Decode(image, maps), maps).SequenceEqual(image),
                 $"the SRAM image round-trips through the codec after {step}");
         }
+        string Marker() => System.Text.Encoding.ASCII.GetString(SaveRamCodec.Encode(store, maps),
+            SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length);
 
-        // A canonical image stores the selection's complement; power-on SRAM starts with neither word written.
-        Both(s => s.SelectSlot(0), s => s.SelectSlot(0), "selecting slot A");
-        // Boot with every slot invalid writes the corrupt marker and fixes three demo sets.
-        AssertEqual(sram.DetermineBootMainLoopCarry(), store.DetermineBootMainLoopCarry(), "empty boot carry");
-        int sramSets = 0, storeSets = 0;
-        Both(s => sramSets = s.DetermineNumberOfDemoSets(), s => storeSets = s.DetermineNumberOfDemoSets(), "an all-invalid boot");
-        AssertEqual(sramSets, storeSets, "an all-invalid boot fixes the same demo-set count");
-        SuperMetroidSaveSnapshot first = Snapshot(health: 61, area: AreaId.Brinstar);
-        SuperMetroidSaveSnapshot second = Snapshot(health: 88, area: AreaId.Maridia);
-        Both(s => s.SaveSlot(0, first), s => s.SaveSlot(0, first), "saving slot A");
-        AssertEqual(sram.DetermineBootMainLoopCarry(), store.DetermineBootMainLoopCarry(), "boot carry over the corrupt marker");
-        Both(s => s.SaveSlot(2, second), s => s.SaveSlot(2, second), "saving slot C");
-        Both(s => s.CopySlot(0, 1), s => s.CopySlot(0, 1), "copying slot A to B");
-        Both(s => s.ClearSlot(2), s => s.ClearSlot(2), "clearing slot C");
-        Both(s => s.SelectSlot(1), s => s.SelectSlot(1), "selecting slot B");
-        Both(s => s.SetGameCompleted(true), s => s.SetGameCompleted(true), "completing the game");
-        AssertEqual(sram.DetermineBootMainLoopCarry(), store.DetermineBootMainLoopCarry(), "completed boot carry");
-        AssertEqual(sram.DetermineNumberOfDemoSets(), store.DetermineNumberOfDemoSets(), "completed demo-set count");
-        AssertTrue(PayloadOf(store.ReadSlot(1), maps).SequenceEqual(PayloadOf(sram.ReadSlot(1), maps)),
-            "a copied slot reads back as the bus implementation's copy");
-        Console.WriteLine("Save store: boot, save, copy, clear, select and completion encode to the SRAM path's bytes and round-trip.");
+        // Boot with every slot invalid keeps the carry set, writes the corrupt marker and fixes three demo sets.
+        AssertTrue(store.DetermineBootMainLoopCarry(), "an empty store's boot carry is set");
+        AssertEqual(DemoSetUnlockRomData.DefaultSetCount, store.DetermineNumberOfDemoSets(), "an all-invalid boot fixes three demo sets");
+        AssertEqual("madadameyohn", Marker(), "an all-invalid boot writes the corrupt-SRAM marker");
+        RoundTrips("an all-invalid boot");
+        store.SaveSlot(0, Snapshot(health: 61, area: AreaId.Brinstar));
+        // Last word "hn" ($6E68) is above "id" ($6469): the corrupt marker leaves the next boot's carry set.
+        AssertTrue(store.DetermineBootMainLoopCarry(), "boot carry over the corrupt marker");
+        AssertEqual("madadameyohn", Marker(), "a save leaves the marker");
+        RoundTrips("saving slot A");
+        store.SaveSlot(2, Snapshot(health: 88, area: AreaId.Maridia));
+        RoundTrips("saving slot C");
+        store.CopySlot(0, 1);
+        AssertTrue(PayloadOf(store.ReadSlot(1), maps).SequenceEqual(PayloadOf(store.ReadSlot(0), maps)), "a copied slot holds the source's save");
+        AssertEqual(1, store.ReadSlot(1)?.Slot, "a copied slot reports its own index");
+        RoundTrips("copying slot A to B");
+        store.ClearSlot(2);
+        AssertTrue(store.ReadSlot(2) is null, "a cleared slot is empty");
+        RoundTrips("clearing slot C");
+        store.SelectSlot(1);
+        AssertEqual(1, SaveRamCodec.Decode(SaveRamCodec.Encode(store, maps), maps).ReadSelectedSlot(), "the selection encodes with its complement");
+        RoundTrips("selecting slot B");
+        store.SetGameCompleted(true);
+        AssertEqual("supermetroid", Marker(), "completion writes the signature");
+        AssertTrue(store.DetermineBootMainLoopCarry(), "a completed save's boot carry is set");
+        AssertEqual(DemoSetUnlockRomData.SetCount, store.DetermineNumberOfDemoSets(), "a completed save enables the fourth demo set");
+        RoundTrips("completing the game");
+        store.SetGameCompleted(false);
+        AssertTrue(!store.DetermineBootMainLoopCarry(), "a valid incomplete save's boot carry is clear");
+        RoundTrips("clearing completion");
+        Console.WriteLine("Save store: boot, save, copy, clear, select and completion have the cartridge's effect and round-trip through SRAM.");
     }
 
     /// <summary>A save with a distinct health, area, progression and explored map.</summary>
@@ -128,12 +126,12 @@ internal static class SaveRamCodecVerification
         return SaveRamCodec.EncodePayload(SaveRamCodec.ToSnapshot(valid), maps);
     }
 
-    /// <summary>Runs the SRAM codec and save-store equivalence checks.</summary>
+    /// <summary>Runs the SRAM codec and save-store checks.</summary>
     [VerificationCommand("--save-ram-codec")]
     internal static int SaveRamCodecCommand()
     {
         Suite(nameof(VerifyInvalidSlotAndNoncanonicalMarker), () => VerifyInvalidSlotAndNoncanonicalMarker());
-        Suite(nameof(VerifyStoreMatchesSramPath), () => VerifyStoreMatchesSramPath());
+        Suite(nameof(VerifyStoreOperationsRoundTrip), () => VerifyStoreOperationsRoundTrip());
         return 0;
     }
 }

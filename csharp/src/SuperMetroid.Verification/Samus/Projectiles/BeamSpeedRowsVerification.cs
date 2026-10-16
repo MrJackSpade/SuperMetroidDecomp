@@ -122,8 +122,6 @@ internal static class BeamSpeedRowsVerification
     {
         /// <summary>Routes WRAM reads through the guarded address-space fixture.</summary>
         public byte ReadWorkRamByte(int address) => ReadByte(address);
-        /// <summary>Routes save-RAM reads through the guarded address-space fixture.</summary>
-        public byte ReadSaveRamByte(int address) => ReadByte(address);
         /// <summary>Routes cartridge reads through the guard that rejects migrated motion tables.</summary>
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 

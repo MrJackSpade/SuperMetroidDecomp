@@ -20,8 +20,6 @@ internal static class CpuBusRegionRead
                 .ReadCartridgeByte(address),
             SnesDmaSourceKind.WorkRam => (source as ISnesMutableMemory ?? throw Missing(source, address, "WRAM"))
                 .ReadWorkRamByte(address),
-            SnesDmaSourceKind.SaveRam => (source as ISnesMutableMemory ?? throw Missing(source, address, "SRAM"))
-                .ReadSaveRamByte(address),
             _ => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };

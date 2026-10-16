@@ -14,8 +14,6 @@ public static class SnesBusLayout
     public const int RomWindowStart = 0x8000;
     /// <summary>Banks $7E and $7F hold the 128 KiB of WRAM.</summary>
     public const int FirstWorkRamBank = 0x7e;
-    /// <summary>The bytes of battery-backed save RAM, mirrored through every save-RAM bank's low window.</summary>
-    public const int SaveRamBytes = 0x2000;
     /// <summary>System banks $00-$3F/$80-$BF mirror the first 8 KiB of bank-$7E WRAM through $1FFF.</summary>
     public const int WorkRamMirrorEnd = 0x2000;
     /// <summary>Start of the unconnected $6000-$7FFF cartridge expansion window.</summary>
@@ -39,6 +37,4 @@ public static class SnesBusLayout
     /// <summary>Whether <paramref name="bank"/> is a system bank ($00-$3F or $80-$BF), whose low window mirrors WRAM and the I/O.</summary>
     public static bool IsSystemBank(int bank) => bank is <= 0x3f or >= 0x80 and <= 0xbf;
 
-    /// <summary>Whether <paramref name="bank"/> maps save RAM into its low window ($70-$7D or $F0-$FF).</summary>
-    public static bool IsSaveRamBank(int bank) => bank is >= 0x70 and <= 0x7d or >= 0xf0 and <= 0xff;
 }

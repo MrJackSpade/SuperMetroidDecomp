@@ -1226,6 +1226,8 @@ internal static class LookupStream2Verification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
+        // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
+        enemies.KraidBehavior.Kraid = state;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
         Action<RoomEnemySlot, KraidEnemyState> finish = enemies.KraidBehavior.FinishKraidGrowth;
         Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.AlignKraidPart;

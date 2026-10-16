@@ -199,11 +199,7 @@ internal static class CrocomirePresentation1193Verification
             restored.Step(bus, runtime.Vram, actual);
             AssertTrue(expected.Entries.SequenceEqual(actual.Entries), "Current debugger graph retains exact spike cadence");
         }
-        runtime.RoomSpikes = new RoomSpikeAnimatedTilesState();
-        var restarted = new VramWriteQueue();
-        runtime.RoomSpikes.Step(bus, runtime.Vram, restarted);
-        AssertEqual(0x879d84, restarted.Entries.Single().SourceAddress,
-            "Absent legacy spike state restarts the current room's selected object");
+        // Debugger states are build-pinned (#1270); an older graph without spike state is rejected, not migrated.
     }
 
     /// <summary>Runs the spike animation and NMI artwork verification mode.</summary>

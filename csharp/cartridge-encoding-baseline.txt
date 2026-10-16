@@ -214,7 +214,7 @@ csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireBodyVisualsVerifi
 csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireBridgeFragmentDefinitionsVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireCutsceneVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireMeltingDefinitionsVerification.cs	SME6340	23
-csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomirePresentation1193Verification.cs	SME6340	21
+csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomirePresentation1193Verification.cs	SME6340	20
 csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomirePresentation1193Verification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireRumbleDefinitionsVerification.cs	SME6340	11
 csharp/src/SuperMetroid.Verification/Bosses/Crocomire/CrocomireSkeletonFrameGeometryVerification.cs	SME6340	4

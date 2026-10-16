@@ -51,13 +51,16 @@ internal static class KraidSuperMissileDamageVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));
         game.GameState = SuperMetroidGameState.MainGameplay;
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
+        // Kraid's arm swipes reach this standing position from its sixth frame; contact knockback would move Samus off
+        // the mouth's height before the second missile. Contact protection keeps the check on the missiles alone.
+        samus.InvincibilityTimer = NativeCountdown.Start(60);
         ushort oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
         {
             var result=game.Step(frame is 0 or 24 ? SnesButton.X : (ushort)0);
             if(body.Health!=oldHealth || frame%8==0)
             {
-                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} mouth={state.InvulnerableMouthHitbox:X4}");
+                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.InvulnerableMouthHitbox:X4}");
                 foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type:X4} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.PreInstruction}");
             }
             if (frame is 8 or 32)

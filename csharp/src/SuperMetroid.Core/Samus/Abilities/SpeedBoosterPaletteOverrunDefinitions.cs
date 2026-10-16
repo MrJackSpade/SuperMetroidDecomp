@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// <summary>Bounded instruction-data reads when Gravity Speed Booster inherits Screw Attack phases eight or ten.</summary>
 internal static class SpeedBoosterPaletteOverrunDefinitions
 {
+    /// <summary>
+    /// Every colour of the expansion overrun: <c>$91:DD5B</c>'s unrolled <c>LDA $0000..$001E,X</c> runs under DB=$9B with
+    /// X=$68AD, so it reads <c>$9B:68AD-$68CC</c> in the unconnected expansion window. Open bus returns the memory data
+    /// register, which holds the operand's high byte, $00; all sixteen words are $0000.
+    /// </summary>
+    internal const ushort ExpansionOpenBusWord = 0x0000;
 
     /// <summary>$9B:C90A..C929, the exact bounded grapple-handler instruction slice read as sixteen colors by $91:DD5B.</summary>
     /// <remarks>This is executable-code identity, not an authored palette or a substitute normal shade.

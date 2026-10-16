@@ -81,12 +81,10 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
             return;
 
-        // This is intentionally *not* `ORA #$0100`. The retail instruction is the odd
-        // absolute-memory form `ORA $0100`, noted as a bug in the disassembly. Preserve the
-        // exact live WRAM dependency so stack-page contents, including a zero word, produce
-        // the same properties as the cartridge instead of inventing forced invisibility.
-        slot.Properties = unchecked((ushort)(
-            slot.Properties | new EnemyOverreadMemory(_room.MemoryBus).SparkPropertyOverlay));
+        // This is intentionally *not* `ORA #$0100`, which would force invisibility. The retail
+        // instruction is the absolute-memory form `ORA $0100`, a disassembly-noted bug; see
+        // SparkMovementDefinitions.StackPagePropertyOverlay for the exempted value it ORs.
+        slot.Properties = unchecked((ushort)(slot.Properties | SparkMovementDefinitions.StackPagePropertyOverlay));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>

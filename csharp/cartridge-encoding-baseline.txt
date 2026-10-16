@@ -901,8 +901,7 @@ csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6340
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	85
 csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6340	65
-csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6342	3
+csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	25
 csharp/src/SuperMetroid.Verification/Hardware/EyeWindowSnapshotTestsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Hardware/GenericSpriteArtworkVerification.cs	SME6340	2

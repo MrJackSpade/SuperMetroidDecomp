@@ -11,7 +11,7 @@ internal static class SamusSpeedBoosterPalette
     /// overrun pointers instead copy their operand-driven bus words through the 15-bit
     /// CGRAM port, preserving the unrolled cartridge read behavior.
     /// </summary>
-    internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
+    internal static void Apply(SnesCgram cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors)
     {
         if (Enum.IsDefined((SpeedBoosterPaletteOverrun)pointer))
@@ -19,11 +19,11 @@ internal static class SamusSpeedBoosterPalette
             var overrun = (SpeedBoosterPaletteOverrun)pointer;
             for (int index = 0; index < SamusPaletteRomData.Common.ColorsPerObjPalette; index++)
             {
-                // The native unrolled copy uses LDA $0000..001E,X. Preserve its
-                // operand-driven bus value for expansion reads, not a generic zero fallback.
+                // The native unrolled copy uses LDA $0000..001E,X; the expansion window's open
+                // bus returns the operand's high byte for every word.
                 ushort word = overrun switch
                 {
-                    SpeedBoosterPaletteOverrun.Expansion => new SamusOverreadMemory(bus).SpeedBoosterExpansionWord(index, pointer),
+                    SpeedBoosterPaletteOverrun.Expansion => SpeedBoosterPaletteOverrunDefinitions.ExpansionOpenBusWord,
                     SpeedBoosterPaletteOverrun.GrappleCode => SpeedBoosterPaletteOverrunDefinitions.GrappleInstructionWord(index),
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {(int)overrun}."),
                 };

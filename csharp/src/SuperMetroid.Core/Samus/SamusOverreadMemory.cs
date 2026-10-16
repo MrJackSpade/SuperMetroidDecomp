@@ -85,20 +85,6 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
             : throw new InvalidOperationException($"Trail coordinate ${address:X6} requires a compiled cartridge definition.");
     }
 
-    /// <summary>
-    /// Color word <paramref name="index"/> of the Speed Booster palette whose overrun pointer lands
-    /// in the expansion window: the native <c>LDA $0000,X</c> under bank $9B with its operand-driven bus value.
-    /// </summary>
-    internal ushort SpeedBoosterExpansionWord(int index, ushort pointer) =>
-        SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus,
-            SnesLittleEndian.BankByte(SamusPaletteRomData.Banks.Palette), (ushort)(index * 2), pointer);
-
-    /// <summary>Chainsaw beam palette word <paramref name="color"/>, read through its glitched <c>[$00],Y</c> pointer.</summary>
-    internal ushort ChainsawPaletteWord(ushort color) =>
-        SnesIndirectLongDataRead.ReadWord(bus, SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement),
-            ChainsawBeamGraphicsDefinitions.PalettePointer, (ushort)(color * 2),
-            ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress);
-
     /// <summary>SpaceTime beam palette word <paramref name="color"/>, read through its glitched pointer into live WRAM.</summary>
     internal ushort SpacetimePaletteWord(ushort color) =>
         SnesIndirectLongDataRead.ReadWord(bus, SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement),

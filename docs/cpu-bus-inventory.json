@@ -130,30 +130,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Enemies.EnemyOverreadWorkRam",
-      "name": "ClearedHeaderDropChances",
-      "region": "WorkRam",
-      "address": "$00:003A",
-      "byteCount": 2,
-      "encoding": "drop-chance table pointer (u16)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyOverreadMemory.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyOverreadWorkRam",
-      "name": "SparkPropertyOverlay",
-      "region": "WorkRam",
-      "address": "$7E:0100",
-      "byteCount": 2,
-      "encoding": "EnemyProperties bits (u16)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyOverreadMemory.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Enemies.EnemyScratchWorkRam",
       "name": "CorpseTiles",
       "region": "WorkRam",

@@ -38,6 +38,11 @@ internal static class InvalidBeamGraphicsVerification
         AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x801e, 0,
                 ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress),
             "definition window cannot admit adjacent, uncompiled cartridge bytes");
+        AssertSequenceEqual(
+            Enumerable.Range(0, 16).Select(color => SnesIndirectLongDataRead.ReadWord(bus, ChainsawBeamGraphicsDefinitions.OpenBusByte, ChainsawBeamGraphicsDefinitions.PalettePointer,
+                (ushort)(color * 2), ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress)),
+            Enumerable.Range(0, 16).Select(ChainsawBeamGraphicsDefinitions.PaletteWord),
+            "the Chainsaw palette constant equals the glitched pointer's open-bus and instruction-byte reads");
         using var scratch = new TestScratchDirectory("projectile-artwork");
         string installedDirectory = scratch.Root;
         SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);

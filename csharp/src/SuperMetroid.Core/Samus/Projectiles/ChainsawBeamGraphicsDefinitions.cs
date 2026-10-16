@@ -22,12 +22,29 @@ internal static class ChainsawBeamGraphicsDefinitions
         0x19, 0xc9, 0x4e, 0x00, 0xf0, 0x14, 0xad,
     ];
 
-    /// <summary>Loads beam colors through the glitched adjacent-table pointer, masking arbitrary source words to CGRAM's fifteen color bits.</summary>
-    internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
+    /// <summary>
+    /// The byte <c>LDA [$00],Y</c> reads at <c>$90:7FFF</c>: the expansion window is open bus, so it returns the memory
+    /// data register, which still holds the long pointer's bank, $90.
+    /// </summary>
+    internal const byte OpenBusByte = 0x90;
+
+    /// <summary>
+    /// Colour <paramref name="color"/> of the glitched palette: the sixteen words formed by <see cref="OpenBusByte"/>
+    /// followed by Samus_Animate's bytes at <c>$90:8000</c>. Colour zero is $0890.
+    /// </summary>
+    internal static ushort PaletteWord(int color)
+    {
+        if ((uint)color >= SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount)
+            throw new ArgumentOutOfRangeException(nameof(color));
+        byte low = color == 0 ? OpenBusByte : InstructionBytes[color * 2 - 1];
+        return SnesLittleEndian.Word(low, InstructionBytes[color * 2]);
+    }
+
+    /// <summary>Loads the glitched palette's colours, masking the arbitrary source words to CGRAM's fifteen colour bits.</summary>
+    internal static void LoadPalette(SnesCgram cgram)
     {
         for (ushort color = 0; color < SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount; color++)
             // The glitched pointer reads arbitrary words; the CGRAM port keeps fifteen bits.
-            new SamusPalettes(cgram).Beam.Write(color,
-                Bgr555.FromCgramPortWord(new SamusOverreadMemory(bus).ChainsawPaletteWord(color)));
+            new SamusPalettes(cgram).Beam.Write(color, Bgr555.FromCgramPortWord(PaletteWord(color)));
     }
 }

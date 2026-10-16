@@ -6,6 +6,14 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 internal static class EnemyDropChanceDefinitions
 {
+    /// <summary>
+    /// The drop-chance pointer a death explosion from a cleared enemy slot inherits: <c>EnemyHeaders_dropChances</c>
+    /// (<c>$86:F120</c>) indexed by header pointer zero reads <c>$A0:003A</c>, which LoROM mirrors to the unnamed
+    /// direct-page word <c>$003A</c>. The boot clears it (<c>$80:844E</c>) and the pinned revision never writes it; only the
+    /// 16-bit <c>STA.B DP_BlocksToUpdate+2</c> at <c>$80:AA0E</c>/<c>$80:ABA8</c> touches the neighbouring <c>$39</c>, with
+    /// zero. Zero means no drop.
+    /// </summary>
+    internal const ushort ClearedHeaderPointer = 0x0000;
 
     /// <summary>Pointer of the first six-byte item-drop probability record.</summary>
     internal const ushort FirstPointer = 0xf1f4;

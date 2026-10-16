@@ -414,7 +414,7 @@ internal sealed class EnemyDeathsAndDrops
         if (projectile.ItemDropChancesPointerOverride != 0)
             return projectile.ItemDropChancesPointerOverride;
         if (projectile.EnemyHeaderPointer == 0)
-            return new EnemyOverreadMemory(_room.MemoryBus).ClearedHeaderDropChances;
+            return EnemyDropChanceDefinitions.ClearedHeaderPointer;
         return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 

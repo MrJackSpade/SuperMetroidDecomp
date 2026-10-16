@@ -16,7 +16,7 @@ other caller works with typed, domain-named members.
 | Everyone else | gameplay, runtime, rendering, frontend, verification of behaviour | **no** — typed members only |
 
 `[CpuBusAccess]` marks the raw API: `ISnesAddressSpace`, `ISnesMutableMemory`, `ISnesMemoryBus`,
-`ISnesCpuPeripheralSource`, `IImportCartridgeSource`, `SnesWorkRam`, `SnesCpuOperandRead`,
+`ISnesCpuPeripheralSource`, `IImportCartridgeSource`, `SnesWorkRam`,
 `SnesIndirectLongDataRead`, `SnesLiveDataRead`, `CpuBusCell` and the cell primitives `WramByte`,
 `WramWord`, `WramBytes`, `WramWords`, `SramBytes`. Import-time raw decoders shared by several
 codecs (`CartridgePaletteImporter`, `CartridgeBankWindow`) are themselves `[CpuBusAccess]`

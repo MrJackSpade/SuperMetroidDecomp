@@ -3,44 +3,18 @@ using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Hardware;
 
-/// <summary>Checks CPU operand bus retention and region routing at open-bus boundaries.</summary>
+/// <summary>Checks the indirect-long operand read's region routing.</summary>
 internal static class CpuOperandOpenBusVerification
 {
-    /// <summary>Checks indexed and indirect reads across mirrored I/O, WRAM, SRAM, and forbidden cartridge space.</summary>
+    /// <summary>Checks indirect-long reads across WRAM, SRAM and forbidden cartridge space.</summary>
     [CpuBusBoundary("exact bus test: absolute-indexed and indirect-long operand reads, open-bus MDR retention and region routing")]
     internal static void VerifyCpuOperandOpenBus()
     {
         var bus = new OperandReadWitness();
-        AssertEqual((ushort)0, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0, 0x68ad), "palette overrun expansion read retains zero operand bus value");
-        AssertEqual((ushort)0x6060, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0x6000, 0x08ad), "same palette address retains a different operand bus value");
-        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x7e, 0, 0x68ad), "palette expansion address remains ordinary WRAM in bank7E");
-        foreach (byte bank in new byte[] { 0, 0x3f, 0x80, 0x9b, 0xbf })
-        {
-            AssertEqual((ushort)0, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x21db), "absolute zero operand drives zero on reserved bus");
-            AssertEqual((ushort)0x2121, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0x2100, 0xdb), "nonzero operand drives actual MDR, not a constant fallback");
-            AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x2183), "low data byte drives following undriven high-byte read");
-            foreach (ushort offset in new ushort[] { 0x21ff, 0x2200, 0x220b, 0x223b, 0x226b, 0x229b, 0x22cb, 0x22fb, 0x3ffe })
-                AssertEqual((ushort)0, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, offset), "unpopulated expansion reads preserve operand MDR across the complete reflected direction set");
-            AssertEqual((ushort)0x2222, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0x2200, 0x6b), "expansion open bus preserves nonzero operand MDR");
-            AssertEqual((ushort)0xab00, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x3fff), "expansion ends before real CPU register window");
-        }
-        foreach (byte bank in new byte[] { 0x40, 0x7e, 0x7f, 0xc0, 0xff })
-        {
-            AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x21db), "same offset outside mirrored banks remains mapped");
-            AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, 0x226b), "expansion offsets outside system banks remain mapped");
-        }
-        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0, 0x2140), "real APU registers are not silently treated as open bus");
-        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x7e, 0, 0x4000),
-            "dynamic CPU operand reads WRAM through the typed mutable-memory contract");
-        AssertEqual((ushort)0xabab, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x70, 0, 0x4000),
-            "dynamic CPU operand reads SRAM through the typed mutable-memory contract");
         AssertEqual((ushort)0xabab, SnesIndirectLongDataRead.ReadWord(bus, 0x7e, 0x4000, 0),
             "indirect long operand reads WRAM through the typed mutable-memory contract");
         AssertEqual((ushort)0xabab, SnesIndirectLongDataRead.ReadWord(bus, 0x70, 0x4000, 0),
             "indirect long operand reads SRAM through the typed mutable-memory contract");
-        AssertThrows<InvalidOperationException>(() =>
-                SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0x8000, 0),
-            "dynamic CPU operand cannot read cartridge bytes through the gameplay bus");
         AssertThrows<InvalidOperationException>(() =>
                 SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x8000, 0),
             "indirect long operand cannot read cartridge bytes through the gameplay bus");

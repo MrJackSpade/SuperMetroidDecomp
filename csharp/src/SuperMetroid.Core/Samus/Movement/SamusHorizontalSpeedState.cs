@@ -426,7 +426,7 @@ public sealed class SamusHorizontalSpeedState
 
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
             suitTableOffset, SpecialPaletteFrame);
-        SamusSpeedBoosterPalette.Apply(bus, cgram, palettePointer, cycleColors);
+        SamusSpeedBoosterPalette.Apply(cgram, palettePointer, cycleColors);
 
         // The native clamp is AFTER the copy. Screw Attack can leave phase eight or ten
         // in this shared word; retain that one bounded overrun before pinning phase six.

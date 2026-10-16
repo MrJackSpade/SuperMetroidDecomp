@@ -135,7 +135,7 @@ public sealed class SamusProjectileSystem
         switch (selection)
         {
             case ChainsawBeamGraphicsDefinitions.Selection:
-                ChainsawBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+                ChainsawBeamGraphicsDefinitions.LoadPalette(cgram);
                 break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
                 SpacetimeBeamGraphicsDefinitions.LoadPalette(bus, cgram);

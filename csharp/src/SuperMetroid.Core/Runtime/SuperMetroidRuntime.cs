@@ -560,17 +560,17 @@ public sealed class SuperMetroidRuntime
         EnemyPhase.PrepareEnemyFrame();
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
         // defer actors until projectile production/update, immediately before beta.
-        bool enemyMainAlreadyRan = Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled;
+        var frame = new SamusHandlerFrame();
+        frame.EnemyMainAlreadyRan = Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled;
         // Native EnemyMain follows SamusCurrentStateHandler. An actor that restores the
         // normal handler pair there (gunship $A2:A987) affects this frame's beta only:
         // the locked alpha has already run, so it still sees the lock below.
-        bool enemyMainReleasedAlphaLock = false;
-        if (enemyMainAlreadyRan)
+        if (frame.EnemyMainAlreadyRan)
         {
             bool lockedBeforeEnemyMain = Player.Samus?.InputLocked == true;
             EnemyPhase.RunEnemyMainPhase(processingListPrepared: true,
                 Room.Camera?.PreviousSamusPoint ?? samusCameraPointAtFrameStart);
-            enemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.InputLocked == false;
+            frame.EnemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.InputLocked == false;
         }
         SuspendedGameplayFrameTail? frameTail = null;
         if (Player.Samus is not null && Room.Camera is not null)
@@ -593,12 +593,8 @@ public sealed class SuperMetroidRuntime
 
             // Preserve movement on either side of the frame boundary. A new camera uses
             // the fallback sampled before enemy-owned motion and the bank-$90 handler.
-            var frame = new SamusHandlerFrame();
             frame.PreviousCameraPoint = Room.Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart ??
                 throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start.");
-
-            // Whether this frame's alpha handler is the locked one installed at its start.
-            bool AlphaInputLocked() => Player.Samus.InputLocked || enemyMainReleasedAlphaLock;
 
             // Retain the dispatch pose because command $F8 can replace Samus.Pose during
             // animation later in this same frame. Native alpha/beta/transition phases all
@@ -615,13 +611,13 @@ public sealed class SuperMetroidRuntime
             // previous radius until this point in the following frame. The locked
             // alpha ($90:E713) has no SetSamusRadius, so e.g. an elevator ride keeps
             // the boarding pose's radius.
-            if (Player.GroundedSamusMovementEnabled && !Freeze.TimeIsFrozen && !AlphaInputLocked() &&
+            if (Player.GroundedSamusMovementEnabled && !Freeze.TimeIsFrozen && !frame.AlphaInputLocked(Player.Samus) &&
                 !Player.Samus.DeathSequence.IsActive && !Enemies.Elevator.ElevatorDoorTransitionActive)
                 Player.Samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
             frame.StationaryScriptControlLocked = Player.Samus.ScriptLocks.StationaryScriptControlLocked;
-            bool refillStationLocked = Player.Samus.ScriptLocks.RefillStationLocked;
+            frame.RefillStationLocked = Player.Samus.ScriptLocks.RefillStationLocked;
             // Suit command $15 installs an empty beta, not just locked pose input.
             // Preserve the suspended movement pointer and all of its timers so command
             // $0B can resume it after the HDMA transformation (including Blue Suit).
@@ -641,10 +637,10 @@ public sealed class SuperMetroidRuntime
             // Sound queues are global persistent engines on hardware, but this typed host
             // publication is scoped to one frame's Samus handler. It opened before the HDMA
             // pass, ahead of `$91:F046`'s landing sounds during collision.
-            bool xrayOwnsPoseInput = Player.Samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus;
+            frame.XrayOwnsPoseInput = Player.Samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus;
             frame.XrayActivatedThisFrame = false;
             frame.MovementBeforeXrayAdmission = Player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
-            if (xrayOwnsPoseInput)
+            if (frame.XrayOwnsPoseInput)
             {
                 Player.Samus.Xray.HandlePoseInput(
                     _addressSpace,
@@ -653,15 +649,15 @@ public sealed class SuperMetroidRuntime
             }
 
             frame.BombJumpLocksPoseInput = Player.Samus.BombJumpPoseInputLocked;
-            bool actorLocksPoseInput = AlphaInputLocked() || frame.BombJumpLocksPoseInput ||
+            frame.ActorLocksPoseInput = frame.AlphaInputLocked(Player.Samus) || frame.BombJumpLocksPoseInput ||
                 ((Player.Samus.InputSnapshot.ShinesparkPoseInputLocked || Player.Samus.InputSnapshot.CrystalFlashPoseInputLocked) && !Player.Samus.InputSnapshot.AutoJumpInputPending) ||
                 (SamusPoseMetadata.IsForwardFacingPose(Player.Samus.Pose) && ElevatorStatus != 0);
             // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
             // poses can still have table entries, but reading them here prematurely
             // interrupts crouch/morph animations before their animation command wins.
-            bool postureTransitionSkipsPoseInput = frame.MovementTypeAtFrameStart == SamusMovementType.PostureTransition;
+            frame.PostureTransitionSkipsPoseInput = frame.MovementTypeAtFrameStart == SamusMovementType.PostureTransition;
             SamusPoseTransitionLookup poseLookup =
-                frame.DeathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput || postureTransitionSkipsPoseInput
+                frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
                 ? default
                 : SamusPoseTransitionTable.Lookup(
                     _addressSpace,
@@ -692,7 +688,7 @@ public sealed class SuperMetroidRuntime
                     frame.DeceleratingFallbackHasMomentum).ProspectivePose;
             }
 
-            SamusPhases.StepGroundedSamusMovement(frame, DispatchGameState, enemyMainAlreadyRan, AlphaInputLocked, Player.Samus, Room.Camera);
+            SamusPhases.StepGroundedSamusMovement(frame, DispatchGameState, Player.Samus, Room.Camera);
 
             // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
             // function and before animation/pose transitions. Every fourth gameplay frame
@@ -771,7 +767,7 @@ public sealed class SuperMetroidRuntime
                     Artwork.SamusBodyArt?.DeathPalettes);
             }
             // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
-            else if (!frame.StationaryScriptControlLocked && !refillStationLocked && !frame.SuitOwnsSamus)
+            else if (!frame.StationaryScriptControlLocked && !frame.RefillStationLocked && !frame.SuitOwnsSamus)
             {
                 Player.Samus.Presentation.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = Controller1.Current, NmiFrameCounter = Nmi.NmiFrameCounter, System = System, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = Player.ProspectiveSamusPose?.ProspectivePose ?? Player.ProspectiveSamusFallbackPose, DemoPoseInput = AttractDemo.IsAttractDemo, QueueEchoSound = frameRequest.Audio.QueueEchoSound });
                 SamusPhases.StepSamusLoadAppearance();

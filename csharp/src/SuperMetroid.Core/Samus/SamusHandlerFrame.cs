@@ -47,4 +47,37 @@ internal sealed class SamusHandlerFrame
 
     /// <summary>Whether horizontal momentum remained when the fallback pose was selected.</summary>
     internal bool DeceleratingFallbackHasMomentum;
+
+    /// <summary>Whether EnemyMain ran before Samus because this frame has no movement to wait for.</summary>
+    internal bool EnemyMainAlreadyRan;
+
+    /// <summary>
+    /// Whether that hoisted EnemyMain restored the normal handler pair (gunship $A2:A987). The locked alpha has
+    /// already been installed for this frame, so only alpha's checks still see the lock.
+    /// </summary>
+    internal bool EnemyMainReleasedAlphaLock;
+
+    /// <summary>Whether the refill-station lock owns Samus for this beta.</summary>
+    internal bool RefillStationLocked;
+
+    /// <summary>Whether X-ray owns pose input this frame.</summary>
+    internal bool XrayOwnsPoseInput;
+
+    /// <summary>Whether the locked alpha, a bomb jump, Shinespark or Crystal Flash, or the elevator locks pose input.</summary>
+    internal bool ActorLocksPoseInput;
+
+    /// <summary>Whether the posture-transition input dispatcher, an RTS ($91:8146), skips pose input.</summary>
+    internal bool PostureTransitionSkipsPoseInput;
+
+    /// <summary>Whether ordinary alpha's HUD, bomb and projectile owners run.</summary>
+    internal bool AlphaRuns;
+
+    /// <summary>Whether grapple owns beta movement.</summary>
+    internal bool GrappleOwnsMovement;
+
+    /// <summary>
+    /// Whether this frame's alpha handler is the locked one installed at its start. Read live at each check: X-ray
+    /// admission can change the lock between them.
+    /// </summary>
+    internal bool AlphaInputLocked(SamusState samus) => samus.InputLocked || EnemyMainReleasedAlphaLock;
 }

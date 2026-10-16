@@ -238,7 +238,7 @@ internal sealed class SamusFramePhases
         }
     }
     /// <summary>Runs Samus's terrain probes and movement dispatcher after alpha input, honoring script locks and enemy-main ordering.</summary>
-    internal void StepGroundedSamusMovement(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
+    internal void StepGroundedSamusMovement(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus, ScrollBoundaryCamera camera)
     {
         if (_player.GroundedSamusMovementEnabled)
         {
@@ -269,7 +269,7 @@ internal sealed class SamusFramePhases
                     _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
             }
 
-            if (!_freeze.TimeIsFrozen && !alphaInputLocked() && _room.ActiveRoom is { } insideRoom)
+            if (!_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) && _room.ActiveRoom is { } insideRoom)
                 SamusInsideBlockReactions.PrepareFrame(_room.LevelData, samus, insideRoom.AreaIndex,
                     _system.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), _plms);
 
@@ -283,8 +283,8 @@ internal sealed class SamusFramePhases
             // still runs cooldown, HUD switching and the HUD handler; only its
             // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
             // apply themselves. A selection cancel during X-ray therefore takes effect.
-            bool alphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_enemies.Elevator.ElevatorDoorTransitionActive;
-            if (alphaRuns)
+            frame.AlphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_enemies.Elevator.ElevatorDoorTransitionActive;
+            if (frame.AlphaRuns)
             {
                 // `$90:C4E7` runs before the movement-type HUD projectile producer.
                 // Consequently a Select edge can choose missiles and an X edge can
@@ -294,7 +294,7 @@ internal sealed class SamusFramePhases
                 // cancel or select edge, even one that leaves the selection unchanged.
                 // Each clears the charge and restores suit colors, except grapple's
                 // while a grapple is already active ($90:C59A), which changes nothing.
-                if (!alphaInputLocked() && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
+                if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                     samus.HudSelection.HandleHudSelection(_controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
                     (samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
                      samus.Grapple.Phase == GrapplePhase.Inactive))
@@ -306,7 +306,7 @@ internal sealed class SamusFramePhases
 
                 // The selected scope uses held Run, not Fire. Setup installs its
                 // own pose handlers, superseding alpha's ordinary pending pose.
-                if (!alphaInputLocked() && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
+                if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                     samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
                     samus.Grapple.Phase == GrapplePhase.Inactive &&
                     (_controller1.Current & SnesButton.B) != 0 &&
@@ -331,9 +331,9 @@ internal sealed class SamusFramePhases
 
             }
 
-            bool grappleOwnsMovement = RunGrappleBeamHandler(frame.DeathOwnsSamus, frame.SuitOwnsSamus);
+            frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.DeathOwnsSamus, frame.SuitOwnsSamus);
 
-            if (alphaRuns)
+            if (frame.AlphaRuns)
             {
                 // The bomb half above has already decremented shared cooldown $0CCC.
                 // `$90:DD31` then dispatches the humanoid HUD producer before the same
@@ -344,7 +344,7 @@ internal sealed class SamusFramePhases
                 // so malformed callback-table entries can perform their literal WRAM
                 // writes, then reclaim ownership only when such a write occurred.
                 _system.WritePersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
-                SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !alphaInputLocked() && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
+                SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
                 if (projectileFrame.PersistentMemoryCorrupted)
                     _system.LoadPersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
 
@@ -369,7 +369,7 @@ internal sealed class SamusFramePhases
             // preceding snapshot; a newly queued X-ray pose is not installed yet.
             _player.PreviousMovementTypeForXray = frame.XrayActivatedThisFrame
                 ? frame.MovementBeforeXrayAdmission : samus.PoseMetadata.ReadMovementType(_addressSpace);
-            if (!enemyMainAlreadyRan)
+            if (!frame.EnemyMainAlreadyRan)
                 _enemyPhase.RunEnemyMainPhase(processingListPrepared: true, frame.PreviousCameraPoint);
             // A carry-set Samus command issued by enemy AI cleared alpha's prospective
             // poses and commands ($90:F093), so nothing pending is committed this frame.
@@ -426,7 +426,7 @@ internal sealed class SamusFramePhases
                     _controller1.Current,
                     _nmi.NmiFrameCounter,
                     _plms);
-                grappleOwnsMovement = true;
+                frame.GrappleOwnsMovement = true;
             }
 
             if (_player.LastGrappleMovement is { CameraPrevious: { } grapplePrevious })
@@ -454,7 +454,7 @@ internal sealed class SamusFramePhases
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
-            else if (grappleOwnsMovement)
+            else if (frame.GrappleOwnsMovement)
             {
                 // Movement type $16's beta handler is empty. Discard input transitions
                 // sampled from the pre-grapple pose once connection installs $B2/$B3.

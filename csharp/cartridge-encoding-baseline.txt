@@ -1303,8 +1303,7 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailDefinition
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectileRomDataVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	480
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6341	3
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	476
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6342	7
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SpacetimeBeamVerification.cs	SME6340	31
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SuperMissileDeathAnimationVerification.cs	SME6340	5

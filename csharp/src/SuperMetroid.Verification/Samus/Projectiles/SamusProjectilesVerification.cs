@@ -803,34 +803,37 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x039, trailOam.GetEntry(0).TileNumber,
         "position command falls through to the following `$2C39` timed record");
 
-    // Commands identify the destination side, not the stream executing them. Charged
-    // Wave's right stream uses MoveLeftDown; rejecting that cross-side write crashes
-    // the first fully integrated special attack even though particle motion is correct.
-    // Use bank $90's mutable low-half alias for the synthetic stream: fixed high-bank
-    // program data is compiled and deliberately cannot be rewritten by a test fixture.
+    // Commands identify the destination side, not the stream executing them. Each stream
+    // runs the other side's compiled ice-fall command (the first, after six poses) as well
+    // as its own; the command moves its named side, and the executing stream continues
+    // through the following timed record.
     foreach (bool executeOnLeft in new[] { false, true })
-    foreach (ushort command in new[] { (ushort)ProjectileTrailInstruction.MoveLeftDown,
-        (ushort)ProjectileTrailInstruction.MoveRightDown, (ushort)ProjectileTrailInstruction.MoveLeftUp })
+    foreach ((ProjectileTrailInstruction command, ushort list) in new[]
+             {
+                 (ProjectileTrailInstruction.MoveLeftDown, ProjectileTrailDefinitions.LeftIce),
+                 (ProjectileTrailInstruction.MoveRightDown, ProjectileTrailDefinitions.RightIce),
+             })
     {
         var commandProjectiles = CreateSyntheticProjectiles();
         var pair = commandProjectiles.TrailSlots[0];
         pair.Left.Position = pair.Left.Position.WithY(100);
         pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
+        ushort commandAddress = unchecked((ushort)(list + 6 * 4));
+        AssertEqual((ushort)command, ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement | commandAddress),
+            "the compiled ice list holds its fall command after six poses");
         executingSide.InstructionTimer = NativeCountdown.Start(1);
-        executingSide.InstructionPointer = 0x0000;
-        WriteTrailCommandStreamFixture(bus, command);
+        executingSide.InstructionPointer = commandAddress;
         trailOam = SpriteFrameBuffer.DrawnOam(frame =>
         {
-            commandProjectiles.AdvanceTrails(false, null);
-            commandProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, null, InstalledFixtures.ProjectileArtwork());
+            commandProjectiles.AdvanceTrails(false, fixtureTrails);
+            commandProjectiles.DrawTrails(frame, Position16<RoomPixels>.Zero, fixtureTrails, InstalledFixtures.ProjectileArtwork());
         });
-        AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveLeftDown ? 101 :
-            command == (ushort)ProjectileTrailInstruction.MoveLeftUp ? 99 : 100,
+        AssertEqual(command == ProjectileTrailInstruction.MoveLeftDown ? 101 : 100,
             pair.Left.Position.Y, "trail command targets named left side regardless of executing stream");
-        AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
+        AssertEqual(command == ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
             pair.Right.Position.Y, "trail command targets named right side regardless of executing stream");
-        AssertEqual(0x0006, executingSide.InstructionPointer,
+        AssertEqual(unchecked((ushort)(commandAddress + 6)), executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");
     }
 
@@ -2006,14 +2009,6 @@ static void InstallLandingSiteBlueDoorPlmFixture(TestAddressSpace bus)
     WriteTestWords(bus, 0x84aa13, 0x8004, 0x840f, 0x042f, 0x0c2f, 0x8c0f, 0x0000);
     WriteTestWords(bus, 0x84a683, 0x8004, 0x0482, 0x04a2, 0x0ca2, 0x0c82, 0x0000);
 }
-/// <summary>
-/// Installs a three-word projectile trail stream at bank $90's mutable low-half offset
-/// <c>$0000</c>: <paramref name="command"/>, then a one-frame timed record of tile
-/// <c>$2C38</c>.
-/// </summary>
-[CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-command projectile trail stream at $90:0000")]
-static void WriteTrailCommandStreamFixture(TestAddressSpace bus, ushort command) =>
-    WriteTestWords(bus, 0x900000, command, 1, 0x2c38);
 
 /// <summary>
 /// Installs a bank-$8F room PLM population at <paramref name="population"/>: six-byte

@@ -206,7 +206,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
-            self.EscapeAnimalsBehavior._escapeEtecoonStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as EscapeEtecoonEntity)?.State)];
 
         /// <summary>Each Ceres door slot's typed program cursor.</summary>
         internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresDoorProgram>> CeresDoorPrograms =>
@@ -218,7 +218,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed state for each physical escape-Dachora slot.</summary>
         internal IReadOnlyList<EscapeDachoraEnemyState?> EscapeDachoraStates =>
-            self.EscapeAnimalsBehavior._escapeDachoraStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as EscapeDachoraEntity)?.State)];
 
         /// <summary>Nuclear Waffle extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>

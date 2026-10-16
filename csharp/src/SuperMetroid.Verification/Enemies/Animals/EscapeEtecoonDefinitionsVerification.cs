@@ -63,6 +63,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
             slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
+            slot.Bind(EnemyDefinitionId.EtecoonEscape, slot.Definition);
             enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(slot);
 
             int role = parameter >> 1;

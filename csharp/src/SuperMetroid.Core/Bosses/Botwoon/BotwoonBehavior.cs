@@ -112,17 +112,16 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InitialDelayTimer = NativeCountdown.Start(256);
         var initialSpeed = BotwoonSpeedDefinitions.ForHealthPhase(0);
         state.Speed = initialSpeed.MovementSpeed;
-        state.SegmentSpacingBytes = initialSpeed.SegmentSpacingBytes;
+        state.SegmentSpacingEntries = initialSpeed.SegmentSpacingEntries;
         state.InsideHole = true;
         state.PreviousInsideHole = true;
         state.InitialAction = true;
         state.TargetHoleOffset = 0;
         state.MaximumHealth = head.Health;
-        state.HalfHealth = unchecked((ushort)(head.Health >> 1));
-        state.QuarterHealth = unchecked((ushort)(head.Health >> 2));
+        state.HalfHealth = head.Health >> 1;
+        state.QuarterHealth = head.Health >> 2;
         state.PreviousHealth = head.Health;
-        state.PaletteDestinationByteOffset =
-            unchecked((ushort)((head.PaletteIndex >> 4) + 256));
+        state.PaletteDestinationColor = ((head.PaletteIndex >> 4) + 256) / sizeof(ushort);
         // `$B3:961B` ORs $0400: the head starts hidden in its hole, out of every collision pass.
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
@@ -284,7 +283,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             state.HoleLatch = false;
-            state.SavedHoleRingByteOffset = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
+            state.SavedHoleRingIndex = null;
         }
         ChooseBotwoonPath(head, state);
     }
@@ -301,7 +300,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PositionBotwoonBody(state);
         RunBotwoonHeadFunction(head, state, samus);
         OrientBotwoonBody(head, state);
-        state.RingByteOffset = BotwoonNavigationDefinitions.WrapHistoryOffset(state.RingByteOffset + 4);
+        state.RingIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex + 1);
         if (detectHole)
             DetectBotwoonHole(head, state);
     }
@@ -378,7 +377,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HealthPhase = phase;
         var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
         state.Speed = speed.MovementSpeed;
-        state.SegmentSpacingBytes = speed.SegmentSpacingBytes;
+        state.SegmentSpacingEntries = speed.SegmentSpacingEntries;
     }
 
     /// <summary>Loads a path pointer, direction, and destination hole from the chosen descriptor.</summary>
@@ -424,23 +423,21 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Writes the head's whole-pixel position into the 1024-byte history ring.</summary>
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        int ringIndex = state.RingByteOffset >> 2;
-        state.History[ringIndex] = head.Position.Whole;
+        state.History[state.RingIndex] = head.Position.Whole;
     }
 
     /// <summary>Spaces thirteen body projectiles along older head-history samples.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
-        ushort historyOffset = BotwoonNavigationDefinitions.WrapHistoryOffset(state.RingByteOffset - state.SegmentSpacingBytes);
+        int historyIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex - state.SegmentSpacingEntries);
         for (int argument = 24; argument >= 0; argument -= 2)
         {
             int segmentIndex = argument >> 1;
             RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
 
-            ToggleBotwoonSegmentAtHole(state, segmentIndex, historyOffset);
-            int historyIndex = historyOffset >> 2;
+            ToggleBotwoonSegmentAtHole(state, segmentIndex, historyIndex);
             segment.Position = segment.Position.WithWhole(state.History[historyIndex]);
-            historyOffset = BotwoonNavigationDefinitions.WrapHistoryOffset(historyOffset - state.SegmentSpacingBytes);
+            historyIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(historyIndex - state.SegmentSpacingEntries);
         }
     }
 
@@ -448,10 +445,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ToggleBotwoonSegmentAtHole(
         BotwoonEnemyState state,
         int segmentIndex,
-        ushort historyOffset)
+        int historyIndex)
     {
-        if (state.SavedHoleRingByteOffset == BotwoonNavigationDefinitions.NoPendingHoleCrossing ||
-            state.SavedHoleRingByteOffset != historyOffset)
+        if (state.SavedHoleRingIndex != historyIndex)
             return;
 
         RoomEnemyProjectileSlot segment = state.Segment(segmentIndex);
@@ -464,7 +460,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.HoleLatch = false;
         state.ExitTransitionComplete = !state.InsideHole;
-        state.SavedHoleRingByteOffset = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
+        state.SavedHoleRingIndex = null;
     }
 
     /// <summary>Faces each body sprite toward the preceding segment or head.</summary>
@@ -513,7 +509,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.HoleLatch = true;
                 state.InsideHole = !state.InsideHole;
-                state.SavedHoleRingByteOffset = state.RingByteOffset;
+                state.SavedHoleRingIndex = state.RingIndex;
                 return;
             }
         }
@@ -696,15 +692,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Copies the next health-band OBJ palette when Botwoon's health crosses its threshold.</summary>
     internal void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        if (state.PalettePhaseByteOffset ==
-            BotwoonHealthPaletteDefinitions.CompletePhaseByteOffset)
+        if (state.PalettePhase == BotwoonHealthPaletteDefinitions.CompletePhase)
             return;
-        if (!BotwoonHealthPaletteDefinitions.ShouldAdvance(
-                state.PalettePhaseByteOffset,
-                head.Health))
+        if (!BotwoonHealthPaletteDefinitions.ShouldAdvance(state.PalettePhase, head.Health))
             return;
 
-        int destinationColor = state.PaletteDestinationByteOffset >> 1;
+        int destinationColor = state.PaletteDestinationColor;
         int colorCount = 256 - destinationColor;
         if (_room.Artwork?.BotwoonColors is { } colors)
         {
@@ -715,12 +708,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 colorCount != BotwoonHealthPaletteDefinitions.ColorsPerPalette)
                 throw new InvalidDataException(
                     $"Botwoon palette destination {destinationColor} is outside the retail sprite palette.");
-            int band = state.PalettePhaseByteOffset / sizeof(ushort);
+            int band = state.PalettePhase;
             for (int color = 0; color < colorCount; color++)
                 _presentation.BossPalettes.BotwoonBody.Write(color, colors.HealthColor(band, color));
         }
         else throw new InvalidOperationException("Botwoon requires installed health colors.");
-        state.PalettePhaseByteOffset = unchecked((ushort)(state.PalettePhaseByteOffset + 2));
+        state.PalettePhase++;
     }
 
     /// <summary>Accelerates the defeated head down to Y=200, then hides it and waits for body landing.</summary>

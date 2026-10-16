@@ -234,13 +234,13 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             BotwoonHoleDefinition hole = holes[byteOffset >> 3];
             var head = new RoomEnemySystem().SlotTable.Slots[0];
-            var state = new BotwoonEnemyState(head) { RingByteOffset = 0x0234 };
+            var state = new BotwoonEnemyState(head) { RingIndex = 141 };
             head.Position = head.Position.WithWhole(hole.TopLeft);
             detectHole(head, state);
             AssertTrue(state.InsideHole, $"Botwoon hole {byteOffset:X2} includes left/top");
             AssertTrue(state.HoleLatch, $"Botwoon hole {byteOffset:X2} latches");
-            AssertEqual((ushort)0x0234, state.SavedHoleRingByteOffset,
-                $"Botwoon hole {byteOffset:X2} saves ring offset");
+            AssertEqual((int?)141, state.SavedHoleRingIndex,
+                $"Botwoon hole {byteOffset:X2} saves ring index");
 
             state.HoleLatch = false;
             state.InsideHole = false;

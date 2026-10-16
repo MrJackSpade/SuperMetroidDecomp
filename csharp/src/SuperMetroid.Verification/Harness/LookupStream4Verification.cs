@@ -2942,18 +2942,18 @@ internal static class LookupStream4Verification
                 enemies.Presentation._cgram = cgram;
                 Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
                 RoomEnemySlot head = enemies.SlotTable.Slots[0];
-                var state = new BotwoonEnemyState(head) { PaletteDestinationByteOffset = 0x1e0 };
+                var state = new BotwoonEnemyState(head) { PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor };
                 for (int band = 0; band < 8; band++)
                 {
                     for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
-                    state.PalettePhaseByteOffset = (ushort)(band * 2);
+                    state.PalettePhase = band;
                     head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
                     update(head, state);
-                    AssertEqual((ushort)(band * 2), state.PalettePhaseByteOffset, "exact threshold does not advance");
+                    AssertEqual(band, state.PalettePhase, "exact threshold does not advance");
                     for (int color = 0; color < 256; color++) AssertEqual((ushort)0x1234, cgram.Colors[color], "exact threshold preserves CGRAM");
                     head.Health--;
                     update(head, state);
-                    AssertEqual((ushort)(band * 2 + 2), state.PalettePhaseByteOffset, "below threshold advances exactly one band");
+                    AssertEqual(band + 1, state.PalettePhase, "below threshold advances exactly one band");
                     for (int color = 0; color < 256; color++)
                         AssertEqual(color < 240 ? (ushort)0x1234 : Expected(band, color - 240), cgram.Colors[color], "actual producer copies all16 including transparent metadata and preserves neighbors");
                 }

@@ -17,14 +17,14 @@ internal static class BotwoonNavigationDefinitions
     /// <summary>Random bits 3-4 pick one of the target hole's four path descriptors (byte offsets 0, 8, 16, 24).</summary>
     internal const ushort PathChoiceMask = 0x0018;
 
-    /// <summary>The head-position history ring: 256 four-byte X/Y samples.</summary>
-    internal const int HistoryRingBytes = 1024;
+    /// <summary>The head-position history ring's X/Y samples.</summary>
+    internal const int HistoryEntries = 256;
 
-    /// <summary>Wraps a history-ring byte offset, as the native <c>AND #$03FF</c> does.</summary>
-    internal static ushort WrapHistoryOffset(int byteOffset) => (ushort)(byteOffset & (HistoryRingBytes - 1));
+    /// <summary>Bytes per history sample in native WRAM; native cursors and spacings are entry indices times this.</summary>
+    internal const int HistoryEntryBytes = 4;
 
-    /// <summary><c>$FFFF</c> in the saved crossing offset: no hole crossing is pending for the delayed body samples.</summary>
-    internal const ushort NoPendingHoleCrossing = 0xffff;
+    /// <summary>Wraps a history-ring index, as the native <c>AND #$03FF</c> does to its byte offset.</summary>
+    internal static int WrapHistoryIndex(int index) => index & (HistoryEntries - 1);
 
     /// <summary>Returns the named room hole selected by its native eight-byte offset.</summary>
     internal static BotwoonHoleDefinition HoleForByteOffset(ushort byteOffset) =>

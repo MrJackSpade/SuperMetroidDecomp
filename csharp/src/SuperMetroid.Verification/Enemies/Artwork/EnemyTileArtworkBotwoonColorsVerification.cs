@@ -67,19 +67,17 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState(head)
         {
-            PaletteDestinationByteOffset =
-                BotwoonHealthPaletteDefinitions.DestinationColor * sizeof(ushort),
+            PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor,
         };
         cgram.SetColor(BotwoonHealthPaletteDefinitions.DestinationColor - 1, Bgr555.FromWord(0x1234));
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         {
-            ushort phase = (ushort)(band * sizeof(ushort));
             ushort threshold = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
-                BotwoonHealthPaletteDefinitions.NativeThresholdAddress + phase);
-            state.PalettePhaseByteOffset = phase;
-            head.Health = unchecked((ushort)(threshold - 1));
+                BotwoonHealthPaletteDefinitions.NativeThresholdAddress + band * sizeof(ushort));
+            state.PalettePhase = band;
+            head.Health = threshold - 1;
             update(head, state);
-            AssertEqual((ushort)(phase + 2), state.PalettePhaseByteOffset,
+            AssertEqual(band + 1, state.PalettePhase,
                 $"Botwoon health band {band} preserves native threshold progression");
             for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
                 AssertEqual(colors.HealthColor(band, color),
@@ -91,8 +89,8 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Botwoon health palette avoids migrated RGB5 ROM reads");
-        state.PalettePhaseByteOffset = 0;
-        state.PaletteDestinationByteOffset = 0x01c0;
+        state.PalettePhase = 0;
+        state.PaletteDestinationColor = BotwoonHealthPaletteDefinitions.DestinationColor - BotwoonHealthPaletteDefinitions.ColorsPerPalette;
         head.Health = 0;
         AssertThrows<InvalidDataException>(() => update(head, state),
             "installed Botwoon rejects a non-retail palette destination");

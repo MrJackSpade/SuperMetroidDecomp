@@ -37,10 +37,10 @@ public sealed class BotwoonEnemyState
         internal set => _head.VariableF = (ushort)value;
     }
 
-    /// <summary>Four-byte-aligned cursor $000-$3FC into the 1-KiB X/Y history ring; each moving frame writes its head position and advances modulo $400.</summary>
-    public ushort RingByteOffset { get; internal set; }
-    /// <summary>Byte distance between successive body samples in the history ring, selected inversely to movement speed: 24, 16, or 12.</summary>
-    public ushort SegmentSpacingBytes { get; internal set; }
+    /// <summary>Cursor 0-255 into the X/Y history ring; each moving frame writes its head position and advances modulo 256.</summary>
+    public int RingIndex { get; internal set; }
+    /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
+    public int SegmentSpacingEntries { get; internal set; }
     /// <summary>Initial unsigned countdown, seeded to 256 and decremented until zero before normal traversal begins.</summary>
     public NativeCountdown InitialDelayTimer { get; internal set; }
     /// <summary>Spit-action cooldown, seeded to 48 for the stationary attack and decremented to signed underflow by the head callback before being pinned to zero.</summary>
@@ -75,16 +75,16 @@ public sealed class BotwoonEnemyState
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
     /// <summary>The next step of the head animation's timeline.</summary>
     internal int HeadAnimationPosition { get; set; }
-    /// <summary>CGRAM destination measured in bytes; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
-    public ushort PaletteDestinationByteOffset { get; internal set; }
-    /// <summary>Even byte offset 0 through 14 selecting the next health threshold/palette; offset 16 marks completion of all eight palette steps.</summary>
-    public ushort PalettePhaseByteOffset { get; internal set; }
+    /// <summary>CGRAM destination color; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
+    public int PaletteDestinationColor { get; internal set; }
+    /// <summary>Band 0 through 7 selecting the next health threshold/palette; 8 marks completion of all eight palette steps.</summary>
+    public int PalettePhase { get; internal set; }
     /// <summary>Head health retained from initialization, independently of subsequent damage and the palette threshold table.</summary>
     public int MaximumHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
-    public ushort HalfHealth { get; internal set; }
+    public int HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
-    public ushort QuarterHealth { get; internal set; }
+    public int QuarterHealth { get; internal set; }
     /// <summary>Native previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
@@ -115,8 +115,8 @@ public sealed class BotwoonEnemyState
     public bool WallCrumbleRequested { get; internal set; }
     /// <summary>Whether defeat persistence has been recognized or written; live death sets the area miniboss bit only after the complete wall-explosion phase.</summary>
     public bool BossBitSet { get; internal set; }
-    /// <summary>Ring byte offset saved at a head hole crossing so delayed body samples toggle at the same position; $FFFF means no crossing remains pending.</summary>
-    public ushort SavedHoleRingByteOffset { get; internal set; } = BotwoonNavigationDefinitions.NoPendingHoleCrossing;
+    /// <summary>Ring index saved at a head hole crossing so delayed body samples toggle at the same position; null (native $FFFF) means no crossing remains pending.</summary>
+    public int? SavedHoleRingIndex { get; internal set; }
 
     /// <summary>Thirteen actors, indexed by native spawn argument 0,2,...24 divided by two.</summary>
     public RoomEnemyProjectileSlot?[] BodySegments { get; } =

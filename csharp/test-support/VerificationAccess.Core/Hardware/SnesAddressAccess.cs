@@ -15,7 +15,7 @@ internal static class SnesAddressAccess
             if (!address.IsUpperLoRomWindow)
             {
                 throw new ArgumentOutOfRangeException(
-                    "offset",
+                    nameof(offset),
                     offset,
                     "An upper LoROM cartridge address must be in the $8000-$FFFF window.");
             }

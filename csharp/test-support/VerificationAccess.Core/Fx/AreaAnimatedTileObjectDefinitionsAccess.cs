@@ -27,7 +27,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
             if ((uint)bit >= AreaAnimatedTileObjectDefinitions.ObjectsPerArea)
             {
                 throw new ArgumentOutOfRangeException(
-                    "bit", bit, $"Animated-tile bit must be 0..{AreaAnimatedTileObjectDefinitions.ObjectsPerArea - 1}.");
+                    nameof(bit), bit, $"Animated-tile bit must be 0..{AreaAnimatedTileObjectDefinitions.ObjectsPerArea - 1}.");
             }
 
             return ((ushort)(AreaAnimatedTileObjectDefinitions.SelectObject((int)(nativeAreaIndex), (int)(bit))));

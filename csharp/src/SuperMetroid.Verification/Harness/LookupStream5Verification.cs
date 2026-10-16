@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Magdollite;
@@ -198,6 +199,9 @@ internal static class LookupStream5Verification
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = system.SlotTable.Slots[3] };
             int randomCalls = 0;
             system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern));
+            // The fade writes Phantoon's palette rows toward its installed fade colors.
+            system.Presentation._cgram = new SnesCgram();
+            system.TileArtwork = InstalledFixtures.EnemyTiles;
             Action<RoomEnemySlot, PhantoonEnemyState> fade = system.PhantoonBehavior.RunPhantoonFlameRainFadeOut;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonHiddenFlameRain;
             body.Position = body.Position.WithWhole(new(111, 99)); body.VariableA = 42; body.VariableE = 17;
@@ -257,6 +261,8 @@ internal static class LookupStream5Verification
             system.VerificationServices().NextRandom = (Func<ushort>)(() => { randomCalls++; return (ushort)(reversed ? 1 : 0); });
             Action<RoomEnemySlot, PhantoonEnemyState> begin = system.PhantoonBehavior.RunPhantoonPickFirstRoundPattern;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonFirstRoundFigureEight;
+            // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
+            system.FrameContext._enemyFrameNmiFrameCounter = (ushort)(bucket << 1);
             body.Position = body.Position.WithWhole(new(128, 96)); body.VariableE = 1; body.Parameter2 = 1;
             begin(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd53 + bucket * 2);

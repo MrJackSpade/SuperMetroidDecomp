@@ -86,13 +86,10 @@ internal static class MotherBrainBodyPresentationVerification
         var missing = new MotherBrainPresentationFixture(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameCatalog.Load(author.Json(stockOam)) }));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
-        using var state = new MemoryStream();
-        EnemyTileArtworkCatalog bundle = Build(stockOam, stockBg2);
-        DebuggerObjectGraphSerializer.Serialize(state, bundle); state.Position = 0;
-        AssertEqual(bundle.ContentIdentity, DebuggerObjectGraphSerializer.Deserialize<EnemyTileArtworkCatalog>(state).ContentIdentity,
-            "new Mother Brain visual owner round-trips in debugger states");
+        // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
+        // reinstalls it after a restore.
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, mixed remaps, new-frame gating, " +
-            $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, missing-art rejection and state round-trip. RAM-only.");
+            $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, and missing-art rejection. RAM-only.");
 
         EnemyTileArtworkCatalog Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2) => author.Build(
             extendedFrames: EnemyExtendedFrameCatalog.Load(author.Json(oam)),

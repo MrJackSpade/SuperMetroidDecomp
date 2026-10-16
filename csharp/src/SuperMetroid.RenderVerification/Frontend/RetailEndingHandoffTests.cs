@@ -36,13 +36,13 @@ internal static class RetailEndingHandoffTests
             var actual = captured.StepCaptured(input, ++sequence, 1);
             legacy.CopyAudioFrame(leftAudio);
             captured.CopyAudioFrame(rightAudio);
-            if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+            if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification) ||
                 !leftAudio.SequenceEqual(rightAudio))
                 throw new InvalidOperationException("Ending handoff changed frontend cadence/audio.");
-            if (pixels) PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels,
-                renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");
+            if (pixels) PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(),
+                renderer.RenderForReadback(actual.Snapshot), $"{device.Kind}: ending handoff {sequence}, {expected.Phase}");
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None, false);

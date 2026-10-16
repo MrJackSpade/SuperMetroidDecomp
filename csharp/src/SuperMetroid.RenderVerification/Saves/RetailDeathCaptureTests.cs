@@ -40,7 +40,7 @@ internal static class RetailDeathCaptureTests
         {
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, ++sequence, 1);
-            if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+            if (expected.GameState != actual.Frame.GameState ||
                 expected.Phase != actual.Frame.Phase || expected.FrameNumber != actual.Frame.FrameNumber ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Death capture cadence/commands diverged at {sequence}.");
@@ -48,8 +48,8 @@ internal static class RetailDeathCaptureTests
             captured.CopyAudioFrame(capturedAudio);
             if (!legacyAudio.SequenceEqual(capturedAudio))
                 throw new InvalidOperationException($"Death PCM diverged at {sequence}.");
-            if (comparePixels) PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels,
-                renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), $"{device.Kind}: death frame {sequence}, {expected.GameState}");
+            if (comparePixels) PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(),
+                renderer.RenderForReadback(actual.Snapshot), $"{device.Kind}: death frame {sequence}, {expected.GameState}");
         }
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None, false);

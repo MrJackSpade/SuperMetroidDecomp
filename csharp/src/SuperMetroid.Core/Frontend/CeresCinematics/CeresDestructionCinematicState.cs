@@ -853,48 +853,6 @@ internal sealed class CeresDestructionCinematicState
         actor.Position = actor.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)fixedPosition)), unchecked((ushort)fixedPosition)));
     }
 
-    /// <summary>Reusable OBJ layer cleared by each render; this host buffer is never serialized.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame; callers may hold it only until the next scene render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Composites the current Mode-7 or Mode-1 scene, OBJ priorities, station blast, and master brightness.</summary>
-    public Rgba32[] Render()
-    {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-        OamBuffer oam = PrepareRenderOam();
-
-        if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
-        {
-            for (byte priority = 0; priority < 4; priority++)
-                CompositeObjPriority(pixels, oam, priority);
-        }
-        else if (usesMode7)
-        {
-            (short matrixA, short matrixB, short matrixC, short matrixD) = CalculateMatrix();
-            CompositeObjPriority(pixels, oam, 0);
-            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = matrixC, MatrixD = matrixD, Center = Phase <= CeresDestructionPhase.FadeOutCeres
-                    ? new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.CeresCenterX, CeresDestructionRomData.Rendering.CeresCenterY)
-                    : new Offset16<Mode7Pixels>(CeresDestructionRomData.Rendering.ZebesCenterX, CeresDestructionRomData.Rendering.ZebesCenterY), Scroll = background.Whole.AsSignedRegister() });
-            CompositeObjPriority(pixels, oam, 1);
-            CompositeObjPriority(pixels, oam, 2);
-            CompositeObjPriority(pixels, oam, 3);
-        }
-        else
-        {
-            // SetupPpu_4 selects BG1SC=$5C and BG1NBA=$06. The MOSAIC register changes
-            // sampling granularity, but not the underlying cartridge-authored tilemap;
-            // rendering the unmosaicked samples keeps this software path deterministic
-            // until the compositor gains a general post-BG mosaic stage.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = CeresDestructionRomData.Rendering.Mode1TilemapWord, CharacterBaseWord = CeresDestructionRomData.Rendering.Mode1CharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        }
-
-        if (CaptureStationExplosion() is { } blast)
-            SoftwareScanlineColorRenderer.Composite(pixels, blast);
-        MasterBrightnessFilter.Apply(pixels, brightness);
-        return pixels;
-    }
-
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
@@ -965,16 +923,4 @@ internal sealed class CeresDestructionCinematicState
     /// <summary>Applies native 8.8 matrix scaling with signed 16-bit truncation.</summary>
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
-
-    /// <summary>Renders one OBJ priority plane and composites its nontransparent pixels over the scene.</summary>
-    private void CompositeObjPriority(Span<Rgba32> pixels, OamBuffer oam, int priority)
-    {
-        Rgba32[] layer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(layer, ObjSpriteImage.OamOnly(oam),
-            vram,
-            cgram,
-            obsel: 3,
-            priority: priority);
-        SnesLayerCompositor.Composite(pixels, layer);
-    }
 }

@@ -120,52 +120,6 @@ internal sealed class EndingCreditsPresentation
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
         }
     }
-    /// <summary>Temporary OBJ pixels reused across renders and cleared by the span renderer.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final raster; callers retain it only until the next scene render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
-    public Rgba32[] Render()
-    {
-        if (AtmosphericMapWraps || UsesFlyawayMode7Priority || _ending.UsesExplosionFinaleDisplay || _ending.postShot is not null || _ending.endingLogo is not null || _ending.Phase >= EndingCreditsPhase.PostCreditsBlank)
-            return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(_ending.cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-
-        if (_ending.Phase == EndingCreditsPhase.Credits)
-        {
-            // Function 126 installs font 3 at word $4000 and the circular credits map at
-            // BG1SC word $4800. The half-pixel accumulator itself is held by the credits
-            // object; the PPU consumes only its whole vertical-scroll word.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, _ending.vram, _ending.cgram, new BgVramAddresses { TilemapBaseWord = EndingCreditsRomData.Rendering.CreditsTilemapWord, CharacterBaseWord = EndingCreditsRomData.Rendering.CreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, _ending.Credits.VerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        }
-        else if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank)
-        {
-            RenderPostCreditsBackground(pixels);
-            if (EndingObjectsEnabled) RenderSprites(pixels, obsel: CurrentRewardObjectSelection);
-        }
-        else
-        {
-            if (_ending.EscapeBackgroundEnabled) RenderMode7Background(pixels);
-            if (EndingObjectsEnabled) RenderSprites(pixels, obsel: CurrentEscapeObjectSelection);
-        }
-
-        MasterBrightnessFilter.Apply(pixels, _ending.brightness);
-        return pixels;
-    }
-
-    /// <summary>Composes the atmospheric Mode 7 viewport from the scene's native zoom, angle, and scroll.</summary>
-    private void RenderMode7Background(Span<Rgba32> pixels)
-    {
-        // Ending setup uses the standard bank-$8B matrix helper. X/Y are the same signed
-        // scroll words and zoom/angle are the same 8.8 scalar and sine-table index used by
-        // the Ceres cinematic, so no host camera transform is introduced here.
-        short cosine = ReadSine(_ending.mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
-        short sine = ReadSine(_ending.mode7Angle.TableIndex);
-        short matrixA = Scale(cosine, _ending.mode7Zoom);
-        short matrixB = Scale(sine, _ending.mode7Zoom);
-        SnesMode7Renderer.CompositeViewport(pixels, _ending.vram, _ending.cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = unchecked((short)-matrixB), MatrixD = matrixA, Center = CurrentMode7Center, Scroll = _ending.mode7.Whole.AsSignedRegister(), WrapOutsideMap = AtmosphericMapWraps });
-    }
 
     /// <summary>Selects cloud OBJ tiles before the explosion and escape OBJ tiles afterward.</summary>
     internal byte CurrentEscapeObjectSelection => _ending.Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -187,27 +141,6 @@ internal sealed class EndingCreditsPresentation
     private Offset16<Mode7Pixels> CurrentMode7Center => _ending.Phase < EndingCreditsPhase.PlanetEscapeFast
         ? new(EndingCreditsRomData.Rendering.AtmosphericMode7Center, EndingCreditsRomData.Rendering.AtmosphericMode7Center)
         : new(EndingCreditsRomData.Rendering.Mode7CenterX, EndingCreditsRomData.Rendering.Mode7CenterY);
-
-    /// <summary>Composes the active BG tilemap and font during post-credit scenes.</summary>
-    private void RenderPostCreditsBackground(Span<Rgba32> pixels)
-    {
-        if (!PostCreditsBackgroundEnabled)
-            return;
-
-        // The opening waiting scene uses BG2 ($4C00/$5000). Result text is uploaded to
-        // BG1 ($4800/$4000), so its map and font must change together at the handoff.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, _ending.vram, _ending.cgram, new BgVramAddresses { TilemapBaseWord = CurrentPostCreditsTilemapWord, CharacterBaseWord = CurrentPostCreditsCharacterWord }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, _ending.postCreditsVerticalScroll), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight)) });
-    }
-
-    /// <summary>Renders ending OBJ and applies the reward scene's subscreen addition when selected.</summary>
-    private void RenderSprites(Span<Rgba32> pixels, byte obsel)
-    {
-        OamBuffer oam = PrepareSprites();
-        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), _ending.vram, _ending.cgram, obsel);
-        if (RewardSubscreenAddition) SnesLayerCompositor.AddSubscreen(pixels, objects);
-        else SnesLayerCompositor.Composite(pixels, objects);
-    }
 
     /// <summary>Whether the phase displays post-credit BG; the armored reward uses OBJ alone.</summary>
     private bool PostCreditsBackgroundEnabled => _ending.Phase != EndingCreditsPhase.PostCreditsBlank

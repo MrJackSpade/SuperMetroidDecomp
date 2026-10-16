@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Saves;
@@ -36,7 +37,7 @@ internal static class RetailLoadAppearanceTests
                 ? SnesButton.Start : (ushort)0;
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, tick + 1, 1);
-            if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+            if (expected.GameState != actual.Frame.GameState ||
                 expected.FrameNumber != actual.Frame.FrameNumber || expected.Phase != actual.Frame.Phase ||
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Saved-file load capture diverged at {tick}.");
@@ -47,9 +48,9 @@ internal static class RetailLoadAppearanceTests
                 throw new InvalidOperationException("Capture changed load appearance timing.");
             if (sawMap)
             {
-                PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels, SoftwareFrameSnapshotRenderer.Render((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))),
+                PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), SoftwareFrameSnapshotRenderer.Render(actual.Snapshot),
                     $"saved-file load software capture frame {tick}");
-                PixelComparison.Verify(actual.Snapshot, expected.Pixels, renderer.RenderForReadback(actual.Snapshot),
+                PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot),
                     $"{device.Kind}: saved-file load frame {tick}, {expected.GameState}");
                 samples++;
             }

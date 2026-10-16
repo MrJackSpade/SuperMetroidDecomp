@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -58,7 +59,7 @@ internal static class RetailRoomPublicationTests
             }
             for (int tick = 0; tick < 13; tick++)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++sequence, 1, (ushort)tick),
                     GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));

@@ -204,42 +204,6 @@ public sealed class FileSelectMapMenuState
         }
     }
 
-    /// <summary>Reusable composed frame buffer; callers must copy its contents before another render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-
-    /// <summary>Draws the current 256-by-224 entry, area, room, or clipped transition scene and applies current master brightness without consuming input or advancing any timers.</summary>
-    /// <returns>An owned RGBA frame valid only until this menu renders again; callers retaining a frame must copy it.</returns>
-    public Rgba32[] Render()
-    {
-        Rgba32[] composed = frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        if (!entry.IsComplete) return entry.Render(areaGraphics.Render(usedStations), composed);
-        Rgba32[] pixels = Phase switch
-        {
-            FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
-                FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
-                    roomGraphics.RenderFrameOnly(), navigation.ActiveWindow, composed),
-            FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Scroll),
-            FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
-                roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 =>
-                roomGraphics.Render(scroll.Scroll, marker, drawArrows ? animations : null),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
-                FileSelectMapWindowCompositor.CompositeInitialEntryWindow(
-                    areaGraphics.Render(usedStations), roomGraphics.RenderFrameOnly(), composed),
-            FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null =>
-                // Return setup calls $81:A5B3 (CGADSUB=$25); unlike the forward
-                // expansion's $05, this retains backdrop addition outside the window.
-                FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations),
-                    roomGraphics.RenderFrameOnly(), returnWindow, composed),
-            FileSelectMapNavigationPhase.AreaReturnRequested => roomGraphics.RenderFrameOnly(),
-            FileSelectMapNavigationPhase.Area or FileSelectMapNavigationPhase.PreparingWindow or
-                FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => areaGraphics.Render(usedStations),
-            _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
-        };
-        MasterBrightnessFilter.Apply(pixels, brightness);
-        return pixels;
-    }
-
     /// <summary>Requests a menu sound through the audio owner's six-entry queue limit.</summary>
     private void Queue(SoundEffectId sound) => audio.QueueSound(sound, maximumQueued: 6);
 

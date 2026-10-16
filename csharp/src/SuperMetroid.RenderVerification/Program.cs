@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
@@ -127,7 +128,7 @@ internal static class Program
                         var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Nmi.NmiFrameCounter),
                             GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                         var pixels = renderer.RenderForReadback(packet);
-                        PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()), pixels,
+                        PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()), pixels,
                             $"{kind}: minimap blink frame {sequence}");
                         return pixels;
                     });

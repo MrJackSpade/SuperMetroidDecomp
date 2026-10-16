@@ -1402,18 +1402,8 @@ public sealed class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>Reads frontend status without materializing a retained display.</summary>
-    public FrontendFrame CurrentFrameMetadata =>
-        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>());
-
-    /// <summary>Reads the current status and display without advancing the dispatcher.</summary>
-    /// <remarks>
-    /// Pixels are the producer's reusable 256-by-224 buffer, not a copy; a host retaining them across another frame must copy them.
-    /// When a display capture already owns the current image, the pixel array is empty and the host presents that capture instead.
-    /// </remarks>
-    public FrontendFrame CurrentFrame =>
-        new(GameState, PhaseName, FrameNumber,
-            display.CurrentPixels);
+    /// <summary>Reads the current status without advancing the dispatcher.</summary>
+    public FrontendFrame CurrentFrame => new(GameState, PhaseName, FrameNumber);
 
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.
@@ -1858,7 +1848,7 @@ public sealed class SuperMetroidGame
     /// that explicitly; this method never fabricates a GPU packet from a CPU raster or
     /// calls a scene draw routine to reconstruct an earlier display.
     /// </remarks>
-    public RenderFrameSnapshot? GetRetainedDisplay(long hostSequence, long hostGeneration)
+    public RenderFrameSnapshot GetRetainedDisplay(long hostSequence, long hostGeneration)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);

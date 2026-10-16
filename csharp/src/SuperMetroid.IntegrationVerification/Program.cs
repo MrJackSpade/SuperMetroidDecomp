@@ -163,7 +163,7 @@ internal static class Program
     {
         data.Record(0);
         var frame = data.Game.StepCaptured(0, sequence, data.Generation);
-        var pixels = frame.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
+        var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot);
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
         data.Game.CopyAudioFrame(samples);
         uint pixelHash = 2166136261, pcmHash = 2166136261;

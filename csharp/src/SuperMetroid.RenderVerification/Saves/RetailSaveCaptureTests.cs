@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -60,7 +61,7 @@ internal static class RetailSaveCaptureTests
                 electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram,
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));
             }
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new RenderFrameSnapshot(new(frames + 1, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: save animation frame {frames}");

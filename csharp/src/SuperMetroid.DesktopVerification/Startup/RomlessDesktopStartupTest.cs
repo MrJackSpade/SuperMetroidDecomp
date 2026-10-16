@@ -50,7 +50,7 @@ internal static class RomlessDesktopStartupTest
                     "Windows host did not advance six title frames without its ROM copy.");
 
             long savedFrame = game.FrameNumber;
-            var savedPixels = game.CurrentFrame.Pixels.ToArray();
+            var savedPixels = game.PublishedPixels();
             host.SaveDebuggerState(0);
             if (!File.Exists(Path.Combine(root, "debug-states",
                     "SuperMetroid-debug-slot-0.smstate")))
@@ -96,7 +96,7 @@ internal static class RomlessDesktopStartupTest
             var replayGame = (SuperMetroidGame)(replayHost.game ?? throw new InvalidOperationException(
                     "Replay host has no game."));
             if (MetadataShape.DeclaresProperty(replayMemory.GetType(), "Rom") || replayGame.FrameNumber != savedFrame ||
-                !replayGame.CurrentFrame.Pixels.SequenceEqual(savedPixels))
+                !replayGame.PublishedPixels().SequenceEqual(savedPixels))
                 throw new InvalidOperationException(
                     "Zero-ROM Windows input replay diverged from the captured frame.");
         }

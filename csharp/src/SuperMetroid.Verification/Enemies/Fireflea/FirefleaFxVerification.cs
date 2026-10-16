@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -138,8 +139,6 @@ internal static class FirefleaFxVerification
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && !darkLayer.AddSubscreen,
             "ordinary Fireflea keeps both room maps and subtracts fixed color");
-        AssertTrue(SoftwareLayeredSnapshotRenderer.Render(ordinaryDarkness).SequenceEqual(
-            SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame())), "immediate and packet Fireflea paths agree");
         AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

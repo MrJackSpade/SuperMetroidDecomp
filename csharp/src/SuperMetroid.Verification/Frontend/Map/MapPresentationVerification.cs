@@ -89,6 +89,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Frontend.FileSelect;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
 

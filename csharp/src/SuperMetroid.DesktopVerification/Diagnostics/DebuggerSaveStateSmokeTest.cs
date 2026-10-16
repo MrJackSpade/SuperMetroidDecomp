@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
@@ -70,12 +71,14 @@ public static class DebuggerSaveStateSmokeTest
             long stateBytes = new FileInfo(saved.Path).Length;
             const int continuationFrames = 45;
             var expected = new FrontendFrame[continuationFrames];
+            var expectedPixels = new Rgba32[continuationFrames][];
             var expectedPcm = new short[continuationFrames][];
             var expectedAcknowledgements = new CartridgeAudioAcknowledgements[continuationFrames];
             var expectedAudioEvents = new AudioEvent[continuationFrames][];
             for (int frame = 0; frame < continuationFrames; frame++)
             {
-                expected[frame] = game.Step(0).WithCopiedPixels();
+                expected[frame] = game.Step(0);
+                expectedPixels[frame] = game.PublishedPixels();
                 expectedPcm[frame] = new short[CartridgeAudioSession.PcmSamplesPerFrame];
                 game.CopyAudioFrame(expectedPcm[frame]);
                 expectedAcknowledgements[frame] = game.AudioAcknowledgementsForVerification;
@@ -124,7 +127,7 @@ public static class DebuggerSaveStateSmokeTest
                 if (actual.GameState != wanted.GameState ||
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
-                    !actual.Pixels.SequenceEqual(wanted.Pixels) ||
+                    !loaded.Game.PublishedPixels().SequenceEqual(expectedPixels[frame]) ||
                     !loaded.Game.AudioEventsForVerification.SequenceEqual(expectedAudioEvents[frame]) ||
                     !actualPcm.SequenceEqual(expectedPcm[frame]) ||
                     actualAcknowledgements != expectedAcknowledgements[frame])

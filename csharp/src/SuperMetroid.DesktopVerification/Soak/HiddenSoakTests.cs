@@ -33,10 +33,7 @@ internal static class HiddenSoakTests
             long sequence = 0;
             CapturedFrontendFrame Step(SnesButton input)
             {
-                var frame = game.StepCaptured(input, ++sequence, 1);
-                if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
-                    throw new InvalidOperationException("Soak entered a raster fallback.");
-                return frame;
+                return game.StepCaptured(input, ++sequence, 1);
             }
             for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
                 Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
@@ -71,10 +68,9 @@ internal static class HiddenSoakTests
                     long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
                     long began = Stopwatch.GetTimestamp();
                     var frame = game.StepCaptured(0, ++sequence, 1);
-                    Check(frame.Snapshot is not null && frame.Frame.Pixels.Length == 0, "soak raster fallback");
                     // The real producer order: capture and synthesize inside Step, copy and queue PCM, publish.
                     MixAndSubmit(audio, output, game, ref nonzero, ref pcmSamples);
-                    worker.Publish((frame.Snapshot ?? throw new InvalidOperationException("Verification requires frame.Snapshot.")));
+                    worker.Publish(frame.Snapshot);
                     producerMs[tick] = Stopwatch.GetElapsedTime(began).TotalMilliseconds;
                     allocation += GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
                     worker.ThrowIfFaulted();

@@ -64,7 +64,7 @@ internal static class SnesGameplayFrameRendererAccess
                     .CopyTo(output.AsSpan(screenY * SnesGameplayFrameRenderer.Width, SnesGameplayFrameRenderer.Width));
             }
 
-            SnesGameplayFrameRenderer.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), sprites, (byte)(obsel));
+            SnesGameplayFrameRendererConstants.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), sprites, (byte)(obsel));
             return output;
         }
 

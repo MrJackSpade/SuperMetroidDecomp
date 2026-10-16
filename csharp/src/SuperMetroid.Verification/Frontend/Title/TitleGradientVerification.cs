@@ -516,7 +516,7 @@ internal static class TitleGradientVerification
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)(palette << 9));
             oam.AddRawSmallSprite(new Position16<OamPixels>(0, 0), (ushort)((7 - palette) << 9));
             oam.FinalizeFrame();
-            SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, 0, new ObjRasterTargets(pixels, priorities, palettes));
+            SnesObjRenderer.RenderResolved(ObjSpriteImageConstants.OamOnly(oam), vram, cgram, 0, new ObjRasterTargets(pixels, priorities, palettes));
             AssertEqual(palette, palettes[0], "winning OBJ palette survives equal-color overlap");
             AssertEqual(byte.MaxValue, palettes[8], "transparent pixel has no palette owner");
             AssertEqual(palette < 4 ? color : new Rgba32(0, 8, 8, 255),

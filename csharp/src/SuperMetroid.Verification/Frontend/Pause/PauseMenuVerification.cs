@@ -211,10 +211,12 @@ internal static class PauseMenuVerification
         resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
         resumeRuntime.SamusPhases.LoadGameplayBeamPalette(samus.EquippedBeams);
         resumeRuntime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
-        AssertEqual(0x40, resumeRuntime.Vram.ReadByte(0x6300 * 2),
-            "unpause NMI exposes newly equipped Wave character data");
-        AssertEqual(0x3f, resumeRuntime.Vram.ReadByte(0x6300 * 2 + 0xff),
-            "unpause NMI transfers the complete Wave character range");
+        // The newly equipped Wave characters are bound on the projectile page (#1342), not uploaded.
+        ReadOnlySpan<byte> wavePage = (resumeRuntime.Artwork.ProjectileObjects
+            ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(samus.EquippedBeams).Characters
+            .Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount, BeamTileAtlasDefinitions.ByteCount);
+        AssertEqual(0x40, wavePage[0], "the projectile page binds newly equipped Wave character data");
+        AssertEqual(0x3f, wavePage[0xff], "the projectile page binds the complete Wave character range");
         AssertEqual(0x3200, resumeRuntime.Cgram.Colors[0xe0],
             "unpause immediately installs newly equipped Wave palette");
         AssertEqual(0x320f, resumeRuntime.Cgram.Colors[0xef],

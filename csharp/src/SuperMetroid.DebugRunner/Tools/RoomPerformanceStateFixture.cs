@@ -54,7 +54,7 @@ internal static class RoomPerformanceStateFixture
             var result = data.Game.StepCaptured(0, frame, data.Generation);
             lastSnapshot = result.Snapshot;
             long stepped = Stopwatch.GetTimestamp();
-            pixels = result.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : result.Frame.Pixels;
+            pixels = SoftwareFrameSnapshotRenderer.Render(result.Snapshot);
             long rendered = Stopwatch.GetTimestamp();
             data.Game.CopyAudioFrame(pcm);
             long mixed = Stopwatch.GetTimestamp();

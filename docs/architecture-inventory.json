@@ -23262,22 +23262,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Frontend.CapturedFrontendFrame)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Frontend.Ending.EndingCreditsState)",
       "kind": "class",
       "scope": "test",
@@ -23295,22 +23279,6 @@
     },
     {
       "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Frontend.Ending.EndingShootingStars)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/CoreAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.CoreAccess.extension(SuperMetroid.Core.Frontend.FrontendFrame)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -43024,6 +42992,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionCinematicStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresDestructionCinematicStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionCinematicStatePixelsAccess.extension(SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionCinematicState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/CeresCinematics/CeresDestructionCinematicStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.CeresDestructionPhase",
       "kind": "enum",
       "scope": "product",
@@ -45135,6 +45135,38 @@
       "review": "reviewed"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentationPixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Ending/EndingCreditsPresentationPixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentationPixelsAccess.extension(SuperMetroid.Core.Frontend.Ending.EndingCreditsPresentation)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Ending/EndingCreditsPresentationPixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Ending.EndingCreditsRomData",
       "kind": "static class",
       "scope": "product",
@@ -46182,6 +46214,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectAreaMapGraphicsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectAreaMapGraphicsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectAreaMapGraphicsAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectAreaMapGraphics)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectAreaMapGraphicsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectDataMode",
       "kind": "enum",
       "scope": "product",
@@ -46312,38 +46376,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapEntryAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapEntryAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapEntryAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectMapEntry)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapEntryAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapEntryPhase",
       "kind": "enum",
       "scope": "product",
@@ -46355,6 +46387,54 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapGraphicsPixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapGraphicsPixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapGraphicsPixelsAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectAreaMapGraphics)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapGraphicsPixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapGraphicsPixelsAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapGraphicsPixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapIconRomData",
@@ -46407,6 +46487,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapMenuStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapMenuStatePixelsAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectMapMenuState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapNavigation",
@@ -46508,12 +46620,15 @@
     {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMapWindowCompositor",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectMapWindowCompositor.cs"
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMapWindowCompositor.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -46622,6 +46737,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMenuStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectMenuStatePixelsAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectMenuState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectPhase",
       "kind": "enum",
       "scope": "product",
@@ -46646,6 +46793,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphicsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectRoomMapGraphicsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphicsAccess.extension(SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FileSelect/FileSelectRoomMapGraphicsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.FileSelect.FileSelectSlotField",
@@ -46750,6 +46929,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.FrontendScenePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/FrontendScenePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.GameArtwork",
@@ -47088,6 +47283,38 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Frontend/GameOver/GameOverMenuStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.GameOver.GameOverMenuStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/GameOver/GameOverMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.GameOver.GameOverMenuStatePixelsAccess.extension(SuperMetroid.Core.Frontend.GameOver.GameOverMenuState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/GameOver/GameOverMenuStatePixelsAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -49235,6 +49462,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCeresFlightStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCeresFlightStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCeresFlightStatePixelsAccess.extension(SuperMetroid.Core.Frontend.Intro.IntroCeresFlightState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCeresFlightStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicMotion",
       "kind": "static class",
       "scope": "product",
@@ -49565,11 +49824,87 @@
         "csharp/src/SuperMetroid.Core/Frontend/Intro/IntroCinematicState.cs"
       ],
       "partial": "none",
-      "disposition": "scene-state-machine",
-      "flags": [
-        "large"
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
-      "review": "reviewed"
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicStateAccess.extension(SuperMetroid.Core.Frontend.Intro.IntroCinematicState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicStateConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicStateConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicStatePixelsAccess.extension(SuperMetroid.Core.Frontend.Intro.IntroCinematicState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/IntroCinematicStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.IntroDemoInputObjectDefinitions",
@@ -52118,6 +52453,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Options.GameOptionsMenuStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Options/GameOptionsMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Options.GameOptionsMenuStatePixelsAccess.extension(SuperMetroid.Core.Frontend.Options.GameOptionsMenuState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Options/GameOptionsMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Options.GameOptionsPage",
       "kind": "enum",
       "scope": "product",
@@ -53192,6 +53559,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Pause.PauseMenuStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Pause/PauseMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Pause.PauseMenuStatePixelsAccess.extension(SuperMetroid.Core.Frontend.Pause.PauseMenuState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Pause/PauseMenuStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Pause.PauseMenuTransition",
       "kind": "enum",
       "scope": "product",
@@ -53492,6 +53891,38 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.SuperMetroidGamePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/SuperMetroidGamePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.SuperMetroidGamePixelsAccess.extension(SuperMetroid.Core.Frontend.SuperMetroidGame)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/SuperMetroidGamePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Title.Artwork.PlanetZebesTitleGlyphDefinitions",
@@ -54037,6 +54468,38 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Frontend/Title/TitleSequenceStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.TitleSequenceStatePixelsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/TitleSequenceStatePixelsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Title.TitleSequenceStatePixelsAccess.extension(SuperMetroid.Core.Frontend.Title.TitleSequenceState)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Frontend/Title/TitleSequenceStatePixelsAccess.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -63656,12 +64119,15 @@
     {
       "type": "SuperMetroid.Core.Rendering.CeresGetawayFloor",
       "kind": "record struct",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rendering/CeresGetawayFloor.cs"
+        "csharp/test-support/VerificationAccess.Core/Rendering/CeresGetawayFloor.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -64157,6 +64623,22 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.ObjSpriteImageConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rendering/ObjSpriteImageConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters",
       "kind": "record struct",
       "scope": "product",
@@ -64542,6 +65024,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.SamusSuitPickupRendererConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rendering/SamusSuitPickupRendererConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.ScanlineColorAddRenderLayer",
       "kind": "record",
       "scope": "product",
@@ -64658,6 +65156,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Rendering.SnesGameplayFrameRendererConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rendering/SnesGameplayFrameRendererConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rendering.SnesLayerCompositor",
       "kind": "static class",
       "scope": "product",
@@ -64759,6 +65273,22 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rendering.SnesObjRendererConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Rendering/SnesObjRendererConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rendering.SoftwareBgColorMathRenderer",
@@ -74936,19 +75466,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Runtime.SuperMetroidRuntimeFrameRenderer",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntimeFrameRenderer.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Runtime.SuperMetroidRuntimeToolingExtensions",

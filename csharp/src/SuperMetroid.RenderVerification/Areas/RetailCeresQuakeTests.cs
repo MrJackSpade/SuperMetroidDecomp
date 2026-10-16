@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -35,7 +36,7 @@ internal static class RetailCeresQuakeTests
                 // shake, so a non-default delta is a frame that displaced the backgrounds.
                 var shake = runtime.Enemies.Earthquake.LastRoomShake;
                 if (shake != default) { shaking++; offsets.Add(shake); }
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

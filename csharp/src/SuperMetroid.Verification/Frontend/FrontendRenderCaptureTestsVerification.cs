@@ -30,8 +30,8 @@ internal static class FrontendRenderCaptureTestsVerification
         {
             MapPresentation = presentation,
         });
-        AssertTrue(captured.GetRetainedDisplay(1, 1) is null,
-            "legacy-only initial display is not disguised as a captured packet");
+        AssertEqual(new Rgba32(0, 0, 0, 255), captured.GetRetainedDisplay(1, 1).SolidColor,
+            "the initial display is a published black frame");
         var states = new HashSet<SuperMetroidGameState>();
         int packetCount = 0;
         RenderFrameSnapshot? held = null;
@@ -47,16 +47,13 @@ internal static class FrontendRenderCaptureTestsVerification
             AssertSequenceEqual(legacy.AudioEventsForVerification, captured.AudioEventsForVerification, "captured frontend audio event order");
             states.Add(expected.GameState);
             Rgba32[] actualPixels;
-            if (actual.Snapshot is { } packet)
+            RenderFrameSnapshot packet = actual.Snapshot;
             {
-                AssertTrue(!actual.UsedLegacyRaster, "converted frame reports packet output");
-                AssertEqual(0, actual.Frame.Pixels.Length, "captured Step returns no raster buffer");
                 long allocationStart = GC.GetAllocatedBytesForCurrentThread();
-                var metadata = captured.CurrentFrameMetadata;
+                var metadata = captured.CurrentFrame;
                 long metadataBytes = GC.GetAllocatedBytesForCurrentThread() - allocationStart;
                 AssertTrue(metadataBytes < FrontendFrame.Width * FrontendFrame.Height,
                     "metadata access must not allocate even a one-byte-per-pixel raster");
-                AssertEqual(0, metadata.Pixels.Length, "metadata has no raster");
                 AssertEqual(expected.GameState, metadata.GameState, "metadata state");
                 AssertEqual(expected.Phase, metadata.Phase, "metadata phase");
                 AssertEqual(expected.FrameNumber, metadata.FrameNumber, "metadata frame identity");
@@ -66,10 +63,8 @@ internal static class FrontendRenderCaptureTestsVerification
                 actualPixels = SoftwareFrameSnapshotRenderer.Render(packet);
                 // Republish twice, as a paused host may attach/resize or load a new
                 // presentation generation. Neither operation may replay draw effects.
-                RenderFrameSnapshot retained = captured.GetRetainedDisplay(10000 + tick, 8)
-                    ?? throw new InvalidOperationException("Captured display was not retained.");
-                RenderFrameSnapshot repeated = captured.GetRetainedDisplay(20000 + tick, 9)
-                    ?? throw new InvalidOperationException("Republishing discarded the display.");
+                RenderFrameSnapshot retained = captured.GetRetainedDisplay(10000 + tick, 8);
+                RenderFrameSnapshot repeated = captured.GetRetainedDisplay(20000 + tick, 9);
                 AssertEqual(10000L + tick, retained.Identity.Sequence, "retained display gets host sequence");
                 AssertEqual(8L, retained.Identity.Generation, "retained display gets new generation");
                 AssertEqual(expected.FrameNumber, retained.Identity.SimulationFrame, "republish retains simulation identity");
@@ -82,16 +77,10 @@ internal static class FrontendRenderCaptureTestsVerification
                 packetCount++;
                 if (held is null) { held = packet; heldPixels = actualPixels; }
             }
-            else
-            {
-                AssertTrue(actual.UsedLegacyRaster, "unconverted scene explicitly reports raster fallback");
-                actualPixels = actual.Frame.Pixels;
-            }
-            AssertTrue(expected.Pixels.SequenceEqual(actualPixels),
+            AssertTrue(legacy.PublishedPixels().SequenceEqual(actualPixels),
                 $"frontend packet pixel parity at tick {tick}, {expected.Phase}");
             if (expected.GameState == SuperMetroidGameState.IntroCinematic)
             {
-                AssertTrue(!actual.UsedLegacyRaster, "intro publishes captured display data");
                 AssertTrue(states.Contains(SuperMetroidGameState.FileSelectMenus), "capture path covers file menu");
                 AssertTrue(states.Contains(SuperMetroidGameState.GameOptionsMenu), "capture path covers options");
                 AssertTrue(held is not null && heldPixels is not null && heldPixels.SequenceEqual(
@@ -99,7 +88,7 @@ internal static class FrontendRenderCaptureTestsVerification
                 // Switching back to the compatibility entry point must also work.
                 FrontendFrame legacyNext = legacy.Step(0);
                 FrontendFrame capturedNext = captured.Step(0);
-                AssertTrue(legacyNext.Pixels.SequenceEqual(capturedNext.Pixels), "legacy Step after captured Step");
+                AssertTrue(legacy.PublishedPixels().SequenceEqual(captured.PublishedPixels()), "legacy Step after captured Step");
                 Console.WriteLine($"  Frontend capture: {packetCount} packet frames preserve state/audio/pixels through title/file/options and intro handoff.");
                 return;
             }

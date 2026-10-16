@@ -66,7 +66,7 @@ internal static class FrontendRomFreeVerification
         var visited = new HashSet<SuperMetroidGameState>();
         for (int frame = 0; frame < 3500; frame++)
         {
-            FrontendFrame before = installed.CurrentFrameMetadata;
+            FrontendFrame before = installed.CurrentFrame;
             SnesButton input = 0;
             if (before.GameState == SuperMetroidGameState.OpeningCinematic &&
                 before.Phase == nameof(TitleSequencePhase.TitleScreen) && !titleStartSent)
@@ -83,6 +83,7 @@ internal static class FrontendRomFreeVerification
 
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             visited.Add(actual.GameState);
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed startup game state at frame {frame}");
@@ -90,7 +91,7 @@ internal static class FrontendRomFreeVerification
                 $"installed startup native phase at frame {frame}");
             if (frame % 37 == 0 || visited.Count == 1 ||
                 actual.GameState != before.GameState)
-                AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+                AssertTrue(actualPixels.SequenceEqual(expectedPixels),
                     $"installed startup native pixels at frame {frame}, {actual.Phase}");
 
             if (actual.GameState == SuperMetroidGameState.GameOptionsMenu &&
@@ -241,7 +242,7 @@ internal static class FrontendRomFreeVerification
         int motherBrainFrame = -1;
         for (int frame = 0; frame < 9000; frame++)
         {
-            FrontendFrame before = installed.CurrentFrameMetadata;
+            FrontendFrame before = installed.CurrentFrame;
             // Advance the narrator at a repeatable cadence; the original short
             // fixture ended before its first bank-$93 projectile animation frame.
             SnesButton input = !startSent ? SnesButton.Start :
@@ -249,11 +250,12 @@ internal static class FrontendRomFreeVerification
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed intro game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed intro native phase at frame {frame}");
-            AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+            AssertTrue(actualPixels.SequenceEqual(expectedPixels),
                 $"installed intro native pixels at frame {frame}, {actual.Phase}");
             if (before.GameState == SuperMetroidGameState.IntroCinematic &&
                 actual.GameState != SuperMetroidGameState.IntroCinematic)
@@ -265,11 +267,12 @@ internal static class FrontendRomFreeVerification
                 {
                     FrontendFrame expectedGameplay = native.Step(0);
                     FrontendFrame actualGameplay = installed.Step(0);
+                    Rgba32[] expectedGameplayPixels = native.PublishedPixels(), actualGameplayPixels = installed.PublishedPixels();
                     AssertEqual(expectedGameplay.GameState, actualGameplay.GameState,
                         $"installed post-intro game state frame {gameplayFrame}");
                     AssertEqual(expectedGameplay.Phase, actualGameplay.Phase,
                         $"installed post-intro phase frame {gameplayFrame}");
-                    AssertTrue(actualGameplay.Pixels.SequenceEqual(expectedGameplay.Pixels),
+                    AssertTrue(actualGameplayPixels.SequenceEqual(expectedGameplayPixels),
                         $"installed post-intro pixels frame {gameplayFrame}");
                 }
                 VerifyFrontendRomFreeRestoredKraidHud(native, installed, bindInstalled);
@@ -403,7 +406,7 @@ internal static class FrontendRomFreeVerification
                 motherBrainFrame = frame;
         }
         throw new InvalidOperationException(
-            $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrameMetadata.Phase}.");
+            $"ROM-free frontend fixture did not complete the opening cinematic in {introFrames} cinematic frames; final phase {installed.CurrentFrame.Phase}.");
     }
 
     /// <summary>
@@ -439,10 +442,11 @@ internal static class FrontendRomFreeVerification
             "restored Kraid BG2 pages match before the first accepted NMI");
         FrontendFrame expected = nativeRoom.Step(0);
         FrontendFrame actual = installedRoom.Step(0);
+        Rgba32[] expectedPixels = nativeRoom.PublishedPixels(), actualPixels = installedRoom.PublishedPixels();
         AssertTrue(nativeRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)
                 .SequenceEqual(installedRoom.GameplayRuntimeForVerification.Vram.Bytes.Slice(bg2Byte, bg2Bytes)),
             "restored Kraid BG2 pages remain intact after the deferred HUD refresh");
-        AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+        AssertTrue(actualPixels.SequenceEqual(expectedPixels),
             "restored Kraid first frame matches native pixels after HUD artwork rebind");
         Console.WriteLine("Frontend ROM-free Kraid restore: relocated HUD refresh preserves both BG2 pages and stock pixels.");
     }
@@ -472,14 +476,15 @@ internal static class FrontendRomFreeVerification
                 frame >= 60 ? (SnesButton.Right | SnesButton.X) : (ushort)0;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(expected.GameState, actual.GameState,
                 $"installed Ceres input state frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
                 $"installed Ceres input phase frame {frame}");
-            if (!actual.Pixels.SequenceEqual(expected.Pixels))
+            if (!actualPixels.SequenceEqual(expectedPixels))
             {
                 int first = 0;
-                while (actual.Pixels[first].Equals(expected.Pixels[first]))
+                while (actualPixels[first].Equals(expectedPixels[first]))
                     first++;
                 var nativeSamus = native.GameplayRuntimeForVerification.Player.IntroducedSamus;
                 var installedSamus = installed.GameplayRuntimeForVerification.Player.IntroducedSamus;
@@ -496,7 +501,7 @@ internal static class FrontendRomFreeVerification
                 throw new InvalidOperationException(
                     $"Installed Ceres input pixels differ at frame {frame}, pixel " +
                     $"({first % FrontendFrame.Width},{first / FrontendFrame.Width}): " +
-                    $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
+                    $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"Samus native=({native.GameplaySamusX},{native.GameplaySamusY}) " +
                     $"pose ${(int)native.GameplaySamusPose:X2}/frame {nativeSamus.AnimationFrame}/" +
                     $"top {nativeSamus.Presentation.TopSpritemapIndex}/bottom {nativeSamus.Presentation.BottomSpritemapIndex}, installed=" +
@@ -590,6 +595,7 @@ internal static class FrontendRomFreeVerification
                 throw new InvalidOperationException(
                     $"Installed {room.RoomName} failed at neutral frame {frame}.", error);
             }
+            Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();
             AssertEqual(room.RoomPointer,
                 installed.GameplayActiveRoomPointer,
                 $"installed {room.RoomName} fixture remains in one room at frame {frame}");
@@ -636,7 +642,7 @@ internal static class FrontendRomFreeVerification
                 forcedGoldenFallingLeftObserved = true;
             if (GoldenRuns(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
                 goldenLeftFootOrbProgramObserved = true;
-            if (!actual.Pixels.SequenceEqual(expected.Pixels))
+            if (!actualPixels.SequenceEqual(expectedPixels))
             {
                 int first = -1;
                 int count = 0;
@@ -644,9 +650,9 @@ internal static class FrontendRomFreeVerification
                 int minY = FrontendFrame.Height;
                 int maxX = -1;
                 int maxY = -1;
-                for (int pixel = 0; pixel < actual.Pixels.Length; pixel++)
+                for (int pixel = 0; pixel < actualPixels.Length; pixel++)
                 {
-                    if (actual.Pixels[pixel].Equals(expected.Pixels[pixel]))
+                    if (actualPixels[pixel].Equals(expectedPixels[pixel]))
                         continue;
                     if (first < 0) first = pixel;
                     count++;
@@ -680,7 +686,7 @@ internal static class FrontendRomFreeVerification
                     $"Installed {room.RoomName} pixels differ at frame {frame}: " +
                     $"{count} pixels, bounds ({minX},{minY})..({maxX},{maxY}), " +
                     $"first ({first % FrontendFrame.Width},{first / FrontendFrame.Width}) " +
-                    $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
+                    $"native={expectedPixels[first]}, installed={actualPixels[first]}; " +
                     $"first loaded VRAM difference byte ${firstLoadVram:X4}, " +
                     $"first displayed VRAM difference byte ${firstVram:X4}; " +
                     $"VRAM pages=[{string.Join(", ", changedVramPages)}], " +

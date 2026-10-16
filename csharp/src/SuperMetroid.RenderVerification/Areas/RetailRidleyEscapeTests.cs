@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -53,7 +54,7 @@ internal static class RetailRidleyEscapeTests
                 if (tick % 8 == 0 || newPhase || ridley.Mode7Active || finished)
                 {
                     GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
-                    var expected = SuperMetroidRuntimeFrameRenderer.Render(frame);
+                    var expected = FrontendScenePixelsAccess.Pixels(frame);
                     var scene = GameplayDisplayCapture.Capture(frame)
                         ?? throw new InvalidOperationException("Ridley escape omitted capture.");
                     // The Mode 7 shadows reach the screen at the NMI after the main loop that wrote them (#1307),

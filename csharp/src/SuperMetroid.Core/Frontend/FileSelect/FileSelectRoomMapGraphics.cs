@@ -14,7 +14,7 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Menu address space shared with the PPU presentation owner.</summary>
     private readonly ISnesAddressSpace bus;
     /// <summary>Separate file-select PPU memory and installed background artwork.</summary>
-    private readonly MenuPpuState ppu;
+    internal readonly MenuPpuState ppu;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
     private readonly FileSelectMapIcons icons;
     /// <summary>Installed map sprite compositions used when drawing the marker and animated arrows.</summary>
@@ -91,42 +91,6 @@ public sealed class FileSelectRoomMapGraphics
                 "Room-map graphics require installed map presentation assets.")).Get(area), system, hidden));
     }
 
-    /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>
-    /// <returns>Owned 256-by-224 RGBA frame buffer, valid until this method renders again; BG2 uses fixed scroll (0, 24), with no map icons or timing updates.</returns>
-    [PpuLayoutBoundary("backend: file-select room-map software PPU composition")]
-    public Rgba32[] RenderFrameOnly()
-    {
-        Rgba32[] pixels = frameOnlyBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        Array.Fill(pixels, new CgramPalettes(Cgram).BackdropRgba);
-        // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 24), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        return pixels;
-    }
-
-    /// <summary>Draws the saved-station marker over the room map without advancing its animation.</summary>
-    /// <param name="scroll">BG1/map-icon scroll in whole pixels; the BG2 frame remains fixed.</param>
-    /// <param name="marker">Required saved-station marker whose current animation state is read without stepping it.</param>
-    /// <param name="animations">Optional current arrow-animation owner; drawing does not advance its state.</param>
-    /// <returns>Owned 256-by-224 RGBA background buffer with icons composited in native OAM order; a subsequent background or combined render overwrites it.</returns>
-    public Rgba32[] Render(Position16<MapPixels> scroll, FileSelectStationMarker marker,
-        FileSelectMapAnimations? animations = null)
-    {
-        Ensure.NotNull(marker);
-        Rgba32[] pixels = RenderBackgrounds(scroll);
-        OamBuffer oam = PrepareIcons(scroll, marker, animations);
-        Rgba32[] objects = objScratch ??= new Rgba32[256 * 224];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), Vram, Cgram, obsel: 3);
-        SnesLayerCompositor.Composite(pixels, objects);
-        return pixels;
-    }
-
-    /// <summary>Reusable OBJ pixels for map icons; restored saves allocate a fresh scratch buffer.</summary>
-    [NonSerialized] private Rgba32[]? objScratch;
-    /// <summary>Owned BG2-only frame buffer reused by subsequent frame-only renders.</summary>
-    [NonSerialized] private Rgba32[]? frameOnlyBuffer;
-    /// <summary>Owned BG1 and BG2 composition buffer reused by background and combined renders.</summary>
-    [NonSerialized] private Rgba32[]? backgroundsBuffer;
-
     /// <summary>Composes landmarks, the saved-station marker, and arrows in native OAM order without advancing animations.</summary>
     private OamBuffer PrepareIcons(Position16<MapPixels> scroll, FileSelectStationMarker marker,
         FileSelectMapAnimations? animations)
@@ -139,25 +103,6 @@ public sealed class FileSelectRoomMapGraphics
             animations is null ? null : () => animations.DrawArrows(oam, sprites));
         oam.FinalizeFrame();
         return oam;
-    }
-
-    /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>
-    /// <param name="scroll">BG1 scroll-register value in pixels.</param>
-    /// <returns>Owned 256-by-224 RGBA buffer, overwritten by the next background or combined render; within each low/high priority tier the fixed BG2 frame precedes BG1 map cells.</returns>
-    [PpuLayoutBoundary("backend: file-select room-map software PPU composition")]
-    public Rgba32[] RenderBackgrounds(Position16<MapPixels> scroll)
-    {
-        Rgba32[] pixels = backgroundsBuffer ??= new Rgba32[256 * 224];
-        Array.Fill(pixels, new CgramPalettes(ppu.Cgram).BackdropRgba);
-        for (int tier = 0; tier < 2; tier++)
-        {
-            // Mode 1 orders BG2 before BG1 within each background priority tier.
-            bool priority = tier == 1;
-            // Composited directly into the frame; transparent pixels leave it untouched.
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 24), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
-            SnesBgTilemapRenderer.Composite4BppViewport(pixels, Vram, Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = FileSelectMapRomData.RoomCharacters }, new BgViewport { Scroll = scroll.AsBgPlaneScroll(), Size = SnesPpuLayout.ScreenSize }, priority: priority);
-        }
-        return pixels;
     }
 
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>

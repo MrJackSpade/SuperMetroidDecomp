@@ -167,8 +167,7 @@ internal sealed class AndroidGameSession
                     ? $"Room ${(byte)area:X2}/${room:X2} [$8F:{data.Game.GameplayActiveRoomPointer:X4}, state $8F:{data.Game.GameplayActiveRoomStatePointer:X4}]"
                     : "No active room");
                 double stepped = clock.Elapsed.TotalMilliseconds;
-                var pixels = frame.Snapshot is { } snapshot
-                    ? SoftwareFrameSnapshotRenderer.Render(snapshot, rasterBuffer) : frame.Frame.Pixels;
+                var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot, rasterBuffer);
                 double rendered = clock.Elapsed.TotalMilliseconds;
                 data.Game.CopyAudioFrame(samples);
                 if (options.MasterVolumePercent != 100)

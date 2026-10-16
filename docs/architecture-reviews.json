@@ -241,14 +241,6 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.IntroCinematicState",
-      "flags": [
-        "large"
-      ],
-      "disposition": "scene-state-machine",
-      "reason": "One frontend scene: the intro's ordered phases over one scene state."
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.MapSpriteCatalog.FrameSet",
       "flags": [
         "context-bag"

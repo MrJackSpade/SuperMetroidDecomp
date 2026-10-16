@@ -30,8 +30,6 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
-        AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).SequenceEqual(
-            SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
 
@@ -69,7 +67,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
-        Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         LayeredRenderSnapshot captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
             && captured.Layers[1] is ScanlineColorAddRenderLayer && captured.Layers[2] is MessageBoxRenderLayer
@@ -103,7 +101,6 @@ internal static class GameplayCaptureIntegrationTestsVerification
             Compare(reference, actual);
             if (packets.RuntimeForVerification?.Room.ActiveDoor?.UsesCeresElevatorMode7 == true)
             {
-                AssertTrue(!actual.UsedLegacyRaster, "Ceres startup uses captured packets");
                 sawMode7Packet = true;
             }
         }
@@ -133,7 +130,6 @@ internal static class GameplayCaptureIntegrationTestsVerification
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);
-            AssertTrue(!actual.UsedLegacyRaster, "ordinary gameplay/pause uses packets");
             sawPause |= legacy.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
             AssertEqual(legacy.GameplaySamusX, packets.GameplaySamusX, "capture preserves Samus X");
             AssertEqual(legacy.GameplaySamusY, packets.GameplaySamusY, "capture preserves Samus Y");
@@ -150,8 +146,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
             AssertEqual(expected.GameState, actual.Frame.GameState, "gameplay captured state cadence");
             AssertEqual(expected.Phase, actual.Frame.Phase, "gameplay captured phase");
             AssertSequenceEqual(legacy.AudioEventsForVerification, packets.AudioEventsForVerification, "gameplay capture audio event order");
-            Rgba32[] pixels = actual.Snapshot is { } packet ? SoftwareFrameSnapshotRenderer.Render(packet) : actual.Frame.Pixels;
-            AssertTrue(expected.Pixels.SequenceEqual(pixels), $"gameplay capture pixels in {expected.Phase}");
+            AssertTrue(legacy.PublishedPixels().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(actual.Snapshot)),
+                $"gameplay capture pixels in {expected.Phase}");
         }
     }
 }

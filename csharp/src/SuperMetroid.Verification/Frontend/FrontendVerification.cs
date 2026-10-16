@@ -122,7 +122,7 @@ internal static void VerifyMode7Rendering()
     splitVram.ExecuteWordTransfer([0x0001], destinationWord: 0x4800 + 26 * 32, wordIncrement: 1);
     splitVram.LoadBytes((0x6000 + 16) * 2, [0xff, 0x00]);
 
-    Rgba32[] split = SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
+    Rgba32[] split = SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(splitVram, splitCgram, emptySprites, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(0, 0), Bg2CharacterBaseWord = 0x6000 });
     AssertEqual(splitCgram.GetRgba(2), split[207 * 256],
         "Ceres Ridley scanline 207 remains Mode 7");
     AssertEqual(splitCgram.GetRgba(1), split[208 * 256],

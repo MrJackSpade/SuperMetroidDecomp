@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -58,9 +59,8 @@ internal static class RetailFrontendTests
                 !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Frontend state/audio diverged at tick {tick}.");
             states.Add(expected.GameState);
-            var packet = actual.Snapshot ?? throw new InvalidOperationException($"Legacy raster fallback at {expected.Phase}.");
-            if (actual.Frame.Pixels.Length != 0) throw new InvalidOperationException("Capture emitted CPU raster.");
-            PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet),
+            var packet = actual.Snapshot;
+            PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet),
                 $"{device.Kind}: retail frontend {expected.Phase}, tick {tick}");
             if (expected.GameState == SuperMetroidGameState.IntroCinematic)
             {

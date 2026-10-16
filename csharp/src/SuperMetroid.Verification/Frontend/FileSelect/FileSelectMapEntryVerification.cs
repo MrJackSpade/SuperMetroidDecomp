@@ -29,10 +29,8 @@ internal static class FileSelectMapEntryVerification
         json.Position = 0;
         MapStaticPalettes palettes = MapStaticPalettes.Load(json);
         var entry = new FileSelectMapEntry(palettes);
-        Rgba32 visible = new(255, 0, 0), black = new(0, 0, 0);
-        Rgba32[] scene = Enumerable.Repeat(visible, 256 * 224).ToArray();
         AssertEqual(0x7fff, entry.Cgram.Colors[14], "entry setup does not prematurely fade palette");
-        AssertTrue(entry.Render(scene).All(pixel => pixel == black), "entry starts at forced-black presentation");
+        AssertEqual(FileSelectMapEntryPhase.PaletteFade, entry.Phase, "entry starts in its forced-black palette fade");
         entry.Step();
         AssertEqual(0x739c, entry.Cgram.Colors[14], "gradual palette begins at step one, not global-fade no-op");
         AssertEqual(0x739c, entry.Cgram.Colors[30], "both blank-cell palette entries fade together");
@@ -53,16 +51,14 @@ internal static class FileSelectMapEntryVerification
         {
             int left = 127 - 4 * tick, right = 129 + 4 * tick;
             int top = 111 - 4 * tick, bottom = 113 + 4 * tick;
-            Rgba32[] pixels = entry.Render(scene);
-            for (int y = 0; y < 224; y++)
-            for (int x = 0; x < 256; x++)
-                AssertEqual(x >= left && x <= right && y >= top && y < bottom ? visible : black,
-                    pixels[y * 256 + x], "entry reveal exact per-frame rectangle");
+            AssertEqual(left, entry.Left, "entry reveal window left edge");
+            AssertEqual(right, entry.Right, "entry reveal window right edge (inclusive)");
+            AssertEqual(top, entry.Top, "entry reveal window top edge");
+            AssertEqual(bottom, entry.Bottom, "entry reveal window bottom edge (exclusive)");
             AssertTrue(!entry.IsComplete, "entry window remains active before signed margin underflow");
             entry.Step();
         }
         AssertTrue(entry.IsComplete, "twenty-eighth reveal update disables the window");
-        AssertTrue(entry.Render(scene).SequenceEqual(scene), "complete entry reveals entire scene without clipped border");
     }
 
     /// <summary>Runs the focused file-select map entry transition check.</summary>

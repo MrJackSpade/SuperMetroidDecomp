@@ -30,7 +30,7 @@ internal static class ColorWindowSnapshotTestsVerification
         foreach (bool dead in new[] { false, true })
         {
             Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRenderer.ApplyCeresHaze(expected, dead);
+            SnesGameplayFrameRendererConstants.ApplyCeresHaze(expected, dead);
             Compare(expected, SnesGameplayFrameRenderer.CaptureCeresHaze(dead));
         }
 
@@ -49,7 +49,7 @@ internal static class ColorWindowSnapshotTestsVerification
                 if (sample)
                 {
                     expected = baseline.ToArray();
-                    SamusSuitPickupRenderer.Composite(expected, pickup.Flash);
+                    SamusSuitPickupRendererConstants.Composite(expected, pickup.Flash);
                     retained = SamusSuitPickupRenderer.Capture(pickup.Flash);
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
@@ -74,7 +74,7 @@ internal static class ColorWindowSnapshotTestsVerification
                 if (sample)
                 {
                     expected = baseline.ToArray();
-                    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(expected, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+                    SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(expected, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                     retained = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }

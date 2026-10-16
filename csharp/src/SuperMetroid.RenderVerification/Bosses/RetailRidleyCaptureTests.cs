@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -39,7 +40,7 @@ internal static class RetailRidleyCaptureTests
             ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked((short)scroll));
             // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
             runtime.NmiHandler.RunNmi(0, true);
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             if (scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null } mixed ||
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)

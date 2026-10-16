@@ -294,7 +294,7 @@ internal static class RoomFxRomDataVerification
         // though both resolve to additive BG3 pixels, so neither pairing may be substituted.
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame, vram, cgram, snapshot);
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -310,7 +310,7 @@ internal static class RoomFxRomDataVerification
             // assertion would fail if the signed boundary check regressed; an empty
             // fixture could otherwise make a broken compositor look correct by accident.
             var hiddenSurfaceFrame = new Rgba32[frame.Length];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenSurfaceFrame,
                 vram,
                 cgram,
@@ -368,7 +368,7 @@ internal static class RoomFxRomDataVerification
                 $"{type} samples the $5C00 effect page instead of the $5800 HUD page");
 
             var wrappedFrame = new Rgba32[frame.Length];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 wrappedFrame,
                 vram,
                 cgram,
@@ -386,7 +386,7 @@ internal static class RoomFxRomDataVerification
             _ => LayerBlendingConfiguration.Rain,
         };
         AssertThrows<InvalidDataException>(
-            () => SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            () => SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 frame,
                 vram,
                 cgram,

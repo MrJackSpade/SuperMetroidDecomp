@@ -10,10 +10,6 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
 public sealed class GameOverMenuState
 {
-    /// <summary>Reusable OBJ raster cleared on each render; excluded from saved menu state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Scene-owned final frame; callers may retain its pixels only until the next render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Address-space context retained for menu PPU construction and rebinding.</summary>
     private readonly ISnesAddressSpace bus;
@@ -228,24 +224,6 @@ public sealed class GameOverMenuState
             default:
                 throw new InvalidOperationException($"Unknown game-over phase {Phase}.");
         }
-    }
-
-    /// <summary>Composites the current BG1, Baby, egg, and selection cursor into a brightness-filtered 256x224 frame without advancing menu timing.</summary>
-    /// <returns>The scene-owned row-major RGBA buffer, valid only until this scene renders again; copy it before retaining a frame across later renders.</returns>
-    [PpuLayoutBoundary("backend: game-over software PPU composition")]
-    public Rgba32[] Render()
-    {
-        // `TM=$11` enables BG1 and OBJ only. Game-over does not retain the menu starfield.
-        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        SnesBgTilemapRenderer.Composite4BppViewport(output, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight) });
-
-        PrepareRenderOam();
-        Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objectLayer, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
-        SnesLayerCompositor.Composite(output,
-            objectLayer);
-        MasterBrightnessFilter.Apply(output, (byte)brightness);
-        return output;
     }
 
     /// <summary>Copies installed BG1 game-over cells into the menu VRAM tilemap.</summary>

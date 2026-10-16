@@ -323,7 +323,7 @@ internal static class RoomFxRetailInventoryVerification
                     "published no render snapshot.");
             var hiddenFrame = new Rgba32[
                 SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 hiddenFrame,
                 vram,
                 cgram,
@@ -351,7 +351,7 @@ internal static class RoomFxRetailInventoryVerification
                     "published no render snapshot.");
             var visibleFrame = new Rgba32[
                 SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
                 visibleFrame,
                 vram,
                 cgram,
@@ -467,7 +467,7 @@ internal static class RoomFxRetailInventoryVerification
     {
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, vram, cgram, snapshot);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram, snapshot);
         return frame;
     }
 
@@ -643,7 +643,7 @@ internal static class RoomFxRetailInventoryVerification
             $"room {definition.Room} risen lava enters the gameplay viewport");
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, vram, cgram, finalSnapshot);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(frame, vram, cgram, finalSnapshot);
         AssertTrue(frame.Any(pixel => pixel != default),
             $"room {definition.Room} risen lava is visibly composed");
     }
@@ -861,7 +861,7 @@ internal static class RoomFxRetailInventoryVerification
         fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(
             frame,
             vram,
             cgram,

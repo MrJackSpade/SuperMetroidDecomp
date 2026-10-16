@@ -26,7 +26,7 @@ internal static class AutonomousPerformanceStateFixture
             var result = data.Game.StepCaptured(0, frame, data.Generation);
             // Rendering observes immutable packets and is not needed to advance earlier frames.
             if (frame != targetFrame) continue;
-            var packet = result.Snapshot ?? throw new InvalidDataException("Target has no render snapshot.");
+            var packet = result.Snapshot;
             for (int warm = 0; warm < 10; warm++) SoftwareFrameSnapshotRenderer.Render(packet, output);
             long start = Stopwatch.GetTimestamp();
             Rgba32[] pixels = output;

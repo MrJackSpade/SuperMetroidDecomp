@@ -23,8 +23,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 public sealed class IntroCinematicState
 {
-    /// <summary>Reusable final frame; a returned image remains valid until the next cinematic render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
     /// <summary>Host-owned trail artwork; the flashback projectile pages bind its characters.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
@@ -143,10 +141,6 @@ public sealed class IntroCinematicState
         else
             objects?.BindEyeArtwork(null);
     }
-    /// <summary>Full SNES viewport width used by the cinematic's software planes.</summary>
-    private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
-    /// <summary>Visible SNES viewport height used by the cinematic's software planes.</summary>
-    private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
 
     /// <summary>
     /// BG1VOFS inherited by both gameplay flashbacks from the first illustrated page ($8B:A66F).
@@ -161,7 +155,7 @@ public sealed class IntroCinematicState
     /// <summary>Retains intro graphics and tilemaps across narration and flashback scenes.</summary>
     internal readonly SnesVram vram = new();
     /// <summary>Holds the palette ranges changed by scene crossfades.</summary>
-    private readonly SnesCgram cgram = new();
+    internal readonly SnesCgram cgram = new();
     /// <summary>Tracks the current physical button edges alongside scripted demo input.</summary>
     private readonly ControllerInputState controller = new();
     /// <summary>Runs ordinary beam projectiles during gameplay-style flashbacks.</summary>
@@ -667,41 +661,6 @@ public sealed class IntroCinematicState
         // actors a scene setup spawns take their first step in that same dispatch.
         babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter.RawValue);
         scientistCutscene?.Step(crossfadeCounter.RawValue, introCrossfadeCounter.RawValue);
-    }
-
-    /// <summary>Renders the current cinematic phase into the reusable 256-by-224 RGBA frame buffer.</summary>
-    /// <returns>The current cinematic frame, valid until the next render call.</returns>
-    public Rgba32[] Render()
-    {
-        // The Mode 7 flight owns a fresh PPU setup and INIDISP value. Returning its frame
-        // directly is intentional: applying the narration brightness (zero after the
-        // preceding fade) would erase the scene after $8B:BDE4 turns the display back on.
-        if (ceresFlight is not null && Phase == IntroCinematicPhase.CeresFlight)
-        {
-            return ceresFlight.Render();
-        }
-
-        Rgba32[] pixels = Phase is
-            IntroCinematicPhase.MotherBrainCrossfade or
-            IntroCinematicPhase.MotherBrainFlashback or
-            IntroCinematicPhase.PageTwoCrossfade
-            ? RenderMotherBrainFlashback()
-            : Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
-                IntroCinematicPhase.BabyDiscovery or
-                IntroCinematicPhase.PageThreeCrossfade
-                ? RenderBabyDiscovery()
-            : Phase is IntroCinematicPhase.BabyMetroidDeliveryCrossfade or
-                IntroCinematicPhase.BabyMetroidDelivery or
-                IntroCinematicPhase.PageFourCrossfade or
-                IntroCinematicPhase.BabyMetroidExaminationCrossfade or
-                IntroCinematicPhase.BabyMetroidExamination or
-                IntroCinematicPhase.PageFiveCrossfade
-                ? RenderScientistCutscene()
-            : objects is null
-                ? RenderFirstNarration()
-                : RenderFirstIllustratedPage();
-        ApplyMasterBrightness(pixels);
-        return pixels;
     }
 
     /// <summary>Installs Mother Brain room collision, actors, Samus demo state, and the incoming gameplay palette.</summary>
@@ -1222,23 +1181,6 @@ public sealed class IntroCinematicState
         return new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(foreground, new byte[width * height], new ushort[width * height]), Array.Empty<byte>());
     }
 
-    /// <summary>Composes the Mother Brain room, cinematic actors, Samus, and projectiles in SNES priority order.</summary>
-    internal Rgba32[] RenderMotherBrainFlashback()
-    {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        SpriteFrameBuffer oam = PrepareMotherBrainOam();
-
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeTextPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositeMotherBrainRoomPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositeMotherBrainRoomPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 3);
-        CompositeTextPriority(pixels, priority: true);
-        return pixels;
-    }
-
     /// <summary>
     /// Prepares Mother Brain OAM once per display; trail drawing advances state, so a captured frame cannot be redrawn through this path.
     /// </summary>
@@ -1279,25 +1221,8 @@ public sealed class IntroCinematicState
         return sprites;
     }
 
-    /// <summary>Composes the SR388 room with its egg, baby, Samus, and projectile layers.</summary>
-    internal Rgba32[] RenderBabyDiscovery()
-    {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        SpriteFrameBuffer oam = PrepareBabyDiscoveryOam();
-
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeTextPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositeBabyDiscoveryRoomPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositeBabyDiscoveryRoomPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 3);
-        CompositeTextPriority(pixels, priority: true);
-        return pixels;
-    }
-
     /// <summary>Orders Samus and discovery actors by the cinematic display flag before finalizing OBJ data.</summary>
-    private SpriteFrameBuffer PrepareBabyDiscoveryOam()
+    internal SpriteFrameBuffer PrepareBabyDiscoveryOam()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
@@ -1325,27 +1250,8 @@ public sealed class IntroCinematicState
         BabyDiscovery.Samus.Presentation.Draw(bus, sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
-    /// <summary>Composes the delivery or examination laboratory with its scrolling BG1 and actor priority.</summary>
-    internal Rgba32[] RenderScientistCutscene()
-    {
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        SpriteFrameBuffer oam = PrepareScientistOam();
-
-        // TM=$15 uses the same BG1/BG3/OBJ priority ladder as the gameplay flashbacks.
-        // BG1SC=$58 selects the first laboratory page; its crossfade pan is real PPU scroll.
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeTextPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositeScientistRoomPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositeScientistRoomPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 3);
-        CompositeTextPriority(pixels, priority: true);
-        return pixels;
-    }
-
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
-    private SpriteFrameBuffer PrepareScientistOam()
+    internal SpriteFrameBuffer PrepareScientistOam()
     {
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
@@ -1353,59 +1259,6 @@ public sealed class IntroCinematicState
         ScientistCutscene.Draw(oam, characterArtwork?.ScientistSprites);
         sprites.FinalizeFrame();
         return sprites;
-    }
-
-    /// <summary>Overlays only the requested laboratory BG1 priority tiles, leaving transparent pixels untouched.</summary>
-    private void CompositeScientistRoomPriority(Span<Rgba32> pixels, bool priority)
-    {
-        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = scientistCutscene?.TilemapBaseWord ??
-                IntroCinematicRomData.Layers.ScientistTilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = scientistCutscene?.Background.AsBgPlaneScroll() ?? default, Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
-    }
-
-    /// <summary>Overlays only the requested SR388 BG1 priority tiles, leaving transparent pixels untouched.</summary>
-    private void CompositeBabyDiscoveryRoomPriority(Span<Rgba32> pixels, bool priority)
-    {
-        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
-    }
-
-    /// <summary>Overlays only the requested Mother Brain BG1 priority tiles, leaving transparent pixels untouched.</summary>
-    private void CompositeMotherBrainRoomPriority(Span<Rgba32> pixels, bool priority)
-    {
-        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.SceneBg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, flashbackMotherBrain?.BackgroundVerticalScroll ??
-                GameplayFlashbackBg1VerticalScroll), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
-    }
-
-    /// <summary>Draws the full-screen BG3 opening card while TM enables no other planes.</summary>
-    private Rgba32[] RenderFirstNarration()
-    {
-        // Initial SetupPpu_Intro sets TM=$04: only BG3 is visible. BG3SC=$4C and BG34NBA=$04
-        // select tilemap word $4C00 and 2-bpp character word $4000 respectively.
-        // Opaque BG3 with no priority filter writes all 28 rows, i.e. the whole frame.
-        Rgba32[] pixels = frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight];
-        SnesBgTilemapRenderer.Render2Bpp(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: IntroCinematicRomData.Layers.NarrationRowCount);
-        return pixels;
-    }
-
-    /// <summary>Composes portrait BG2, progressive narration BG3, and OBJ with their eight-pixel source scroll.</summary>
-    private Rgba32[] RenderFirstIllustratedPage()
-    {
-        // TM=$16 enables BG2, BG3, and OBJ. BG2 is the 4-bpp Samus portrait at SC=$48;
-        // BG3 is the progressively written 2-bpp narration at SC=$4C. Both vertical scroll
-        // registers are eight, so source scanline eight is the first visible output line.
-        Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight, frameBuffer ??= new Rgba32[ScreenWidth * ScreenHeight]);
-        SpriteFrameBuffer oam = PrepareIllustratedPageOam();
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeTextPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositePortraitPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositePortraitPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 3);
-        CompositeTextPriority(pixels, priority: true);
-        return pixels;
     }
 
     /// <summary>Collects the persistent caret and illustrated-page cinematic objects in display order.</summary>
@@ -1430,42 +1283,6 @@ public sealed class IntroCinematicState
         return sprites;
     }
 
-    /// <summary>Overlays portrait BG2 tiles of one priority without erasing earlier layers.</summary>
-    private void CompositePortraitPriority(Span<Rgba32> pixels, bool priority)
-    {
-        // Composited directly; transparent pixels leave the frame untouched, as a plane would.
-        SnesBgTilemapRenderer.Composite4BppViewport(pixels, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.PortraitTilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 8), Size = new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight), TilemapSize = new Extent16<TilemapCells>(32, 32) }, priority: priority);
-    }
-
-    /// <summary>Reusable raster plane omitted from saved state and reallocated after restoration.</summary>
-    [NonSerialized] private Rgba32[]? textScratch;
-    /// <summary>Reusable OBJ raster plane omitted from saved state and rebuilt after restoration.</summary>
-    [NonSerialized] private Rgba32[]? objScratch;
-
-    /// <summary>Clears reused raster scratch before overlaying narration BG3 tiles of one priority.</summary>
-    private void CompositeTextPriority(Span<Rgba32> pixels, bool priority)
-    {
-        // The renderer skips tiles of the other priority, so clear the reused plane first.
-        Rgba32[] fullText = textScratch ??= new Rgba32[ScreenWidth * 32 * 8];
-        fullText.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(fullText, vram, cgram, new BgVramAddresses { TilemapBaseWord = IntroCinematicRomData.Layers.NarrationTilemapWord, CharacterBaseWord = IntroCinematicRomData.Layers.FontCharacterBaseWord }, rowCount: 32, transparentColorZero: true, priority: priority);
-        SnesLayerCompositor.Composite(pixels, fullText.AsSpan(8 * ScreenWidth, ScreenWidth * ScreenHeight));
-    }
-
-    /// <summary>Overlays OBJ sprites at one SNES priority level into the cinematic frame.</summary>
-    private void CompositeObjPriority(Span<Rgba32> pixels, SpriteFrameBuffer objects, int priority)
-    {
-        Rgba32[] sprites = objScratch ??= new Rgba32[ScreenWidth * ScreenHeight];
-        SnesObjRenderer.Render(
-            sprites,
-            ObjSpriteImage.Of(objects),
-            vram,
-            cgram,
-            obsel: 3,
-            size: new Extent16<ScreenPixels>(ScreenWidth, ScreenHeight),
-            priority: priority);
-        SnesLayerCompositor.Composite(pixels, sprites);
-    }
 
     /// <summary>Builds the portrait page, clears optional Japanese glyphs, and seeds progressive narration and caret state.</summary>
     internal void SetupFirstIllustratedPage()
@@ -1563,24 +1380,6 @@ public sealed class IntroCinematicState
     {
         foreach (IntroPaletteSpan span in spans)
             PaletteFader.FadeOut(span.ByteOffset, span.ByteCount);
-    }
-
-    /// <summary>Applies the current INIDISP brightness to final pixels, emitting opaque black at zero.</summary>
-    private void ApplyMasterBrightness(Span<Rgba32> pixels)
-    {
-        for (int pixel = 0; pixel < pixels.Length; pixel++)
-        {
-            Rgba32 color = pixels[pixel];
-            int brightness = ScreenFade.Displayed(inidisp);
-            if (brightness <= 0)
-                pixels[pixel] = new Rgba32(0, 0, 0, 255);
-            else if (brightness < 15)
-                pixels[pixel] = new Rgba32(
-                    (byte)(color.R * brightness / 15),
-                    (byte)(color.G * brightness / 15),
-                    (byte)(color.B * brightness / 15),
-                    255);
-        }
     }
 
     /// <summary>Rejects truncated installed graphics before their native-sized VRAM transfers.</summary>

@@ -11,10 +11,6 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
 public sealed class GameOptionsMenuState
 {
-    /// <summary>Reusable OBJ composition layer cleared each render and excluded from saved state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame, valid until this scene renders again.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Supplies menu PPU setup data.</summary>
     private readonly ISnesAddressSpace bus;
@@ -254,24 +250,6 @@ public sealed class GameOptionsMenuState
             default:
                 throw new InvalidOperationException($"Unknown options phase {Phase}.");
         }
-    }
-
-    /// <summary>Renders the current options page, cursor, and brightness into a reusable RGBA frame.</summary>
-    [PpuLayoutBoundary("backend: options software PPU composition")]
-    public Rgba32[] Render()
-    {
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight) });
-        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, unchecked((ushort)bg1VerticalScroll)), Size = new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), TilemapSize = new Extent16<TilemapCells>(GameOptionsRomData.MenuTilemapWidth, GameOptionsRomData.MenuTilemapHeight) });
-
-        PrepareRenderOam();
-        Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objectLayer, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
-        SnesLayerCompositor.Composite(
-            background,
-            objectLayer);
-        ApplyBrightness(background);
-        return background;
     }
 
     /// <summary>Captures the scrolled options page and selector without composing pixels.</summary>
@@ -584,23 +562,4 @@ public sealed class GameOptionsMenuState
         audio?.QueueSound(
             SoundEffectLibrary1Sounds.MenuConfirm,
             maximumQueued: GameOptionsRomData.MaximumQueuedMenuSounds);
-
-    /// <summary>Applies the menu's current INIDISP brightness to a composed frame.</summary>
-    private void ApplyBrightness(Span<Rgba32> pixels)
-    {
-        for (int pixel = 0; pixel < pixels.Length; pixel++)
-        {
-            Rgba32 color = pixels[pixel];
-            if (brightness <= 0)
-                pixels[pixel] = new Rgba32(0, 0, 0, color.A);
-            else if (brightness < GameOptionsRomData.MaximumBrightness)
-            {
-                pixels[pixel] = new Rgba32(
-                    (byte)(color.R * brightness / GameOptionsRomData.MaximumBrightness),
-                    (byte)(color.G * brightness / GameOptionsRomData.MaximumBrightness),
-                    (byte)(color.B * brightness / GameOptionsRomData.MaximumBrightness),
-                    color.A);
-            }
-        }
-    }
 }

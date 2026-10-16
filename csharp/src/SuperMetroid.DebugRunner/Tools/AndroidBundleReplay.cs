@@ -73,8 +73,7 @@ internal static class AndroidBundleReplay
             for (int tick = 0; tick < recording.ControllerInputs.Length; tick++)
             {
                 var frame = game.StepCaptured(recording.InputAt(tick), tick + 1, 1);
-                var pixels = frame.Snapshot is { } snapshot
-                    ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
+                var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot);
                 game.CopyAudioFrame(samples);
                 videoHash.AppendData(MemoryMarshal.AsBytes(pixels.AsSpan()));
                 audioHash.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));

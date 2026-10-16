@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Gameplay;
@@ -33,15 +34,15 @@ internal static class RetailAttractTests
                 var expected = legacy.Step(input);
                 var actual = captured.StepCaptured(input, tick + 1, 1);
                 states.Add(expected.GameState);
-                if (actual.UsedLegacyRaster || expected.GameState != actual.Frame.GameState ||
+                if (expected.GameState != actual.Frame.GameState ||
                     expected.Phase != actual.Frame.Phase || !legacy.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                     throw new InvalidOperationException($"Attract state/audio/capture divergence at {tick}.");
                 bool demo = expected.GameState is SuperMetroidGameState.TransitionToDemoA or SuperMetroidGameState.TransitionToDemoB
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))));
-                    PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
+                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(actual.Snapshot));
+                    PixelComparison.Verify(packet, legacy.PublishedPixels(), renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }
                 if (legacy.AttractDemoHoldFramesRemaining > 0 && expected.GameState == SuperMetroidGameState.PlayingDemo)
@@ -49,13 +50,13 @@ internal static class RetailAttractTests
                     sawHold = true;
                     // Each scene's ninety-frame final-image hold freezes that scene's own image.
                     if (legacy.AttractDemoHoldFramesRemaining == AttractDemoRomData.FinalImageHoldFrames)
-                        held = expected.Pixels.ToArray();
-                    held ??= expected.Pixels.ToArray();
-                    if (!held.SequenceEqual(expected.Pixels)) throw new InvalidOperationException("Demo held frame changed.");
+                        held = legacy.PublishedPixels();
+                    held ??= legacy.PublishedPixels();
+                    if (!held.SequenceEqual(legacy.PublishedPixels())) throw new InvalidOperationException("Demo held frame changed.");
                 }
                 if (states.Contains(SuperMetroidGameState.TransitionFromDemoB) && expected.GameState == SuperMetroidGameState.OpeningCinematic)
                 {
-                    PixelComparison.Verify((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot.")), expected.Pixels, renderer.RenderForReadback((actual.Snapshot ?? throw new InvalidOperationException("Verification requires actual.Snapshot."))), "attract return to title");
+                    PixelComparison.Verify(actual.Snapshot, legacy.PublishedPixels(), renderer.RenderForReadback(actual.Snapshot), "attract return to title");
                     returned = true; break;
                 }
             }

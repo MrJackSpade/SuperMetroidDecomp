@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -34,8 +35,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
             var layer = new Mode7GameplayRenderLayer(m, GameplayVramLayout.HudTilemapWord,
                 GameplayVramLayout.HudCharacterWord, SnesPpuLayout.GameplayHudHeightPixels, floor);
             Rgba32[] expected = floorEnabled
-                ? SnesGameplayFrameRenderer.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
-                : SnesGameplayFrameRenderer.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
+                ? SnesGameplayFrameRendererConstants.RenderHudCeresRidleyGetawayAndObjs(live.Vram, live.Cgram, live.Sprites, m, new CeresGetawayFloor { Bg2Scroll = new Position16<Bg2Pixels>(scroll, scroll), Bg2CharacterBaseWord = 0x6000 })
+                : SnesGameplayFrameRendererConstants.RenderHudMode7AndObjs(live.Vram, live.Cgram, live.Sprites, m);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
             var restored = RoundTripRenderPacket(packet);
             AssertTrue(expected.SequenceEqual(RenderForComparison(restored)),
@@ -66,7 +67,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         getaway.Mode7Offset = new Offset16<Mode7Pixels>(7, 19);
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
         runtime.NmiHandler.RunNmi(0, true);
-        Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = RoundTripRenderPacket(new(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
         getaway.Mode7Active = false; getaway.Mode7MatrixA = 0;

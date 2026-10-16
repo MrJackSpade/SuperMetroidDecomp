@@ -42,7 +42,7 @@ internal static class RoomFxSnapshotTestsVerification
             var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<Bg3Pixels>(65530, 511), currentY,
                 WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
             Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(expected, vram, cgram, fx);
+            SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(expected, vram, cgram, fx);
             Bg2BppColorMathRenderLayer? layer = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx);
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0),
                 new LayeredRenderSnapshot(memory, layer is null ? [] : new RenderLayer[] { layer }, 3, 15));

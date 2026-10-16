@@ -22,10 +22,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMenuState
 {
-    /// <summary>Reusable OBJ layer cleared for each render; it is never part of saved menu state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame; a returned image remains valid until this scene renders again.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Supplies native pose and menu data to the cartridge-backed presentation.</summary>
     private readonly ISnesAddressSpace bus;
@@ -206,22 +202,6 @@ public sealed class FileSelectMenuState
                     TitleRequested = true;
                 break;
         }
-    }
-
-    /// <summary>Composes the menu's BG2, BG1, and OBJ main-screen layers.</summary>
-    [PpuLayoutBoundary("backend: file-select software PPU composition")]
-    public Rgba32[] Render()
-    {
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224, frameBuffer ??= new Rgba32[256 * 224]);
-        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg2TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-        SnesBgTilemapRenderer.Composite4BppViewport(background, ppu.Vram, ppu.Cgram, new BgVramAddresses { TilemapBaseWord = MenuVramLayout.Bg1TilemapWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(32, 32) });
-
-        PrepareRenderOam();
-        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam), ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
-        SnesLayerCompositor.Composite(background, objects);
-        ApplyBrightness(background);
-        return background;
     }
 
     /// <summary>Captures file-menu display state after simulation-owned OAM preparation.</summary>
@@ -429,26 +409,6 @@ public sealed class FileSelectMenuState
             return;
         missileAnimationFrame = (missileAnimationFrame + 1) & 3;
         missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
-    }
-
-    /// <summary>Applies the current INIDISP brightness fraction to RGB while preserving alpha.</summary>
-    private void ApplyBrightness(Span<Rgba32> pixels)
-    {
-        int displayed = Brightness;
-        for (int pixel = 0; pixel < pixels.Length; pixel++)
-        {
-            Rgba32 color = pixels[pixel];
-            pixels[pixel] = displayed switch
-            {
-                >= 15 => color,
-                <= 0 => new Rgba32(0, 0, 0, color.A),
-                _ => new Rgba32(
-                    (byte)(color.R * displayed / 15),
-                    (byte)(color.G * displayed / 15),
-                    (byte)(color.B * displayed / 15),
-                    color.A),
-            };
-        }
     }
 
     /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>

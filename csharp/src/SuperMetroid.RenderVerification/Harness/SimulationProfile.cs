@@ -56,8 +56,6 @@ internal static class SimulationProfile
             long start = Stopwatch.GetTimestamp();
             var frame = game.StepCaptured(input, ++sequence, 1);
             long captured = Stopwatch.GetTimestamp();
-            if (frame.Snapshot is null || frame.Frame.Pixels.Length != 0)
-                throw new InvalidOperationException("Profile unexpectedly entered a CPU raster path.");
             game.CopyAudioFrame(pcm);
             long end = Stopwatch.GetTimestamp();
             foreach (short value in pcm) if (value != 0) nonzeroPcmSamples++;

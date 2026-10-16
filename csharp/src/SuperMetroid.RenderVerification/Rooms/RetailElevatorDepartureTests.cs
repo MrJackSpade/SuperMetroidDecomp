@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -38,7 +39,7 @@ internal static class RetailElevatorDepartureTests
         int samples = 0, departure = 0, scrolling = 0, returning = 0;
         void Compare(string phase)
         {
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()) ?? throw new InvalidOperationException("Missing elevator capture."));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));

@@ -263,49 +263,6 @@ internal sealed class PauseMenuState
             StepItemSelectorAnimation();
     }
 
-    /// <summary>Reusable OBJ color raster, excluded from saved state.</summary>
-    [NonSerialized] private Rgba32[]? objScratchPixels;
-    /// <summary>Reusable OBJ priority raster, excluded from saved state.</summary>
-    [NonSerialized] private byte[]? objScratchPriorities;
-    /// <summary>Reusable BG3 priority plane, rebuilt after state restoration.</summary>
-    [NonSerialized] private Rgba32[]? bg3ScratchPlane;
-
-    /// <summary>Composites BG and OBJ priorities in Mode-1 order and applies page-transition brightness.</summary>
-    public Rgba32[] Render()
-    {
-        Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-        // SetupPpuForPauseMenu writes BGMODE=$09 and TM=$17. The old host compositor drew
-        // complete BG2 followed by complete BG1, which ignored tile priority and allowed
-        // the low-priority full-area map to paint over BG2's high-priority holder/chrome.
-        // Build OAM first and then follow the literal Mode-1-with-BG3-priority ladder.
-        PrepareRenderOam();
-        objScratchPixels ??= new Rgba32[256 * 224];
-        objScratchPriorities ??= new byte[256 * 224];
-        SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, PauseMenuLayout.ObjectSelection, new ObjRasterTargets(objScratchPixels, objScratchPriorities));
-        var objects = new ResolvedObjFrame(objScratchPixels, objScratchPriorities);
-
-        // Back to front for BGMODE=$09:
-        // OBJ0, BG3-low, OBJ1, BG2-low, BG1-low, OBJ2, BG2-high, BG1-high,
-        // OBJ3, BG3-high. BG3's retained gameplay tilemap supplies the pause HUD.
-        CompositeResolvedObjPriority(output, objects, priority: 0);
-        CompositePauseBg3(output, priority: false);
-        CompositeResolvedObjPriority(output, objects, priority: 1);
-        CompositePauseBg(output, PauseMenuLayout.Bg2TilemapWord, 32, priority: false);
-        CompositePauseBg(output, PauseMenuLayout.Bg1TilemapWord, 64, priority: false);
-        CompositeResolvedObjPriority(output, objects, priority: 2);
-        CompositePauseBg(output, PauseMenuLayout.Bg2TilemapWord, 32, priority: true);
-        CompositePauseBg(output, PauseMenuLayout.Bg1TilemapWord, 64, priority: true);
-        CompositeResolvedObjPriority(output, objects, priority: 3);
-        CompositePauseBg3(output, priority: true);
-
-        // Menu subindexes 2/4/5/7 fade the current page during an L/R transition. The
-        // outer game-state fades are applied by SuperMetroidGame because they also cover
-        // the gameplay frame before setup and after restoration.
-        if (transition != PauseMenuTransition.None)
-            MasterBrightnessFilter.Apply(output, transitionBrightness);
-        return output;
-    }
-
     /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
     [PpuLayoutBoundary("codec: pause render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
@@ -354,43 +311,6 @@ internal sealed class PauseMenuState
             DrawReserveTanks();
         }
         oam.FinalizeFrame();
-    }
-
-    /// <summary>Composites one priority half of the scrolling BG1 map or fixed BG2 backdrop.</summary>
-    private void CompositePauseBg(
-        Span<Rgba32> output,
-        ushort tilemapBaseWord,
-        int tilemapWidthInTiles,
-        bool priority)
-    {
-        bool isMapLayer = tilemapBaseWord == PauseMenuLayout.Bg1TilemapWord;
-        SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32) }, priority: priority);
-    }
-
-    /// <summary>Renders one priority half of the retained gameplay HUD BG3 layer.</summary>
-    [PpuLayoutBoundary("rendering view: the retained gameplay HUD BG3 layer")]
-    private void CompositePauseBg3(Span<Rgba32> output, bool priority)
-    {
-        Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
-        // The renderer skips tiles of the other priority, so clear the reused plane first.
-        plane.AsSpan().Clear();
-        SnesBgTilemapRenderer.Render2Bpp(plane, vram, cgram, new BgVramAddresses { TilemapBaseWord = GameplayVramLayout.HudTilemapWord, CharacterBaseWord = GameplayVramLayout.HudCharacterWord }, rowCount: 32, transparentColorZero: true, priority: priority);
-        SnesLayerCompositor.Composite(output, plane.AsSpan(
-            SnesPpuLayout.FirstVisibleBackgroundScanline * SnesPpuLayout.ScreenWidthPixels,
-            output.Length));
-    }
-
-    /// <summary>Copies only OBJ pixels matching one native priority rung.</summary>
-    private static void CompositeResolvedObjPriority(
-        Span<Rgba32> output,
-        ResolvedObjFrame objects,
-        byte priority)
-    {
-        for (int pixel = 0; pixel < output.Length; pixel++)
-        {
-            if (objects.Priorities[pixel] == priority)
-                output[pixel] = objects.Pixels[pixel];
-        }
     }
 
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>

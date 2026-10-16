@@ -14,7 +14,4 @@ public readonly record struct ObjSpriteImage(OamBuffer Oam, ImmutableArray<Order
         Ensure.NotNull(sprites);
         return new(sprites.Oam, sprites.Draws);
     }
-
-    /// <summary>An OAM image with no whole-frame draws, for screens that still build only OAM.</summary>
-    public static ObjSpriteImage OamOnly(OamBuffer oam) => new(Ensure.NotNull(oam), []);
 }

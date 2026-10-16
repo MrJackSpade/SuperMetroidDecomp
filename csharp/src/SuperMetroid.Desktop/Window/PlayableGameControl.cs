@@ -399,7 +399,7 @@ public sealed class PlayableGameControl : UserControl
         PublishGpuDisplay();
         // The retained packet already owns the display. Reading CurrentFrame here
         // would rasterize it solely to populate status labels, even in GPU mode.
-        RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
+        RefreshFrame(pendingDisplay is not null ? game.CurrentFrame : game.CurrentFrame);
         statusLabel.Text =
             (loaded.Warnings.Count != 0 ? "WARNING: state compatibility differs | " : "") +
             $"loaded state {DebuggerSaveStateStore.SlotName(slot)} | frame {loaded.Metadata.FrameNumber} | " +
@@ -688,7 +688,7 @@ public sealed class PlayableGameControl : UserControl
     /// <summary>Refreshes presentation, room caption, frame timing, and recovery status.</summary>
     private void RefreshFrame(FrontendFrame frame)
     {
-        RefreshDisplay(frame);
+        RefreshDisplay();
         RefreshRoomIdentity();
         if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
         {
@@ -1077,14 +1077,13 @@ public sealed class PlayableGameControl : UserControl
         worker.Publish(packet);
     }
 
-    /// <summary>Renders a retained scene or copies frontend pixels into the software canvas.</summary>
-    private void RefreshDisplay(FrontendFrame frame)
+    /// <summary>Renders the retained scene into the software canvas.</summary>
+    private void RefreshDisplay()
     {
         if (gpuWorker is not null) return;
-        var pixels = pendingDisplay is { } packet
-            ? SoftwareFrameSnapshotRenderer.Render(packet)
-            : frame.Pixels;
-        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), pixels);
+        RenderFrameSnapshot packet = pendingDisplay
+            ?? throw new InvalidOperationException("The software canvas requires a captured scene.");
+        canvas.ReplaceFrame(new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height), SoftwareFrameSnapshotRenderer.Render(packet));
     }
 
     /// <summary>Await before destroying the form/child HWND; never synchronously wait on the UI thread.</summary>

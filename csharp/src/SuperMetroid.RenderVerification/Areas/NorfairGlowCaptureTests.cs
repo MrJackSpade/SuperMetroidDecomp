@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -29,7 +30,7 @@ internal static class NorfairGlowCaptureTests
             var scene = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
             original ??= scene;
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
-            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
+            PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Norfair glow frame {tick}");
 
             // Freeze geometry, camera, objects, and every unrelated palette entry.

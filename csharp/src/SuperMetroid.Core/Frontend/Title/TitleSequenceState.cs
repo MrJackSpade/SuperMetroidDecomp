@@ -18,14 +18,6 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </remarks>
 public sealed class TitleSequenceState
 {
-    /// <summary>Reusable OBJ raster cleared by each render; excluded from saved scene state.</summary>
-    [NonSerialized] private Rgba32[]? objectLayerScratch;
-    /// <summary>Reusable final frame, valid for callers until the next title render.</summary>
-    [NonSerialized] private Rgba32[]? frameBuffer;
-    /// <summary>Temporary OBJ priority plane rewritten before the title gradient is resolved.</summary>
-    [NonSerialized] private byte[]? gradientPriorityScratch;
-    /// <summary>Temporary OBJ palette plane used to choose the title gradient color per pixel.</summary>
-    [NonSerialized] private byte[]? gradientPaletteScratch;
 
     /// <summary>Runtime address space used by native title state and palette-FX paths.</summary>
     private readonly ISnesAddressSpace bus;
@@ -344,53 +336,6 @@ public sealed class TitleSequenceState
         consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }
 
-    /// <summary>Renders the current Mode 7 background and bank-$8C title spritemaps.</summary>
-    public Rgba32[] Render()
-    {
-        // `$8B:9E8B` reaches identity A=D=$0100. The value being animated is already the
-        // Mode 7 matrix scalar, not a camera magnification that needs to be inverted. A
-        // small matrix samples less source texture across the output screen, so the early
-        // title image is enlarged; increasing $43 -> $100 therefore performs the retail
-        // zoom *out*. Taking its reciprocal reversed that motion and also magnified the
-        // Nintendo Presents pan offsets until much of their movement wrapped off-screen.
-        short matrixScale = unchecked((short)zoom);
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-
-        // Setup_PPU_TitleSequence writes TM=$10 at `$8B:803F`: OBJ is visible but BG1 is
-        // not. Each scrolling-text command leaves that state alone, so the 1994/NINTENDO/
-        // PRESENTS/METROID 3 cards sit over the CGRAM-zero black backdrop. Their following
-        // `$9CE1/$9D5D/$9DD6/$9E58` scene command writes TM=$11 and enables Mode 7 BG1;
-        // each of the first three completed pans restores TM=$10 before spawning the next
-        // text object. Rendering a zero-scale Mode 7 sample during YearText was therefore
-        // not merely the wrong transform—it displayed a layer the SNES had disabled and
-        // turned the whole screen into the sampled red texel.
-        if (mode7BackgroundEnabled)
-        {
-            SnesMode7Renderer.CompositeViewport(background, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixScale, MatrixB = TitleSequenceRomData.Scenes.Rotation.TableIndex, MatrixC = 0, MatrixD = matrixScale, Center = new Offset16<Mode7Pixels>(128, 128), Scroll = mode7.Whole.AsSignedRegister() });
-        }
-
-        PrepareRenderOam();
-        Rgba32[] objects = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
-        SnesObjRenderer.Render(objects, ObjSpriteImage.OamOnly(oam),
-            vram,
-            cgram,
-            obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
-        SnesLayerCompositor.Composite(background, objects);
-        if (gradientEnabled)
-        {
-            byte[] palettes = gradientPaletteScratch ??= new byte[background.Length];
-            SnesObjRenderer.RenderResolved(ObjSpriteImage.OamOnly(oam), vram, cgram, TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, new ObjRasterTargets(objects, gradientPriorityScratch ??= new byte[background.Length], palettes));
-            ReadOnlySpan<TitleGradientLine> gradient = ResolveTitleGradient();
-            for (int pixel = 0; pixel < background.Length; pixel++)
-                background[pixel] = TitleGradientColorMath.Apply(background[pixel], gradient[pixel / 256],
-                    palettes[pixel] == byte.MaxValue ? null : palettes[pixel]);
-        }
-        for (int pixel = 0; pixel < background.Length; pixel++)
-            background[pixel] = ApplyBrightness(background[pixel], brightness);
-
-        return background;
-    }
-
     /// <summary>
     /// Builds the cartridge's OAM on the simulation owner and captures its display.
     /// No pixels are composed, and the returned value retains no live scene references.
@@ -596,20 +541,5 @@ public sealed class TitleSequenceState
         zoom = definition.Scale;
         mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
-    }
-
-    /// <summary>Applies the SNES brightness level to a composed title pixel, retaining transparency.</summary>
-    private static Rgba32 ApplyBrightness(Rgba32 color, int level)
-    {
-        if (color.A == 0 || level >= TitleSequenceRomData.Timing.MaximumBrightness)
-            return color;
-        if (level <= 0)
-            return new Rgba32(0, 0, 0, color.A);
-
-        return new Rgba32(
-            (byte)(color.R * level / TitleSequenceRomData.Timing.MaximumBrightness),
-            (byte)(color.G * level / TitleSequenceRomData.Timing.MaximumBrightness),
-            (byte)(color.B * level / TitleSequenceRomData.Timing.MaximumBrightness),
-            color.A);
     }
 }

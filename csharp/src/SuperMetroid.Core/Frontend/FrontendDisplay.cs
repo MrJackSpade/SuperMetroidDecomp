@@ -12,44 +12,41 @@ using SuperMetroid.Core.Frontend.CeresCinematics;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The frontend's published display: an immutable captured snapshot while a host captures frames, otherwise the
-/// legacy software raster. Each scene publishes through here once per frame; brightness writes append passes to
-/// the captured snapshot or filter the raster.
+/// The frontend's published display: one immutable render snapshot per frame, under the host's identity while it
+/// captures and the display's own otherwise. Each scene publishes through here once per frame; brightness writes
+/// append passes to the snapshot, and pixels are rendered from it on demand.
 /// </summary>
 internal sealed class FrontendDisplay
 {
     /// <summary>Whether gameplay publications replace the retained display in diagnostic mode.</summary>
     private readonly bool renderGameplayFrames;
-    /// <summary>Host identity in effect while a frame is being captured.</summary>
+    /// <summary>The host's identity for the frame being captured; null outside a host capture.</summary>
     private RenderFrameIdentity? captureIdentity;
-    /// <summary>Last immutable scene packet available for host presentation.</summary>
-    private RenderFrameSnapshot? capturedDisplay;
+    /// <summary>Sequence of frames published outside a host capture.</summary>
+    private long uncapturedSequence;
+    /// <summary>The published frame; black until a scene publishes.</summary>
+    private RenderFrameSnapshot capturedDisplay;
 
-    /// <summary>Cached software raster reused for repeated reads of one captured display.</summary>
-    [NonSerialized] private Rgba32[]? capturedDisplayRaster;
-
-    /// <param name="renderGameplayFrames">False for the diagnostic no-render mode, which keeps the prior display through gameplay.</param>
-    internal FrontendDisplay(bool renderGameplayFrames) => this.renderGameplayFrames = renderGameplayFrames;
-
-    /// <summary>Legacy raster or lazy software rendering of the last captured packet.</summary>
-    private Rgba32[] Pixels
+    /// <summary>Starts with a black frame.</summary>
+    /// <param name="renderGameplayFrames">Whether gameplay publications replace the display (false in diagnostic mode).</param>
+    internal FrontendDisplay(bool renderGameplayFrames)
     {
-        get => capturedDisplay is null ? field : SoftwareFrameSnapshotRenderer.Render(capturedDisplay,
-            capturedDisplayRaster ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
-        set { field = value; capturedDisplay = null; }
-    } = CreateBlackFrame();
+        this.renderGameplayFrames = renderGameplayFrames;
+        capturedDisplay = new(NextIdentity(), Black);
+    }
 
-    /// <summary>
-    /// The current image for a status read: empty when a display capture already owns it, so the host presents
-    /// that capture instead.
-    /// </summary>
-    internal Rgba32[] CurrentPixels => captureIdentity is not null && capturedDisplay is not null ? Array.Empty<Rgba32>() : Pixels;
+    /// <summary>The solid color a blank frame shows.</summary>
+    private static Rgba32 Black => new(0, 0, 0, 255);
 
-    /// <summary>The retained display under a fresh host identity, or null when only legacy pixels exist.</summary>
-    internal RenderFrameSnapshot? Retained(RenderFrameIdentity identity)
+    /// <summary>The identity to publish under: the host's while it captures, otherwise the next own sequence number.</summary>
+    private RenderFrameIdentity NextIdentity() => captureIdentity ?? new(++uncapturedSequence, 1, 0);
+
+    /// <summary>Republishes the last frame under a new identity without recapturing.</summary>
+    /// <param name="identity">The new identity.</param>
+    internal RenderFrameSnapshot Retained(RenderFrameIdentity identity)
     {
         if (captureIdentity is not null) throw new InvalidOperationException("Cannot republish during display capture.");
-        return capturedDisplay is { } display ? Reframe(display, identity, display.BrightnessPasses) : null;
+        return Reframe(capturedDisplay, identity, capturedDisplay.BrightnessPasses);
     }
 
     /// <summary>Starts capturing the frame published under <paramref name="identity"/>.</summary>
@@ -64,13 +61,10 @@ internal sealed class FrontendDisplay
     /// that immutable content takes this publication's identity without recapturing a scene that has already
     /// advanced into the next state.
     /// </summary>
-    internal RenderFrameSnapshot? CompleteCapture(RenderFrameIdentity identity)
+    internal RenderFrameSnapshot CompleteCapture(RenderFrameIdentity identity)
     {
-        if (capturedDisplay is not null)
-        {
-            using var publicationTiming = RenderPublicationProfile.Measure();
-            capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.BrightnessPasses);
-        }
+        using var publicationTiming = RenderPublicationProfile.Measure();
+        capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.BrightnessPasses);
         return capturedDisplay;
     }
 
@@ -81,74 +75,64 @@ internal sealed class FrontendDisplay
     internal void PublishMenu(TitleSequenceState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the file-select menu using its current render snapshot when capturing.</summary>
     internal void PublishMenu(FileSelectMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the game options menu using its current render snapshot when capturing.</summary>
     internal void PublishMenu(GameOptionsMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the paused room and menu composition without advancing the scene.</summary>
     internal void PublishMenu(PauseMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the current game-over menu composition.</summary>
     internal void PublishMenu(GameOverMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the Ceres destruction cinematic's captured scene or software raster.</summary>
     internal void PublishCeresDestruction(CeresDestructionCinematicState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the ending credits presentation owned by the active scene.</summary>
     internal void PublishEnding(EndingCreditsState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.Presentation.CaptureRenderSnapshot());
-        else Pixels = scene.Presentation.Render();
+        capturedDisplay = new(NextIdentity(), scene.Presentation.CaptureRenderSnapshot());
     }
 
     /// <summary>Publishes the file-select map after its selection and animation state updates.</summary>
     internal void PublishFileMap(FileSelectMapMenuState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureRenderSnapshot());
     }
 
     /// <summary>Requires a translated intro packet during capture and otherwise renders the intro raster.</summary>
     internal void PublishIntro(IntroCinematicState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity)
-            capturedDisplay = new(identity, scene.CaptureTranslatedRenderSnapshot()
-                ?? throw new InvalidOperationException("Intro publication omitted its render snapshot."));
-        else Pixels = scene.Render();
+        capturedDisplay = new(NextIdentity(), scene.CaptureTranslatedRenderSnapshot()
+            ?? throw new InvalidOperationException("Intro publication omitted its render snapshot."));
     }
 
     /// <summary>Captures gameplay or renders it directly unless diagnostic no-render mode retains the prior frame.</summary>
@@ -159,33 +143,19 @@ internal sealed class FrontendDisplay
         // materialize a stored packet simply because this simulation-only caller steps.
         if (!renderGameplayFrames) return;
         GameplayDisplayFrame frame = activeRuntime.PublishDisplayFrame();
-        if (captureIdentity is { } identity)
-            capturedDisplay = new(identity, GameplayDisplayCapture.Capture(frame));
-        else Pixels = SuperMetroidRuntimeFrameRenderer.Render(frame, activeRuntime.GameplayFrameBuffer);
+        capturedDisplay = new(NextIdentity(), GameplayDisplayCapture.Capture(frame));
     }
 
     /// <summary>Replaces the published scene with opaque black under the current capture identity.</summary>
-    internal void PublishBlack()
-    {
-        if (captureIdentity is { } identity) capturedDisplay = new(identity, new Rgba32(0, 0, 0, 255));
-        else Pixels = CreateBlackFrame();
-    }
+    internal void PublishBlack() => capturedDisplay = new(NextIdentity(), Black);
 
     /// <summary>Applies one write of the brightness register $51 to the published display.</summary>
     internal void ApplyBrightness(byte brightness)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is not null && capturedDisplay is { } frame)
-        {
-            byte[] passes = [.. frame.BrightnessPasses, brightness];
-            capturedDisplay = Reframe(frame, frame.Identity, passes);
-        }
-        else
-        {
-            Rgba32[] pixels = Pixels;
-            MasterBrightnessFilter.Apply(pixels, brightness);
-            Pixels = pixels;
-        }
+        RenderFrameSnapshot frame = capturedDisplay;
+        byte[] passes = [.. frame.BrightnessPasses, brightness];
+        capturedDisplay = Reframe(frame, frame.Identity, passes);
     }
 
     /// <summary>Reuses captured composition with a new host identity and brightness pass history.</summary>
@@ -198,11 +168,4 @@ internal sealed class FrontendDisplay
         throw new InvalidDataException("Captured display has no composition.");
     }
 
-    /// <summary>Allocates an opaque black raster sized to the frontend's native output.</summary>
-    private static Rgba32[] CreateBlackFrame()
-    {
-        var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        Array.Fill(pixels, new Rgba32(0, 0, 0, 255));
-        return pixels;
-    }
 }

@@ -145,20 +145,6 @@ internal static class CoreAccess
             .Values.Sum(bank => bank.Samples.Count);
     }
 
-    /// <summary>Copies frontend pixels so later renders cannot mutate a recorded frame.</summary>
-    extension(FrontendFrame frame)
-    {
-        /// <summary>Copies the pixel array so later rendering cannot mutate an observed frame.</summary>
-        internal FrontendFrame WithCopiedPixels() => frame with { Pixels = frame.Pixels.ToArray() };
-    }
-
-    /// <summary>Identifies captured frontend frames that still use the legacy raster path.</summary>
-    extension(CapturedFrontendFrame frame)
-    {
-        /// <summary>Identifies frames captured before the snapshot renderer supplied a scene record.</summary>
-        internal bool UsedLegacyRaster => frame.Snapshot is null;
-    }
-
     /// <summary>Reads the installed initial gameplay palette for exact color comparisons.</summary>
     extension(GameplayBasePaletteCatalog palettes)
     {

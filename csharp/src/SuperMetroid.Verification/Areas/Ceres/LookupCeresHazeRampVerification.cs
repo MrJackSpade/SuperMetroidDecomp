@@ -57,7 +57,7 @@ internal static class LookupCeresHazeRampVerification
                 int flags = ReadVerificationWord(rom, dead ? 0x88de16 : 0x88de11);
                 var captured = SnesGameplayFrameRenderer.CaptureCeresHaze(dead, counter);
                 var software = new Rgba32[256 * 224];
-                SnesGameplayFrameRenderer.ApplyCeresHaze(software, dead, counter);
+                SnesGameplayFrameRendererConstants.ApplyCeresHaze(software, dead, counter);
                 for (int y = 0; y < original.Length; y++)
                 {
                     var actual = CeresHazeRenderDefinitions.ResolveComponents(y, counter, dead, null);

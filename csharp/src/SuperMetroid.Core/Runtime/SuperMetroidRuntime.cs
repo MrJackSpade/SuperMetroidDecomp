@@ -1145,7 +1145,6 @@ public sealed class SuperMetroidRuntime
                 : null,
             crocomireDeath is { MeltingHdmaActive: true } melting
                 ? ImmutableArray.CreateRange(melting.Bg2ScrollByScanline) : null,
-            motherBrain is not null,
             motherBrain is { RisingHdmaActive: true },
             motherBrain?.RainbowBeamHdma.RenderSnapshot,
             CeresHazeRenderSnapshot.Capture(CeresHaze),
@@ -1157,14 +1156,6 @@ public sealed class SuperMetroidRuntime
             TourianStatues.Enabled);
         return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedSprites));
     }
-
-    /// <summary>
-    /// Reused final gameplay frame buffer. Callers keeping an image beyond the next render
-    /// must copy it because subsequent software rendering overwrites the same array.
-    /// </summary>
-    [field: NonSerialized]
-    internal Rgba32[] GameplayFrameBuffer =>
-        field ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
 
     /// <summary>
     /// Gameplay-frame state the remainder of state eight reads after <c>PLM_Handler</c>.

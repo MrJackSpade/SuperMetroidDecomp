@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
@@ -62,7 +63,7 @@ internal static class RuntimeOverlayTests
 
         (RenderFrameSnapshot Packet, Rgba32[] Pixels) Check(string context)
         {
-            Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+            Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
             var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
             packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, SoftwareFrameSnapshotRenderer.Render(packet), $"software: {context}");

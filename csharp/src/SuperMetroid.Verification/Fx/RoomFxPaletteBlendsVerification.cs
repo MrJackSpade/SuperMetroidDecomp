@@ -121,7 +121,7 @@ internal static class RoomFxPaletteBlendsVerification
             "cosmetic override does not mutate stock presentation");
         Rgba32[] pixels = Enumerable.Repeat(new Rgba32(0, 0, 0, 255),
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height).ToArray();
-        SnesGameplayFrameRenderer.ApplyCeresHaze(pixels, false, colors: edited);
+        SnesGameplayFrameRendererConstants.ApplyCeresHaze(pixels, false, colors: edited);
         AssertEqual(editedLine.Green, pixels[120 * SnesGameplayFrameRenderer.Width].G,
             "software renderer consumes the same edited Ceres tint as captured PPU rendering");
         AssertEqual((byte)0, pixels[120 * SnesGameplayFrameRenderer.Width].B,

@@ -121,8 +121,7 @@ internal static class ReserveAutoFrontendVerification
             else
                 AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked,
                     "completion restores the normal animation handler on the same frame");
-            AssertTrue(capture.Snapshot is not null, "automatic recovery publishes a gameplay render packet");
-            var pixels = SoftwareFrameSnapshotRenderer.Render((capture.Snapshot ?? throw new InvalidOperationException("Verification requires capture.Snapshot.")));
+            var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot);
             foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })
             {
                 AssertEqual(ReadRetailHudDigitTile(bus, digit), runtime.Vram.ReadWord(HudState.VramDestination + index),

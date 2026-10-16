@@ -64,7 +64,7 @@ internal static class TourianStatueWaterVerification
         AssertTrue(Enumerable.Range(176 * 256, (224 - 176) * 256).Any(index => dryPixels[index] != wetPixels[index]),
             "Actual water artwork visibly changes submerged room pixels");
         var direct = dryPixels.ToArray();
-        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(direct, runtime.Vram, runtime.Cgram, displayed);
+        SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(direct, runtime.Vram, runtime.Cgram, displayed);
         AssertTrue(direct.SequenceEqual(wetPixels), "Immediate and captured composition agree for the actual water room");
         AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");

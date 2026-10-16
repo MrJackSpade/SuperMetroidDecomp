@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -76,10 +77,8 @@ internal static class GameplaySnapshotTestsVerification
             "Mode-7 shaft cannot silently capture as ordinary tiles");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(0, true);
-        Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
-        AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),
-            "ordinary retail room capture matches full renderer with inactive effects");
+        Rgba32[] retail = RenderForComparison(captured);
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int color = 0; color < SnesPpuLayout.CgramColorCount; color++) runtime.Cgram.SetColor(color, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(captured)),

@@ -31,7 +31,7 @@ internal static class GoldenTorizoRoomSetupVerification
             FrontendFrame actual = installed.Step(0);
             AssertEqual(SuperMetroidGameState.MainGameplay, actual.GameState,
                 $"Golden Torizo turn preparation remains active at frame {frame}");
-            AssertTrue(actual.Pixels.SequenceEqual(expected.Pixels),
+            AssertTrue(installed.PublishedPixels().SequenceEqual(native.PublishedPixels()),
                 $"Golden Torizo turn preparation matches native pixels at frame {frame}");
         }
     }

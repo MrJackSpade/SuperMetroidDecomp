@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -46,7 +47,7 @@ internal static class RetailCrocomireCaptureTests
             if (!baseLayer.Bg2LineScrolls.Vertical.IsEmpty || (death ?? throw new InvalidOperationException("Verification requires death.")).MeltingHdmaActive)
                 throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
-            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
+            PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(packet), $"{device.Kind}: Crocomire fight {tick}");
         }
         // Reuse the cartridge audit's bridge threshold, then let the complete
@@ -70,7 +71,7 @@ internal static class RetailCrocomireCaptureTests
             complete = boss.DeathSequenceIndex == CrocomireDeathPhase.InertCorpse;
             if (changed || firstDistortion || tick % 16 == 0 || complete)
             {
-                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+                var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),

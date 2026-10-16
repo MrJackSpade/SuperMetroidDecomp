@@ -699,7 +699,7 @@ internal static class CollectiblesVerification
         MotherBrainBeamWindowVerification.AssertOwnsNoScanlineTable(typeof(SamusSuitPickupState));
         AssertEqual(SamusSuitPickupBeam.None, pickup.Beam, "suit setup publishes an empty beam");
         var pixels = new SuperMetroid.Core.Hardware.Rgba32[256 * 224];
-        SamusSuitPickupRenderer.Composite(pixels, pickup.Flash);
+        SamusSuitPickupRendererConstants.Composite(pixels, pickup.Flash);
         AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), pixels[0],
             "initial inverted suit window applies no fixed color");
         // The HDMA instruction list spends two handler calls before installing the
@@ -722,7 +722,7 @@ internal static class CollectiblesVerification
         AssertEqual((ushort)0x00ff, stageZero[8],
             "stage zero changes exactly eight top scanlines per frame");
         Array.Clear(pixels);
-        SamusSuitPickupRenderer.Composite(pixels, pickup.Flash);
+        SamusSuitPickupRendererConstants.Composite(pixels, pickup.Flash);
         AssertTrue(pixels[120].R != 0 && pixels[120].G != 0,
             "stage-zero one-pixel beam receives fixed color");
         AssertEqual(default(SuperMetroid.Core.Hardware.Rgba32), pixels[119],

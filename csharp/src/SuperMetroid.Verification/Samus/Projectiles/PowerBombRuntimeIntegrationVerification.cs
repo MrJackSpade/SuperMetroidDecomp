@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -39,7 +40,7 @@ internal static class PowerBombRuntimeIntegrationVerification
             camera: new Position16<RoomPixels>(0, 0));
         runtime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
-        Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()).ToArray();
+        Rgba32[] baseline = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(
@@ -54,11 +55,11 @@ internal static class PowerBombRuntimeIntegrationVerification
 
         GameplayPpuRenderSnapshot ppu = runtime.Display.DisplayedGameplayPpu;
         Rgba32[] expected = baseline.ToArray();
-        SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
+        SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(
             expected,
             PowerBombRenderSnapshot.Capture(explosion),
             ppu.Layer1Position);
-        Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+        Rgba32[] actual = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
 
         int expectedChangedPixels = CountPowerBombFrameDifferences(baseline, expected);
         AssertTrue(expectedChangedPixels > 0,

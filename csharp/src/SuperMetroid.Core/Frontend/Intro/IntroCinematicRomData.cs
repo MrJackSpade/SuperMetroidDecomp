@@ -71,8 +71,6 @@ public static class IntroCinematicRomData
         public const ushort ScientistExaminationTilemapWord = 0x5c00;
         /// <summary>BG character-base word used by the cinematic font.</summary>
         public const ushort FontCharacterBaseWord = 0x4000;
-        /// <summary>Number of narration rows populated by the intro.</summary>
-        public const int NarrationRowCount = 28;
         /// <summary>Word count of a complete 32-by-32 text tilemap.</summary>
         public const int TextTilemapWordCount = 0x0400;
         /// <summary>Word count copied for the visible portion of a text tilemap.</summary>

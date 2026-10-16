@@ -228,7 +228,7 @@ internal static partial class SwapchainTests
             RenderMailboxCounterView resumed = mailbox.VerificationCounters;
             if (resumed.HasPendingFrame || resumed.Taken != 2)
                 throw new InvalidOperationException("Resumed door consumer did not skip superseded transition packets.");
-            PixelComparison.Verify(latest, SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame()),
+            PixelComparison.Verify(latest, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()),
                 renderer.RenderForReadback(latest), $"{device.Kind}: retained destination after blocked {context} door");
             Console.WriteLine($"{device.Kind}: blocked {context} door completed; {sequence - 2} replaced frames, latest destination consumed.");
         }
@@ -316,7 +316,7 @@ internal static partial class SwapchainTests
             var actual = captured.StepCaptured(input, ++sequence, 1);
             // No raster request, GPU publication, or reference render for this owner.
             var undrawn = headless.StepCaptured(input, sequence, 1);
-            if (undrawn.UsedLegacyRaster || undrawn.Frame.GameState != actual.Frame.GameState ||
+            if (undrawn.Frame.GameState != actual.Frame.GameState ||
                 undrawn.Frame.Phase != actual.Frame.Phase || undrawn.Frame.FrameNumber != actual.Frame.FrameNumber ||
                 !headless.AudioEventsForVerification.SequenceEqual(captured.AudioEventsForVerification))
                 throw new InvalidOperationException($"Headless frame/command divergence at {sequence}.");
@@ -360,7 +360,7 @@ internal static partial class SwapchainTests
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Slow-consumer release missing.");
             });
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
-            worker.Publish((Step(0).Snapshot ?? throw new InvalidOperationException("Verification requires Step(0).Snapshot.")));
+            worker.Publish(Step(0).Snapshot);
             PumpUntil(() => entered.IsSet);
             CompareRuntimeGraphs("before room slice");
             var blockedTime = System.Diagnostics.Stopwatch.StartNew();
@@ -368,7 +368,7 @@ internal static partial class SwapchainTests
             for (int tick = 0; tick < 160; tick++)
             {
                 var actual = Step(tick is 10 or >= 100 and <= 105 ? SnesButton.Start : SnesButton.None);
-                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Capture fell back to raster."));
+                worker.Publish(actual.Snapshot);
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
@@ -389,7 +389,7 @@ internal static partial class SwapchainTests
                     _ => 0,
                 };
                 var actual = Step(input);
-                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Movement capture fell back to raster."));
+                worker.Publish(actual.Snapshot);
                 positions.Add((legacy.GameplaySamusX, legacy.GameplaySamusY));
                 poses.Add(legacy.GameplaySamusPose);
                 if (legacy.GameplayActiveRoomIdentity != roomBeforeMovement)

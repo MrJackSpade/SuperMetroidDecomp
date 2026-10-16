@@ -50,7 +50,7 @@ internal static class EyeWindowSnapshotTestsVerification
                 new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
                 SnesAngle.FromTableIndex((byte)angle), width, 0x3f, 0x4c, 0x81);
             Rgba32[] expected = baseline.ToArray();
-            SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, beam, new Position16<RoomPixels>(512, 768));
+            SnesGameplayFrameRendererConstants.ApplyMorphBallEyeBeamColorMath(expected, beam, new Position16<RoomPixels>(512, 768));
             ScanlineColorAddRenderLayer layer = (SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>(512, 768)) ?? throw new InvalidOperationException("Verification requires SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(beam, new Position16<RoomPixels>...."));
             var packet = new RenderFrameSnapshot(new(++samples, 1, 0), new LayeredRenderSnapshot(memory, [(layer ?? throw new InvalidOperationException("Verification requires layer."))], 3, 15));
             Rgba32[] actual = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));

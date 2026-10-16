@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -89,7 +90,6 @@ internal static class XrayInputVerification
         var reveal = captured.LayersOf<GameplayColorMathRenderLayer>().Single();
         AssertTrue(reveal.Lines.Any(line => line.Left <= line.Right), "full X-ray publishes a nonempty visible window");
         var pixels = SoftwareLayeredSnapshotRenderer.Render(captured);
-        AssertTrue(pixels.SequenceEqual(SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame())), "immediate software entrypoint uses the same X-ray display operation");
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual((byte)0x73, (byte)reveal.ColorMath, "native reveal-room CGADSUB");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Memory.Cgram[0], "setup backdrop reaches the packet");

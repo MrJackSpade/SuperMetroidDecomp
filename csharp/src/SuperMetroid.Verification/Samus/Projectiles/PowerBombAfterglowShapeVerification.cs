@@ -34,7 +34,7 @@ internal static class PowerBombAfterglowShapeVerification
         {
             var actual = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             var pixels = Enumerable.Repeat(new Rgba32(0, 0, 0), 256 * 224).ToArray();
-            SnesGameplayFrameRenderer.ApplyPowerBombColorMath(pixels, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
+            SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(pixels, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
             for (int y = 32; y < 224; y++)
             {
                 int row = Math.Abs(y - 208);

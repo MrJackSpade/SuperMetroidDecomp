@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -66,8 +67,6 @@ internal static class GameplayDisplayFrameTestsVerification
             "capturing one published frame twice is identical");
         AssertTrue(pixels.SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()))),
             "publishing again without stepping is identical");
-        AssertTrue(pixels.SequenceEqual(SuperMetroidRuntimeFrameRenderer.Render(frame)),
-            "legacy raster of the published frame matches its capture");
 
         // Mutate frame-end sources, NMI-latched sources and PPU memory after publication.
         GameplayFrameEndDisplayInputs frameEnd = frame.FrameEnd;

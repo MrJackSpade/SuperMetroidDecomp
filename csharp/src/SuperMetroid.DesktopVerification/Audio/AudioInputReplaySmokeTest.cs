@@ -76,8 +76,8 @@ public static class AudioInputReplaySmokeTest
                 // Clone because SuperMetroidGame may replace or reuse its current frame on
                 // the following call. These are diagnostics only; replay state never reads
                 // pixels back and therefore remains independent of an optional output path.
-                firstSourceFrame ??= frame.Pixels.ToArray();
-                lastSourceGameplayFrame = frame.Pixels.ToArray();
+                firstSourceFrame ??= game.PublishedPixels();
+                lastSourceGameplayFrame = game.PublishedPixels();
             }
 
             projectileFired |= game.GameplayLastFiredProjectileSlot is not null;
@@ -94,7 +94,7 @@ public static class AudioInputReplaySmokeTest
                 game.GameState == SuperMetroidGameState.MainGameplay)
             {
                 firstDoorCompleted = true;
-                completedDestinationFrame = frame.Pixels.ToArray();
+                completedDestinationFrame = game.PublishedPixels();
                 break;
             }
         }

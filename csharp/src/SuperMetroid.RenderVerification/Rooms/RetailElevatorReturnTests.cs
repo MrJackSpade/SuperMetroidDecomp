@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -49,7 +50,7 @@ internal static class RetailElevatorReturnTests
         var actorPositions = new HashSet<ushort>();
         void Compare(string phase)
         {
-            var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime.PublishDisplayFrame());
+            var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
             var capture = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidOperationException("Elevator return omitted its display capture.");
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples), capture);

@@ -87,7 +87,7 @@ internal static class NativeSnapshotImportVerification
         {
             var paletteSlot = initialPaletteSlots[slot];
             paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
-            paletteSlot.ColorByteIndex = W(NativeSnapshotMemory.PaletteFxColor + slot * 2);
+            paletteSlot.ColorIndex = RoomPaletteFxSystem.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id);
             paletteSlot.PreInstruction = W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
             // A live object resumes its typed program where the recorded native pointer stands.
             paletteSlot.Cursor = paletteSlot.Id == 0

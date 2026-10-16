@@ -181,7 +181,7 @@ public sealed class RoomPaletteFxSystem
 
         RoomPaletteFxDefinition compiled = RoomPaletteFxDefinitions.Get(definition);
         slot.Id = definition;
-        slot.ColorByteIndex = 0;
+        slot.ColorIndex = 0;
         slot.PreInstruction = (ushort)PaletteFxPreInstruction.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -354,13 +354,20 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>
+    /// The CGRAM colour a SetColorIndex cue's native byte index selects; an odd byte index names no colour.
+    /// </summary>
+    internal static int PaletteFxColorIndex(ushort byteIndex, ushort objectId) => (byteIndex & 1) == 0
+        ? byteIndex / sizeof(ushort)
+        : throw new InvalidDataException($"Palette-FX object $8D:{objectId:X4} selected odd CGRAM byte index ${byteIndex:X4}.");
+
     /// <summary>Carries out one palette-FX program command.</summary>
     private void Publish(PaletteFxSlot slot, PaletteFxCue cue)
     {
         switch (cue.Kind)
         {
             case PaletteFxCueKind.SetColorIndex:
-                slot.ColorByteIndex = cue.ColorByteIndex;
+                slot.ColorIndex = PaletteFxColorIndex(cue.ColorByteIndex, slot.Id);
                 return;
             case PaletteFxCueKind.SetPreInstruction:
                 slot.PreInstruction = (ushort)cue.PreInstruction;
@@ -390,14 +397,14 @@ public sealed class RoomPaletteFxSystem
         PaletteFxSlot slot,
         PaletteFxFrame frame)
     {
-        ushort colorByteIndex = slot.ColorByteIndex;
+        int colorIndex = slot.ColorIndex;
         // The record's colour words follow its timer word; each skip command occupies one word too.
         ushort colorWord = unchecked((ushort)(PaletteFxRecordDefinitions.Address(frame) + sizeof(ushort)));
         foreach (PaletteFxRecordPart part in PaletteFxRecordDefinitions.Layout(frame))
         {
             if (part.Skip)
             {
-                colorByteIndex = unchecked((ushort)(colorByteIndex + part.Count * sizeof(ushort)));
+                colorIndex += part.Count;
                 colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
                 continue;
             }
@@ -405,14 +412,14 @@ public sealed class RoomPaletteFxSystem
             {
                 if (!colors.TryReadColor(colorWord, out Bgr555 color))
                     throw new InvalidDataException($"Palette-FX colour $8D:{colorWord:X4} of object $8D:{slot.Id:X4} has no installed definition.");
-                if ((colorByteIndex & 1) != 0 || colorByteIndex >= CgramPalettes.ByteCount)
+                if (colorIndex >= CgramPalettes.ColorCount)
                 {
                     throw new InvalidDataException(
-                        $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM byte index ${colorByteIndex:X4}.");
+                        $"Palette-FX object $8D:{slot.Id:X4} selected invalid CGRAM colour {colorIndex}.");
                 }
                 // The colour index is palette-FX instruction data ($8D:xxxx SetColorIndex).
-                new CgramPalettes(cgram).All.Write(colorByteIndex / 2, color);
-                colorByteIndex = unchecked((ushort)(colorByteIndex + sizeof(ushort)));
+                new CgramPalettes(cgram).All.Write(colorIndex, color);
+                colorIndex++;
                 colorWord = unchecked((ushort)(colorWord + sizeof(ushort)));
             }
         }
@@ -423,8 +430,8 @@ public sealed class RoomPaletteFxSystem
     {
         /// <summary>Definition pointer; zero marks an available object slot.</summary>
         public ushort Id { get; set; }
-        /// <summary>Byte offset into CGRAM selected by the most recent SetColorIndex command.</summary>
-        public ushort ColorByteIndex { get; set; }
+        /// <summary>CGRAM colour selected by the most recent SetColorIndex command (native byte offset twice this).</summary>
+        public int ColorIndex { get; set; }
         /// <summary>Pre-instruction pointer evaluated before this slot's program timer.</summary>
         public ushort PreInstruction { get; set; }
         /// <summary>Where this object's typed program resumes.</summary>
@@ -438,7 +445,7 @@ public sealed class RoomPaletteFxSystem
         public void Clear()
         {
             Id = 0;
-            ColorByteIndex = 0;
+            ColorIndex = 0;
             PreInstruction = 0;
             Cursor = default;
             InstructionTimer = NativeCountdown.Start(0);

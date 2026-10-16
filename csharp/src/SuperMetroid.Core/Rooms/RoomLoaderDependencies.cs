@@ -72,7 +72,7 @@ internal sealed record RoomLoaderDependencies
     public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }

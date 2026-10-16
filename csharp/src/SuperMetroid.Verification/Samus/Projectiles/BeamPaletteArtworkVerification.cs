@@ -78,19 +78,19 @@ internal static class BeamPaletteArtworkVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var expected = new SnesCgram();
         palettes.LoadTo(expected, 0);
         runtime.Cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
         flash.SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
         flash.SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
         AssertTrue(flash.UpdatePalette(NewProjectileCompositionForbiddenBus(), runtime.Cgram, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
@@ -99,7 +99,7 @@ internal static class BeamPaletteArtworkVerification
         runtime.Player.IntroducedSamus.Drained.HyperBeamPaletteFx.Spawn();
         runtime.Cgram.SetColor(224, new Bgr555(8, 14, 0));
         runtime.Artwork.BeamArtwork = artwork;
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(456, runtime.Cgram.Colors[224], "Rebind cannot erase active Hyper palette");
 
         // Debug grapple selection uses the same palette index as native firing, but

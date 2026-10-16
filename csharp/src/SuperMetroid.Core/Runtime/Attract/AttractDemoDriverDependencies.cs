@@ -30,7 +30,7 @@ internal sealed record AttractDemoDriverDependencies
     public required GameplayHudSetup HudSetup { get; init; }
 
     /// <summary>Nmi handler.</summary>
-    public required NmiHandler NmiHandler { get; init; }
+    public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }

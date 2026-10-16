@@ -125,7 +125,7 @@ internal static class Program
                     long sequence = 0;
                     MinimapBlinkAudit.Run("Super Metroid.smc", runtime =>
                     {
-                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Nmi.NmiFrameCounter),
+                        var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.Clock.Counter),
                             GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                         var pixels = renderer.RenderForReadback(packet);
                         PixelComparison.Verify(packet, FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()), pixels,

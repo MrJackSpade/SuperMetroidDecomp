@@ -125,7 +125,7 @@ internal static class ShutterNativeArc
         Word(0xB42, speed.ExtraRunSpeed); Word(0xB44, speed.ExtraRunSubspeed);
         Word(0xB46, speed.BaseSpeed); Word(0xB48, speed.BaseSubspeed); Word(0xB4A, speed.AccelerationMode);
         Word(0x195E, 0xFFFF); Word(0x1962, 0xFFFF);
-        Word(0x5B6, runtime.Nmi.NmiFrameCounter);
+        Word(0x5B6, runtime.Clock.Counter);
         // Retain both solid platforms, even though only slot zero is moving here.
         Word(0x17A6, 4); Word(0x17EC, 0); Word(0x17EE, 64); Word(0x17F0, 0xFFFF);
         for (int i = 0; i < 2; i++)

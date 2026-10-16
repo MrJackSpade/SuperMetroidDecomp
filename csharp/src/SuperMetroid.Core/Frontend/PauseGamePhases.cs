@@ -38,7 +38,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // `$82:8CEF` owns the force-blank setup frame: pause tiles, base maps,
         // palette, inventory labels, and PPU bases are installed before state $0E.
         // Keep accepting NMI so the controller's previous sample remains truthful.
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         // The pause hook returns directly into `$82:8D16`, which sends the three
         // cartridge stop sequences before any pause graphics are initialized.
         // Letting gameplay SFX continue under frozen gameplay causes stale echo,
@@ -58,9 +58,9 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedA"/>.</summary>
     internal void DispatchPausedA(SnesButton controllerInput)
     {
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: true);
-        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Nmi.NmiFrameCounter8, advancePalette: false);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, advancePalette: false);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == PauseFadeTiming.FullyLit)
@@ -70,7 +70,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedB"/>.</summary>
     internal void DispatchPausedB(SnesButton controllerInput)
     {
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
         session.GameplayRuntime.UpdatePauseHeldInput();
         ushort previousReserveMode = session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
@@ -78,7 +78,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.System.TimedHeldInput,
             session.GameplayRuntime.PhysicalController1.NewlyPressed,
             session.GameplayRuntime.PhysicalController1.Current,
-            session.GameplayRuntime.Nmi.NmiFrameCounter8);
+            session.GameplayRuntime.Clock.Counter8);
         // State $0F runs the HUD writer after pause input. Its DMA is visible
         // at the next accepted NMI, including the first unpause fade frame.
         if (previousReserveMode == PauseReserveLabelRomData.AutoMode &&
@@ -97,9 +97,9 @@ internal sealed class PauseGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingA"/>.</summary>
     internal void DispatchUnpausingA(SnesButton controllerInput)
     {
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
-        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Nmi.NmiFrameCounter8, fadingOut: true, advancePalette: false);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, fadingOut: true, advancePalette: false);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);
         session.ApplyDisplayBrightness(session.pauseBrightness);
@@ -134,7 +134,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.GameplayRuntime.Plms.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.ScriptLocks.ReleaseRefillStationLockOnUnpause();
         session.GameplayRuntime.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.pauseMenu = null;
         session.BeginPauseFade(0);
         session.display.PublishBlack();

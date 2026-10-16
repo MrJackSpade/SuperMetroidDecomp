@@ -757,7 +757,7 @@ internal static class RidleyFullMovieVerification
         // acid callback was installed long before the recorded door collision.
         runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
         runtime.System.SetRandomNumber(0xd562);
-        runtime.Nmi.NmiFrameCounter = 0xa4df;
+        runtime.Clock.Import(runtime.Clock.Counter8, 0xa4df);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
@@ -768,12 +768,12 @@ internal static class RidleyFullMovieVerification
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
         AssertEqual((ushort)0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
-        AssertEqual((ushort)0xa4e0, runtime.Nmi.NmiFrameCounter, "entry accepts exactly one NMI");
+        AssertEqual((ushort)0xa4e0, runtime.Clock.Counter, "entry accepts exactly one NMI");
         AssertEqual(xFixed, samus.Kinematics.Position.X.RawValue, "entry keeps Samus X fixed");
         AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "entry keeps Samus Y fixed");
         game.Step(0);
         AssertEqual((ushort)0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
-        AssertEqual((ushort)0xa4e1, runtime.Nmi.NmiFrameCounter, "sound wait accepts exactly one NMI");
+        AssertEqual((ushort)0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.SlotTable.Slots[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.EnemyDefinitionPointer, "native source-room pipe bug");
@@ -784,7 +784,7 @@ internal static class RidleyFullMovieVerification
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
         AssertEqual((ushort)0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
-        AssertEqual((ushort)0xa4e2, runtime.Nmi.NmiFrameCounter, "fade accepts exactly one NMI per update");
+        AssertEqual((ushort)0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Program), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.InstructionTimer.RawValue, "fade installs the native visual duration");
@@ -800,7 +800,7 @@ internal static class RidleyFullMovieVerification
         {
             game.Step(0);
             AssertEqual(nativeLoadingRandom[index], runtime.System.RandomNumber, $"native loading RNG update {173 + index}");
-            AssertEqual((ushort)(0xa4f1 + index), runtime.Nmi.NmiFrameCounter, "loading accepts one NMI per update");
+            AssertEqual((ushort)(0xa4f1 + index), runtime.Clock.Counter, "loading accepts one NMI per update");
             if (index == 5)
             {
                 AssertEqual(0x010e9000u, samus.Kinematics.Position.X.RawValue, "native placement rebases and advances Samus while loading tiles");
@@ -816,7 +816,7 @@ internal static class RidleyFullMovieVerification
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
-        AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "door end-drawing IRQ clears the adjacent byte counter");
+        AssertEqual((byte)0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams);
         for (int color = 0; color < 16; color++)
             AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
@@ -825,7 +825,7 @@ internal static class RidleyFullMovieVerification
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
             game.Step(0);
-            AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "every moving door IRQ renews the byte-counter reset");
+            AssertEqual((byte)0, runtime.Clock.Counter8, "every moving door IRQ renews the byte-counter reset");
             scrollCalls++;
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
@@ -845,21 +845,21 @@ internal static class RidleyFullMovieVerification
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
             game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleTransition, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
-        ushort nmiBeforeNudge = runtime.Nmi.NmiFrameCounter;
+        ushort nmiBeforeNudge = runtime.Clock.Counter;
         ushort samusAnimation = samus.AnimationFrame;
         var ridley = runtime.Enemies.SlotTable.Slots[0];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         ushort bodyInstruction = pointers.Enemy(runtime.Enemies, ridley);
         game.Step(0);
         AssertEqual(DoorTransitionPhase.BuildDestinationOam, game.DoorTransitionPhaseForVerification, "final nudge returns before first fade");
-        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.Nmi.NmiFrameCounter, "final transition accepts exactly one NMI");
+        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.Clock.Counter, "final transition accepts exactly one NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "final transition does not animate Samus");
         AssertEqual(bodyInstruction, pointers.Enemy(runtime.Enemies, ridley), "final transition does not advance destination enemy instructions");
-        AssertEqual((byte)0, runtime.Nmi.NmiFrameCounter8, "final door scanout resets the byte before IRQ ownership changes");
+        AssertEqual((byte)0, runtime.Clock.Counter8, "final door scanout resets the byte before IRQ ownership changes");
         game.Step(0);
-        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.Nmi.NmiFrameCounter, "first fade accepts exactly one additional NMI");
+        AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.Clock.Counter, "first fade accepts exactly one additional NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "destination fade does not animate Samus");
-        AssertEqual((byte)1, runtime.Nmi.NmiFrameCounter8, "first destination drawing frame resumes the byte counter");
+        AssertEqual((byte)1, runtime.Clock.Counter8, "first destination drawing frame resumes the byte counter");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer.RawValue, "first native fade visual duration");
@@ -1008,7 +1008,7 @@ internal static class RidleyFullMovieVerification
                 bool forcedBodyVisible = knockbackAtDraw || !invincibleAtDraw ||
                     W(NativeSnapshotMemory.SamusShineTimer) != 0;
                 bool nativeBodyVisible = forcedBodyVisible || (W(NativeSnapshotMemory.NmiCounter) & 1) == 0;
-                bool normalizedBodyVisible = forcedBodyVisible || (runtime.Nmi.NmiFrameCounter & 1) == 0;
+                bool normalizedBodyVisible = forcedBodyVisible || (runtime.Clock.Counter & 1) == 0;
                 if (frame != 0)
                 {
                     if (nativeBodyVisible && normalizedBodyVisible) pairedBodyDraws++;
@@ -1051,7 +1051,7 @@ internal static class RidleyFullMovieVerification
                     // The normalized draw is observed through its outputs: the OAM image of the port's frame must
                     // hold the reference sprite (position and attributes), and the cover draw must bind the cover
                     // tile the reference uploads.
-                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.Nmi.NmiFrameCounter);
+                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.Clock.Counter);
                     OamBuffer portImage = runtime.Sprites.FinalizedAsOam();
                     if (cannon.SpriteWritten)
                         AssertTrue(ContainsMovieCannonSprite(portImage.LowTable, portImage.HighTable, cannon),
@@ -1080,12 +1080,12 @@ internal static class RidleyFullMovieVerification
             // gameplay state is never copied back into the production runtime.
             int excludedNmis = frame == 0 ? 0 : updates[frame - 1].GetProperty("excludedNmiAfter").GetInt32();
             ushort normalizedNmi = unchecked((ushort)(W(NativeSnapshotMemory.NmiCounter) - excludedNmis));
-            if (runtime.Nmi.NmiFrameCounter != normalizedNmi)
-                mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.Nmi.NmiFrameCounter:X4}");
+            if (runtime.Clock.Counter != normalizedNmi)
+                mismatches.Add($"Accepted gameplay NMI: native={normalizedNmi:X4} port={runtime.Clock.Counter:X4}");
             // All excluded accepted upload NMIs in this movie occur while the door
             // IRQ repeatedly clears this byte. Its post-door phase therefore compares
             // directly, unlike the independently retained word counter above.
-            AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.Nmi.NmiFrameCounter8,
+            AssertEqual(memory[NativeSnapshotMemory.NmiCounterByte], runtime.Clock.Counter8,
                 $"update {frame}: byte NMI counter including native door IRQ reset");
             Check("Game state", (ushort)game.GameState, NativeSnapshotMemory.GameState);
             Check("Enemy door gate", runtime.Enemies.RoomStatus.EnemyDoorTransitionActive ? (ushort)1 : (ushort)0, NativeSnapshotMemory.EnemyDoorTransition);

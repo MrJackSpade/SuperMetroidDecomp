@@ -52,7 +52,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     internal void DispatchWhitingOutFromTimeUp(SnesButton controllerInput)
     {
         // `$82:8431` runs no gameplay: it fades the whitened frame to forced blank.
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == 0)
@@ -62,7 +62,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.CeresGoesBoomWithSamus"/>.</summary>
     internal void DispatchCeresGoesBoomWithSamus(SnesButton controllerInput)
     {
-        session.runtime?.NmiHandler.RunNmi(controllerInput);
+        session.runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
         CeresDestructionCinematicState fatalDestruction = session.ceresDestruction ??
             throw new InvalidOperationException("Ceres destruction with Samus has no cinematic.");
         fatalDestruction.Step();
@@ -87,7 +87,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     {
         // Each update begins with an accepted NMI. A gameplay owner kept from Ceres
         // counts $05B5/$05B6 and latches input; without one the frontend counted it.
-        session.runtime?.NmiHandler.RunNmi(controllerInput);
+        session.runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ceresDestruction ??= new CeresDestructionCinematicState(
             session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
             session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);

@@ -21,14 +21,14 @@ internal static class RuntimeOverlayTests
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");
         runtime.LoadCartridgeRoomForDebug(OverlayFixtureRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         Check("ordinary room without overlays");
 
         // Deliberately combine owners rather than claim this is a natural pickup

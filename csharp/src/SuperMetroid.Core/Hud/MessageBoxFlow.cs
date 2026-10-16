@@ -82,7 +82,7 @@ internal sealed class MessageBoxFlow
     /// </summary>
     /// <remarks>
     /// Message boxes advance through an NMI-only path and therefore do not increment
-    /// <see cref="NmiHandler.CompletedGameplayAudioPublication"/>. Giving this publisher explicit
+    /// <see cref="AcceptedFrameBoundary.CompletedGameplayAudioPublication"/>. Giving this publisher explicit
     /// consume semantics keeps it audible once without reopening stale gameplay lists.
     /// </remarks>
     public bool ConsumeMessageBoxSelectionSoundRequest()

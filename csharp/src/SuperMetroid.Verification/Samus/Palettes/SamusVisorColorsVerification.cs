@@ -191,7 +191,7 @@ internal static class SamusVisorColorsVerification
         };
         fixtureAssets.Bind(runtime);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(controller1Input: 0);
+        runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         SamusState runtimeSamus = runtime.Player.Samus ??

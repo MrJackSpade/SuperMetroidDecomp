@@ -113,7 +113,7 @@ internal static class CrystalFlashCleanupVerification
             if (testContact)
             {
                 int afterDamage = Math.Max(0, beforeHealth - contactDamage);
-                int expected = Math.Min(samus.MaxHealth, afterDamage + ((runtime.Nmi.NmiFrameCounter & 7) == 0 ? 50 : 0));
+                int expected = Math.Min(samus.MaxHealth, afterDamage + ((runtime.Clock.Counter & 7) == 0 ? 50 : 0));
                 AssertTrue(contactDamage > 0, "constructed contact actor has nonzero retail damage");
                 AssertEqual(expected, samus.Health, "enemy contact damages Crystal Flash before its energy refill");
                 AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash clears immunity after actual contact");

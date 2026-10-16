@@ -31,7 +31,7 @@ internal static class RetailElevatorReturnTests
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;

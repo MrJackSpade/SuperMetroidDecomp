@@ -51,7 +51,7 @@ internal static class BoostFloorScrollVerification
             if (tick % 100 == 0)
                 Console.WriteLine($"frame={tick} Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole} camera={runtime.Room.LoadedCamera.PixelPosition.X}/{runtime.Room.LoadedCamera.PixelPosition.Y}");
         }
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var frame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
 
         AssertTrue(samus.Position.Y.Whole > 1000, "fixture breaks through the actual speed floor and falls down the shaft");

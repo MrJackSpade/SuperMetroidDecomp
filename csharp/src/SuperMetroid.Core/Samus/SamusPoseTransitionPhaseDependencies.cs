@@ -20,7 +20,7 @@ internal sealed record SamusPoseTransitionPhaseDependencies
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
     /// <summary>Options.</summary>
     public required GameplayOptions Options { get; init; }
     /// <summary>Player.</summary>

@@ -29,7 +29,7 @@ internal static class OceanSkyVerification
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         Console.WriteLine($"Ocean room: main={runtime.Room.LoadedRoom.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2MapSize.X}x{ordinary.Registers.Bg2MapSize.Y}, sky={runtime.Room.ScrollingSky is not null}");

@@ -61,7 +61,7 @@ internal static class AcidStatueFirstEntryVerification
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
 
         var transition = new DoorTransitionState();

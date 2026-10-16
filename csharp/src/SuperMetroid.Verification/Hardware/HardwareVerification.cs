@@ -527,7 +527,7 @@ internal static void VerifyFrameRuntime()
     runtime.Display.ActiveSamusMode7Transform = firstMode7;
 
     runtime.StepFrame(SnesButton.Start);
-    AssertEqual(1, runtime.Nmi.NmiFrameCounter, "first accepted runtime frame");
+    AssertEqual(1, runtime.Clock.Counter, "first accepted runtime frame");
     AssertEqual(SnesButton.Start, runtime.Controller1.NewlyPressed, "runtime latches controller before logic");
     AssertEqual(EscapeTimerState.InitialDelay, runtime.EscapeTimer.State, "runtime dispatches timer after NMI");
     AssertEqual(0xca, runtime.Vram.ReadByte(0x40), "runtime NMI drains VRAM low byte");
@@ -540,8 +540,8 @@ internal static void VerifyFrameRuntime()
     runtime.Display.ActiveSamusMode7Transform = secondMode7;
     runtime.StepFrame(SnesButton.Start);
     AssertEqual(SnesButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");
-    AssertEqual(2, runtime.Nmi.NmiFrameCounter, "accepted NMI counter advances twice");
-    AssertEqual((ulong)2, runtime.NmiHandler.CompletedGameplayAudioPublication,
+    AssertEqual(2, runtime.Clock.Counter, "accepted NMI counter advances twice");
+    AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "complete gameplay passes publish distinct audio generations");
     AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
         "following accepted NMI publishes the changed Mode 7 matrix");
@@ -550,7 +550,7 @@ internal static void VerifyFrameRuntime()
     // They must not make the frontend consume the preceding enemy/PLM audio publication
     // again, or a door waiting for unread SFX entries can refill its own queue forever.
     runtime.RunBlankGameplayFrame(controllerInput: 0);
-    AssertEqual((ulong)2, runtime.NmiHandler.CompletedGameplayAudioPublication,
+    AssertEqual((ulong)2, runtime.FrameBoundary.CompletedGameplayAudioPublication,
         "NMI-only frontend frame does not republish gameplay audio");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");

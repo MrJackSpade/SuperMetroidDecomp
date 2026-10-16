@@ -70,7 +70,7 @@ internal sealed class RoomLoader
     /// <summary>Owns Maridia elevatube room setup during a load.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
     /// <summary>Receives the door IRQ's request to advance the NMI counter.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Restores the saved controller and movement options.</summary>
     private readonly GameplayOptions _options;
     /// <summary>Holds Samus and her load-time presentation state.</summary>
@@ -126,7 +126,7 @@ internal sealed class RoomLoader
         _hud = dependencies.Hud;
         _hudSetup = dependencies.HudSetup;
         _maridiaElevatube = dependencies.MaridiaElevatube;
-        _nmi = dependencies.Nmi;
+        _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
         _plms = dependencies.Plms;
@@ -482,14 +482,10 @@ internal sealed class RoomLoader
         _doorScrollingIrqRequestsNmi = false;
     }
 
-    /// <summary>
-    /// $80:97BA/$9823 ends a door scanout with a sixteen-bit STZ/INC at $05B4.
-    /// Its high byte is the adjacent eight-bit NMI counter, so the next accepted
-    /// NMI observes zero there while the independent $05B6 word keeps advancing.
-    /// </summary>
+    /// <summary>Publishes the door scanout's end-of-drawing IRQ, which clears the 8-bit frame counter ($80:97BA/$9823).</summary>
     internal void PublishDoorScrollingIrqNmiRequest()
     {
-        if (_doorScrollingIrqRequestsNmi) _nmi.NmiFrameCounter8 = 0;
+        if (_doorScrollingIrqRequestsNmi) _clock.ClearCounter8ForDoorIrq();
     }
 
     /// <summary>
@@ -1263,7 +1259,7 @@ internal sealed class RoomLoader
         // the ROM HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_addressSpace, _system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, NmiFrameCounter = _nmi.NmiFrameCounter8, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+        _hud.UpdateMinimap(_addressSpace, _system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, NmiFrameCounter = _clock.Counter8, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

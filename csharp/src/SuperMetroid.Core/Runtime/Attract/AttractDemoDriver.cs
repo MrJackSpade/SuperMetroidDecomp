@@ -30,7 +30,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     /// <summary>Builds the initial HUD from the demo record's health and ammunition.</summary>
     private readonly GameplayHudSetup _hudSetup;
     /// <summary>Publishes initial HUD graphics before loading the demo room.</summary>
-    private readonly NmiHandler _nmiHandler;
+    private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Receives Samus state and the selected demo pose or shinespark launch.</summary>
     private readonly SamusFrameState _player;
     /// <summary>Holds demo room viewport, camera scrolls, and load-station state.</summary>
@@ -51,7 +51,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _controller1 = dependencies.Controller1;
         _enemies = dependencies.Enemies;
         _hudSetup = dependencies.HudSetup;
-        _nmiHandler = dependencies.NmiHandler;
+        _frameBoundary = dependencies.FrameBoundary;
         _player = dependencies.Player;
         _room = dependencies.Room;
         _roomLoader = dependencies.RoomLoader;
@@ -117,7 +117,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,
             _player.Samus.Missiles, _player.Samus.MaxMissiles, _player.Samus.SuperMissiles, _player.Samus.MaxSuperMissiles,
             _player.Samus.PowerBombs, _player.Samus.MaxPowerBombs, _player.Samus.EquippedItems, 0, 0, 0));
-        _nmiHandler.RunNmi(0);
+        _frameBoundary.BeginAcceptedFrame(0);
         CartridgeDoorHeader door = DoorDefinitions.Get(scene.DoorPointer);
         // The demo record independently supplies room and door. Do not replace room
         // selection with the door destination or derive placement from a load station.

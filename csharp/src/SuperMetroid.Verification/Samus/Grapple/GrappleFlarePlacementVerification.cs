@@ -119,7 +119,7 @@ internal static class GrappleFlarePlacementVerification
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");
         var runtime = CreateRetailRuntimeFixture(rom);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] beforeBinding = GraphDigest(runtime.Player.IntroducedSamus);
         var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
         runtime.Artwork.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);

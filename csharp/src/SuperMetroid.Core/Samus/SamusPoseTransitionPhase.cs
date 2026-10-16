@@ -32,7 +32,7 @@ internal sealed class SamusPoseTransitionPhase
     /// <summary>Gates movement and animation branches during gameplay time freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Provides accepted-NMI cadence for movement and animation behavior.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Supplies player options such as configured movement controls.</summary>
     private readonly GameplayOptions _options;
     /// <summary>Owns the live Samus state and phase-specific handler selection.</summary>
@@ -48,7 +48,7 @@ internal sealed class SamusPoseTransitionPhase
         _addressSpace = dependencies.AddressSpace;
         _controller1 = dependencies.Controller1;
         _freeze = dependencies.Freeze;
-        _nmi = dependencies.Nmi;
+        _clock = dependencies.Clock;
         _options = dependencies.Options;
         _player = dependencies.Player;
         _plms = dependencies.Plms;
@@ -151,7 +151,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             samus.PoseTransitions.ApplyGrappleDropTransition(_addressSpace,
                 _room.LevelData ?? throw new InvalidOperationException("Grapple drop requires room geometry."),
-                dropPose, _nmi.NmiFrameCounter, _plms, clearMovementSpeed: false);
+                dropPose, _clock.Counter, _plms, clearMovementSpeed: false);
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
             _player.ProspectiveSamusWallCollisionPose = null;
@@ -207,7 +207,7 @@ internal sealed class SamusPoseTransitionPhase
                 _controller1.Current,
                 _freeze.TimeIsFrozen,
                 _room.LevelData,
-                _nmi.NmiFrameCounter,
+                _clock.Counter,
                 _plms))
         {
             _player.ProspectiveSamusPose = null;
@@ -229,7 +229,7 @@ internal sealed class SamusPoseTransitionPhase
                 _room.LevelData ?? throw new InvalidOperationException(
                     "A published bomb-jump direction requires active room level data."),
                 _freeze.TimeIsFrozen,
-                _nmi.NmiFrameCounter,
+                _clock.Counter,
                 _controller1.NewlyPressed,
                 _plms))
         {
@@ -402,7 +402,7 @@ internal sealed class SamusPoseTransitionPhase
         if (!animationTransitionApplied &&
             _player.LastAerialSamusMovement is { WallJumpTriggered: true })
         {
-            samus.PoseTransitions.ApplyWallJumpTrigger(_addressSpace, _room.LevelData, _nmi.NmiFrameCounter, _plms);
+            samus.PoseTransitions.ApplyWallJumpTrigger(_addressSpace, _room.LevelData, _clock.Counter, _plms);
             animationTransitionApplied = true;
         }
 
@@ -432,7 +432,7 @@ internal sealed class SamusPoseTransitionPhase
                     _addressSpace,
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Compact landing requires active room level data."),
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
             }
             else
@@ -445,7 +445,7 @@ internal sealed class SamusPoseTransitionPhase
                         "Aerial landing requires active room level data."),
                     wasSpinning,
                     _controller1.Current,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
             }
             animationTransitionApplied = true;
@@ -478,7 +478,7 @@ internal sealed class SamusPoseTransitionPhase
             SamusPoseId fallingPose = samus.PoseTransitions.SelectFallingPoseForCurrentAim(_addressSpace);
             samus.PoseTransitions.ApplyWalkedOffFloorTransition(_addressSpace,
                 _room.LevelData ?? throw new InvalidOperationException("Walk-off requires room collision data."),
-                fallingPose, _nmi.NmiFrameCounter, _plms);
+                fallingPose, _clock.Counter, _plms);
             animationTransitionApplied = true;
         }
 
@@ -608,7 +608,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Aerial turn requires active room level data."),
                     target,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 return true;
             case var (source, target)
@@ -647,7 +647,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Morph transition requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 return true;
             case var (source, target)
@@ -666,7 +666,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Compact aerial transition requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 return true;
             default:
@@ -838,7 +838,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Crouch jump requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 break;
             case var (source, target)
@@ -857,7 +857,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Spin-to-normal-jump transition requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _controller1.NewlyPressed,
                     _plms);
                 break;
@@ -875,7 +875,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Unmorph-to-falling transition requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 break;
             case var (source, target)
@@ -891,7 +891,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Direct crouch exit requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 break;
             case var (landingSource, landingTarget)
@@ -918,7 +918,7 @@ internal sealed class SamusPoseTransitionPhase
                     _room.LevelData ?? throw new InvalidOperationException(
                         "Posture transition requires active room level data."),
                     targetPose,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _plms);
                 break;
             case var (source, sparkTarget)

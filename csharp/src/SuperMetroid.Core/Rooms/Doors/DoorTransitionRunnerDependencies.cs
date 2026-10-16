@@ -44,10 +44,10 @@ internal sealed record DoorTransitionRunnerDependencies
     public required MaridiaElevatubeRoomMainState MaridiaElevatube { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Nmi handler.</summary>
-    public required NmiHandler NmiHandler { get; init; }
+    public required AcceptedFrameBoundary FrameBoundary { get; init; }
 
     /// <summary>Sprite frame the runner begins, draws into and finalizes.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }

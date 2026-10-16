@@ -22,13 +22,13 @@ internal static class MinimapBlinkAudit
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(128);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(128);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var images = new Dictionary<bool, string>();
         for (int tick = 0; tick < 40; tick++)
         {
@@ -38,7 +38,7 @@ internal static class MinimapBlinkAudit
             var pixels = render(runtime);
             string cell = string.Join(',', Enumerable.Range(0, 64).Select(i => pixels[(16 + i / 8) * 256 + 224 + i % 8].ToString()));
             if (tick < 8) continue; // let the initial HUD publication reach VRAM
-            bool lit = ((runtime.Nmi.NmiFrameCounter8 - 1) & 8) == 0;
+            bool lit = ((runtime.Clock.Counter8 - 1) & 8) == 0;
             if (images.TryGetValue(lit, out string? previous) && cell != previous)
                 throw new InvalidDataException($"Room {room:X4}: rendered blink cadence differs at tick {tick}.");
             images[lit] = cell;

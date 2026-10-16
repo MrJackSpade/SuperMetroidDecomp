@@ -291,7 +291,7 @@ internal static class FullMovieReplayVerification
         if (game.Session.pauseMenu is { } pause)
             Console.WriteLine($"  pause port mode={pause.ScreenMode} cat={(int)pause.SelectedCategory} item={pause.SelectedItem} transition={pause.IsPageTransitionActive} " +
                 $"held cur={(ushort)game.Session.GameplayRuntime.Controller1.Current:X4} new={(ushort)game.Session.GameplayRuntime.Controller1.NewlyPressed:X4} hp={(ushort)game.Session.GameplayRuntime.System.HeldInputPrevious:X4} tt={game.Session.GameplayRuntime.System.TimedHeldInputTimer.RawValue:X4} th={(ushort)game.Session.GameplayRuntime.System.TimedHeldInput:X4} tn={(ushort)game.Session.GameplayRuntime.System.NewlyTimedHeldInput:X4} tp={(ushort)game.Session.GameplayRuntime.System.TimedHeldInputPrevious:X4}");
-        Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Nmi.NmiFrameCounter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
+        Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
             Console.WriteLine($"  escape port={escape.RawStatus:X4} {escape.Minutes.Raw:X2}:{escape.Seconds.Raw:X2}.{escape.Centiseconds.Raw:X2} " +
                 $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
@@ -330,7 +330,7 @@ internal static class FullMovieReplayVerification
             Console.WriteLine("  eproj port   " + string.Join(" ", portProjectiles));
             Console.WriteLine("  eproj native " + string.Join(" ", nativeProjectiles));
             Console.WriteLine($"  ceres port={traceEnemies.RidleyEncounter.CeresStatus:X4} native={Native(0x093f)} " +
-                $"nmi port={game.GameplayRuntimeForVerification.Nmi.NmiFrameCounter:X4} native-raw={Native(0x05b6)}");
+                $"nmi port={game.GameplayRuntimeForVerification.Clock.Counter:X4} native-raw={Native(0x05b6)}");
             foreach (var actor in traceEnemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer != 0))
             {
                 // $0F86 properties, $0F92 instruction list pointer, $0F94 instruction timer.
@@ -412,7 +412,7 @@ internal static class FullMovieReplayVerification
         Check("Camera Y", runtime.Room.LoadedCamera.PixelPosition.Y, MovieDesyncMemory.CameraY);
         Check("Camera X fraction", runtime.Room.LoadedCamera.Position.X.Fraction, MovieDesyncMemory.CameraXSubposition);
         Check("Camera Y fraction", runtime.Room.LoadedCamera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
-        Check("Accepted NMI", runtime.Nmi.NmiFrameCounter, MovieDesyncMemory.NmiCounter);
+        Check("Accepted NMI", runtime.Clock.Counter, MovieDesyncMemory.NmiCounter);
         if (runtime.Enemies.RidleyEncounter.Ridley is { } ridley)
             for (int index = 0; index < ridley.TailSegments.Length; index++)
             {

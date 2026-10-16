@@ -69,7 +69,7 @@ internal static class SpikeShinesparkSuitVerification
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
-            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Nmi.NmiFrameCounter) });
+            shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.Clock.Counter) });
         AssertEqual((frozenX, frozenY),
             (frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
@@ -137,7 +137,7 @@ internal static class SpikeShinesparkSuitVerification
                 : (ushort)0;
             runtime.StepFrame(input, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             {
-                if (recovery.StepAfterNmi(samus, runtime.Nmi.NmiFrameCounter).Completed)
+                if (recovery.StepAfterNmi(samus, runtime.Clock.Counter).Completed)
                     runtime.Freeze.GameplayTimeFrozen = false;
             } });
         }
@@ -153,7 +153,7 @@ internal static class SpikeShinesparkSuitVerification
     {
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(runtime.Room.LoadedRoom.Pointer, new Position16<RoomPixels>(0, 0));

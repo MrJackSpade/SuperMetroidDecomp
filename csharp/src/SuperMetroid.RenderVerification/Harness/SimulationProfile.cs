@@ -69,7 +69,7 @@ internal static class SimulationProfile
             Step(tick % 47 == 0 ? SnesButton.Start : SnesButton.None);
         if (game.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Profile failed startup.");
         game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-        game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0);
+        game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         Step(0);
         if (paused)
         {

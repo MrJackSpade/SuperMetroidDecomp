@@ -37,15 +37,15 @@ internal sealed class MenuNmiFrameCounters
     /// <summary>Hands accepted-NMI counters and the retained layer-one fractions to a new runtime.</summary>
     internal void PublishTo(SuperMetroidRuntime runtime)
     {
-        runtime.NmiHandler.AdoptNmiFrameCounters(FrameCounter8, FrameCounter);
+        runtime.Clock.Import(FrameCounter8, FrameCounter);
         runtime.BackgroundPhase.AdoptLayer1Position(retainedLayer1Position);
     }
 
     /// <summary>Takes the counters and the camera's whole layer-one position back before runtime release.</summary>
     internal void RetainFrom(SuperMetroidRuntime runtime)
     {
-        FrameCounter = runtime.Nmi.NmiFrameCounter;
-        FrameCounter8 = runtime.Nmi.NmiFrameCounter8;
+        FrameCounter = runtime.Clock.Counter;
+        FrameCounter8 = runtime.Clock.Counter8;
         retainedLayer1Position = runtime.Room.Camera?.Position ?? runtime.Room.InheritedLayer1Position;
     }
 }

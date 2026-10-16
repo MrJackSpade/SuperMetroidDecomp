@@ -151,7 +151,7 @@ internal static class RoomArtworkRenderParityVerification
                     runtime.Artwork.RoomSkyTilemapArt = installation.LoadRoomSkyTilemaps();
                 }
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-                runtime.NmiHandler.RunNmi(0);
+                runtime.FrameBoundary.BeginAcceptedFrame(0);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
                 ushort doorPointer = useRealLandingDoor
@@ -161,7 +161,7 @@ internal static class RoomArtworkRenderParityVerification
                 AssertEqual(roomPointer, door.DestinationRoomPointer,
                     $"{name} parity uses its real entry door");
                 runtime.LoadCartridgeRoomThroughDoorForVerification(door);
-                runtime.NmiHandler.RunNmi(0);
+                runtime.FrameBoundary.BeginAcceptedFrame(0);
                 return runtime;
             }
         }

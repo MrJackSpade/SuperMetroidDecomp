@@ -57,7 +57,7 @@ internal static class MoatFirstEntryVerification
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
             samus.PoseMetadata.RefreshCollisionRadii(bus);
             samus.Presentation.InitializeAnimation(bus);
-            runtime.NmiHandler.RunNmi(0);
+            runtime.FrameBoundary.BeginAcceptedFrame(0);
             if (pauseBeforeEntry)
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
@@ -74,7 +74,7 @@ internal static class MoatFirstEntryVerification
                 AssertTrue(runtime.Vram.Bytes.SequenceEqual(gameplayBeforePause),
                     "pause graphics do not mutate gameplay VRAM");
                 runtime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
-                runtime.NmiHandler.RunNmi(0);
+                runtime.FrameBoundary.BeginAcceptedFrame(0);
             }
             runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
             var transition = new DoorTransitionState();

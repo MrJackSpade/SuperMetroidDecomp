@@ -62,7 +62,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                         "Reserve recovery requires a live Samus state.");
                 reserveStep = session.reserveRecovery.StepAfterNmi(
                     samus,
-                    session.GameplayRuntime.Nmi.NmiFrameCounter);
+                    session.GameplayRuntime.Clock.Counter);
                 if (reserveStep.RefillSoundRequested)
                     session.audio.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.ReserveRefill, 3,
                         soundSuppressed: session.GameplayRuntime.PowerBombExplosionSuppressesSounds);

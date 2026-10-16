@@ -25,7 +25,7 @@ namespace SuperMetroid.Core.Gameplay;
 /// The NMI: controller latching, frame-counter advance, accepted and forced-blank transfers, hardware-wait NMIs,
 /// and the display captures published at the NMI.
 /// </summary>
-internal sealed class NmiHandler
+internal sealed class AcceptedFrameBoundary
 {
     /// <summary>Publishes rebound HUD, beam, and trail art after accepted VRAM transfers.</summary>
     private readonly RuntimeArtwork _artwork;
@@ -46,7 +46,7 @@ internal sealed class NmiHandler
     /// <summary>Window register cache latched with the accepted frame.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
     /// <summary>Owns accepted, lagged, and all-NMI frame counters.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Sprite frame the main loop finalized for the next NMI.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Controller bindings used to normalize physical buttons before the shared input latch.</summary>
@@ -71,7 +71,7 @@ internal sealed class NmiHandler
     private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Connects controller, PPU, sprite, video-queue, and frame-clock owners to the NMI boundary.</summary>
-    internal NmiHandler(NmiHandlerDependencies dependencies)
+    internal AcceptedFrameBoundary(AcceptedFrameBoundaryDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -82,7 +82,7 @@ internal sealed class NmiHandler
         _displayedSprites = dependencies.DisplayedSprites;
         _enemies = dependencies.Enemies;
         _gameplayWindows = dependencies.GameplayWindows;
-        _nmi = dependencies.Nmi;
+        _clock = dependencies.Clock;
         _sprites = dependencies.Sprites;
         _options = dependencies.Options;
         _player = dependencies.Player;
@@ -94,16 +94,6 @@ internal sealed class NmiHandler
         _vramWrites = dependencies.VramWrites;
         _xray = dependencies.Xray;
         _addressSpace = dependencies.AddressSpace;
-    }
-
-    /// <summary>
-    /// Adopts <c>$05B5</c>/<c>$05B6</c> from the frontend that counted accepted NMIs before
-    /// this runtime existed. The cartridge has one pair of words; allocation never resets it.
-    /// </summary>
-    internal void AdoptNmiFrameCounters(byte counter8, ushort counter)
-    {
-        _nmi.NmiFrameCounter8 = counter8;
-        _nmi.NmiFrameCounter = counter;
     }
 
     /// <summary>
@@ -119,26 +109,13 @@ internal sealed class NmiHandler
     public ulong CompletedGameplayAudioPublication { get; internal set; }
 
     /// <summary>
-    /// Counts NMIs the cartridge accepts while its main loop is stalled in a hardware wait
-    /// ($80:95E7-$95F4): each advances <c>$05B5/$05B6</c>.
-    /// </summary>
-    internal void AcceptHardwareWaitNmis(int count)
-    {
-        Ensure.AtLeastZero(count);
-        if (count == 0)
-            return;
-        _nmi.NmiFrameCounter8 = unchecked((byte)(_nmi.NmiFrameCounter8 + count));
-        _nmi.NmiFrameCounter = unchecked((ushort)(_nmi.NmiFrameCounter + count));
-    }
-
-    /// <summary>
     /// Runs the accepted NMI portion currently translated from <c>$80:9583</c>: publication, the controller latch, then
     /// the frame counters. The port has no lagged NMIs; hardware lag is eliminated.
     /// </summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
-    public void RunNmi(SnesButton controller1Input)
+    public void BeginAcceptedFrame(SnesButton controller1Input)
     {
-        PublishAcceptedNmiTransfers();
+        PublishAcceptedFrameTransfers();
         // Bank-$90/$91 action checks use the seven configurable WRAM masks. Canonicalizing
         // here preserves one shared rising-edge latch and prevents different movement
         // subsystems from interpreting a remap on different frames. Code that tests fixed
@@ -146,8 +123,7 @@ internal sealed class NmiHandler
         _physicalController1.Latch(controller1Input);
         _controller1.Latch(_options.ControllerBindings.Normalize(controller1Input));
 
-        _nmi.NmiFrameCounter8 = unchecked((byte)(_nmi.NmiFrameCounter8 + 1));
-        _nmi.NmiFrameCounter = unchecked((ushort)(_nmi.NmiFrameCounter + 1));
+        _clock.AdvanceAcceptedFrame();
     }
 
     /// <summary>
@@ -155,10 +131,10 @@ internal sealed class NmiHandler
     /// disabled. Native loaders write these directly; no NMI runs, so neither the
     /// controller latch nor any NMI counter changes.
     /// </summary>
-    internal void PublishForcedBlankTransfers() => PublishAcceptedNmiTransfers();
+    internal void PublishForcedBlankTransfers() => PublishAcceptedFrameTransfers();
 
     /// <summary>The OAM, Samus, video-queue and register publication of $80:959E..$80:95DE.</summary>
-    private void PublishAcceptedNmiTransfers()
+    private void PublishAcceptedFrameTransfers()
     {
         // Preserve $80:95A1 -> $80:95D0 -> $80:95E1 order: dedicated Samus graphics
         // DMA precedes the general video queue, and both precede controller latching.

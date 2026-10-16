@@ -108,7 +108,7 @@ internal static class LowerNorfairHandVerification
         // Enemy AI publishes the final base after this frame's FX handler. The next
         // handler updates the surface registers, then the following NMI displays them.
         runtime.StepFrame(0);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual((ushort)0x2d2, (runtime.Display.DisplayedRoomLayer3Fx ?? throw new InvalidOperationException("Verification requires runtime.Display.DisplayedRoomLayer3Fx.")).CurrentYPosition,
             "final drained height reaches display without a room transition");
         runtime.LoadCartridgeRoomForDebug(0xb1e5);

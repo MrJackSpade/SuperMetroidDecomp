@@ -31,7 +31,7 @@ internal static class UnpauseStationLockReleaseVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.ScriptLocks.LockIntoRefillStation();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         var game = new SuperMetroidGame(bus);

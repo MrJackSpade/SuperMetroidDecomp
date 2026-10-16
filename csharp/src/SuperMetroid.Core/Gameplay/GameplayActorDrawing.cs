@@ -39,7 +39,7 @@ internal sealed class GameplayActorDrawing
     /// <summary>Determines whether time-dependent enemy projectile drawing is suspended.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Provides accepted-NMI cadence for blinking and drawing branches.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Receives actor sprites in cartridge drawing order.</summary>
     private readonly OamBuffer _oam;
     /// <summary>Receives Samus's whole-frame draws in the same order as the OAM sprites around them.</summary>
@@ -67,7 +67,7 @@ internal sealed class GameplayActorDrawing
         _display = dependencies.Display;
         _enemies = dependencies.Enemies;
         _freeze = dependencies.Freeze;
-        _nmi = dependencies.Nmi;
+        _clock = dependencies.Clock;
         _oam = dependencies.Sprites.Oam;
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
@@ -246,7 +246,7 @@ internal sealed class GameplayActorDrawing
                 ((ushort)_enemies.Elevator.ElevatorStatus) != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
-                if (RoomMainRoutines.ShouldDrawSamusOnElevator(_nmi.NmiFrameCounter))
+                if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))
                 {
                     // Omitting the live counter intentionally selects `Draw`'s default
                     // even value. Native `$90:EB86` calls `$90:85D2`, below `$85E2`'s
@@ -271,13 +271,13 @@ internal sealed class GameplayActorDrawing
                     _addressSpace,
                     _sprites,
                     _room.Camera.PixelPosition,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _display.ActiveSamusMode7Transform);
                 _player.Samus.Presentation.DrawShinesparkCrashEchoes(
                     _addressSpace,
                     _sprites,
                     _room.Camera.PixelPosition,
-                    _nmi.NmiFrameCounter);
+                    _clock.Counter);
             }
             else
             {
@@ -345,13 +345,13 @@ internal sealed class GameplayActorDrawing
                         _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
-                        _nmi.NmiFrameCounter);
+                        _clock.Counter);
                 }
                 _player.Samus.Presentation.Draw(
                     _addressSpace,
                     _sprites,
                     _room.Camera.PixelPosition,
-                    _nmi.NmiFrameCounter,
+                    _clock.Counter,
                     _display.ActiveSamusMode7Transform);
                 if (_player.Samus.ArmCannon.EffectiveDrawingMode == 2)
                 {
@@ -360,7 +360,7 @@ internal sealed class GameplayActorDrawing
                         _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
-                        _nmi.NmiFrameCounter);
+                        _clock.Counter);
                 }
 
                 if (grappleBeamSpecificPath)
@@ -390,7 +390,7 @@ internal sealed class GameplayActorDrawing
                         _addressSpace,
                         _sprites,
                         _room.Camera.PixelPosition,
-                        _nmi.NmiFrameCounter);
+                        _clock.Counter);
                 }
             }
 
@@ -401,7 +401,7 @@ internal sealed class GameplayActorDrawing
                 _addressSpace,
                 _sprites,
                 _room.Camera.PixelPosition,
-                _nmi.NmiFrameCounter, ProjectileArtwork);
+                _clock.Counter, ProjectileArtwork);
             // `$93:82F7` immediately follows the ordinary projectile draw with bank
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.

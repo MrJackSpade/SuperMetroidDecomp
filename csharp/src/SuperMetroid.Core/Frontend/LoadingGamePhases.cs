@@ -69,7 +69,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             case SaveLoadingGameState.CeresDestruction:
                 // The `$22` Zebes-landing branch, followed by its NMI waits. The dispatch's
                 // own accepted NMI counts in the gameplay owner kept from Ceres.
-                session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+                session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                 session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
@@ -124,7 +124,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     /// </summary>
     private void StepGameLoadingWait(SnesButton controllerInput)
     {
-        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
+        session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         if (--session.gameLoadingWaitsRemaining != 0)
         {
             session.display.PublishBlack();

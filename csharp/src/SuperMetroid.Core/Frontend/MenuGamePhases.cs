@@ -305,7 +305,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.
         session.InitializeSelectedGameHud(slot);
-        session.runtime.NmiHandler.PublishForcedBlankTransfers();
+        session.runtime.FrameBoundary.PublishForcedBlankTransfers();
         session.ApplySelectedGameOptions();
         session.ceresDestruction = new CeresDestructionCinematicState(
             session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,

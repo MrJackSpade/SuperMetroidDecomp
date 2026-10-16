@@ -27,11 +27,11 @@ internal static class GameplayCaptureIntegrationTestsVerification
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         // Chainsaw slot four stores a word at $68: WOBJLOG receives the low byte and TM
         // receives the high byte. Prove this is the runtime's shared cache rather than a
@@ -39,7 +39,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.Projectiles.Chainsaw.ChainsawWindowRegisters.WriteWord(
             GameplayWindowRegisterAddresses.ObjectColorLogic,
             0x0412);
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         OrdinaryGameplayRegisters acceptedRegisters =
             ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame())
                 .Layers[0]).Registers;
@@ -48,7 +48,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         AssertEqual(SnesMainScreenLayers.Bg3, acceptedRegisters.MainScreenLayers,
             "accepted NMI publishes slot-four Chainsaw TM overwrite");
         runtime.Projectiles.Chainsaw.ChainsawWindowRegisters.InitializeWindowAndScreenSelection();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
 
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
@@ -100,7 +100,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
             game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
-            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0);
+            game.GameplayRuntimeForVerification.FrameBoundary.BeginAcceptedFrame(0);
         }
         bool sawPause = false;
         var fadeFrames = new Dictionary<SuperMetroidGameState, int>

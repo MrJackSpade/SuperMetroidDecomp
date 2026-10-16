@@ -11,8 +11,8 @@ using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Gameplay;
 
-/// <summary>The collaborators a <see cref="NmiHandler"/> is constructed with, built once by the owner that creates it (#621).</summary>
-internal sealed record NmiHandlerDependencies
+/// <summary>The collaborators a <see cref="AcceptedFrameBoundary"/> is constructed with, built once by the owner that creates it (#621).</summary>
+internal sealed record AcceptedFrameBoundaryDependencies
 {
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
@@ -42,7 +42,7 @@ internal sealed record NmiHandlerDependencies
     public required GameplayWindowRegisters GameplayWindows { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Sprite frame the main loop finalized.</summary>
     public required SpriteFrameBuffer Sprites { get; init; }

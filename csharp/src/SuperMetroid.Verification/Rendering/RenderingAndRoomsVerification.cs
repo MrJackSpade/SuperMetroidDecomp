@@ -129,7 +129,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     // character $6F; zero names the orange `1` glyph and becomes visible above water/acid.
     var runtime = CreateRetailRuntimeFixture(bus);
     runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-    runtime.NmiHandler.RunNmi(controller1Input: 0);
+    runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);
     AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
         runtime.Vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
         "gameplay BG3 first padding word uses cartridge blank character");

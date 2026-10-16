@@ -40,9 +40,9 @@ internal sealed class DoorTransitionRunner
     /// <summary>Sets and resets the Maridia elevatube room behavior at its doors.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
     /// <summary>Provides native frame counters to enemy projectile processing.</summary>
-    private readonly NmiClock _nmi;
+    private readonly FrameClock _clock;
     /// <summary>Runs NMI on each sound-wait dispatch before the door state handler.</summary>
-    private readonly NmiHandler _nmiHandler;
+    private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Collects transition actor sprites for the current frame.</summary>
@@ -74,8 +74,8 @@ internal sealed class DoorTransitionRunner
         _enemyPhase = dependencies.EnemyPhase;
         _hdmaPhase = dependencies.HdmaPhase;
         _maridiaElevatube = dependencies.MaridiaElevatube;
-        _nmi = dependencies.Nmi;
-        _nmiHandler = dependencies.NmiHandler;
+        _clock = dependencies.Clock;
+        _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
         _oam = _sprites.Oam;
         _player = dependencies.Player;
@@ -219,7 +219,7 @@ internal sealed class DoorTransitionRunner
     public void RunDoorSoundWaitPrologue(SnesButton controllerInput)
     {
         _plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
-        _nmiHandler.RunNmi(controllerInput);
+        _frameBoundary.BeginAcceptedFrame(controllerInput);
         AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
     }
 
@@ -256,7 +256,7 @@ internal sealed class DoorTransitionRunner
         if (_player.Samus?.Xray.AreEnemyProjectilesSuspended == true || _room.LevelData is null || _room.Camera is null)
             return;
         _enemies.StepEnemyProjectileInstructions(
-            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _nmi.NmiFrameCounter8, _bombProjectiles, _backgroundScroll, _nmi.NmiFrameCounter);
+            _room.LevelData, _player.Samus, _room.Camera.PixelPosition,             _clock.Counter8, _bombProjectiles, _backgroundScroll, _clock.Counter);
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>

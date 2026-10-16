@@ -41,7 +41,7 @@ internal sealed record EnemyFramePhaseDependencies
     public required GameplayTimeFreeze Freeze { get; init; }
 
     /// <summary>Nmi.</summary>
-    public required NmiClock Nmi { get; init; }
+    public required FrameClock Clock { get; init; }
 
     /// <summary>Oam.</summary>
     public required OamBuffer Oam { get; init; }

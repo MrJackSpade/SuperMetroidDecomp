@@ -133,7 +133,7 @@ internal static class BeamTileArtworkVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte[] previous = runtime.Vram.Bytes.ToArray();
         runtime.Artwork.BeamArtwork = edited;
         AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG is a page binding, not a VRAM write");

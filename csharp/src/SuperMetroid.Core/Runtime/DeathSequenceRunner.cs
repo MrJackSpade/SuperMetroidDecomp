@@ -21,7 +21,7 @@ internal sealed class DeathSequenceRunner
     /// <summary>Supplies the active Samus Mode-7 transform during death drawing.</summary>
     private readonly GameplayDisplayState _display;
     /// <summary>Processes one accepted NMI before each isolated death-state frame.</summary>
-    private readonly NmiHandler _nmiHandler;
+    private readonly AcceptedFrameBoundary _frameBoundary;
     /// <summary>Sprite frame begun and finalized around each drawn frame.</summary>
     private readonly SpriteFrameBuffer _sprites;
     /// <summary>Frame-local OBJ buffer shared by Samus pose and explosion drawing.</summary>
@@ -42,7 +42,7 @@ internal sealed class DeathSequenceRunner
         _artwork = dependencies.Artwork;
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
-        _nmiHandler = dependencies.NmiHandler;
+        _frameBoundary = dependencies.FrameBoundary;
         _sprites = dependencies.Sprites;
         _oam = _sprites.Oam;
         _player = dependencies.Player;
@@ -86,7 +86,7 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null)
             throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
 
-        _nmiHandler.RunNmi(controllerInput);
+        _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
         _player.Samus.Presentation.Draw(
             _addressSpace,
@@ -106,7 +106,7 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null || !_player.Samus.DeathSequence.IsActive)
             throw new InvalidOperationException("The bank-$9B death sequence is not active.");
 
-        _nmiHandler.RunNmi(controllerInput);
+        _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _addressSpace,

@@ -70,7 +70,7 @@ internal static class TourianStatueWaterVerification
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
         runtime.TourianStatues.descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();
-        runtime.NmiHandler.RunNmi(0);
+        runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];
         AssertEqual(unchecked((ushort)(runtime.Display.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.Registers.Bg2Scroll.Y, "Statue descent retains its independent BG2 vertical scroll");

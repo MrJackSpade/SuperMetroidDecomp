@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <summary>The Spore Spawn species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
 
@@ -41,15 +44,16 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Captures the room and combat systems used by boss and spore behavior.</summary>
-    internal SporeSpawnBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, EnemyFrameContext frameContext, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
-        _room = room;
-        _projectiles = projectiles;
-        _spriteObjects = spriteObjects;
-        _presentation = presentation;
-        _frameContext = frameContext;
-        _collision = collision;
-        _deathsAndDrops = deathsAndDrops;
+        _frameResults = dependencies.FrameResults;
+        _room = dependencies.Room;
+        _projectiles = dependencies.Projectiles;
+        _spriteObjects = dependencies.SpriteObjects;
+        _presentation = dependencies.Presentation;
+        _frameContext = dependencies.FrameContext;
+        _collision = dependencies.Collision;
+        _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
     /// <summary>Fixed horizontal arena center used for hardening and the death trajectory.</summary>
@@ -62,9 +66,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
     internal readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
 
-    /// <summary>Frame-local hardcoded ceiling PLM request.</summary>
-    public SporeSpawnPlmRequest? LastSporeSpawnPlm { get; private set; }
-
     /// <summary>Last library-two sound requested by the boss or one of its instructions.</summary>
     public ushort? LastSporeSpawnSoundEffectLibrary2 { get; private set; }
 
@@ -72,7 +73,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetSporeSpawnRoomState()
     {
         _sporeSpawn = null;
-        LastSporeSpawnPlm = null;
         LastSporeSpawnSoundEffectLibrary2 = null;
         _sporeSpawnDropRequests.Clear();
     }
@@ -80,7 +80,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Clears one-frame publications before the next enemy update.</summary>
     internal void BeginSporeSpawnFrame()
     {
-        LastSporeSpawnPlm = null;
         LastSporeSpawnSoundEffectLibrary2 = null;
         _sporeSpawnDropRequests.Clear();
     }
@@ -332,7 +331,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requests the arena ceiling PLM at its fixed room block position.</summary>
     private void PublishSporeSpawnPlm(PlmHeaderId header) =>
-        LastSporeSpawnPlm = new SporeSpawnPlmRequest(new(7, 30), header);
+        _frameResults.SporeSpawnCeiling = new SporeSpawnPlmRequest(new(7, 30), header);
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
     internal void RegisterSporeSpawnBombReactions(EnemySharedReactions table)

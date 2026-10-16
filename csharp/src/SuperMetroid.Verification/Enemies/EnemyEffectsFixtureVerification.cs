@@ -89,7 +89,7 @@ internal static class EnemyEffectsFixtureVerification
         AssertSameBytes(expected.Memory.SaveRam, actual.Memory.SaveRam, context + " SRAM");
         AssertTrue(expected.Enemies.Audio.SoundRequests.SequenceEqual(actual.Enemies.Audio.SoundRequests), context + " audio");
         AssertTrue(expected.Enemies.Audio.MusicRequests.SequenceEqual(actual.Enemies.Audio.MusicRequests), context + " music");
-        AssertTrue(expected.Enemies.CrocomireBehavior.CrocomirePlmRequests.SequenceEqual(actual.Enemies.CrocomireBehavior.CrocomirePlmRequests), context + " room changes");
+        AssertTrue(expected.Enemies.LastEnemyFrame.RoomEffects.CrocomirePlms.SequenceEqual(actual.Enemies.LastEnemyFrame.RoomEffects.CrocomirePlms), context + " room changes");
     }
 
     /// <summary>Encodes patterned planar tiles as a real indexed PNG for the production asset compiler.</summary>

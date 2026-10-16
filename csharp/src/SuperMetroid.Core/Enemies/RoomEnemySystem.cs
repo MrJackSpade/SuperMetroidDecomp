@@ -534,7 +534,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, Presentation);
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Room, Projectiles, Presentation);
         StokeBehavior = new StokeBehavior(Room, Terrain, Projectiles);
-        SporeSpawnBehavior = new SporeSpawnBehavior(Room, Projectiles, SpriteObjects, Presentation, FrameContext, Collision, DeathsAndDrops);
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = FrameResults });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);
         SparkBehavior = new SparkBehavior(Room, FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
@@ -598,7 +598,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, DeadMonsters);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation);
         DachoraBehavior = new DachoraBehavior(Room, Terrain, SlotTable, Presentation);
-        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus });
+        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { FrameResults = FrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, SlotTable, Presentation, RoomFx);
         ChootBehavior = new ChootBehavior();
@@ -608,7 +608,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BullBehavior = new BullBehavior();
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
-        BotwoonBehavior = new BotwoonBehavior(Room, Projectiles, SpriteObjects, SlotTable, Presentation, Collision, DeathsAndDrops);
+        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = FrameResults });
         Instructions = new EnemyInstructionInterpreter(CrocomireBehavior, MotherBrainEncounter, Presentation, Room);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { CeresRidleyBehavior = CeresRidleyBehavior, DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, RidleyEncounter = RidleyEncounter, Room = Room, SlotTable = SlotTable });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });

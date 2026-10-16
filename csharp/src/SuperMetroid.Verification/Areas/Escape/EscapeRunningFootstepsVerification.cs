@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Verification.Harness;
 
@@ -43,14 +44,14 @@ internal static class EscapeRunningFootstepsVerification
                 "native death phase emits command F and timer start together");
             var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Player.Samus = samus;
-            var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0])
-            {
-                // Area flags are outside this fixture. Preserve the actual timer requests.
-                LastRainbowBeamStep = request with { MotherBrainBossBitRequested = false, ZebesTimebombEventRequested = false },
-            };
+            var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]);
             const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
             runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
-            runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms();
+            // Area flags are outside this fixture. Preserve the actual timer requests.
+            runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests.None with
+            {
+                MotherBrainDeathStep = request with { MotherBrainBossBitRequested = false, ZebesTimebombEventRequested = false },
+            });
 
             samus.Pose = pose;
             samus.InputLocked = false;

@@ -55,15 +55,10 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
-    /// <summary>Wall-create or wall-delete PLM requests emitted during the current enemy frame.</summary>
-    private readonly List<ShitroidPlmRequest> _shitroidPlmRequests = [];
     /// <summary>Single slot-zero actor's private velocity, palette, and cutscene state.</summary>
     internal ShitroidEnemyState? _shitroid;
     /// <summary>Layer-one camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
-
-    /// <summary>Frame-local wall mutations requested by the current Shitroid state.</summary>
-    public IReadOnlyList<ShitroidPlmRequest> ShitroidPlmRequests => _shitroidPlmRequests;
 
     /// <summary>Last library-two sound queued during this Shitroid frame.</summary>
     public ushort? LastShitroidSoundEffectLibrary2 { get; private set; }
@@ -75,7 +70,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetShitroidRoomState()
     {
         _shitroid = null;
-        _shitroidPlmRequests.Clear();
         LastShitroidSoundEffectLibrary2 = null;
         LastShitroidMusicRequest = null;
         _shitroidCamera = Position16<RoomPixels>.Zero;
@@ -84,7 +78,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Clears frame-local wall, camera, sound, and music requests before AI dispatch.</summary>
     internal void BeginShitroidFrame()
     {
-        _shitroidPlmRequests.Clear();
         LastShitroidSoundEffectLibrary2 = null;
         LastShitroidMusicRequest = null;
     }
@@ -427,8 +420,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Requests the two room-column wall PLMs at the authored Tourian positions.</summary>
     private void QueueShitroidWallPlms(PlmHeaderId header)
     {
-        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(48, 3), header));
-        _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(31, 3), header));
+        _frameResults.ShitroidPlms.Add(new ShitroidPlmRequest(new(48, 3), header));
+        _frameResults.ShitroidPlms.Add(new ShitroidPlmRequest(new(31, 3), header));
     }
 
     /// <summary>Accelerates to the Sidehopper's head and enters the latched feeding animation on arrival.</summary>

@@ -20,6 +20,9 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <summary>The Crocomire species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
 
@@ -53,6 +56,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Connects Crocomire AI to room collision, rendering, projectiles, and boss-status owners.</summary>
     internal CrocomireBehavior(CrocomireBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
@@ -72,8 +76,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort CrocomireSpikeWallThreshold = 768;
     /// <summary>The melt's BG2 distortion step stops growing at 80 pixels (8.8).</summary>
     private const int MaximumCrocomireDistortionStep = 20480;
-    /// <summary>Block mutations queued for the bridge, spike wall, and boss aftermath.</summary>
-    internal readonly List<CrocomirePlmRequest> _crocomirePlmRequests = new();
     /// <summary>Camera X tracked during Crocomire's BG2 body and death presentation.</summary>
     private ushort _crocomireCameraX;
 
@@ -82,9 +84,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Typed WRAM extension used by Crocomire's bridge/melting/skeleton graph.</summary>
     public CrocomireDeathState? CrocomireDeath { get; internal set; }
-
-    /// <summary>Hardcoded bank-$84 arena mutations published during the current frame.</summary>
-    public IReadOnlyList<CrocomirePlmRequest> CrocomirePlmRequests => _crocomirePlmRequests;
 
     /// <summary>Delayed music publication from the current Crocomire frame.</summary>
     public CrocomireMusicRequest? LastCrocomireMusicRequest { get; private set; }
@@ -104,7 +103,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Crocomire = null;
         CrocomireDeath = null;
-        _crocomirePlmRequests.Clear();
         _crocomireCameraX = 0;
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
@@ -458,7 +456,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
     /// <summary>Queues a native PLM block change for later room processing.</summary>
     private void PublishCrocomirePlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _crocomirePlmRequests.Add(new CrocomirePlmRequest(block, header));
+        _frameResults.CrocomirePlms.Add(new CrocomirePlmRequest(block, header));
 
     /// <summary>
     /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.
@@ -2334,7 +2332,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
-        _crocomirePlmRequests.Clear();
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

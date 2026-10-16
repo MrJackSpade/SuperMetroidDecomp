@@ -1087,7 +1087,7 @@ internal sealed class RoomLoader
         // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
             _enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
-        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects();
+        _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects);
         _tourianStatues.Load();
         _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
 

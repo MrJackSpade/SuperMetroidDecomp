@@ -17,6 +17,9 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 /// <summary>The Botwoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
 
@@ -39,15 +42,16 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Binds Botwoon's head, body, palette, collision, and drop services.</summary>
-    internal BotwoonBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
+    internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
     {
-        _room = room;
-        _projectiles = projectiles;
-        _spriteObjects = spriteObjects;
-        _slotTable = slotTable;
-        _presentation = presentation;
-        _collision = collision;
-        _deathsAndDrops = deathsAndDrops;
+        _frameResults = dependencies.FrameResults;
+        _room = dependencies.Room;
+        _projectiles = dependencies.Projectiles;
+        _spriteObjects = dependencies.SpriteObjects;
+        _slotTable = dependencies.SlotTable;
+        _presentation = dependencies.Presentation;
+        _collision = dependencies.Collision;
+        _deathsAndDrops = dependencies.DeathsAndDrops;
     }
 
     /// <summary>Number of independent chance-table pickups requested when the wall crumbles.</summary>
@@ -62,12 +66,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public ushort? LastBotwoonSoundEffect { get; internal set; }
 
 
-    /// <summary>
-    /// Hardcoded bank-$84 PLM requested by Botwoon. $B797 is the already-defeated wall;
-    /// $B79B is the live crumble sequence.
-    /// </summary>
-    public PlmHeaderId? LastBotwoonWallPlm { get; private set; }
-
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
     public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
@@ -77,7 +75,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         _botwoonState = null;
         LastBotwoonSoundEffect = null;
         _botwoonDropRequests.Clear();
-        LastBotwoonWallPlm = null;
         LastBotwoonMusicRequest = null;
     }
 
@@ -96,7 +93,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // installs the permanent open wall and makes both one-screen scroll entries blue.
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
-            LastBotwoonWallPlm = PlmHeaderId.ClearBotwoonWall;
+            _frameResults.BotwoonWall = PlmHeaderId.ClearBotwoonWall;
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.WallCrumbleRequested = true;
             state.BossBitSet = true;
@@ -751,7 +748,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
-        LastBotwoonWallPlm = PlmHeaderId.CrumbleBotwoonWall;
+        _frameResults.BotwoonWall = PlmHeaderId.CrumbleBotwoonWall;
         state.WallCrumbleRequested = true;
 
         // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup
@@ -1142,7 +1139,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastBotwoonSoundEffect = null;
-        LastBotwoonWallPlm = null;
         LastBotwoonMusicRequest = null;
     }
 

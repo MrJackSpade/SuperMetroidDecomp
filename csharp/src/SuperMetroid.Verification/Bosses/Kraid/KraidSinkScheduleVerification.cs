@@ -75,7 +75,7 @@ internal static class KraidSinkScheduleVerification
         enemies.BindFixtureBus(NewKraidSinkGuard(rom));
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
-        var requests = (List<KraidPlmRequest>)enemies.KraidBehavior._kraidPlmRequests;
+        var requests = enemies.FrameResults.KraidPlms;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
@@ -126,7 +126,7 @@ internal static class KraidSinkScheduleVerification
         enemies.BindFixtureBus(NewKraidSinkGuard(rom));
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
-        var requests = (List<KraidPlmRequest>)enemies.KraidBehavior._kraidPlmRequests;
+        var requests = enemies.FrameResults.KraidPlms;
         var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

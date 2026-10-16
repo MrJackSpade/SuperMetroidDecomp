@@ -121,7 +121,7 @@ internal sealed class EnemyFramePhase
         if (_room.Camera is not null && _enemies.IsLoaded)
         {
             EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _nmi.NmiFrameCounter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = _plms, NmiFrameCounter = _nmi.NmiFrameCounter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
-            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects();
+            _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(result.RoomEffects);
             if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

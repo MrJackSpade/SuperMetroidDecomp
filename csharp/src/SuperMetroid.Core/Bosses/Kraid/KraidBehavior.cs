@@ -97,7 +97,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BackgroundTilemapWords.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
             state.BackgroundTilemapsPrepared = true;
             UploadKraidRoomBackgroundTiles();
-            _kraidPlmRequests.AddRange(KraidPlmDefinitions.DefeatedRoom);
+            _frameResults.KraidPlms.AddRange(KraidPlmDefinitions.DefeatedRoom);
             // The body is the owner of `$A7:C715-$C815`; deleting it here skips the two
             // BG2 clears and four standard-BG3 restoration DMAs. The other seven physical
             // records take their own dead initializer and remain deleted as on cartridge.
@@ -1498,7 +1498,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             _deathsAndDrops.StartGenericEnemyDeath(_slotTable._slots[slot], deathAnimation: _slotTable._slots[slot].NativeIndex);
         // The live sequence crumbles successive blocks while Kraid fades/sinks.
         // It must not substitute the instantaneous already-defeated-room clear.
-        _kraidPlmRequests.Add(KraidPlmDefinitions.LiveDeathSpikes);
+        _frameResults.KraidPlms.Add(KraidPlmDefinitions.LiveDeathSpikes);
     }
 
     /// <summary>Moves the body downward through the authored sink sequence.</summary>
@@ -1560,7 +1560,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
                 _ = SpawnKraidCeilingRock((ushort)(request.Block.X * 16));
-                _kraidPlmRequests.Add(request);
+                _frameResults.KraidPlms.Add(request);
             }
             return;
         }
@@ -1653,7 +1653,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     ushort rockX = KraidCeilingRockPositionDefinitions.AtByteOffset(body.VariableF);
                     if (SpawnKraidCeilingRock(rockX))
                         state.CeilingRockSpawnCount++;
-                    _kraidPlmRequests.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
+                    _frameResults.KraidPlms.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
                     body.VariableF = unchecked((ushort)(body.VariableF + 2));
                 }
                 if (unchecked((short)(body.Position.Y.Whole - 296)) < 0)
@@ -2540,20 +2540,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             value = 2;
         return unchecked((ushort)(value << 6));
     }
-    /// <summary>Room block mutations requested by Kraid during the current enemy frame.</summary>
-    internal readonly List<KraidPlmRequest> _kraidPlmRequests = [];
-
     /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
     public KraidEnemyState? Kraid { get; internal set; }
 
-    /// <summary>Hardcoded Kraid room mutations published during the current enemy frame.</summary>
-    public IReadOnlyList<KraidPlmRequest> KraidPlmRequests => _kraidPlmRequests;
-
-    /// <summary>Discards prior room Kraid state and pending hardcoded PLM requests.</summary>
+    /// <summary>Discards prior room Kraid state.</summary>
     internal void ResetKraidRoomState()
     {
         Kraid = null;
-        _kraidPlmRequests.Clear();
     }
 
     /// <summary>
@@ -2590,7 +2583,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (Kraid is not null)
             Kraid.MusicRequest = null;
         LastKraidSoundEffect = null;
-        _kraidPlmRequests.Clear();
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

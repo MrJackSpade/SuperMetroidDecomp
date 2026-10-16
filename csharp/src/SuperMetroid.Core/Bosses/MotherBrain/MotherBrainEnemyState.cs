@@ -77,9 +77,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Exact delayed music writes made during the most recent enemy frame.</summary>
     public IReadOnlyList<MotherBrainMusicRequest> MusicRequests => _musicRequests;
 
-    /// <summary>Hardcoded bank-$84 objects requested during the most recent enemy frame.</summary>
-    public IReadOnlyList<MotherBrainPlmRequest> PlmRequests => _plmRequests;
-
     /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
     public ushort? LastSoundEffect { get; internal set; }
 
@@ -91,9 +88,6 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
-
-    /// <summary>Pending nonzero FX entry from initialization/descent; the runtime consumes it once, then clears it.</summary>
-    public ushort FxEntry { get; internal set; }
 
     /// <summary>Whether the unpause hook must restore Mother Brain's BG2 image and beam SFX.</summary>
     public bool EnableUnpauseHook { get; internal set; }
@@ -325,9 +319,6 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     internal ushort PendingBabyCryCount { get; set; }
 
-    /// <summary>Debugger witness from the most recent live rainbow body-function call.</summary>
-    public MotherBrainRainbowBeamAttackStepResult? LastRainbowBeamStep { get; internal set; }
-
     /// <summary>Live bank-$88 rainbow-beam presentation state published by body AI.</summary>
     public bool RainbowBeamHdmaActive { get; internal set; }
     /// <summary>Native window/color state, advanced by emulation rather than host painting.</summary>
@@ -367,8 +358,6 @@ public sealed class MotherBrainEnemyState
     private readonly ushort[] _initialTurretParameters = new ushort[12];
     /// <summary>Music commands emitted during the current enemy frame.</summary>
     private readonly List<MotherBrainMusicRequest> _musicRequests = new();
-    /// <summary>Room block mutations requested during the current enemy frame.</summary>
-    private readonly List<MotherBrainPlmRequest> _plmRequests = new();
 
     /// <summary>Records all twelve turret parameter identities for encounter initialization.</summary>
     internal void RecordInitialTurretRequests()
@@ -381,19 +370,13 @@ public sealed class MotherBrainEnemyState
     internal void BeginFrame()
     {
         _musicRequests.Clear();
-        _plmRequests.Clear();
         LastSoundEffect = null;
         LastSoundEffectLibrary1 = null;
         LastSoundEffectLibrary3 = null;
-        LastRainbowBeamStep = null;
         RainbowBeamPaletteRequested = false;
     }
 
     /// <summary>Queues one typed music command with its authored delay for this frame.</summary>
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
         _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
-
-    /// <summary>Queues a bank-$84 PLM spawn at a foreground room-block coordinate.</summary>
-    internal void RequestPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
-        _plmRequests.Add(new MotherBrainPlmRequest(block, header));
 }

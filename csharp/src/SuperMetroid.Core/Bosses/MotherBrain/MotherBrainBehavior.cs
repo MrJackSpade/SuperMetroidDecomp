@@ -174,13 +174,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             HitboxesEnabled = 2,
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
-            FxEntry = 1,
             BackgroundTilemapPrepared = true,
             EnemyBg2TilemapSize = MotherBrainBg2Definitions.InitialTransferByteCount,
         };
         _motherBrainEncounter.MotherBrain.RecordInitialTurretRequests();
+        // The first LoadFxEntry, which the room loader applies after enemy initialization.
+        _frameResults.MotherBrainFxEntry = 1;
         SpawnMotherBrainInitialTurrets();
     }
+
+    /// <summary>Requests a bank-$84 PLM spawn at a foreground room-block coordinate for this pass.</summary>
+    private void RequestMotherBrainPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
+        _frameResults.MotherBrainPlms.Add(new MotherBrainPlmRequest(block, header));
 
     /// <summary>Applies the installed room-entry palette for glass and tube artwork.</summary>
     internal void LoadMotherBrainRoomEntryColors()
@@ -403,8 +408,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // $84 allocator searches the same descending pool for each call.
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 72), MiscDustAnimation.SmallDustCloud);
                 _projectiles.SpawnRoomGraphicsDustExplosion(new(248, 152), MiscDustAnimation.SmallDustCloud);
-                state.RequestPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
-                state.RequestPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
+                RequestMotherBrainPlm(new(15, 4), PlmHeaderId.FillMotherBrainsWall);
+                RequestMotherBrainPlm(new(15, 9), PlmHeaderId.FillMotherBrainsWall);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentInitialPause;
             }
         }
@@ -1675,7 +1680,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, doorDust.SoundEffect), maximumQueued: 3);
         }
         if (step.EscapeDoorPlm is { } doorPlm)
-            state.RequestPlm(doorPlm.Block, doorPlm.PlmEntry);
+            RequestMotherBrainPlm(doorPlm.Block, doorPlm.PlmEntry);
         foreach (var request in step.EscapeDoorParticleSpawns) SpawnMotherBrainDoorFragment(request.Parameter);
         if (step.TimeBombSetSubtitleSpawnRequested)
         {
@@ -1865,13 +1870,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // arms the head's independent tube sequence, and clears both fade words.
                 state.RoomFlashFrame = 0;
                 state.RoomFlashTimer = 1;
-                state.FxEntry = 2;
+                _frameResults.MotherBrainFxEntry = 2;
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
                 state.TubeCollapseTimer = NativeCountdown.Start(0);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
                 state.FunctionTimer = NativeCountdown.Start(0);
                 state.GrayFadeIndex = 0;
-                state.RequestPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
+                RequestMotherBrainPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
                 return;
 
             case MotherBrainBodyFunction.FakeDeathDescentFadeToGray:
@@ -2171,14 +2176,14 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Queues the room tile change at the tube's native location.</summary>
-    private static void RequestMotherBrainTubePlm(
+    private void RequestMotherBrainTubePlm(
         MotherBrainEnemyState state,
         Position16<RoomBlocks> block,
         PlmHeaderId header,
         MotherBrainTubeCollapseFunction next,
         ushort timer)
     {
-        state.RequestPlm(block, header);
+        RequestMotherBrainPlm(block, header);
         state.TubeCollapseFunction = next;
         state.TubeCollapseTimer = NativeCountdown.Start(timer);
     }
@@ -2376,7 +2381,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Queues the BG2 room rows revealed by the tube collapse.</summary>
-    private static void RequestMotherBrainRoomRows(
+    private void RequestMotherBrainRoomRows(
         MotherBrainEnemyState state,
         PlmHeaderId firstHeader,
         PlmHeaderId secondHeader,
@@ -2392,8 +2397,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             MotherBrainBodyFunction.FakeDeathAscentDrawRowsCAndD => 12,
             _ => throw new InvalidOperationException("Mother Brain row draw called outside fake ascent."),
         };
-        state.RequestPlm(new(2, firstRow), firstHeader);
-        state.RequestPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
+        RequestMotherBrainPlm(new(2, firstRow), firstHeader);
+        RequestMotherBrainPlm(new(2, unchecked((byte)(firstRow + 1))), secondHeader);
         state.Function = next;
     }
 
@@ -4065,7 +4070,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
         }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(_room.LoadedBus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _frameContext._randomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = _room.Random.Read(), NextRandomNumber = _room.Random.Generate, AlternateEscapeText = _roomStatus.JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = _earthquake.EarthquakeTimer.RawValue });
-        state.LastRainbowBeamStep = step;
+        _frameResults.MotherBrainDeathStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
 

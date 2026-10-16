@@ -56,7 +56,7 @@ internal static class GrappleHurtFeedbackVerification
         var interactive = (List<ushort>)runtime.Enemies.ProcessingWindow._interactiveEnemyIndexes;
         interactive.Clear();
         interactive.Add(target.NativeIndex);
-        ushort health = samus.Health;
+        int health = samus.Health;
         AssertTrue(runtime.Enemies.Collision.ResolveOrdinarySamusContact(samus, SnesButton.X), "ordinary enemy contact hits hanging Samus");
         AssertEqual((ushort)(health - target.Definition.Damage), samus.Health, "native contact reduces health");
         target.Clear();
@@ -66,7 +66,7 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual((ushort)1, samus.HurtFlashCounter, "post-draw health loss starts hurt feedback independently of knockback");
         runtime.StepFrame(SnesButton.X);
         AssertEqual((ushort)2, samus.HurtFlashCounter, "first hurt palette call advances the counter");
-        samus.Health = NativeWordCounter.Decrement(samus.Health).Value; // Existing feedback must not restart on further health loss.
+        samus.Health--; // Existing feedback must not restart on further health loss.
         runtime.StepFrame(SnesButton.X);
         AssertEqual((ushort)3, samus.HurtFlashCounter, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
@@ -99,7 +99,7 @@ internal static class GrappleHurtFeedbackVerification
         {
             writer.Write((typeof(SamusState).AssemblyQualifiedName ?? throw new InvalidOperationException("Verification requires typeof(SamusState).AssemblyQualifiedName.")));
             writer.Write("<PreviousHealthForHurtCheck>k__BackingField");
-            DebuggerObjectGraphSerializer.Serialize(fieldBytes, (ushort)99);
+            DebuggerObjectGraphSerializer.Serialize(fieldBytes, 99);
         }
         byte[] bytes = current.ToArray();
         byte[] omitted = fieldBytes.ToArray();

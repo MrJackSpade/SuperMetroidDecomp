@@ -53,7 +53,7 @@ internal static class AirSpikeAlphaRadiusVerification
         samus.Kinematics.Radius = new(5, 12);
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
-        ushort health = samus.Health;
+        int health = samus.Health;
 
         runtime.StepFrame(0);
 

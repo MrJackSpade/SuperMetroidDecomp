@@ -490,11 +490,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         samus.Missiles = RestoreTwo(samus.Missiles, samus.MaxMissiles);
         samus.SuperMissiles = RestoreTwo(samus.SuperMissiles, samus.MaxSuperMissiles);
         samus.PowerBombs = RestoreTwo(samus.PowerBombs, samus.MaxPowerBombs);
-        if ((short)(samus.ReserveEnergy - samus.MaxReserveEnergy) < 0 ||
-            (short)(samus.Health - samus.MaxHealth) < 0 ||
-            (short)(samus.Missiles - samus.MaxMissiles) < 0 ||
-            (short)(samus.SuperMissiles - samus.MaxSuperMissiles) < 0 ||
-            (short)(samus.PowerBombs - samus.MaxPowerBombs) < 0)
+        if (samus.ReserveEnergy < samus.MaxReserveEnergy ||
+            samus.Health < samus.MaxHealth ||
+            samus.Missiles < samus.MaxMissiles ||
+            samus.SuperMissiles < samus.MaxSuperMissiles ||
+            samus.PowerBombs < samus.MaxPowerBombs)
             return;
 
         // The prompt itself opens when $AB1F executes on the following frame.
@@ -634,11 +634,11 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Restores a resource by two without exceeding its maximum.</summary>
-    private static ushort RestoreTwo(ushort current, ushort maximum)
+    private static int RestoreTwo(int current, int maximum)
     {
-        if ((short)(current - maximum) >= 0)
+        if (current >= maximum)
             return current;
-        return unchecked((ushort)Math.Min(current + 2, maximum));
+        return Math.Min(current + 2, maximum);
     }
 
     /// <summary>Ports ShipTop's initialization AI.</summary>

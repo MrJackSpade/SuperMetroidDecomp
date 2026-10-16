@@ -124,10 +124,10 @@ public sealed class SamusCrystalFlashState
         // be empty even when the reserve mode is manual; possession of a reserve tank alone
         // does not matter. Each current ammo count—not its maximum—must supply ten shots.
         if (samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0 ||
-            !SignedLessThan(samus.Health, 51) || samus.ReserveEnergy != 0 ||
-            SignedLessThan(samus.Missiles, 10) ||
-            SignedLessThan(samus.SuperMissiles, 10) ||
-            SignedLessThan(samus.PowerBombs, 10))
+            samus.Health >= 51 || samus.ReserveEnergy != 0 ||
+            samus.Missiles < 10 ||
+            samus.SuperMissiles < 10 ||
+            samus.PowerBombs < 10)
         {
             return false;
         }
@@ -200,10 +200,10 @@ public sealed class SamusCrystalFlashState
             throw new InvalidOperationException("Crystal Flash has no installed movement handler.");
 
         CrystalFlashPhase phaseAtStart = Phase;
-        ushort healthAtStart = samus.Health;
-        ushort missilesAtStart = samus.Missiles;
-        ushort supersAtStart = samus.SuperMissiles;
-        ushort powerBombsAtStart = samus.PowerBombs;
+        int healthAtStart = samus.Health;
+        int missilesAtStart = samus.Missiles;
+        int supersAtStart = samus.SuperMissiles;
+        int powerBombsAtStart = samus.PowerBombs;
 
         switch (Phase)
         {
@@ -268,13 +268,13 @@ public sealed class SamusCrystalFlashState
         switch (AmmoDecrementIndex)
         {
             case 0:
-                samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value;
+                samus.Missiles = SamusQuantity.DecrementPositive(samus.Missiles);
                 break;
             case 1:
-                samus.SuperMissiles = NativeWordCounter.Decrement(samus.SuperMissiles).Value;
+                samus.SuperMissiles = SamusQuantity.DecrementPositive(samus.SuperMissiles);
                 break;
             case 2:
-                samus.PowerBombs = NativeWordCounter.Decrement(samus.PowerBombs).Value;
+                samus.PowerBombs = SamusQuantity.DecrementPositive(samus.PowerBombs);
                 break;
             default:
                 throw new InvalidOperationException(
@@ -420,9 +420,6 @@ public sealed class SamusCrystalFlashState
         return true;
     }
 
-    /// <summary>Compares native word counters using the signed difference and its wraparound behavior.</summary>
-    private static bool SignedLessThan(ushort left, ushort right) =>
-        unchecked((short)(left - right)) < 0;
 
     /// <summary>Mirrors Flash's frame and timer into WRAM words shared with other special palettes.</summary>
     private void PublishSharedPaletteWords(SamusState samus)

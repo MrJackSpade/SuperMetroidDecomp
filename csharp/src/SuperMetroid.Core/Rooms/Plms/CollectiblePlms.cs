@@ -578,25 +578,25 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         switch (kind)
         {
             case InWorldCollectibleKind.EnergyTank:
-                samus.MaxHealth = unchecked((ushort)(samus.MaxHealth + 100));
+                samus.MaxHealth += 100;
                 samus.Health = samus.MaxHealth;
                 return;
             case InWorldCollectibleKind.ReserveTank:
-                samus.MaxReserveEnergy = unchecked((ushort)(samus.MaxReserveEnergy + 100));
+                samus.MaxReserveEnergy += 100;
                 if (samus.ReserveTankMode == 0)
                     samus.ReserveTankMode = 1;
                 return;
             case InWorldCollectibleKind.MissileTank:
-                samus.MaxMissiles = unchecked((ushort)(samus.MaxMissiles + 5));
-                samus.Missiles = unchecked((ushort)(samus.Missiles + 5));
+                samus.MaxMissiles += 5;
+                samus.Missiles += 5;
                 return;
             case InWorldCollectibleKind.SuperMissileTank:
-                samus.MaxSuperMissiles = unchecked((ushort)(samus.MaxSuperMissiles + 5));
-                samus.SuperMissiles = unchecked((ushort)(samus.SuperMissiles + 5));
+                samus.MaxSuperMissiles += 5;
+                samus.SuperMissiles += 5;
                 return;
             case InWorldCollectibleKind.PowerBombTank:
-                samus.MaxPowerBombs = unchecked((ushort)(samus.MaxPowerBombs + 5));
-                samus.PowerBombs = unchecked((ushort)(samus.PowerBombs + 5));
+                samus.MaxPowerBombs += 5;
+                samus.PowerBombs += 5;
                 return;
             case InWorldCollectibleKind.Bombs:
             case InWorldCollectibleKind.HiJumpBoots:

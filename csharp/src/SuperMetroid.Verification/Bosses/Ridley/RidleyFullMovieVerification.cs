@@ -1146,7 +1146,7 @@ internal static class RidleyFullMovieVerification
             Check("PreviousDrawHeldInput", (ushort)samus.InputSnapshot.PreviousDrawHeldInput, NativeSnapshotMemory.SamusFilteredHeld);
             Check("PreviousDrawNewInput", (ushort)samus.InputSnapshot.PreviousDrawNewInput, NativeSnapshotMemory.SamusFilteredNew);
             Check("AutoJumpTimer", samus.InputSnapshot.AutoJumpTimer, NativeSnapshotMemory.SamusAutoJumpTimer);
-            Check("PreviousHealthForHurtCheck", samus.PreviousHealthForHurtCheck, NativeSnapshotMemory.SamusPreviousHealthForFlash);
+            Check("PreviousHealthForHurtCheck", SamusQuantity.Encode(samus.PreviousHealthForHurtCheck), NativeSnapshotMemory.SamusPreviousHealthForFlash);
             AssertTrue(!samus.InputSnapshot.ShinesparkPoseInputLocked && !samus.InputSnapshot.CrystalFlashPoseInputLocked,
                 "Movie now uses a special pose-input lock; map its handler explicitly");
             Check("Samus input handler", samus.InputSnapshot.AutoJumpInputPending
@@ -1213,7 +1213,7 @@ internal static class RidleyFullMovieVerification
                 ? NativeSnapshotMemory.LockedBetaHandler : NativeSnapshotMemory.NormalBetaHandler,
                 NativeSnapshotMemory.SamusBetaHandler);
 
-            Check("Samus health", samus.Health, NativeSnapshotMemory.Health);
+            Check("Samus health", SamusQuantity.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackTimer.RawValue, NativeSnapshotMemory.KnockbackTimer);
             Check("Samus Samus knockback direction", samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
@@ -1223,20 +1223,20 @@ internal static class RidleyFullMovieVerification
             Check("Samus selected HUD weapon", samus.SelectedHudItem, NativeSnapshotMemory.SelectedHudItem);
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex, NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", samus.HorizontalSpeed.AccelerationMode, NativeSnapshotMemory.AccelerationMode);
-            Check("Samus maximum health", samus.MaxHealth, NativeSnapshotMemory.MaxHealth);
+            Check("Samus maximum health", SamusQuantity.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
             Check("Samus equipped items", samus.EquippedItems.ToNativeWord(), NativeSnapshotMemory.Items);
             Check("Samus collected items", samus.CollectedItems.ToNativeWord(), NativeSnapshotMemory.CollectedItems);
             Check("Samus equipped beams", samus.EquippedBeams.ToNativeWord(), NativeSnapshotMemory.Beams);
             Check("Samus collected beams", samus.CollectedBeams.ToNativeWord(), NativeSnapshotMemory.CollectedBeams);
-            Check("Samus missiles", samus.Missiles, NativeSnapshotMemory.Missiles);
-            Check("Samus missile capacity", samus.MaxMissiles, NativeSnapshotMemory.MaxMissiles);
-            Check("Samus super missiles", samus.SuperMissiles, NativeSnapshotMemory.SuperMissiles);
-            Check("Samus super missile capacity", samus.MaxSuperMissiles, NativeSnapshotMemory.MaxSuperMissiles);
-            Check("Samus power bombs", samus.PowerBombs, NativeSnapshotMemory.PowerBombs);
-            Check("Samus power bomb capacity", samus.MaxPowerBombs, NativeSnapshotMemory.MaxPowerBombs);
+            Check("Samus missiles", SamusQuantity.Encode(samus.Missiles), NativeSnapshotMemory.Missiles);
+            Check("Samus missile capacity", SamusQuantity.Encode(samus.MaxMissiles), NativeSnapshotMemory.MaxMissiles);
+            Check("Samus super missiles", SamusQuantity.Encode(samus.SuperMissiles), NativeSnapshotMemory.SuperMissiles);
+            Check("Samus super missile capacity", SamusQuantity.Encode(samus.MaxSuperMissiles), NativeSnapshotMemory.MaxSuperMissiles);
+            Check("Samus power bombs", SamusQuantity.Encode(samus.PowerBombs), NativeSnapshotMemory.PowerBombs);
+            Check("Samus power bomb capacity", SamusQuantity.Encode(samus.MaxPowerBombs), NativeSnapshotMemory.MaxPowerBombs);
             Check("Samus reserve mode", samus.ReserveTankMode, NativeSnapshotMemory.ReserveMode);
-            Check("Samus reserve capacity", samus.MaxReserveEnergy, NativeSnapshotMemory.MaxReserve);
-            Check("Samus reserve energy", samus.ReserveEnergy, NativeSnapshotMemory.Reserve);
+            Check("Samus reserve capacity", SamusQuantity.Encode(samus.MaxReserveEnergy), NativeSnapshotMemory.MaxReserve);
+            Check("Samus reserve energy", SamusQuantity.Encode(samus.ReserveEnergy), NativeSnapshotMemory.Reserve);
             // The native CPU can still be decompressing source-room tiles while
             // IRQ scrolling advances; the port loads the destination atomically.
             // Align these owners at completed loading, not elapsed upload time.

@@ -1870,8 +1870,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? unchecked((ushort)(rawDamage >> 1))
                 : rawDamage;
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
 
         // `$A5:9B9A` also publishes the same 32-frame, type-seven quake used by the
         // cartridge's grabbed-tail impact. Keeping it on the shared room-enemy surface lets

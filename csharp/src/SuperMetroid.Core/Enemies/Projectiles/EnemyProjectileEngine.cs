@@ -720,8 +720,8 @@ internal sealed class EnemyProjectileEngine
 
         ushort damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.FromRaw(projectile.InvincibilityFrames);
         ushort knockbackXDirection = unchecked((short)(
             samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0

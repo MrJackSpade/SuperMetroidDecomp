@@ -1126,15 +1126,16 @@ internal sealed class PauseMenuState
             audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
 
         ushort amount = PauseEquipmentRules.ReserveEnergyPerFrame;
-        samus.Health = unchecked((ushort)(samus.Health + amount));
-        if (unchecked((short)(samus.Health - samus.MaxHealth)) >= 0)
+        samus.Health += amount;
+        if (samus.Health >= samus.MaxHealth)
             samus.Health = samus.MaxHealth;
         else
         {
-            samus.ReserveEnergy = unchecked((ushort)(samus.ReserveEnergy - amount));
-            if (unchecked((short)samus.ReserveEnergy) > 0) return;
+            // Reserves may undershoot zero by less than one transfer; the shortfall comes back off health.
+            samus.ReserveEnergy -= amount;
+            if (samus.ReserveEnergy > 0) return;
             if (samus.ReserveEnergy != 0)
-                samus.Health = unchecked((ushort)(samus.Health + samus.ReserveEnergy));
+                samus.Health += samus.ReserveEnergy;
         }
 
         // Retail exhausts ALL reserves even when only a small top-up was needed.

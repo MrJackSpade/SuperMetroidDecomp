@@ -440,7 +440,7 @@ internal sealed class BeamFiring
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
         // slot rejection rolls back the native count, but does not undo its cooldown write.
         bool isSuperMissile = samus.SelectedHudItem == 2;
-        ushort ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
+        int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SamusProjectileRomData.NonBeam.SuperMissileAdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
             (SnesLittleEndian.LowByte(sharedProjectiles.CooldownTimer.RawValue)) != 0)
@@ -467,9 +467,9 @@ internal sealed class BeamFiring
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
         ProjectileInvincibilityTimer = NativeCountdown.Start(20);
         if (isSuperMissile)
-            samus.SuperMissiles = NativeWordCounter.Decrement(samus.SuperMissiles).Value;
+            samus.SuperMissiles = SamusQuantity.DecrementPositive(samus.SuperMissiles);
         else
-            samus.Missiles = NativeWordCounter.Decrement(samus.Missiles).Value;
+            samus.Missiles = SamusQuantity.DecrementPositive(samus.Missiles);
         slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
         slot.Variable = 0;

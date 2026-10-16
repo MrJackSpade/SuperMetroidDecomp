@@ -24,6 +24,24 @@ A site that also reads the timer as a number (a table index, a threshold other t
 reads `RawValue` explicitly. A timer view over an enemy slot word returns `NativeCountdown.FromRaw(...)`
 and stores `RawValue`; the slot word stays the storage.
 
+## Widened gameplay quantities (#1323)
+
+A non-spatial gameplay quantity may be stored as `int` instead of its native word when all of these hold, and the
+widening commit records the result for each field:
+
+1. Every producer keeps the value inside a stated range, normally `[0, 0x7FFF]`.
+2. Every wrapping write is immediately clamped or rejected, so `int` arithmetic followed by the same clamp is equivalent.
+3. Signed word comparisons become ordinary comparisons only while both operands stay in that range.
+4. Nothing reads the word through another name, an overlapping offset or a native projection, or that projection
+   converts exactly.
+5. A decrement that could wrap from zero is guarded by its caller; the conversion goes through a named operation that
+   fails when the guard is violated (`SamusQuantity.DecrementPositive`), never through storage width.
+
+Words exist only at the boundaries (SRAM, JSON saves, native snapshot import and word-level parity checks), which
+convert through a named codec that rejects out-of-range words (`SamusQuantity.Decode`/`Encode`). A wrap that is part
+of the behavior stays explicit: `NativeWordCounter` for counters, or a named operation on the owning type.
+`SubunitHealth` stays a word because its borrow into `Health` is load-bearing.
+
 ## Classifying an encoded value
 
 A subsystem migration decides what each raw value means:

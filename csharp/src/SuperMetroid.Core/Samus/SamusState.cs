@@ -186,13 +186,13 @@ public sealed class SamusState
     }
 
     /// <summary>Current energy at WRAM `$09C2`, also used by animation command `$F6`.</summary>
-    public ushort Health { get; set; } = 99;
+    public int Health { get; set; } = 99;
 
     /// <summary>
     /// WRAM $0A12, PreviousEnergyHurtCheck: initialized from Energy by $91:E164,
     /// then compared and refreshed after Samus/projectile drawing by $90:EAD7-EAFD.
     /// </summary>
-    public ushort PreviousHealthForHurtCheck { get; set; } = 99;
+    public int PreviousHealthForHurtCheck { get; set; } = 99;
 
     /// <summary>
     /// Fractional energy word consumed by `$90:E9CE` before the whole-energy subtraction.
@@ -202,22 +202,22 @@ public sealed class SamusState
     public ushort SubunitHealth { get; set; }
 
     /// <summary>Maximum normal energy at WRAM `$09C4`; defaults to the initial 99.</summary>
-    public ushort MaxHealth { get; set; } = 99;
+    public int MaxHealth { get; set; } = 99;
 
     /// <summary>Current reserve energy at WRAM `$09D6`.</summary>
-    public ushort ReserveEnergy { get; set; }
+    public int ReserveEnergy { get; set; }
 
     /// <summary>Maximum reserve energy at WRAM `$09D4`.</summary>
-    public ushort MaxReserveEnergy { get; set; }
+    public int MaxReserveEnergy { get; set; }
 
     /// <summary>Reserve-tank mode at WRAM `$09C0`: zero off, one auto, two manual.</summary>
     public ushort ReserveTankMode { get; set; }
 
     /// <summary>Current missiles at WRAM `$09C6`.</summary>
-    public ushort Missiles { get; set; }
+    public int Missiles { get; set; }
 
     /// <summary>Maximum missiles at WRAM `$09C8`.</summary>
-    public ushort MaxMissiles { get; set; }
+    public int MaxMissiles { get; set; }
 
     /// <summary>
     /// Retail WRAM $09D8. Super Metroid never exposes a missile-reserve tank in normal
@@ -225,19 +225,19 @@ public sealed class SamusState
     /// max missiles or 99. Retaining the otherwise-unused word makes enemy drops exact and
     /// lets a debugger observe the original quirk.
     /// </summary>
-    public ushort ReserveMissiles { get; set; }
+    public int ReserveMissiles { get; set; }
 
     /// <summary>Current super missiles at WRAM `$09CA`.</summary>
-    public ushort SuperMissiles { get; set; }
+    public int SuperMissiles { get; set; }
 
     /// <summary>Maximum super missiles at WRAM `$09CC`.</summary>
-    public ushort MaxSuperMissiles { get; set; }
+    public int MaxSuperMissiles { get; set; }
 
     /// <summary>Current power bombs at WRAM `$09CE`.</summary>
-    public ushort PowerBombs { get; set; }
+    public int PowerBombs { get; set; }
 
     /// <summary>Maximum power bombs at WRAM `$09D0`.</summary>
-    public ushort MaxPowerBombs { get; set; }
+    public int MaxPowerBombs { get; set; }
 
     /// <summary>Selected HUD item at WRAM <c>$09D2</c>: 0 none, 1 missiles, 2 supers, 3 bombs.</summary>
     public ushort SelectedHudItem { get; set; }

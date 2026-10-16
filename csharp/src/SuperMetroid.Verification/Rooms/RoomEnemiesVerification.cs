@@ -922,6 +922,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
     enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+    enemies.Room.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
@@ -1037,7 +1038,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley fireball hover reads the random number without generating one");
     // #1275: at low energy the fireballing instruction list's $A6:E4D2 stores 8 into the
     // shared $7E:7800 timer when the list reaches it, ending the 224-frame fireball hover early.
-    ushort savedHealth = samus.Health;
+    int savedHealth = samus.Health;
     samus.Health = 20;
     int lowEnergyFrames = 0;
     while (state.Function == RidleyAiFunction.CeresFireballShooting && lowEnergyFrames < 224)

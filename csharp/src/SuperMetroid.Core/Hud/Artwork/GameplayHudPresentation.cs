@@ -135,7 +135,7 @@ public sealed class GameplayHudPresentation
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="health">Current energy, including full tank hundreds.</param>
     /// <param name="maxHealth">Maximum energy used to determine the visible tank count.</param>
-    public void ApplyEnergy(Span<ushort> tiles, ushort health, ushort maxHealth)
+    public void ApplyEnergy(Span<ushort> tiles, int health, int maxHealth)
     {
         ValidateTilemap(tiles);
         int fullTanks = health / 100;
@@ -149,7 +149,7 @@ public sealed class GameplayHudPresentation
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="itemIndex">Zero for missiles, one for Super Missiles, or two for Power Bombs.</param>
     /// <param name="value">The ammunition count to display.</param>
-    public void ApplyAmmo(Span<ushort> tiles, int itemIndex, ushort value)
+    public void ApplyAmmo(Span<ushort> tiles, int itemIndex, int value)
     {
         ValidateTilemap(tiles);
         (Position16<TilemapCells> anchor, int digits) = itemIndex switch

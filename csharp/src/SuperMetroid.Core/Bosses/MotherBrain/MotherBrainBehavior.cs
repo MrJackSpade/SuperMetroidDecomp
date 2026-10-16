@@ -1397,8 +1397,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? unchecked((ushort)(body.Definition.Damage >> 1))
                 : body.Definition.Damage;
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
         samus.KnockbackTimer = NativeCountdown.Start(5);
         samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? (ushort)1 : (ushort)0;
@@ -3763,8 +3763,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                     ? (ushort)(80 >> 1)
                     : (ushort)80;
             samus.Health = samus.Health <= damage
-                ? (ushort)0
-                : unchecked((ushort)(samus.Health - damage));
+                ? 0
+                : samus.Health - damage;
             samus.InvincibilityTimer = NativeCountdown.Start(96);
             samus.KnockbackTimer = NativeCountdown.Start(5);
             samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringPosition.X)) >= 0

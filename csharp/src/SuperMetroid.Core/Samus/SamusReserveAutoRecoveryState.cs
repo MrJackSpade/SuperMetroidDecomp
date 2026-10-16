@@ -18,7 +18,7 @@ public sealed class SamusReserveAutoRecoveryState
     public void Begin(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (unchecked((short)samus.Health) > 0)
+        if (samus.Health > 0)
             throw new InvalidOperationException("Reserve recovery requires nonpositive energy.");
         if ((samus.ReserveTankMode & 1) == 0 || samus.ReserveEnergy == 0)
             throw new InvalidOperationException("Automatic reserve recovery requires enabled reserves.");
@@ -46,32 +46,22 @@ public sealed class SamusReserveAutoRecoveryState
             throw new InvalidOperationException("Reserve recovery has not begun.");
 
         bool refillSoundRequested = samus.ReserveEnergy != 0 && (nmiFrameCounter & 7) == 0;
-        ushort healthBefore = samus.Health;
-        ushort reserveBefore = samus.ReserveEnergy;
+        int healthBefore = samus.Health;
+        int reserveBefore = samus.ReserveEnergy;
 
         if (samus.ReserveEnergy != 0)
         {
-            samus.Health = unchecked((ushort)(samus.Health + 1));
-            if (unchecked((short)(samus.Health - samus.MaxHealth)) >= 0)
+            samus.Health++;
+            if (samus.Health >= samus.MaxHealth)
             {
                 samus.Health = samus.MaxHealth;
                 samus.ReserveEnergy = 0;
             }
             else
             {
-                samus.ReserveEnergy = NativeWordCounter.Decrement(samus.ReserveEnergy).Value;
-                if (samus.ReserveEnergy == 0)
-                {
-                    // This is the ordinary exhaustion branch. The signed-underflow repair
-                    // below is retained for corrupt/debug WRAM parity even though a valid
-                    // reserve word reaches exactly zero first.
-                    samus.ReserveEnergy = 0;
-                }
-                else if (unchecked((short)samus.ReserveEnergy) < 0)
-                {
-                    samus.Health = unchecked((ushort)(samus.Health + samus.ReserveEnergy));
-                    samus.ReserveEnergy = 0;
-                }
+                // Native's signed-underflow repair after this decrement handled corrupt reserve words; a count
+                // decremented from a positive value reaches zero first.
+                samus.ReserveEnergy = SamusQuantity.DecrementPositive(samus.ReserveEnergy);
             }
         }
 

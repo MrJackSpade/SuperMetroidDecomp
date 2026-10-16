@@ -539,8 +539,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // the frame on which the Super Metroid forces Samus into drained crouching art.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 4;
         samus.Health = damage >= samus.Health
-            ? (ushort)1
-            : unchecked((ushort)(samus.Health - damage));
+            ? 1
+            : samus.Health - damage;
     }
 
     /// <summary>Follows the recovering Samus until sustained horizontal lock or the left-screen exit condition.</summary>

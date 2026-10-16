@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Runtime.Attract;
 public sealed record AttractDemoScene(
     ushort RoomPointer, ushort DoorPointer, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset,
     ushort Duration, AttractDemoRoomSetup RoomSetupPointer, AttractDemoSamusSetup SamusSetupPointer,
-    SuperMetroid.Core.Samus.SamusEquipmentFlags Items, ushort Missiles, ushort SuperMissiles, ushort PowerBombs,
-    ushort Health, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeams, ushort InputObject)
+    SuperMetroid.Core.Samus.SamusEquipmentFlags Items, int Missiles, int SuperMissiles, int PowerBombs,
+    int Health, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeams, ushort InputObject)
 {
     /// <summary>Native wrapping placement: camera + half-screen horizontally + the signed offset on each axis.</summary>
     public Position16<RoomPixels> SamusPosition => CameraPosition + LoadStationEntry.SamusOffsetOrigin + SamusOffset;

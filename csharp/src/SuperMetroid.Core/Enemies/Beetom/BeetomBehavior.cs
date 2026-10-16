@@ -532,8 +532,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? unchecked((ushort)(slot.Definition.Damage >> 1))
                 : slot.Definition.Damage;
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
     }

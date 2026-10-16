@@ -219,7 +219,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // Every overlapping actor invokes the queue routine independently. Using the
             // legacy one-value family field here collapsed a room full of attached actors
             // into one request and erased the cartridge's sound-backlog processing delay.
-            if ((_frameContext._randomEnemyCounter & 7) == 7 && unchecked((short)(samus.Health - 30)) >= 0)
+            if ((_frameContext._randomEnemyCounter & 7) == 7 && samus.Health >= 30)
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
 
             if (unchecked((short)(state.AttachmentDamageTimer - MochtroidAttachmentDamagePeriod)) >= 0)
@@ -244,8 +244,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
                     ? unchecked((ushort)(slot.Definition.Damage >> 1))
                     : slot.Definition.Damage;
             samus.Health = samus.Health <= damage
-                ? (ushort)0
-                : unchecked((ushort)(samus.Health - damage));
+                ? 0
+                : samus.Health - damage;
         }
         else
         {

@@ -43,6 +43,13 @@ internal static void VerifyTypedNativeWords()
     AssertEqual(ResumeChargingBeamSoundLatch.SignedLatch, SamusSnapshotWords.DecodeResumeChargingBeamSound(ushort.MaxValue), "resume latch $FFFF is the signed latch");
     AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeResumeChargingBeamSound(2), "undefined resume latch word is rejected");
 
+    // Samus counts cross the SRAM, JSON and snapshot boundaries only inside the non-negative signed word range.
+    AssertEqual(SamusQuantity.MaximumValue, SamusQuantity.Decode((ushort)SamusQuantity.MaximumValue), "the largest count word decodes");
+    AssertThrows<InvalidDataException>(() => SamusQuantity.Decode((ushort)(SamusQuantity.MaximumValue + 1)), "a signed-negative count word is rejected");
+    AssertEqual((ushort)SamusQuantity.MaximumValue, SamusQuantity.Encode(SamusQuantity.MaximumValue), "the largest count encodes");
+    AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(-1), "a negative count cannot be stored");
+    AssertThrows<InvalidOperationException>(() => SamusQuantity.Encode(SamusQuantity.MaximumValue + 1), "an oversized count cannot be stored");
+
     // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
     // branches plus the native Gravity-over-Varia priority that motivated centralization.
     AssertEqual(0, SamusEquipmentFlags.None.GetSuitPaletteTableOffset(),

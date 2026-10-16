@@ -38,9 +38,8 @@ internal sealed class BeamCombos
         SamusBeamCombination beam = new SamusBeamLoadoutWord(samus.EquippedBeams).LowNibbleCombination;
         if (!beam.IsRetail)
             throw new NotSupportedException("Out-of-table Spazer/Plasma combo dispatcher requires emulated ROM execution.");
-        short remaining = unchecked((short)(samus.PowerBombs -
-            SamusComboMechanicsDefinitions.GetPowerBombCost(beam)));
-        samus.PowerBombs = remaining < 0 ? (ushort)0 : (ushort)remaining;
+        int remaining = samus.PowerBombs - SamusComboMechanicsDefinitions.GetPowerBombCost(beam);
+        samus.PowerBombs = remaining < 0 ? 0 : remaining;
         SamusComboKind? combo = SamusComboMechanicsDefinitions.ComboKind(beam);
         // A live Ice or Plasma combo is not restarted.
         bool activated = combo is not null &&

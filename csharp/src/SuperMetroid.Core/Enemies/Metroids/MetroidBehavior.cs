@@ -287,7 +287,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
-            if ((_frameContext._randomEnemyCounter & 7) == 7 && unchecked((short)(samus.Health - 30)) >= 0)
+            if ((_frameContext._randomEnemyCounter & 7) == 7 && samus.Health >= 30)
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
             DrainSamusWithMetroid(state, samus);
         }
@@ -322,7 +322,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Samus_DealDamage(1) performs a saturating subtract and deliberately does not
         // start ordinary hurt flash, invincibility, knockback, or suit division.
-        samus.Health = samus.Health == 0 ? (ushort)0 : unchecked((ushort)(samus.Health - 1));
+        samus.Health = samus.Health == 0 ? 0 : samus.Health - 1;
     }
 
     /// <summary>Handles non-frozen recoil/ice accumulation after bank-$A0 accepts a shot.</summary>

@@ -97,7 +97,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     throw new InvalidOperationException(
                         "Ceres Ridley fireball branch requires the active Samus actor.");
                 }
-                if (unchecked((short)(samus.Health - 30)) >= 0)
+                if (samus.Health >= 30)
                     return null;
                 // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
                 // cutting the fireball hover short.

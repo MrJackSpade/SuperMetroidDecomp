@@ -2,17 +2,17 @@ namespace SuperMetroid.Core.Hud;
 
 /// <summary>Explicit inputs consumed while constructing one HUD state.</summary>
 public readonly record struct HudSnapshot(
-    ushort Health,
-    ushort MaxHealth,
-    ushort Missiles,
-    ushort MaxMissiles,
-    ushort SuperMissiles,
-    ushort MaxSuperMissiles,
-    ushort PowerBombs,
-    ushort MaxPowerBombs,
+    int Health,
+    int MaxHealth,
+    int Missiles,
+    int MaxMissiles,
+    int SuperMissiles,
+    int MaxSuperMissiles,
+    int PowerBombs,
+    int MaxPowerBombs,
     SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems,
     ushort SelectedItem,
-    ushort ReserveHealth,
+    int ReserveHealth,
     ushort ReserveMode)
 {
     /// <summary>A useful pre-item debugging state: 99 energy and no equipment.</summary>

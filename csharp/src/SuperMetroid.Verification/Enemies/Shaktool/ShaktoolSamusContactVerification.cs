@@ -33,7 +33,7 @@ internal static class ShaktoolSamusContactVerification
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = NativeCountdown.Start(0);
-        ushort healthBefore = samus.Health;
+        int healthBefore = samus.Health;
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
             new Position16<RoomPixels>((ushort)0, (ushort)0));

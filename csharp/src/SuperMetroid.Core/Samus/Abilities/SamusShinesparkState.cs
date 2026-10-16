@@ -441,8 +441,7 @@ false);
         bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The host cheat bypasses only the energy exit. Terrain/enemy collision still
         // terminates all three launch directions through the ordinary crash handler.
-        bool hasNativeEnergy = unchecked((short)(samus.Health -
-            SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy)) >= 0;
+        bool hasNativeEnergy = samus.Health >= SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy;
         bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasNativeEnergy;
         if (collided || lowEnergy)
             BeginCrash(samus);
@@ -455,7 +454,7 @@ false);
             ? samus.Health > 1
             : hasNativeEnergy;
         if (drained)
-            samus.Health = NativeWordCounter.Decrement(samus.Health).Value;
+            samus.Health = SamusQuantity.DecrementPositive(samus.Health);
 
         return new ShinesparkMovementResult(
 false);

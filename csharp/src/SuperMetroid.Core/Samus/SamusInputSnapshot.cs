@@ -82,7 +82,7 @@ internal sealed class SamusInputSnapshot
     /// <summary>Health-feedback tail of $90:EAB3, independent of knockback admission.</summary>
     internal void UpdateHurtFlashFromHealthLoss()
     {
-        if (unchecked((short)(_samus.Health - _samus.PreviousHealthForHurtCheck)) < 0 && _samus.HurtFlashCounter == 0)
+        if (_samus.Health < _samus.PreviousHealthForHurtCheck && _samus.HurtFlashCounter == 0)
             _samus.HurtFlashCounter = 1;
         _samus.PreviousHealthForHurtCheck = _samus.Health;
     }

@@ -13,17 +13,17 @@ public sealed record SuperMetroidSaveSlot(
     SamusBeamFlags EquippedBeams,
     SamusBeamFlags CollectedBeams,
     ushort ReserveMode,
-    ushort Health,
-    ushort MaxHealth,
-    ushort Missiles,
-    ushort MaxMissiles,
-    ushort SuperMissiles,
-    ushort MaxSuperMissiles,
-    ushort PowerBombs,
-    ushort MaxPowerBombs,
+    int Health,
+    int MaxHealth,
+    int Missiles,
+    int MaxMissiles,
+    int SuperMissiles,
+    int MaxSuperMissiles,
+    int PowerBombs,
+    int MaxPowerBombs,
     ushort HudItem,
-    ushort MaxReserveEnergy,
-    ushort ReserveEnergy,
+    int MaxReserveEnergy,
+    int ReserveEnergy,
     ushort GameTimeFrames,
     ushort GameTimeSeconds,
     ushort GameTimeMinutes,
@@ -64,7 +64,7 @@ public sealed record SuperMetroidSaveSlot(
     public bool IconCancelEnabled { get; init; }
 
     /// <summary>The persistent excess-missile accumulator mirrored from WRAM <c>$09D8</c>.</summary>
-    public ushort ReserveMissiles { get; init; }
+    public int ReserveMissiles { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting stored at WRAM <c>$09E2</c> is enabled.</summary>
     public bool JapaneseText { get; init; }

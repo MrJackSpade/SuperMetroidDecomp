@@ -103,7 +103,7 @@ internal static class CrystalFlashCleanupVerification
                 contactEnemy.SpritemapPointer = RipperAnimationsConstants.Spritemaps(
                     runtime.Enemies.RipperBehavior._extensions[contactEnemy.SlotIndex].Program.Program).First();
             }
-            ushort beforeHealth = samus.Health;
+            int beforeHealth = samus.Health;
             // Later projectile processing can delete the actor and clear its header.
             // Read the contact damage before stepping, not from a recycled slot.
             ushort contactDamage = testContact ? (contactEnemy ?? throw new InvalidOperationException("Verification requires contactEnemy.")).Definition.Damage : (ushort)0;

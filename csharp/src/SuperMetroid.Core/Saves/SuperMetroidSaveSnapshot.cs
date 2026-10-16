@@ -22,7 +22,7 @@ public sealed record SuperMetroidSaveSnapshot
     public bool IconCancelEnabled { get; init; }
 
     /// <summary>The persistent excess-missile accumulator written to WRAM <c>$09D8</c>.</summary>
-    public ushort ReserveMissiles { get; init; }
+    public int ReserveMissiles { get; init; }
 
     /// <summary>Whether the alternate Japanese text setting written to WRAM <c>$09E2</c> is enabled.</summary>
     public bool JapaneseText { get; init; }
@@ -46,37 +46,37 @@ public sealed record SuperMetroidSaveSnapshot
     public ushort ReserveMode { get; init; }
 
     /// <summary>Samus's current energy in energy-point units.</summary>
-    public ushort Health { get; init; } = 99;
+    public int Health { get; init; } = 99;
 
     /// <summary>Samus's energy capacity in energy-point units.</summary>
-    public ushort MaxHealth { get; init; } = 99;
+    public int MaxHealth { get; init; } = 99;
 
     /// <summary>The current ordinary missile count.</summary>
-    public ushort Missiles { get; init; }
+    public int Missiles { get; init; }
 
     /// <summary>The acquired ordinary missile capacity.</summary>
-    public ushort MaxMissiles { get; init; }
+    public int MaxMissiles { get; init; }
 
     /// <summary>The current super missile count.</summary>
-    public ushort SuperMissiles { get; init; }
+    public int SuperMissiles { get; init; }
 
     /// <summary>The acquired super missile capacity.</summary>
-    public ushort MaxSuperMissiles { get; init; }
+    public int MaxSuperMissiles { get; init; }
 
     /// <summary>The current power bomb count.</summary>
-    public ushort PowerBombs { get; init; }
+    public int PowerBombs { get; init; }
 
     /// <summary>The acquired power bomb capacity.</summary>
-    public ushort MaxPowerBombs { get; init; }
+    public int MaxPowerBombs { get; init; }
 
     /// <summary>The native HUD selection index: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
     public ushort HudItem { get; init; }
 
     /// <summary>The acquired reserve-tank capacity in energy-point units.</summary>
-    public ushort MaxReserveEnergy { get; init; }
+    public int MaxReserveEnergy { get; init; }
 
     /// <summary>The energy-point total currently stored in reserve tanks.</summary>
-    public ushort ReserveEnergy { get; init; }
+    public int ReserveEnergy { get; init; }
 
     /// <summary>The sub-second gameplay counter, normally in the inclusive range 0 through 59.</summary>
     public ushort GameTimeFrames { get; init; }

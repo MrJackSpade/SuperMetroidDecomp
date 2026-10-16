@@ -1050,8 +1050,8 @@ internal sealed class EnemyCollision
         // it for Varia before normal touch publishes the invincibility/hurt request.
         ushort damage = SamusSuitDamage.Reduce(damageBeforeSuit, samus.EquippedItems);
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
         ushort direction = samus.Position.X.Whole >= damageSourceX ? (ushort)1 : (ushort)0;
         // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no

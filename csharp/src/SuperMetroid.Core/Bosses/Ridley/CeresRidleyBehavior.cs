@@ -541,7 +541,7 @@ internal sealed class CeresRidleyBehavior
         // The other original termination route is Samus energy below 30. A synthetic room
         // fixture may omit Samus, in which case only the shot-counter route is meaningful.
         // $A6:A706 jumps into the real retreat, so its first acceleration runs this call.
-        if (samus is not null && unchecked((short)(samus.Health - 30)) < 0)
+        if (samus is not null && samus.Health < 30)
         {
             state.FightMode = RidleyFightMode.NotFighting;
             BeginCeresRidleyRetreat(state);

@@ -55,6 +55,9 @@ The native per-axis arithmetic lives once in `SnesSignedSixteenSixteen` and `Sne
 (whole/fraction assembly, carry/borrow, 32-bit wrap, half-word replacement). The two-dimensional
 types delegate to it and never re-derive it.
 
+Native 16-bit storage is a rule for spatial values only. Non-spatial gameplay quantities may be widened under
+`docs/cartridge-encoding.md`'s "Widened gameplay quantities" rule.
+
 Integer arithmetic that builds a coordinate converts explicitly: `checked((ushort)…)` where a
 negative or oversized value is a defect (sizes, image pixels, authored anchors), and
 `unchecked((ushort)…)` where native code works in 16-bit words and a later bounds check rejects

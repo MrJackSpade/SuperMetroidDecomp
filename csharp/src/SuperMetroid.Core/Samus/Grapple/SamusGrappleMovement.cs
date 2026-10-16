@@ -606,8 +606,8 @@ public static class SamusGrappleMovement
                 ? unchecked((ushort)(damageBeforeSuit >> 1))
                 : damageBeforeSuit;
         samus.Health = samus.Health <= damage
-            ? (ushort)0
-            : unchecked((ushort)(samus.Health - damage));
+            ? 0
+            : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
 
         // Facing left is knocked right and facing right is knocked left. Start owns the

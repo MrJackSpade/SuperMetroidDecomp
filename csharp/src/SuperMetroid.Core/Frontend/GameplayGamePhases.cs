@@ -321,7 +321,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Freezes gameplay and enters reserve recovery or death after Samus reaches zero health.</summary>
     private bool RouteOutOfHealth()
     {
-        if (session.runtime?.Player.Samus is not SamusState samus || unchecked((short)samus.Health) > 0)
+        if (session.runtime?.Player.Samus is not SamusState samus || samus.Health > 0)
             return false;
 
         session.runtime.Freeze.GameplayTimeFrozen = true;

@@ -59,9 +59,10 @@ internal static class GoldenTorizoCodeVerification
         }
 
         static ushort[] Snapshot(SamusState samus) =>
-            [samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
-             samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
-             samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems.ToNativeWord(), samus.CollectedItems.ToNativeWord(),
+            [.. new[] { samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
+                samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
+                samus.PowerBombs, samus.MaxPowerBombs }.Select(SamusQuantity.Encode),
+             samus.EquippedItems.ToNativeWord(), samus.CollectedItems.ToNativeWord(),
              samus.EquippedBeams.ToNativeWord(), samus.CollectedBeams.ToNativeWord()];
     }
 

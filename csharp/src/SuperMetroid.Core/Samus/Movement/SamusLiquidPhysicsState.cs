@@ -593,15 +593,14 @@ public sealed class SamusLiquidPhysicsState
         int subunitResult = samus.SubunitHealth - appliedSubDamage;
         samus.SubunitHealth = unchecked((ushort)subunitResult);
         int healthResult = samus.Health - appliedDamage - (subunitResult < 0 ? 1 : 0);
-        ushort wrappedHealth = unchecked((ushort)healthResult);
-        if (unchecked((short)wrappedHealth) < 0)
+        if (healthResult < 0)
         {
             samus.SubunitHealth = 0;
             samus.Health = 0;
         }
         else
         {
-            samus.Health = wrappedHealth;
+            samus.Health = healthResult;
         }
 
         PeriodicSubDamage = 0;

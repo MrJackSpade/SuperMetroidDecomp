@@ -494,7 +494,7 @@ internal static void VerifyFrameRuntime()
 
     // Consume the lent missile exactly as the cartridge firing routine does. Completion
     // must keep it at one instead of allowing the native zero-ammo auto-cancel branch.
-    infiniteAmmoSamus.Missiles = NativeWordCounter.Decrement(infiniteAmmoSamus.Missiles).Value;
+    infiniteAmmoSamus.Missiles--;
     ammoGuard.Complete(infiniteAmmoSamus);
     AssertEqual((ushort)1, infiniteAmmoSamus.Missiles,
         "infinite ammo preserves selection after the final missile");

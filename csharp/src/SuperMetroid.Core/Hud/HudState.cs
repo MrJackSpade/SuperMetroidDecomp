@@ -314,7 +314,7 @@ public sealed class HudState
     }
 
     /// <summary>Updates energy digits and tanks through the installed HUD artwork.</summary>
-    private void DrawHealth(ushort health, ushort maxHealth)
+    private void DrawHealth(int health, int maxHealth)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD energy requires installed presentation assets.")).ApplyEnergy(_tiles, health, maxHealth);
@@ -357,7 +357,7 @@ public sealed class HudState
     }
 
     /// <summary>Writes the ammunition digits for one enabled HUD item.</summary>
-    private void DrawAmmo(int itemIndex, ushort value)
+    private void DrawAmmo(int itemIndex, int value)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD ammunition requires installed presentation assets.")).ApplyAmmo(_tiles, itemIndex, value);

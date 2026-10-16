@@ -401,7 +401,7 @@ public sealed class SamusBombProjectileSystem
 
         if (placingPowerBomb)
         {
-            samus.PowerBombs = NativeWordCounter.Decrement(samus.PowerBombs).Value;
+            samus.PowerBombs = SamusQuantity.DecrementPositive(samus.PowerBombs);
             PowerBombExplosion.Arm();
         }
 

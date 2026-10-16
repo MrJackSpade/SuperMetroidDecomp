@@ -11,14 +11,13 @@ public static class SamusEnergyRestoration
     public static void Restore(SamusState samus, ushort amount)
     {
         Ensure.NotNull(samus);
-        ushort restored = unchecked((ushort)(samus.Health + amount));
+        int restored = samus.Health + amount;
         samus.Health = restored;
-        if (unchecked((short)(restored - samus.MaxHealth)) < 0)
+        if (restored < samus.MaxHealth)
             return;
 
-        ushort overflow = unchecked((ushort)(restored - samus.MaxHealth));
-        ushort reserve = unchecked((ushort)(samus.ReserveEnergy + overflow));
-        if (unchecked((short)(reserve - samus.MaxReserveEnergy)) >= 0)
+        int reserve = samus.ReserveEnergy + restored - samus.MaxHealth;
+        if (reserve >= samus.MaxReserveEnergy)
             reserve = samus.MaxReserveEnergy;
         samus.ReserveEnergy = reserve;
         if (reserve != 0 && samus.ReserveTankMode == 0)

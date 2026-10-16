@@ -404,7 +404,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
         // `$A9:B9C5-$B9D3` selects command five at 700 energy or above and command `$18`
         // below it. CPY/BPL is a signed 16-bit branch, retained by NativeAtLeast.
-        if (NativeAtLeast(samus.Health, 700))
+        if (samus.Health >= 700)
             samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else
             samus.Drained.SetupForRainbowBeamUnableToStand(samus);
@@ -1080,8 +1080,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // carry left by LSR EquippedItems: bit zero adds one back, producing -1 with Varia
         // and -2 without it. CMP #1/BPL then clamps wrapped/below-one health to zero.
         int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 1 : 2;
-        ushort candidate = unchecked((ushort)(samus.Health - damage));
-        samus.Health = NativeAtLeast(candidate, 1) ? candidate : (ushort)0;
+        int candidate = samus.Health - damage;
+        samus.Health = candidate >= 1 ? candidate : 0;
     }
 
     /// <summary>
@@ -1104,16 +1104,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>Decrements one ammo count and clears the selected HUD item on depletion.</summary>
-    private static ushort DecrementOneAmmoType(
+    private static int DecrementOneAmmoType(
         SamusState samus,
-        ushort current,
+        int current,
         ushort selectedItem)
     {
         if (current == 0)
             return 0;
 
-        ushort decremented = unchecked((ushort)(current - 1));
-        if (NativeAtLeast(decremented, 1))
+        int decremented = current - 1;
+        if (decremented >= 1)
             return decremented;
 
         // The 65816 briefly reloads A with SelectedHUDItem for the comparison, but both the
@@ -1145,10 +1145,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         bool soundQueued = false;
         bool paletteRequested = false;
         MotherBrainRainbowExplosionRequest? explosion = null;
-        ushort healthBefore = samus.Health;
-        ushort missilesBefore = samus.Missiles;
-        ushort supersBefore = samus.SuperMissiles;
-        ushort bombsBefore = samus.PowerBombs;
+        int healthBefore = samus.Health;
+        int missilesBefore = samus.Missiles;
+        int supersBefore = samus.SuperMissiles;
+        int bombsBefore = samus.PowerBombs;
         bool chargeSoundQueued = false;
         bool bodyWalkRequested = false;
         bool bodyPostureRequested = false;
@@ -1354,7 +1354,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    if (NativeAtLeast(samus.Health, 400))
+                    if (samus.Health >= 400)
                     {
                         Phase = MotherBrainRainbowBeamAttackPhase.RepeatAttack;
                     }
@@ -1378,7 +1378,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // damage is `$50`, suit-divided, multiplied by four, then padded by twenty.
                 // The native BPL comparison treats equality as done and changes the body
                 // function without falling into the stand-up handler on this call.
-                if (NativeAtLeast(CalculateFinishOffHealthThreshold(samus, 80), samus.Health))
+                if (CalculateFinishOffHealthThreshold(samus, 80) >= samus.Health)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.FinishStandUp;
                     break;
@@ -1398,7 +1398,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // A weaker `$A0` nominal-hit threshold biases wounded Samus toward onion
                 // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
                 // bomb; all remaining admitted values still choose two onion rings.
-                if (NativeAtLeast(CalculateFinishOffHealthThreshold(samus, 160), samus.Health) ||
+                if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
                     (frame.RandomNumberSeed & 4095) < 4080)
                 {
                     SetHeadProgram(MotherBrainHeadProgram.TwoOnionRingsPhase2);

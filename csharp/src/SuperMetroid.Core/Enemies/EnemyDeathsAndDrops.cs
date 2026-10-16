@@ -497,14 +497,13 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Fills health first, spilling excess into capped reserves and enabling reserve auto mode.</summary>
     private static void RestoreEnemyDropEnergy(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.Health + amount));
+        int restored = samus.Health + amount;
         samus.Health = restored;
-        if (unchecked((short)(restored - samus.MaxHealth)) < 0)
+        if (restored < samus.MaxHealth)
             return;
 
-        ushort reserve = unchecked((ushort)(
-            samus.ReserveEnergy + restored - samus.MaxHealth));
-        if (unchecked((short)(reserve - samus.MaxReserveEnergy)) >= 0)
+        int reserve = samus.ReserveEnergy + restored - samus.MaxHealth;
+        if (reserve >= samus.MaxReserveEnergy)
             reserve = samus.MaxReserveEnergy;
         samus.ReserveEnergy = reserve;
         if (reserve != 0 && samus.ReserveTankMode == 0)
@@ -515,17 +514,14 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Fills missiles first, spilling excess into reserves capped by inventory and 99.</summary>
     private static void RestoreEnemyDropMissiles(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.Missiles + amount));
+        int restored = samus.Missiles + amount;
         samus.Missiles = restored;
-        if (unchecked((short)(restored - samus.MaxMissiles)) < 0)
+        if (restored < samus.MaxMissiles)
             return;
 
-        samus.ReserveMissiles = unchecked((ushort)(
-            samus.ReserveMissiles + restored - samus.MaxMissiles));
-        ushort reserveCap = unchecked((short)(samus.MaxMissiles - 99)) < 0
-            ? samus.MaxMissiles
-            : (ushort)99;
-        if (unchecked((short)(samus.ReserveMissiles - reserveCap)) >= 0)
+        samus.ReserveMissiles += restored - samus.MaxMissiles;
+        int reserveCap = Math.Min(samus.MaxMissiles, 99);
+        if (samus.ReserveMissiles >= reserveCap)
             samus.ReserveMissiles = reserveCap;
         samus.Missiles = samus.MaxMissiles;
     }
@@ -533,10 +529,9 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Adds a Super Missile and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropSuperMissiles(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.SuperMissiles + amount));
+        int restored = samus.SuperMissiles + amount;
         samus.SuperMissiles = restored;
-        if (restored != samus.MaxSuperMissiles &&
-            unchecked((short)(restored - samus.MaxSuperMissiles)) >= 0)
+        if (restored > samus.MaxSuperMissiles)
         {
             samus.SuperMissiles = samus.MaxSuperMissiles;
         }
@@ -545,10 +540,9 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Adds a Power Bomb and clamps it to the owned maximum.</summary>
     private static void RestoreEnemyDropPowerBombs(SamusState samus, ushort amount)
     {
-        ushort restored = unchecked((ushort)(samus.PowerBombs + amount));
+        int restored = samus.PowerBombs + amount;
         samus.PowerBombs = restored;
-        if (restored != samus.MaxPowerBombs &&
-            unchecked((short)(restored - samus.MaxPowerBombs)) >= 0)
+        if (restored > samus.MaxPowerBombs)
         {
             samus.PowerBombs = samus.MaxPowerBombs;
         }

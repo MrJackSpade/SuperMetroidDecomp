@@ -486,8 +486,8 @@ public sealed class BabyMetroidCutsceneState
 
                 // `$C59F` adds exactly one energy per enemy-processing call. CMP/BMI is a
                 // signed 16-bit comparison; normal game maxima stay in its positive range.
-                ushort candidateHealth = unchecked((ushort)(samus.Health + 1));
-                if (unchecked((short)(candidateHealth - samus.MaxHealth)) < 0)
+                int candidateHealth = samus.Health + 1;
+                if (candidateHealth < samus.MaxHealth)
                 {
                     samus.Health = candidateHealth;
                 }

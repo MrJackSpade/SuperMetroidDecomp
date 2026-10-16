@@ -40,8 +40,16 @@ internal static class SymbolRelocator
     /// <summary>Captures a selected symbol with the syntax and semantic context needed to rewrite it.</summary>
     private sealed record Move(ISymbol Symbol, SyntaxNode Node, SyntaxTree Tree, SemanticModel Model, Placement Placement)
     {
-        /// <summary>The staying type that receives an adapter for a moved member.</summary>
-        public INamedTypeSymbol? Owner => Placement == Placement.WholeType ? null : Symbol.ContainingType;
+        /// <summary>
+        /// The staying type that receives an adapter for a moved member. A member of an extension block belongs to
+        /// the static class declaring the block, not to the block's synthesized extension type.
+        /// </summary>
+        public INamedTypeSymbol? Owner => Placement == Placement.WholeType ? null
+            : Symbol.ContainingType is { IsExtension: true, ContainingType: { } declaring } ? declaring : Symbol.ContainingType;
+
+        /// <summary>The receiver parameter of the extension block that declared this member, or null for a type member.</summary>
+        public string? ExtensionReceiver => Node.Parent is ExtensionBlockDeclarationSyntax { ParameterList.Parameters: [var receiver] }
+            ? receiver.ToString() : null;
 
         /// <summary>The adapter owner of a member move; whole-type moves have none.</summary>
         public INamedTypeSymbol AdapterOwner => Owner ??
@@ -319,7 +327,11 @@ internal static class SymbolRelocator
             var file = FileFor(adapterFile, move.Tree);
             var adapter = file.Adapter(move.AdapterOwner, movedInterfaces, implementation => MoveOf(implementation) is not null);
             text = AsAdapterMember(text);
-            (move.Placement == Placement.ExtensionMember ? adapter.Extensions : adapter.Members).Add(text);
+            if (move.Placement == Placement.ExtensionMember)
+                adapter.Extensions.Add((move.ExtensionReceiver ?? adapter.SelfReceiver,
+                    move.ExtensionReceiver is null ? text : Outdent(text)));
+            else
+                adapter.Members.Add(text);
         }
 
         // 5. Apply in-place edits, removing moved declarations.
@@ -376,6 +388,10 @@ internal static class SymbolRelocator
         if (symbol is INamedTypeSymbol type)
             return type.ContainingType is { IsGenericType: true } ? null : Placement.WholeType;
         if (symbol.ContainingType is not { } owner || owner.IsGenericType) return null;
+        // A member of an extension block keeps its receiver: it moves into a block with that same receiver.
+        if (owner.IsExtension)
+            return symbol is IMethodSymbol { MethodKind: MethodKind.Ordinary } or IPropertySymbol { IsIndexer: false }
+                ? Placement.ExtensionMember : null;
         // An enum value cannot leave its enum.
         if (owner.TypeKind == TypeKind.Enum) return null;
         switch (symbol)
@@ -497,6 +513,10 @@ internal static class SymbolRelocator
         return text.ToString();
     }
 
+    /// <summary>Removes the one indentation level an extension block added, so the member re-indents like a type member.</summary>
+    private static string Outdent(string text) =>
+        string.Join("\n", text.Replace("\r\n", "\n").Split('\n').Select(l => l.StartsWith("    ", StringComparison.Ordinal) ? l[4..] : l));
+
     /// <summary>Private and protected members become internal once outside their owner.</summary>
     private static string AsAdapterMember(string text)
     {
@@ -604,13 +624,16 @@ internal static class SymbolRelocator
                     appended.Append("\r\n").Append(adapter.RenderExtensions());
                     continue;
                 }
-                // Instance members join the class's receiver block for the owner, or open one.
-                var block = extensionsClass.Members.OfType<ExtensionBlockDeclarationSyntax>().FirstOrDefault(b =>
-                    b.ParameterList?.Parameters is [{ Identifier.Text: "self", Type: { } type }] && type.ToString() == TypeName(adapter.Owner));
-                if (block is not null)
-                    InsertBefore(block.CloseBraceToken, adapter.Extensions, "    ");
-                else
-                    InsertBefore(extensionsClass.CloseBraceToken, [adapter.ExtensionBlock()], "");
+                // Instance members join the class's block for their receiver, or open one.
+                foreach (var receiver in adapter.Extensions.Select(e => e.Receiver).Distinct(StringComparer.Ordinal))
+                {
+                    var block = extensionsClass.Members.OfType<ExtensionBlockDeclarationSyntax>().FirstOrDefault(b =>
+                        b.ParameterList?.Parameters is [var parameter] && parameter.ToString() == receiver);
+                    if (block is not null)
+                        InsertBefore(block.CloseBraceToken, adapter.ExtensionsFor(receiver), "    ");
+                    else
+                        InsertBefore(extensionsClass.CloseBraceToken, [adapter.ExtensionBlock(receiver)], "");
+                }
             }
             foreach (string type in Types)
                 appended.Append("\r\n").Append(type.Trim('\r', '\n')).Append("\r\n");
@@ -653,14 +676,22 @@ internal static class SymbolRelocator
         public List<string> Interfaces { get; } = interfaces;
         /// <summary>Static members, nested types, and retained-contract forwarders in the adapter.</summary>
         public List<string> Members { get; } = [];
-        /// <summary>Instance methods and properties rendered into an extension block.</summary>
-        public List<string> Extensions { get; } = [];
+        /// <summary>Instance methods and properties rendered into extension blocks, each with its receiver parameter.</summary>
+        public List<(string Receiver, string Text)> Extensions { get; } = [];
+
+        /// <summary>The receiver of a moved instance member of the owner itself.</summary>
+        public string SelfReceiver => TypeName(Owner) + " self";
+
+        /// <summary>The moved members whose block takes <paramref name="receiver"/>.</summary>
+        public List<string> ExtensionsFor(string receiver) =>
+            [.. Extensions.Where(e => e.Receiver == receiver).Select(e => e.Text)];
 
         /// <summary>Emits the class holding the owner's moved static members.</summary>
         public string RenderMembers()
         {
             string ownerName = TypeName(Owner);
-            var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n");
+            var output = new StringBuilder("/// <summary>").Append(string.Format(style.MembersSummary, ownerName)).Append("</summary>\r\n")
+                .Append(OwnerAttributes());
             if (Interfaces.Count > 0)
                 output.Append($"[ToolingFor(typeof({ownerName}))]\r\ninternal abstract class {style.AdapterName(Owner)} : {string.Join(", ", Interfaces)}\r\n");
             else
@@ -671,15 +702,24 @@ internal static class SymbolRelocator
         /// <summary>Emits the class holding the owner's moved instance members.</summary>
         public string RenderExtensions() =>
             new StringBuilder("/// <summary>").Append(string.Format(style.ExtensionsSummary, TypeName(Owner))).Append("</summary>\r\n")
-                .Append($"internal static class {style.ExtensionsName(Owner)}\r\n{{\r\n").Append(ExtensionBlock()).Append("}\r\n").ToString();
+                .Append(OwnerAttributes())
+                .Append($"internal static class {style.ExtensionsName(Owner)}\r\n{{\r\n")
+                .Append(string.Join("\r\n", Extensions.Select(e => e.Receiver).Distinct(StringComparer.Ordinal).Select(ExtensionBlock)))
+                .Append("}\r\n").ToString();
 
-        /// <summary>The owner's documented receiver block holding every moved instance member, indented one level.</summary>
-        public string ExtensionBlock()
+        /// <summary>The owner's analyzer-classification attributes, one per line, as applied in its source.</summary>
+        private string OwnerAttributes() => string.Concat(Owner.GetAttributes()
+            .Where(attribute => attribute.AttributeClass is { } type && RelocationStyle.CarriedAttributes.Contains(type.Name))
+            .Select(attribute => "[" + (attribute.ApplicationSyntaxReference ?? throw new InvalidOperationException(
+                $"{Owner.Name} carries {attribute.AttributeClass} without source syntax.")).GetSyntax() + "]\r\n"));
+
+        /// <summary>The documented block for one receiver holding its moved members, indented one level.</summary>
+        public string ExtensionBlock(string receiver)
         {
             string ownerName = TypeName(Owner);
             var output = new StringBuilder("    /// <summary>").Append(string.Format(style.ExtensionBlockSummary, ownerName)).Append("</summary>\r\n")
-                .Append($"    extension({ownerName} self)\r\n    {{\r\n");
-            foreach (string member in Extensions)
+                .Append($"    extension({receiver})\r\n    {{\r\n");
+            foreach (string member in ExtensionsFor(receiver))
                 output.Append(Indent(member.Trim('\r', '\n'))).Append("\r\n");
             return output.Append("    }\r\n").ToString();
         }

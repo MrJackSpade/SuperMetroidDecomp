@@ -106,7 +106,10 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 targets.AddRange([list.LengthSymbol, list.IndexerSymbol]);
                 return;
             case RecursivePatternSyntax when model.GetOperation(node) is IRecursivePatternOperation recursive:
-                targets.Add(recursive.DeconstructSymbol);
+                if (recursive.DeconstructSymbol is IMethodSymbol deconstructor)
+                    AddDeconstructor(deconstructor, targets);
+                else
+                    targets.Add(recursive.DeconstructSymbol);
                 return;
             // An attribute binds to its constructor; applying it also uses the attribute type itself.
             case AttributeSyntax:
@@ -261,11 +264,24 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
     /// <summary>Includes deconstructor calls and user conversions through nested tuple patterns.</summary>
     private static void AddDeconstruction(DeconstructionInfo info, List<ISymbol?> targets)
     {
-        targets.Add(info.Method);
+        AddDeconstructor(info.Method, targets);
         if (info.Conversion is { IsUserDefined: true } conversion)
             targets.Add(conversion.MethodSymbol);
         foreach (var nested in info.Nested)
             AddDeconstruction(nested, targets);
+    }
+
+    /// <summary>
+    /// Adds a deconstructor call. A record's synthesized <c>Deconstruct</c> has no source body, so the
+    /// positional properties it reads are reached here; each out parameter names its property.
+    /// </summary>
+    private static void AddDeconstructor(IMethodSymbol? method, List<ISymbol?> targets)
+    {
+        targets.Add(method);
+        if (method is not { IsImplicitlyDeclared: true, ContainingType: { IsRecord: true } record })
+            return;
+        foreach (var parameter in method.Parameters)
+            targets.Add(record.GetMembers(parameter.Name).OfType<IPropertySymbol>().Single());
     }
 
     /// <summary>Finds the base constructor called when source supplies no explicit arguments.</summary>

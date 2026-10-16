@@ -12,9 +12,4 @@
     <!-- netstandard2.0 has no System.Text.Json; .NET compiler hosts supply the assembly from their shared framework. -->
     <PackageReference Include="System.Text.Json" Version="10.0.0" PrivateAssets="all" />
   </ItemGroup>
-  <ItemGroup>
-    <!-- Roslyn release tracking (RS2008): every rule's id, category and default severity. -->
-    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
-    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
-  </ItemGroup>
 </Project>

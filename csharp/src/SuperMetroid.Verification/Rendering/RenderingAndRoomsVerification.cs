@@ -38,11 +38,11 @@ internal static class RenderingAndRoomsVerification
 /// seeded bytes. This preserves native padding behavior without a cartridge reader.
 /// </summary>
 private static RoomScrollGrid LoadExplicitScrollFixture(
-    TestAddressSpace bus, ReadOnlySpan<byte> source, Extent16<RoomScreens> size)
+    ReadOnlySpan<byte> source, Extent16<RoomScreens> size)
 {
     byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
     source[..Math.Min(source.Length, storage.Length)].CopyTo(storage);
-    return RoomScrollGrid.LoadCompiled(bus, storage, size);
+    return RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, size);
 }
 
 /// <summary>An explicit scroll table whose 50 copied bytes are all blue (one).</summary>
@@ -429,10 +429,9 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
         source[index] = (byte)(0x80 + index);
 
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
+    RoomScrollGrid grid = LoadExplicitScrollFixture(source, new Extent16<RoomScreens>(3, 2));
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
-    AssertEqual(0x86, new RoomScrollMemory(bus).Zones[6], "scroll loader mirrors WRAM padding");
 
     // Single Chamber's neighboring room uses a four-byte explicit table for a 4x2 room.
     // The native fixed-size copy makes the following room header ($1F,$02,$1D,$04) its
@@ -442,7 +441,6 @@ internal static void VerifyRoomScrollGridAndBoundaryCamera()
     var shortTableBus = new TestAddressSpace();
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
-        shortTableBus,
         shortTableAndFollowingHeader,
         new Extent16<RoomScreens>(4, 2));
     AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
@@ -528,7 +526,7 @@ internal static void VerifyMovedSamusCameraTracking()
 {
     var bus = new TestAddressSpace();
     byte[] source = AllBlueExplicitScrollTable();
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
+    RoomScrollGrid grid = LoadExplicitScrollFixture(source, new Extent16<RoomScreens>(3, 2));
     var camera = new ScrollBoundaryCamera(grid);
 
     // Facing right, normal forward movement, distance slot zero targets Samus X-$60.
@@ -610,7 +608,6 @@ internal static void VerifyMovedSamusCameraTracking()
     // a zero byte there makes the blue bottom row clamp to Y=$0400 without an array error.
     var bottomEdgeBus = new TestAddressSpace();
     RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
-        bottomEdgeBus,
         source,
         new Extent16<RoomScreens>(9, 5));
     var bottomEdgeCamera = new ScrollBoundaryCamera(bottomEdgeGrid);
@@ -625,7 +622,6 @@ internal static void VerifyMovedSamusCameraTracking()
     // three-row grid leaves the cell below blue so the candidate remains unrounded.
     var verticalBus = new TestAddressSpace();
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
-        verticalBus,
         source,
         new Extent16<RoomScreens>(3, 3));
     verticalGrid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);

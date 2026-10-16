@@ -16,7 +16,7 @@ internal static class StatueSplashVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xa66a);
-        var assets = LoadFixtureRoomAssets(bus, room);
+        var assets = LoadFixtureRoomAssets(room);
         int splashes = 0;
         for (ushort random = 0; random < 64; random++)
         {

@@ -29,7 +29,7 @@ internal static class RoomScrollDefinitionsVerification
             .Order()
             .ToArray();
 
-        var scrolls = new RoomScrollMemory(bus);
+        var storage = new RoomScrollStorage();
         var auditedStates = new HashSet<ushort>();
         var explicitPointers = new HashSet<ushort>();
         int explicitStateCount = 0;
@@ -64,18 +64,18 @@ internal static class RoomScrollDefinitionsVerification
                 int logicalCount = header.Size.X * header.Size.Y;
                 for (int index = 0; index < expected.Length; index++)
                 {
-                    // $82:E88D writes only the room's cells; the rest keeps the WRAM the
+                    // $82:E88D writes only the room's cells; the rest keeps the bytes the
                     // previous grid (here, the previous audited state) left behind.
                     expected[index] = index < logicalCount
                         ? (byte)(index / header.Size.X == header.Size.Y - 1
                             ? lastRow
                             : RoomScrollState.Green)
-                        : scrolls.Zones[index];
+                        : storage._bytes[index];
                 }
             }
 
             RoomScrollGrid compiled = RoomScrollDefinitions.CreateGrid(
-                NewRoomScrollNoReadAddressSpace(bus),
+                storage,
                 scrollPointer,
                 header.Size);
             AssertTrue(expected.SequenceEqual(compiled.Storage),
@@ -94,7 +94,7 @@ internal static class RoomScrollDefinitionsVerification
             () => RoomScrollDefinitions.Get(0xffff),
             "compiled scroll catalog rejects arbitrary pointers");
         AssertThrows<ArgumentException>(
-            () => RoomScrollGrid.LoadCompiled(bus, [0], new Extent16<RoomScreens>(1, 1)),
+            () => RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), [0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
         ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;
@@ -102,9 +102,8 @@ internal static class RoomScrollDefinitionsVerification
             ceresPointer);
         var guardedCeres = CreateRetailRuntimeFixture(NewRoomScrollSourceReadGuard(
             bus, ceres.State.ScrollPointer));
+        // A new session's scroll allocation starts zeroed, so Ceres's tail past its cells reads zero.
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
-        for (int index = 0; index < ceresResidue.Length; index++)
-            ceresResidue[index] = scrolls.Zones[index];
         guardedCeres.RoomLoader.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
         int ceresLogicalCount = ceres.Size.X * ceres.Size.Y;
@@ -125,16 +124,6 @@ internal static class RoomScrollDefinitionsVerification
         Console.WriteLine(
             "Room scrolls: all 323 states (200 explicit/123 implicit), 159 distinct " +
             "allocations and Ceres match without native scroll reads.");
-    }
-
-    /// <summary>Allows only prior WRAM scroll storage so implicit grids retain the previous room's residue.</summary>
-    private static MutableCartridgeReadGuard NewRoomScrollNoReadAddressSpace(ISnesAddressSpace source)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is not (>= RoomScrollGridConstants.WorkRamAddress and
-                < RoomScrollGridConstants.WorkRamAddress + RoomScrollGrid.StorageByteCount),
-            address => $"Compiled room-scroll construction read address ${address:X6}.");
-        return guard;
     }
 
     /// <summary>Rejects runtime access to the selected cartridge scroll allocation during Ceres entry.</summary>

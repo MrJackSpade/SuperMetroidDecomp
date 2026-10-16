@@ -37,7 +37,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
     {
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         var installation = RepositoryInstallation.Installation;
-        CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room,
+        CartridgeRoomAssets assets = LoadFixtureRoomAssets(room,
             installation.LoadRoomCharacters(), installation.LoadRoomPalettes(),
             installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();

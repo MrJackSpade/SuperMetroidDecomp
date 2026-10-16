@@ -40,7 +40,7 @@ internal static class MamaTurtleEnemyDefinitionsVerification
 
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, 0xd055);
         var installation = RepositoryInstallation.Installation;
-        CartridgeRoomAssets assets = LoadFixtureRoomAssets(rom, room, installation.LoadRoomCharacters(),
+        CartridgeRoomAssets assets = LoadFixtureRoomAssets(room, installation.LoadRoomCharacters(),
             installation.LoadRoomPalettes(), installation.LoadRoomMetatiles(), installation.LoadRoomVisualLayouts());
         var vram = new SnesVram();
         var cgram = new SnesCgram();

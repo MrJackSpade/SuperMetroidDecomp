@@ -1127,7 +1127,7 @@ internal static class LookupStream2Verification
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
         Array.Fill(storage, (byte)1);
-        var grid = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), storage, new Extent16<RoomScreens>(3, 2));
+        var grid = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, new Extent16<RoomScreens>(3, 2));
         foreach (CameraDistanceMode mode in Enum.GetValues<CameraDistanceMode>())
         foreach (byte facing in new byte[] { 4, 8 })
         for (int reversal = 0; reversal < 4; reversal++)

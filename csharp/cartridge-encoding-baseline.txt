@@ -966,7 +966,7 @@ csharp/src/SuperMetroid.Verification/Map/ExploredMapPackingDefinitionsVerificati
 csharp/src/SuperMetroid.Verification/Map/ExploredMapPackingDefinitionsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Rendering/ObjSubscreenVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Rendering/RenderPacketCodecTestsVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Rendering/RenderingAndRoomsVerification.cs	SME6340	483
+csharp/src/SuperMetroid.Verification/Rendering/RenderingAndRoomsVerification.cs	SME6340	482
 csharp/src/SuperMetroid.Verification/Rendering/RenderingAndRoomsVerification.cs	SME6342	11
 csharp/src/SuperMetroid.Verification/Rendering/WindowPixelsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Rendering/WindowRegisterCacheVerification.cs	SME6340	48

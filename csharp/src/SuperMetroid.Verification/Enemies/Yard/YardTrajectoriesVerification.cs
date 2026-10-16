@@ -22,7 +22,7 @@ internal static class YardTrajectoriesVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
-        var assets = LoadFixtureRoomAssets(bus, room);
+        var assets = LoadFixtureRoomAssets(room);
         Suite(nameof(VerifyYardLanding), () => VerifyYardLanding(bus, room));
         Suite(nameof(VerifyYardRuntimeDistancePublication), () => VerifyYardRuntimeDistancePublication());
         Suite(nameof(VerifyYardKickWords), () => VerifyYardKickWords(bus, room));

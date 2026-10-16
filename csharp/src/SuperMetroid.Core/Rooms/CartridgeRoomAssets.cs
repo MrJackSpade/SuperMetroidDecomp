@@ -50,9 +50,9 @@ public sealed class CartridgeRoomAssets
     public TilesetDefinition Tileset { get; }
 
     /// <summary>Reads every compressed input named by the selected room and graphics set.</summary>
-    public static CartridgeRoomAssets Load(ISnesAddressSpace bus, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
+    public static CartridgeRoomAssets Load(RoomScrollStorage scrollStorage, CartridgeRoomHeader header, RoomAssetCatalogs catalogs)
     {
-        Ensure.NotNull(bus);
+        Ensure.NotNull(scrollStorage);
         Ensure.NotNull(header);
         Ensure.NotNull(catalogs);
         RoomCharacterAtlasCatalog characterArt = catalogs.Characters;
@@ -91,7 +91,7 @@ public sealed class CartridgeRoomAssets
             header.State.CompressedLevelDataAddress).ToArray();
         RoomLevelData levelData = ParseLevelData(header, levelStream, blockDefinitions,
             visualLayouts.Get(header.State.CompressedLevelDataAddress));
-        RoomScrollGrid scrolls = LoadScrolls(bus, header);
+        RoomScrollGrid scrolls = LoadScrolls(scrollStorage, header);
         return new CartridgeRoomAssets(
             header,
             levelData,
@@ -212,9 +212,9 @@ public sealed class CartridgeRoomAssets
     }
 
     /// <summary>Creates the room's screen-indexed scroll grid from its selected state.</summary>
-    private static RoomScrollGrid LoadScrolls(ISnesAddressSpace bus, CartridgeRoomHeader header)
+    private static RoomScrollGrid LoadScrolls(RoomScrollStorage scrollStorage, CartridgeRoomHeader header)
         => RoomScrollDefinitions.CreateGrid(
-            bus,
+            scrollStorage,
             header.State.ScrollPointer,
             header.Size);
 

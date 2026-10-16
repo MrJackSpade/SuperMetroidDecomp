@@ -118,12 +118,11 @@ internal static class RoomAssetRomDataVerification
         var palettes = installation.LoadRoomPalettes();
         var metatiles = installation.LoadRoomMetatiles();
         var layouts = installation.LoadRoomVisualLayouts();
-        var guardedBus = NewTilesetDefinitionReadGuard(bus);
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header, characters, palettes, metatiles, layouts);
-            CartridgeRoomAssets guarded = LoadFixtureRoomAssets(guardedBus, header, characters, palettes, metatiles, layouts);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
+            CartridgeRoomAssets guarded = LoadFixtureRoomAssets(header, characters, palettes, metatiles, layouts);
             AssertEqual(native.Tileset, guarded.Tileset,
                 $"room $8F:{roomPointer:X4} resolves compiled graphics metadata");
             AssertTrue(native.CreCharacters.SequenceEqual(guarded.CreCharacters) &&
@@ -197,10 +196,8 @@ internal static class RoomAssetRomDataVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, room);
-            int areaSource = native.Tileset.CharacterAddress;
-            var guardedBus = NewRoomCharacterReadGuard(bus, areaSource);
-            CartridgeRoomAssets installed = LoadFixtureRoomAssets(guardedBus, room, catalog);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(room);
+            CartridgeRoomAssets installed = LoadFixtureRoomAssets(room, catalog);
             AssertTrue(installed.CreCharacters.SequenceEqual(native.CreCharacters) &&
                 installed.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 $"room $8F:{roomPointer:X4} loads compiled characters with source reads forbidden");
@@ -232,8 +229,7 @@ internal static class RoomAssetRomDataVerification
         compiledBySource[landingSource] = RoomCharacterAtlas.Load(
             new MemoryStream(paintedPng.ToArray()), landingNative.Length);
         var editedCatalog = new RoomCharacterAtlasCatalog(compiledCre, compiledBySource);
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            NewRoomCharacterReadGuard(bus, landingSource), landing, editedCatalog);
+        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, editedCatalog);
         AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(landingNative),
             "edited installed room PNG changes real room-loader character bytes");
 
@@ -272,30 +268,6 @@ internal static class RoomAssetRomDataVerification
         Console.WriteLine($"  Room character atlases: {files.Count} distinct CRE/graphics-set PNGs " +
             "roundtrip exactly; Ceres/Landing Site load without source reads, edits reach room loading, " +
             "and padding edits are rejected.");
-    }
-
-    /// <summary>Blocks the CRE and selected area-character source addresses while a room loads installed PNG artwork.</summary>
-    private static MutableCartridgeReadGuard NewRoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address == RoomAssetRomData.Tilesets.CreCharactersAddress || address == areaCharacters,
-            address => $"Installed room loader reread character source ${address:X6}.");
-        return guard;
-    }
-
-    /// <summary>Locates graphics set zero through the unguarded pointer table, then blocks the complete native definition range during room loading.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle locating graphics set zero's native tileset definition")]
-    private static MutableCartridgeReadGuard NewTilesetDefinitionReadGuard(ISnesAddressSpace source)
-    {
-        int firstDefinitionAddress = RoomAssetRomData.Tilesets.DefinitionBank |
-            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source),
-                RoomAssetRomData.Tilesets.PointerTableAddress);
-        int end = RoomAssetRomData.Tilesets.PointerTableAddress +
-            RoomTilesetDefinitions.Count * sizeof(ushort);
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address >= firstDefinitionAddress && address < end,
-            address => $"Room loader reread compiled tileset definition data at ${address:X6}.");
-        return guard;
     }
 
     /// <summary>Checks a library-background transfer's WRAM source/destination identity, whole-word size and WRAM/VRAM bounds.</summary>

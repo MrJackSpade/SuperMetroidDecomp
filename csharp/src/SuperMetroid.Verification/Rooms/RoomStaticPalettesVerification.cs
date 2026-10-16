@@ -53,10 +53,8 @@ internal static class RoomStaticPalettesVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            int source = RoomTilesetDefinitions.Get(header.State.GraphicsSet).PaletteAddress;
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
-            CartridgeRoomAssets installed = LoadFixtureRoomAssets(
-                NewRoomBasePaletteReadGuard(bus, source), header, paletteArt: catalog);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(header);
+            CartridgeRoomAssets installed = LoadFixtureRoomAssets(header, paletteArt: catalog);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             native.LoadGraphics(new SnesVram(), nativeCgram);
@@ -84,8 +82,7 @@ internal static class RoomStaticPalettesVerification
                 .SequenceEqual(editedCgram.Colors[1..RoomStaticPaletteFormat.ColorCount]),
             "editing one RGB5 component changes only its selected runtime CGRAM color");
         compiled[selectedSource] = replacement;
-        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            NewRoomBasePaletteReadGuard(bus, selectedSource), landing,
+        CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing,
             paletteArt: new RoomStaticPaletteCatalog(compiled));
         var editedRoomCgram = new SnesCgram();
         editedRoom.LoadGraphics(new SnesVram(), editedRoomCgram);
@@ -101,11 +98,6 @@ internal static class RoomStaticPalettesVerification
             $"{RoomTilesetDefinitions.Count} graphics sets; Landing Site/Ceres load without source reads, " +
             "and RGB5 edits reach room CGRAM.");
     }
-
-    /// <summary>Blocks a compressed palette source while its installed room graphics load.</summary>
-    private static CartridgeReadGuard NewRoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource) =>
-        new CartridgeReadGuard(source).Forbid(address => address == paletteSource,
-            address => $"Installed room loader reread base palette source ${address:X6}.");
 
     /// <summary>Runs the room static palette extraction and installation check.</summary>
     [VerificationCommand("--room-static-palettes")]

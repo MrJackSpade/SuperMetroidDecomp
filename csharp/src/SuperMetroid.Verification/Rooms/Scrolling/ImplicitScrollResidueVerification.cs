@@ -18,25 +18,24 @@ internal static class ImplicitScrollResidueVerification
     /// </summary>
     internal static void VerifyImplicitScrollResidue()
     {
-        var bus = new TestAddressSpace();
+        var storage = new RoomScrollStorage();
         CartridgeRoomHeader previous = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7de);
         CartridgeRoomHeader room = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7b3);
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
-        RoomScrollGrid before = RoomScrollDefinitions.CreateGrid(bus, previous.State.ScrollPointer, previous.Size);
-        RoomScrollGrid grid = RoomScrollDefinitions.CreateGrid(bus, room.State.ScrollPointer, room.Size);
+        RoomScrollGrid before = RoomScrollDefinitions.CreateGrid(storage, previous.State.ScrollPointer, previous.Size);
+        byte[] previousTail = before.Storage.ToArray();
+        RoomScrollGrid grid = RoomScrollDefinitions.CreateGrid(storage, room.State.ScrollPointer, room.Size);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
-        // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero
-        // whatever the image holds.
-        PlantExploredMapByte(bus);
+        // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero.
         AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadNativeStorage(RoomScrollGrid.StorageByteCount),
             "index $32 reads the explored-map byte as the cartridge's zero");
         AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadNativeStorage(ushort.MaxValue),
             "the last index a 16-bit register selects reads zero too");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.StorageByteCount; index++)
-            AssertEqual(before.ReadStorage(index), grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
+            AssertEqual(previousTail[index], grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");
@@ -49,9 +48,4 @@ internal static class ImplicitScrollResidueVerification
         Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
         return 0;
     }
-
-    /// <summary>Plants a nonzero byte at the first explored-map byte past the 50 scroll cells.</summary>
-    [CpuBusBoundary("exact bus test: plants a nonzero byte at $7E:CD52, the first explored-map byte past the scroll cells")]
-    private static void PlantExploredMapByte(TestAddressSpace bus) =>
-        bus.WriteByte(RoomScrollWorkRamAddresses.Zones.Address + RoomScrollGrid.StorageByteCount, byte.MaxValue);
 }

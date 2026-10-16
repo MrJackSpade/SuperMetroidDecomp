@@ -1069,7 +1069,7 @@ internal static class RoomPlmPopulationVerification
         RoomLevelData level = CreateRoom(new(32, 32), new ushort[32 * 32],
             new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(bus,
+        RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(),
             new byte[RoomScrollGrid.StorageByteCount], new Extent16<RoomScreens>(2, 2));
         var samus = new SamusState();
         var system = new Bank80SystemState();

@@ -78,7 +78,7 @@ internal static class BotwoonWallPlmsVerification
             $"Botwoon {(clear ? "clear" : "crumble")} PLM allocates");
         var guarded = NewBotwoonWallSourceGuard(new TestAddressSpace());
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            guarded, new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
+            new RoomScrollStorage(), new Extent16<RoomScreens>(2, 1), RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int deletionFrame = -1;
         int soundCount = 0;

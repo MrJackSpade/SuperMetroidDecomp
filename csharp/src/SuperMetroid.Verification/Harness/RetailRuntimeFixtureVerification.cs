@@ -3,6 +3,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -44,11 +45,11 @@ internal static class RetailRuntimeFixtureVerification
     /// Loads a room's asset graph with the shared installation's stock catalogs, replacing only the
     /// catalogs a case supplies. The stock catalogs are the cartridge reference extracted from the ROM.
     /// </summary>
-    internal static CartridgeRoomAssets LoadFixtureRoomAssets(ISnesAddressSpace bus, CartridgeRoomHeader room,
+    internal static CartridgeRoomAssets LoadFixtureRoomAssets(CartridgeRoomHeader room,
         RoomCharacterAtlasCatalog? characterArt = null, RoomStaticPaletteCatalog? paletteArt = null,
         RoomMetatileCatalog? metatileArt = null, RoomVisualLayoutCatalog? visualLayouts = null,
         RoomLevelStreamCatalog? levelStreams = null) =>
-        CartridgeRoomAssets.Load(bus, room, InstalledFixtures.RoomAssets with
+        CartridgeRoomAssets.Load(new RoomScrollStorage(), room, InstalledFixtures.RoomAssets with
         {
             Characters = characterArt ?? InstalledFixtures.RoomAssets.Characters,
             Palettes = paletteArt ?? InstalledFixtures.RoomAssets.Palettes,

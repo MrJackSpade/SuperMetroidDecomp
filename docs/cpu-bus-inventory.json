@@ -214,19 +214,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Rooms.Scrolling.RoomScrollWorkRamAddresses",
-      "name": "Zones",
-      "region": "WorkRam",
-      "address": "$7E:CD20",
-      "byteCount": 50,
-      "encoding": "RoomScrollState[] (u8)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollMemory.cs",
-        "csharp/src/SuperMetroid.Verification/Rooms/Scrolling/ImplicitScrollResidueVerification.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Samus.Abilities.XrayWorkRamAddresses",
       "name": "RevealTilemap",
       "region": "WorkRam",

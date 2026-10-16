@@ -63,10 +63,8 @@ internal static class RoomMetatilesVerification
         foreach (ushort roomPointer in new ushort[] { 0x91f8, 0xdf8d })
         {
             CartridgeRoomHeader header = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer);
-            int areaSource = RoomTilesetDefinitions.Get(header.State.GraphicsSet).BlockDefinitionsAddress;
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
-            CartridgeRoomAssets installed = LoadFixtureRoomAssets(
-                NewRoomMetatileSourceReadGuard(bus, areaSource), header,
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(header);
+            CartridgeRoomAssets installed = LoadFixtureRoomAssets(header,
                 metatileArt: stockCatalog);
             AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     installed.LevelData.BlockDefinitions.Span),
@@ -99,11 +97,8 @@ internal static class RoomMetatilesVerification
             "edited JSON changes only the intended 8x8 visual child of a solid block");
         RoomMetatileCatalog editedCatalog = new(modified, bySource);
         CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
-        CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(bus, landing);
-        CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(
-            NewRoomMetatileSourceReadGuard(bus,
-                RoomTilesetDefinitions.Get(landing.State.GraphicsSet).BlockDefinitionsAddress),
-            landing, metatileArt: editedCatalog);
+        CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(landing);
+        CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(landing, metatileArt: editedCatalog);
         AssertTrue(!nativeLanding.LevelData.BlockDefinitions.Span.SequenceEqual(
                 editedLanding.LevelData.BlockDefinitions.Span) &&
             nativeLanding.LevelData.ForegroundEntries.Span.SequenceEqual(
@@ -120,12 +115,6 @@ internal static class RoomMetatilesVerification
         Console.WriteLine($"  Room metatiles: {files.Count} distinct CRE/area resources roundtrip " +
             "byte-exactly; a visual edit changes one child without changing collision/BTS.");
     }
-
-    /// <summary>Blocks the selected area's compressed block source and shared CRE source during installed loading.</summary>
-    private static CartridgeReadGuard NewRoomMetatileSourceReadGuard(ISnesAddressSpace source, int areaSource) =>
-        new CartridgeReadGuard(source).Forbid(address => address == areaSource ||
-                address == RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress,
-            address => $"Installed room loader reread metatile source ${address:X6}.");
 
     /// <summary>Runs the focused metatile extraction and room-loader comparison.</summary>
     [VerificationCommand("--room-metatiles")]

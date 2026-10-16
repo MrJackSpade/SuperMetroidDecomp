@@ -37,7 +37,7 @@ internal static class CompiledScrollPlmProgramsVerification
         var plms = new RoomPlmSystem();
         AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, level.CreateBackgroundStreamer(), new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationDefinition.FromCompiled(0x8230), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "retail scroll-only population loads from compiled placement");
-        RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(guarded,
+        RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(new RoomScrollStorage(),
             size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
         scrolls.SetStorage(0, RoomScrollState.RedBoundary);

@@ -57,8 +57,8 @@ internal static class RoomCharacterInstallationVerification
             CartridgeRoomHeader landing = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
             VerifyRoomVisualLayouts(installed, bus, landing);
             VerifyXrayRevealVisualInstallation(installed);
-            CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, landing);
-            CartridgeRoomAssets installedRoom = LoadFixtureRoomAssets(bus, landing, stock);
+            CartridgeRoomAssets native = LoadFixtureRoomAssets(landing);
+            CartridgeRoomAssets installedRoom = LoadFixtureRoomAssets(landing, stock);
             AssertTrue(installedRoom.CreCharacters.SequenceEqual(native.CreCharacters) &&
                 installedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed stock room PNGs retain Landing Site character bytes");
@@ -77,7 +77,7 @@ internal static class RoomCharacterInstallationVerification
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             RoomCharacterAtlasCatalog edited = installed.LoadRoomCharacters();
-            CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(bus, landing, edited);
+            CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(landing, edited);
             AssertTrue(!editedRoom.RoomCharacters.SequenceEqual(native.RoomCharacters),
                 "installed PNG override changes the real room-loader output");
             AssertTrue(stock.Get(source).Transfer.Span.SequenceEqual(native.RoomCharacters),
@@ -141,7 +141,7 @@ internal static class RoomCharacterInstallationVerification
             string paletteOverridePath = Path.Combine(installed.RoomPaletteOverrideDirectory, paletteName);
             File.WriteAllText(paletteOverridePath, paletteDocument.ToJsonString());
             RoomStaticPaletteCatalog editedPalettes = installed.LoadRoomPalettes();
-            CartridgeRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets editedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: editedPalettes);
             var stockCgram = new SnesCgram();
             var editedCgram = new SnesCgram();
@@ -160,7 +160,7 @@ internal static class RoomCharacterInstallationVerification
                     RoomMetatileArtworkFiles.ManifestFileName)),
                 "room-block stock manifest is installed");
             RoomMetatileCatalog stockBlocks = installed.LoadRoomMetatiles();
-            CartridgeRoomAssets installedBlocks = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets installedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: stockBlocks);
             AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     installedBlocks.LevelData.BlockDefinitions.Span),
@@ -175,7 +175,7 @@ internal static class RoomCharacterInstallationVerification
             Directory.CreateDirectory(installed.RoomMetatileOverrideDirectory);
             string blockOverridePath = Path.Combine(installed.RoomMetatileOverrideDirectory, blockName);
             File.WriteAllText(blockOverridePath, blockDocument.ToJsonString());
-            CartridgeRoomAssets editedBlocks = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets editedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: installed.LoadRoomMetatiles());
             AssertTrue(!native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     editedBlocks.LevelData.BlockDefinitions.Span) &&
@@ -312,17 +312,17 @@ internal static class RoomCharacterInstallationVerification
             AssertTrue(File.Exists(skyOverridePath) &&
                 File.Exists(Path.Combine(repaired.RoomBackgroundTilemapDirectory, skyName)),
                 "scrolling-sky stock is restored while its override survives repair");
-            CartridgeRoomAssets repairedEdited = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets repairedEdited = LoadFixtureRoomAssets(landing,
                 repaired.LoadRoomCharacters());
             AssertTrue(repairedEdited.RoomCharacters.SequenceEqual(editedRoom.RoomCharacters),
                 "repaired installation retains the selected user room artwork");
-            CartridgeRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets repairedPaletteRoom = LoadFixtureRoomAssets(landing,
                 paletteArt: repaired.LoadRoomPalettes());
             var repairedCgram = new SnesCgram();
             repairedPaletteRoom.LoadGraphics(new SnesVram(), repairedCgram);
             AssertTrue(new CgramPalettes(repairedCgram).ImageEquals(new CgramPalettes(editedCgram)),
                 "repaired installation retains the selected user room palette");
-            CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(bus, landing,
+            CartridgeRoomAssets repairedBlocks = LoadFixtureRoomAssets(landing,
                 metatileArt: repaired.LoadRoomMetatiles());
             AssertTrue(repairedBlocks.LevelData.BlockDefinitions.Span.SequenceEqual(
                     editedBlocks.LevelData.BlockDefinitions.Span),

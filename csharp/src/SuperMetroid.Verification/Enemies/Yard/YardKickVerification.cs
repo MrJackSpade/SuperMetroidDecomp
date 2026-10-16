@@ -15,7 +15,7 @@ internal static class YardKickVerification
     /// <summary>Compares both facing directions and fractional X motion through the real contact dispatcher.</summary>
     internal static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
-        var assets = LoadFixtureRoomAssets(bus, room);
+        var assets = LoadFixtureRoomAssets(room);
         int cases = 0;
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose })
         foreach (ushort whole in new ushort[] { 0, 1, 2, 15, 16, 32 })

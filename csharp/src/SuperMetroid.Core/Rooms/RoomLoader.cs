@@ -75,6 +75,8 @@ internal sealed class RoomLoader
     private readonly GameplayOptions _options;
     /// <summary>Holds Samus and her load-time presentation state.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>The session's room scroll allocation; it outlives each room so implicit tables keep the previous room's tail.</summary>
+    private readonly RoomScrollStorage _scrollStorage = new();
     /// <summary>Constructs room PLMs after persistent state has been restored.</summary>
     private readonly RoomPlmSystem _plms;
     /// <summary>Resets Samus projectiles for the destination room.</summary>
@@ -778,7 +780,7 @@ internal sealed class RoomLoader
         // unsupported definition. Build the read-only asset graph before consuming the
         // source room's pending door so such a failure remains retryable instead of leaving
         // state $0B with no destination on the following frame.
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room, RequireRoomAssetCatalogs());
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
         CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
             ?? throw new InvalidOperationException(
                 "Pending door disappeared while its destination assets were prepared.");
@@ -855,7 +857,7 @@ internal sealed class RoomLoader
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
         CartridgeRoomAssets assets = preloadedAssets ??
-            CartridgeRoomAssets.Load(_addressSpace, room, RequireRoomAssetCatalogs());
+            CartridgeRoomAssets.Load(_scrollStorage, room, RequireRoomAssetCatalogs());
 
         _room.ActiveDoor = door;
         _room.ActiveRoom = room;

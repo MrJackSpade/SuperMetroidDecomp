@@ -63,7 +63,7 @@ internal static class ScrollPlmsVerification
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            bus, size: new Extent16<RoomScreens>(2, 2),
+            new RoomScrollStorage(), size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 

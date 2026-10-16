@@ -102,11 +102,8 @@ internal static class NativeSnapshotImportVerification
         for (int index = 0; index < initialHud.Length; index++)
             initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);
         runtime.Hud._previousSelectedItem = W(NativeSnapshotMemory.PreviousHudSelection);
-        byte[] initialScrolls = runtime.Room.LoadedCamera.Scrolls._cells;
-        memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount).CopyTo(initialScrolls);
-        WorkRamByteTable scrollZones = new RoomScrollMemory(bus).Zones;
-        for (int index = 0; index < initialScrolls.Length; index++)
-            scrollZones[index] = initialScrolls[index];
+        memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount)
+            .CopyTo(runtime.Room.LoadedCamera.Scrolls._storage._bytes);
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
         byte[] initialMaps = memory.AsSpan(NativeSnapshotMemory.SavedExploredMaps,
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea).ToArray();

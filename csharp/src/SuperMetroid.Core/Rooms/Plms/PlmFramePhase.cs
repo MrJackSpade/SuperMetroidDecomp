@@ -100,9 +100,9 @@ internal sealed class PlmFramePhase
                 "A door-transition PLM handler unexpectedly published a player interaction.");
         }
         foreach (MotherBrainGlassProjectileRequest request in _plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
-            _enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(request);
+            _enemies.PlmSpawns.SpawnMotherBrainGlassProjectile(request);
         foreach (BombTorizoStatueProjectileRequest request in _plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
-            _enemies.BombTorizoBehavior.SpawnBombTorizoStatueBreakingProjectile(request);
+            _enemies.PlmSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
     }
 
     /// <summary>
@@ -230,12 +230,12 @@ internal sealed class PlmFramePhase
             foreach (MotherBrainGlassProjectileRequest request in
                      _plms.MotherBrainGlass.MotherBrainGlassProjectileRequests)
             {
-                _enemies.MotherBrainBehavior.SpawnMotherBrainGlassProjectile(request);
+                _enemies.PlmSpawns.SpawnMotherBrainGlassProjectile(request);
             }
             foreach (BombTorizoStatueProjectileRequest request in
                      _plms.BombTorizoHand.BombTorizoStatueProjectileRequests)
             {
-                _enemies.BombTorizoBehavior.SpawnBombTorizoStatueBreakingProjectile(request);
+                _enemies.PlmSpawns.SpawnBombTorizoStatueBreakingProjectile(request);
             }
         }
     }

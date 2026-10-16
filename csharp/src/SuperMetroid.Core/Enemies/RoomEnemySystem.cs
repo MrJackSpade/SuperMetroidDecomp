@@ -509,6 +509,15 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     [field: NonSerialized]
     internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
 
+    /// <summary>The enemy-side effects room PLMs and room effects trigger.</summary>
+    [field: NonSerialized]
+    internal IEnemyPlmSpawns PlmSpawns => field ??= new EnemyPlmSpawns(NoobTubeBehavior, EyeDoorBehavior, OldTourianEscapeShaftWallBehavior,
+        DraygonBehavior, MotherBrainBehavior, BombTorizoBehavior, EscapeExplosionsBehavior);
+
+    /// <summary>The Tourian statue sequence's operations.</summary>
+    [field: NonSerialized]
+    internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
+
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
     internal IGrappleTargets GrappleTargets => GrappleBehavior;
 

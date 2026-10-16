@@ -106,7 +106,7 @@ public sealed class TourianStatueSequence
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked))
         {
             descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
-            _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueVerticalOffset = VerticalOffset;
+            _enemies.TourianStatue.VerticalOffset = VerticalOffset;
             _plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: true);
             EnableScrolling();
         }
@@ -193,15 +193,15 @@ public sealed class TourianStatueSequence
                         _system.SetEventRaw(MechanicsWord(tile, operand));
                         break;
                     case AnimatedTileInstruction.GotoIfTourianStatueBusy:
-                        tile.Pointer = (_enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0
+                        tile.Pointer = (_enemies.TourianStatue.AnimationState & TourianStatueRomData.Busy) != 0
                             ? MechanicsWord(tile, operand)
                             : (ushort)(operand + 2);
                         continue;
                     case AnimatedTileInstruction.SetTourianStatueAnimationState:
-                        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState |= MechanicsWord(tile, operand);
+                        _enemies.TourianStatue.AnimationState |= MechanicsWord(tile, operand);
                         break;
                     case AnimatedTileInstruction.ResetTourianStatueAnimationState:
-                        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState &=
+                        _enemies.TourianStatue.AnimationState &=
                             (ushort)~MechanicsWord(tile, operand);
                         break;
                     case AnimatedTileInstruction.ClearThreePaletteColors:
@@ -221,7 +221,7 @@ public sealed class TourianStatueSequence
                         break;
                     case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
                     case AnimatedTileInstruction.SpawnTourianStatueSoul:
-                        _enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(
+                        _enemies.TourianStatue.SpawnUnlockEffect(
                             MechanicsWord(tile, operand),
                             code == (ushort)AnimatedTileInstruction.SpawnTourianStatueSoul);
                         break;
@@ -238,14 +238,14 @@ public sealed class TourianStatueSequence
     public void StepDescent()
     {
         if (!Enabled) return;
-        _enemies.TourianUnlockBehavior.TourianStatueWaterY = _roomLayer3Fx.CurrentYPosition;
+        _enemies.TourianStatue.WaterY = _roomLayer3Fx.CurrentYPosition;
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {
             if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)
                 || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
-            _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState |= TourianStatueRomData.AllReleased;
-            if ((_enemies.TourianEntranceStatueBehavior.TourianEntranceStatueAnimationState & TourianStatueRomData.Busy) != 0) return;
+            _enemies.TourianStatue.AnimationState |= TourianStatueRomData.AllReleased;
+            if ((_enemies.TourianStatue.AnimationState & TourianStatueRomData.Busy) != 0) return;
             delay = TourianStatueRomData.DescentDelay;
             return;
         }
@@ -255,12 +255,12 @@ public sealed class TourianStatueSequence
             _system.RandomNumber, _system.MainGameLoopCarry);
         if (delay >= 0)
         {
-            if (--delay < 0) _enemies.TourianUnlockBehavior.SpawnTourianDescentDust();
+            if (--delay < 0) _enemies.TourianStatue.SpawnDescentDust();
             return;
         }
         if (_freeze.TimeIsFrozen) return;
         descent += TourianStatueRomData.DescentStep;
-        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueVerticalOffset = VerticalOffset;
+        _enemies.TourianStatue.VerticalOffset = VerticalOffset;
         // $88:DC90 compares the whole word against $FF10, which it first reaches
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueRomData.DescentDistance)
@@ -273,7 +273,7 @@ public sealed class TourianStatueSequence
     /// <summary>Marks the entrance statue finished and makes both access-room scroll cells freely traversable.</summary>
     private void EnableScrolling()
     {
-        _enemies.TourianEntranceStatueBehavior.TourianEntranceStatueFinished = true;
+        _enemies.TourianStatue.Finished = true;
         _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
         _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
     }

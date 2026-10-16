@@ -47,7 +47,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame cursor masked into the four-frame palette cycle.</summary>
     internal ushort _magdollitePaletteAnimationIndex;
     /// <summary>OBJ palette byte offset selected by the final initialized Magdollite record.</summary>
-    internal ushort _magdollitePaletteBaseByteOffset;
+    internal int _magdollitePaletteBaseColor;
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
     internal bool _magdollitePaletteAnimationInstalled;
 
@@ -61,7 +61,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _magdollitePaletteAnimationInstalled = false;
         _magdollitePaletteAnimationTimer = NativeCountdown.Start(0);
         _magdollitePaletteAnimationIndex = 0;
-        _magdollitePaletteBaseByteOffset = 0;
+        _magdollitePaletteBaseColor = 0;
     }
 
     /// <summary>Clears events whose public meaning is limited to one enemy frame.</summary>
@@ -114,8 +114,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         _magdollitePaletteAnimationInstalled = true;
         int paletteNumber = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
             slot.PaletteIndex).PaletteIndex;
-        _magdollitePaletteBaseByteOffset = unchecked((ushort)(
-            paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase));
+        _magdollitePaletteBaseColor =
+            (paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase) / sizeof(ushort);
         _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);
         _magdollitePaletteAnimationIndex = 0;
     }
@@ -574,7 +574,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             _magdollitePaletteAnimationIndex + 1));
         int paletteFrame = _magdollitePaletteAnimationIndex &
             (MagdollitePaletteRomData.FrameCount - 1);
-        int destination = (_magdollitePaletteBaseByteOffset >> 1) +
+        int destination = _magdollitePaletteBaseColor +
             MagdollitePaletteRomData.FirstAnimatedColor;
         (_room.Artwork?.MagdollitePaletteCycle ?? throw new InvalidDataException(
             "Magdollite palette animation requires installed artwork."))

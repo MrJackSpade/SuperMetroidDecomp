@@ -77,9 +77,9 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
         enemies.MagdolliteBehavior._magdollitePaletteAnimationIndex = (ushort)0;
-        enemies.MagdolliteBehavior._magdollitePaletteBaseByteOffset = (ushort)0x100;
+        enemies.MagdolliteBehavior._magdollitePaletteBaseColor = 0x80;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
-        const int destination = (0x100 >> 1) + MagdollitePaletteRomData.FirstAnimatedColor;
+        const int destination = 0x80 + MagdollitePaletteRomData.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
         int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;

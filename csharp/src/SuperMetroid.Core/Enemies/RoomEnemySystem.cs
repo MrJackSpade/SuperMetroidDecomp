@@ -490,6 +490,28 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>Post-AI collision snapshots for active physical enemy slots.</summary>
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
 
+    /// <summary>The elevator journey the runtime reads and resets.</summary>
+    internal IElevatorJourney Elevator => ElevatorBehavior;
+
+    /// <summary>The gunship's save prompt and health handler.</summary>
+    [field: NonSerialized]
+    internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior, GunshipHealthBehavior);
+
+    /// <summary>The Ceres encounter's status and runtime operations.</summary>
+    [field: NonSerialized]
+    internal ICeresEncounter Ceres => field ??= new CeresEncounter(RidleyEncounter, CeresRidleyBehavior);
+
+    /// <summary>The state and hooks the room main routines and scrolling use.</summary>
+    [field: NonSerialized]
+    internal IEnemyRoomMainHooks RoomMainHooks => field ??= new EnemyRoomMainHooks(CrocomireBehavior, SporeSpawnBehavior, ZebetiteBehavior);
+
+    /// <summary>The operations the room loader runs.</summary>
+    [field: NonSerialized]
+    internal IEnemyLoaderHooks LoaderHooks => field ??= new EnemyLoaderHooks(RinkaBehavior, PrePhantoonRoomBehavior);
+
+    /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
+    internal IGrappleTargets GrappleTargets => GrappleBehavior;
+
     /// <summary>The current pass's results, written by their producers and read back until the next pass.</summary>
     internal EnemyFrameResultBuilder FrameResults { get; } = new();
 

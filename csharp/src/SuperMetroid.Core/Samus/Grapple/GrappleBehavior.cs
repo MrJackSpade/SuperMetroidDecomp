@@ -7,7 +7,7 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Samus.Grapple;
 
 /// <summary>The Grapple species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class GrappleBehavior
+internal sealed class GrappleBehavior : IGrappleTargets
 {
     /// <summary>Provides interactive enemy order and wrapped main-AI dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;

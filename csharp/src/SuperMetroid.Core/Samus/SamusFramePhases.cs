@@ -119,7 +119,7 @@ internal sealed class SamusFramePhases
                 _player.Samus,
                 _controller1.Current,
                 _plms,
-                _enemies.GrappleBehavior.ResolveGrappleEndpoint,
+                _enemies.GrappleTargets.ResolveGrappleEndpoint,
                 deferConnectionPoseChange: true);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
@@ -135,7 +135,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _nmi.NmiFrameCounter, _enemies.GrappleBehavior.ResolveGrappleEndpoint, deferDropPoseChange: true);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _nmi.NmiFrameCounter, _enemies.GrappleTargets.ResolveGrappleEndpoint, deferDropPoseChange: true);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
@@ -283,7 +283,7 @@ internal sealed class SamusFramePhases
             // still runs cooldown, HUD switching and the HUD handler; only its
             // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
             // apply themselves. A selection cancel during X-ray therefore takes effect.
-            bool alphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_enemies.ElevatorBehavior.ElevatorDoorTransitionActive;
+            bool alphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !_enemies.Elevator.ElevatorDoorTransitionActive;
             if (alphaRuns)
             {
                 // `$90:C4E7` runs before the movement-type HUD projectile producer.
@@ -638,7 +638,7 @@ internal sealed class SamusFramePhases
             // state $20 waits at the Ceres elevator.
             else if (samus.InputLocked &&
                 !(SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-                  _enemies.ElevatorBehavior.ElevatorRunsSamusMovement))
+                  _enemies.Elevator.ElevatorRunsSamusMovement))
             {
                 // Elevator command seven installs the moving beta handler for departure.
                 // HandleTransition reinstalls it only on downward arrival. Upward arrival
@@ -676,11 +676,11 @@ internal sealed class SamusFramePhases
                         samus,
                         _nmi.NmiFrameCounter,
                         elevatorIsMoving:
-                            _enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive,
+                            _enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive,
                         plms: _plms,
                         publishDoorSideEffects:
                             RoomMainRoutines.ShouldPublishFacingForwardElevatorDoorSideEffects(
-                                _enemies.ElevatorBehavior.ElevatorStatus));
+                                _enemies.Elevator.ElevatorStatus));
                     break;
                 case SamusPoseId.FacingRightNormalPose:
                 case SamusPoseId.StandingAimUpRightPose:

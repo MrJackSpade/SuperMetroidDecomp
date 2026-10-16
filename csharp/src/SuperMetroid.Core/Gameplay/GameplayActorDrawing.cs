@@ -243,7 +243,7 @@ internal sealed class GameplayActorDrawing
             // echoes, and grapple graphics. Projectile drawing remains in the shared
             // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
             bool elevatorOwnsSamusDrawing =
-                ((ushort)_enemies.ElevatorBehavior.ElevatorStatus) != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
+                ((ushort)_enemies.Elevator.ElevatorStatus) != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_nmi.NmiFrameCounter))
@@ -469,7 +469,7 @@ internal sealed class GameplayActorDrawing
             // after every ordinary enemy layer and is the only producer of the Baby
             // Metroid OBJ (plus the arena-door overlay). Keeping this after layer seven
             // preserves the hook's actual OAM position instead of inventing a Baby slot.
-            _enemies.CeresRidleyBehavior.DrawCeresRidleyPostEnemyHook(
+            _enemies.Ceres.DrawCeresRidleyPostEnemyHook(
                 _oam,
                 _room.Camera.PixelPosition);
         }

@@ -50,7 +50,7 @@ public sealed class DoorTransitionState
 
         runtime.Hud.EnableMinimapAfterDoorEntry();
         runtime.Player.Samus.InputLocked = true;
-        runtime.Enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
+        runtime.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;
         sourceCreBitset = runtime.Room.ActiveRoom?.CreBitset
@@ -174,7 +174,7 @@ public sealed class DoorTransitionState
                 // Enemy loading resets room-private host gates. Restore the native
                 // $0795 transition ownership before any destination EnemyMain call;
                 // elevator AI must remain frozen through the final palette fade.
-                runtime.Enemies.ElevatorBehavior.ElevatorDoorTransitionActive = true;
+                runtime.Enemies.Elevator.ElevatorDoorTransitionActive = true;
                 runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
                 Bgr555[] destinationTarget = new CgramPalettes(runtime.Cgram).Image.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
@@ -283,14 +283,14 @@ public sealed class DoorTransitionState
                 {
                     // $82:E737 releases $0795 after EnemyMain and the last fade step.
                     // Movement resumes on the following gameplay frame, not this one.
-                    runtime.Enemies.ElevatorBehavior.ElevatorDoorTransitionActive = false;
+                    runtime.Enemies.Elevator.ElevatorDoorTransitionActive = false;
                     runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     // The elevatube door ASM also installs command zero. Native E737
                     // does not replace that handler: release only our temporary door
                     // input gate, never a stationary script's movement ownership.
-                    if (runtime.Enemies.ElevatorBehavior.ElevatorStatus == ElevatorActorStatus.Inactive &&
+                    if (runtime.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
                         runtime.Player.Samus is { } arrivingSamus && !arrivingSamus.ScriptLocks.StationaryScriptControlLocked)
                         arrivingSamus.InputLocked = false;
                     Phase = DoorTransitionPhase.Complete;

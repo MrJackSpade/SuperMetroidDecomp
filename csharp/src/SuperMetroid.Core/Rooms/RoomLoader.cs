@@ -547,7 +547,7 @@ internal sealed class RoomLoader
             throw new InvalidOperationException("A loaded destination and Samus are required.");
         if (_doorOpeningScroll is not null)
             throw new InvalidOperationException("A door-opening scroll is already active.");
-        if (_enemies.ElevatorBehavior.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
+        if (_enemies.Elevator.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
             _pendingLoaderSamusPlacement = new LoaderSamusPlacement(placementSlot, _player.Samus.Position.Whole);
 
         _doorOpeningScroll = DoorOpeningScrollState.Create(
@@ -660,8 +660,8 @@ internal sealed class RoomLoader
                     $"The door scroll finished before the loader initialized elevator slot {placement.EnemySlot}.");
             }
         }
-        _enemies.RinkaBehavior.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
-        if (completed && _enemies.RinkaBehavior.HasDeferredLoaderTimeCameraReads)
+        _enemies.LoaderHooks.CompleteRinkaLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, _room.Camera.PixelPosition);
+        if (completed && _enemies.LoaderHooks.HasDeferredRinkaLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
         _player.Samus.Position = state.SamusPosition;
         _room.Camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), _player.Samus.Position.Whole);
@@ -729,9 +729,9 @@ internal sealed class RoomLoader
         ushort y = NudgeOffScreenLeftEdge(_player.Samus.Position.Y.Whole);
         _player.Samus.Position = _player.Samus.Position.WithWhole(new(x, y));
 
-        if (_enemies.ElevatorBehavior.ElevatorFlags != 0)
+        if (_enemies.Elevator.ElevatorFlags != 0)
         {
-            if ((short)_enemies.ElevatorBehavior.ElevatorDirection >= 0)
+            if ((short)_enemies.Elevator.ElevatorDirection >= 0)
                 _player.Samus.PoseMetadata.SetupForElevator(_addressSpace);
             else
                 _player.Samus.InputLocked = true;
@@ -798,9 +798,9 @@ internal sealed class RoomLoader
         // room constructor initializes enemies in one host call, so publish that carried
         // status immediately before Enemies.Load: the destination elevator initializer
         // must see two and place itself at parameter 2 instead of clearing the journey.
-        bool arrivingByElevator = _enemies.ElevatorBehavior.ElevatorStatus == ElevatorActorStatus.Departing;
+        bool arrivingByElevator = _enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Departing;
         if (arrivingByElevator)
-            _enemies.ElevatorBehavior.PrepareElevatorArrival();
+            _enemies.Elevator.PrepareElevatorArrival();
 
         // The load-station record established only the first room. Once bank $94 publishes
         // a door definition, that definition and its destination header become authoritative.
@@ -1071,7 +1071,7 @@ internal sealed class RoomLoader
         });
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
-        if (_enemies.RidleyEncounter.Ridley is not null)
+        if (_enemies.Ceres.RidleyPresent)
         {
             _hud.DisableMinimapForBoss();
             if (_enemies.RoomStatus.BossId == RidleyMapDefinitions.NorfairBossId)
@@ -1086,7 +1086,7 @@ internal sealed class RoomLoader
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests();
         // Setup ASM $8F:C8C8 spawns into the pool that Enemies.Load has just cleared.
         if (room.State.SetupCallback == RoomSetupCallback.SpawnPrePhantoonRoomEnemyProjectile)
-            _enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
+            _enemies.LoaderHooks.SpawnPrePhantoonRoomProjectile(_backgroundScroll);
         _enemyRoomEffects.ApplyEnemyRequestedRoomEffects(_enemies.LastEnemyFrame.RoomEffects);
         _tourianStatues.Load();
         _enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);

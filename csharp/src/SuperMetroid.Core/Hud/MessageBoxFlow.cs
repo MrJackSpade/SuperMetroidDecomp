@@ -108,11 +108,11 @@ internal sealed class MessageBoxFlow
     internal void ResolveClosedMessageBox(bool frameSuspended)
     {
 
-        if (_enemies.GunshipBehavior.GunshipSavePromptPending)
+        if (_enemies.Gunship.SavePromptPending)
         {
             bool accepted = _messageBox.ConsumeConfirmationResult()
                 ?? throw new InvalidDataException("Gunship message closed without a save selection.");
-            _enemies.GunshipBehavior.AnswerGunshipSavePrompt(accepted);
+            _enemies.Gunship.AnswerSavePrompt(accepted);
             _gunshipExitSoundRequested = true;
             if (accepted)
             {
@@ -181,7 +181,7 @@ internal sealed class MessageBoxFlow
                 throw new InvalidOperationException(
                     "A pending suit transformation requires an active Samus and room camera.");
             }
-            _enemies.ElevatorBehavior.SetElevatorStatusForDebugging(0);
+            _enemies.Elevator.ResetStatus();
             _suitPickup.Begin(
                 _addressSpace,
                 _player.Samus,

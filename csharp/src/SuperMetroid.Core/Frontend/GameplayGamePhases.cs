@@ -137,7 +137,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // checkpoint the retail loader later replaces with Zebes arrival.
             AutomaticCheckpointSaver.SaveCeresDeparture(session.bus, session.GameplayRuntime, session.selectedSaveSlot);
             session.RaiseSaveRamChanged();
-            session.GameplayRuntime.Enemies.RidleyEncounter.CeresStatus = 0;
+            session.GameplayRuntime.Enemies.Ceres.CeresStatus = 0;
             session.GameplayRuntime.EscapeTimer.Clear();
             // $82:83F3-$840B: stop music and silence all three sound libraries.
             session.audio.QueueMusicDelayed8(MusicCommand.Stop);

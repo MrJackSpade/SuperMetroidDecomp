@@ -80,7 +80,7 @@ internal sealed class EnemyFramePhase
     /// <summary>Resolves Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.</summary>
     internal void ResolveUpdatedBeamHits()
     {
-        _enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
+        _enemies.Ceres.ResolveCeresRidleyProjectileHits(
             _addressSpace,
             _projectiles,
             _bombProjectiles);
@@ -95,7 +95,7 @@ internal sealed class EnemyFramePhase
             // published last frame therefore becomes `$0E16=1` immediately before this
             // frame's elevator actor dispatcher, preserving the native producer order.
             if (_room.LevelData?.ConsumeElevatorDoorContact() == true)
-                _enemies.ElevatorBehavior.PublishElevatorDoorContact();
+                _enemies.Elevator.PublishElevatorDoorContact();
             if (_player.Samus is not null)
             {
                 // `$94:9B60-$9B72` clears all four external-displacement words before
@@ -188,7 +188,7 @@ internal sealed class EnemyFramePhase
             // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
             // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
             // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
-            _enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(
+            _enemies.Ceres.DrawCeresRidleyImmediateBabyAndDoor(
                 _oam,
                 _room.Camera.PixelPosition);
             if (_player.Samus is not null)
@@ -201,7 +201,7 @@ internal sealed class EnemyFramePhase
                     // handlers. The enemy system owns pose/motion; these two global words
                     // remain runtime-owned and are applied on its typed event boundary.
                     _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
-                    _enemies.ElevatorBehavior.SetElevatorStatusForDebugging(0);
+                    _enemies.Elevator.ResetStatus();
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {

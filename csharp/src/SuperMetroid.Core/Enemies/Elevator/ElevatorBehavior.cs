@@ -12,7 +12,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
+internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IElevatorJourney
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
@@ -102,11 +102,18 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
         ElevatorStatus = ElevatorActorStatus.BeginArrivalReturn;
     }
 
+    /// <inheritdoc/>
+    public void ResetStatus()
+    {
+        ElevatorStatus = ElevatorActorStatus.Inactive;
+        ElevatorFlags = 0;
+    }
+
     /// <summary>
     /// Debugger/test seam for the already-public runtime WRAM word. Production changes are
     /// still made by collision, actor AI, and room loading rather than arbitrary callers.
     /// </summary>
-    internal void SetElevatorStatusForDebugging(ushort status)
+    public void SetElevatorStatusForDebugging(ushort status)
     {
         if (status > (ushort)ElevatorActorStatus.ReturningToRest)
             throw new ArgumentOutOfRangeException(nameof(status));

@@ -133,7 +133,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         resumedSamus.Presentation.LoadSuitPalette(session.bus, session.GameplayRuntime.Cgram);
         session.GameplayRuntime.Plms.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.ScriptLocks.ReleaseRefillStationLockOnUnpause();
-        session.GameplayRuntime.Enemies.ElevatorBehavior.ClearElevatorFlagsOnGameplayResume();
+        session.GameplayRuntime.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();
         session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         session.pauseMenu = null;
         session.BeginPauseFade(0);

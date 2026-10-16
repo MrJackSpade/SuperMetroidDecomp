@@ -65,12 +65,12 @@ internal sealed class RoomMainRoutines
     internal void RunCrocomireComebackRoomMain()
     {
         if (_room.ActiveRoom?.State.MainCallback != RoomMainCallback.CrocomireRoomShaking ||
-            _enemies.CrocomireBehavior.Crocomire is not { } boss ||
+            _enemies.RoomMainHooks.Crocomire is not { } boss ||
             boss.Body.Properties.HasAny(EnemyProperties.Invisible) ||
             boss.DeathSequenceIndex != CrocomireDeathPhase.RumbleHiddenWall)
             return;
 
-        var death = _enemies.CrocomireBehavior.CrocomireDeath ?? throw new InvalidOperationException(
+        var death = _enemies.RoomMainHooks.CrocomireDeath ?? throw new InvalidOperationException(
             "Crocomire's comeback room callback has no death state.");
         _backgroundScroll.SetBg1VerticalScrollRegister(unchecked((ushort)(
             _backgroundScroll.Layer1Position.Y + _backgroundScroll.Bg1Offset.Y + death.RumbleYOffset)));
@@ -138,7 +138,7 @@ internal sealed class RoomMainRoutines
     {
         if (_room.ActiveRoom?.State.MainCallback !=
                 RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
-            _enemies.RidleyEncounter.CeresStatus == 0)
+            _enemies.Ceres.CeresStatus == 0)
             return;
 
         // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.

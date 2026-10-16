@@ -198,13 +198,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>True while a door load still owes a special Rinka its spawn choice.</summary>
-    internal bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnSlots.Count != 0;
+    public bool HasDeferredLoaderTimeCameraReads => _deferredRinkaSpawnSlots.Count != 0;
 
     /// <summary>
     /// Runs the camera-dependent part of each deferred initialization whose slot the door
     /// loader has reached, against that update's layer-1 position.
     /// </summary>
-    internal void CompleteLoaderTimeCameraReads(
+    public void CompleteLoaderTimeCameraReads(
         Func<int, bool> loaderInitializedSlot,
         Position16<RoomPixels> camera)
     {

@@ -249,7 +249,7 @@ internal sealed class NmiHandler
         return new(
             ridley,
             _enemies.KraidBehavior.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
-            _enemies.CrocomireBehavior.Crocomire is not null ? _enemies.CrocomireBehavior.CrocomireBg2Scroll : null,
+            _enemies.RoomMainHooks.Crocomire is not null ? _enemies.CrocomireBehavior.CrocomireBg2Scroll : null,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });
     }

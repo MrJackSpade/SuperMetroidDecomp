@@ -286,8 +286,8 @@ public sealed class SuperMetroidRuntime
     /// </summary>
     public ushort ElevatorStatus
     {
-        get => (ushort)Enemies.ElevatorBehavior.ElevatorStatus;
-        set => Enemies.ElevatorBehavior.SetElevatorStatusForDebugging(value);
+        get => (ushort)Enemies.Elevator.ElevatorStatus;
+        set => Enemies.Elevator.SetElevatorStatusForDebugging(value);
     }
 
     /// <summary>
@@ -536,7 +536,7 @@ public sealed class SuperMetroidRuntime
         // Door destination drawing borrows this frame path, but native state $0B
         // ($82:E737) does not call the palette-FX handler. Its colors must remain
         // owned by the gradual room fade until the door transition releases them.
-        if (RoomPaletteFx.HandlerEnabled && !Enemies.ElevatorBehavior.ElevatorDoorTransitionActive &&
+        if (RoomPaletteFx.HandlerEnabled && !Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
             RoomPaletteFx.Step(_addressSpace, Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
@@ -618,7 +618,7 @@ public sealed class SuperMetroidRuntime
             // alpha ($90:E713) has no SetSamusRadius, so e.g. an elevator ride keeps
             // the boarding pose's radius.
             if (Player.GroundedSamusMovementEnabled && !Freeze.TimeIsFrozen && !AlphaInputLocked() &&
-                !Player.Samus.DeathSequence.IsActive && !Enemies.ElevatorBehavior.ElevatorDoorTransitionActive)
+                !Player.Samus.DeathSequence.IsActive && !Enemies.Elevator.ElevatorDoorTransitionActive)
                 Player.Samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
@@ -798,7 +798,7 @@ public sealed class SuperMetroidRuntime
                 // Locked/elevator/appearance handlers omit LowEnergyCheck; gunship command
                 // $1A installs a dedicated checker. Automatic reserves invoke their external
                 // check in the frontend.
-                if ((!Player.Samus.InputLocked || Enemies.GunshipHealthBehavior.HasGunshipHealthHandler) &&
+                if ((!Player.Samus.InputLocked || Enemies.Gunship.HealthHandlerActive) &&
                     !Player.Samus.Xray.OwnsSamusControl)
                     frameRequest.Audio.CheckLowHealth?.Invoke();
             }
@@ -813,7 +813,7 @@ public sealed class SuperMetroidRuntime
             // inside the ship, so the owners between EnemyMain and here have nothing to
             // act on; the box therefore opens at this shared suspension seam, and the
             // remainder resumes after the YES/NO/completion chain returns.
-            if (Enemies.GunshipBehavior.GunshipSavePromptPending)
+            if (Enemies.Gunship.SavePromptPending)
             {
                 if (MessageBox.IsActive)
                 {
@@ -899,7 +899,7 @@ public sealed class SuperMetroidRuntime
             // Its shared $0795 gate is set for ordinary doors as well as elevators.
             // Running the normal camera here consumes the upward IRQ's +32 offset
             // before arrival resumes, exposing wrapped Samus art above the room.
-            if (!deathOwnsSamus && !Enemies.ElevatorBehavior.ElevatorDoorTransitionActive)
+            if (!deathOwnsSamus && !Enemies.Elevator.ElevatorDoorTransitionActive)
             {
                 if (Room.LevelData is null || Room.BackgroundStreamer is null)
                     throw new InvalidOperationException("Gameplay camera tracking requires active room stream data.");
@@ -930,7 +930,7 @@ public sealed class SuperMetroidRuntime
                             MovementType: Player.Samus.PoseMetadata.ReadMovementType(_addressSpace),
                             XAccelerationMode: Player.Samus.HorizontalSpeed.AccelerationMode,
                             PoseXDirection: Player.Samus.PoseMetadata.ReadPoseXDirection(_addressSpace),
-                            CameraDistanceIndex: Enemies.ZebetiteBehavior.CameraDistanceIndex));
+                            CameraDistanceIndex: Enemies.RoomMainHooks.ZebetiteCameraDistanceIndex));
                     Room.Camera.TrackMovedSamusVertically(
                         previousCameraPoint,
                         currentCameraPoint,
@@ -950,7 +950,7 @@ public sealed class SuperMetroidRuntime
                 // scrolling-finished hook after both axes have tracked Samus. Live Spore
                 // Spawn installs `$90:9589`, which owns the arena's vertical camera floor;
                 // it must run before BG streaming and OAM consume layer-one position.
-                Enemies.SporeSpawnBehavior.RunScrollingFinishedHook(Room.Camera);
+                Enemies.RoomMainHooks.RunSporeSpawnScrollingFinishedHook(Room.Camera);
                 Room.Camera.FinishSamusScrolling(currentCameraPoint);
 
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
@@ -978,7 +978,7 @@ public sealed class SuperMetroidRuntime
         // It omits the normal $90:E738 timer-hack call: neither countdown nor OAM
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
-        bool runEscapeTimerHandler = !Enemies.GunshipHealthBehavior.HasGunshipHealthHandler;
+        bool runEscapeTimerHandler = !Enemies.Gunship.HealthHandlerActive;
         if (runEscapeTimerHandler && EscapeTimer.Process(Nmi.NmiFrameCounter, Options.PreventEscapeTimeout))
         {
             // `$90:E0E6`: the expired countdown publishes game state $23 for the
@@ -1051,7 +1051,7 @@ public sealed class SuperMetroidRuntime
         RoomMains.LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
             _addressSpace,
             Player.Samus,
-            Enemies.RidleyEncounter.CeresStatus,
+            Enemies.Ceres.CeresStatus,
             allowDeparture: policy.AllowCeresElevatorDeparture,
             Room.RoomMainScratch);
         if (RoomMains.LastCeresElevatorShaftRoomMain.MatrixChanged)
@@ -1060,7 +1060,7 @@ public sealed class SuperMetroidRuntime
         RoomMains.RunCeresFallingDebrisRoomMain();
         RoomMains.RunCrocomireComebackRoomMain();
         if (Room.ActiveRoom?.State.MainCallback == RoomMainCallback.HandleCeresRidleyGetawayCutscene)
-            Enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(Player.Samus, Nmi.NmiFrameCounter);
+            Enemies.Ceres.RunCeresRidleyGetawayRoomMain(Player.Samus, Nmi.NmiFrameCounter);
 
         // HandleSamusOutOfHealthAndGameTile advances the four-word gameplay clock after
         // room main and before shaking. Message-box frames returned above, exactly as the
@@ -1126,8 +1126,8 @@ public sealed class SuperMetroidRuntime
     {
         if (Room.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before publishing gameplay.");
-        CrocomireDeathState? crocomireDeath = Enemies.CrocomireBehavior.Crocomire is not null
-            ? Enemies.CrocomireBehavior.CrocomireDeath : null;
+        CrocomireDeathState? crocomireDeath = Enemies.RoomMainHooks.Crocomire is not null
+            ? Enemies.RoomMainHooks.CrocomireDeath : null;
         MotherBrainEnemyState? motherBrain = Enemies.MotherBrainEncounter.MotherBrain;
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(

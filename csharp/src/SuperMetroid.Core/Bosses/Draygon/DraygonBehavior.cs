@@ -1922,16 +1922,14 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>
-    /// Implements bank $84's write through <c>PLM_Variable</c>. Cannon setup stores one of
-    /// Draygon's extra-enemy WRAM addresses, then the damage instruction writes one here.
+    /// Implements bank $84's write through <c>PLM_Variable</c>. Cannon setup names one of
+    /// Draygon's cannon-control words, then the damage instruction disables it here.
     /// </summary>
     public void DisableDraygonCannon(DraygonCannonControlWord word)
     {
-        // Native writes WRAM, not an actor reference. The defeated room still has
-        // cannon PLMs even though its enemy population no longer includes Draygon.
+        // The defeated room still has cannon PLMs even though its enemy population no
+        // longer includes Draygon; only a live Draygon reads the disabled words.
         _room.EnsureLoaded();
-        new DraygonCannonMemory(_room.MemoryBus).Disable(word);
-        // Keep the existing live-actor projection synchronized when one exists.
         Draygon?.DisabledCannonWords.Add(word);
     }
 

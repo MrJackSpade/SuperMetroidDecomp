@@ -104,32 +104,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonWorkRam",
-      "name": "ControlWords",
-      "region": "WorkRam",
-      "address": "$7E:8802",
-      "byteCount": 10,
-      "encoding": "cannon disabled flags (u16[] little-endian)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonMemory.cs",
-        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/DraygonCannonVerificationMemory.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainPaletteWorkRam",
-      "name": "GreyTrailingWord",
-      "region": "WorkRam",
-      "address": "$7E:017C",
-      "byteCount": 2,
-      "encoding": "Bgr555 (u16)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteMemoryDefinitions.cs",
-        "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainPaletteSpillAccess.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Enemies.EnemyScratchWorkRam",
       "name": "CorpseTiles",
       "region": "WorkRam",

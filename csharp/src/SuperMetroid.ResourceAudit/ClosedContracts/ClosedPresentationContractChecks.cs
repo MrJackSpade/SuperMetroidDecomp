@@ -101,7 +101,7 @@ internal static class ClosedPresentationContractChecks
                     samusDeath.SuitedColor(3, 9, 15);
                     samusDeath.ExplosionPaletteIndex(8);
                     samusDeath.ExplosionPaletteIndex(9);
-                    rainbow.ApplyFromGrey(null!, cgram, 7);
+                    rainbow.ApplyFromGrey(cgram, 7);
                 }
             }
             """;

@@ -4452,8 +4452,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             int index = RequireLiveMotherBrainRainbowSequence(state).GreyTransitionCounter - 1;
             var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's grey transition requires installed palette artwork.");
-            if (draining) installed.ApplyToGrey(_room.LoadedBus, _presentation.Cgram, index);
-            else installed.ApplyFromGrey(_room.LoadedBus, _presentation.Cgram, index);
+            if (draining) installed.ApplyToGrey(_presentation.Cgram, index);
+            else installed.ApplyFromGrey(_presentation.Cgram, index);
             return;
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&

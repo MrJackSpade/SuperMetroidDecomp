@@ -518,17 +518,10 @@ internal static class MapPresentationVerification
             SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(native, bus, palette + count * sizeof(ushort),
                 MotherBrainDrainedPaletteRomData.BackLegCount,
                 MotherBrainDrainedPaletteRomData.BackLegColor);
-            var guard = NewPaletteReadForbiddenBus();
-            if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(guard, installed, frame);
-            else original.MotherBrainRainbowPalette.ApplyFromGrey(guard, installed, frame);
+            if (draining) original.MotherBrainRainbowPalette.ApplyToGrey(installed, frame);
+            else original.MotherBrainRainbowPalette.ApplyFromGrey(installed, frame);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain {(draining ? "drain" : "revival")} frame {frame} retains exact native CGRAM and preserved colors");
-            int tail = palette + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * sizeof(ushort);
-            AssertEqual(CpuBusRegionRead.Read(bus, tail), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram],
-                "grey transition publishes native trailing WRAM low byte");
-            AssertEqual(CpuBusRegionRead.Read(bus, tail + 1), guard.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1],
-                "grey transition publishes native trailing WRAM high byte");
-            AssertEqual(2, guard.Writes.Count, "grey transition writes only its two native WRAM bytes");
         }
 
         var nativeNormal = new SnesCgram();
@@ -634,22 +627,15 @@ internal static class MapPresentationVerification
             "installed rainbow override reaches the room-enemy binding");
         stockOutput.Clear();
         editedOutput.Clear();
-        var stockTailBus = NewPaletteReadForbiddenBus();
-        var editedTailBus = NewPaletteReadForbiddenBus();
-        original.MotherBrainRainbowPalette.ApplyToGrey(stockTailBus, stockOutput, 0);
-        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyToGrey(editedTailBus, editedOutput, 0);
+        original.MotherBrainRainbowPalette.ApplyToGrey(stockOutput, 0);
+        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyToGrey(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor] !=
             editedOutput.Colors[MotherBrainRainbowPaletteRomData.BodyColor],
             "drain override reaches the native body destination");
-        AssertTrue(stockTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram] !=
-            editedTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram] ||
-            stockTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1] !=
-            editedTailBus.Writes[MotherBrainDrainedPaletteRomData.TrailingWordWram + 1],
-            "drain trailing-color override reaches native WRAM publication");
         stockOutput.Clear();
         editedOutput.Clear();
-        original.MotherBrainRainbowPalette.ApplyFromGrey(NewPaletteReadForbiddenBus(), stockOutput, 0);
-        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyFromGrey(NewPaletteReadForbiddenBus(), editedOutput, 0);
+        original.MotherBrainRainbowPalette.ApplyFromGrey(stockOutput, 0);
+        runtime.Enemies.Presentation.MotherBrainRainbowColors.ApplyFromGrey(editedOutput, 0);
         AssertTrue(stockOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor] !=
             editedOutput.Colors[MotherBrainDrainedPaletteRomData.BackLegColor],
             "revival override reaches the native rear-leg destination");
@@ -1535,14 +1521,12 @@ internal static class MapPresentationVerification
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
 
-    /// <summary>Rejects palette ROM reads while allowing only Mother Brain's trailing WRAM color write.</summary>
+    /// <summary>Rejects every palette ROM read and every bus write during installed Mother Brain palette work.</summary>
     internal static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address =>
                 $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.")
-            .RejectWrites(address => address is not (MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram or
-                    MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1),
-                address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
+            .RejectWrites(address => $"Unexpected Mother Brain palette write ${address:X6}.");
 
     /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]

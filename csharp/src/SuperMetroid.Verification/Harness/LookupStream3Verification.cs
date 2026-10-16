@@ -1664,7 +1664,7 @@ internal static class LookupStream3Verification
             var bus = new TestAddressSpace();
             for (int frame = 0; frame < 8; frame++)
             {
-                palette.ApplyToGrey(bus, cgram, frame);
+                palette.ApplyToGrey(cgram, frame);
                 for (int color = 0; color < 15; color++)
                 {
                     AssertEqual(Word(drain[frame].Body[color]), cgram.Colors[0x41 + color], "stream 3 drain body RGB5");
@@ -1672,8 +1672,6 @@ internal static class LookupStream3Verification
                 }
                 for (int color = 0; color < 5; color++)
                     AssertEqual(Word(drain[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 drain legs RGB5");
-                AssertEqual(Word((drain[frame].TrailingColor ?? throw new InvalidOperationException("Verification requires drain[frame].TrailingColor."))), new MotherBrainPaletteSpillAccess(bus).GreyTrailingWord,
-                    "stream 3 drain trailing word");
                 palette.ApplyFakeDeathToGrey(cgram, frame);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(Word(fake[frame][color]), cgram.Colors[0x91 + color], "stream 3 fake-death brain RGB5");
@@ -1728,7 +1726,7 @@ internal static class LookupStream3Verification
             {
                 cgram.SetColor(0x4e, new Bgr555(27, 3, 0));
                 cgram.SetColor(0x9e, new Bgr555(27, 3, 0));
-                palette.ApplyFromGrey(bus, cgram, frame);
+                palette.ApplyFromGrey(cgram, frame);
                 for (int color = 0; color < 13; color++)
                 {
                     AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x41 + color], "stream 3 revival body");
@@ -1738,7 +1736,6 @@ internal static class LookupStream3Verification
                 AssertEqual((ushort)123, cgram.Colors[0x9e], "stream 3 revival preserves brain tail");
                 for (int color = 0; color < 5; color++)
                     AssertEqual(Word(revival[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 revival legs");
-                AssertEqual(Word((revival[frame].TrailingColor ?? throw new InvalidOperationException("Verification requires revival[frame].TrailingColor."))), new MotherBrainPaletteSpillAccess(bus).GreyTrailingWord, "stream 3 revival trailing word");
                 palette.ApplyFakeDeathFromGrey(cgram, frame);
                 for (int color = 0; color < 3; color++)
                     AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x91 + color], "stream 3 fake-death revival");
@@ -1867,7 +1864,7 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 8, int.MaxValue })
         {
-            AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new TestAddressSpace(), new SnesCgram(), invalid), "stream 3 drain bounds");
+            AssertThrows<InvalidDataException>(() => stock.ApplyToGrey(new SnesCgram(), invalid), "stream 3 drain bounds");
             AssertThrows<InvalidDataException>(() => stock.ApplyFakeDeathToGrey(new SnesCgram(), invalid), "stream 3 fake-death bounds");
         }
     }

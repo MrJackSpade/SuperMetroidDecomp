@@ -58,6 +58,9 @@ dotnet_diagnostic.SME6283.severity = error
 # #629: the CPU A-bus layout is confined to declared boundaries.
 dotnet_diagnostic.SME6290.severity = error
 dotnet_diagnostic.SME6291.severity = error
+# #1320: Core takes, stores or exposes a CPU-bus interface only inside a [CpuBusBoundary]; the baseline only falls.
+dotnet_diagnostic.SME6292.severity = error
+dotnet_diagnostic.SME6293.severity = error
 # #630: the PPU layout is confined to declared rendering boundaries.
 dotnet_diagnostic.SME6300.severity = error
 dotnet_diagnostic.SME6301.severity = error

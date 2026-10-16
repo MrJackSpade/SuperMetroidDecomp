@@ -24,16 +24,16 @@ internal static class PaletteFxContractTests
     /// </summary>
     internal static void VerifyPaletteFxDependencyContract()
     {
-        VerifyPaletteCall("explicit provider", "fx.Step(bus, cgram, colors, frame);");
-        VerifyPaletteCall("old positional call", "fx.Step(bus, cgram, frame);", "CS7036");
+        VerifyPaletteCall("explicit provider", "fx.Step(cgram, colors, frame);");
+        VerifyPaletteCall("old positional call", "fx.Step(cgram, frame);", "CS7036");
         VerifyPaletteCall("omitted named provider",
-            "fx.Step(bus, cgram, conditions: frame);",
+            "fx.Step(cgram, conditions: frame);",
             "CS7036");
         VerifyPaletteCall("explicit named provider",
-            "fx.Step(bus, cgram, colors: colors, conditions: frame);");
-        VerifyPaletteCall("wrong provider type", "fx.Step(bus, cgram, new object(), frame);", "CS1503");
-        VerifyPaletteCall("null literal", "fx.Step(bus, cgram, null, frame);", "CS8625");
-        VerifyPaletteCall("nullable provider", "fx.Step(bus, cgram, optionalColors, frame);", "CS8604");
+            "fx.Step(cgram, colors: colors, conditions: frame);");
+        VerifyPaletteCall("wrong provider type", "fx.Step(cgram, new object(), frame);", "CS1503");
+        VerifyPaletteCall("null literal", "fx.Step(cgram, null, frame);", "CS8625");
+        VerifyPaletteCall("nullable provider", "fx.Step(cgram, optionalColors, frame);", "CS8604");
         VerifyPaletteCall("removed optional binding", "fx.BindPresentationColors(colors);", "CS1061");
 
         // Guard against adding a compatibility overload or hidden serialized provider
@@ -48,7 +48,6 @@ internal static class PaletteFxContractTests
 
         // The colors dependency is non-null by contract and the null-forgiving operator is banned (#623), so the
         // compiler rejects a null caller; the first step paints with the supplied colors.
-        var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
         fx.SpawnDefinition(GunshipEngineDefinitionPointer, 0);
@@ -69,7 +68,7 @@ internal static class PaletteFxContractTests
             using SuperMetroid.Core.Hardware;
             class PaletteCaller
             {
-                void Run(RoomPaletteFxSystem fx, ISnesAddressSpace bus, SnesCgram cgram,
+                void Run(RoomPaletteFxSystem fx, SnesCgram cgram,
                     IPaletteFxColorSource colors, IPaletteFxColorSource? optionalColors, PaletteFxConditions frame)
                 {
                     {{statement}}

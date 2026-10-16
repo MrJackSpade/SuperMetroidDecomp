@@ -33,8 +33,14 @@ public sealed class RuntimeFrameAudio : ISamusFrameAudio
         new(Ensure.NotNull(queueEchoSound), null);
 
     /// <summary>The synchronous echo call, returning its accumulator; none publishes the echo after the frame.</summary>
-    public Func<ushort>? QueueEchoSound { get; }
+    internal Func<ushort>? QueueEchoSound { get; }
 
     /// <summary>The admitted low-health check; none when this scenario makes no check.</summary>
-    public Action? CheckLowHealth { get; }
+    internal Action? CheckLowHealth { get; }
+
+    /// <inheritdoc/>
+    Func<ushort>? ISamusFrameAudio.QueueEchoSound => QueueEchoSound;
+
+    /// <inheritdoc/>
+    Action? ISamusFrameAudio.CheckLowHealth => CheckLowHealth;
 }

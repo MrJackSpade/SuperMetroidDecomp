@@ -154,6 +154,7 @@ public sealed class SnesVram
     /// clear selects consecutive words (<c>VMAIN=$80</c>), set selects columns in steps of
     /// 32 words (<c>VMAIN=$81</c>).
     /// </param>
+    [CpuBusBoundary("CPU-bus implementation: a queued DMA channel 1 transfer whose A-bus source the channel reads")]
     public void ExecuteQueuedMemoryWrite(
         ISnesMutableMemory memory,
         int sourceAddress,

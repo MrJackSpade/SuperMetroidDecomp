@@ -29,9 +29,22 @@ bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cel
 - **SME6290** — using a `[CpuBusAccess]` member (invocation, property, method group, construction,
   or a concrete implementation of an attributed interface member) outside a `[CpuBusBoundary]`.
 - **SME6291** — a class/struct implementing a `[CpuBusAccess]` interface outside a boundary.
+- **SME6292** (#1320) — in Core, a parameter, field or property (record and primary-constructor
+  parameters included) typed as a `[CpuBusAccess]` interface (`ISnesAddressSpace`, `ISnesMemoryBus`,
+  `ISnesMutableMemory`) outside a boundary. SME6290 checks use; this rule checks threading, so a
+  bus passed along without being read is also reported. Gameplay code takes the owned state or
+  narrow service it uses.
+- **SME6293** — a file's count fell below its entry in `csharp/cpu-bus-declaration-baseline.txt`;
+  lower the entry.
 
-Both are build errors. The analyzer checks the enclosing member, so a boundary on a local function
+All are build errors. The analyzers check the enclosing member, so a boundary on a local function
 or lambda has no effect; extract a named method.
+
+**Declaration baseline.** `csharp/cpu-bus-declaration-baseline.txt` activates SME6292 for Core only.
+Each reviewed per-file count may only fall, and each group names the ticket that removes it: saves
+(#1322), the host-supplied address space (#1322, #1327), the progression mirror (#1330) and the NMI
+drain's address-sourced VRAM entries (#1350). Import and adapter code is not baselined; it declares a
+boundary, for example `[CpuBusBoundary("import: ...")]` on `SnesMemoryBusRequirement.Require`.
 
 **Code fix (SME6290).** A view property that returns exactly one cell's raw value — same width and
 signedness, no validation or conversion — declares `[CpuBusViewOf(typeof(Catalog), nameof(Cell))]`.

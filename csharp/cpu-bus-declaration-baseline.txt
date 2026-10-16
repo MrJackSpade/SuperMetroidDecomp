@@ -1,0 +1,21 @@
+# Reviewed per-file counts for the CPU-bus declaration ratchet (#1320, SME6292, docs/cpu-bus-boundary.md).
+# Gameplay code receives owned state, not the bus. A file may only lose declarations; each entry names the ticket
+# that removes it.
+# path<TAB>rule<TAB>count
+# #1322: saves become an owned slot model; SRAM is only an import/export codec.
+csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectMenuState.cs	SME6292	1
+csharp/src/SuperMetroid.Core/Runtime/AutomaticCheckpointSaver.cs	SME6292	4
+# #1322 and #1327: the host-supplied address space, kept for the save and import paths until the session
+# composition root owns them.
+csharp/src/SuperMetroid.Core/Frontend/FrontendSession.cs	SME6292	2
+csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs	SME6292	2
+csharp/src/SuperMetroid.Core/Runtime/SuperMetroidRuntime.cs	SME6292	3
+# #1330: progression gets one storage identity; until then the live SRAM mirror is written and reclaimed through
+# the bus (SpaceTime's overwrite, invalid native callbacks).
+csharp/src/SuperMetroid.Core/Progression/Bank80SystemState.cs	SME6292	2
+csharp/src/SuperMetroid.Core/Samus/SamusFramePhases.cs	SME6292	1
+csharp/src/SuperMetroid.Core/Samus/SamusFramePhasesDependencies.cs	SME6292	1
+# #1350 (absorbed #1321's bus-source path): the NMI's VRAM drain still hands address-sourced entries that installed
+# artwork does not resolve to DMA channel 1 (VramWriteQueue.DrainTo); the frame boundary holds the bus for it.
+csharp/src/SuperMetroid.Core/Gameplay/AcceptedFrameBoundary.cs	SME6292	1
+csharp/src/SuperMetroid.Core/Gameplay/AcceptedFrameBoundaryDependencies.cs	SME6292	1

@@ -3,6 +3,7 @@ using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.MemberDocumentationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Hardware.CpuBusCodeFixTests;
+using static SuperMetroid.EnsureVerification.Hardware.CpuBusDeclarationAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Contracts.EnsureCodeFixTests;
 using static SuperMetroid.EnsureVerification.Contracts.OwnedReflectionAnalyzerTests;
 using static SuperMetroid.EnsureVerification.PaletteFx.PaletteFxContractTests;
@@ -48,6 +49,7 @@ internal static class Program
             VerifySpatialClumpAnalyzer();
             VerifyCpuBusAccessAnalyzer();
             VerifyCpuBusAccessCodeFix();
+            VerifyCpuBusDeclarationAnalyzer();
             VerifyPpuLayoutAccessAnalyzer();
             VerifyDspRegisterAccessAnalyzer();
             VerifySpcMemoryAccessAnalyzer();

@@ -123,6 +123,7 @@ public sealed class VramWriteQueue
     /// Executes every queued transfer in insertion order, then clears the table just as
     /// the NMI consumer does at <c>$80:8CC9</c>.
     /// </summary>
+    [CpuBusBoundary("CPU-bus implementation: the NMI drain hands address-sourced entries to DMA channel 1")]
     public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null)
     {
         Ensure.NotNull(vram);

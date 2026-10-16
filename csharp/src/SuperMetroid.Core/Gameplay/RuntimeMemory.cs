@@ -4,6 +4,7 @@
 internal static class RuntimeMemory
 {
     /// <summary>The address space as the mutable memory bus the runtime requires.</summary>
+    [CpuBusBoundary("import: resolves the runtime's live WRAM/SRAM bus")]
     internal static ISnesMemoryBus RequireBus(ISnesAddressSpace addressSpace) =>
         SnesMemoryBusRequirement.Require(addressSpace, "The runtime requires live WRAM/SRAM access.");
 }

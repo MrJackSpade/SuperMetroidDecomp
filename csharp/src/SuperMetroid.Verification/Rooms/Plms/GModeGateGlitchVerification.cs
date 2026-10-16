@@ -110,7 +110,7 @@ internal static class GModeGateGlitchVerification
         {
             if (frame == reactivateFrame)
             {
-                AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+                AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
                     $"direct G-Mode cancellation is admitted on frame {frame}");
                 AssertTrue(!samus.Xray.IsGMode && !samus.Xray.ArePlmsSuspended,
                     $"frame {frame} X-Ray activation restores native subsystem words");
@@ -223,7 +223,7 @@ internal static class GModeGateGlitchVerification
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "overloaded G-Mode sand preserves the running-momentum flag");
 
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "using X-Ray again cancels direct G-Mode after sand overload");
         AssertTrue(!samus.Xray.ArePlmsSuspended,
             "G-Mode cancellation restores the cartridge PLM-enable word");
@@ -498,7 +498,7 @@ internal static class GModeGateGlitchVerification
         samus.Kinematics.YSubspeed = 0;
         samus.PoseMetadata.RefreshCollisionRadii(bus);
         samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "direct G-Mode fixture activates X-Ray");
 
         var recovery = new SamusReserveAutoRecoveryState();

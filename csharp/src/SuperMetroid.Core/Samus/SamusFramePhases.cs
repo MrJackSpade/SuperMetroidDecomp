@@ -193,7 +193,7 @@ internal sealed class SamusFramePhases
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(ushort gameState, bool deferActivation)
+    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, bool deferActivation)
     {
         if (_player.Samus is null || !_player.GroundedSamusMovementEnabled || _room.LevelData is null)
         {
@@ -238,7 +238,7 @@ internal sealed class SamusFramePhases
         }
     }
     /// <summary>Runs Samus's terrain probes and movement dispatcher after alpha input, honoring script locks and enemy-main ordering.</summary>
-    internal void StepGroundedSamusMovement(SamusHandlerFrame frame, ushort gameState, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
+    internal void StepGroundedSamusMovement(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, bool enemyMainAlreadyRan, Func<bool> alphaInputLocked, SamusState samus, ScrollBoundaryCamera camera)
     {
         if (_player.GroundedSamusMovementEnabled)
         {

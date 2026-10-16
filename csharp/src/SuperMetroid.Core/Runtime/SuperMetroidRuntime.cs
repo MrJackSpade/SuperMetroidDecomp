@@ -292,7 +292,7 @@ public sealed class SuperMetroidRuntime
     /// $90:F4A2 test it from inside the outer frame; runtime-only hosts run state eight.
     /// </summary>
     [field: NonSerialized]
-    public ushort DispatchGameState { get; set; } = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay;
+    public SuperMetroid.Core.Gameplay.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
     /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every

@@ -88,7 +88,7 @@ public sealed class SamusBombProjectileSystem
         ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput,
-        ushort gameState = (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
+        SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
@@ -320,9 +320,9 @@ public sealed class SamusBombProjectileSystem
     private static void ResumeSoundsAfterPowerBombExplosion(
         ISnesAddressSpace bus,
         SamusState samus,
-        ushort gameState)
+        SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState)
     {
-        if (gameState != (ushort)SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
+        if (gameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
             return;
         if (samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {

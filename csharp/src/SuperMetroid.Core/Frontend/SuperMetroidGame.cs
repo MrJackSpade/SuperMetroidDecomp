@@ -526,7 +526,7 @@ public sealed class SuperMetroidGame
             menuNmi.Advance();
         AdvanceMenuRandom();
         if (runtime is not null)
-            runtime.DispatchGameState = (ushort)GameState;
+            runtime.DispatchGameState = GameState;
         switch (GameState)
         {
             case SuperMetroidGameState.Reset:

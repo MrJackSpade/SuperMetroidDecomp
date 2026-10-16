@@ -61,7 +61,7 @@ internal static class XrayGameStateVerification
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins pause darkening");
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "the held-Run frame is a darkening gameplay frame");
-            AssertEqual((ushort)SuperMetroidGameState.PausingDarkening, runtime.DispatchGameState, "the runtime sees the live darkening state");
+            AssertEqual(SuperMetroidGameState.PausingDarkening, runtime.DispatchGameState, "the runtime sees the live darkening state");
             AssertTrue(!samus.Xray.IsActive, "state $0C rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }
@@ -72,7 +72,7 @@ internal static class XrayGameStateVerification
             game.GameState = SuperMetroidGameState.Unpausing;
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "the held-Run frame is an unpausing gameplay frame");
-            AssertEqual((ushort)SuperMetroidGameState.Unpausing, runtime.DispatchGameState, "the runtime sees the live unpausing state");
+            AssertEqual(SuperMetroidGameState.Unpausing, runtime.DispatchGameState, "the runtime sees the live unpausing state");
             AssertTrue(!samus.Xray.IsActive, "state $12 rejects X-ray setup");
             AssertTrue(!runtime.Freeze.TimeIsFrozen, "a rejected setup does not freeze gameplay");
         }

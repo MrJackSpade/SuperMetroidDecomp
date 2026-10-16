@@ -161,7 +161,7 @@ internal static class SamusVisorColorsVerification
         };
         samus.PoseMetadata.RefreshCollisionRadii(rom);
         samus.Presentation.InitializeAnimation(rom);
-        AssertTrue(samus.Xray.TryBegin(rom, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = (ushort)SuperMetroidGameState.MainGameplay }),
+        AssertTrue(samus.Xray.TryBegin(rom, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "stock X-ray setup is accepted");
         return samus;
     }

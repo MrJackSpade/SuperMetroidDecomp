@@ -77,7 +77,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
 
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
-    AssertEqual(0x3800, baby.Properties, "Baby population/init property OR");
+    AssertEqual(0x3800, baby.Properties.ToNativeWord(), "Baby population/init property OR");
     AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
     AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");

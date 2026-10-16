@@ -11,4 +11,9 @@ public static class EnemyExtraPropertyRawBits
     /// extended-spritemap flag. No translated common handler consumes this bit yet.
     /// </summary>
     public const ushort CrocomireInitializerBit0400 = 1024;
+
+    /// <summary>
+    /// Bit `$0001` set by the grapple attach-and-paralyze wrapper. No translated common handler consumes it yet.
+    /// </summary>
+    public const ushort GrappleParalyzeBit0001 = 1;
 }

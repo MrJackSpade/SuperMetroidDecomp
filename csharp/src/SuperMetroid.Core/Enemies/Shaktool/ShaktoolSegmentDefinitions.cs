@@ -25,7 +25,9 @@ internal static class ShaktoolSegmentDefinitions
     /// Independently checked against NTSC J/U v1.0 and pinned bank_AA.asm for #1165.
     /// Input has already been validated as segment 0..6; native initialization ORs it.
     /// </summary>
-    private static ushort PropertiesForSegment(int index) => index is 0 or 6 ? (ushort)0x2800 : (ushort)0x2c00;
+    private static EnemyProperties PropertiesForSegment(int index) => index is 0 or 6
+        ? EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen
+        : EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision;
 
     /// <summary>
     /// $AA:DEA3 RAMOffset: 64*index for validated segment 0..6, the native enemy-record

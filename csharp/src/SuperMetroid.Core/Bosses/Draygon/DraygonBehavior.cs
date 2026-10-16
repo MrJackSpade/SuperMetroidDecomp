@@ -1312,7 +1312,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.FunctionTimer = NativeCountdown.Start(DraygonDeathWaitFramesUs);
         StartDraygonProgram(body, DraygonProgram.Sleep);
 
-        ushort deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
+        EnemyPropertyWord deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
         state.Tail.Properties = deletedPartProperties;
         state.Arms.Properties = deletedPartProperties;
         RoomEnemySlot eye = state.Eye;
@@ -1364,7 +1364,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             xMask: byte.MaxValue,
             yBase: 352,
             yMask: SnesLittleEndian.Word(0, 63));
-        ushort deletedProperties = body.Properties.With(EnemyProperties.Deleted);
+        EnemyPropertyWord deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;
         state.Eye.Properties = deletedProperties;
         if (!state.BossDefeatPersisted)

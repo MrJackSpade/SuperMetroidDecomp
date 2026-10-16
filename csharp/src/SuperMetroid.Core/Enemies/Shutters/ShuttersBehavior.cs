@@ -33,10 +33,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         // The initializer consumes init0 and the low extra-property word as a two-bit table
         // selector before clearing the latter. Keep native dispatch ordering independent
         // of the origin direction encoded below.
-        int initialFunctionIndex = slot.ExtraProperties * 2 + slot.CurrentInstruction;
+        int initialFunctionIndex = slot.ExtraProperties.ToNativeWord() * 2 + slot.CurrentInstruction;
         state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
 
-        bool growsUp = slot.ExtraProperties != 0;
+        bool growsUp = slot.ExtraProperties.ToNativeWord() != 0;
         state.GrowthLevel0OriginY = slot.Position.Y.Whole;
         state.GrowthLevel1OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -8 : 8)));
         state.GrowthLevel2OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -16 : 16)));
@@ -45,7 +45,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         (state.GrowthVelocity, state.GrowthSubvelocity) = GrowingShutterDefinitions.Speed(slot.Parameter2);
 
-        slot.ExtraProperties = 0;
+        slot.ExtraProperties = default;
         InstallGrowingShutterProgram(
             slot,
             state,
@@ -249,8 +249,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         (state.LeftVelocity, state.LeftSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
             unchecked((ushort)(speedRecordOffset + 4)));
 
-        state.MovedLeftRestParameter = unchecked((byte)slot.ExtraProperties);
-        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties);
+        state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
+        state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
         state.MovedLeftRestTime = unchecked((ushort)(state.MovedLeftRestParameter << 4));
         state.MovedRightRestTime = unchecked((ushort)(state.MovedRightRestParameter << 4));
 
@@ -278,7 +278,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ShotActivated = false;
         state.PreviousSamusXPosition = samus?.Position.X.Whole ?? 0;
         state.PreviousSamusXSubposition = samus?.Kinematics.Position.X.Fraction ?? 0;
-        slot.ExtraProperties = 0;
+        slot.ExtraProperties = default;
         InstallHorizontalShutterProgram(slot, state);
     }
 
@@ -833,8 +833,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         (state.UpVelocity, state.UpSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
             unchecked((ushort)(speedRecordOffset + 4)));
 
-        state.MovedUpRestParameter = unchecked((byte)slot.ExtraProperties);
-        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties);
+        state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
+        state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
         state.MovedUpRestTime = unchecked((ushort)(state.MovedUpRestParameter << 4));
         state.MovedDownRestTime = unchecked((ushort)(state.MovedDownRestParameter << 4));
 
@@ -860,7 +860,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = VerticalShutterFunction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
-        slot.ExtraProperties = 0;
+        slot.ExtraProperties = default;
         InstallVerticalShutterProgram(
             slot,
             state,

@@ -404,7 +404,7 @@ internal static class LookupStream5Verification
             open(state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd41 + bucket * 2);
             AssertEqual(duration, body.VariableE, "Native selected vulnerability duration");
-            AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0, "Eye opening enables collision");
+            AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Eye opening enables collision");
             tentacles.VariableA = (ushort)(shot ? 1 : 0);
             tentacles.VariableB = 37;
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
@@ -417,7 +417,7 @@ internal static class LookupStream5Verification
                 {
                     AssertEqual((ushort)(duration - elapsed), body.VariableE, "One exact countdown decrement per actor call");
                     AssertEqual((ushort)PhantoonAiFunction.EyeTracksSamus, body.VariableF, "No early exposure transition");
-                    AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0, "Exposure remains collidable before expiry");
+                    AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Exposure remains collidable before expiry");
                     AssertEqual((ushort)37, tentacles.VariableB, "Round damage remains until expiration");
                 }
             }
@@ -433,7 +433,7 @@ internal static class LookupStream5Verification
                 AssertEqual((ushort)PhantoonAiFunction.NoOperation, body.VariableF, "Unhit expiration hands off to eye close");
                 AssertEqual(PhantoonPartProgram.InvulnerableBody, state.PartProgram(body).Program, "Native invulnerable body handoff");
                 AssertEqual(PhantoonPartProgram.EyeCloseAndPickNewPattern, state.PartProgram(eye).Program, "Native close/reselect eye handoff");
-                AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) != 0, "Expiration removes open-eye collision");
+                AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Expiration removes open-eye collision");
                 AssertEqual((ushort)1, body.Parameter2, "Unhit expiration requests next rain branch");
             }
         }

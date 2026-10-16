@@ -31,7 +31,7 @@ internal static class RipperBehaviorVerification
             AssertEqual(definition, EnemyDefinitionIds.FromHeaderPointer(CartridgeImportSource.Require(rom).ReadCartridgeWord(record)),
                 $"retail Ripper population ${record:X6} definition");
             ushort extra = CartridgeImportSource.Require(rom).ReadCartridgeWord(record + 10);
-            AssertTrue(!extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
+            AssertTrue(!EnemyExtraPropertyWord.FromNativeWord(extra).HasAny(EnemyExtraProperties.UsesExtendedSpritemap),
                 $"retail Ripper population ${record:X6} uses ordinary OAM");
         }
 

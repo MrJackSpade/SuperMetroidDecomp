@@ -49,7 +49,7 @@ public sealed class BabyMetroidCutsceneState
         BabyMetroidCutscenePhase.Inactive;
 
     /// <summary>Enemy properties after initialization ORs in <c>$3000</c>.</summary>
-    public ushort Properties { get; private set; }
+    public EnemyPropertyWord Properties { get; private set; }
 
     /// <summary>Enemy palette word. Flashing may later alternate this with zero.</summary>
     public ushort Palette { get; private set; }
@@ -160,11 +160,10 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public void Initialize(
         FixedPosition<RoomPixels> previousOccupant,
-        ushort populationProperties =
-            (ushort)(EnemyProperties.ProcessInstructions |
-                EnemyProperties.ProcessOffScreen))
+        EnemyPropertyWord? populationProperties = null)
     {
-        Properties = populationProperties.With(
+        Properties = (populationProperties ?? new EnemyPropertyWord(
+            EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen)).With(
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
         Palette = EnemyPaletteBits.Palette7;

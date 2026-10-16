@@ -42,13 +42,13 @@ internal static class ShaktoolSegmentDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.Parameter2 = unchecked((ushort)(index * 2));
-            slot.Properties = 0x0010;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x0010));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
             ShaktoolSegmentState state = (enemies.ShaktoolSegments[index] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[index]."));
-            AssertEqual(unchecked((ushort)(0x0010 | definition.PropertyMask)),
-                slot.Properties, $"Shaktool production properties {index}");
+            AssertEqual((ushort)(0x0010 | (ushort)definition.PropertyMask),
+                slot.Properties.ToNativeWord(), $"Shaktool production properties {index}");
             AssertEqual((ushort)0, (state ?? throw new InvalidOperationException("Verification requires state.")).OwnerNativeIndex,
                 $"Shaktool production owner {index}");
             AssertEqual(definition.PreInstruction, state.PreInstruction,
@@ -91,7 +91,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
     /// <summary>Matches each segment's added property bits with the native lookup table.</summary>
     private static void VerifyShaktoolPropertySelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
-            definition => definition.PropertyMask, "property selection"));
+            definition => (ushort)definition.PropertyMask, "property selection"));
 
     /// <summary>Checks the initial orbit angle selected for all seven body segments.</summary>
     internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>

@@ -576,7 +576,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // The native routine assigns exactly $0200, stripping processing and any other
             // population flags rather than merely ORing the deleted bit.
-            wings.Properties = (ushort)EnemyProperties.Deleted;
+            wings.Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
             return;
         }
 

@@ -30,7 +30,7 @@ internal static class ZeroDistanceJumpContactVerification
             [
                 new SolidEnemyCollisionBody(Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
                     Radius: new(5, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
-                    Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)),
+                    Properties: EnemyPropertyWord.FromNativeWord((ushort)((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)))),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);
             var result = SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);

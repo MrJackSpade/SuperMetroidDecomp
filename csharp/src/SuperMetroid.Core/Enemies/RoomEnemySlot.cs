@@ -84,9 +84,9 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.XHitboxRadius/YHitboxRadius at +$0A/+$0C: collision half-extents in pixels, initially copied from the header.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Enemy.properties at +$0E: mutable primary native property bits controlling collision, drawing, and instruction processing.</summary>
-    public ushort Properties { get; internal set; }
+    public EnemyPropertyWord Properties { get; internal set; }
     /// <summary>Enemy.properties2 at +$10: mutable additional properties, including extended-spritemap selection.</summary>
-    public ushort ExtraProperties { get; internal set; }
+    public EnemyExtraPropertyWord ExtraProperties { get; internal set; }
     /// <summary>Enemy.AI at +$12: native handler-selection bits for ordinary, hurt, frozen, and other AI dispatch states.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Enemy.health at +$14: mutable remaining enemy health, initialized from the definition and reduced by weapon damage.</summary>
@@ -146,7 +146,9 @@ public sealed class RoomEnemySlot
         Spawn = default;
         Position = FixedPosition<RoomPixels>.Zero;
         Radius = Extent16<RoomPixels>.Zero;
-        Properties = ExtraProperties = Health = 0;
+        Properties = default;
+        ExtraProperties = default;
+        Health = 0;
         AiStates = EnemyAiStates.None;
         InstructionTimer = NativeCountdown.Start(0);
         CurrentInstruction = 0;
@@ -181,8 +183,8 @@ public sealed class RoomEnemySlot
         EnemyDataField.YSubposition => Position.Y.Fraction,
         EnemyDataField.XRadius => Radius.X,
         EnemyDataField.YRadius => Radius.Y,
-        EnemyDataField.Properties => Properties,
-        EnemyDataField.ExtraProperties => ExtraProperties,
+        EnemyDataField.Properties => Properties.ToNativeWord(),
+        EnemyDataField.ExtraProperties => ExtraProperties.ToNativeWord(),
         EnemyDataField.AiHandler => AiStates.NativeWord,
         EnemyDataField.Health => Health,
         EnemyDataField.Spritemap => SpritemapPointer,

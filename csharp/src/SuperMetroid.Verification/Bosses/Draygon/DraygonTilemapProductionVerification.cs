@@ -55,7 +55,7 @@ internal static class DraygonTilemapProductionVerification
             foreach (ushort nativeIndex in queue)
             {
                 var slot = enemies.SlotTable.Slots[nativeIndex / 64];
-                if (((ushort)slot.ExtraProperties & 0x8004) != 0x8004) continue;
+                if ((slot.ExtraProperties.ToNativeWord() & 0x8004) != 0x8004) continue;
                 int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
                 for (int component = 0; component < count; component++)

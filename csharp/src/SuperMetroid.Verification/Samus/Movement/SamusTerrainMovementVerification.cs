@@ -548,7 +548,7 @@ internal static void VerifySamusGroundedMovement()
             Position: new(100, 116),
             Radius: new(5, 5),
             FreezeTimer: 0,
-            Properties: 0x8000),
+            Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000))),
     ];
     forward.SolidVerticalCollisionResult = 9;
     BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
@@ -1402,7 +1402,7 @@ internal static void VerifySamusRanIntoWall()
     enemyAhead.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(Index: 0x40, Position: new(89, 27), Radius: new(4, 8),
-            FreezeTimer: 0, Properties: (ushort)EnemyProperties.SolidToSamus),
+            FreezeTimer: 0, Properties: new EnemyPropertyWord(EnemyProperties.SolidToSamus)),
     ];
     SamusPoseId? enemyResult = enemyAhead.PoseTransitions.CheckProspectiveRunningPoseForWall(
 

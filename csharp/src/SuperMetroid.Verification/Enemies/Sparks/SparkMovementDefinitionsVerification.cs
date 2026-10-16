@@ -81,7 +81,7 @@ internal static class SparkMovementDefinitionsVerification
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Properties = intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0;
+        slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0));
         return (enemies, slot, state);
     }
 

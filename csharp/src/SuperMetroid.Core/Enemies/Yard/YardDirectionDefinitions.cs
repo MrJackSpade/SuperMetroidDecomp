@@ -70,7 +70,7 @@ internal static class YardDirectionDefinitions
         };
         return selected with
         {
-            PropertyBits = (ushort)((direction & 1) | (direction < 4 ? 2 : 0)),
+            PropertyBits = (byte)((direction & 1) | (direction < 4 ? 2 : 0)),
             OppositeDirection = (ushort)(direction ^ 1),
         };
     }

@@ -67,7 +67,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         // instruction pointer. Masking to two bits before selector lookup is native.
         // InitAI_Viola ($A3:B678) alone selects with the property bits instead.
         var orientation = (CrawlerSurfaceOrientation)((animationFamily == CrawlerAnimationFamily.Viola
-            ? (int)slot.Properties
+            ? slot.Properties.FamilyData
             : slot.CurrentInstruction) & 3);
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             animationFamily, orientation));
@@ -95,7 +95,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The low two population-property bits encode which side of the starting block the
         // crawler occupies. They are not independent EnemyProperties flags.
-        switch (slot.Properties & 3)
+        switch (slot.Properties.FamilyData & 3)
         {
             case 0:
                 slot.VariableA = Negate16(slot.VariableA);
@@ -138,7 +138,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
-        switch (slot.Properties & 3)
+        switch (slot.Properties.FamilyData & 3)
         {
             case 0:
                 state.Velocity = state.Velocity.ReversedX();

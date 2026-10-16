@@ -170,7 +170,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
         torizo.Position = torizo.Position.WithWhole(definition.Position);
         state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(definition.Program);
-        torizo.Properties = unchecked((ushort)(torizo.Properties | definition.PropertyMask));
+        torizo.Properties = torizo.Properties.With(definition.PropertyMask);
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         torizo.Radius = definition.Radius;

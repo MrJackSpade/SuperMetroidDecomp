@@ -84,7 +84,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         // This is intentionally *not* `ORA #$0100`, which would force invisibility. The retail
         // instruction is the absolute-memory form `ORA $0100`, a disassembly-noted bug; see
         // SparkMovementDefinitions.StackPagePropertyOverlay for the exempted value it ORs.
-        slot.Properties = unchecked((ushort)(slot.Properties | SparkMovementDefinitions.StackPagePropertyOverlay));
+        slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(slot.Properties.ToNativeWord() | SparkMovementDefinitions.StackPagePropertyOverlay));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>

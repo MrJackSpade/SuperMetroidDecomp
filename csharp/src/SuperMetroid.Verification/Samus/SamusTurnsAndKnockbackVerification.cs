@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Verification.Samus;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies;
 
 /// <summary>Constructed pose-stream checks for aerial turns, wall jumps, hurt movement, and damage boosts.</summary>
 internal static class SamusTurnsAndKnockbackVerification
@@ -330,7 +331,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
             Position: new(69, 48),
             Radius: new(5, 5),
             FreezeTimer: 0,
-            Properties: 0x8000),
+            Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000))),
     ];
     AerialMovementResult enemyTrigger = SamusAerialMovement.StepSpinJump(
 

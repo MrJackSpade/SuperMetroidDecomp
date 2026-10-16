@@ -69,7 +69,7 @@ internal static class EnemyDropsVerification
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
         enemy.SpritemapPointer = 0x8000;
-        enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
+        enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
         var projectiles = new SamusProjectileSystem();
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
@@ -344,7 +344,7 @@ internal static class EnemyDropsVerification
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.VramTilesIndex = 0x0200;
         enemy.PaletteIndex = 0x0c00;
-        enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
+        enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
 
         // Variant nine proves the common routine applies the native >=5 clamp before it
         // indexes the five-pointer death-animation table.

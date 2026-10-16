@@ -80,8 +80,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Layer = definition.Layer;
                 slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
                 slot.CurrentInstruction = population.InitializationParameter;
-                slot.Properties = population.Properties;
-                slot.ExtraProperties = population.ExtraProperties;
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(population.Properties));
+                slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(population.ExtraProperties));
                 slot.Parameter1 = population.Parameter1;
                 slot.Parameter2 = population.Parameter2;
                 slot.InstructionTimer = NativeCountdown.Start(1);
@@ -113,8 +113,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 // A record still marked deleted after initialization (the n00b tube crack's palette-only record) is
                 // removed by the scheduler before any AI or instruction frame.
                 bool processesInstructions =
-                    (slot.Properties & (ushort)EnemyProperties.ProcessInstructions) != 0 &&
-                    (slot.Properties & (ushort)EnemyProperties.Deleted) == 0;
+                    slot.Properties.HasAny(EnemyProperties.ProcessInstructions) &&
+                    !slot.Properties.HasAny(EnemyProperties.Deleted);
                 if (!processesInstructions)
                     continue;
 

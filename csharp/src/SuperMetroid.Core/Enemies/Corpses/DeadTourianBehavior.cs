@@ -146,8 +146,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.PreRotDelayCounter >= 16)
             {
                 slot.VariableA = profile.RottingFunction;
-                slot.Properties = unchecked((ushort)(
-                    slot.Properties | (ushort)EnemyProperties.IgnoreSamusCollision));
+                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
             }
             return;
         }
@@ -178,7 +177,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ResolveDeadTourianCorpsePowerBomb(RoomEnemySlot slot)
     {
         RequireDeadTourianCorpseState(slot);
-        if ((slot.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0)
+        if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision))
             TriggerDeadTourianCorpseRotting(slot);
     }
 

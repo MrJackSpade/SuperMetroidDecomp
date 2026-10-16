@@ -297,57 +297,37 @@ internal static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x3c12, (ushort)new MapTileWord(0x2812).WithLocationBlink(),
         "HUD location blink applies native palette bits");
 
-    // The low byte belongs to individual enemy families; the shared helpers must leave it
-    // untouched while making every independently composable high-byte property explicit.
-    ushort enemyProperties = 0x005a;
-    enemyProperties = enemyProperties.With(
-        EnemyProperties.Invisible |
-        EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.BlocksPlasmaBeam |
-        EnemyProperties.SolidToSamus);
-    AssertTrue(enemyProperties.HasAll(
-            EnemyProperties.Invisible |
-            EnemyProperties.IgnoreSamusCollision |
-            EnemyProperties.BlocksPlasmaBeam |
-            EnemyProperties.SolidToSamus),
+    // The low byte belongs to individual enemy families; the typed word keeps it untouched while making every
+    // independently composable high-byte property explicit.
+    var enemyProperties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
+        EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus, familyData: 90);
+    AssertTrue(enemyProperties.HasAll(EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision |
+            EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus),
         "enemy visibility, collision, plasma, and platform flags round trip");
-    enemyProperties = enemyProperties.With(
-        EnemyProperties.Deleted |
-        EnemyProperties.ProcessOffScreen |
+    enemyProperties = enemyProperties.With(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
         EnemyProperties.ProcessInstructions);
-    AssertTrue(enemyProperties.HasAll(
-            EnemyProperties.Deleted |
-            EnemyProperties.ProcessOffScreen |
+    AssertTrue(enemyProperties.HasAll(EnemyProperties.Deleted | EnemyProperties.ProcessOffScreen |
             EnemyProperties.ProcessInstructions),
         "enemy deletion and processing flags round trip");
-    enemyProperties = enemyProperties.Without(
-        EnemyProperties.Invisible |
-        EnemyProperties.Deleted |
-        EnemyProperties.ProcessOffScreen |
-        EnemyProperties.ProcessInstructions);
-    AssertEqual(0x945a, enemyProperties,
-        "enemy flag helpers preserve the family-specific low byte");
-    AssertEqual(
-        EnemyProperties.IgnoreSamusCollision |
-        EnemyProperties.BlocksPlasmaBeam |
-        EnemyProperties.SolidToSamus,
-        enemyProperties.ReadFlagsChecked(),
-        "enemy property word exposes only its typed high-byte flags");
+    enemyProperties = enemyProperties.Without(EnemyProperties.Invisible | EnemyProperties.Deleted |
+        EnemyProperties.ProcessOffScreen | EnemyProperties.ProcessInstructions);
+    AssertEqual(0x945a, enemyProperties.ToNativeWord(), "enemy flag operations preserve the family-specific low byte");
+    AssertEqual(enemyProperties, EnemyPropertyWord.FromNativeWord(0x945a), "enemy property word round trips its native word");
+    AssertEqual(EnemyProperties.IgnoreSamusCollision | EnemyProperties.BlocksPlasmaBeam | EnemyProperties.SolidToSamus,
+        enemyProperties.Flags, "enemy property word exposes only its typed high-byte flags");
     AssertThrows<ArgumentOutOfRangeException>(
-        () => ((ushort)0).With((EnemyProperties)0x0001),
-        "enemy property helper rejects family data disguised as a shared flag");
+        () => enemyProperties.With((EnemyProperties)0x0001),
+        "enemy property word rejects family data disguised as a shared flag");
 
-    ushort enemyExtraProperties = ((ushort)0).With(
-        EnemyExtraProperties.UsesExtendedSpritemap);
-    enemyExtraProperties = enemyExtraProperties.WithUntranslatedExtraBits(
-        EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
-        "typed-word verification");
-    AssertEqual(0x0404, enemyExtraProperties,
+    EnemyExtraPropertyWord enemyExtraProperties = new EnemyExtraPropertyWord(EnemyExtraProperties.UsesExtendedSpritemap)
+        .WithUntranslatedBits(EnemyExtraPropertyRawBits.CrocomireInitializerBit0400, "typed-word verification");
+    AssertEqual(0x0404, enemyExtraProperties.ToNativeWord(),
         "enemy extra-property escape hatch preserves explicitly owned untranslated data");
+    AssertEqual(enemyExtraProperties, EnemyExtraPropertyWord.FromNativeWord(0x0404),
+        "enemy extra-property word splits its native word into flags and untranslated bits");
     AssertThrows<ArgumentException>(
-        () => ((ushort)0).WithUntranslatedExtraBits(
-            (ushort)EnemyExtraProperties.UsesExtendedSpritemap,
-            "typed-word verification"),
+        () => default(EnemyExtraPropertyWord).WithUntranslatedBits(
+            (ushort)EnemyExtraProperties.UsesExtendedSpritemap, "typed-word verification"),
         "enemy extra-property escape hatch rejects known flags");
 
     // $E selects the verified grapple collision handler, $C supplies both parent flips,

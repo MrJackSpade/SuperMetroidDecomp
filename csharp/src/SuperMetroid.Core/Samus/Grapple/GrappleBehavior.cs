@@ -133,7 +133,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
             case GrappleAiRoutine.AttachAndParalyze:
                 enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
                 enemy.AiStates = EnemyAiStates.None;
-                enemy.ExtraProperties = unchecked((ushort)(enemy.ExtraProperties | 1));
+                enemy.ExtraProperties = enemy.ExtraProperties.WithUntranslatedBits(
+                    EnemyExtraPropertyRawBits.GrappleParalyzeBit0001, "grapple attach-and-paralyze");
                 return true;
 
             case GrappleAiRoutine.None:

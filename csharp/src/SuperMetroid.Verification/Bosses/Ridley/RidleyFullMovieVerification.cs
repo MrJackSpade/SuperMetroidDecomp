@@ -92,7 +92,7 @@ internal static class RidleyFullMovieVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
-        body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
+        body.SpritemapPointer = 0xe9e9; body.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = 1; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = NativeCountdown.Start(10);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
@@ -1295,8 +1295,8 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " instruction timer", actor.InstructionTimer.RawValue, address + 28);
                 Check(owner + " XRadius", actor.Radius.X, address + 10);
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
-                Check(owner + " Properties", actor.Properties, address + 14);
-                Check(owner + " ExtraProperties", actor.ExtraProperties, address + 16);
+                Check(owner + " Properties", actor.Properties.ToNativeWord(), address + 14);
+                Check(owner + " ExtraProperties", actor.ExtraProperties.ToNativeWord(), address + 16);
                 Check(owner + " AiStates", actor.AiStates.NativeWord, address + 18);
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
                 Check(owner + " PaletteIndex", actor.PaletteIndex, address + 30);

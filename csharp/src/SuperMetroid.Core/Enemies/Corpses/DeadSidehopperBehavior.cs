@@ -251,8 +251,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 if (state.PreRotDelayCounter >= 16)
                 {
                     state.Function = DeadSidehopperAiFunction.Rotting;
-                    slot.Properties = unchecked((ushort)(
-                        slot.Properties | (ushort)EnemyProperties.IgnoreSamusCollision));
+                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 }
                 return;
 
@@ -368,7 +367,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
         SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperCorpse);
         state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
-        slot.Properties = unchecked((ushort)(slot.Properties | (ushort)EnemyProperties.SolidToSamus));
+        slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.Radius = slot.Radius.WithY(12);
     }
 
@@ -397,7 +396,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
-        if ((slot.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) != 0 ||
+        if (slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
             state.PaletteStage < 8)
         {
             return;

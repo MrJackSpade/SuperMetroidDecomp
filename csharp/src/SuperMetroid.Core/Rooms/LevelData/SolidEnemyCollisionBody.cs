@@ -13,4 +13,4 @@ public readonly record struct SolidEnemyCollisionBody(
     Position16<RoomPixels> Position,
     Extent16<RoomPixels> Radius,
     ushort FreezeTimer,
-    ushort Properties);
+    SuperMetroid.Core.Enemies.EnemyPropertyWord Properties);

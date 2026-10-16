@@ -76,11 +76,11 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
-            Actor.Properties = (ushort)(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
+            Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
             Actor.InstructionTimer = NativeCountdown.Start(1);
             if (golden)
             {
-                Actor.ExtraProperties = (ushort)EnemyExtraProperties.UsesExtendedSpritemap;
+                Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)EnemyExtraProperties.UsesExtendedSpritemap));
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior._torizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {

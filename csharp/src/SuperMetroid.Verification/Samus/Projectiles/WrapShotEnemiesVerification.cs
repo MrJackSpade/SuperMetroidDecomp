@@ -31,7 +31,7 @@ internal static class WrapShotEnemiesVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.RedTower);
             var enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper);
             foreach (var other in runtime.Enemies.SlotTable.Slots) if (!ReferenceEquals(other, enemy)) other.Clear();
-            enemy.Properties |= (ushort)EnemyProperties.ProcessOffScreen;
+            enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             // Run the first real animation entry before freezing; a never-drawn
             // zero spritemap is intentionally ineligible for native shot hits.
             for (int warmup = 0; warmup < 32 && enemy.SpritemapPointer is 0 or 0x804d; warmup++)
@@ -39,7 +39,7 @@ internal static class WrapShotEnemiesVerification
             AssertTrue(enemy.SpritemapPointer is not (0 or 0x804d), "Real enemy animation has published a collision-eligible spritemap");
             int target = left ? 0x123f : 0x0280;
             enemy.Position = enemy.Position.WithWhole(new((ushort)((target % 64) * 16 + 8), (ushort)((target / 64) * 16 + 8)));
-            enemy.Properties |= (ushort)EnemyProperties.ProcessOffScreen;
+            enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             enemy.InvincibilityTimer = NativeCountdown.Start(0);
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.

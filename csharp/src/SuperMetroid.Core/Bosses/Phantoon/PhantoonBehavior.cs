@@ -1625,7 +1625,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as $DA6C does.
-        ushort hiddenPartProperties = body.Properties.Replace(
+        EnemyPropertyWord hiddenPartProperties = body.Properties.Replace(
             EnemyProperties.ProcessInstructions,
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
         state.Eye.Properties = hiddenPartProperties;
@@ -1718,7 +1718,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             yBase: 96,
             yMask: SnesLittleEndian.Word(0, 63));
         state.ItemDropRequested = true;
-        ushort deletedProperties = body.Properties.With(EnemyProperties.Deleted);
+        EnemyPropertyWord deletedProperties = body.Properties.With(EnemyProperties.Deleted);
         body.Properties = deletedProperties;
         state.Eye.Properties = deletedProperties;
         state.Tentacles.Properties = deletedProperties;

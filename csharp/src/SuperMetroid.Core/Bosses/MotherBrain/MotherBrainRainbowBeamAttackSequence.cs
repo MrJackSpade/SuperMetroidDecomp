@@ -256,16 +256,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// fully translated: death sets `$0400`, then fade completion sets `$0100` and clears
     /// `$2000` with the cartridge's literal OR/AND sequence.
     /// </summary>
-    public ushort BodyProperties { get; private set; }
+    public EnemyPropertyWord BodyProperties { get; private set; }
 
     /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
-    public ushort BrainProperties { get; private set; }
+    public EnemyPropertyWord BrainProperties { get; private set; }
 
     /// <summary>Second brain property word cleared when the rot animation completes.</summary>
-    public ushort BrainProperties2 { get; private set; }
+    public EnemyExtraPropertyWord BrainProperties2 { get; private set; }
 
     /// <summary>Second body property word cleared when the faded body becomes non-interactive.</summary>
-    public ushort BodyProperties2 { get; private set; }
+    public EnemyExtraPropertyWord BodyProperties2 { get; private set; }
 
     /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
     public bool HitboxesEnabled { get; private set; } = true;
@@ -1932,7 +1932,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                         BodyProperties = BodyProperties
                             .With(EnemyProperties.Invisible)
                             .Without(EnemyProperties.ProcessInstructions);
-                        BodyProperties2 = 0;
+                        BodyProperties2 = default;
                         Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions;
                         FunctionTimer = NativeCountdown.Start(16);
                     }
@@ -2055,7 +2055,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 BrainProperties = BrainProperties
                     .With(EnemyProperties.Invisible)
                     .Without(EnemyProperties.ProcessInstructions);
-                BrainProperties2 = 0;
+                BrainProperties2 = default;
                 musicStopQueued = true;   // Queue music value `$0000`.
                 escapeMusicQueued = true; // Queue music value `$FF24`.
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay;

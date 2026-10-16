@@ -40,7 +40,7 @@ internal static class CrawlerBehaviorVerification
             // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
             slot.CurrentInstruction = (ushort)orientation;
             if (family == CrawlerAnimationFamily.Viola)
-                slot.Properties = (ushort)orientation;
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)orientation));
             if (family == CrawlerAnimationFamily.HZoomer)
                 CrawlersBehavior.InitializeHZoomer(slot);
             else

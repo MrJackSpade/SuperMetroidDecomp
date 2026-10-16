@@ -1506,10 +1506,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        ushort armProperties = _slotTable._slots[1].Properties.With(
+        EnemyPropertyWord armProperties = _slotTable._slots[1].Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Deleted);
         _slotTable._slots[1].Properties = armProperties;
-        ushort otherProperties = armProperties.Replace(
+        EnemyPropertyWord otherProperties = armProperties.Replace(
             EnemyProperties.SolidToSamus |
                 EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen,

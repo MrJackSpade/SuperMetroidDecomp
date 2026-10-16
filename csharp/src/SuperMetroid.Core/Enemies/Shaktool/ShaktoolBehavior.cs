@@ -64,7 +64,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
         state.TargetAngle = 0;
         state.OrientationAndAcceleration = 0;
-        slot.Properties = unchecked((ushort)(slot.Properties | definition.PropertyMask));
+        slot.Properties = slot.Properties.With(definition.PropertyMask);
         state.OwnerNativeIndex = unchecked((ushort)(slot.NativeIndex -
             definition.OwnerNativeOffset));
         state.PreInstruction = definition.PreInstruction;
@@ -503,7 +503,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             ownerSlotIndex + ShaktoolSegmentCount > _slotTable._slots.Length)
             throw new InvalidDataException($"Shaktool post-shot owner ${ownerNativeIndex:X4} is invalid.");
         for (int index = 0; index < ShaktoolSegmentCount; index++)
-            _slotTable._slots[ownerSlotIndex + index].Properties = (ushort)EnemyProperties.Deleted;
+            _slotTable._slots[ownerSlotIndex + index].Properties = new EnemyPropertyWord(EnemyProperties.Deleted);
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>

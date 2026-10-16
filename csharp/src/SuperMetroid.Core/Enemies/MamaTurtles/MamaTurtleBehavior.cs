@@ -249,7 +249,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
         short contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         mama.Radius = mama.Radius.WithY(unchecked((ushort)-contourOffset));
-        mama.Properties = unchecked((ushort)(mama.Properties | (ushort)EnemyProperties.SolidToSamus));
+        mama.Properties = mama.Properties.With(EnemyProperties.SolidToSamus);
 
         if (!PlatformsBehavior.IsSamusRidingPlatform(mama, samus))
             return;
@@ -714,7 +714,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus)
     {
-        if ((mama.Properties & (ushort)EnemyProperties.SolidToSamus) != 0)
+        if (mama.Properties.HasAny(EnemyProperties.SolidToSamus))
             return;
         _collision.ResolveNormalEnemyTouch(mama, samus);
         state.Function = MamaTurtleAiFunction.Falling;

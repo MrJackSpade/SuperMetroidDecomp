@@ -1033,9 +1033,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         slot.Layer = definition.Layer;
         slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
         slot.CurrentInstruction = population.InitializationParameter;
-        _ = population.Properties.ReadFlagsChecked();
-        slot.Properties = population.Properties;
-        slot.ExtraProperties = population.ExtraProperties;
+        slot.Properties = EnemyPropertyWord.FromNativeWord(population.Properties);
+        slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord(population.ExtraProperties);
         slot.AiStates = EnemyAiStates.None;
         slot.Parameter1 = population.Parameter1;
         slot.Parameter2 = population.Parameter2;

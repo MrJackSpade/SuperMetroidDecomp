@@ -27,7 +27,7 @@ internal static class CrawlerSpeedsVerification
             slot.Parameter1 = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = (ushort)(0xa000 | property);
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
                 slot.VariableA = 123;
                 slot.VariableB = 456;
                 reset(slot);
@@ -48,7 +48,7 @@ internal static class CrawlerSpeedsVerification
         {
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = property;
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(property));
                 slot.VariableA = (ushort)magnitude;
                 slot.VariableB = (ushort)~magnitude;
                 reset(slot);

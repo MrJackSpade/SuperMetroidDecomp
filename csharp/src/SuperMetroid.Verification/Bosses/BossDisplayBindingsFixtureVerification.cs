@@ -44,7 +44,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
-            Actor.Properties = (ushort)EnemyProperties.ProcessInstructions;
+            Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions);
             Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
             instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
@@ -54,8 +54,8 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = (ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0));
+            Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0))));
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

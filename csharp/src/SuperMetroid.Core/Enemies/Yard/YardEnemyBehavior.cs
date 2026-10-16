@@ -105,8 +105,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
-        slot.Properties = unchecked((ushort)(
-            slot.Properties | definition.PropertyBits));
+        slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, direction);
@@ -464,8 +463,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Yard deliberately tail-calls the common crawler initializer after landing, but
         // retains its own state and main AI. Reproduce only those shared velocity/sign words.
-        slot.Properties = unchecked((ushort)(
-            (slot.Properties & ~YardPropertyMasks.FacingBits) | state.AirborneFacingDirection));
+        slot.Properties = slot.Properties.WithFamilyData(
+            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | checked((byte)state.AirborneFacingDirection)));
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
         CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot);
@@ -514,8 +513,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Direction = YardDirectionDefinitions.ForDirection(state.Direction).OppositeDirection;
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(state.Direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
-        slot.Properties = unchecked((ushort)(
-            (slot.Properties & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
+        slot.Properties = slot.Properties.WithFamilyData(
+            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | definition.PropertyBits));
         state.HidingProgram = definition.HidingProgram;
         state.AirborneFacingDirection = definition.AirborneFacingDirection;
         SetYardCrawlingVelocities(slot, state, state.Direction);

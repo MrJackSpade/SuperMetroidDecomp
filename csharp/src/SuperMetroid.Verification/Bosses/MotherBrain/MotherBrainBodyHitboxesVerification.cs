@@ -34,7 +34,7 @@ internal static class MotherBrainBodyHitboxesVerification
         // The movie's frame: walking body at ($3E,$90) on root $A174 with phase-three
         // properties $3800 (tangible); the head well clear.
         state.Form = 4;
-        body.Properties = 0x3800;
+        body.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
         body.Position = body.Position.WithWhole(new(0x003e, 0x0090));
         body.SpritemapPointer = 0xa174;
         head.Position = head.Position.WithWhole(new(0x0058, 0x0021));

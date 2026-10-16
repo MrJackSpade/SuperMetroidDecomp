@@ -1084,7 +1084,7 @@ internal static class LookupStream2Verification
             slot.Parameter1 = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = (ushort)(0xa000 | property);
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
                 reset(slot);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, slot.VariableA,
                     "Actual crawler reset X magnitude");
@@ -1819,25 +1819,25 @@ internal static class LookupStream2Verification
         {
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
-            slot.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
+            slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = NativeCountdown.Start(1);
             state.FlickerTableOffset = (ushort)offset;
             flicker(slot, state);
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
             AssertEqual(original < 0 ? (ushort)0 : (ushort)(offset + 2), state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
-            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties, "Ghost actual visibility preserves unrelated flags");
+            AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToNativeWord(), "Ghost actual visibility preserves unrelated flags");
         }
         state.PhaseTimer = NativeCountdown.Start(2);
         state.FlickerTableOffset = 2;
-        slot.Properties = (ushort)EnemyProperties.Invisible;
+        slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible);
         flicker(slot, state);
         AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
         AssertEqual((ushort)2, state.FlickerTableOffset, "Ghost no early interval advance");
-        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties, "Ghost no early visibility change");
+        AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToNativeWord(), "Ghost no early visibility change");
         state.PhaseTimer = NativeCountdown.Start(0);
         flicker(slot, state);
-        AssertEqual((ushort)0, slot.Properties, "Ghost terminal next call clears invisibility");
+        AssertEqual((ushort)0, slot.Properties.ToNativeWord(), "Ghost terminal next call clears invisibility");
         state.PhaseTimer = NativeCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");

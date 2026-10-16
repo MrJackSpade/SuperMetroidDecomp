@@ -176,7 +176,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // Bits zero/one are still unnamed because their general engine semantics are not
         // proven. Metaree writes the literal mask `$0003`; retaining it raw avoids inventing
         // a flags-enum contract while preserving collision/processing behavior exactly.
-        slot.Properties = unchecked((ushort)(slot.Properties | MetareeDefinitions.DescentPropertyBits));
+        slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | MetareeDefinitions.DescentPropertyBits));
         if (EnemyTerrain.EnemyHasSolidHighBitAhead(
                 level,
                 slot,

@@ -486,8 +486,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             foreach (bool intangible in new[] { false, true })
             foreach (ushort initial in new ushort[] { 0, 1, 2, 10, ushort.MaxValue })
             {
-                ripper.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
-                    (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties)));
+                ripper.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
+                    (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties)))));
                 ripper.InvincibilityTimer = NativeCountdown.FromRaw(initial);
                 ripper.FlashTimer = NativeCountdown.Start(16);
                 ripper.FrozenTimer = NativeCountdown.Start(400);
@@ -517,11 +517,11 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             AssertEqual(initialX, ripper.Position.X.Whole, "X-ray holds enemy movement");
             AssertEqual(initialInstruction, ripper.CurrentInstruction, "X-ray holds enemy instruction pointer");
         }
-        ripper.Properties |= (ushort)EnemyProperties.IgnoreSamusCollision;
+        ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
         ripper.InvincibilityTimer = NativeCountdown.Start(10);
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
         AssertEqual(10, ripper.InvincibilityTimer.RawValue, "intangible actor bypasses native invincibility clock");
-        ripper.Properties &= unchecked((ushort)~(ushort)EnemyProperties.IgnoreSamusCollision);
+        ripper.Properties = ripper.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         ripper.InvincibilityTimer = NativeCountdown.Start(1);
         ripper.FrozenTimer = NativeCountdown.Start(0);
         ripper.FlashTimer = NativeCountdown.Start(0);
@@ -782,7 +782,7 @@ internal static void VerifyCeresDoorBossBranch()
 
     for (int frame = 0; frame < 4; frame++)
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
-    AssertEqual(0, door.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
+    AssertTrue(!door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "living Ceres boss keeps Ridley-room door tangible");
 
     areaBossDefeated = true;
@@ -798,7 +798,7 @@ internal static void VerifyCeresDoorBossBranch()
     AssertTrue(door.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         $"defeated Ceres boss advances door bytecode to intangible setup " +
         $"(PC=${door.CurrentInstruction:X4}, timer=${door.InstructionTimer.RawValue:X4}, " +
-        $"properties=${(ushort)door.Properties:X4}, bossReads={areaBossReads})");
+        $"properties=${door.Properties.ToNativeWord():X4}, bossReads={areaBossReads})");
     Console.WriteLine("  Ceres door: area-boss branch opens the physical Ridley-room actor.");
 }
 
@@ -903,7 +903,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(0x00a9, ridley.Position.Y.Whole, "Ceres Ridley init Y overrides population Y");
     AssertEqual(AnimationProgramCursor<RidleyBodyProgram>.Start(RidleyBodyProgram.Initial), state.BodyProgram, "Ceres Ridley starts its initial program");
     AssertEqual(0x0e00, ridley.PaletteIndex, "Ceres Ridley dedicated OBJ palette");
-    AssertEqual(0x3c00, ridley.Properties, "Ceres Ridley native initialized properties");
+    AssertEqual(0x3c00, ridley.Properties.ToNativeWord(), "Ceres Ridley native initialized properties");
     AssertEqual(0x804f, ridley.SpritemapPointer, "Ceres Ridley post-init empty extended map");
     AssertEqual((ushort)RidleyAiFunction.WaitForDoorTransition, (ushort)state.Function,
         "Ceres Ridley initial dispatcher function");
@@ -978,7 +978,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(4, state.FunctionTimer.RawValue, "Ceres Ridley pre-roar timer");
     AssertEqual(0x5000 + 0x14a / 2, cgram.Colors[0x91],
         "Ceres Ridley final body-fade row reaches OBJ palette one");
-    AssertEqual(0, ridley.Properties & (ushort)EnemyProperties.IgnoreSamusCollision,
+    AssertTrue(!ridley.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
         "Ceres Ridley becomes tangible after body fade");
     AssertTrue(enemies.Audio.MusicRequests.Contains(new EnemyMusicRequest(
             MusicCommand.SelectTrack(5),

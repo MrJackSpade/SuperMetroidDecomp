@@ -126,7 +126,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The USA/Japan build reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
         state.BurrowTimer = NativeCountdown.Start(21);
-        slot.Properties = unchecked((ushort)(slot.Properties | 3));
+        slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | 3));
         if (EnemyTerrain.EnemyHasSolidHighBitAhead(level, slot, 6 << 16, movingDown: true))
         {
             slot.InstructionTimer = NativeCountdown.Start(1);

@@ -32,7 +32,7 @@ internal static class EvirDeathFrameVerification
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
-            slot.Properties = index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision));
             slot.Parameter1 = index == 7 ? (ushort)1 : (ushort)0;
             if (index == 8) initializeProjectile(slot); else initialize(slot, samus);
         }

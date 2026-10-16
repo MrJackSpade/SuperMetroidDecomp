@@ -143,7 +143,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         return new SporeSpawnProgramFrame(
             NativeBodyInstruction(steps, state), slot.InstructionTimer.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
-            slot.Health, slot.Properties, slot.ExtraProperties,
+            slot.Health, slot.Properties.ToNativeWord(), slot.ExtraProperties.ToNativeWord(),
             (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle, state.MaximumXRadius,
             state.DeathStarted, state.DeathDropRequested);
     }

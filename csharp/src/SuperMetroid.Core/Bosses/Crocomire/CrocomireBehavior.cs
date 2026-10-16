@@ -179,7 +179,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         StartCrocomireTongueProgram(state, CrocomireTongueProgram.Fight, NativeCountdown.Start(1));
         slot.ExtraProperties = slot.ExtraProperties
             .With(EnemyExtraProperties.UsesExtendedSpritemap)
-            .WithUntranslatedExtraBits(
+            .WithUntranslatedBits(
                 EnemyExtraPropertyRawBits.CrocomireInitializerBit0400,
                 "Crocomire initializer");
         slot.VariableA = 23;

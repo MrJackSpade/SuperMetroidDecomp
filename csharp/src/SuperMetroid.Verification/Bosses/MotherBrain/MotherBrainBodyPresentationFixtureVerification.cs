@@ -50,8 +50,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Body.SpritemapPointer = frame;
-            Body.ExtraProperties = (ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0));
+            Body.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0))));
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>

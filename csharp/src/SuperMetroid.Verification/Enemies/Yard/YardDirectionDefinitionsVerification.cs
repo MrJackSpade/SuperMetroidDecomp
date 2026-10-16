@@ -31,7 +31,7 @@ internal static class YardDirectionDefinitionsVerification
             int record = directionAddress + direction * 8;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(record), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.CrawlingProgram),
                 $"Yard direction {direction} crawling list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), definition.PropertyBits,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), (ushort)definition.PropertyBits,
                 $"Yard direction {direction} property bits");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard direction {direction} hiding list");
@@ -74,7 +74,7 @@ internal static class YardDirectionDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
-            slot.Properties = 0x4000;
+            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x4000));
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
 
@@ -154,7 +154,7 @@ internal static class YardDirectionDefinitionsVerification
     {
         AssertEqual(AnimationProgramCursor<YardProgram>.Start(expected.CrawlingProgram), state.Program,
             $"{name} crawling list");
-        AssertEqual(expected.PropertyBits, (ushort)(slot.Properties & 3),
+        AssertEqual(expected.PropertyBits, (byte)(slot.Properties.FamilyData & 3),
             $"{name} property bits");
         AssertEqual((YardProgram?)expected.HidingProgram, state.HidingProgram,
             $"{name} hiding list");

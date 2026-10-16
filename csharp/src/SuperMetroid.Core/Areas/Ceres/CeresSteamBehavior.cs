@@ -196,4 +196,37 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NoOp));
     }
+
+    /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.Definition.Bank == CeresSteamCollisionDefinitions.Bank &&
+            (CeresSteamCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+             probe.ArtworkInstalled)))
+            return null;
+
+        // The high byte of each steam frame's $1001 header is drawing
+        // metadata, not an extra component. Both damaging rectangles and
+        // callbacks remain fixed even if its installed OAM is edited.
+        foreach (CeresSteamCollisionComponent component in
+                 CeresSteamCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (CeresSteamCollisionHitbox hitbox in
+                     CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
 }

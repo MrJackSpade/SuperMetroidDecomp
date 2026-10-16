@@ -18,4 +18,12 @@ internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, Ene
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => SparkBehavior.AdvanceSparkTypedAnimation;
+
+    /// <summary>The pass-through shot reaction, ahead of the shared ones (only other species' precede it there).</summary>
+    public override EnemyShotReaction? FindShot() =>
+        SparkBehavior.PassThroughShot.Matches(Slot) ? SparkBehavior.PassThroughShot : base.FindShot();
+
+    /// <summary>The bomb pass-through after the no-op check, ahead of the shared ones.</summary>
+    public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
+        context.SelectedShotAi == EnemyInteractionCallback.SparkShot ? ProjectilePassThrough.Bomb : base.FindBombSpecialAfterNoOp(context);
 }

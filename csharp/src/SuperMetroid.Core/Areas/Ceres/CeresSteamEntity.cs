@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunCeresSteamInitializationAi;
@@ -17,4 +17,7 @@ internal sealed class CeresSteamEntity(CeresSteamBehavior species, RoomEnemySlot
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceCeresSteamTypedAnimation;
+
+    /// <inheritdoc/>
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => CeresSteamBehavior.FindHitboxCallback(Slot, probe, out callback);
 }

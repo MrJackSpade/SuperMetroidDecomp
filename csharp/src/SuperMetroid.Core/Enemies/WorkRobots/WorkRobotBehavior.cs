@@ -29,6 +29,9 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Writes the shared animated robot palette into its OBJ color row.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Whether Phantoon's area-boss bit is set, which powers the work robots.</summary>
+    internal bool IsAreaBossDefeated => _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
+
     /// <summary>Binds robot locomotion, power state, lasers, and palette animation to room services.</summary>
     internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {

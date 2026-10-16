@@ -11,6 +11,14 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The pass-through shot reaction for this species' private shot callback.</summary>
+    internal static EnemyShotReaction PassThroughShot { get; } =
+        new(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
+                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BlueBrinstarFaceBlockShot)
+        {
+            AfterSuperMissileQuake = ProjectilePassThrough.Shot,
+        };
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
 

@@ -12,6 +12,14 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 /// <summary>The Spark species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The pass-through shot reaction for this species' private shot callback.</summary>
+    internal static EnemyShotReaction PassThroughShot { get; } =
+        new(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
+                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SparkShot)
+        {
+            AfterSuperMissileQuake = ProjectilePassThrough.Shot,
+        };
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Spark];
 

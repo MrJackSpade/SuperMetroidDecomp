@@ -534,8 +534,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     {
         if (!c.UsesExtendedHitboxes)
             return false;
-        EnemyCollision.PirateHitboxShotAction pirateAction = EnemyCollision.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAiPointer);
-        if (pirateAction != EnemyCollision.PirateHitboxShotAction.Normal)
+        PirateHitboxShotActions.PirateHitboxShotAction pirateAction = PirateHitboxShotActions.SelectPirateHitboxShotAction(c.Enemy, c.Projectile, c.HitboxShotAiPointer);
+        if (pirateAction != PirateHitboxShotActions.PirateHitboxShotAction.Normal)
         {
             // `$A0:9CD1-$9CD6` marks a non-plasma projectile as having entered an extended hitbox before the
             // selected callback runs. Normal hits get the equivalent lifecycle transition from TryStartEnemyImpact;
@@ -544,13 +544,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             // documented raw bit rather than a prematurely named enum member.
             c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
         }
-        if (pirateAction == EnemyCollision.PirateHitboxShotAction.Ignore)
+        if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Ignore)
         {
             // `$B2:883E` deliberately returns for a just-fired Super Missile whose link variable is still zero.
             // The multibox collision walk nevertheless exits after invoking that callback.
             return true;
         }
-        if (pirateAction == EnemyCollision.PirateHitboxShotAction.Reflect)
+        if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
             c.Enemy.InvincibilityTimer = NativeCountdown.Start(10);
             c.Projectile.Direction = (c.Projectile.Direction & SamusProjectileDirectionMasks.Direction) switch

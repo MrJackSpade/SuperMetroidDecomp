@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes
 {
     /// <summary>The occupant's state, set by its initializer.</summary>
     internal NinjaSpacePirateEnemyState? State { get; set; }
@@ -18,4 +18,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceNinjaSpacePirateTypedAnimation;
+
+    /// <inheritdoc/>
+    public bool? FindHitboxCallback(EnemyHitboxProbe probe, out ushort callback) => SpacePirateHitboxes.Find(Slot, probe, out callback);
 }

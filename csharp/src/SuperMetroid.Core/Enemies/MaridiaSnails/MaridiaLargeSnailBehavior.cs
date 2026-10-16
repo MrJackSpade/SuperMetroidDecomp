@@ -634,4 +634,34 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         audio.QueueLegacySound(LastMaridiaLargeSnailSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
     }
+
+    /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.Definition.Bank == MaridiaLargeSnailCollisionDefinitions.Bank &&
+            (MaridiaLargeSnailCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+             probe.ArtworkInstalled)))
+            return null;
+
+        // Oum's 30 native frames each have one (0,0) component, but the
+        // ordered regions change with roll and attack direction. Keep
+        // those rectangles and callback identities independent of OAM.
+        ushort list = MaridiaLargeSnailCollisionDefinitions.HitboxListAt(
+            enemy.SpritemapPointer);
+        foreach (MaridiaLargeSnailCollisionHitbox hitbox in
+                 MaridiaLargeSnailCollisionDefinitions.HitboxesAt(list))
+        {
+            ushort left = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Left));
+            ushort top = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Top));
+            ushort right = unchecked((ushort)(enemy.Position.X.Whole + hitbox.Right));
+            ushort bottom = unchecked((ushort)(enemy.Position.Y.Whole + hitbox.Bottom));
+            if (!probe.Overlaps(left, top, right, bottom))
+                continue;
+            callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+            return true;
+        }
+        return false;
+    
+    }
 }

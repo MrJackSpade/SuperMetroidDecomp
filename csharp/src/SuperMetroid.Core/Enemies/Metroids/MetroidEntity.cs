@@ -18,4 +18,8 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemySlot slot,
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceMetroidTypedAnimation;
+
+    /// <summary>The Metroid's own shot callback, which normal bombs dispatch like the common one.</summary>
+    public override bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        callback == EnemyInteractionCallback.MetroidShot || base.OwnsPrivateShotCallback(callback, callbackPointer);
 }

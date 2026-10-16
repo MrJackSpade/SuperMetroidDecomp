@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission
 {
     /// <summary>The occupant's state, set by its initializer.</summary>
     internal WorkRobotEnemyState? State { get; set; }
@@ -23,4 +23,8 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceWorkRobotTypedAnimation;
+
+    /// <summary>The powered robot ($E8FF) returns before common shot AI until Phantoon's area-boss bit is set.</summary>
+    public bool AdmitsShots() =>
+        Slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
 }

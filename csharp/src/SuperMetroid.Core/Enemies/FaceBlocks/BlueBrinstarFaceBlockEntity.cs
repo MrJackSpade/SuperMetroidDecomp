@@ -18,4 +18,12 @@ internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior 
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => BlueBrinstarFaceBlockBehavior.AdvanceBlueBrinstarFaceBlockTypedAnimation;
+
+    /// <summary>The pass-through shot reaction, ahead of the shared ones (only other species' precede it there).</summary>
+    public override EnemyShotReaction? FindShot() =>
+        BlueBrinstarFaceBlockBehavior.PassThroughShot.Matches(Slot) ? BlueBrinstarFaceBlockBehavior.PassThroughShot : base.FindShot();
+
+    /// <summary>The bomb pass-through after the no-op check, ahead of the shared ones.</summary>
+    public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
+        context.SelectedShotAi == EnemyInteractionCallback.BlueBrinstarFaceBlockShot ? ProjectilePassThrough.Bomb : base.FindBombSpecialAfterNoOp(context);
 }

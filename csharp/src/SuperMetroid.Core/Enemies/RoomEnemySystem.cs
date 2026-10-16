@@ -1266,13 +1266,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.DraygonBody or EnemyDefinitionId.SporeSpawn &&
                                            c.SelectedShotAi == EnemyInteractionCallback.DudShot,
             static _ => { });
-        // `$A8:E70E/$E91D` do not call common shot AI. Their entire callback clears direction bit $10, undoing the
-        // mark installed immediately above and allowing the physical bomb actor to remain untouched.
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.SparkShot ||
-                                           c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.BlueBrinstarFaceBlockShot,
-            c => c.Bomb.Direction = unchecked((ushort)(c.Bomb.Direction & ~SamusProjectileDirectionMasks.Spent)));
         PhantoonBehavior.RegisterPhantoonBombReactions(table);
         MamaTurtleBehavior.RegisterMamaTurtleBombReactions(table);
         RinkaBehavior.RegisterRinkaBombReactions(table);
@@ -1454,26 +1447,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CrocomireBehavior.RegisterCrocomireShotReactions(table);
         OwtchBehavior.RegisterOwtchShotReactions(table);
         WallSpacePirateBehavior.RegisterWallSpacePirateShotReactions(table);
-
-        // Spark's private `$A8:E70E` handler never enters common shot AI. It only clears direction bit $10 on the
-        // colliding Samus projectile, allowing the beam/missile actor to continue rather than becoming an impact
-        // animation. This must occur before TryStartEnemyImpact, which would irreversibly rewrite the projectile
-        // family to explosion `$0700`. Blue Brinstar's face block shares that behavior.
-        EnemyShotStage passThrough = (in EnemyShotContext c) =>
-        {
-            c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction & ~SamusProjectileDirectionMasks.Spent));
-            return true;
-        };
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SparkShot)
-        {
-            AfterSuperMissileQuake = passThrough,
-        });
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
-                                                     EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BlueBrinstarFaceBlockShot)
-        {
-            AfterSuperMissileQuake = passThrough,
-        });
         ShuttersBehavior.RegisterShuttersShotReactions(table);
 
         MetroidBehavior.RegisterMetroidShotReactions(table);

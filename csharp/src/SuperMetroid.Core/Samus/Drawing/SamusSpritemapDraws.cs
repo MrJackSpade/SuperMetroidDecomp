@@ -35,15 +35,9 @@ public static class SamusSpritemapDraws
             sprites.Add(new SpriteDraw(source, frame, characters, origin, SnesTileFlipFlags.None, 0, 0));
             return;
         }
-        // A zero entry in the installed pointer table is not an empty picture: the native bank-local dereference
-        // lands in the WRAM mirror at $92:0000. Read that mutable state explicitly (#1318 owns where it comes
-        // from); its parts may name any OBJ character, so they bind the full page.
-        SpriteFramePart[] parts = [.. SamusOverreadMemory.ZeroPointerSpritemap(memory).Select(entry =>
-            ObjPartFrames.Part(entry.EncodedX, entry.EncodedY, new SnesObjAttributeWord(entry.Attributes), 0))];
-        sprites.Add(new SpriteDraw(source, new SpriteFrame(WramSpritemapName, [.. parts]), artwork.PageCharacters(),
-            origin, SnesTileFlipFlags.None, 0, 0));
+        // A zero entry in the installed pointer table dereferences $92:0000, direct-page scratch. Its parts would need
+        // direct-page emulation the port does not model, so a zero entry is exempt and draws nothing (owner decision
+        // on #1318).
     }
 
-    /// <summary>Frame name of the zero-pointer spritemap read from WRAM.</summary>
-    public const string WramSpritemapName = "Samus.WramSpritemap";
 }

@@ -26,7 +26,6 @@ internal sealed class ProjectileMotion
     }
     /// <summary>Accelerates a non-Wave beam, emits its old-position trail, and resolves directional block collision.</summary>
     internal bool RunNoWaveBeamPreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -46,7 +45,7 @@ internal sealed class ProjectileMotion
         if (slot.TrailTimer.IsZero)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
@@ -90,7 +89,6 @@ internal sealed class ProjectileMotion
 
     /// <summary>Updates Wave's three- or four-frame trail cadence before its block-transparent movement.</summary>
     internal void RunWaveBeamPreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
@@ -113,7 +111,7 @@ internal sealed class ProjectileMotion
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
                     ? (ushort)3
                     : (ushort)4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         RunWaveBeamShared(level, slot, layer1, roomPlms);
@@ -191,7 +189,7 @@ internal sealed class ProjectileMotion
         if (slot.TrailTimer.IsZero)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         int direction = slot.PackedDirection.DirectionIndex;
@@ -268,7 +266,7 @@ internal sealed class ProjectileMotion
         if (slot.TrailTimer.IsZero)
         {
             slot.TrailTimer = NativeCountdown.Start(2);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
 
         int direction = slot.PackedDirection.DirectionIndex;

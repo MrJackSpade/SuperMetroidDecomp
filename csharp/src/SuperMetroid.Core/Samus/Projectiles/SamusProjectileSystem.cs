@@ -117,7 +117,7 @@ public sealed class SamusProjectileSystem
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
-        LoadSelectedBeamPalette(bus, cgram, SelectedCombination(equippedBeams), palettes);
+        LoadSelectedBeamPalette(cgram, SelectedCombination(equippedBeams), palettes);
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public sealed class SamusProjectileSystem
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
     /// <summary>Loads a selected beam's final CGRAM palette from installed art or the special beam definitions.</summary>
-    private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
+    private static void LoadSelectedBeamPalette(SnesCgram cgram,
         SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         switch (selection)
@@ -138,7 +138,7 @@ public sealed class SamusProjectileSystem
                 ChainsawBeamGraphicsDefinitions.LoadPalette(cgram);
                 break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
-                SpacetimeBeamGraphicsDefinitions.LoadPalette(bus, cgram);
+                SpacetimeBeamGraphicsDefinitions.LoadPalette(cgram);
                 break;
             case SamusBeamCombination.Power or SamusBeamCombination.Wave or SamusBeamCombination.Ice or
                 SamusBeamCombination.IceWave or SamusBeamCombination.Spazer or SamusBeamCombination.SpazerWave or
@@ -413,12 +413,12 @@ public sealed class SamusProjectileSystem
             {
                 ushort comboSound = 0;
                 if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
-                    comboSound = Combos.StepIceCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1);
+                    comboSound = Combos.StepIceCombo(samus, slot, sharedProjectiles, layer1);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
-                    comboSound = Combos.StepWaveCombo(terrain.Bus, samus, slot, sharedProjectiles);
+                    comboSound = Combos.StepWaveCombo(samus, slot, sharedProjectiles);
                 else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
                     Combos.StepPlasmaCombo(samus, slot, sharedProjectiles, layer1);
-                else comboSound = Combos.StepSpazerCombo(terrain.Bus, samus, slot, sharedProjectiles, layer1.Y);
+                else comboSound = Combos.StepSpazerCombo(samus, slot, sharedProjectiles, layer1.Y);
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
                     (comboSounds ??= []).Add(new SamusSoundRequest(
@@ -428,7 +428,6 @@ public sealed class SamusProjectileSystem
             else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
             {
                 collisionStartedExplosion |= Motion.RunNoWaveBeamPreInstruction(
-                    terrain.Bus,
                     terrain.Level,
                     slot,
                     layer1,
@@ -439,7 +438,7 @@ public sealed class SamusProjectileSystem
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail or
                 SamusProjectilePreInstruction.WaveBeamFourFrameTrail)
             {
-                Motion.RunWaveBeamPreInstruction(terrain.Bus, terrain.Level, slot, layer1, terrain.Plms);
+                Motion.RunWaveBeamPreInstruction(terrain.Level, slot, layer1, terrain.Plms);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.HyperBeam)
             {
@@ -669,8 +668,8 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = SlotTable._trailSlots[slotIndex];
-            ProjectileTrails.AdvanceTrailSide(bus, slot, timeIsFrozen, isLeft: true, artwork);
-            ProjectileTrails.AdvanceTrailSide(bus, slot, timeIsFrozen, isLeft: false, artwork);
+            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, isLeft: true, artwork);
+            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, isLeft: false, artwork);
         }
     }
 

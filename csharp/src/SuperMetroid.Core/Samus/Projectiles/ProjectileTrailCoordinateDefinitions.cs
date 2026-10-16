@@ -808,53 +808,25 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// <summary>Reads one beam-family selector from the compiled high-bank pointer catalog.</summary>
     internal static ushort ReadFamilyPointer(int address) => ReadCompiledWord(address);
 
-    /// <summary>
-    /// Reads a direction-list pointer from compiled data or the genuine bank-$9B low-half
-    /// alias selected by empty trail families.
-    /// </summary>
-    internal static ushort ReadDirectionPointer(ISnesAddressSpace bus, int address)
+    /// <summary>Reads a direction-list pointer from compiled data; false for an empty family's low-half pointer.</summary>
+    internal static bool TryReadDirectionPointer(int address, out ushort pointer)
     {
         int next = SnesAddressMath.AddWithinBank(address, 1);
-        if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
-            return (ushort)(SnesLittleEndian.Word(low, high));
-
-        SnesAddress source = SnesAddress.FromBusAddress(address);
-        SnesAddress following = SnesAddress.FromBusAddress(next);
-        if (source.Bank == 0x9b && !source.IsUpperLoRomWindow &&
-            following.Bank == 0x9b && !following.IsUpperLoRomWindow)
-        {
-            var live = new SamusOverreadMemory(bus);
-            return (ushort)(SnesLittleEndian.Word(live.TrailDirectionByte(address), live.TrailDirectionByte(next)));
-        }
-
-        throw new InvalidDataException(
-            $"Projectile trail direction pointer {source} is outside compiled data " +
-            "and is not a mutable bank-$9B low-half alias.");
+        bool compiled = TryReadByte(address, out byte low) & TryReadByte(next, out byte high);
+        pointer = compiled ? (ushort)SnesLittleEndian.Word(low, high) : (ushort)0;
+        return compiled;
     }
 
-    /// <summary>Reads both signed coordinate bytes, falling through to live overread memory when necessary.</summary>
-    internal static ushort ReadCoordinateWord(ISnesAddressSpace bus, ushort operand, ushort index)
+    /// <summary>
+    /// Reads both signed coordinate bytes of an absolute-indexed word from compiled data; false when either byte lies
+    /// outside it (an empty family's operand straddling into the following bank or an undriven window).
+    /// </summary>
+    internal static bool TryReadCoordinateWord(ushort operand, ushort index, out ushort word)
     {
         int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
         int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
-        if (TryReadByte(address, out byte compiledLow) &&
-            TryReadByte(next, out byte compiledHigh))
-            return (ushort)(SnesLittleEndian.Word(compiledLow, compiledHigh));
-
-        // A native absolute-indexed word may straddle compiled bank-$9B data and
-        // the following bank's mutable mirror. Resolve each byte separately; the
-        // low byte drives MDR for an undriven high-byte read.
-        byte low = ReadCoordinateOperandByte(bus, address, SnesLittleEndian.HighByte(operand));
-        byte high = ReadCoordinateOperandByte(bus, next, low);
-        return (ushort)(SnesLittleEndian.Word(low, high));
-    }
-
-    /// <summary>Uses compiled data when owned, otherwise reads the native mutable overread byte.</summary>
-    private static byte ReadCoordinateOperandByte(
-        ISnesAddressSpace bus, int address, byte memoryDataRegister)
-    {
-        if (TryReadByte(address, out byte compiled))
-            return compiled;
-        return new SamusOverreadMemory(bus).TrailCoordinateOperandByte(address, memoryDataRegister);
+        bool compiled = TryReadByte(address, out byte low) & TryReadByte(next, out byte high);
+        word = compiled ? (ushort)SnesLittleEndian.Word(low, high) : (ushort)0;
+        return compiled;
     }
 }

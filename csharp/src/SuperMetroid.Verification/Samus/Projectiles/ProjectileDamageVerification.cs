@@ -212,9 +212,9 @@ internal static class ProjectileDamageVerification
             (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
                 angle, amplitude);
             if (beam == 2)
-                projectiles.Combos.StepIceCombo(guarded, samus, first, shared, Position16<RoomPixels>.Zero);
+                projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)
-                projectiles.Combos.StepSpazerCombo(guarded, samus, first, shared, 0);
+                projectiles.Combos.StepSpazerCombo(samus, first, shared, 0);
             else
                 projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.Position.X.Whole,

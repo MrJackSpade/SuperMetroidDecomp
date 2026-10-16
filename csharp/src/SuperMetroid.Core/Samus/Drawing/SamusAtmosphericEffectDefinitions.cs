@@ -9,6 +9,12 @@ namespace SuperMetroid.Core.Samus.Drawing;
 /// </summary>
 internal static class SamusAtmosphericEffectDefinitions
 {
+    /// <summary>
+    /// The atmospheric effect type whose native sprite-list pointer is zero (<c>$90:8C03</c>), so <c>$90:8B03</c>'s
+    /// <c>LDA $0000,Y</c> reads direct-page scratch as its attributes.
+    /// </summary>
+    internal const byte ScratchListType = 2;
+
     /// <summary>The Crateria room indexes whose $90:EDC9/$91:F0F3 entries are nonzero; the other selectors are none.</summary>
     private enum AtmosphericRoom : byte
     {

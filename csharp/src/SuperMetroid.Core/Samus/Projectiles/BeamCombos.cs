@@ -116,7 +116,7 @@ internal sealed class BeamCombos
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
     /// <summary>Runs $90:CF09/$CF7A for one Ice combo slot and returns its optional library-one sound request.</summary>
-    internal ushort StepIceCombo(ISnesAddressSpace bus, SamusState samus,
+    internal ushort StepIceCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, Position16<RoomPixels> camera)
     {
         bool outward = slot.PreInstruction == SamusProjectilePreInstruction.IceComboOutward;
@@ -132,7 +132,7 @@ internal sealed class BeamCombos
         if (oldTimer == 1)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
         ushort distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : (ushort)32;
         var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(slot.Variable, distance);
@@ -242,7 +242,7 @@ internal sealed class BeamCombos
         return persistentMemoryCorrupted;
     }
     /// <summary>Runs $90:DB06/$DC9C, including paired-hit cleanup and retagging the primary particles as falling trails.</summary>
-    internal ushort StepSpazerCombo(ISnesAddressSpace bus, SamusState samus,
+    internal ushort StepSpazerCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared, ushort cameraY)
     {
         bool falling = slot.PreInstruction == SamusProjectilePreInstruction.SpazerComboFalling;
@@ -260,7 +260,7 @@ internal sealed class BeamCombos
         if (previousTimer == 1)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
         if (falling)
         {
@@ -342,7 +342,7 @@ internal sealed class BeamCombos
         }
     }
     /// <summary>Runs $90:DA08's Wave combo homing oscillator, preserving 8.8 acceleration and 16.16 position carry.</summary>
-    internal ushort StepWaveCombo(ISnesAddressSpace bus, SamusState samus,
+    internal ushort StepWaveCombo(SamusState samus,
         SamusProjectileSlot slot, SamusBombProjectileSystem shared)
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.WaveCombo)
@@ -366,7 +366,7 @@ internal sealed class BeamCombos
         if (oldTimer == 1)
         {
             slot.TrailTimer = NativeCountdown.Start(4);
-            _trails.SpawnTrail(bus, slot);
+            _trails.SpawnTrail(slot);
         }
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));
         uint x = unchecked(new SnesFixedPosition(slot.Position.X.Whole, slot.Position.X.Fraction).RawValue + (uint)(SnesSixteenSixteen.FromEightEight(slot.Velocity.X.SignedRawValue)));

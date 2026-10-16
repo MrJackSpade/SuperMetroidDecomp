@@ -1298,8 +1298,8 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileQuakeVerificati
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileRadiiVerification.cs	SME6340	809
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileRadiiVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileSoundRoutingVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailArtworkVerification.cs	SME6340	17
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailCoordinatesVerification.cs	SME6340	43
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailArtworkVerification.cs	SME6340	11
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailCoordinatesVerification.cs	SME6340	33
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailCoordinatesVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailDefinitionsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6340	9
@@ -1308,7 +1308,7 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectileRomDataVer
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	480
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6342	7
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/SpacetimeBeamVerification.cs	SME6340	34
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/SpacetimeBeamVerification.cs	SME6340	31
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SuperMissileDeathAnimationVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/WrapShotEnemiesVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/WrapShotRoomsVerification.cs	SME6340	3
@@ -1316,7 +1316,7 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/WrapShotWidthsVerificatio
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/WrapShotsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Samus/SamusAimVerification.cs	SME6340	863
 csharp/src/SuperMetroid.Verification/Samus/SamusAimVerification.cs	SME6342	81
-csharp/src/SuperMetroid.Verification/Samus/SamusAtmosphereArtworkBoundaryVerification.cs	SME6340	4
+csharp/src/SuperMetroid.Verification/Samus/SamusAtmosphereArtworkBoundaryVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Samus/SamusContentIdentityVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6340	441
 csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6342	26

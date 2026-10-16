@@ -337,12 +337,12 @@ internal static class SpacetimeBeamVerification
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");
         foreach (int seed in new[] { 5, 19 })
         {
-            // The palette aliases current enemy-projectile WRAM; changing it must be observable.
+            // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
             for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
             var cgram = new SnesCgram();
             SamusProjectileSystem.LoadBeamPalette(gameplayBus, cgram, 0x100e, artwork.Palettes);
-            for (int i = 0; i < 16; i++) AssertEqual(bus.ReadWorkRamWord(0x7e19ff + i * 2) & 0x7fff, cgram.Colors[0xe0 + i],
-                "SpaceTime colors retain current mutable memory rather than a frozen palette");
+            for (int i = 0; i < 16; i++) AssertEqual(SpacetimeBeamGraphicsDefinitions.PaletteWord, cgram.Colors[0xe0 + i],
+                "SpaceTime colors are its defined palette");
         }
     }
 
@@ -353,9 +353,6 @@ internal static class SpacetimeBeamVerification
         AssertEqual(SpacetimeBeamGraphicsDefinitions.TileSource & 0xffff,
             bus.ReadCartridgeWord(0x90c3cd),
             "SpaceTime tile pointer comes from adjacent native palette table");
-        AssertEqual(SpacetimeBeamGraphicsDefinitions.PalettePointer,
-            bus.ReadCartridgeWord(0x90c3e5),
-            "SpaceTime palette pointer comes from the native color word");
         var tiles = new byte[256];
         for (int i = 0; i < tiles.Length; i++)
             tiles[i] = bus.ReadCartridgeByte(0x9ac401 + i);

@@ -145,7 +145,7 @@ public sealed class SamusAtmosphericEffectsState
             {
                 case 1:
                 case 2:
-                    DrawDirectSmallSprite(bus, drawing, slot, slotIndex, type);
+                    DrawDirectSmallSprite(drawing, slot, slotIndex, type);
                     break;
 
                 case 3:
@@ -159,7 +159,7 @@ public sealed class SamusAtmosphericEffectsState
                     // Slots 0/1 drift apart to the right and slots 2/3 to the left. Native
                     // tests bit two of the byte offset (0,2,4,6), equivalent to index >= 2.
                     slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
-                    DrawDirectSmallSprite(bus, drawing, slot, slotIndex, type);
+                    DrawDirectSmallSprite(drawing, slot, slotIndex, type);
                     break;
 
                 case 5:
@@ -169,7 +169,7 @@ public sealed class SamusAtmosphericEffectsState
                 case 6:
                 case 7:
                     slot.Position -= new Offset16<RoomPixels>(0, 1);
-                    DrawDirectSmallSprite(bus, drawing, slot, slotIndex, type);
+                    DrawDirectSmallSprite(drawing, slot, slotIndex, type);
                     break;
 
                 default:
@@ -182,7 +182,6 @@ public sealed class SamusAtmosphericEffectsState
 
     /// <summary>Clips an eight-pixel effect to the 256-pixel OAM viewport, then uses installed attributes or type two's live WRAM word.</summary>
     private static void DrawDirectSmallSprite(
-        ISnesAddressSpace bus,
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
         int slotIndex,
@@ -193,21 +192,18 @@ public sealed class SamusAtmosphericEffectsState
         if (screenX < 0 || screenX >= 256 || screenY < 0 || screenY >= 256)
             return;
 
-        // Type two's native list pointer is zero. In bank $90 that address mirrors
-        // live WRAM, so it is not an art asset and must retain its mutable read.
-        ushort attributes = type == 2
-            ? ReadTypeTwoWorkRamAttributes(bus, slot.AnimationFrame)
-            : ResolveInstalledAttributes(drawing.DirectArtwork, type, slot.AnimationFrame);
+        // Type two's native list pointer is zero, so bank $90 reads direct-page scratch as its sprite attributes. That
+        // needs direct-page emulation the port does not model; type two is exempt and draws nothing (owner decision
+        // on #1318).
+        if (type == SamusAtmosphericEffectDefinitions.ScratchListType)
+            return;
+        ushort attributes = ResolveInstalledAttributes(drawing.DirectArtwork, type, slot.AnimationFrame);
         var part = new SnesObjAttributeWord(attributes);
         drawing.Sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusAtmosphere, slotIndex),
             ObjPartFrames.SmallObject(part, 0), drawing.RequirePage(),
             new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)),
             SnesTileFlipFlags.None, (byte)part.PaletteIndex, (byte)part.Priority));
     }
-
-    /// <summary>Preserves type two's native zero list pointer, which aliases mutable WRAM instead of fixed artwork.</summary>
-    private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame) =>
-        new SamusOverreadMemory(bus).AtmosphericTypeTwoAttributes(frame);
 
     /// <summary>Requires an installed direct-sprite entry for the visible type and animation frame.</summary>
     private static ushort ResolveInstalledAttributes(

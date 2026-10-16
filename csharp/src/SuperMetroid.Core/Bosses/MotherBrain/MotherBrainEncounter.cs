@@ -26,11 +26,6 @@ internal sealed class MotherBrainEncounter
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; internal set; }
 
-    /// <summary>
-    /// Set on the frame the main tube lands (`$A9:8C0C`), which deletes HDMA objects 0-3.
-    /// The runtime applies it to the HDMA owners; cleared at the start of each enemy frame.
-    /// </summary>
-    public bool MotherBrainDeletedHdmaObjects { get; internal set; }
 
     /// <summary>Loads known cartridge artwork from installed assets and preserves mutable WRAM DMA for the corpse buffer.</summary>
     [PpuLayoutBoundary("codec: Mother Brain sprite tile transfer requests' native VRAM destinations")]

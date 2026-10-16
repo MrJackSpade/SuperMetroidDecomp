@@ -273,6 +273,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>Active room's fixed 32-slot bank-$A0 enemy system.</summary>
     public RoomEnemySystem Enemies { get; } = new();
 
+    /// <summary>The last enemy pass's results, for readers after the frame.</summary>
+    internal IEnemyFrameResults EnemyFrameResults => Enemies;
+
     /// <summary>
     /// Native elevator status word at WRAM <c>$0E18</c>. The room's elevator actor owns this
     /// producer. Every nonzero status runs forward-facing `$00/$9B` through `$90:A392`'s
@@ -953,12 +956,6 @@ public sealed class SuperMetroidRuntime
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
                 // Build and execute the exact row/column staging transfers now so both the
                 // live PPU diagnostic and the following frame see the newly exposed edge.
-                // Kraid's dead-room function wrote PreviousLayer1XBlock during EnemyMain.
-                if (Enemies.KraidBehavior.Kraid is { Layer1XBlockResetRequested: true } kraid)
-                {
-                    BackgroundScroll.ResetPreviousLayer1XBlock();
-                    kraid.Layer1XBlockResetRequested = false;
-                }
                 IReadOnlyList<BackgroundUpdateRequest> backgroundRequests =
                     BackgroundPhase.UpdateBackgroundScrollingFromCamera();
                 BackgroundPhase.ExecuteBackgroundStreamRequests(backgroundRequests, "active room camera");

@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>The Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidLintMiddle, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad];
 
@@ -52,6 +55,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds Kraid's room systems and shared actor services.</summary>
     internal KraidBehavior(KraidBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _zebetiteBehavior = dependencies.ZebetiteBehavior;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
@@ -1453,7 +1457,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.DeathFinishedWasDead:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
                 // $A7:C85E forces BG1 column streaming to treat every column as new.
-                state.Layer1XBlockResetRequested = true;
+                _frameResults.KraidLayer1XBlockReset = true;
                 return;
             default:
                 throw new InvalidOperationException($"Kraid body function $A7:{body.VariableA:X4} is not a death function.");

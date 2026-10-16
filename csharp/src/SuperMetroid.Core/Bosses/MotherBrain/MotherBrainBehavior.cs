@@ -22,6 +22,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The Mother Brain species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
 
@@ -68,6 +71,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -2327,7 +2331,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
         // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
         // liquid scroll objects (and any X-ray object) for the rest of the encounter.
-        _motherBrainEncounter.MotherBrainDeletedHdmaObjects = true;
+        _frameResults.DeleteLiquidHdmaObjects = true;
         state.Head.Position = state.Head.Position.WithWholeY(196);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
 

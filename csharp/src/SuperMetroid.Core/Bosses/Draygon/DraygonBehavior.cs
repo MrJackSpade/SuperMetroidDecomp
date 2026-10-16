@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <summary>The Draygon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
 
@@ -51,6 +54,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the encounter's room, projectile, presentation, and interaction owners.</summary>
     internal DraygonBehavior(DraygonBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _earthquake = dependencies.Earthquake;
@@ -1558,7 +1562,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         samus.DraygonGrabbed.Begin(_room.LoadedBus, samus, state.FacingRight);
-        _roomStatus.DraygonDiscardedSamusPoseRequestsThisFrame = true;
+        _frameResults.DraygonDiscardedSamusPoseRequests = true;
         // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction (`$7E:7814`) carries over from
         // the previous spiral of this fight, so the first lift after a re-grab borrows on the native frame.
         state.SpiralCenter = state.SpiralCenter.WithWhole(DraygonSpiralTarget);
@@ -1841,7 +1845,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ReleaseSamusDuringEnemyMain(SamusState samus)
     {
         samus.DraygonGrabbed.Release(_room.LoadedBus, samus);
-        _roomStatus.DraygonDiscardedSamusPoseRequestsThisFrame = true;
+        _frameResults.DraygonDiscardedSamusPoseRequests = true;
     }
 
     /// <summary>Requires the active Samus actor for Draygon's carry and release phases.</summary>

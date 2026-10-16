@@ -60,7 +60,7 @@ internal static class ElevatorInputDefinitionsVerification
             wait(slot, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")), samus, native, null);
             AssertEqual(ElevatorActorStatus.Departing, enemies.ElevatorBehavior.ElevatorStatus,
                 $"elevator departure input {direction}");
-            AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.ElevatorBehavior.LastElevatorEvent,
+            AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastEnemyFrame.Elevator,
                 $"elevator departure event {direction}");
             AssertEqual(true, samus.InputLocked, $"elevator Samus input lock {direction}");
             AssertEqual(2, enemies.Audio.SoundRequests.Count, $"elevator departure sounds {direction}");

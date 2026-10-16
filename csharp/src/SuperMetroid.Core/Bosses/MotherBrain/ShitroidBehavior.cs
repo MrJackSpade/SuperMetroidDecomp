@@ -18,6 +18,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
 
@@ -38,8 +41,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly ZebetiteBehavior _zebetiteBehavior;
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, DeadSidehopperBehavior deadSidehopperBehavior, ZebetiteBehavior zebetiteBehavior)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, DeadSidehopperBehavior deadSidehopperBehavior, ZebetiteBehavior zebetiteBehavior, EnemyFrameResultBuilder frameResults)
     {
+        _frameResults = frameResults;
         _zebetiteBehavior = zebetiteBehavior;
         _deadSidehopperBehavior = deadSidehopperBehavior;
         _room = room;
@@ -61,9 +65,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Frame-local wall mutations requested by the current Shitroid state.</summary>
     public IReadOnlyList<ShitroidPlmRequest> ShitroidPlmRequests => _shitroidPlmRequests;
 
-    /// <summary>Exact layer-one X position requested by state $EFE6, if any.</summary>
-    public ushort? RequestedShitroidCameraX { get; private set; }
-
     /// <summary>Last library-two sound queued during this Shitroid frame.</summary>
     public ushort? LastShitroidSoundEffectLibrary2 { get; private set; }
 
@@ -75,7 +76,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _shitroid = null;
         _shitroidPlmRequests.Clear();
-        RequestedShitroidCameraX = null;
         LastShitroidSoundEffectLibrary2 = null;
         LastShitroidMusicRequest = null;
         _shitroidCamera = Position16<RoomPixels>.Zero;
@@ -85,7 +85,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void BeginShitroidFrame()
     {
         _shitroidPlmRequests.Clear();
-        RequestedShitroidCameraX = null;
         LastShitroidSoundEffectLibrary2 = null;
         LastShitroidMusicRequest = null;
     }
@@ -407,7 +406,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native writes layer1_x_pos directly and zero-extends scroll bytes zero and two
         // into their adjacent bytes. The paired calls below preserve the observable four
         // byte scroll array without pretending that this is ordinary camera tracking.
-        RequestedShitroidCameraX = 512;
+        _frameResults.LayerOneXOverride = 512;
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
         QueueShitroidWallPlms(PlmHeaderId.CreateBabyMetroidInvisibleWall);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;

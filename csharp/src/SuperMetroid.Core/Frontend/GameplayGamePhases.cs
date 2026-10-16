@@ -277,7 +277,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // door hits and before pause-check, which then sees a state other than eight.
             BeginTimeUp();
         }
-        else if (session.GameplayRuntime.Enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.EscapeTakeoffCompleted)
+        else if (session.GameplayRuntime.EnemyFrameResults.LastEnemyFrame.Gunship == GunshipFrameEvent.EscapeTakeoffCompleted)
         {
             session.BeginZebesEscapeFade();
         }

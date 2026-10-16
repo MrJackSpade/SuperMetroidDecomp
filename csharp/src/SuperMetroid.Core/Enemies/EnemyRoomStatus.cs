@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Room-wide enemy publications read by the runtime: kill count, boss identity, Japanese text, Fireflea
-/// darkness, the enemy door-transition flag and the per-frame Ceres-escape and Draygon-release events.
+/// darkness, the enemy door-transition flag.
 /// </summary>
 internal sealed class EnemyRoomStatus
 {
@@ -19,26 +19,6 @@ internal sealed class EnemyRoomStatus
     /// <summary>Native $177E darkness progression, reset on room load and advanced by two per Fireflea death; the cartridge permits values through 12 and rejects the next step to 14.</summary>
     public ushort FirefleaDarknessLevel { get; internal set; }
 
-    /// <summary>
-    /// One-frame publication of $A6:C117. The runtime consumes this after EnemyMain to
-    /// start the global escape timer and set Ceres's boss bit in their native owners.
-    /// </summary>
-    public bool CeresEscapeStartedThisFrame { get; internal set; }
-
-    /// <summary>
-    /// One-frame publication of Draygon grabbing Samus (<c>SetSamusIntoTheGrabbedByDraygonPose</c>,
-    /// $90:E23B) or releasing her (<c>ReleaseSamusFromDraygon</c>, $90:E2DE) during EnemyMain. Both
-    /// write $FFFF to all three prospective-pose slots, which the runtime owns and clears after EnemyMain.
-    /// </summary>
-    public bool DraygonDiscardedSamusPoseRequestsThisFrame { get; internal set; }
-
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
-
-    /// <summary>Clears the one-frame events at the start of an enemy pass.</summary>
-    internal void BeginFrame()
-    {
-        CeresEscapeStartedThisFrame = false;
-        DraygonDiscardedSamusPoseRequestsThisFrame = false;
-    }
 }

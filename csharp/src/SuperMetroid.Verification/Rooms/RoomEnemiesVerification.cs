@@ -1274,22 +1274,22 @@ internal static void VerifyCeresRidleyRoomEntry()
     for (int frame = 0; frame < 127; frame++)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
-        AssertTrue(!enemies.RoomStatus.CeresEscapeStartedThisFrame,
+        AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
             $"Ceres escape does not publish early on hold frame {frame}");
     }
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
-    AssertTrue(!enemies.RoomStatus.CeresEscapeStartedThisFrame,
+    AssertTrue(!enemies.LastEnemyFrame.CeresEscapeStarted,
         "Ceres escape does not skip the English warning after its 128-frame title hold");
     AssertEqual(10, state.FunctionTimer.RawValue,
         "Ceres English warning enters the native typewriter phase");
 
     int typewriterFrames = 0;
-    while (!enemies.RoomStatus.CeresEscapeStartedThisFrame && typewriterFrames < 512)
+    while (!enemies.LastEnemyFrame.CeresEscapeStarted && typewriterFrames < 512)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, VramWriteQueue = escapeWrites });
         typewriterFrames++;
     }
-    AssertTrue(enemies.RoomStatus.CeresEscapeStartedThisFrame,
+    AssertTrue(enemies.LastEnemyFrame.CeresEscapeStarted,
         "Ceres escape starts only after the complete English warning is typed");
     AssertTrue(ceresBossDefeated,
         "$A6:C131 sets the area-boss bit within the escape-start enemy pass");

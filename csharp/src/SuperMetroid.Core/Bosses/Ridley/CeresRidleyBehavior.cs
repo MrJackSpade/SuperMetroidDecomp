@@ -20,6 +20,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// <summary>The Ceres Ridley species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CeresRidleyBehavior
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <summary>Invokes the enemy AI table for Ridley's shared movement callbacks.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
@@ -45,6 +48,7 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Connects Ceres Ridley's enemy AI, drawing, collision and room-main collaborators.</summary>
     internal CeresRidleyBehavior(CeresRidleyBehaviorDependencies dependencies)
     {
+        _frameResults = dependencies.FrameResults;
         _ridleyTail = dependencies.RidleyTail;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
@@ -1730,7 +1734,7 @@ internal sealed class CeresRidleyBehavior
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
                 // room's exit door at $A6:F562) observe it in this same EnemyMain pass.
                 _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
-                _roomStatus.CeresEscapeStartedThisFrame = true;
+                _frameResults.CeresEscapeStarted = true;
                 return;
 
             default:

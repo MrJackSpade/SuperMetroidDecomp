@@ -48,7 +48,7 @@ internal static class AutomaticCheckpointSaver
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(runtime);
-        if (runtime.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted)
+        if (runtime.EnemyFrameResults.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted)
             return false;
 
         SamusState samus = runtime.Player.Samus

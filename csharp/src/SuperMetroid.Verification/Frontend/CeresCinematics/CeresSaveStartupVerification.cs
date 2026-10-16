@@ -197,7 +197,7 @@ internal static class CeresSaveStartupVerification
 
         // Stub only the already-reported landing event, not an entire flight.
         // The production landing saver must reset $22 to $05 for later saves.
-        loaded.Enemies.GunshipBehavior.LastGunshipEvent = GunshipFrameEvent.LandingCompleted;
+        loaded.Enemies.FrameResults.Gunship = GunshipFrameEvent.LandingCompleted;
         AssertTrue(AutomaticCheckpointSaver.TrySaveGunshipLanding(reloadBus, loaded, 0),
             "#1153 landing checkpoint uses the production event saver");
         var landingSlot = new SuperMetroidSaveRam(reloadBus, RetailPresentationFixture()).ReadSlot(0);

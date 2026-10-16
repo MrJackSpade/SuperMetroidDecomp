@@ -18,6 +18,9 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// </summary>
 internal sealed class GunshipBehavior : IEnemyEntityFactory
 {
+    /// <summary>The enemy pass's results, which this behavior writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
+
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
 
@@ -34,8 +37,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemySlotTable _slotTable;
 
     /// <summary>Binds the frame, room, and slot owners used by the ship's three-part actor.</summary>
-    internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable)
+    internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable, EnemyFrameResultBuilder frameResults)
     {
+        _frameResults = frameResults;
         _audio = audio;
         _projectiles = projectiles;
         _room = room;
@@ -45,8 +49,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     internal GunshipLoadScenario _gunshipLoadScenario;
     /// <summary>Samus actor captured for the post-Ceres ship's initial placement.</summary>
     internal SamusState? _samusAtEnemyInitialization;
-    /// <summary>Most recent gunship lifecycle event in the current enemy pass, cleared to None at the next pass; answering the save prompt also publishes an event immediately.</summary>
-    public GunshipFrameEvent LastGunshipEvent { get; internal set; }
     /// <summary>Whether gunship restoration has requested message box $1C and is awaiting <see cref="GunshipBehavior.AnswerGunshipSavePrompt"/> before its exit animation can resume.</summary>
     public bool GunshipSavePromptPending { get; internal set; }
     /// <summary>Persistent Yes/No result of the latest gunship save answer, reset on room load; true requests outer-runtime SRAM persistence rather than performing a save itself.</summary>
@@ -72,7 +74,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         top.VariableF = (ushort)GunshipFunction.WaitForExitPadToOpen;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         top.VariableA = 144;
-        LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
 
     /// <summary>
@@ -231,7 +232,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                     top.VariableF = (ushort)GunshipFunction.Idle;
                     if (samus is not null)
                         samus.InputLocked = false;
-                    LastGunshipEvent = GunshipFrameEvent.LandingCompleted;
+                    _frameResults.Gunship = GunshipFrameEvent.LandingCompleted;
                 }
                 return;
             case GunshipFunction.Idle:
@@ -253,7 +254,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 return;
             case GunshipFunction.HandleSaveConfirmation:
                 GunshipSavePromptPending = true;
-                LastGunshipEvent = GunshipFrameEvent.SavePromptRequested;
+                _frameResults.Gunship = GunshipFrameEvent.SavePromptRequested;
                 return;
             case GunshipFunction.WaitForExitPadToOpen:
                 if (TickGunshipFunctionTimer(top))
@@ -268,7 +269,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                     top.VariableF = (ushort)GunshipFunction.Idle;
                     if (samus is not null)
                         samus.InputLocked = false;
-                    LastGunshipEvent = GunshipFrameEvent.ExitCompleted;
+                    _frameResults.Gunship = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
             case GunshipFunction.LoadLiftoffDustTiles:
@@ -345,7 +346,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         samus.WritePreviousXPosition(samus.Position.X.Whole);
         StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
         top.VariableA = 144;
-        LastGunshipEvent = GunshipFrameEvent.LandingPadOpened;
+        _frameResults.Gunship = GunshipFrameEvent.LandingPadOpened;
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
     }
 
@@ -364,7 +365,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         top.VariableF = (ushort)GunshipFunction.FinishLanding;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         top.VariableA = 144;
-        LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
+        _frameResults.Gunship = GunshipFrameEvent.LandingPadClosed;
     }
 
     /// <summary>Adds the same 16.16 Y displacement to Samus and all three ship components.</summary>
@@ -436,7 +437,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             top.VariableA = 144;
-            LastGunshipEvent = GunshipFrameEvent.EntryStarted;
+            _frameResults.Gunship = GunshipFrameEvent.EntryStarted;
             _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
         }
     }
@@ -462,7 +463,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         top.VariableF = (ushort)GunshipFunction.WaitForEntranceToClose;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         top.VariableA = 144;
-        LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
+        _frameResults.Gunship = GunshipFrameEvent.EntryPadClosing;
     }
 
     /// <summary>Refills Samus in two-unit steps or skips directly to escape takeoff after Mother Brain.</summary>
@@ -481,7 +482,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             top.VariableB = 0;
             bottom.VariableF = 0;
             bottom.VariableE = 0;
-            LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffStarted;
+            _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffStarted;
             return;
         }
 
@@ -513,7 +514,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         top.VariableF = (ushort)GunshipFunction.FinishSamusExit;
         StartGunshipProgram(pad, GunshipProgram.EntrancePadClosing);
         top.VariableA = 144;
-        LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
+        _frameResults.Gunship = GunshipFrameEvent.ExitPadClosing;
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePadClosing, maximumQueued: 6);
     }
 
@@ -598,7 +599,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (EnemyMath.IsNegative16(top.Position.Y.Whole - 256))
         {
             top.VariableF = (ushort)GunshipFunction.MoveAccelerating;
-            LastGunshipEvent = GunshipFrameEvent.EscapeTakeoffCompleted;
+            _frameResults.Gunship = GunshipFrameEvent.EscapeTakeoffCompleted;
         }
     }
 

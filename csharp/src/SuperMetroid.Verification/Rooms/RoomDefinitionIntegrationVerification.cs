@@ -59,7 +59,7 @@ internal static class RoomDefinitionIntegrationVerification
         ushort initialCameraY = actual.Room.LoadedCamera.PixelPosition.Y;
         int frames = 0;
         bool cameraMoved = false;
-        while (actual.Enemies.GunshipBehavior.LastGunshipEvent != GunshipFrameEvent.LandingCompleted &&
+        while (actual.Enemies.LastEnemyFrame.Gunship != GunshipFrameEvent.LandingCompleted &&
                frames < PostCeresLandingMaximumFrames)
         {
             RuntimeFrameResult expectedFrame = expected.StepFrame(0);
@@ -78,8 +78,8 @@ internal static class RoomDefinitionIntegrationVerification
                 (expected.Player.IntroducedSamus.Kinematics.Position.X.RawValue, expected.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
                 (actual.Player.IntroducedSamus.Kinematics.Position.X.RawValue, actual.Player.IntroducedSamus.Kinematics.Position.Y.RawValue),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
-            AssertEqual(expected.Enemies.GunshipBehavior.LastGunshipEvent,
-                actual.Enemies.GunshipBehavior.LastGunshipEvent,
+            AssertEqual(expected.Enemies.LastEnemyFrame.Gunship,
+                actual.Enemies.LastEnemyFrame.Gunship,
                 $"guarded post-Ceres gunship boundary frame {frames}");
             cameraMoved |= actual.Room.LoadedCamera.PixelPosition.Y != initialCameraY;
             frames++;
@@ -88,7 +88,7 @@ internal static class RoomDefinitionIntegrationVerification
         AssertTrue(cameraMoved,
             "post-Ceres production trajectory moves the camera through Landing Site");
         AssertEqual(GunshipFrameEvent.LandingCompleted,
-            actual.Enemies.GunshipBehavior.LastGunshipEvent,
+            actual.Enemies.LastEnemyFrame.Gunship,
             "guarded post-Ceres production trajectory reaches landing completion");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production entry and camera trajectory perform no compiled-definition ROM reads");

@@ -87,11 +87,6 @@ public sealed class KraidEnemyState
     /// <summary>Gets the number of growth-sequence ceiling rocks that acquired a live bank-$86 projectile slot.</summary>
     public int CeilingRockSpawnCount { get; internal set; }
 
-    /// <summary>
-    /// Set when <c>$A7:C85E</c> stores $FFFF to <c>PreviousLayer1XBlock</c>; the runtime
-    /// applies it before this frame's background column streaming.
-    /// </summary>
-    public bool Layer1XBlockResetRequested { get; internal set; }
     /// <summary>Gets whether growth has installed the priority bits in Kraid's private BG2 tilemap.</summary>
     public bool Bg2PriorityBitsSet { get; internal set; }
     /// <summary>Gets whether growth has relinquished the first-screen camera lock for the enlarged encounter.</summary>

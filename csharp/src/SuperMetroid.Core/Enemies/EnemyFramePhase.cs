@@ -120,9 +120,9 @@ internal sealed class EnemyFramePhase
     {
         if (_room.Camera is not null && _enemies.IsLoaded)
         {
-            _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _nmi.NmiFrameCounter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = _plms, NmiFrameCounter = _nmi.NmiFrameCounter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
+            EnemyFrameResult result = _enemies.StepFrame(new RoomEnemyFrame { Camera = _room.Camera.PixelPosition, TimeIsFrozen = _freeze.TimeIsFrozen, Samus = _player.Samus, NewlyPressedControllerInput = _controller1.NewlyPressed, Level = _room.LevelData, ControllerInput = _controller1.Current, SamusProjectiles = _projectiles, NmiFrameCounter8 = _nmi.NmiFrameCounter8, Mode7Transform = _display.ActiveSamusMode7Transform, SharedProjectiles = _bombProjectiles, VramWriteQueue = _vramWrites, ResolveSamusContactBeforeAi = true, CollisionPlms = _plms, NmiFrameCounter = _nmi.NmiFrameCounter, ProcessingListPrepared = processingListPrepared, SamusPreviousPositionCheckpoint = samusPreviousPositionCheckpoint });
             _enemyRoomEffects.ApplyEnemyRequestedRoomEffects();
-            if (_enemies.ElevatorBehavior.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
+            if (result.Elevator == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha
                 // has sampled this frame's controls. Do not apply that stale Down
@@ -135,7 +135,7 @@ internal sealed class EnemyFramePhase
                 // behind after the palette handler becomes inactive.
                 _player.IntroducedSamus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
             }
-            if (_enemies.RoomStatus.DraygonDiscardedSamusPoseRequestsThisFrame)
+            if (result.DraygonDiscardedSamusPoseRequests)
             {
                 // The grab (`$90:E289-$E295`) and release (`$90:E329-$E332`) discard the transitions
                 // alpha chose for the old pose, including the no-input fallback that shares the
@@ -150,6 +150,9 @@ internal sealed class EnemyFramePhase
                     rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
+            // $A7:C85E writes PreviousLayer1XBlock during EnemyMain: every BG1 column streams as new.
+            if (result.KraidLayer1XBlockReset)
+                _backgroundScroll.ResetPreviousLayer1XBlock();
             if (_enemies.PhantoonBehavior.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
@@ -158,13 +161,13 @@ internal sealed class EnemyFramePhase
                 // The room's fixed layer-two axes preserve them during camera scrolling.
                 _backgroundScroll.SetBg2ScrollRegisters(phantoon.Bg2Scroll);
             }
-            if (_enemies.RoomStatus.CeresEscapeStartedThisFrame)
+            if (result.CeresEscapeStarted)
             {
                 // $A6:C117 starts the escape timer on the same EnemyMain call that changes
                 // ceres_status from one to two; the actor sets the boss bit itself.
                 _escapeTimer.RequestCeresStart();
             }
-            if (_enemies.ShitroidBehavior.RequestedShitroidCameraX is ushort shitroidCameraX)
+            if (result.LayerOneXOverride is ushort shitroidCameraX)
             {
                 // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
@@ -173,9 +176,9 @@ internal sealed class EnemyFramePhase
                 _backgroundScroll.Layer1Position = _backgroundScroll.Layer1Position.WithX(shitroidCameraX);
             }
             // `$A9:8C0C` deletes HDMA objects 0-3; the next frame's HDMA pass runs none of them.
-            if (_enemies.MotherBrainEncounter.MotherBrainDeletedHdmaObjects)
+            if (result.DeleteLiquidHdmaObjects)
                 _roomLayer3Fx.DeleteLiquidHdmaObjects();
-            if (_enemies.ElevatorBehavior.ElevatorClearedProjectileData)
+            if (result.ElevatorClearedProjectileData)
             {
                 // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
                 // beam/missile slots were reset inside the actor call; bombs and the shared
@@ -191,7 +194,7 @@ internal sealed class EnemyFramePhase
             if (_player.Samus is not null)
             {
                 _player.Samus.Kinematics.InteractiveEnemies = _enemies.InteractiveCollisionBodies;
-                if (_enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.EntryStarted)
+                if (result.Gunship == GunshipFrameEvent.EntryStarted)
                 {
                     // MakeSamusFaceForward performs a direct suit-palette reload and the
                     // ship explicitly clears elevator status after installing locked demo
@@ -200,7 +203,7 @@ internal sealed class EnemyFramePhase
                     _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
                     _enemies.ElevatorBehavior.SetElevatorStatusForDebugging(0);
                 }
-                else if (_enemies.GunshipBehavior.LastGunshipEvent == GunshipFrameEvent.LandingCompleted)
+                else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {
                     // `$A2:A987` restores the ordinary Samus handler pair only after the
                     // closing-pad hold. Enemy AI has already unlocked Samus.InputLocked;

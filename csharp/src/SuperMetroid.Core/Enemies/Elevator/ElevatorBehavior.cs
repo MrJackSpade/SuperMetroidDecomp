@@ -25,13 +25,13 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues the separate library-one and library-three departure sounds.</summary>
     private readonly EnemyAudioQueue _audio;
 
-    /// <summary>Shares the room's Mother Brain HDMA cleanup state with elevator frame reset.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>The enemy pass's results, which the elevator writes.</summary>
+    private readonly EnemyFrameResultBuilder _frameResults;
 
     /// <summary>Binds elevator movement to the room, audio queue, and encounter state.</summary>
-    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, MotherBrainEncounter motherBrainEncounter)
+    internal ElevatorBehavior(EnemyRoomBinding room, EnemyAudioQueue audio, EnemyFrameResultBuilder frameResults)
     {
-        _motherBrainEncounter = motherBrainEncounter;
+        _frameResults = frameResults;
         _room = room;
         _audio = audio;
     }
@@ -63,9 +63,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     public bool ElevatorDoorTransitionActive { get; set; }
 
-    /// <summary>Most recent lifecycle event published by elevator AI during this enemy update; reset to <see cref="ElevatorFrameEvent.None"/> before actors run, not retained across updates.</summary>
-    public ElevatorFrameEvent LastElevatorEvent { get; private set; }
-
     /// <summary>Arrival slot whose initializer placed Samus; consumed by the door loader this update.</summary>
     [NonSerialized]
     private int? _arrivalPlacementSlot;
@@ -80,13 +77,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
         _arrivalPlacementSlot = null;
         return slot;
     }
-
-    /// <summary>
-    /// True when <c>ResetProjectileData</c> was called by $A3:9548 this frame. The enemy
-    /// system clears the ordinary projectile owner directly; the runtime consumes this
-    /// event to clear the separate bomb/power-bomb owner at the same boundary.
-    /// </summary>
-    public bool ElevatorClearedProjectileData { get; private set; }
 
     /// <summary>
     /// Publishes bank-$94's type-$9 pseudo-door collision before the next EnemyMain pass.
@@ -133,15 +123,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
         // destination room. Elevator_Init itself clears stale values unless status is two.
         _arrivalPlacementSlot = null;
         ElevatorDoorTransitionActive = false;
-        BeginElevatorFrame();
-    }
-
-    /// <summary>Clears per-update events and sound witnesses before enemy actors run.</summary>
-    internal void BeginElevatorFrame()
-    {
-        LastElevatorEvent = ElevatorFrameEvent.None;
-        ElevatorClearedProjectileData = false;
-        _motherBrainEncounter.MotherBrainDeletedHdmaObjects = false;
     }
 
     /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
@@ -213,7 +194,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ElevatorActorStatus.BeginArrivalReturn:
                 ElevatorStatus = ElevatorActorStatus.ReturningToRest;
-                LastElevatorEvent = ElevatorFrameEvent.ArrivalReturnStarted;
+                _frameResults.Elevator = ElevatorFrameEvent.ArrivalReturnStarted;
                 MoveElevatorBackToRest(slot, state, samus);
                 return;
 
@@ -249,10 +230,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1), maximumQueued: 6);
         samus.PoseMetadata.SetupForElevator(_room.LoadedBus);
         samusProjectiles?.Reset();
-        ElevatorClearedProjectileData = true;
+        _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);
         ElevatorStatus = ElevatorActorStatus.Departing;
-        LastElevatorEvent = ElevatorFrameEvent.DepartureStarted;
+        _frameResults.Elevator = ElevatorFrameEvent.DepartureStarted;
     }
 
     /// <summary>Ports <c>Elevator_Func_2</c> at $A3:9579.</summary>
@@ -304,7 +285,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWholeY(state.RestingYPosition);
         samus.InputLocked = false;
         PinSamusToElevator(slot, samus);
-        LastElevatorEvent = ElevatorFrameEvent.ArrivalCompleted;
+        _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
     }
 
     /// <summary>Ports the direct 16.16 <c>AddToHiLo</c> used by both travel directions.</summary>
@@ -362,6 +343,5 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        BeginElevatorFrame();
     }
 }

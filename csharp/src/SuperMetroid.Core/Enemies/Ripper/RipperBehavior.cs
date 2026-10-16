@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>The Ripper species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class RipperBehavior : IEnemySpecies
+internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.Ripper2];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RipperEntity(this, slot, common);
+
     /// <summary>Resolves horizontal wall collisions for all three Ripper variants.</summary>
     private readonly EnemyTerrain _terrain;
 
@@ -222,18 +230,15 @@ internal sealed class RipperBehavior : IEnemySpecies
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Runs every Ripper variant's flying loop as a typed program (#641).</summary>
-    internal void RegisterRipperTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(
-            slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 or EnemyDefinitionId.Ripper,
-            (slot, _) =>
-            {
-                if (!EnemyProgramAnimation.Expire(slot))
-                    return;
-                AnimationProgramCursor<RipperProgram> cursor = _ripperPrograms[slot.SlotIndex];
-                EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Spritemap);
-                _ripperPrograms[slot.SlotIndex] = cursor;
-            });
+    /// <summary>Advances Ripper's typed animation.</summary>
+    internal void AdvanceRipperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<RipperProgram> cursor = _ripperPrograms[slot.SlotIndex];
+        EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Spritemap);
+        _ripperPrograms[slot.SlotIndex] = cursor;
+    }
 
     /// <summary>Requires variant initialization before dispatching GRipper or Ripper II main AI.</summary>
     private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
@@ -250,44 +255,40 @@ internal sealed class RipperBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Connects each Ripper definition to its own native initialization routine.</summary>
-    internal void RegisterRipperInitializationAi(EnemyAiTable table)
+    /// <summary>Ports GRipper's initialization AI.</summary>
+    internal void RunGRipperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_GRipper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeGRipper(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ripper2, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeRipper2(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeRipper(slot);
-        });
+        InitializeGRipper(slot);
     }
 
-    /// <summary>Dispatches each Ripper variant's frame to its movement and reversal logic.</summary>
-    internal void RegisterRipperMainAi(EnemyAiTable table)
+    /// <summary>Ports Ripper2's initialization AI.</summary>
+    internal void RunRipper2InitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeRipper2(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_GRipper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GRipper, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunGRipperMain(slot, RequireRipperVariantState(slot), frame.Level);
-        });
+    /// <summary>Ports Ripper's initialization AI.</summary>
+    internal void RunRipperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeRipper(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Ripper2, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper2, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunRipper2Main(slot, frame.Level);
-        });
+    /// <summary>Ports GRipper's main AI.</summary>
+    internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunGRipperMain(slot, RequireRipperVariantState(slot), frame.Level);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Ripper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunRipperMain(slot, frame.Level);
-        });
+    /// <summary>Ports Ripper2's main AI.</summary>
+    internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunRipper2Main(slot, frame.Level);
+    }
+
+    /// <summary>Ports Ripper's main AI.</summary>
+    internal void RunRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunRipperMain(slot, frame.Level);
     }
 
     /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>

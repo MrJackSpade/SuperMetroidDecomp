@@ -110,7 +110,8 @@ internal static class RoomEnemySystemAccess
             self.DeadTorizoBehavior._deadTorizoFrameVramTransfers;
 
         /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
-        internal IReadOnlyList<SkreeEnemyState?> SkreeStates => self.SkreeBehavior._skreeStates;
+        internal IReadOnlyList<SkreeEnemyState?> SkreeStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SkreeEntity)?.State)];
 
         /// <summary>Typed Spark state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<SparkEnemyState?> SparkStates =>
@@ -128,7 +129,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => self.ElevatorBehavior._elevatorStates;
 
         /// <summary>Kago extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<KagoEnemyState?> KagoStates => self.KagoBehavior._kagoStates;
+        internal IReadOnlyList<KagoEnemyState?> KagoStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as KagoEntity)?.State)];
 
         /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<WaverEnemyState?> WaverStates =>
@@ -154,7 +156,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments => self.ShaktoolBehavior._shaktoolSegments;
 
         /// <summary>Typed state for every physical slot currently owned by a Mochtroid.</summary>
-        internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates => self.MochtroidBehavior._mochtroidStates;
+        internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MochtroidEntity)?.State)];
 
         /// <summary>Typed state for each physical slot currently occupied by a Yard.</summary>
         internal IReadOnlyList<YardEnemyState?> YardStates => self.YardBehavior._yardStates;
@@ -163,7 +166,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<MetareeEnemyState?> MetareeStates => self.MetareeBehavior._metareeStates;
 
         /// <summary>Typed state for every physical Owtch-capable enemy slot.</summary>
-        internal IReadOnlyList<OwtchEnemyState?> OwtchStates => self.OwtchBehavior._owtchStates;
+        internal IReadOnlyList<OwtchEnemyState?> OwtchStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as OwtchEntity)?.State)];
 
         /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
         internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates => self.FuneNamiheBehavior._funeNamiheStates;
@@ -180,7 +184,8 @@ internal static class RoomEnemySystemAccess
             self.NorfairLavaJumpingEnemyBehavior._norfairLavaJumpingEnemyStates;
 
         /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates => self.FirefleaBehavior._firefleaStates;
+        internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as FirefleaEntity)?.State)];
 
         /// <summary>All 32 physical bank-$B4 slots, including inactive ones.</summary>
         internal IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => self.SpriteObjects.Slots;
@@ -312,7 +317,8 @@ internal static class RoomEnemySystemAccess
             self.MaridiaLargeSnailBehavior._maridiaLargeSnailStates;
 
         /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<BeetomEnemyState?> BeetomStates => self.BeetomBehavior._beetomStates;
+        internal IReadOnlyList<BeetomEnemyState?> BeetomStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BeetomEntity)?.State)];
 
         /// <summary>Typed Tripper/Kamer state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<PlatformEnemyState?> PlatformStates => self.PlatformsBehavior._platformStates;

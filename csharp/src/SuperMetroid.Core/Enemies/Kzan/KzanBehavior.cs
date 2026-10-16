@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Kzan.Artwork;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Kzan;
 
 /// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class KzanBehavior : IEnemySpecies
+internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KzanBottom, EnemyDefinitionId.KzanTop];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KzanEntity(this, slot, common);
+
     /// <summary>Lets the lower actor mirror the immediately preceding top actor's position.</summary>
     private readonly EnemySlotTable _slotTable;
 
@@ -25,9 +33,6 @@ internal sealed class KzanBehavior : IEnemySpecies
     /// <summary>Last speed-table offset permitted during falling acceleration.</summary>
     private const ushort KzanMaximumFallingSpeedTableOffset = 512;
 
-    /// <summary>Top-actor state indexed by native enemy slot.</summary>
-    internal readonly KzanEnemyState?[] _kzanStates =
-        new KzanEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Per-slot countdown reset copied from init1's low byte.</summary>
     internal readonly ushort[] _kzanFallWaitTimerResetValues = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Whole Y before each rise/fall step, used to carry Samus by the accepted delta.</summary>
@@ -46,7 +51,8 @@ internal sealed class KzanBehavior : IEnemySpecies
             _kzanPreviousYPositions,
             _kzanFallingYSpeedTableIndexes,
             _kzanRiseWaitTimers);
-        _kzanStates[slot.SlotIndex] = state;
+        (slot.Entity as KzanEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Kzan.")).State = state;
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -262,50 +268,43 @@ internal sealed class KzanBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a top AI call before its matching per-slot state has been initialized.</summary>
-    private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
-        _kzanStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
+        (slot.Entity as KzanEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
 
-    /// <summary>Runs the top's idle pose as a typed program (#641).</summary>
-    internal void RegisterKzanTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireKzanState(slot);
-            AnimationProgramCursor<KzanProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, KzanAnimations.Programs, ref cursor, KzanFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Binds top and bottom initialization routines to their own enemy-definition IDs.</summary>
-    internal void RegisterKzanInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Kzan's typed animation.</summary>
+    internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KzanTop, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKzanTop(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KzanBottom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKzanBottom(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireKzanState(slot);
+        AnimationProgramCursor<KzanProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, KzanAnimations.Programs, ref cursor, KzanFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Binds the top phase dispatcher and the bottom follower to their native main-AI routines.</summary>
-    internal void RegisterKzanMainAi(EnemyAiTable table)
+    /// <summary>Ports KzanTop's initialization AI.</summary>
+    internal void RunKzanTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeKzanTop(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KzanTop, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanTop, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKzanTopMain(slot, RequireKzanState(slot), frame.Samus);
-        });
+    /// <summary>Ports KzanBottom's initialization AI.</summary>
+    internal void RunKzanBottomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKzanBottom(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KzanBottom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KzanBottom, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKzanBottomMain(slot);
-        });
+    /// <summary>Ports KzanTop's main AI.</summary>
+    internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKzanTopMain(slot, RequireKzanState(slot), frame.Samus);
+    }
+
+    /// <summary>Ports KzanBottom's main AI.</summary>
+    internal void RunKzanBottomMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    {
+        RunKzanBottomMain(slot);
     }
 
     /// <summary>Last library-two Kzan landing sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
@@ -315,7 +314,6 @@ internal sealed class KzanBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastKzanSoundEffect = null;
-        Array.Clear(_kzanStates);
         Array.Clear(_kzanFallWaitTimerResetValues);
         Array.Clear(_kzanPreviousYPositions);
         Array.Clear(_kzanFallingYSpeedTableIndexes);

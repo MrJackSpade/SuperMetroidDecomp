@@ -72,7 +72,7 @@ internal static class SkreeMetareeBehaviorVerification
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("Metaree has no state.");
             return (enemies, slot, () => state.Program, program => Restart(slot, () => state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => state.AttackReady);
         }
-        enemies.SkreeBehavior.InitializeSkree(slot);
+        SkreeBehavior.InitializeSkree(slot);
         SkreeEnemyState skree = enemies.SkreeStates[0] ?? throw new InvalidOperationException("Skree has no state.");
         return (enemies, slot, () => skree.Program, program => Restart(slot, () => skree.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => skree.AttackReady);
     }

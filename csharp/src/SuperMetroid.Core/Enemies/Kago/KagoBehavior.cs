@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
@@ -10,8 +11,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Kago;
 
 /// <summary>The Kago species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class KagoBehavior : IEnemySpecies
+internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kago];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KagoEntity(slot, common);
+
     /// <summary>Provides the room random word sampled by bug spawns and jumps without advancing the generator.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Kago bugs from the ordinary enemy projectile pool.</summary>
@@ -36,15 +43,12 @@ internal sealed class KagoBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Holds shell hit counters and animation state at the native enemy slot indices.</summary>
-    internal readonly KagoEnemyState?[] _kagoStates =
-        new KagoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>Kago_Init</c> at <c>$A8:AB46</c>.</summary>
-    internal void InitializeKago(RoomEnemySlot slot)
+    internal static void InitializeKago(RoomEnemySlot slot)
     {
         var state = new KagoEnemyState(slot);
-        _kagoStates[slot.SlotIndex] = state;
+        (slot.Entity as KagoEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Kago.")).State = state;
 
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
@@ -112,8 +116,8 @@ internal sealed class KagoBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a shot or main callback that arrived before the shell initialized its slot state.</summary>
-    private KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
-        _kagoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
+        (slot.Entity as KagoEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
@@ -174,36 +178,27 @@ internal sealed class KagoBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Runs Kago's shell animation as a typed program (#641).</summary>
-    internal void RegisterKagoTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            KagoEnemyState state = RequireKagoState(slot);
-            AnimationProgramCursor<KagoProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Runs Kago shell initialization only for slots bearing the Kago definition.</summary>
-    internal void RegisterKagoInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Kago's typed animation.</summary>
+    internal static void AdvanceKagoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Kago, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKago(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        KagoEnemyState state = RequireKagoState(slot);
+        AnimationProgramCursor<KagoProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Dispatches the shell's install-once and no-op main phases for Kago slots.</summary>
-    internal void RegisterKagoMainAi(EnemyAiTable table)
+    /// <summary>Ports Kago's initialization AI.</summary>
+    internal static void RunKagoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeKago(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Kago, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kago, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKagoMain(RequireKagoState(slot));
-        });
+    /// <summary>Ports Kago's main AI.</summary>
+    internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    {
+        RunKagoMain(RequireKagoState(slot));
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
@@ -414,7 +409,6 @@ internal sealed class KagoBehavior : IEnemySpecies
     {
         LastKagoBugSoundEffect = null;
         LastKagoBugDropRequest = null;
-        Array.Clear(_kagoStates);
     }
 
     /// <inheritdoc/>

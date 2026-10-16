@@ -23,6 +23,7 @@ internal static class FirefleaMovementDefinitionsVerification
                 address => $"Fireflea initializer attempted migrated radius read ${address:X6}."));
         Action<RoomEnemySlot> initialize = enemies.FirefleaBehavior.InitializeFireflea;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
 
         for (byte radiusIndex = 0; radiusIndex < 8; radiusIndex++)
         {

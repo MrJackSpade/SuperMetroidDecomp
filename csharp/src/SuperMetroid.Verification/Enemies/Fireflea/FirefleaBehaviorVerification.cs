@@ -24,7 +24,7 @@ internal static class FirefleaBehaviorVerification
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
         enemies.FirefleaBehavior.InitializeFireflea(slot);
-        AssertEqual(AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop), (enemies.FirefleaBehavior._firefleaStates[0] ?? throw new InvalidOperationException("The Fireflea has no state.")).Program,
+        AssertEqual(AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop), ((enemies.SlotTable.Slots[0].Entity as FirefleaEntity)?.State ?? throw new InvalidOperationException("The Fireflea has no state.")).Program,
             "Fireflea initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Programs, FirefleaProgram.Loop, FirefleaFrameDefinitions.Spritemap),

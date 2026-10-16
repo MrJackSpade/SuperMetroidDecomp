@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Owtch;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Hardware;
@@ -37,7 +38,7 @@ internal static class EnemyLinearSpeedsVerification
         // are present; Stoke and Ripper do not need any bus for their speed setup.
         enemies.BindFixtureBus(new TestAddressSpace());
         var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);
-        var owtch = new Action<RoomEnemySlot>(enemies.OwtchBehavior.InitializeOwtch);
+        var owtch = new Action<RoomEnemySlot>(OwtchBehavior.InitializeOwtch);
         var stoke = new Action<RoomEnemySlot>(StokeBehavior.InitializeStoke);
         Action<RoomEnemySlot, bool> ripper = RipperBehavior.LoadRipperVelocity;
         var slot = enemies.SlotTable.Slots[0];

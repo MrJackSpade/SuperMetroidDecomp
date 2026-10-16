@@ -26,7 +26,7 @@ internal static class KagoBehaviorVerification
         slot.Bind(EnemyDefinitionId.Kago, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KagoFrameToolingDefinitions.Bank });
         slot.Parameter1 = 10;
-        enemies.KagoBehavior.InitializeKago(slot);
+        KagoBehavior.InitializeKago(slot);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
         AssertEqual(AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow), state.Program, "Kago initializer animation");
         ushort[] slow = KagoAnimationsConstants.Spritemaps(KagoProgram.Slow).ToArray();

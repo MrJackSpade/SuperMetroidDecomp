@@ -24,7 +24,7 @@ internal static class MochtroidBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Mochtroid, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MochtroidFrameToolingDefinitions.Bank });
-        enemies.MochtroidBehavior.InitializeMochtroid(slot);
+        MochtroidBehavior.InitializeMochtroid(slot);
         MochtroidEnemyState state = enemies.MochtroidStates[0] ?? throw new InvalidOperationException("Mochtroid has no state.");
         AssertEqual((MochtroidProgram?)MochtroidProgram.FreeFlight, state.InstalledProgram, "initializer installs free flight");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MochtroidAnimations.Programs, MochtroidProgram.FreeFlight, MochtroidFrameDefinitions.Spritemap),

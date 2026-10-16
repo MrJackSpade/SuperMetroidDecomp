@@ -31,7 +31,7 @@ internal static class OwtchBehaviorVerification
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = OwtchFrameToolingDefinitions.Bank });
             slot.Parameter1 = (ushort)initial;
-            enemies.OwtchBehavior.InitializeOwtch(slot);
+            OwtchBehavior.InitializeOwtch(slot);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");
             OwtchProgram started = initial == OwtchBehaviorState.MovingLeft ? OwtchProgram.MovingLeft : OwtchProgram.MovingRight;
             AssertEqual(AnimationProgramCursor<OwtchProgram>.Start(started), state.Program, $"Owtch state {initial} starts {started}");

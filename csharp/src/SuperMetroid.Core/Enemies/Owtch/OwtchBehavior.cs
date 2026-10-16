@@ -1,12 +1,21 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
 
 /// <summary>The Owtch species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class OwtchBehavior : IEnemySpecies
+internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Owtch];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new OwtchEntity(this, slot, common);
+
     /// <summary>Supplies the shared room random sequence used for burial and emergence.</summary>
     private readonly EnemyRoomBinding _room;
 
@@ -36,12 +45,8 @@ internal sealed class OwtchBehavior : IEnemySpecies
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
     private const ushort OwtchMaximumBurialDepth = 16;
 
-    /// <summary>Per-slot movement, burial, and velocity state for room Owtches.</summary>
-    internal readonly OwtchEnemyState?[] _owtchStates =
-        new OwtchEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
-    internal void InitializeOwtch(RoomEnemySlot slot)
+    internal static void InitializeOwtch(RoomEnemySlot slot)
     {
         int initialState = SnesLittleEndian.LowByte(slot.Parameter1);
         int undergroundTimerIndex = SnesLittleEndian.HighByte(slot.Parameter1);
@@ -83,7 +88,8 @@ internal sealed class OwtchBehavior : IEnemySpecies
             MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - travelDistance)),
             MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
         };
-        _owtchStates[slot.SlotIndex] = state;
+        (slot.Entity as OwtchEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Owtch.")).State = state;
         SetOwtchProgram(slot, state, initialProgram);
 
         // State two is the cartridge's special initially-buried form. It moves only the
@@ -228,12 +234,12 @@ internal sealed class OwtchBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects Owtch AI or collision callbacks before slot initialization.</summary>
-    private OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
-        _owtchStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
+        (slot.Entity as OwtchEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
-    internal void RegisterOwtchBombReactions(EnemyAiTable table)
+    internal static void RegisterOwtchBombReactions(EnemyAiTable table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
@@ -243,42 +249,32 @@ internal sealed class OwtchBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Connects the Owtch definition to its parameter-driven native initializer.</summary>
-    internal void RegisterOwtchInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Owtch's initialization AI.</summary>
+    internal static void RunOwtchInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Owtch, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeOwtch(slot);
-        });
+        InitializeOwtch(slot);
     }
 
-    /// <summary>Dispatches each Owtch frame through movement, sinking, burial, and rising.</summary>
-    internal void RegisterOwtchMainAi(EnemyAiTable table)
+    /// <summary>Ports Owtch's main AI.</summary>
+    internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Owtch, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunOwtchMain(slot, RequireOwtchState(slot));
-        });
+        RunOwtchMain(slot, RequireOwtchState(slot));
     }
 
-    /// <summary>Runs Owtch's shell-cycling animations as typed programs (#641).</summary>
-    internal void RegisterOwtchTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Owtch, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireOwtchState(slot);
-            AnimationProgramCursor<OwtchProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyOwtchCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Owtch's typed animation.</summary>
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireOwtchState(slot);
+        AnimationProgramCursor<OwtchProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.Spritemap,
+                (cue, _) => ApplyOwtchCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    internal void RegisterOwtchShotReactions(EnemyAiTable table)
+    internal static void RegisterOwtchShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.OwtchShot)
@@ -301,7 +297,6 @@ internal sealed class OwtchBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_owtchStates);
     }
 
     /// <inheritdoc/>

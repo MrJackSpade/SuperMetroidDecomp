@@ -10,8 +10,14 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>The Beetom species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BeetomBehavior : IEnemySpecies
+internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Beetom];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BeetomEntity(this, slot, common);
+
     /// <summary>Supplies the shared RNG seed and generation used by Beetom action choice.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves Beetom ledge, wall, and landing collisions.</summary>
@@ -75,8 +81,6 @@ internal sealed class BeetomBehavior : IEnemySpecies
     internal readonly ushort[] _beetomDirections = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Per-slot offset captured when Beetom first attaches to Samus.</summary>
     internal readonly Offset16<RoomPixels>[] _beetomInitialAttachmentOffsets = new Offset16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Typed Beetom state indexed by physical enemy slot.</summary>
-    internal readonly BeetomEnemyState?[] _beetomStates = new BeetomEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, SnesButton controllerInput)
@@ -85,7 +89,8 @@ internal sealed class BeetomBehavior : IEnemySpecies
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
         var state = new BeetomEnemyState(slot, new BeetomSharedTables { InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
-        _beetomStates[slot.SlotIndex] = state;
+        (slot.Entity as BeetomEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Beetom.")).State = state;
 
         state.FunctionTimer = NativeCountdown.Start(0);
         state.Function = 0;
@@ -579,12 +584,12 @@ internal sealed class BeetomBehavior : IEnemySpecies
     }
 
     /// <summary>Requires an initialized Beetom extension for a physical slot.</summary>
-    private BeetomEnemyState RequireBeetomState(RoomEnemySlot slot) =>
-        _beetomStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static BeetomEnemyState RequireBeetomState(RoomEnemySlot slot) =>
+        (slot.Entity as BeetomEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Beetom state.");
 
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
-    internal void RegisterBeetomBombReactions(EnemyAiTable table)
+    internal static void RegisterBeetomBombReactions(EnemyAiTable table)
     {
         // Common damage can clear a lethally hit slot before this private tail runs. Bank $A8 still clears Beetom's
         // separate attached flag after returning from common shot AI, so the identity is matched before dispatch.
@@ -596,42 +601,32 @@ internal sealed class BeetomBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Routes Beetom initialization, including its shared RNG reseed.</summary>
-    internal void RegisterBeetomInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Beetom's initialization AI.</summary>
+    internal void RunBeetomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton controllerInput, ushort _1)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Beetom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBeetom(slot, samus, controllerInput);
-        });
+        InitializeBeetom(slot, samus, controllerInput);
     }
 
-    /// <summary>Dispatches idle, hop, crawl, drain, and flung phases each enemy frame.</summary>
-    internal void RegisterBeetomMainAi(EnemyAiTable table)
+    /// <summary>Ports Beetom's main AI.</summary>
+    internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Beetom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBeetomMain(slot, RequireBeetomState(slot), frame.Samus, frame.Level, frame.ControllerInput);
-        });
+        RunBeetomMain(slot, RequireBeetomState(slot), frame.Samus, frame.Level, frame.ControllerInput);
     }
 
-    /// <summary>Runs the Beetom's crawl, hop and drain animations as typed programs (#641).</summary>
-    internal void RegisterBeetomTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireBeetomState(slot);
-            AnimationProgramCursor<BeetomProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyBeetomCue(slot, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Beetom's typed animation.</summary>
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireBeetomState(slot);
+        AnimationProgramCursor<BeetomProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.Spritemap,
+                (cue, _) => ApplyBeetomCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
-    internal void RegisterBeetomShotReactions(EnemyAiTable table)
+    internal static void RegisterBeetomShotReactions(EnemyAiTable table)
     {
         // Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
         // vulnerability results.
@@ -653,7 +648,6 @@ internal sealed class BeetomBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_beetomStates);
         Array.Clear(_beetomInitialShortLeapYSpeedIndexes);
         Array.Clear(_beetomInitialLongLeapYSpeedIndexes);
         Array.Clear(_beetomInitialLungeYSpeedIndexes);

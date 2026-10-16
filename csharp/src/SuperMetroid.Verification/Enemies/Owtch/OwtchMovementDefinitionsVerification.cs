@@ -22,8 +22,9 @@ internal static class OwtchMovementDefinitionsVerification
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewOwtchMovementReadGuard(new TestAddressSpace()));
-        Action<RoomEnemySlot> initialize = enemies.OwtchBehavior.InitializeOwtch;
+        Action<RoomEnemySlot> initialize = OwtchBehavior.InitializeOwtch;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
 
         foreach (ushort spawnX in new ushort[] { 0, 0x0100, ushort.MaxValue })
         {

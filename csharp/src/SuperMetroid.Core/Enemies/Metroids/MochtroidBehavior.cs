@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -8,8 +9,14 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Enemies.Metroids;
 
 /// <summary>The Mochtroid species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MochtroidBehavior : IEnemySpecies
+internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Mochtroid];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MochtroidEntity(this, slot, common);
+
     /// <summary>Resolves axis movement against terrain in the native order for each flight mode.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Queues an individual drain sound for each qualifying attached actor.</summary>
@@ -35,12 +42,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     /// <summary>Signed 16.16 speed of one pixel per attached-flight axis step.</summary>
     private const int MochtroidAttachedVelocity = 1 << 16;
 
-    /// <summary>Per-slot movement and attachment state cleared on room load.</summary>
-    internal readonly MochtroidEnemyState?[] _mochtroidStates =
-        new MochtroidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Mochtroid</c> at $A3:A77D.</summary>
-    internal void InitializeMochtroid(RoomEnemySlot slot)
+    internal static void InitializeMochtroid(RoomEnemySlot slot)
     {
         // Native room WRAM clearing initializes both parallel words to zero. Installing the
         // first nonzero list is important: the original's equality shortcut is also the
@@ -52,7 +55,8 @@ internal sealed class MochtroidBehavior : IEnemySpecies
             AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
-        _mochtroidStates[slot.SlotIndex] = state;
+        (slot.Entity as MochtroidEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Mochtroid.")).State = state;
         slot.Layer = 2;
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);
@@ -259,41 +263,31 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     }
 
     /// <summary>Returns the state initialized for this physical enemy slot.</summary>
-    private MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
-        _mochtroidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
+        (slot.Entity as MochtroidEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");
 
-    /// <summary>Runs Mochtroid's flight and attached pulse loops as typed programs (#641).</summary>
-    internal void RegisterMochtroidTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMochtroidState(slot);
-            AnimationProgramCursor<MochtroidProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MochtroidAnimations.Programs, ref cursor, MochtroidFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Registers the guarded native Mochtroid initialization routine.</summary>
-    internal void RegisterMochtroidInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Mochtroid's typed animation.</summary>
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Mochtroid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMochtroid(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMochtroidState(slot);
+        AnimationProgramCursor<MochtroidProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MochtroidAnimations.Programs, ref cursor, MochtroidFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers the guarded free, attached, and shake movement routine.</summary>
-    internal void RegisterMochtroidMainAi(EnemyAiTable table)
+    /// <summary>Ports Mochtroid's initialization AI.</summary>
+    internal static void RunMochtroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeMochtroid(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Mochtroid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMochtroidMain(slot, frame.Samus, frame.Level);
-        });
+    /// <summary>Ports Mochtroid's main AI.</summary>
+    internal void RunMochtroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunMochtroidMain(slot, frame.Samus, frame.Level);
     }
 
     /// <summary>Registers the named attachment and drain reaction for Samus overlap.</summary>
@@ -307,7 +301,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_mochtroidStates);
     }
 
     /// <inheritdoc/>

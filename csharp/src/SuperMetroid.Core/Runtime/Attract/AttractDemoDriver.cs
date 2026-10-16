@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// Drives the attract demo: sets up its room and Samus, then substitutes the scripted input each frame and
 /// restores the player's controller afterwards.
 /// </summary>
-internal sealed class AttractDemoDriver
+internal sealed class AttractDemoDriver : IAttractSamusInput
 {
     /// <summary>Installs the selected Samus palette before demo room graphics are loaded.</summary>
     private readonly RuntimeArtwork _artwork;
@@ -59,10 +59,10 @@ internal sealed class AttractDemoDriver
         _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
-    internal bool IsAttractDemo => _attractSession.IsAttractDemo;
+    public bool IsAttractDemo => _attractSession.IsAttractDemo;
 
     /// <summary>Advances the recorded input and temporarily substitutes its held and new button edges.</summary>
-    internal void BeginAttractSamusInput()
+    public void BeginAttractSamusInput()
     {
         if (_attractSession.Input is null) return;
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;

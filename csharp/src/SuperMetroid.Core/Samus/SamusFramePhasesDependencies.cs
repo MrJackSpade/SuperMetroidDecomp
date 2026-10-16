@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
@@ -14,6 +15,8 @@ internal sealed record SamusFramePhasesDependencies
 {
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
+    /// <summary>Attract demo.</summary>
+    public required IAttractSamusInput AttractDemo { get; init; }
 
     /// <summary>Bomb projectiles.</summary>
     public required SamusBombProjectileSystem BombProjectiles { get; init; }
@@ -63,6 +66,10 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
 
+    /// <summary>Suit pickup.</summary>
+    public required SamusSuitPickupState SuitPickup { get; init; }
+    /// <summary>Xray.</summary>
+    public required XrayReveal Xray { get; init; }
     /// <summary>Address space.</summary>
     public required ISnesAddressSpace AddressSpace { get; init; }
 }

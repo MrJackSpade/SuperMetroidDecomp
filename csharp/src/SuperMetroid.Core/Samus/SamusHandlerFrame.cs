@@ -75,6 +75,9 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether grapple owns beta movement.</summary>
     internal bool GrappleOwnsMovement;
 
+    /// <summary>Whether the grapple-release mover keeps alpha's pending aim or turn transition.</summary>
+    internal bool GrappleReleaseAcceptsPoseInput;
+
     /// <summary>
     /// Whether this frame's alpha handler is the locked one installed at its start. Read live at each check: X-ray
     /// admission can change the lock between them.

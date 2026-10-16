@@ -33,7 +33,6 @@ internal static class RidleyPogoDefinitionsVerification
             AssertTrue(native == RidleyPogoDefinitions.Read(pattern, stage), "All indirect native pogo records and accelerations");
         }
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -73,7 +72,6 @@ internal static class RidleyPogoDefinitionsVerification
     private static void VerifyRidleyAttackTimerRandomReads()
     {
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         int reads = 0, advances = 0;
         ushort seed = 0;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

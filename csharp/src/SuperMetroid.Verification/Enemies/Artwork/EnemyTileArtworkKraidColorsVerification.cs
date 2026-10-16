@@ -30,7 +30,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Suite(nameof(VerifyKraidPaletteSourceLengths), () => VerifyKraidPaletteSourceLengths());
         KraidColorCatalog catalog = stock.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
         var colorReaderOwner = new RoomEnemySystem { TileArtwork = stock };
         colorReaderOwner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -197,7 +196,6 @@ internal static class EnemyTileArtworkKraidColorsVerification
         EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

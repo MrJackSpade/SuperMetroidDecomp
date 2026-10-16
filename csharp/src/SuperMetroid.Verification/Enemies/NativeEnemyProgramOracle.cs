@@ -53,7 +53,7 @@ internal static class NativeEnemyProgramOracle
         StepAddresses(cartridge, bank, entries, programs, spritemap, rules).Values.Sum(addresses => addresses.Length);
 
     /// <summary>
-    /// Compares every program with its native list, as <see cref="CompareAll"/> does, and returns the native address of
+    /// Compares every program with its native list, as <see cref="CompareAll{TProgram, TFrame, TCue}(IImportCartridgeSource, byte, ValueTuple{TProgram, ushort}[], AnimationProgramSet{TProgram, TFrame, TCue}, Func{TFrame, ushort}, Func{ushort, int?}, Action{ushort, ushort[], TCue, string})"/> does, and returns the native address of
     /// each program's steps. A typed cursor at a step and the native pointer at that address stand for the same state.
     /// </summary>
     internal static Dictionary<TProgram, ushort[]> StepAddresses<TProgram, TFrame, TCue>(

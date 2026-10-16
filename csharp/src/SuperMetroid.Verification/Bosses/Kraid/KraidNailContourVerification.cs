@@ -19,7 +19,6 @@ internal static class KraidNailContourVerification
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<RoomEnemySlot, bool> reflect = enemies.KraidBehavior.KraidBodyContourReflectsNail;
         var body = enemies.SlotTable.Slots[0];

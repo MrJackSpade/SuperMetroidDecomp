@@ -16,8 +16,6 @@ internal static class CrawlerAnimationDefinitionsVerification
     /// <summary>Compares crawler orientation tables with cartridge words and production initial/surface instruction selection.</summary>
     internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
         (CrawlerAnimationFamily Family, int Address, ushort? Offset)[] initialTables =
         [
             (CrawlerAnimationFamily.Shared, 0xa3e2cc, null),

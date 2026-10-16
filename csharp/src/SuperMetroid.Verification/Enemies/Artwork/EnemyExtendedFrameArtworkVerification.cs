@@ -1387,7 +1387,6 @@ internal static class EnemyExtendedFrameArtworkVerification
         byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Drawing.Enqueue(0, 0);
@@ -1415,7 +1414,6 @@ internal static class EnemyExtendedFrameArtworkVerification
     private static ushort GetTouchCallback(EnemyTileArtworkCatalog art,
         ushort pointer)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

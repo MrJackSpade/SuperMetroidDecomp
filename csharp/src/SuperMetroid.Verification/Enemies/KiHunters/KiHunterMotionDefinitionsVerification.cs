@@ -19,7 +19,6 @@ internal static class KiHunterMotionDefinitionsVerification
         AssertEqual(low, KiHunterMotionDefinitions.GravityFraction, "Native KiHunter fractional acceleration");
         AssertEqual(high, KiHunterMotionDefinitions.GravityWhole, "Native KiHunter whole acceleration");
         AssertEqual(radius, KiHunterMotionDefinitions.DetachedWingRadius, "Native KiHunter low-byte wing radius");
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
         var orbit = new Action<RoomEnemySlot, KiHunterEnemyState>(KiHunterBehavior.RunDetachedKiHunterWingOrbit);
         var delta = new Func<ushort, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         var cosine = new Func<ushort, ushort, int>(EnemyMath.ReadEightBitCosineProduct);

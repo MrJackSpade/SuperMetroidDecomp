@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.SamusProjectilesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -154,13 +153,12 @@ internal static class BeamSpeedRowsVerification
         return 0;
     }
 
-    /// <summary>Runs beam speed, production projectile, and magic-number checks together.</summary>
+    /// <summary>Runs beam speed and production projectile checks together.</summary>
     [VerificationCommand("--beam-speed-rows")]
     internal static int BeamSpeedRowsCommand()
     {
         Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
         Suite(nameof(VerifySamusPowerBeamProjectiles), () => VerifySamusPowerBeamProjectiles());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

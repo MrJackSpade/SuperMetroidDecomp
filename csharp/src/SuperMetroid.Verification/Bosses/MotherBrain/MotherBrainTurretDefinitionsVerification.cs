@@ -16,7 +16,6 @@ internal static class MotherBrainTurretDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret definitions")]
     internal static void VerifyMotherBrainTurretDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewMotherBrainTurretReadGuard(rom);
 
         for (ushort parameter = 0; parameter < 12; parameter++)

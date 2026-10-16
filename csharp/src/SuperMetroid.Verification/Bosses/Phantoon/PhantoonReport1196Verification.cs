@@ -20,7 +20,6 @@ internal static class PhantoonReport1196Verification
     /// <summary>Requires the first blue flame to queue sound $1D in library three with native Max6.</summary>
     internal static void VerifyPhantoonIntroFlameSound()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = CreatePhantoonSystem();
         var state = enemies.PhantoonBehavior.Phantoon;

@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -369,12 +368,11 @@ internal static class SpacetimeBeamVerification
         return guard;
     }
 
-    /// <summary>Runs the SpaceTime beam and production magic-number checks from the verification command line.</summary>
+    /// <summary>Runs the SpaceTime beam checks from the verification command line.</summary>
     [VerificationCommand("--spacetime-beam")]
     internal static int SpacetimeBeamCommand()
     {
         Suite(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

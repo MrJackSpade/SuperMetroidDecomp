@@ -31,7 +31,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMotherBrainSpriteTransferSources()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var source = new TestAddressSpace();
         SeedMotherBrainCorpseCartridgeSentinel(source);
         var enemies = new RoomEnemySystem();
@@ -165,7 +164,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void VerifyMotherBrainLegTileTransfers(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -227,7 +225,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static void VerifyMotherBrainInstalledTransferBoundary(
         EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var enemies = new RoomEnemySystem
         {
@@ -318,7 +315,6 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     private static SnesVram TransferMotherBrainSpecialPages(
         EnemyTileArtworkCatalog artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

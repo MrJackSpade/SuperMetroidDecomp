@@ -214,7 +214,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         static (RoomEnemySystem, SnesCgram) CreateEnemy(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
             enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -224,7 +223,6 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
 
         static void Initialize(RoomEnemySystem enemy, ushort parameter)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);

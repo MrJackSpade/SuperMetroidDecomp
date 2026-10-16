@@ -264,7 +264,6 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PowampCadenceRomByte(rom, address), LookupStream1PowampCadenceRomByte(rom, address + 1)));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
         {
             bool isBody = root < 0xc183;
@@ -338,7 +337,6 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1MetroidPulseRomByte(rom, address), LookupStream1MetroidPulseRomByte(rom, address + 1)));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         foreach (bool chasing in new[] { true, false })
         {
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
@@ -465,7 +463,6 @@ internal static class LookupStream1Verification
         var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
         byte[] native = Enumerable.Range(0, 800).Select(index => LookupStream1TimerGlyphsRomByte(rom, 0xb0c000 + index)).ToArray();
         var stock = EscapeTimerTileAtlas.Load(new MemoryStream(png));
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         HashSet<int> Fill(EscapeTimerTileAtlas value) => value.fillPixels;
         Dictionary<int, byte> Overrides(EscapeTimerTileAtlas value) => value.pixelOverrides;
         Dictionary<int, bool> FillOverrides(EscapeTimerTileAtlas value) => value.fillOverrides;
@@ -779,7 +776,6 @@ internal static class LookupStream1Verification
             if (record is 0xdb58 or 0xdb7c or 0xde28 or 0xde4c or 0xe2c0 or 0xe2e4 or 0xe2e8 or 0xe30c or 0xe310 or
                 0xe8a0 or 0xe8dc or 0xe968 or 0xe9a4 or 0xea04 or 0xea1c or 0xe528 or 0xea28 or 0xeba8) return true;            return address % 4 < 2 && (address >= 0xe050 && address < 0xe0d0 || address >= 0xe158 && address < 0xe1d8);
         }
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         Dictionary<int, byte> Stored(SamusBodyArtworkCatalog value) =>
             value.frames;
         var stock = Create(native);
@@ -878,7 +874,6 @@ internal static class LookupStream1Verification
             .Select(index => new SamusBodyFrameSelection((byte)(index % 13), 0, (byte)(index % 11), 0)).ToArray();
         SamusBodyArtworkCatalog Create(ushort[] selected) => new(new SamusBodyArtworkParts { TopPointers = top, BottomPointers = bottom, PosePointers = selected, GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = frames, Top = topGroups, Bottom = bottomGroups, Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(native);
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         int Count(SamusBodyArtworkCatalog value) => (value.posePointers).Count;
         AssertEqual(0, Count(stock), "No stock pose-pointer override survives");
         AssertEqual(CanonicalBodyHash(template, top, bottom, native, frames, topGroups, bottomGroups), stock.ContentIdentity, "Exact old canonical stock pose hash");
@@ -1007,7 +1002,6 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         SamusBodyArtworkCatalog Create(sbyte[] selected) => new(new SamusBodyArtworkParts { TopPointers = template.TopSetPointers.ToArray(), BottomPointers = template.BottomSetPointers.ToArray(), PosePointers = template.PosePointers.ToArray(), GraphicsYOffsets = selected, Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(native);
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         int Count(SamusBodyArtworkCatalog value) => (value.graphicsYOffsets).Count;
         AssertEqual(0, Count(stock), "No stock graphics-origin override survives");
         for (int pose = 0; pose < 253; pose++)
@@ -1181,7 +1175,6 @@ internal static class LookupStream1Verification
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         SamusBodyArtworkCatalog Create(ushort[] selectedLanding, sbyte[] selectedPosture) => new(new SamusBodyArtworkParts { TopPointers = template.TopSetPointers.ToArray(), BottomPointers = template.BottomSetPointers.ToArray(), PosePointers = template.PosePointers.ToArray(), GraphicsYOffsets = template.GraphicsYOffsets.ToArray(), Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = selectedLanding, PostureYOffsets = selectedPosture, DrainedYOffsets = template.DrainedYOffsets.ToArray() });
         SamusBodyArtworkCatalog stock = Create(landing, posture);
-        var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var landingBasis = stock.landingYOffsets;
 
         AssertEqual(0, landingBasis.Count, "Landing stock stores no coordinate or instruction-byte overrides");
@@ -3154,7 +3147,6 @@ internal static class LookupStream1Verification
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1)));
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var top = Enumerable.Range(0, 13).Select(set => body.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => body.BottomSet(set).ToArray()).ToArray();
         var changedTop = top.Select(group => group.ToArray()).ToArray();

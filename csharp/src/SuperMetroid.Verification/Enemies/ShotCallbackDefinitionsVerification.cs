@@ -104,7 +104,6 @@ internal static class ShotCallbackDefinitionsVerification
         HashSet<int> shotNoOps)
     {
         var forbidden = touchNoOps.Concat(shotNoOps).ToHashSet();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         foreach (int callback in touchNoOps)
         {

@@ -213,7 +213,7 @@ internal static class RoomPlmProgramsVerification
     {
         (BlueDoorCue Cue, int Length)? decoded = InstructionAt<RoomPlmInstruction>(cartridge, cursor) switch
         {
-            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DoorSoundCue(ReadOperandByte(cartridge, cursor + 2), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
+            RoomPlmInstruction.QueueSoundLibrary3Maximum6 => (DoorSoundCue(Library3Sound(cartridge, cursor), BlueDoorCue.QueueOpenSound, BlueDoorCue.QueueCloseSound), 3),
             RoomPlmInstruction.SetPlmBtsFromByte => (BlueDoorCue.RestoreBlueBts, 3),
             _ => null,
         };
@@ -221,13 +221,15 @@ internal static class RoomPlmProgramsVerification
         return decoded is not null;
     }
 
-    /// <summary>A door sound operand as its cue: seven opens, eight closes.</summary>
-    private static TCue DoorSoundCue<TCue>(byte sound, TCue open, TCue close) => sound switch
-    {
-        BlueDoorPlmProgramDefinitions.OpenSound => open,
-        BlueDoorPlmProgramDefinitions.CloseSound => close,
-        _ => throw new InvalidOperationException($"Door sound ${sound:X2} is neither the open nor the close sound."),
-    };
+    /// <summary>The library-3 sound a queue-sound instruction at <paramref name="cursor"/> names.</summary>
+    private static SoundEffectId Library3Sound(IImportCartridgeSource cartridge, int cursor) =>
+        new(SoundEffectLibrary.Library3, ReadOperandByte(cartridge, cursor + 2));
+
+    /// <summary>A door sound as its cue: the open or the close sound.</summary>
+    private static TCue DoorSoundCue<TCue>(SoundEffectId sound, TCue open, TCue close) =>
+        sound == BlueDoorPlmProgramDefinitions.OpenSound ? open :
+        sound == BlueDoorPlmProgramDefinitions.CloseSound ? close :
+        throw new InvalidOperationException($"Door sound {sound} is neither the open nor the close sound.");
 
     /// <summary>Every coloured cap's programs equal their native lists.</summary>
     internal static void VerifyColoredDoorPrograms(ISnesAddressSpace rom)
@@ -286,7 +288,7 @@ internal static class RoomPlmProgramsVerification
                 (cue, length) = (ColoredDoorCue.CountHit, 5);
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                byte sound = ReadOperandByte(cartridge, cursor + 2);
+                SoundEffectId sound = Library3Sound(cartridge, cursor);
                 (cue, length) = (sound == ColoredDoorPlmProgramDefinitions.RedHitSound
                     ? ColoredDoorCue.QueueHitSound
                     : DoorSoundCue(sound, ColoredDoorCue.QueueOpenSound, ColoredDoorCue.QueueCloseSound), 3);
@@ -354,7 +356,7 @@ internal static class RoomPlmProgramsVerification
                 (cue, length) = (GreyDoorCue.CountHit, 5);
                 return true;
             case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
-                (cue, length) = (DoorSoundCue(ReadOperandByte(cartridge, cursor + 2), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound), 3);
+                (cue, length) = (DoorSoundCue(Library3Sound(cartridge, cursor), GreyDoorCue.QueueOpenSound, GreyDoorCue.QueueCloseSound), 3);
                 return true;
             case RoomPlmInstruction.GotoIfSamusHasNoBombs:
                 AssertEqual(EntryOf(GreyDoorProgram.Closing), Word(2), "Bomb Torizo door repeats its closing");

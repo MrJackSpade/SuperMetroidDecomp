@@ -24,7 +24,6 @@ internal static class ShaktoolSegmentDefinitionsVerification
         Suite(nameof(VerifyShaktoolLayerSelection), () => VerifyShaktoolLayerSelection(rom));
         Suite(nameof(VerifyShaktoolCallbackSelection), () => VerifyShaktoolCallbackSelection(rom));
         Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {

@@ -44,7 +44,6 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
                 CeresRidleyEyeFadeDefinitions.PaletteStepCount + 1),
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewCeresRidleyEyeFadeReadGuard(rom);
         var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors } };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

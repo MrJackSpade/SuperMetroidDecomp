@@ -25,9 +25,9 @@ public static class TitleGradientDecoder
         for (int line = 0; line < result.Length; line++)
         {
             byte write = fixedWrites[line], component = (byte)(write & 31);
-            if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(Register) - COLDATA red-select bit
-            if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
-            if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
+            if ((write & 0x20) != 0) red = component; // COLDATA red-select bit
+            if ((write & 0x40) != 0) green = component; // COLDATA green-select bit
+            if ((write & 0x80) != 0) blue = component; // COLDATA blue-select bit
             result[line] = new(red, green, blue, control[line]);
         }
         return result;

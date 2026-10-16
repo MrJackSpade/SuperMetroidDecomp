@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>The cartridge's BG tilemap staging buffer in bank-$7E WRAM.</summary>
-[SnesEncodingOwner]
 internal static class LibraryBackgroundStagingDefinitions
 {
     /// <summary><c>$7E:4000</c>, the first byte of the buffer.</summary>

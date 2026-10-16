@@ -31,7 +31,6 @@ internal static class ContactDamageSoundVerification
         RoomEnemySlot sciser = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
         ushort healthBefore = sciser.Health;
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, false);
 
         AssertTrue(sciser.Health < healthBefore, "the speed booster damages the Sciser");

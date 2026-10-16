@@ -27,8 +27,6 @@ internal static class PlatformInstructionProgramDefinitionsVerification
     internal static void VerifyPlatformInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags =
-            BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
         Suite(nameof(VerifyTripperFrozenFrameSelection), () => VerifyTripperFrozenFrameSelection(rom));
         Suite(nameof(VerifyPlatformInitialProgramSelection), () => VerifyPlatformInitialProgramSelection(rom));

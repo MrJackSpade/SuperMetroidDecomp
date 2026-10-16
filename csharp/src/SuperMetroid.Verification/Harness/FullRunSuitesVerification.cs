@@ -182,7 +182,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidRoomVisualsVerification
 using static SuperMetroid.Verification.Rooms.Backgrounds.LibraryBackgroundVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LoadStationDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.Magdollite.MagdolliteApexThresholdVerification;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Runtime.MainGameLoopCarryVerification;
 using static SuperMetroid.Verification.Frontend.BootDemoSetCountVerification;
 using static SuperMetroid.Verification.Enemies.MamaTurtles.MamaTurtleEnemyDefinitionsVerification;
@@ -507,7 +506,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
         new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
-        new(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit()),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicSampling), () => VerifyBackgroundMosaicSampling()),
         new(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking()),

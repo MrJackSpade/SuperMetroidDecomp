@@ -45,7 +45,6 @@ internal static class EscapeRunningFootstepsVerification
             var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Player.Samus = samus;
             var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]);
-            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
             runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
             // Area flags are outside this fixture. Preserve the actual timer requests.
             runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests.None with

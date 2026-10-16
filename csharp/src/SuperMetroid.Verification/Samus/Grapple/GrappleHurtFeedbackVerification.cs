@@ -23,7 +23,6 @@ internal static class GrappleHurtFeedbackVerification
     /// <summary>Verifies contact damage starts a single hurt flash and gasp without detaching Grapple or adding knockback.</summary>
     internal static void VerifyGrappleHurtFeedback()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());

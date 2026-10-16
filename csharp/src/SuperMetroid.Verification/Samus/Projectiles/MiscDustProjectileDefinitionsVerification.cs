@@ -18,7 +18,6 @@ internal static class MiscDustProjectileDefinitionsVerification
     {
         const int instructionTable = 0x86e42c;
         const int placementTable = 0x86e47e;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort index = 0; index < 30; index++)
         {
@@ -92,7 +91,6 @@ internal static class MiscDustProjectileDefinitionsVerification
     /// <summary>Builds an enemy fixture that forbids runtime access to compiled misc-dust tables.</summary>
     private static RoomEnemySystem CreateMiscDustEnemySystem()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return enemies;

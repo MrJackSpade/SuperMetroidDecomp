@@ -16,7 +16,6 @@ internal static class KraidFootCollisionDefinitionsVerification
     /// <summary>Probes all walking frames at normal and wrapping origins with boundary points around each rectangle.</summary>
     internal static void VerifyKraidFootCollisionDefinitions()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewKraidFootCollisionNoReadBus();

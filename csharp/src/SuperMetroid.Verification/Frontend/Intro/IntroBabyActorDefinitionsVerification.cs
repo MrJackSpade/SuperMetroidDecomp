@@ -82,7 +82,6 @@ internal static class IntroBabyActorDefinitionsVerification
         }
         discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
         reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);
-        BindingFlags actorFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var egg = discovery.egg;
         var baby = discovery.confusedBaby;
         var nativeEgg = reference.egg;

@@ -23,7 +23,6 @@ internal static class SbugMovementDefinitionsVerification
     {
         const int instructionTable = 0xa3a111;
         const int activationTable = 0xa3a121;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

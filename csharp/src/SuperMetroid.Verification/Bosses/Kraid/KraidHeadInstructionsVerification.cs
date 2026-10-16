@@ -54,7 +54,6 @@ internal static class KraidHeadInstructionsVerification
     /// <summary>Executes each compiled head command and checks timed frames, hitboxes, tilemap uploads, and sound effects.</summary>
     private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (KraidHeadInstructionDefinition definition in
             KraidHeadInstructionDefinitions.All)
         {
@@ -117,7 +116,6 @@ internal static class KraidHeadInstructionsVerification
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
         var guard = new KraidHeadProgramReadGuard(rom);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.Presentation._vram = new SnesVram();

@@ -51,7 +51,6 @@ internal static class CeresEscapeTileArtworkVerification
             TileArtwork = stock,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
         foreach (ushort start in new[]

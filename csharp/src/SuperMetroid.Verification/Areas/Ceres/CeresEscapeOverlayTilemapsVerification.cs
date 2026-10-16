@@ -40,7 +40,6 @@ internal static class CeresEscapeOverlayTilemapsVerification
                     $"Ceres overlay {page.Name} native byte {offset:X2}");
         }
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem { TileArtwork = stock };
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

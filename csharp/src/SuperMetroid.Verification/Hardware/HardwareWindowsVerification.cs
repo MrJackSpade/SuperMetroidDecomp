@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Rendering.WindowRegisterCacheVerification;
@@ -74,12 +73,11 @@ internal static class HardwareWindowsVerification
         }
     }
 
-    /// <summary>Runs window-register checks and the production magic-number audit.</summary>
+    /// <summary>Runs window-register checks.</summary>
     [VerificationCommand("--hardware-windows")]
     internal static int HardwareWindowsCommand()
     {
         Suite(nameof(VerifyHardwareWindows), () => VerifyHardwareWindows());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

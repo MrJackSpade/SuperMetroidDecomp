@@ -16,7 +16,6 @@ internal static class CacatacProjectileDefinitionsVerification
     internal static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86d96a;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

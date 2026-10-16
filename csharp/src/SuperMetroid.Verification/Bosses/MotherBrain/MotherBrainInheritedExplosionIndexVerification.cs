@@ -14,7 +14,6 @@ internal static class MotherBrainInheritedExplosionIndexVerification
     /// <summary>Confirms ascent dust leaves $0FF2 at two so the first death burst uses row one, preserving the offsets lost by issue #1269's separate index.</summary>
     internal static void VerifyMotherBrainInheritedExplosionIndex()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

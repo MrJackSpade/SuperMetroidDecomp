@@ -46,7 +46,6 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             "dead Torizo corpse wrap offset");
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadTorizoBehavior.InitializeDeadTorizo;

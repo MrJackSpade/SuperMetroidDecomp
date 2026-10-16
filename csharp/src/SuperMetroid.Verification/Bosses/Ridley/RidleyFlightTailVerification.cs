@@ -47,7 +47,6 @@ internal static class RidleyFlightTailVerification
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
             AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);

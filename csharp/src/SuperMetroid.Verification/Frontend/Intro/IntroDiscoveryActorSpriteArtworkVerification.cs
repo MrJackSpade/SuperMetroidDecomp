@@ -67,7 +67,6 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(characterArtwork: edited);
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             state.SetupFirstIllustratedPage();

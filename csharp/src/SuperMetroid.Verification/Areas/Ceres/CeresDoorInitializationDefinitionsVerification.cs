@@ -21,7 +21,6 @@ internal static class CeresDoorInitializationDefinitionsVerification
     {
         const int instructionTable = 0xa6f52c;
         const int functionTable = 0xa6f72b;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var guarded = NewCeresDoorInitializationReadGuard(rom);
 

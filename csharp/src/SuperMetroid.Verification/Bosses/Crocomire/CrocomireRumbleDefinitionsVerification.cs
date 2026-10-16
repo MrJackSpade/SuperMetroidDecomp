@@ -66,7 +66,6 @@ internal static class CrocomireRumbleDefinitionsVerification
             "Crocomire rumble offset outside table");
 
         var guarded = NewCrocomireRumbleReadGuard(rom);
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CrocomireColorCatalog colors = CrocomireColorCatalog.Load(
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
         var enemies = new RoomEnemySystem

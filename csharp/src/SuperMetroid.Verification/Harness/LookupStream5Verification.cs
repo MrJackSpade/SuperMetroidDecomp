@@ -73,7 +73,6 @@ internal static class LookupStream5Verification
             SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Extract(oracle, directory, SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256);
             EnemyTileArtworkCatalog catalog = SuperMetroid.AssetExtraction.Enemies.EnemyTileArtworkFiles.Load(directory, null);
             CrocomireMeltingArtwork art = (catalog.CrocomireMelting ?? throw new InvalidOperationException("Verification requires catalog.CrocomireMelting."));
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var native = new ushort[2][];
             for (int phase = 0; phase < 2; phase++)
             {
@@ -148,7 +147,6 @@ internal static class LookupStream5Verification
                 CeresDoorRumbleGeometryDefinitions.Offset(index), "All eight native anchor words");
         AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
         AssertThrows<IndexOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(4), "Rumble upper bound");
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (Position16<RoomPixels> origin in new Position16<RoomPixels>[] { new(232, 631), new(1, 65530) })
         {
             var system = new RoomEnemySystem();
@@ -188,7 +186,6 @@ internal static class LookupStream5Verification
     /// <summary>Checks Phantoon's rain-phase wait against the cartridge countdown.</summary>
     internal static void VerifyLookupStream5PhantoonRainWait(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int totalTicks = 0;
         const int nextPattern = 3;
         foreach (int bucket in new[] { 2, 0, 1 })
@@ -247,7 +244,6 @@ internal static class LookupStream5Verification
     /// <summary>Checks the closed-eye countdown and its actual expiry producer while casual-flame hold remains valid.</summary>
     internal static void VerifyLookupStream5PhantoonClosedEye(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int totalTicks = 0;
         foreach (int bucket in new[] { 1, 2, 0 })
         foreach (bool reversed in new[] { false, true })
@@ -322,7 +318,6 @@ internal static class LookupStream5Verification
         byte[] pngBytes = png.ToArray();
         CeresDoorVisualCatalog Load(CeresDoorVisualDocument value) => CeresDoorVisualCatalog.Load(
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stock = Load(document);
         CheckPlatformActor(stock, document);
         CheckHash(stock, document);
@@ -393,7 +388,6 @@ internal static class LookupStream5Verification
     /// <summary>Checks Phantoon's exposed-body phase and related authored visual state.</summary>
     internal static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int ticks = 0;
         foreach (int bucket in new[] { 2, 1, 0 })
         foreach (bool shot in new[] { false, true })
@@ -1068,7 +1062,6 @@ internal static class LookupStream5Verification
     {
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var body = enemies.SlotTable.Slots[0];
         var state = new PhantoonEnemyState(body)
@@ -1203,7 +1196,6 @@ internal static class LookupStream5Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yapping Maw offsets")]
     internal static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         Action<RoomEnemySlot,YappingMawEnemyState> begin = YappingMawBehavior.BeginYappingMawExtension;
         Action<YappingMawEnemyState,int> set = YappingMawBehavior.SetYappingMawHeldOffset;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
@@ -1240,7 +1232,6 @@ internal static class LookupStream5Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Eye geometry")]
     internal static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int direction = 0; direction < 4; direction++)
         {
             var expected = (unchecked((short)ReadVerificationWord(rom, 0xa890ca + direction * 2)),
@@ -1353,7 +1344,6 @@ internal static class LookupStream5Verification
     /// <summary>Compares Sidehopper motion and corpse geometry operands across the native unrolled columns.</summary>
     internal static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) => ReadVerificationWord(rom, address);
         foreach (ushort variant in new ushort[] { 0, 2, ushort.MaxValue })
         {
@@ -1472,8 +1462,6 @@ internal static class LookupStream5Verification
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
         for (int high = 0; high < 1; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {
@@ -1566,7 +1554,6 @@ internal static class LookupStream5Verification
             new MemoryStream(pngBytes),new MemoryStream(CeresDoorVisualCatalog.Write(value)));
         var stock = Load(document);
         Check(stock,document);
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var animation = stock.animation;
         var escape = stock.escape;
         AssertEqual(0, (animation.seedEdits).Count,
@@ -1846,7 +1833,6 @@ internal static class LookupStream5Verification
             RidleyEncounter = { CeresStatus = 1 },
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed }),
         };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
@@ -2030,7 +2016,6 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorEscapePaintDefinitions stock = Check();
         // The highlight/edge/outline levels live in the surface paint the escape palette composes.
         object surface = stock.surface;
@@ -2097,7 +2082,6 @@ internal static class LookupStream5Verification
         byte[] planar = Enumerable.Range(0, CeresDoorVisualRomData.TileByteCount).Select(i => rom.ReadCartridgeByte(CeresDoorVisualRomData.TileSource + i)).ToArray();
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, RoomCharacterAtlasFormat.TileColumns, out Extent16<ImagePixels> size);
         using var png = new MemoryStream(); IndexedPng.Write(png, size, pixels, SnesGraphics.DiagnosticPalette(16));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CeresDoorAnimationPaintDefinitions stock = Check(-1);
         AssertEqual(17, stock.firstSeedBlue, "Selected beacon blue");
         AssertEqual(14, stock.dimMiddleAmberRed, "Selected dim amber red");

@@ -61,7 +61,6 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 
         // Every live initializer must use the installed data, while variant selection,
         // instruction identity and native PLM requests remain engine-owned.
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveTubeCracks,

@@ -37,8 +37,7 @@ def classify_command(name, tool_input):
     if name not in ("Bash", "PowerShell"):
         return name
     command = tool_input.get("command", "")
-    for marker, label in (("verify-all", "verify-all"), ("CartridgeEncodingAudit", "encoding audit"),
-                          ("slice.ps1", "slice script"), ("bl.sh", "build"), ("dotnet build", "build"),
+    for marker, label in (("verify-all", "verify-all"), ("slice.ps1", "slice script"), ("bl.sh", "build"), ("dotnet build", "build"),
                           ("runv.sh", "focused checks"), ("SuperMetroid.Verification.dll", "focused checks"),
                           ("enemy_typed_gen.py", "generator"), ("_wire.py", "edit scripts"), ("_tests.py", "edit scripts"),
                           ("_rest", "edit scripts"), ("discord-updates", "discord"), ("git push", "git"),

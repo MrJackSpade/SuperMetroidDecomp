@@ -23,7 +23,6 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var selected = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var installed = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];

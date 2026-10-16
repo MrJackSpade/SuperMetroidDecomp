@@ -97,7 +97,6 @@ internal static class IntroEggEffectSpriteArtworkVerification
             slimeOam.FinalizeFrame();
         }
 
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })

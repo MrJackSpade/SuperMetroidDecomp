@@ -34,12 +34,10 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
         switch (cue)
         {
             case BlueDoorCue.QueueOpenSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, BlueDoorPlmProgramDefinitions.OpenSound),
-                    BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+                context.QueueSound(BlueDoorPlmProgramDefinitions.OpenSound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
                 break;
             case BlueDoorCue.QueueCloseSound:
-                context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, BlueDoorPlmProgramDefinitions.CloseSound),
-                    BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+                context.QueueSound(BlueDoorPlmProgramDefinitions.CloseSound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
                 break;
             case BlueDoorCue.RestoreBlueBts:
                 context.Level.SetBehavior(slot.BlockIndex,

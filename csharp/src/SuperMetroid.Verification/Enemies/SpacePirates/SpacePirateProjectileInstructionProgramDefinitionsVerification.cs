@@ -29,7 +29,6 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
     internal static void VerifySpacePirateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < SpacePirateProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)

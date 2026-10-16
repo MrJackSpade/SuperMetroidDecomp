@@ -28,7 +28,6 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
     internal static void VerifyWallSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Suite(nameof(WallSpacePirateAnimationsVerification.VerifyWallSpacePirateAnimations), () => WallSpacePirateAnimationsVerification.VerifyWallSpacePirateAnimations(rom));
         RoomLevelData level = CreateOpenWallPirateRoom();
         Suite(nameof(VerifyAttack), () => VerifyAttack(movingRight: false));

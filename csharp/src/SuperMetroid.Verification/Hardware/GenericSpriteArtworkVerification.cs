@@ -36,7 +36,6 @@ internal static class GenericSpriteArtworkVerification
         IntroCinematicArtworkCatalog introArtwork = installation.LoadIntroCinematicArt();
         InstalledProjectilePresentation projectiles = installation.LoadProjectiles();
         SamusBodyArtworkCatalog body = installation.LoadSamusBodyArt();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.

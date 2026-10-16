@@ -23,7 +23,6 @@ internal static class HibashiDefinitionsVerification
     {
         const int yOffsetTable = 0xa68dbb;
         const int yRadiusTable = 0xa68de7;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

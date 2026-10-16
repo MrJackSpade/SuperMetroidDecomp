@@ -46,7 +46,6 @@ internal static class DraygonHealthPaletteDefinitionsVerification
             () => DraygonHealthPaletteDefinitions.ByteIndexForHealth(6001),
             "Draygon rejects health above its authored enemy-header maximum");
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem

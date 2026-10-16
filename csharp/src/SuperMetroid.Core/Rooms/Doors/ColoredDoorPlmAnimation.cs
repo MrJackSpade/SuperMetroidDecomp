@@ -70,6 +70,6 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     }
 
     /// <summary>Queues a library-3 door sound under the door sounds' cap.</summary>
-    private static void QueueDoorSound(PlmStepContext context, byte sound) =>
-        context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, sound), BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
+    private static void QueueDoorSound(PlmStepContext context, SoundEffectId sound) =>
+        context.QueueSound(sound, BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
 }

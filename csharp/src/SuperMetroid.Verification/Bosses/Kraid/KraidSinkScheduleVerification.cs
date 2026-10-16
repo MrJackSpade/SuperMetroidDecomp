@@ -71,7 +71,6 @@ internal static class KraidSinkScheduleVerification
     {
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;
@@ -122,7 +121,6 @@ internal static class KraidSinkScheduleVerification
         }
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.ProcessKraidSinkTable;

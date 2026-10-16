@@ -23,7 +23,6 @@ internal static class CrocomireCutsceneVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire corpse collision")]
     internal static void VerifyCrocomireCorpseCollision()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var slot = enemies.SlotTable.Slots[0];
@@ -93,7 +92,6 @@ internal static class CrocomireCutsceneVerification
         byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
         var scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, new Extent16<RoomScreens>(8, 1));
         var camera = new ScrollBoundaryCamera(scrolls);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireColors = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorExtractor.Extract(rom))) }),

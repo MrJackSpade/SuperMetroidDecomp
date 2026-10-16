@@ -21,7 +21,6 @@ internal static class BombTorizoStatueFragmentDefinitionsVerification
         Suite(nameof(VerifyStatueFragmentYField), () => VerifyStatueFragmentYField(rom));
         Suite(nameof(VerifyStatueFragmentVelocityField), () => VerifyStatueFragmentVelocityField(rom));
         Suite(nameof(VerifyStatueFragmentAccelerationField), () => VerifyStatueFragmentAccelerationField(rom));
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (ushort parameter = 1; parameter < 32; parameter += 2)
             AssertThrows<ArgumentOutOfRangeException>(() => BombTorizoStatueFragmentDefinitions.ForParameter(parameter), "statue rejects every odd parameter in the native range");
         foreach (ushort parameter in new ushort[] {32,33,0x100,0x101,0x7ffe,0x8000,0xfffe,0xffff})

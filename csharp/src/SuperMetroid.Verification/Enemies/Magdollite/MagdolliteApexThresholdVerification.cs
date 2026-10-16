@@ -40,7 +40,6 @@ internal static class MagdolliteApexThresholdVerification
 
         static void VerifyApex(int headSlot, bool grows)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;

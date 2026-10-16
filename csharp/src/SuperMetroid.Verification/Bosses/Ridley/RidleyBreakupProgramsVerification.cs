@@ -31,7 +31,6 @@ internal static class RidleyBreakupProgramsVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyRidleyBreakupPrograms()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);

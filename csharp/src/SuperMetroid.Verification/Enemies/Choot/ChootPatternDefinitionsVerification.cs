@@ -15,7 +15,6 @@ internal static class ChootPatternDefinitionsVerification
     /// <summary>Checks five Choot path sources, initializers, complete fall loops, and invalid pattern indexes.</summary>
     internal static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         var runFall = new Action<RoomEnemySlot, ChootEnemyState>(ChootBehavior.RunChootFall);
         int[] frameCounts = [74, 74, 74, 94, 134];
 

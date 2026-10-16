@@ -27,7 +27,6 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
             (0x86b376, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(true), "Golden eye beam right"),
             (0x86b380, TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(false), "Golden eye beam left"),
         ];
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
         foreach ((int address, TorizoRandomizedProjectileDefinition definition, string name)

@@ -19,7 +19,6 @@ internal static class MotherBrainTankBackgroundVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());

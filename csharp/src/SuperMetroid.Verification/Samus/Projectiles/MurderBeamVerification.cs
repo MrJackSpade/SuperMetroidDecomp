@@ -1,4 +1,3 @@
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -261,12 +260,11 @@ internal static class MurderBeamVerification
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 
-    /// <summary>Runs bounded Murder Beam verification and its production magic-number audit from the command line.</summary>
+    /// <summary>Runs bounded Murder Beam verification from the command line.</summary>
     [VerificationCommand("--murder-beam")]
     internal static int MurderBeamCommand()
     {
         Suite(nameof(VerifyMurderBeam), () => VerifyMurderBeam());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

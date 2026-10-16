@@ -29,7 +29,6 @@ internal static class TorizoInitializationDefinitionsVerification
             AssertTrue(native.SequenceEqual(actual), "Every Torizo initialization record word matches ROM");
 
             var enemies = new RoomEnemySystem();
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = new SnesCgram();
             bool defeated = false;

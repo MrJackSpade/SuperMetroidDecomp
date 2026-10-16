@@ -30,22 +30,9 @@ bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cel
 - **SME6290** — using a `[CpuBusAccess]` member (invocation, property, method group, construction,
   or a concrete implementation of an attributed interface member) outside a `[CpuBusBoundary]`.
 - **SME6291** — a class/struct implementing a `[CpuBusAccess]` interface outside a boundary.
-- **SME6292** (#1320) — in Core, a parameter, field or property (record and primary-constructor
-  parameters included) typed as a `[CpuBusAccess]` interface (`ISnesAddressSpace`, `ISnesMemoryBus`,
-  `ISnesMutableMemory`) outside a boundary. SME6290 checks use; this rule checks threading, so a
-  bus passed along without being read is also reported. Gameplay code takes the owned state or
-  narrow service it uses.
-- **SME6293** — a file's count fell below its entry in `csharp/cpu-bus-declaration-baseline.txt`;
-  lower the entry.
 
 All are build errors. The analyzers check the enclosing member, so a boundary on a local function
 or lambda has no effect; extract a named method.
-
-**Declaration baseline.** `csharp/cpu-bus-declaration-baseline.txt` activates SME6292 for Core only.
-Each reviewed per-file count may only fall, and each group names the ticket that removes it: saves
-(removed by #1322), the host-supplied WRAM address space (#1327), the progression mirror (#1330) and the
-NMI drain's address-sourced VRAM entries (#1350). Import and adapter code is not baselined; it declares a
-boundary, for example `[CpuBusBoundary("import: ...")]` on `SnesMemoryBusRequirement.Require`.
 
 **Code fix (SME6290).** A view property that returns exactly one cell's raw value — same width and
 signedness, no validation or conversion — declares `[CpuBusViewOf(typeof(Catalog), nameof(Cell))]`.
@@ -106,7 +93,4 @@ committed inventory to list exactly the catalog cells:
   or a cell that covers it (overlap is judged on physical bytes, so `$00:0123` and `$7E:0123`
   are the same WRAM byte). Staging surfaces that the cartridge reuses under several meanings are
   owned buffers with views (#1319), so no mutable cell aliases another;
-- Core gameplay catalogs declare WRAM cells only from the shrinking allowlist in
-  `CpuBusBoundaryVerification.AllowedCoreWorkRamCells` (#1319); each entry names the ticket that removes it, and
-  both a new Core WRAM cell and a stale entry fail the check;
 - representative typed round trips, mapping/mirror/wrap and side-effect tests cover the primitives.

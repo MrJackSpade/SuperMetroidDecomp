@@ -38,7 +38,6 @@ internal static class DmaArtworkBoundaryVerification
         EnemyTileArtworkCatalog art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var background = new SnesVram();
         enemies.Presentation._vram = background;

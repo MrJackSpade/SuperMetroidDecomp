@@ -89,7 +89,6 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
     private static ushort FindSharedEmptyCallback(
         byte bank, bool selectShot)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

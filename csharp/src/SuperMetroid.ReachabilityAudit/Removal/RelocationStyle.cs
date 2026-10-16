@@ -17,7 +17,7 @@ namespace SuperMetroid.ReachabilityAudit.Removal;
 internal sealed record RelocationStyle(string MembersWord, string ExtensionsWord, bool BeforeCatalogSuffix, bool KeepsProjectDirectory,
     string MembersSummary, string ExtensionsSummary, string ExtensionBlockSummary)
 {
-    /// <summary>File-name suffixes the cartridge-encoding analyzer reads as definition catalogs.</summary>
+    /// <summary>File-name suffixes that name definition catalogs.</summary>
     private static readonly string[] CatalogSuffixes =
         ["Addresses", "Catalog", "CodePointers", "Codes", "Constants", "Definitions", "Definition", "Flags", "InstructionLists",
          "Layout", "Masks", "Pointers", "RomData", "Tables", "Values", "Words"];

@@ -649,7 +649,6 @@ internal static class LookupStream4Verification
             }
             if (edit is -1 or 0 or 143)
             {
-                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
                 var enemies = new RoomEnemySystem { Presentation = { CeresRidleyColors = selected } };
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
@@ -835,7 +834,6 @@ internal static class LookupStream4Verification
 
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
-        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         var rows = stock.health;
         var edits = rows.intermediateEdits;
         AssertEqual(0, edits.Count, "Stock intermediate health colors store nothing beyond the interpolation");
@@ -1146,7 +1144,6 @@ internal static class LookupStream4Verification
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
         AssertTrue(native.SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockOverrides = stock.resultOverrides;
         AssertEqual(0, stockOverrides.Count, "Every stock producer-panel cell is calculated, without fallback samples");
         for (int cell = 0; cell < native.Length; cell++)
@@ -1224,7 +1221,6 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
             var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, InstructionPointer = EndingTextDefinitions.Native.ItemPercentage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             state.installedInitialMarkerPending = false;
             state.installedCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var vram = new SnesVram();
@@ -1303,7 +1299,6 @@ internal static class LookupStream4Verification
         var colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(CeresRidleyMode7ColorExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = colors } };
         var vram = new SnesVram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.Presentation._vram = vram;
         enemies.Presentation._cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -1789,7 +1784,6 @@ internal static class LookupStream4Verification
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames,
                 RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement), "Named movement policy preserves each movement type's release duration");
         }
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<SamusState?, bool> canGrab = RidleyBehavior.SamusMovementUsesRidleyGrab;
@@ -2181,7 +2175,6 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 enemy-projectile instruction consumers")]
     private static void VerifyLookupStream4ProgramConsumers(ISnesAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var electricityGuard = NativeEnemyProjectileListGuard.Forbidding(rom, SaveStationElectricityNativeListAddresses.Extent, "save-station electricity");
         var electricitySystem = new RoomEnemySystem();
@@ -2402,7 +2395,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var intro = stock.intro;
         var primary = intro.primary;
         var surface = intro.surface;
@@ -2471,7 +2463,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var material = stock.sprite;
         AssertEqual(0,(material.edits).Count,"Shared native sprite material has zero overrides");
         for(int edit=-1;edit<48;edit++)
@@ -2535,7 +2526,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
         var stock = DraygonColorCatalog.Load(new MemoryStream(json));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var material = stock.background;
         AssertEqual(0,(material.edits).Count,"All16 background colors calculate without unexplained stock overrides");
         for (int edit = -1; edit < 48; edit++)
@@ -2601,7 +2591,6 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int edit = -1; edit < 96; edit++)
         {
             var document = RequiredJson.Deserialize<DraygonColorDocument>(json, ArtworkJson.Options);
@@ -2725,7 +2714,6 @@ internal static class LookupStream4Verification
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
         var stock = NorfairRidleyColorCatalog.Load(new MemoryStream(json));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var definition = stock.reveal;
         AssertEqual(0, (definition.edits).Count,
             "All210 native reveal words calculate without residual samples");
@@ -2816,7 +2804,6 @@ internal static class LookupStream4Verification
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         static void NoEdits(Dictionary<int, Bgr555> edits) =>
             AssertEqual(0, edits.Count, "Native material has no unexplained output overrides");
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
@@ -2913,7 +2900,6 @@ internal static class LookupStream4Verification
         byte[] original = BotwoonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         var stock = BotwoonColorCatalog.Load(new MemoryStream(original));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var paint = stock.health;
         int stored = paint.edits.Count;
         AssertEqual(0, stored, "Botwoon all stock channels calculate with zero overrides");
@@ -3036,7 +3022,6 @@ internal static class LookupStream4Verification
     {
         ushort[] expected = Enumerable.Range(0, 12).Select(index =>
             CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6c933 + index * 7) + 12)))).ToArray();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = new RoomEnemySystem();
@@ -3315,7 +3300,6 @@ internal static class LookupStream4Verification
                     AssertEqual(stock.ResolveStart(color), selected.ResolveStart(color), "Body/Baby changes cannot alter supplied startup palette");
             }
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (int variation in new[] { -1, 0, 1 })
         {
             var bodyRows = document.BodyFade.Select(row => row.ToArray()).ToArray();
@@ -3408,7 +3392,6 @@ internal static class LookupStream4Verification
             1 => original with { Green = original.Green ^ 1 },
             _ => original with { Blue = original.Blue ^ 1 },
         };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int channel = 0; channel < 3; channel++) for (int edit = -1; edit < 135; edit++)
         {
             var rows = zoomDocument.ZoomRows.Select(row => row.ToArray()).ToArray();
@@ -3483,7 +3466,6 @@ internal static class LookupStream4Verification
             int a = 0xa6e46a + (row * 14 + color) * 2;
             return CartridgeImportSource.Require(rom).ReadCartridgeWord(a);
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var definition = stock.health;
         var overrides = definition.edits;
         AssertEqual(0, overrides.Count, "All42 native health colors calculate");

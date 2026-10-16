@@ -80,7 +80,6 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;

@@ -23,7 +23,6 @@ internal static class RoomPerformanceStateFixture
         Directory.CreateDirectory(root);
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
-        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         data.Game.Session.SetupSelectedGame();
         var runtime = data.Game.Session.GameplayRuntime;
         bool surface = scene == "surface";

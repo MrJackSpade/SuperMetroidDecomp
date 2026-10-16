@@ -26,8 +26,6 @@ internal static class PhantoonPatternsVerification
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
             AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + i), PhantoonPatternDefinitions.ShotEyeMarkers[i], "Native shot eye marker");
         }
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
         for (int high = 0; high < 256; high++)
         for (int pattern = 0; pattern < 8; pattern++)
         {

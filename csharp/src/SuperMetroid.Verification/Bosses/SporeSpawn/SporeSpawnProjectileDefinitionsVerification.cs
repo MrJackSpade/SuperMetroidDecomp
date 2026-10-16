@@ -15,8 +15,6 @@ internal static class SporeSpawnProjectileDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile definitions")]
     internal static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x86dcb9 + index * 2)),

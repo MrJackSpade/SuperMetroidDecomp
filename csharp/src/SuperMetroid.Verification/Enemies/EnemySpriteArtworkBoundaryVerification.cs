@@ -34,7 +34,6 @@ internal static class EnemySpriteArtworkBoundaryVerification
         EnemyTileArtworkCatalog artwork = installation.LoadEnemyTiles();
         EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
 

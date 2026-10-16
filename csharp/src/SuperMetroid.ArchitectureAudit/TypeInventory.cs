@@ -67,7 +67,7 @@ internal static class TypeInventory
         string kind = Kind(type);
         var declarations = type.DeclaringSyntaxReferences.Select(reference => reference.GetSyntax()).OfType<TypeDeclarationSyntax>().ToList();
         bool isPartial = declarations.Any(declaration => declaration.Modifiers.Any(SyntaxKind.PartialKeyword));
-        var handWritten = declarations.Where(declaration => !PartialTypeAnalyzer.IsGenerated(declaration.SyntaxTree, CancellationToken.None)).ToList();
+        var handWritten = declarations.Where(declaration => !GeneratedSource.IsGenerated(declaration.SyntaxTree, CancellationToken.None)).ToList();
         string partial = !isPartial ? "none"
             : handWritten.Count == 1 && handWritten.Count < declarations.Count ? "generated-boundary"
             : handWritten.Count == 0 ? "generated"

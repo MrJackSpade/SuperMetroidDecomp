@@ -18,7 +18,6 @@ internal static class WaterfallRoomsVerification
     /// <summary>Loads both reported rooms, confirms native TM/TS/CGADSUB values, and checks BG2 joins the subscreen without a second overlay.</summary>
     internal static void VerifyWaterfallRooms()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());

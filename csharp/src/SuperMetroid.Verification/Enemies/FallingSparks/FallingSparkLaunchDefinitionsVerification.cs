@@ -16,7 +16,6 @@ internal static class FallingSparkLaunchDefinitionsVerification
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ushort random = 0;
         int advances = 0;

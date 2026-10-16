@@ -26,7 +26,6 @@ internal static class DoorEntryRoomFxSoundVerification
     internal static void VerifyDoorEntryRoomFxSound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         // Rising Tide's lava rises only under the FX record of a door that requests it.
         CartridgeDoorHeader entry = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))

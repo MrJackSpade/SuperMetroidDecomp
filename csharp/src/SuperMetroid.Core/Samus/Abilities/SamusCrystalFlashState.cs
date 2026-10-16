@@ -102,7 +102,7 @@ public sealed class SamusCrystalFlashState
     /// gameplay must supply the exact chord; extra held buttons make native initiation fail.
     /// </param>
     /// <returns>True after installing the raising handler; false when the chord or native speed, health, reserve, or ammunition preconditions reject activation.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="samus"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has native movement type $1B.</exception>
     public bool TryBegin(
         SamusState samus,
@@ -189,7 +189,7 @@ public sealed class SamusCrystalFlashState
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
     /// <param name="nmiFrameCounter">Native accepted-NMI counter; ammunition drains only when its low three bits are zero.</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-HDMA request, even when this call changes phase.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="samus"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         SamusState samus,

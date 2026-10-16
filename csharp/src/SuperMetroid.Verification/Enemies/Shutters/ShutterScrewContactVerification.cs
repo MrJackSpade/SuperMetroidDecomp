@@ -33,7 +33,6 @@ internal static class ShutterScrewContactVerification
             AssertEqual((ushort)6, (state ?? throw new InvalidOperationException("Verification requires state.")).InitialFunctionTableOffset, "the movie's shutter waits only for a shot");
 
             samus.HorizontalSpeed.ContactDamageIndex = contactDamage;
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Left, (ushort?)shutter.NativeIndex);
             foreach (var direction in new[] { SamusCollisionDirection.Right, SamusCollisionDirection.Up, SamusCollisionDirection.Down })
                 samus.Kinematics.RecordSolidEnemyCollision(direction, (ushort?)null);

@@ -19,7 +19,6 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         SuperMetroidAddressSpace rom)
     {
         const int populationAddress = 0xa9be28;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;

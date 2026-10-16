@@ -133,7 +133,6 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyDeathExplosionProductionSpawns(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = new RoomEnemySystem();
@@ -172,7 +171,6 @@ internal static class RidleyExplosionDefinitionsVerification
     private static void VerifyRidleyExplosionProductionInitializer(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);

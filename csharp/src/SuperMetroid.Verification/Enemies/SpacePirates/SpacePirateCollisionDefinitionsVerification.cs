@@ -150,7 +150,6 @@ internal static class SpacePirateCollisionDefinitionsVerification
             return (GC.GetAllocatedBytesForCurrentThread() - before, checksum);
         }
         var guard = NewSpacePirateCollisionReadGuard(rom, nativeRanges);
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int probes = 0;
         foreach (SpacePirateCollisionFrame frame in
                  Enumerable.Range(0, SpacePirateCollisionDefinitions.FrameCount)

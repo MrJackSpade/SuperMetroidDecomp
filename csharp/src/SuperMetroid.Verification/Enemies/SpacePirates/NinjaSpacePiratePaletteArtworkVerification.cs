@@ -87,7 +87,6 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         static (RoomEnemySlot Slot, SnesCgram Colors, AnimationProgramCursor<NinjaSpacePirateProgram> Program) Initialize(
             EnemyTileArtworkCatalog artwork)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var colors = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)

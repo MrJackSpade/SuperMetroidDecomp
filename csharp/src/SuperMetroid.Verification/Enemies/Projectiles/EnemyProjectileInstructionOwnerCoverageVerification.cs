@@ -18,8 +18,6 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
     /// <summary>Checks every nonzero initial, touch, and shot entry without a cartridge fallback.</summary>
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
-        const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();

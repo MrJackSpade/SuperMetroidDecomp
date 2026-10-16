@@ -19,7 +19,6 @@ internal static class BombTorizoAttackDefinitionsVerification
         const int swipeYAddress = 0x86a74e;
         const int explosionXAddress = 0x86a859;
         const int explosionYAddress = 0x86a865;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort index = 0; index < 11; index++)
         {
@@ -117,7 +116,6 @@ internal static class BombTorizoAttackDefinitionsVerification
     private static (RoomEnemySystem Enemies, RoomEnemySlot Torizo)
         CreateBombTorizoAttackFixture(bool facingRight)
     {
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];

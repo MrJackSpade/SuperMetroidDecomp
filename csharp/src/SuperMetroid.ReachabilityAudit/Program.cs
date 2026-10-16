@@ -14,7 +14,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// --remove deletes the declarations of the named finding categories.
 /// --relocate moves shipped symbols that only tools reach into a development-only project.
 /// --prune-keeping-verification-used deletes dead code, first moving what tests still use into test-support.
-/// --check is the CI gate: it fails on any finding its allow-list does not name.
+/// --check is the CI gate: it fails on any finding.
 /// </remarks>
 internal static class Program
 {
@@ -41,11 +41,10 @@ internal static class Program
                         rest is [_, var prefix] ? prefix : null, Path.GetFullPath(retiredFields));
                     return 0;
                 }
-                case ["--solution", var solutionPath, "--check", var allowList, "--output", var outputDirectory]:
+                case ["--solution", var solutionPath, "--check", "--output", var outputDirectory]:
                 {
                     var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
-                    return ReachabilityReport.Check(ReachabilityAnalysis.Run(solution), Path.GetFullPath(outputDirectory),
-                        Path.GetFullPath(allowList));
+                    return ReachabilityReport.Check(ReachabilityAnalysis.Run(solution), Path.GetFullPath(outputDirectory));
                 }
                 case ["--solution", var solutionPath, "--remove-keys", var keysFile, "--retired-fields", var retiredFields]:
                 {
@@ -102,7 +101,7 @@ internal static class Program
                         + "(--output <directory> | --remove <category,...> --retired-fields <file> [--path-prefix <repo-relative path>] "
                         + "| --relocate <category> --to <project directory> | --why <symbol text> "
                         + "| --prune-keeping-verification-used <category,...> --path-prefix <repo-relative path> --to <test-support directory> --retired-fields <file> "
-                        + "| --remove-keys <file> --retired-fields <file> | --check <allow-list> --output <directory>)");
+                        + "| --remove-keys <file> --retired-fields <file> | --check --output <directory>)");
             }
         }
         catch (Exception exception)

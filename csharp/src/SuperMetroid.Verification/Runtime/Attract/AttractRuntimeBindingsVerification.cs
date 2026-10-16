@@ -39,7 +39,6 @@ internal static class AttractRuntimeBindingsVerification
             EnemyTileArtwork = enemyArtwork,
             StandardObjectArt = objects,
         });
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var create = new Action<bool>(game.Session.CreateGameplayRuntime);
         ushort incomingRandom = game.DispatcherRandomNumber;
         create(true);

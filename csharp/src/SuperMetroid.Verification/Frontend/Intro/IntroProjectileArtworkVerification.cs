@@ -24,7 +24,6 @@ internal static class IntroProjectileArtworkVerification
     internal static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
         var intro = CreateRetailIntroFixture();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         var projectiles = intro.flashbackProjectiles;
@@ -127,7 +126,6 @@ internal static class IntroProjectileArtworkVerification
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw, ushort sprite)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var vram = intro.vram;
         byte[] native = vram.Bytes.ToArray();
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);

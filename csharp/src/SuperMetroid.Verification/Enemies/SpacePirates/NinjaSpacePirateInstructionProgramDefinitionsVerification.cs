@@ -31,7 +31,6 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
     internal static void VerifyNinjaSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Suite(nameof(NinjaSpacePirateAnimationsVerification.VerifyNinjaSpacePirateAnimations), () => NinjaSpacePirateAnimationsVerification.VerifyNinjaSpacePirateAnimations(rom));
 
         // The initializer requires the installed shared gold-Pirate palette.

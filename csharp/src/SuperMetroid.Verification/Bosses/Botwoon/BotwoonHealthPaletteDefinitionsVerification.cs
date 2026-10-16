@@ -41,7 +41,6 @@ internal static class BotwoonHealthPaletteDefinitionsVerification
                 $"Botwoon rejects restored palette phase ${invalid:X4}");
         }
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewBotwoonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem

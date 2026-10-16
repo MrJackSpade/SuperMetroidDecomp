@@ -23,7 +23,6 @@
     { "path": "csharp/src/SuperMetroid.DebugRunner", "namespace": "SuperMetroid.DebugRunner", "role": "tooling", "references": ["SuperMetroid.AssetExtraction", "SuperMetroid.Core", "SuperMetroid.Tooling", "SuperMetroid.Diagnostics", "SuperMetroid.Rendering.Direct3D11"],
       "support": ["RepositoryInstallation", "ScenarioFixtures", "CatalogInventories", "FrameCapture"] },
     { "path": "csharp/src/SuperMetroid.ArchitectureAudit", "namespace": "SuperMetroid.ArchitectureAudit", "role": "tooling", "references": [], "support": ["WindowsConsole"] },
-    { "path": "csharp/src/SuperMetroid.CartridgeEncodingAudit", "namespace": "SuperMetroid.CartridgeEncodingAudit", "role": "tooling", "references": [], "support": ["WindowsConsole"] },
     { "path": "csharp/src/SuperMetroid.ReachabilityAudit", "namespace": "SuperMetroid.ReachabilityAudit", "role": "tooling", "references": [], "support": ["WindowsConsole"] },
     { "path": "csharp/src/SuperMetroid.ResourceAudit", "namespace": "SuperMetroid.ResourceAudit", "role": "tooling", "references": ["SuperMetroid.Core", "SuperMetroid.Tooling", "SuperMetroid.AssetExtraction"] },
 
@@ -61,7 +60,6 @@
     { "path": "csharp/test-support/RepositoryInstallation", "namespace": "SuperMetroid.TestSupport.RepositoryInstallation", "role": "verification-support" },
     { "path": "csharp/test-support/RepositoryInstallation.Verification", "namespace": "SuperMetroid.TestSupport.RepositoryInstallation.Verification", "role": "verification-support" },
 
-    { "path": "csharp/tools/MagicNumberAudit", "namespace": "SuperMetroid.SourceAudit", "role": "tool-source" },
     { "path": "csharp/tools/android-probes", "namespace": "SuperMetroid.Android", "role": "tool-source" },
     { "path": "csharp/test-fixtures", "namespace": "", "role": "fixture" }
   ],

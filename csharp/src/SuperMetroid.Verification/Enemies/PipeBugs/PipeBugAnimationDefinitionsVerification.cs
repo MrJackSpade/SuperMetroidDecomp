@@ -18,7 +18,6 @@ internal static class PipeBugAnimationDefinitionsVerification
     {
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewPipeBugAnimationReadGuard(rom);
 
         foreach (bool strong in new[] { false, true })

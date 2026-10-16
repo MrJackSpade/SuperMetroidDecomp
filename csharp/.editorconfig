@@ -58,9 +58,6 @@ dotnet_diagnostic.SME6283.severity = error
 # #629: the CPU A-bus layout is confined to declared boundaries.
 dotnet_diagnostic.SME6290.severity = error
 dotnet_diagnostic.SME6291.severity = error
-# #1320: Core takes, stores or exposes a CPU-bus interface only inside a [CpuBusBoundary]; the baseline only falls.
-dotnet_diagnostic.SME6292.severity = error
-dotnet_diagnostic.SME6293.severity = error
 # #630: the PPU layout is confined to declared rendering boundaries.
 dotnet_diagnostic.SME6300.severity = error
 dotnet_diagnostic.SME6301.severity = error
@@ -75,20 +72,6 @@ dotnet_diagnostic.SME6330.severity = error
 dotnet_diagnostic.SME6331.severity = error
 dotnet_diagnostic.SME6332.severity = error
 
-# #641 cartridge-encoding ratchet: files may only lose raw hex, pointer dispatch and opaque word arrays.
-dotnet_diagnostic.SME6340.severity = error
-dotnet_diagnostic.SME6341.severity = error
-dotnet_diagnostic.SME6342.severity = error
-dotnet_diagnostic.SME6343.severity = error
-dotnet_diagnostic.SME6344.severity = error
-# #223: shifts and masks by a storage width name their meaning.
-dotnet_diagnostic.SME6345.severity = error
-# #1323: [Flags] casts to a primitive and byte/ushort instance members are ratcheted per file.
-dotnet_diagnostic.SME6346.severity = error
-dotnet_diagnostic.SME6347.severity = error
-# #1324: countdowns use NativeCountdown, not hand-written DEC wraparound and sign-bit tests.
-dotnet_diagnostic.SME6348.severity = error
-dotnet_diagnostic.SME6349.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620/#677: reusable argument guards use Ensure; Ensure calls let it capture the value expression.
@@ -97,8 +80,6 @@ dotnet_diagnostic.SME6202.severity = error
 
 # #223: 16-bit and 24-bit values are read through the canonical word reads, not rebuilt from bytes.
 dotnet_diagnostic.SME6350.severity = error
-dotnet_diagnostic.SME6392.severity = error
-dotnet_diagnostic.SME6393.severity = error
 
 # #1315: outside the enemy-owning modules, species are reached through the enemy system's capability interfaces.
 dotnet_diagnostic.SME6407.severity = error

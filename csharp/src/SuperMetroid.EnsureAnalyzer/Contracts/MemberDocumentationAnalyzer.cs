@@ -58,7 +58,7 @@ public sealed class MemberDocumentationAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeDeclaration(SyntaxNodeAnalysisContext context)
     {
         var declaration = (MemberDeclarationSyntax)context.Node;
-        if (PartialTypeAnalyzer.IsGenerated(declaration.SyntaxTree, context.CancellationToken))
+        if (GeneratedSource.IsGenerated(declaration.SyntaxTree, context.CancellationToken))
             return;
         if (declaration.GetLeadingTrivia().Any(trivia => trivia.GetStructure() is DocumentationCommentTriviaSyntax))
             return;

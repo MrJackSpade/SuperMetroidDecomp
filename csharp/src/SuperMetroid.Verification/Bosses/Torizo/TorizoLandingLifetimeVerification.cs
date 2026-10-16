@@ -20,7 +20,6 @@ internal static class TorizoLandingLifetimeVerification
     /// <summary>Advances landing and audio for 40 frames, requiring exactly 32 displaced frames.</summary>
     internal static int VerifyTorizoLandingLifetime()
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=GameAssetInstaller.EnsureInstalled(Path.GetFullPath("out/workbook-investigation/crocomire-install"));
         var bus=(installation ?? throw new InvalidOperationException("Verification requires installation.")).OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());

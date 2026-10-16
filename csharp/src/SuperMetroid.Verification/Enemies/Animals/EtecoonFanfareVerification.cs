@@ -17,7 +17,6 @@ internal static class EtecoonFanfareVerification
     /// <summary>Verifies the dormant transition gate, single post-fade sound request, and audible advancing melody.</summary>
     internal static void VerifyEtecoonFanfareAfterDoor()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

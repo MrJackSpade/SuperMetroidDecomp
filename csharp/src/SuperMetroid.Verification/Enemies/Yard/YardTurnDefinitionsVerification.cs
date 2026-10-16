@@ -77,7 +77,6 @@ internal static class YardTurnDefinitionsVerification
     private static void VerifyYardTurnProductionBranches(
         IReadOnlyList<(YardMovementFunction Movement, bool Disabled, int Address)> records)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var emptyWords = new ushort[64 * 64];
         var solidWords = Enumerable.Repeat((ushort)0x8000, emptyWords.Length).ToArray();
         RoomLevelData empty = CreateYardTurnLevel(emptyWords);

@@ -15,7 +15,6 @@ internal static class OwtchMovementDefinitionsVerification
     /// <summary>Checks 144 wrapped initial positions while compiled movement-table reads are forbidden.</summary>
     internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         Suite(nameof(VerifyOwtchTravelDistanceAlgorithm), () => VerifyOwtchTravelDistanceAlgorithm(rom));
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));

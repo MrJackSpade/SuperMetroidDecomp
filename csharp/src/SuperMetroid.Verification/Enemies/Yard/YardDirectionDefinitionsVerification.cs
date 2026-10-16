@@ -23,8 +23,6 @@ internal static class YardDirectionDefinitionsVerification
         const int oppositeAddress = 0xa3cdc2;
         const int movementAddress = 0xa3cdd2;
         int[] airborneAddresses = [0xa3d1ab, 0xa3d50f, 0xa3d5a4];
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
         for (ushort direction = 0; direction < 8; direction++)
         {

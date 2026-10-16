@@ -141,14 +141,12 @@ internal static class CrocomireSkeletonArtworkVerification
         static void SetRuntimeFields(RoomEnemySystem system,
             ISnesAddressSpace bus, SnesVram vram)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation._vram = vram;
         }
 
         static void Upload(RoomEnemySystem system, CrocomireDeathState state)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             system.CrocomireBehavior.UploadNextCrocomireSkeletonTileChunk(state);
         }
     }

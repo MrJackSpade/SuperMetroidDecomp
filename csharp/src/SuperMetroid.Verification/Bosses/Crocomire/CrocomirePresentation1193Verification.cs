@@ -30,7 +30,6 @@ internal static class CrocomirePresentation1193Verification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyCrocomirePresentation(bool spikes)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());

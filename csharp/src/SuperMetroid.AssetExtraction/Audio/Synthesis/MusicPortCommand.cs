@@ -8,9 +8,9 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal enum MusicPortCommand : byte
 {
     /// <summary>Keys off every music channel without changing the track.</summary>
-    Pause = 0xf0, // cartridge-encoding: allow(DomainDiscriminator) - driver pause command
+    Pause = 0xf0, // driver pause command
     /// <summary>Resumes the paused track.</summary>
-    Resume = 0xf1, // cartridge-encoding: allow(DomainDiscriminator) - driver resume command
+    Resume = 0xf1, // driver resume command
     /// <summary>The driver's empty-port value, written after it consumes a command.</summary>
     None = SpcPortDefinitions.MusicLatchEmpty,
 }

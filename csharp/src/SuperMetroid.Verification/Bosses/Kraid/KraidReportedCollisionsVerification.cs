@@ -18,7 +18,6 @@ internal static class KraidReportedCollisionsVerification
     internal static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var failures = new List<Exception>();
         void Check(string name, Action action)
         {

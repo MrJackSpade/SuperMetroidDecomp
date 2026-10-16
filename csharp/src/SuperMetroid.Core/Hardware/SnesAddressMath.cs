@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Hardware;
 /// host integer arithmetic. Callers choose this helper only for native 16-bit pointer walks;
 /// ordinary linear bus transfers must continue to cross banks normally.
 /// </summary>
-[SnesEncodingOwner]
 public static class SnesAddressMath
 {
 

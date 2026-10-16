@@ -98,7 +98,6 @@ internal static class MotherBrainEscapeTextArtworkVerification
     private static SnesVram TransferMotherBrainEscapeTextPages(
         EnemyTileArtworkCatalog artwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

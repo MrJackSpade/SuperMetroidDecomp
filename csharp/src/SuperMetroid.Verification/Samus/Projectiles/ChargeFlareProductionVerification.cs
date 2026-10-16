@@ -30,7 +30,6 @@ internal static class ChargeFlareProductionVerification
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
         var guarded = NewChargeFlareCompositionGuard(bus);
         int ticks = 0;

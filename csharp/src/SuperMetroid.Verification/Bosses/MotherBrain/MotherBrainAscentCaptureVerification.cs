@@ -10,7 +10,6 @@ internal static class MotherBrainAscentCaptureVerification
     /// <summary>Verifies every native ascent scanline value, the completion reset, and snapshot independence after state changes.</summary>
     internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
         (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = NativeCountdown.Start(0);

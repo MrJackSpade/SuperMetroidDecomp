@@ -17,7 +17,6 @@ internal static class EnemyDeathExplosionDefinitionsVerification
     /// <summary>Compares cartridge pointers, live explosion placement, and the out-of-range small-explosion clamp.</summary>
     internal static void VerifyEnemyDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewEnemyDeathExplosionReadGuard(rom);
 
         for (ushort animation = 0; animation < 5; animation++)

@@ -51,8 +51,8 @@ internal static class BeamSpeedRowsVerification
         }
         // Unlike the twelve identical authored rows, C..F overread different adjacent
         // words. Exercise the actual initializer to detect a dropped combination index.
-        var initialize = new Action<ISnesAddressSpace, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
-        var guarded = new BeamSpeedRowAddressSpace(retail);
+        var initialize = new Action<ProjectileInheritanceRecords, SamusProjectileSlot>(BeamFiring.InitializePowerBeamVelocity);
+        var stationary = new ProjectileInheritanceRecords();
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
             AssertEqual(retail.ReadCartridgeWord(address), SamusProjectileMotionDefinitions.ReadWord(address),
                 "All 85 compiled motion words match the pinned ROM without authored reads");
@@ -64,7 +64,7 @@ internal static class BeamSpeedRowsVerification
         for (ushort direction = 0; direction < 10; direction++)
         {
             var slot = new SamusProjectileSlot(0) { Type = combination, Direction = direction };
-            initialize(guarded, slot);
+            initialize(stationary, slot);
             int speed = unchecked((short)retail.ReadCartridgeWord((0x90c2d1 + combination * 4 +
                 (direction is 1 or 3 or 6 or 8 ? 2 : 0))));
             AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)),

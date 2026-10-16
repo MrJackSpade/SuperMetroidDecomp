@@ -834,7 +834,7 @@ public sealed class SuperMetroidRuntime
             // integer-only sign test and previous scrolling checkpoint. A second
             // frame-end absolute delta loses both the bias and checkpoint timing.
             samus.AbsoluteMovedLastFrameXFixed = unchecked((uint)camera.Speed.X.RawValue);
-            SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, camera.Speed.Y.Fraction);
+            samus.ProjectileInheritance.CameraYSubspeed = camera.Speed.Y.Fraction;
 
             // MainScrollingRoutine `$90:9563` invokes the mutable global
             // scrolling-finished hook after both axes have tracked Samus. Live Spore

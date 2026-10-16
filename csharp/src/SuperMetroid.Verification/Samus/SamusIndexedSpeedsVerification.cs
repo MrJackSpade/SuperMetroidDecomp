@@ -9,7 +9,7 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Samus's indexed horizontal speed records and restored table-address semantics.</summary>
 internal static class SamusIndexedSpeedsVerification
 {
-    /// <summary>Compares authored speed words with ROM, rejects non-catalog overreads, and preserves live mutable aliases.</summary>
+    /// <summary>Compares authored speed words with ROM and rejects every non-catalog base, including bank $90's low half.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus indexed speeds")]
     internal static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
     {
@@ -56,7 +56,6 @@ internal static class SamusIndexedSpeedsVerification
             speed.ActiveSpeedTableBaseAddress = (ushort)raw;
             int address = speed.ResolveEntryAddress(SamusMovementType.Running);
             AssertEqual(0x900000 | unchecked((ushort)(raw + 12)), address, "Restored base wraps as a native word");
-            if (address < 0x908000) continue; // Mutable aliases are separately exercised below.
             bool compiled = address >= 0x909f25 && address < 0x90a32d && (address - 0x909f25) % 12 == 0;
             if (compiled)
             {
@@ -70,13 +69,6 @@ internal static class SamusIndexedSpeedsVerification
                     "Restored non-catalog ROM base rejected");
             }
         }
-        var mutable = new TestAddressSpace();
-        speed.ActiveSpeedTableBaseAddress = (ushort)0x0100;
-        foreach (ushort changed in new ushort[] { 0x1234, 0x4321 })
-        {
-            WriteTestWord(mutable, 0x90010c, changed);
-            AssertEqual(changed, speed.ReadEntry(mutable, SamusMovementType.Running).Acceleration, "Restored WRAM base remains live");
-        }
-        Console.WriteLine("Indexed Samus speeds: all 492 authored words and every restored base address preserve authored data/alignment; compiled reads are forbidden, mutable aliases stay live, and ROM overreads fail loudly.");
+        Console.WriteLine("Indexed Samus speeds: all 492 authored words and every restored base address preserve authored data/alignment; compiled reads are forbidden, and low-half and ROM overreads fail loudly.");
     }
 }

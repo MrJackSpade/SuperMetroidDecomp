@@ -98,7 +98,7 @@ internal sealed class IntroBabyDiscoveryState
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             Samus.PoseTransitions.ClearPoseTransitionShotDirection();
-            SamusProjectileInheritance.ClearMovement(bus);
+            Samus.ProjectileInheritance.ClearMovement();
 
             // An end instruction read above already replaced the new-state handler, so this
             // dispatch skips Samus's movement and animation.

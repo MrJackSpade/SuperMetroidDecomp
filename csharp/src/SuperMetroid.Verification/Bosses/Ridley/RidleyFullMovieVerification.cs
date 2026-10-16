@@ -1189,7 +1189,7 @@ internal static class RidleyFullMovieVerification
             for (int direction = 0; direction < 4; direction++)
                 Check($"Samus solid enemy {direction}", samus.Kinematics.SolidEnemyCollisionIndexes[direction],
                     NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2);
-            var inheritance = new ProjectileInheritanceInspection(bus);
+            var inheritance = new ProjectileInheritanceInspection(samus.ProjectileInheritance);
             for (int offset = 0; offset < inheritance.ByteCount; offset += 2)
             {
                 int address = NativeSnapshotMemory.ProjectileInheritancePrefix + offset;

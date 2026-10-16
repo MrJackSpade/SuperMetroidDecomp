@@ -447,8 +447,8 @@ public sealed class SamusProjectileSystem
             else if (slot.PreInstruction == SamusProjectilePreInstruction.Missile)
             {
                 collisionStartedExplosion |= Motion.RunMissilePreInstruction(
-                    terrain.Bus,
                     terrain.Level,
+                    samus,
                     slot,
                     layer1,
                     sharedProjectiles,

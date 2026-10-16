@@ -1023,7 +1023,7 @@ public sealed class IntroCinematicState
         // ResetMovementAndPoseChangeVariables, so a later missile inherits only the
         // movement recorded in its own dispatch.
         FlashbackSamus.PoseTransitions.ClearPoseTransitionShotDirection();
-        SamusProjectileInheritance.ClearMovement(bus);
+        FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 
     /// <summary>

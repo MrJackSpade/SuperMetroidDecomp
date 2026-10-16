@@ -127,7 +127,7 @@ internal static class NativeSnapshotImportVerification
         samus.ArmCannon.DrawingMode = W(NativeSnapshotMemory.CannonDrawingMode);
         samus.ArmCannon.OpenFlag = memory[NativeSnapshotMemory.CannonFlags];
         samus.ArmCannon.CloseFlag = memory[NativeSnapshotMemory.CannonFlags + 1];
-        new ProjectileInheritanceRecordsAccess(bus).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
+        new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance).Load(memory.AsSpan(NativeSnapshotMemory.ProjectileInheritancePrefix,
             NativeSnapshotMemory.SamusSlopeAdjusted - NativeSnapshotMemory.ProjectileInheritancePrefix));
         samus.Kinematics.PositionAdjustedBySlope = W(NativeSnapshotMemory.SamusSlopeAdjusted) != 0;
         for (int direction = 0; direction < 4; direction++)

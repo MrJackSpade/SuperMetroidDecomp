@@ -251,20 +251,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Samus.Projectiles.ProjectileInheritanceWorkRamAddresses",
-      "name": "Records",
-      "region": "WorkRam",
-      "address": "$00:0DA8",
-      "byteCount": 18,
-      "encoding": "u16 camera Y subspeed, then signed 16.16 distance[4] (left, right, up, down)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/ProjectileInheritanceMemory.cs",
-        "csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileInheritanceRecordsAccess.cs",
-        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ProjectileInheritanceInspection.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCorruptionLayout",
       "name": "SpritePaletteSix",
       "region": "WorkRam",

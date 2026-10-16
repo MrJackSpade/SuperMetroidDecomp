@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
@@ -460,6 +461,13 @@ public sealed class SamusState
 
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
     public SamusKinematicsState Kinematics { get; }
+
+    /// <summary>
+    /// The projectile-inheritance block her movement and the camera publish and her shots read at launch. A new Samus
+    /// starts with it zeroed; the cartridge's movement records are zero between frames too, and the scrolling routine
+    /// republishes the camera subspeed every frame.
+    /// </summary>
+    public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
 
     /// <summary>
     /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase

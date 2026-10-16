@@ -553,7 +553,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 (ushort)SamusProjectileDirection.Right => (ushort)SamusProjectileDirection.UpLeft,
                 _ => (ushort)SamusProjectileDirection.DownFacingLeft,
             };
-            c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Bus, c.Projectile.SlotIndex);
+            c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Bus,
+                c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
+                c.Projectile.SlotIndex);
             LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;
             return true;
         }

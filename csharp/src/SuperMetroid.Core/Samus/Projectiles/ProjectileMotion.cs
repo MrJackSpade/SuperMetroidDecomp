@@ -172,8 +172,8 @@ internal sealed class ProjectileMotion
 
     /// <summary>Handles ordinary missile ignition, acceleration, trail, point collision, and post-impact deletion.</summary>
     internal bool RunMissilePreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
+        SamusState samus,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
@@ -211,7 +211,7 @@ internal sealed class ProjectileMotion
             // crosses on its first alpha pass: one pixel/frame plus native inheritance.
             slot.Variable = unchecked((ushort)(slot.Variable + 256));
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
-                BeamFiring.InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
+                BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
         }
         else
         {
@@ -278,7 +278,7 @@ internal sealed class ProjectileMotion
             slot.Variable = unchecked((ushort)(slot.Variable + 256));
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
             {
-                BeamFiring.InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
+                BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
                 SpawnSuperMissileLink(bus, samus, slot);
             }
         }

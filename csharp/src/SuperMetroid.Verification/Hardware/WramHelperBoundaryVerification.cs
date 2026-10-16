@@ -18,8 +18,7 @@ internal static class WramHelperBoundaryVerification
         VerifyWramWordMapping(memory);
 
         Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler(memory));
-        Suite(nameof(VerifyWramProjectileInheritance), () => VerifyWramProjectileInheritance(memory));
-        Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling and 50 projectile-inheritance records pass without a cartridge.");
+        Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection and corpse scheduling pass without a cartridge.");
     }
 
     /// <summary>Checks word wrapping, system-bank mirrors, and rejection of non-WRAM addresses.</summary>
@@ -58,48 +57,6 @@ internal static class WramHelperBoundaryVerification
             CorpseRottingTableProcessor.ReadEntry(table, 0), "finished row receives native negative sentinel");
         AssertEqual(new CorpseRottingTableEntry(1, 1),
             CorpseRottingTableProcessor.ReadEntry(table, 1), "second row retains its decremented WRAM delay");
-    }
-
-    /// <summary>Checks directional projectile velocity reads across overlapping native WRAM words.</summary>
-    private static void VerifyWramProjectileInheritance(SuperMetroidAddressSpace memory)
-    {
-        ushort[][] snapshots =
-        [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 3, 0, 0, 0, 0, 0],
-            [0, 0xfffd, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0xfffc, 0, 0, 0],
-            [0xabcd, 0, 0x1234, 0, 0x5678, 0, 0x9abc, 0, 0],
-        ];
-        foreach (ushort[] snapshot in snapshots)
-        {
-            var inheritance = new ProjectileInheritanceMemory(memory) { CameraYSubspeed = snapshot[0] };
-            inheritance.Record(SamusCollisionDirection.Left, unchecked((int)SnesSixteenSixteen.Compose(snapshot[1], snapshot[2])));
-            inheritance.Record(SamusCollisionDirection.Right, unchecked((int)SnesSixteenSixteen.Compose(snapshot[3], snapshot[4])));
-            inheritance.Record(SamusCollisionDirection.Up, unchecked((int)SnesSixteenSixteen.Compose(snapshot[5], snapshot[6])));
-            inheritance.Record(SamusCollisionDirection.Down, unchecked((int)SnesSixteenSixteen.Compose(snapshot[7], snapshot[8])));
-            for (ushort direction = 0; direction < 10; direction++)
-            {
-                short speed = (short)(direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400);
-                // These overlapping words are a native load across adjacent fields, not net displacement.
-                int upward = SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[4]), unchecked((byte)snapshot[5]));
-                int up = SnesLittleEndian.HighByte(unchecked((ushort)upward)) == 0 ? 0 : (unchecked((ushort)upward) >> 2) | 0xc000;
-                short x = unchecked((short)(direction switch
-                {
-                    1 or 2 or 3 => speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[2]), unchecked((byte)snapshot[3])),
-                    6 or 7 or 8 => -speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[0]), unchecked((byte)snapshot[1])),
-                    _ => 0,
-                }));
-                short y = unchecked((short)(direction switch
-                {
-                    0 or 1 or 8 or 9 => -speed + up,
-                    3 or 4 or 5 or 6 => speed + SnesLittleEndian.Word(SnesLittleEndian.HighByte(snapshot[6]), unchecked((byte)snapshot[7])),
-                    _ => 0,
-                }));
-                AssertEqual(new EightEightVector<RoomPixels>(x, y), SamusProjectileInheritance.ReadVelocity(memory, direction, speed),
-                    "projectile inheritance preserves each directional overlapping word");
-            }
-        }
     }
 
     /// <summary>Runs the cartridge-free WRAM helper checks.</summary>

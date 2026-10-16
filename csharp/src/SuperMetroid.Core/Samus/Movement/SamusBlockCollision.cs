@@ -354,10 +354,10 @@ public static class SamusBlockCollision
 
         // Only the live bank-$90 movement wrapper publishes inheritance. Copies used
         // for prospective poses and wall probes must not replace the preceding move.
-        if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
+        if (state.SamusOwner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
             move.AlignToSlopeAfterMovement)
-            SamusProjectileInheritance.Record(terrain.Bus,
+            mover.ProjectileInheritance.Record(
                 move.Displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right,
                 acceptedDisplacement);
 
@@ -450,9 +450,9 @@ public static class SamusBlockCollision
         }
 
         state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(acceptedDisplacement));
-        if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
+        if (state.SamusOwner is { } mover && ReferenceEquals(mover.Kinematics, state) &&
             move.BlockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
-            SamusProjectileInheritance.Record(terrain.Bus,
+            mover.ProjectileInheritance.Record(
                 move.Displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down,
                 acceptedDisplacement);
         // $94:9763 publishes sand contact after either signed movement direction.

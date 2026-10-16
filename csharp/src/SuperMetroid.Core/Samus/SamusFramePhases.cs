@@ -424,7 +424,7 @@ internal sealed class SamusFramePhases
             // new-state handler, so a bridge published below survives precisely
             // until this point in the following gameplay frame.
             samus.PoseTransitions.ClearPoseTransitionShotDirection();
-            SamusProjectileInheritance.ClearMovement(_addressSpace);
+            samus.ProjectileInheritance.ClearMovement();
 
             // `$0CD0` is one shared WRAM word, not independent projectile/movement
             // state. Samus's spin/wall-jump contact-damage handlers run in beta and

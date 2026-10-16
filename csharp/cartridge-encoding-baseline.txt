@@ -922,8 +922,7 @@ csharp/src/SuperMetroid.Verification/Hardware/TypedWordsVerification.cs	SME6340	
 csharp/src/SuperMetroid.Verification/Hardware/WordReadsVerification.cs	SME6340	93
 csharp/src/SuperMetroid.Verification/Hardware/WordSamplesVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Hardware/WordSamplesVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs	SME6340	23
-csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs	SME6342	3
+csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Harness/AssertionsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Harness/EvidencedSoundAcknowledgements.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Harness/FixtureRoomHeaders.cs	SME6340	13
@@ -1321,7 +1320,7 @@ csharp/src/SuperMetroid.Verification/Samus/SamusContentIdentityVerification.cs	S
 csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6340	441
 csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6342	26
 csharp/src/SuperMetroid.Verification/Samus/SamusImpulseDefinitionsVerification.cs	SME6340	8
-csharp/src/SuperMetroid.Verification/Samus/SamusIndexedSpeedsVerification.cs	SME6340	11
+csharp/src/SuperMetroid.Verification/Samus/SamusIndexedSpeedsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Samus/SamusMotionCoreVerification.cs	SME6340	116
 csharp/src/SuperMetroid.Verification/Samus/SamusMotionCoreVerification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Samus/SamusTurnsAndKnockbackVerification.cs	SME6340	284

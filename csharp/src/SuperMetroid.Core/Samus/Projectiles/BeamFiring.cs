@@ -342,7 +342,7 @@ internal sealed class BeamFiring
                 SamusBeamCallbackDefinitions.Resolve(charged, beamType);
             slot.PreInstruction = callback.Translated ?? throw new NotSupportedException(
                 $"Beam callback $90:{callback.NativePointer:X4} is not translated.");
-            InitializePowerBeamVelocity(bus, slot);
+            InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
         }
         return (slotIndex, sound);
     }
@@ -410,7 +410,7 @@ internal sealed class BeamFiring
             waveBeam: true,
             sharedProjectiles.PowerBombExplosion);
         slot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
-        InitializePowerBeamVelocity(bus, slot);
+        InitializePowerBeamVelocity(samus.ProjectileInheritance, slot);
 
         // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
@@ -485,7 +485,7 @@ internal sealed class BeamFiring
         // The producer first calls the generic velocity initializer with base speed zero.
         // Missile_Func1 replaces that zero with `$0100` during this same frame's alpha pass;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
-        InitializeDirectionalVelocity(bus, slot, baseSpeed: 0);
+        InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
@@ -534,7 +534,7 @@ internal sealed class BeamFiring
 
     /// <summary>Selects beam speed from its combination and diagonal direction before applying inherited velocity.</summary>
     internal static void InitializePowerBeamVelocity(
-        ISnesAddressSpace bus,
+        ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot)
     {
         byte direction = slot.PackedDirection.DirectionIndex;
@@ -545,17 +545,17 @@ internal sealed class BeamFiring
                 ? SamusProjectileRomData.Beams.DiagonalSpeeds
                 : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds) + rowOffset));
 
-        InitializeDirectionalVelocity(bus, slot, speed);
+        InitializeDirectionalVelocity(inheritance, slot, speed);
     }
 
     /// <summary>Clears projectile position fractions and combines base speed with Samus' inherited motion.</summary>
     internal static void InitializeDirectionalVelocity(
-        ISnesAddressSpace bus,
+        ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot,
         short baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-        slot.Velocity = SamusProjectileInheritance.ReadVelocity(bus, slot.Direction, baseSpeed);
+        slot.Velocity = inheritance.ReadVelocity(slot.Direction, baseSpeed);
     }
 
     /// <summary>

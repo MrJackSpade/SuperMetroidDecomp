@@ -37,8 +37,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
         var state = new NuclearWaffleEnemyState(slot);
-        (slot.Entity as NuclearWaffleEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a NuclearWaffle.")).State = state;
+        slot.SetSpeciesState(state);
 
         state.Program = AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -348,7 +347,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gets the orbit state attached to a Puromi slot and rejects an uninitialized slot.</summary>
     internal static NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
-        (slot.Entity as NuclearWaffleEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
 
     /// <summary>Advances NuclearWaffle's typed animation.</summary>
@@ -356,7 +355,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        NuclearWaffleEnemyState state = (slot.Entity as NuclearWaffleEntity)?.State ?? throw new InvalidOperationException(
+        NuclearWaffleEnemyState state = slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
         AnimationProgramCursor<NuclearWaffleProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, NuclearWaffleAnimations.Programs, ref cursor, NuclearWaffleFrameDefinitions.Spritemap);

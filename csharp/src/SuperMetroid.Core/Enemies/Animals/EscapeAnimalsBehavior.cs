@@ -48,8 +48,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
         var state = new EscapeEtecoonEnemyState(slot);
-        (slot.Entity as EscapeEtecoonEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to an escape Etecoon.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Event $0F means the animals already escaped on an earlier visit. Native code
         // deletes the actor before changing any animation, position, palette, or AI fields.
@@ -82,8 +81,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>EscapeDachora_Init</c> at <c>$B3:EAE5</c>.</summary>
     internal void InitializeEscapeDachora(RoomEnemySlot slot)
     {
-        (slot.Entity as EscapeDachoraEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to an escape Dachora.")).State = new EscapeDachoraEnemyState(slot);
+        slot.SetSpeciesState(new EscapeDachoraEnemyState(slot));
         if (HasCrittersEscaped())
         {
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
@@ -243,12 +241,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fetches the typed Dachora state after initialization, failing for an uninitialized slot.</summary>
     private static EscapeDachoraEnemyState RequireEscapeDachoraState(RoomEnemySlot slot) =>
-        (slot.Entity as EscapeDachoraEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<EscapeDachoraEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized escape-Dachora state.");
 
     /// <summary>Fetches the typed Etecoon dispatch state after initialization, failing for an uninitialized slot.</summary>
     internal static EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>
-        (slot.Entity as EscapeEtecoonEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<EscapeEtecoonEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized escape-Etecoon state.");
 
     /// <summary>Ports the escape Etecoon's initialization AI.</summary>

@@ -47,8 +47,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeKago(RoomEnemySlot slot)
     {
         var state = new KagoEnemyState(slot);
-        (slot.Entity as KagoEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Kago.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
@@ -117,11 +116,11 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a shot or main callback that arrived before the shell initialized its slot state.</summary>
     internal static KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
-        (slot.Entity as KagoEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<KagoEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");
 
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
-    internal void RegisterKagoBombReactions(EnemyAiTable table)
+    internal void RegisterKagoBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KagoShot)
@@ -202,7 +201,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
-    internal void RegisterKagoShotReactions(EnemyAiTable table)
+    internal void RegisterKagoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KagoShot)

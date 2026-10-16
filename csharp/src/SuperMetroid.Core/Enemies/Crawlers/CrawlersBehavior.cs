@@ -522,13 +522,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a crawler callback before its physical slot initializes surface state.</summary>
     internal static CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>
-        (slot.Entity as CrawlerEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<CrawlerEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized crawler state.");
 
     /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
     private static void Bind(RoomEnemySlot slot, CrawlerEnemyState state) =>
-        (slot.Entity as CrawlerEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a crawler.")).State = state;
+        slot.SetSpeciesState(state);
 
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
     internal static int Shift8AddMagnitude(ushort velocity, int wholePixels)

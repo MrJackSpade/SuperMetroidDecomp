@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal CacatacEnemyState? State { get; set; }
+    /// <summary>The occupant's CacatacEnemyState, held by its physical slot.</summary>
+    internal CacatacEnemyState? State
+    {
+        get => Slot.SpeciesState<CacatacEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => CacatacBehavior.RunCacatacInitializationAi;

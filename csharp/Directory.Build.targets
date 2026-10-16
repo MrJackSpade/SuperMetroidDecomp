@@ -19,6 +19,10 @@
   <ItemGroup Condition="!$(MSBuildProjectName.StartsWith('SuperMetroid.EnsureAnalyzer')) and '$(MSBuildProjectName)' != 'SuperMetroid.CartridgeEncodingAudit'">
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)cartridge-encoding-baseline.txt" />
   </ItemGroup>
+  <!-- #1312: production Core carries the species-identity ratchet baseline, which activates SME6392-SME6393. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SuperMetroid.Core'">
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)species-identity-baseline.txt" />
+  </ItemGroup>
   <!-- #626: every analyzed project carries the module map, which activates SME6402-SME6405 (namespace/path agreement,
        registered modules, Core layering and verification domains). The analyzer projects are checked by EnsureVerification. -->
   <ItemGroup Condition="!$(MSBuildProjectName.StartsWith('SuperMetroid.EnsureAnalyzer')) and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">

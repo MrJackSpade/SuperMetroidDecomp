@@ -64,8 +64,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeSpark(RoomEnemySlot slot)
     {
         var state = new SparkEnemyState(slot);
-        (slot.Entity as SparkEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Spark.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Native masks the selector to two bits, but both tables contain only three authored
         // words. The compiled definition preserves selector three's two adjacent-code reads;
@@ -166,7 +165,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Returns initialized state for the enemy slot or reports a broken lifecycle.</summary>
     internal static SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
-        (slot.Entity as SparkEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<SparkEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Spark state.");
 
     /// <summary>Ports Spark's initialization AI.</summary>

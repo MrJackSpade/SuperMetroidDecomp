@@ -55,8 +55,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledProgram = null,
             Function = SbugEnemyFunction.WaitForSamus,
         };
-        (slot.Entity as SbugEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Sbug.")).State = state;
+        slot.SetSpeciesState(state);
 
         // $A3:A183 uses the cartridge-derived unsigned quarter-circle magnitudes and lets
         // $A0:B691 apply signs later from the original angle. The side velocities instead use the signed,
@@ -463,7 +462,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a Sbug dispatch before its slot's initializer has run.</summary>
     internal static SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
-        (slot.Entity as SbugEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<SbugEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
 
     /// <summary>Advances Sbug's typed animation.</summary>

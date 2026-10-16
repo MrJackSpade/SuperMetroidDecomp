@@ -19,7 +19,7 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot,
     public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
     {
         EnemyDefinitionId.ShipTop => species.RunGunshipMainAi,
-        EnemyDefinitionId.ShipBottomEntrance => Common.FindMain(Slot),
+        EnemyDefinitionId.ShipBottomEntrance => EnemyCommonParticipation.FindMain(Slot),
         _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

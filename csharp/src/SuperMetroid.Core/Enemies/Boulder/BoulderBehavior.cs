@@ -41,8 +41,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeBoulder(RoomEnemySlot slot)
     {
         var state = new BoulderEnemyState(slot);
-        (slot.Entity as BoulderEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Boulder.")).State = state;
+        slot.SetSpeciesState(state);
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;
@@ -291,7 +290,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects main AI before the slot's Boulder state has been initialized.</summary>
     internal static BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
-        (slot.Entity as BoulderEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<BoulderEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");
 
     /// <summary>Advances Boulder's typed animation.</summary>

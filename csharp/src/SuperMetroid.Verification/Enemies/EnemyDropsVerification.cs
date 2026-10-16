@@ -75,7 +75,7 @@ internal static class EnemyDropsVerification
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
-        AssertEqual((int)EnemyAiRoutine.RTL_A3804C,
+        AssertEqual((int)EnemyCommonNoOpRoutine.BankA3,
             ((int)new SnesAddress(enemy.Definition.Bank, enemy.Definition.MainAiPointer)),
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });

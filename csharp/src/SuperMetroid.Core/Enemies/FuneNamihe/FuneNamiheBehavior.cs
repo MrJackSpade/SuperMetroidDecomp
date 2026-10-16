@@ -99,8 +99,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.InstructionListPointerTableCursor + FuneNamiheDefinitions.FacingRightCursorDelta));
         }
 
-        (slot.Entity as FuneNamiheEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a FuneNamihe.")).State = state;
+        slot.SetSpeciesState(state);
         InstallFuneNamiheInstructionList(slot, state);
     }
 
@@ -199,7 +198,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a family AI or finish opcode before the slot's variant state has been initialized.</summary>
     internal static FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
-        (slot.Entity as FuneNamiheEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<FuneNamiheEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fune/Namihe state.");
 
     /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>

@@ -122,8 +122,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState(slot);
-        (slot.Entity as RinkaEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Rinka.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Both branches first clear the four native lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
@@ -214,7 +213,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             int slotIndex = _deferredRinkaSpawnSlots[0];
             _deferredRinkaSpawnSlots.RemoveAt(0);
-            RinkaEnemyState state = (_slotTable._slots[slotIndex].Entity as RinkaEntity)?.State ?? throw new InvalidOperationException(
+            RinkaEnemyState state = _slotTable._slots[slotIndex].SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
                 $"Deferred Rinka spawn slot {slotIndex} no longer holds a Rinka.");
             SetRinkaCamera(camera);
             ReserveSpecialRinkaSpawn(_slotTable._slots[slotIndex], state);
@@ -505,11 +504,11 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires an initialized per-slot Rinka state before running its lifecycle.</summary>
     private static RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
-        (slot.Entity as RinkaEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rinka state.");
 
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
-    internal void RegisterRinkaBombReactions(EnemyAiTable table)
+    internal void RegisterRinkaBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.RinkaShot)
@@ -544,7 +543,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
-    internal void RegisterRinkaPowerBombReactions(EnemyAiTable table)
+    internal void RegisterRinkaPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RinkaPowerBomb)
@@ -556,7 +555,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies the private death tail after projectile damage but not immediate freezing.</summary>
-    internal void RegisterRinkaShotReactions(EnemyAiTable table)
+    internal void RegisterRinkaShotReactions(EnemySharedReactions table)
     {
         // Rinka's tail follows the damage path only; the immediate-freeze path skips it.
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -572,7 +571,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
-    internal void RegisterRinkaTouch(EnemyAiTable table)
+    internal void RegisterRinkaTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.RinkaTouch,
@@ -632,8 +631,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         // 64-byte target. Preserve it even for a non-respawning special Rinka so debugger
         // state remains structurally faithful after the common record disappears.
         slot.Spawn = survivingSpawnSnapshot;
-        if (_slotTable._slots[slotIndex].Entity is RinkaEntity cleared)
-            cleared.State = null;
+        _slotTable._slots[slotIndex].SetSpeciesState<RinkaEnemyState>(null);
         if (respawns)
         {
             _deathsAndDrops.InstallRespawnPlaceholder(slot);
@@ -666,6 +664,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the Rinka viewport and termination check before common frozen AI.</summary>
-    internal void RegisterRinkaFrozenPreemption(EnemyAiTable table) =>
+    internal void RegisterRinkaFrozenPreemption(EnemySharedReactions table) =>
         table.AddFrozenPreemption(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, RunRinkaFrozenTail);
 }

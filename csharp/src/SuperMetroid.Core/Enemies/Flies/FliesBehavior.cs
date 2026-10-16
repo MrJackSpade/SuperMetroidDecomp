@@ -37,8 +37,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
             Angle = 0,
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
-        (slot.Entity as FliesEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Flies.")).State = state;
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -163,7 +162,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires the motion state installed for a live fly slot before its AI runs.</summary>
     private static FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
-        (slot.Entity as FliesEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<FlyEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized fly state.");
 
     /// <summary>Advances Flies's typed animation.</summary>

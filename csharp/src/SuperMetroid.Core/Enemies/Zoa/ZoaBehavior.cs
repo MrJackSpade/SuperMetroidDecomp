@@ -57,8 +57,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             XSpeedTableIndex = 0,
             SpawnPosition = slot.Position.Whole,
         };
-        (slot.Entity as ZoaEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Zoa.")).State = state;
+        slot.SetSpeciesState(state);
 
         // The initializer installs list zero directly while also setting “previous” to
         // zero. Consequently the later change detector is deliberately a no-op at rest.
@@ -181,7 +180,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Fails if an AI or instruction callback reaches a room slot before Zoa initialization.</summary>
     internal static ZoaEnemyState RequireZoaState(RoomEnemySlot slot) =>
-        (slot.Entity as ZoaEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<ZoaEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zoa state.");
 
     /// <summary>Ports Zoa's initialization AI.</summary>

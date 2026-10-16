@@ -5556,6 +5556,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresDoorEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresDoorFrame",
       "kind": "record struct",
       "scope": "product",
@@ -6383,6 +6396,19 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamFrame",
@@ -7324,6 +7350,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueBehavior.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianEntranceStatueEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -9921,6 +9960,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonFacing",
       "kind": "enum",
       "scope": "product",
@@ -11232,6 +11284,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -12580,6 +12645,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonEscapeResult",
       "kind": "record struct",
       "scope": "product",
@@ -13297,6 +13375,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidFrame",
       "kind": "record struct",
       "scope": "product",
@@ -13823,6 +13914,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.KraidFootCollisionComponent",
@@ -16006,6 +16110,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutsceneEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/BabyMetroidCutsceneEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.BabyMetroidCutscenePhase",
       "kind": "enum",
       "scope": "product",
@@ -17154,6 +17271,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -18766,6 +18896,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaFrame",
       "kind": "record struct",
       "scope": "product",
@@ -18915,6 +19058,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.ShitroidEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ShitroidEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.ShitroidMusicRequest",
       "kind": "record struct",
       "scope": "product",
@@ -19040,6 +19196,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.ZebetiteEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/ZebetiteEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -19649,6 +19818,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -21070,6 +21252,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.RidleyEntityFactory",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyEntityFactory.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Ridley.RidleyExplosionBodyPartDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -21910,6 +22118,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnFrame",
       "kind": "record struct",
       "scope": "product",
@@ -22324,6 +22545,19 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoHandCue",
@@ -23676,6 +23910,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Alcoon/AlcoonEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Alcoon.AlcoonFireballAnimation",
       "kind": "class",
       "scope": "product",
@@ -24016,6 +24263,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.DachoraFrame",
       "kind": "record struct",
       "scope": "product",
@@ -24214,6 +24474,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeDachoraEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraFrame",
       "kind": "record struct",
       "scope": "product",
@@ -24300,6 +24573,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeEtecoonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -24417,6 +24703,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.EtecoonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -26410,6 +26709,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Atomic.AtomicEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Atomic/AtomicEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Atomic.AtomicFrame",
       "kind": "record struct",
       "scope": "product",
@@ -26595,6 +26907,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Beetom.BeetomEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Beetom/BeetomEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Beetom.BeetomFrame",
       "kind": "record struct",
       "scope": "product",
@@ -26736,6 +27061,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Boulder/BoulderEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Boulder.BoulderEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Boulder/BoulderEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -27033,6 +27371,32 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Bull.BullEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Bull/BullEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Bull.BullExtensionWords",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Bull/BullExtensionWords.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Bull.BullFrame",
       "kind": "record struct",
       "scope": "product",
@@ -27070,19 +27434,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Bull.BullSharedTables",
-      "kind": "record",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Bull/BullSharedTables.cs"
-      ],
-      "partial": "none",
-      "disposition": "constructor-parameters"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Cacatac.Artwork.CacatacFrameDefinitions",
@@ -27226,6 +27577,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Cacatac.CacatacEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Cacatac/CacatacEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -27481,6 +27845,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Choot.ChootEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Choot/ChootEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Choot.ChootFallingPath",
       "kind": "enum",
       "scope": "product",
@@ -27700,6 +28077,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueFrame",
@@ -28376,6 +28766,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadSidehopperEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperLaunchDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -28465,6 +28868,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTorizoEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTorizoEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -28810,6 +29226,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Corpses/DeadTourianEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Corpses.DeadTourianFrame",
       "kind": "record struct",
       "scope": "product",
@@ -29005,6 +29434,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.CrawlerEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Crawlers.CrawlerFrame",
       "kind": "record struct",
       "scope": "product",
@@ -29117,6 +29559,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -29393,6 +29848,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Dragon.DragonEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Dragon/DragonEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -29716,6 +30184,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorFlagDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -30021,19 +30502,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyAiRoutine",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyAiRoutine.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemyAiStates",
       "kind": "enum",
       "scope": "product",
@@ -30073,19 +30541,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyAiTable",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyAiTable.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemyAudioQueue",
       "kind": "class",
       "scope": "product",
@@ -30097,6 +30552,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyBg2FrameLookup",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyBg2FrameLookup.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyBombContext",
@@ -30200,41 +30668,11 @@
         "csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs"
       ],
       "partial": "none",
-      "disposition": "cartridge-routine-family",
-      "flags": [
-        "large"
-      ],
-      "review": "reviewed"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyCollision.ExtendedHitboxTarget",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyCollision.NormalShotVulnerability",
       "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyCollision.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemyCollision.PirateHitboxShotAction",
-      "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -30257,6 +30695,19 @@
       ],
       "partial": "none",
       "disposition": "constructor-parameters"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyCommonNoOpRoutine",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyCommonNoOpRoutine.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyCommonParticipation",
@@ -30480,6 +30931,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyDudShot",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyDudShot.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyExtraProperties",
       "kind": "enum",
       "scope": "product",
@@ -30582,6 +31046,19 @@
       ],
       "partial": "none",
       "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyHitboxProbe",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyHitboxProbe.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyHurtAiHandler",
@@ -31454,6 +31931,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemySharedReactions",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemySharedReactions.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyShotCallbackDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31535,22 +32025,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemySlotFixtures.StandaloneDispatch",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Enemies/EnemySlotFixtures.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemySlotTable",
       "kind": "class",
       "scope": "product",
@@ -31600,11 +32074,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/EnemySpeciesRegistry.cs"
       ],
       "partial": "none",
-      "disposition": "dispatch-interface",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
-      ],
-      "review": "reviewed"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyTerrain",
@@ -31915,6 +32385,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Evir.EvirEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Evir/EvirEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Evir.EvirFrame",
       "kind": "record struct",
       "scope": "product",
@@ -32014,6 +32497,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -32217,6 +32713,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Fireflea.FirefleaEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Fireflea/FirefleaEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Fireflea.FirefleaFrame",
       "kind": "record struct",
       "scope": "product",
@@ -32390,6 +32899,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Flies.FliesEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Flies/FliesEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Flies.FlyAnimations",
@@ -32614,6 +33136,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FuneNamihe.FuneNamiheEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/FuneNamihe/FuneNamiheEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -32851,6 +33386,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Gunship.GunshipFrame",
@@ -33119,6 +33667,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiFrame",
       "kind": "record struct",
       "scope": "product",
@@ -33304,6 +33865,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Hoppers.HoppersEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Hoppers/HoppersEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.IEnemyAiFrame",
       "kind": "interface",
       "scope": "product",
@@ -33312,6 +33886,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/IEnemyAiFrame.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.IEnemyBg2Frames",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyBg2Frames.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -33330,6 +33917,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.IEnemyContactHooks",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyContactHooks.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.IEnemyDispatch",
       "kind": "interface",
       "scope": "product",
@@ -33338,6 +33938,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/IEnemyDispatch.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.IEnemyDrawHooks",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyDrawHooks.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -33364,6 +33977,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/IEnemyEntityFactory.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.IEnemyExtendedHitboxes",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyExtendedHitboxes.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -33421,6 +34047,19 @@
       "disposition": "contract"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.IEnemyNormalBombAdmission",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyNormalBombAdmission.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.IEnemyPowerBombReaction",
       "kind": "interface",
       "scope": "product",
@@ -33455,6 +34094,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/IEnemyRandomNumbers.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.IEnemyShotAdmission",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/IEnemyShotAdmission.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -33801,6 +34453,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Kago.KagoEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Kago/KagoEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Kago.KagoFrame",
       "kind": "record struct",
       "scope": "product",
@@ -33996,6 +34661,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterFrame",
       "kind": "record struct",
       "scope": "product",
@@ -34150,6 +34828,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Kzan.KzanEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Kzan/KzanEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -34311,6 +35002,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumpingEnemyEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumpingEnemyEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumpingEnemyFunction",
       "kind": "enum",
       "scope": "product",
@@ -34465,6 +35169,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Magdollite.MagdolliteEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Magdollite/MagdolliteEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -34807,6 +35524,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleFrame",
       "kind": "record struct",
       "scope": "product",
@@ -35127,6 +35857,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailFrame",
       "kind": "record struct",
       "scope": "product",
@@ -35226,6 +35969,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metaree.MetareeEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metaree/MetareeEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -35403,6 +36159,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MetroidEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MetroidEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Metroids.MetroidFrame",
       "kind": "record struct",
       "scope": "product",
@@ -35492,6 +36261,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Metroids.MochtroidEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Metroids/MochtroidEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -35695,6 +36477,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/MorphBallEye/MorphBallEyeEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.MorphBallEye.MorphBallEyeFrame",
       "kind": "record struct",
       "scope": "product",
@@ -35833,6 +36628,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -36062,6 +36870,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Owtch.OwtchEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Owtch/OwtchEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Owtch.OwtchFrame",
       "kind": "record struct",
       "scope": "product",
@@ -36279,6 +37100,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.PipeBugs.PipeBugsEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/PipeBugs/PipeBugsEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Platforms.Artwork.PlatformFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -36477,6 +37311,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Platforms.PlatformsEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Platforms/PlatformsEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Polyp.Artwork.PolypFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -36579,6 +37426,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Polyp.PolypEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Polyp/PolypEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -36792,6 +37652,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Powamp.PowampEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Powamp/PowampEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Powamp.PowampFrame",
       "kind": "record struct",
       "scope": "product",
@@ -36881,6 +37754,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.ProjectilePassThrough",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/ProjectilePassThrough.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Projectiles.Artwork.MiscDustProjectileFrameDefinitions",
@@ -37510,6 +38396,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Puyo.PuyoEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Puyo/PuyoEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Puyo.PuyoFrame",
       "kind": "record struct",
       "scope": "product",
@@ -37747,6 +38646,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Rios.LowerNorfairRioEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/LowerNorfairRioEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Rios.LowerNorfairRioFrame",
       "kind": "record struct",
       "scope": "product",
@@ -37862,6 +38774,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Rios.NorfairRioEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/NorfairRioEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -37987,6 +38912,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Rios.RioEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Rios/RioEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Rios.RioFrame",
       "kind": "record struct",
       "scope": "product",
@@ -38105,6 +39043,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperBehavior.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Ripper.RipperEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Ripper/RipperEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -38538,11 +39489,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/RoomEnemySystem.cs"
       ],
       "partial": "none",
-      "disposition": "coordinator",
-      "flags": [
-        "large"
-      ],
-      "review": "reviewed"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemySystemAccess",
@@ -38755,6 +39702,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Sbug.SbugEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Sbug/SbugEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Sbug.SbugFrame",
       "kind": "record struct",
       "scope": "product",
@@ -38912,6 +39872,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolFrame",
@@ -39339,6 +40312,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Shutters.ShuttersEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Shutters/ShuttersEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Shutters.VerticalShutterEnemyState",
       "kind": "class",
       "scope": "product",
@@ -39438,6 +40424,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Skree.SkreeEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Skree/SkreeEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -39722,6 +40721,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Skultera.SkulteraEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Skultera/SkulteraEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Skultera.SkulteraFrame",
       "kind": "record struct",
       "scope": "product",
@@ -39891,6 +40903,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateFrame",
       "kind": "record struct",
       "scope": "product",
@@ -39983,6 +41008,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateProgram.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.PirateHitboxShotActions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/PirateHitboxShotActions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.PirateHitboxShotActions.PirateHitboxShotAction",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/PirateHitboxShotActions.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -40091,6 +41142,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePirateHitboxes",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/SpacePirateHitboxes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.SpacePirateProjectileInstructionProgramDefinitions",
       "kind": "class",
       "scope": "product",
@@ -40190,6 +41254,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.WalkingSpacePirateEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WalkingSpacePirateEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -40320,6 +41397,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -40476,6 +41566,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Sparks.SparkEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Sparks/SparkEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -40744,6 +41847,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Stoke.StokeEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Stoke/StokeEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Stoke.StokeFrame",
       "kind": "record struct",
       "scope": "product",
@@ -40835,14 +41951,14 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.TableBackedEnemyEntity",
+      "type": "SuperMetroid.Core.Enemies.UnownedEnemyEntity",
       "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/TableBackedEnemyEntity.cs"
+        "csharp/src/SuperMetroid.Core/Enemies/UnownedEnemyEntity.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -40976,6 +42092,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Waver.WaverEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Waver/WaverEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -41122,6 +42251,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WorkRobots.WorkRobotEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -41466,6 +42608,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -41892,6 +43047,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawFrame",
       "kind": "record struct",
       "scope": "product",
@@ -42082,6 +43250,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Yard/YardEnemyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Yard.YardEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Yard/YardEntity.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -42367,6 +43548,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Zoa.ZoaEntity",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Zoa/ZoaEntity.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Zoa.ZoaFrame",
@@ -88405,6 +89599,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.SpeciesIdentityAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/SpeciesIdentityAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Hardware.CpuBusAccessAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -100601,19 +101808,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Verification.Enemies.EnemyAiCodePointersVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/EnemyAiCodePointersVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
       "type": "SuperMetroid.Verification.Enemies.EnemyAngleDivisionVerification",
       "kind": "static class",
       "scope": "test",
@@ -100794,32 +101988,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.EnemyDispatchEquivalenceVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/EnemyDispatchEquivalenceVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Enemies.EnemyDispatchEquivalenceVerification.Fixture",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Enemies/EnemyDispatchEquivalenceVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Verification.Enemies.EnemyDropChanceDefinitionsVerification",

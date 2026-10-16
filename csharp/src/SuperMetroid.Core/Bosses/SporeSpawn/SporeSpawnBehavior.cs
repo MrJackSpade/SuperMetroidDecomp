@@ -335,7 +335,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         LastSporeSpawnPlm = new SporeSpawnPlmRequest(new(7, 30), header);
 
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
-    internal void RegisterSporeSpawnBombReactions(EnemyAiTable table)
+    internal void RegisterSporeSpawnBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SporeSpawnShot)
@@ -425,7 +425,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
-    internal void RegisterSporeSpawnShotReactions(EnemyAiTable table)
+    internal void RegisterSporeSpawnShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SporeSpawnShot)
@@ -460,7 +460,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes vulnerable hitbox touch through common damage while excluding no-op hitboxes.</summary>
-    internal void RegisterSporeSpawnTouch(EnemyAiTable table)
+    internal void RegisterSporeSpawnTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SporeSpawnTouch,

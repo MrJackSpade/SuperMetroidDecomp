@@ -100,11 +100,11 @@ internal static class MetroidBehaviorDefinitionsVerification
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
             slot.InstructionTimer = NativeCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
-            (enemies.SlotTable.Slots[0].Entity as MetroidEntity ?? throw new InvalidOperationException("The fixture slot is not bound to a Metroid.")).State = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+            enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
                 Program = new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus,
                     MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step.Kind == AnimationProgramStepKind.Cue)),
-            };
+            });
 
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
 

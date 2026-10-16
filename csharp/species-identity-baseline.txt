@@ -1,0 +1,6 @@
+# Reviewed per-file counts for the species-identity ratchet (#1312, SME6392).
+# A species identity test belongs in the folder of the factory that owns the definition; shared enemy code asks the
+# bound entity. A file may only lose occurrences; the shared loop, collision, interpreter and drawing files hold none.
+# path<TAB>rule<TAB>count
+csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs	SME6392	1
+csharp/src/SuperMetroid.Core/Enemies/EnemyCapabilityCatalog.cs	SME6392	74

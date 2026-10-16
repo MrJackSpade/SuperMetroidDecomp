@@ -51,8 +51,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
             _kzanPreviousYPositions,
             _kzanFallingYSpeedTableIndexes,
             _kzanRiseWaitTimers);
-        (slot.Entity as KzanEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Kzan.")).State = state;
+        slot.SetSpeciesState(state);
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -269,7 +268,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a top AI call before its matching per-slot state has been initialized.</summary>
     internal static KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
-        (slot.Entity as KzanEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<KzanEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
 
     /// <summary>Advances Kzan's typed animation.</summary>

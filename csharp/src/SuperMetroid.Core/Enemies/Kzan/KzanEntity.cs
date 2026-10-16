@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal KzanEnemyState? State { get; set; }
+    /// <summary>The occupant's KzanEnemyState, held by its physical slot.</summary>
+    internal KzanEnemyState? State
+    {
+        get => Slot.SpeciesState<KzanEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
@@ -30,7 +34,7 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
     {
         EnemyDefinitionId.KzanTop => KzanBehavior.AdvanceKzanTypedAnimation,
-        EnemyDefinitionId.KzanBottom => Common.FindTypedAnimation(Slot),
+        EnemyDefinitionId.KzanBottom => null,
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 }

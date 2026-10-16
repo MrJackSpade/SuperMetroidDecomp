@@ -75,8 +75,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal void InitializeNinjaSpacePirate(RoomEnemySlot slot)
     {
         var state = new NinjaSpacePirateEnemyState(slot);
-        (slot.Entity as NinjaSpacePirateEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a NinjaSpacePirate.")).State = state;
+        slot.SetSpeciesState(state);
 
         bool startsAtLeft = ((NinjaSpacePirateParameterFlags)slot.Parameter1 &
             NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0;
@@ -664,7 +663,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Gets the state attached to a ninja slot and rejects an uninitialized actor.</summary>
     internal static NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
-        (slot.Entity as NinjaSpacePirateEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<NinjaSpacePirateEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized ninja Space Pirate state.");
 
     /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
@@ -716,7 +715,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
-    internal static void RegisterGoldNinjaPirateBombReactions(EnemyAiTable table)
+    internal static void RegisterGoldNinjaPirateBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&
                                   c.UsesExtendedHitboxes && c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,

@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal DeadTourianCorpseEnemyState? State { get; set; }
+    /// <summary>The occupant's DeadTourianCorpseEnemyState, held by its physical slot.</summary>
+    internal DeadTourianCorpseEnemyState? State
+    {
+        get => Slot.SpeciesState<DeadTourianCorpseEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunDeadTourianInitializationAi;

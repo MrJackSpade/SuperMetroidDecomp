@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Owtch;
 internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal OwtchEnemyState? State { get; set; }
+    /// <summary>The occupant's OwtchEnemyState, held by its physical slot.</summary>
+    internal OwtchEnemyState? State
+    {
+        get => Slot.SpeciesState<OwtchEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => OwtchBehavior.RunOwtchInitializationAi;

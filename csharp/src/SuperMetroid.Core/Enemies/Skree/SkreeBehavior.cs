@@ -65,8 +65,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             AttackReady = false,
             Function = SkreeEnemyFunction.Idling,
         };
-        (slot.Entity as SkreeEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Skree.")).State = state;
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.SkreeIdling);
     }
 
@@ -179,7 +178,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects Skree AI dispatch for a slot lacking room-load initialization.</summary>
     internal static SkreeEnemyState RequireSkreeState(RoomEnemySlot slot) =>
-        (slot.Entity as SkreeEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<SkreeEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skree state.");
 
     /// <summary>Ports Skree's initialization AI.</summary>
@@ -224,7 +223,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
     // common death animation releases the enemy slot.
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>
-    internal void RegisterSkreeShotReactions(EnemyAiTable table)
+    internal void RegisterSkreeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SkreeShot)
@@ -236,7 +235,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     // Skree's callback owns its four-piece burst and death animation because it called
     // `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).
     /// <summary>Handles lethal bombs with Skree's particle burst and death variant zero after the shared hit path.</summary>
-    internal void RegisterSkreeBombReactions(EnemyAiTable table)
+    internal void RegisterSkreeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SkreeShot)

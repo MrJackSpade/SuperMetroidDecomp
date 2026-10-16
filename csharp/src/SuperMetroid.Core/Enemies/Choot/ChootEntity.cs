@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Choot;
 internal sealed class ChootEntity(ChootBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal ChootEnemyState? State { get; set; }
+    /// <summary>The occupant's ChootEnemyState, held by its physical slot.</summary>
+    internal ChootEnemyState? State
+    {
+        get => Slot.SpeciesState<ChootEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunChootInitializationAi;

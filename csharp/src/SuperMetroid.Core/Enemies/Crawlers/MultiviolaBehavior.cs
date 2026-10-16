@@ -38,8 +38,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
         var state = new MultiviolaEnemyState(slot);
-        (slot.Entity as MultiviolaEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Multiviola.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call. Preserve the visible variable writes: debugging
@@ -138,7 +137,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gets the initialized state for an enemy slot or reports a missing room-load setup.</summary>
     internal static MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
-        (slot.Entity as MultiviolaEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<MultiviolaEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Multiviola state.");
 
     /// <summary>Advances Multiviola's typed animation.</summary>

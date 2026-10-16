@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EtecoonEntity(EtecoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal EtecoonEnemyState? State { get; set; }
+    /// <summary>The occupant's EtecoonEnemyState, held by its physical slot.</summary>
+    internal EtecoonEnemyState? State
+    {
+        get => Slot.SpeciesState<EtecoonEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => EtecoonBehavior.RunEtecoonInitializationAi;

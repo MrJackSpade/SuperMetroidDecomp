@@ -90,8 +90,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             UpsideDown = slot.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
-        (slot.Entity as HoppersEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Hoppers.")).State = state;
+        slot.SetSpeciesState(state);
 
         SetHopperProgram(slot, state, ReadHopperProgram(
             state, state.UpsideDown, jumping: false));
@@ -355,7 +354,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires initialized per-slot hop state before dispatching AI or private animation commands.</summary>
     private static HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
-        (slot.Entity as HoppersEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<HopperEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hopper state.");
 
     /// <summary>Ports Hoppers's initialization AI.</summary>

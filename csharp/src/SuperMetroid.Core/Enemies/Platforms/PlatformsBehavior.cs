@@ -69,8 +69,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
         var state = new PlatformEnemyState(slot, new PlatformSharedTables { MovementFunctions = _platformMovementFunctions, PreviousPositions = _platformPreviousPositions, VerticallyMovingFlags = _platformVerticallyMovingFlags, VerticallyStillFlags = _platformVerticallyStillFlags, MaximumYSpeedTableIndexes = _platformMaximumYSpeedTableIndexes, PreviousYMovementFunctions = _platformPreviousYMovementFunctions, SuspensorPlatformFlags = _platformSuspensorPlatformFlags });
-        (slot.Entity as PlatformsEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Platforms.")).State = state;
+        slot.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isKamer;
         // Main AI dispatches the complete word through a two-entry table. Initialization's
@@ -340,11 +339,11 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires typed platform movement state after the shared initializer has run.</summary>
     private static PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
-        (slot.Entity as PlatformsEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<PlatformEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Tripper/Kamer state.");
 
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
-    internal static void RegisterPlatformsBombReactions(EnemyAiTable table)
+    internal static void RegisterPlatformsBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.TripperShot)
@@ -382,7 +381,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
-    internal static void RegisterPlatformsShotReactions(EnemyAiTable table)
+    internal static void RegisterPlatformsShotReactions(EnemySharedReactions table)
     {
         // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
         // frame with a direction-specific two-piece frozen map.
@@ -398,7 +397,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers native RTL touch behavior so ordinary overlap does not damage Samus.</summary>
-    internal static void RegisterPlatformsTouch(EnemyAiTable table)
+    internal static void RegisterPlatformsTouch(EnemySharedReactions table)
     {
         // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider test live in other handlers;
         // ordinary body overlap must neither injure Samus nor synthesize knockback here.

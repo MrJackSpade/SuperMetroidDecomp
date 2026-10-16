@@ -27,9 +27,8 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The collision capabilities of species not yet converted to their own entity (#1312 stage 3), moved unchanged from
-/// <see cref="EnemyCollision"/>'s species lists. A converting species declares its own and leaves this catalog; it is
-/// deleted with <see cref="TableBackedEnemyEntity"/>.
+/// The collision capabilities each definition takes beyond the common paths, and the translated private shot callbacks
+/// normal bombs dispatch like the common one, keyed by definition: one source of truth every entity reads.
 /// </summary>
 internal static class EnemyCapabilityCatalog
 {

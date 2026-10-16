@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Sparks;
 internal sealed class SparkEntity(SparkBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal SparkEnemyState? State { get; set; }
+    /// <summary>The occupant's SparkEnemyState, held by its physical slot.</summary>
+    internal SparkEnemyState? State
+    {
+        get => Slot.SpeciesState<SparkEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunSparkInitializationAi;

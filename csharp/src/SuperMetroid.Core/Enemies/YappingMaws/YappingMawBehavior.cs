@@ -95,8 +95,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames),
             OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
         };
-        (slot.Entity as YappingMawEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a YappingMaw.")).State = state;
+        slot.SetSpeciesState(state);
 
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.Parameter2 == 0
             ? YappingMawProgram.AttackingDown
@@ -602,11 +601,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires the state installed by Maw initialization for a given enemy slot.</summary>
     internal static YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>
-        (slot.Entity as YappingMawEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<YappingMawEnemyState>() ?? throw new InvalidOperationException(
             $"Yapping Maw slot {slot.SlotIndex} has no initialized native state.");
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>
-    internal static void RegisterYappingMawBombReactions(EnemyAiTable table)
+    internal static void RegisterYappingMawBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.YappingMawShot)
@@ -644,7 +643,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
-    internal static void RegisterYappingMawShotReactions(EnemyAiTable table)
+    internal static void RegisterYappingMawShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YappingMawShot)
@@ -654,7 +653,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers contact as a grab that locks Samus without ordinary touch damage.</summary>
-    internal static void RegisterYappingMawTouch(EnemyAiTable table)
+    internal static void RegisterYappingMawTouch(EnemySharedReactions table)
     {
         // $A8:A799 replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
         // ownership to the mouth state machine.
@@ -682,7 +681,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>
-    internal static void RegisterYappingMawFrozenAi(EnemyAiTable table) =>
+    internal static void RegisterYappingMawFrozenAi(EnemySharedReactions table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw,
             slot => RunYappingMawFrozen(slot, RequireYappingMawState(slot)));
 }

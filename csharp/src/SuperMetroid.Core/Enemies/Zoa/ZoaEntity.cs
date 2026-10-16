@@ -6,8 +6,12 @@ namespace SuperMetroid.Core.Enemies.Zoa;
 internal sealed class ZoaEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal ZoaEnemyState? State { get; set; }
+    /// <summary>The occupant's ZoaEnemyState, held by its physical slot.</summary>
+    internal ZoaEnemyState? State
+    {
+        get => Slot.SpeciesState<ZoaEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => ZoaBehavior.RunZoaInitializationAi;

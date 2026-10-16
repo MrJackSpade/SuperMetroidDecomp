@@ -55,8 +55,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             AnimationSignal = false,
             FollowerYOffset = 0,
         };
-        (slot.Entity as NorfairRioEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a NorfairRio.")).State = state;
+        slot.SetSpeciesState(state);
 
         if (state.IsFollower)
         {
@@ -333,7 +332,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gets initialized AI state for a Rio slot or reports a missing binding.</summary>
     internal static NorfairRioEnemyState RequireNorfairRioState(RoomEnemySlot slot) =>
-        (slot.Entity as NorfairRioEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<NorfairRioEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair Rio state.");
 
     /// <summary>Ports NorfairRio's initialization AI.</summary>

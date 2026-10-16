@@ -103,7 +103,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new NorfairRioEnemyState(slot) { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
-        (slot.Entity as NorfairRioEntity ?? throw new InvalidOperationException("The fixture slot is not bound to the species.")).State = state;
+        slot.SetSpeciesState(state);
         return (enemies, slot, state);
     }
 

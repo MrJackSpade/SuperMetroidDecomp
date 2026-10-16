@@ -69,8 +69,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeWorkRobot(RoomEnemySlot slot)
     {
         var state = new WorkRobotEnemyState(slot);
-        (slot.Entity as WorkRobotEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a WorkRobot.")).State = state;
+        slot.SetSpeciesState(state);
 
         bool areaBossDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
         if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || !areaBossDefeated)
@@ -367,11 +366,11 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a robot callback before its slot initializes movement and laser state.</summary>
     internal static WorkRobotEnemyState RequireWorkRobotState(RoomEnemySlot slot) =>
-        (slot.Entity as WorkRobotEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<WorkRobotEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Work Robot state.");
 
     /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>
-    internal void RegisterWorkRobotBombReactions(EnemyAiTable table)
+    internal void RegisterWorkRobotBombReactions(EnemySharedReactions table)
     {
         // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
         // rejection belongs here rather than in collision admission.
@@ -419,7 +418,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
-    internal void RegisterWorkRobotShotReactions(EnemyAiTable table)
+    internal void RegisterWorkRobotShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
                                                      EnemyCollision.ShotAi(enemy) is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
@@ -429,7 +428,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
-    internal static void RegisterWorkRobotTouch(EnemyAiTable table)
+    internal static void RegisterWorkRobotTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,

@@ -98,8 +98,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             Behavior = YardBehavior.NormalCrawling,
             IdleCrawlingSpeedIndex = slot.Parameter1,
         };
-        (slot.Entity as YardEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Yard.")).State = state;
+        slot.SetSpeciesState(state);
 
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -640,7 +639,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Finds the state paired with a live Yard slot and rejects an uninitialized callback.</summary>
     internal static YardEnemyState RequireYardState(RoomEnemySlot slot) =>
-        (slot.Entity as YardEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<YardEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");
 
     /// <summary>Ports Yard's initialization AI.</summary>
@@ -668,7 +667,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
-    internal void RegisterYardShotReactions(EnemyAiTable table)
+    internal void RegisterYardShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YardShot)
@@ -690,7 +689,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Yard's touch callback, including its facing-dependent shell response.</summary>
-    internal void RegisterYardTouch(EnemyAiTable table)
+    internal void RegisterYardTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YardTouch,

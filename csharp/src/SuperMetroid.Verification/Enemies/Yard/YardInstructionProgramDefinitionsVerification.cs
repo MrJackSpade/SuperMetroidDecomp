@@ -76,7 +76,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
         var state = new YardEnemyState(yard) { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
-        (yard.Entity as YardEntity ?? throw new InvalidOperationException("The fixture slot is not bound to a Yard.")).State = state;
+        yard.SetSpeciesState(state);
         return enemies;
     }
 

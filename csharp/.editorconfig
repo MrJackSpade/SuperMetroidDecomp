@@ -91,3 +91,5 @@ dotnet_diagnostic.SME6202.severity = error
 
 # #223: 16-bit and 24-bit values are read through the canonical word reads, not rebuilt from bytes.
 dotnet_diagnostic.SME6350.severity = error
+dotnet_diagnostic.SME6392.severity = error
+dotnet_diagnostic.SME6393.severity = error

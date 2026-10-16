@@ -82,8 +82,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeEtecoon(RoomEnemySlot slot)
     {
         var state = new EtecoonEnemyState(slot);
-        (slot.Entity as EtecoonEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Etecoon.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Native ORs property $2000 (`DisableSamusColl`). The host scheduler also uses the
         // same raw bit to admit the ROM instruction interpreter, so retain the authored
@@ -759,7 +758,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Finds initialized state for a live Etecoon or rejects an unrelated slot callback.</summary>
     internal static EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
-        (slot.Entity as EtecoonEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<EtecoonEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");
 
     /// <summary>Advances Etecoon's typed animation.</summary>

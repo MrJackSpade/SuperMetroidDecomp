@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.MaridiaSnails;
 internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal MaridiaLargeSnailEnemyState? State { get; set; }
+    /// <summary>The occupant's MaridiaLargeSnailEnemyState, held by its physical slot.</summary>
+    internal MaridiaLargeSnailEnemyState? State
+    {
+        get => Slot.SpeciesState<MaridiaLargeSnailEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MaridiaLargeSnailBehavior.RunMaridiaLargeSnailInitializationAi;

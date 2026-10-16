@@ -49,8 +49,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             _firefleaMinimumYPositions,
             _firefleaMaximumYPositions,
             _firefleaSpeedTableIndexes);
-        (slot.Entity as FirefleaEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Fireflea.")).State = state;
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
@@ -159,11 +158,11 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects main-AI dispatch for a slot that has not run Fireflea initialization.</summary>
     internal static FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
-        (slot.Entity as FirefleaEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<FirefleaEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fireflea state.");
 
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
-    internal void RegisterFirefleaBombReactions(EnemyAiTable table)
+    internal void RegisterFirefleaBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.FirefleaShot)
@@ -200,7 +199,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>
-    internal void RegisterFirefleaPowerBombReactions(EnemyAiTable table)
+    internal void RegisterFirefleaPowerBombReactions(EnemySharedReactions table)
     {
         // Reactions around common power-bomb damage.
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
@@ -211,7 +210,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
-    internal void RegisterFirefleaShotReactions(EnemyAiTable table)
+    internal void RegisterFirefleaShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FirefleaShot)
@@ -221,7 +220,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Fireflea's touch callback, which runs the retail unconditional-death sequence.</summary>
-    internal void RegisterFirefleaTouch(EnemyAiTable table)
+    internal void RegisterFirefleaTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FirefleaTouch,

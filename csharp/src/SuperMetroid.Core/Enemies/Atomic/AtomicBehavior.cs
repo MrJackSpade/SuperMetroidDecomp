@@ -34,8 +34,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             _atomicSpeedWholes,
             _atomicNegativeSpeedFractions,
             _atomicNegativeSpeedWholes);
-        (slot.Entity as AtomicEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Atomic.")).State = state;
+        slot.SetSpeciesState(state);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -140,7 +139,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires initialized Atomic state for a physical enemy slot before main AI runs.</summary>
     internal static AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
-        (slot.Entity as AtomicEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<AtomicEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
 
     /// <summary>Advances Atomic's typed animation.</summary>

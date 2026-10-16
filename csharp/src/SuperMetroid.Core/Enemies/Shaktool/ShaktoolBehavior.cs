@@ -510,7 +510,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>
-    internal void RegisterShaktoolBombReactions(EnemyAiTable table)
+    internal void RegisterShaktoolBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ShaktoolShot)
@@ -558,7 +558,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
-    internal void RegisterShaktoolTouch(EnemyAiTable table)
+    internal void RegisterShaktoolTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShaktoolTouch,
@@ -566,7 +566,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the native post-common lethal-shot tail for regular projectile hits.</summary>
-    internal void RegisterShaktoolShotReactions(EnemyAiTable table)
+    internal void RegisterShaktoolShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShaktoolShot)

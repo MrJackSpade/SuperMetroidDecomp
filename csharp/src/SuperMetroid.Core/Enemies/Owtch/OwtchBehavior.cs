@@ -88,8 +88,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - travelDistance)),
             MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
         };
-        (slot.Entity as OwtchEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Owtch.")).State = state;
+        slot.SetSpeciesState(state);
         SetOwtchProgram(slot, state, initialProgram);
 
         // State two is the cartridge's special initially-buried form. It moves only the
@@ -235,11 +234,11 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects Owtch AI or collision callbacks before slot initialization.</summary>
     internal static OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
-        (slot.Entity as OwtchEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<OwtchEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
-    internal static void RegisterOwtchBombReactions(EnemyAiTable table)
+    internal static void RegisterOwtchBombReactions(EnemySharedReactions table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
@@ -274,7 +273,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
-    internal static void RegisterOwtchShotReactions(EnemyAiTable table)
+    internal static void RegisterOwtchShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.OwtchShot)

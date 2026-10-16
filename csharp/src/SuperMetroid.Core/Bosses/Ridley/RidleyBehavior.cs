@@ -1644,7 +1644,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>Requires the extended Ridley hitbox callback and suppresses generic death on shots.</summary>
-    internal static void RegisterRidleyShotReactions(EnemyAiTable table)
+    internal static void RegisterRidleyShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RidleyShot)
@@ -1665,7 +1665,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>Routes bombs through Ridley's native shot callback without generic death.</summary>
-    internal static void RegisterRidleyBombReactions(EnemyAiTable table)
+    internal static void RegisterRidleyBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.RidleyShot)
@@ -1678,7 +1678,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     // AI. Movement/function work runs only on even actor frames, while tail
     // projectile armor and hurt palettes remain live on every frame.
     /// <summary>Registers Ridley's hurt callback for the post-hit AI window.</summary>
-    internal void RegisterRidleyHurtAi(EnemyAiTable table) =>
+    internal void RegisterRidleyHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
             slot,
             frame.Samus,
@@ -1726,7 +1726,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
-    internal static void RegisterRidleyPowerBombReactions(EnemyAiTable table) =>
+    internal static void RegisterRidleyPowerBombReactions(EnemySharedReactions table) =>
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RidleyPowerBomb)
         {

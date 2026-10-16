@@ -103,7 +103,6 @@ using static SuperMetroid.Verification.Areas.Maridia.ElevatubeScrollingVerificat
 using static SuperMetroid.Verification.Enemies.Artwork.EmptyExtendedFrameShotsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSetupNmiWaitsVerification;
 using static SuperMetroid.Verification.Frontend.Ending.EndingSnapshotTestsVerification;
-using static SuperMetroid.Verification.Enemies.EnemyAiCodePointersVerification;
 using static SuperMetroid.Verification.Enemies.EnemyAngleDivisionVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
@@ -850,7 +849,6 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState()),
         new(nameof(VerifyOceanSky), () => VerifyOceanSky()),
         new(nameof(AuditBoostFloor), () => AuditBoostFloor()),
-        new(nameof(VerifyEnemyAiCodePointerCatalog), () => VerifyEnemyAiCodePointerCatalog()),
         new(nameof(VerifyEnemyInstructionCodePointerCatalogs), () => VerifyEnemyInstructionCodePointerCatalogs()),
         new(nameof(VerifyEnemyRomTablePointerCatalog), () => VerifyEnemyRomTablePointerCatalog()),
         new(nameof(VerifyMotherBrainContactHitboxes), () => VerifyMotherBrainContactHitboxes()),

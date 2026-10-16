@@ -55,8 +55,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
             AnimationSignal = false,
             FollowerVisible = false,
         };
-        (slot.Entity as LowerNorfairRioEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a LowerNorfairRio.")).State = state;
+        slot.SetSpeciesState(state);
 
         if (state.IsFollower)
         {
@@ -323,7 +322,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
     /// <summary>Rejects a Holtz dispatch before species initialization populated its slot.</summary>
     internal static LowerNorfairRioEnemyState RequireLowerNorfairRioState(RoomEnemySlot slot) =>
-        (slot.Entity as LowerNorfairRioEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<LowerNorfairRioEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Lower Norfair Rio state.");
 
     /// <summary>Ports LowerNorfairRio's initialization AI.</summary>

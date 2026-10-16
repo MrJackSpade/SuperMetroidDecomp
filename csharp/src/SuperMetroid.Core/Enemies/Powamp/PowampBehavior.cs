@@ -55,8 +55,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePowamp(RoomEnemySlot slot)
     {
         var state = new PowampEnemyState(slot);
-        (slot.Entity as PowampEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Powamp.")).State = state;
+        slot.SetSpeciesState(state);
 
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
@@ -501,11 +500,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires the per-slot state installed by Powamp initialization.</summary>
     internal static PowampEnemyState RequirePowampState(RoomEnemySlot slot) =>
-        (slot.Entity as PowampEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<PowampEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Powamp state.");
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
-    internal void RegisterPowampBombReactions(EnemyAiTable table)
+    internal void RegisterPowampBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.PowampShot)
@@ -550,7 +549,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
-    internal void RegisterPowampPowerBombReactions(EnemyAiTable table)
+    internal void RegisterPowampPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.PowampPowerBomb)
@@ -564,7 +563,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Skips later shots once fatal damage begins and mirrors surviving body presentation to the balloon.</summary>
-    internal void RegisterPowampShotReactions(EnemyAiTable table)
+    internal void RegisterPowampShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.PowampShot)
@@ -579,7 +578,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Applies touch behavior only to the body before its fatal-shot state begins.</summary>
-    internal void RegisterPowampTouch(EnemyAiTable table)
+    internal void RegisterPowampTouch(EnemySharedReactions table)
     {
         // init1 is zero only for the body before fatal shot damage. Balloons are normally absent from the
         // interactive list because population property $0400 excludes them, but retain the handler's literal guard.

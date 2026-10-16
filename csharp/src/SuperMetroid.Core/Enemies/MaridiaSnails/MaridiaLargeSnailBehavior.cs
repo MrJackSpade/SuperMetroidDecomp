@@ -79,8 +79,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount),
             BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
         };
-        (slot.Entity as MaridiaLargeSnailEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a MaridiaLargeSnail.")).State = state;
+        slot.SetSpeciesState(state);
 
         // The initial left-facing animation intentionally disagrees with installed selector zero,
         // whose table entry is right-facing idle. Because SetOumInstList suppresses equal
@@ -518,11 +517,11 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
 
     /// <summary>Requires an initialized Oum extension for the physical enemy slot.</summary>
     internal static MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
-        (slot.Entity as MaridiaLargeSnailEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<MaridiaLargeSnailEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Maridia Large Snail state.");
 
     /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
-    internal void RegisterMaridiaLargeSnailBombReactions(EnemyAiTable table)
+    internal void RegisterMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MaridiaLargeSnailShot)
@@ -561,7 +560,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
-    internal void RegisterMaridiaLargeSnailShotReactions(EnemyAiTable table)
+    internal void RegisterMaridiaLargeSnailShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MaridiaLargeSnailShot)
@@ -591,7 +590,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
-    internal void RegisterMaridiaLargeSnailTouch(EnemyAiTable table)
+    internal void RegisterMaridiaLargeSnailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch,

@@ -1,9 +1,8 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The species registry, built once per enemy system: which factory creates the entity for each definition.
-/// Definitions whose species has not been converted yet bind the transitional <see cref="TableBackedEnemyEntity"/>,
-/// which answers with the handler table (#1312 stage 2); that fallback is removed with the table.
+/// The species registry, built once per enemy system: which factory creates the entity for each definition. A
+/// definition no species owns binds an <see cref="UnownedEnemyEntity"/>.
 /// </summary>
 internal sealed class EnemySpeciesRegistry
 {
@@ -14,12 +13,12 @@ internal sealed class EnemySpeciesRegistry
     private readonly EnemyCommonParticipation _common;
 
     /// <summary>Indexes <paramref name="factories"/> by definition, rejecting a definition owned twice.</summary>
-    /// <param name="dispatch">The enemy system whose handler table answers the shared participation.</param>
-    /// <param name="factories">The converted species' factories.</param>
+    /// <param name="common">The shared participation every entity composes.</param>
+    /// <param name="factories">The species' factories.</param>
     /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
-    internal EnemySpeciesRegistry(IEnemyDispatch dispatch, IEnumerable<IEnemyEntityFactory> factories)
+    internal EnemySpeciesRegistry(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)
     {
-        _common = new EnemyCommonParticipation(Ensure.NotNull(dispatch));
+        _common = Ensure.NotNull(common);
         foreach (IEnemyEntityFactory factory in Ensure.NotNull(factories))
         foreach (EnemyDefinitionId definition in factory.Definitions)
         {
@@ -36,6 +35,6 @@ internal sealed class EnemySpeciesRegistry
         Ensure.NotNull(slot);
         return _factories.TryGetValue(slot.EnemyDefinitionPointer, out IEnemyEntityFactory? factory)
             ? factory.Create(slot, _common)
-            : new TableBackedEnemyEntity(slot, _common);
+            : new UnownedEnemyEntity(slot, _common);
     }
 }

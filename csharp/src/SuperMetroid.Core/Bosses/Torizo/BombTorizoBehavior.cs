@@ -677,7 +677,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Enemy slot {torizo.SlotIndex} has no initialized Bomb Torizo state.");
 
     /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox callback.</summary>
-    internal void RegisterBombTorizoBombReactions(EnemyAiTable table)
+    internal void RegisterBombTorizoBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAiPointer));
@@ -859,7 +859,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
-    internal void RegisterBombTorizoShotReactions(EnemyAiTable table)
+    internal void RegisterBombTorizoShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
                                                      EnemyCollision.ShotAi(enemy) == (enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo
@@ -891,7 +891,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers extended body touch damage without invoking the generic death animation.</summary>
-    internal void RegisterBombTorizoTouch(EnemyAiTable table)
+    internal void RegisterBombTorizoTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BombTorizoTouch,
@@ -2296,7 +2296,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Registers Torizo_Hurt for each variant; the common instruction interpreter still
     /// advances after the hurt callback, matching <c>$A0:8FF7</c>.
     /// </summary>
-    internal void RegisterBombTorizoHurtAi(EnemyAiTable table) =>
+    internal void RegisterBombTorizoHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             (slot, _) => ApplyBombTorizoHurt(slot));
 

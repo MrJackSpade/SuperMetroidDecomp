@@ -23,9 +23,6 @@ internal interface IEnemyDispatch
     /// <summary>Runs the slot's main AI inside the supplied frame.</summary>
     void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8);
 
-    /// <summary>The registered AI routines and touch, shot, bomb and power-bomb reactions.</summary>
-    EnemyAiTable Ai { get; }
-
     /// <summary>Native indexes of the enemies admitted to interaction this frame, in processing order.</summary>
     IReadOnlyList<ushort> InteractiveEnemyIndexes { get; }
 }

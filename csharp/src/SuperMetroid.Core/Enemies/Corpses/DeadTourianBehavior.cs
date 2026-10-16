@@ -114,8 +114,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset }, profile: profile, variant: variant);
-        (slot.Entity as DeadTourianEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a DeadTourian.")).State = state;
+        slot.SetSpeciesState(state);
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.VariableA = profile.WaitFunction;
@@ -262,7 +261,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Rejects uninitialized slots and slots whose corpse state belongs to another enemy.</summary>
     private static DeadTourianCorpseEnemyState RequireDeadTourianCorpseState(RoomEnemySlot slot)
     {
-        DeadTourianCorpseEnemyState state = (slot.Entity as DeadTourianEntity)?.State ??
+        DeadTourianCorpseEnemyState state = slot.SpeciesState<DeadTourianCorpseEnemyState>() ??
             throw new InvalidDataException(
                 $"Enemy slot {slot.SlotIndex} has no dead Tourian corpse state.");
         if (!ReferenceEquals(state.Slot, slot))
@@ -304,7 +303,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
-    internal static void RegisterDeadTourianBombReactions(EnemyAiTable table)
+    internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => HasDeadTourianCorpseShotCallback(c.Enemy) &&
                                            c.SelectedShotAiPointer == c.Enemy.Definition.ShotAiPointer,
@@ -335,7 +334,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the power-bomb response, which ignores corpses already marked decomposed.</summary>
-    internal static void RegisterDeadTourianPowerBombReactions(EnemyAiTable table)
+    internal static void RegisterDeadTourianPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(HasDeadTourianCorpsePowerBombCallback)
         {
@@ -344,7 +343,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers shot handling that applies the collision prelude and starts decomposition without health damage.</summary>
-    internal static void RegisterDeadTourianShotReactions(EnemyAiTable table)
+    internal static void RegisterDeadTourianShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(HasDeadTourianCorpseShotCallback)
         {
@@ -360,7 +359,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts decomposition on physical contact without applying ordinary enemy contact damage.</summary>
-    internal static void RegisterDeadTourianTouch(EnemyAiTable table)
+    internal static void RegisterDeadTourianTouch(EnemySharedReactions table)
     {
         // Dead Zoomer/Ripper/Skree headers intentionally point touch and shot at the same private callback.
         // Physical contact begins decomposition; these already-dead actors never apply ordinary contact damage.

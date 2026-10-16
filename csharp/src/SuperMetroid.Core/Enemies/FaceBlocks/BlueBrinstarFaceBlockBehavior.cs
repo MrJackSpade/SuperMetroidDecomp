@@ -75,8 +75,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState(slot);
-        (slot.Entity as BlueBrinstarFaceBlockEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a BlueBrinstarFaceBlock.")).State = state;
+        slot.SetSpeciesState(state);
 
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.
@@ -205,7 +204,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Rejects AI dispatch for a face-block slot that was not initialized on room load.</summary>
     internal static BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
         RoomEnemySlot slot) =>
-        (slot.Entity as BlueBrinstarFaceBlockEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Blue Brinstar face-block state.");
 
     /// <summary>Advances BlueBrinstarFaceBlock's typed animation.</summary>

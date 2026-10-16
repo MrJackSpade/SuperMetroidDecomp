@@ -19,7 +19,7 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
     public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
     {
         EnemyDefinitionId.Chozo => species.RunChozoStatueMainAi,
-        EnemyDefinitionId.NoobTubeCrack => Common.FindMain(Slot),
+        EnemyDefinitionId.NoobTubeCrack => EnemyCommonParticipation.FindMain(Slot),
         _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -27,7 +27,7 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
     {
         EnemyDefinitionId.Chozo => species.AdvanceChozoStatueTypedAnimation,
-        EnemyDefinitionId.NoobTubeCrack => Common.FindTypedAnimation(Slot),
+        EnemyDefinitionId.NoobTubeCrack => null,
         _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 }

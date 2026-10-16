@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal MochtroidEnemyState? State { get; set; }
+    /// <summary>The occupant's MochtroidEnemyState, held by its physical slot.</summary>
+    internal MochtroidEnemyState? State
+    {
+        get => Slot.SpeciesState<MochtroidEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MochtroidBehavior.RunMochtroidInitializationAi;

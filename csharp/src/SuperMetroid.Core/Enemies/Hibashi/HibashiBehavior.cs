@@ -52,8 +52,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeHibashi(RoomEnemySlot slot)
     {
         var state = new HibashiEnemyState(slot);
-        (slot.Entity as HibashiEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Hibashi.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.
@@ -183,7 +182,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects geyser AI or instruction dispatch for an uninitialized slot.</summary>
     internal static HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
-        (slot.Entity as HibashiEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<HibashiEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hibashi state.");
 
     /// <summary>Ports Hibashi's initialization AI.</summary>

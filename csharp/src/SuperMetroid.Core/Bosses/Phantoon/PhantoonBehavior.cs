@@ -694,7 +694,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds bomb hit responses for vulnerable Phantoon phases.</summary>
-    internal void RegisterPhantoonBombReactions(EnemyAiTable table)
+    internal void RegisterPhantoonBombReactions(EnemySharedReactions table)
     {
         // Common bomb damage. Rinka, Skree, and Powamp deliberately call the no-death-animation form of common shot
         // AI; their private callbacks own slot cleanup or a staged death. Bank-$A8 callbacks reuse the same
@@ -2298,7 +2298,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
-    internal void RegisterPhantoonBodyTouch(EnemyAiTable table)
+    internal void RegisterPhantoonBodyTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PhantoonTouch,
@@ -2321,7 +2321,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     // between white and the new health band; body movement/main AI resumes
     // only after common flash timing clears handler bit two.
     /// <summary>Binds the native hurt callback used after a vulnerable-eye hit.</summary>
-    internal void RegisterPhantoonHurtAi(EnemyAiTable table) =>
+    internal void RegisterPhantoonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));
 

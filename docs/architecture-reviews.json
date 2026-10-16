@@ -86,7 +86,7 @@
         "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
       ],
       "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch and interactive indexes): species spawn and run other species through the registry every species populates."
     },
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonBehavior",
@@ -145,28 +145,12 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyCollision",
-      "flags": [
-        "large"
-      ],
-      "disposition": "cartridge-routine-family",
-      "reason": "Samus/projectile/enemy collision and the shared touch and shot reaction routines of bank $A0."
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.EnemyDeathsAndDrops",
       "flags": [
         "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
       ],
       "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.EnemySpeciesRegistry",
-      "flags": [
-        "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
-      ],
-      "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch, so unconverted species bind TableBackedEnemyEntity over the system's AI table (#1312); the reference goes with the table in #1312 stage 8."
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch and interactive indexes): species spawn and run other species through the registry every species populates."
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyPopulationLoader",
@@ -174,7 +158,7 @@
         "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
       ],
       "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch and interactive indexes): species spawn and run other species through the registry every species populates."
     },
     {
       "type": "SuperMetroid.Core.Enemies.RoomEnemyPopulationDefinitions",
@@ -183,14 +167,6 @@
       ],
       "disposition": "definition-catalog",
       "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.RoomEnemySystem",
-      "flags": [
-        "large"
-      ],
-      "disposition": "coordinator",
-      "reason": "Composition root of the enemy owners plus the AI registration manifests; behaviour lives in the owners."
     },
     {
       "type": "SuperMetroid.Core.Enemies.StandaloneRoomEnemyServices",
@@ -310,7 +286,7 @@
         "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
       ],
       "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch and interactive indexes): species spawn and run other species through the registry every species populates."
     },
     {
       "type": "SuperMetroid.Core.Samus.Grapple.SamusGrappleMovement",

@@ -878,7 +878,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs the handlers used when Samus's bombs contact Mother Brain.</summary>
-    internal void RegisterMotherBrainBombReactions(EnemyAiTable table)
+    internal void RegisterMotherBrainBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainHeadShot,
@@ -1080,7 +1080,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds head and body shot responses for each combat phase.</summary>
-    internal void RegisterMotherBrainShotReactions(EnemyAiTable table)
+    internal void RegisterMotherBrainShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainBodyShot)
@@ -4501,7 +4501,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>
-    internal void RegisterMotherBrainHeadTouch(EnemyAiTable table)
+    internal void RegisterMotherBrainHeadTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MotherBrainHeadTouch,
@@ -4521,7 +4521,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     // `$A9:B503` is `CreateDudShot`. The multibox bomb walker has already marked the physical explosion, and the
     // body callback performs no health, phase, or multipart-state work of its own.
     /// <summary>Registers body bomb reactions in the native AI dispatch table.</summary>
-    internal static void RegisterMotherBrainBodyBombReactions(EnemyAiTable table)
+    internal static void RegisterMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainBodyShot,

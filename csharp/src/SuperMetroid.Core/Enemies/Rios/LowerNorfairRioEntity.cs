@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Rios;
 internal sealed class LowerNorfairRioEntity(LowerNorfairRioBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal LowerNorfairRioEnemyState? State { get; set; }
+    /// <summary>The occupant's LowerNorfairRioEnemyState, held by its physical slot.</summary>
+    internal LowerNorfairRioEnemyState? State
+    {
+        get => Slot.SpeciesState<LowerNorfairRioEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunLowerNorfairRioInitializationAi;

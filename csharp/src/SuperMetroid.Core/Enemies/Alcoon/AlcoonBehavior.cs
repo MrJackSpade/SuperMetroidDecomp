@@ -98,8 +98,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             _alcoonSpawnXPositions,
             _alcoonLandingYPositions,
             _alcoonStepCounters);
-        (slot.Entity as AlcoonEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Alcoon.")).State = state;
+        slot.SetSpeciesState(state);
 
         state.StepCounter = NativeCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
@@ -409,7 +408,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires per-slot state created by the Alcoon initializer.</summary>
     internal static AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
-        (slot.Entity as AlcoonEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<AlcoonEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Alcoon state.");
 
     /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>

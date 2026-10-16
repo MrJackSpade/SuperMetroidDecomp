@@ -42,13 +42,12 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        (slot.Entity as PolypEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Polyp.")).State = new PolypEnemyState(slot)
+        slot.SetSpeciesState(new PolypEnemyState(slot)
         {
             Program = AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
             Function = PolypEnemyFunction.WaitingForSamus,
             CooldownTimer = NativeCountdown.Start(0),
-        };
+        });
 
         // Every Polyp initializer writes $0011 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it
@@ -125,7 +124,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a main-AI dispatch before its slot has received Polyp initialization.</summary>
     internal static PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
-        (slot.Entity as PolypEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<PolypEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Polyp state.");
 
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>

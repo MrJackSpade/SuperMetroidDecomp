@@ -321,7 +321,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds Kraid's body and mouth reactions to Samus bomb contacts.</summary>
-    internal void RegisterKraidBombReactions(EnemyAiTable table)
+    internal void RegisterKraidBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
             c =>
@@ -526,7 +526,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds shot callbacks for Kraid's mouth, body, arm, and nail surfaces.</summary>
-    internal void RegisterKraidShotReactions(EnemyAiTable table)
+    internal void RegisterKraidShotReactions(EnemySharedReactions table)
     {
         // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
         // select the arm's private callback.
@@ -554,7 +554,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds Samus contact handling for Kraid's body and parts.</summary>
-    internal void RegisterKraidTouch(EnemyAiTable table)
+    internal void RegisterKraidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidArmTouch,
@@ -2603,7 +2603,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>
-    internal void RegisterKraidNailTouch(EnemyAiTable table)
+    internal void RegisterKraidNailTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidNailTouch ||

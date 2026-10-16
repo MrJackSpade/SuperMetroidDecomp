@@ -68,8 +68,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeDachora(RoomEnemySlot slot)
     {
         var state = new DachoraEnemyState(slot);
-        (slot.Entity as DachoraEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Dachora.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
         // Population property $0400 already excludes these actors from host interaction.
@@ -524,7 +523,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Finds initialized Dachora state for a body or echo callback.</summary>
     internal static DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
-        (slot.Entity as DachoraEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<DachoraEnemyState>() ?? throw new InvalidOperationException(
             $"Dachora slot {slot.SlotIndex} has no initialized native state.");
 
     /// <summary>Starts an authored Dachora animation at its first tick.</summary>

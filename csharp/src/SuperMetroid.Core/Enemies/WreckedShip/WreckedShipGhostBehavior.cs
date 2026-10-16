@@ -74,8 +74,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
         state.MutableTargetPalette.Clear();
         WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
-        (slot.Entity as WreckedShipGhostEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a WreckedShipGhost.")).State = state;
+        slot.SetSpeciesState(state);
     }
 
     /// <summary>Ports the indirect dispatch in <c>WreckedShipGhost_Main</c>.</summary>
@@ -418,7 +417,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
 
     /// <summary>Rejects a ghost main callback before its slot has initialized apparition state.</summary>
     internal static WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
-        (slot.Entity as WreckedShipGhostEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException(
             $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
 
     /// <summary>Advances WreckedShipGhost's typed animation.</summary>

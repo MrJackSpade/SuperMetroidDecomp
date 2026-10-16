@@ -66,8 +66,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and instruction-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
     {
-        (slot.Entity as MetareeEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Metaree.")).State = new MetareeEnemyState(slot)
+        slot.SetSpeciesState(new MetareeEnemyState(slot)
         {
             BurrowTimer = NativeCountdown.Start(0),
             Function = MetareeEnemyFunction.Idling,
@@ -75,11 +74,11 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             YVelocity = 0,
-        };
+        });
 
         // The initializer starts the idle animation directly rather than going through the change detector,
         // because both requested and installed indexes intentionally start at zero.
-        ((slot.Entity as MetareeEntity)?.State ?? throw new InvalidOperationException("The Metaree state was not stored.")).Program =
+        (slot.SpeciesState<MetareeEnemyState>() ?? throw new InvalidOperationException("The Metaree state was not stored.")).Program =
             AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.MetareeIdling);
     }
 
@@ -243,7 +242,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects main AI or private instruction dispatch before slot state has been initialized.</summary>
     internal static MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>
-        (slot.Entity as MetareeEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<MetareeEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metaree state.");
 
     /// <summary>Ports Metaree's initialization AI.</summary>
@@ -292,7 +291,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns four metal debris actors with the dying Metaree's graphics indexes before common shot death clears them.</summary>
-    internal void RegisterMetareeShotReactions(EnemyAiTable table)
+    internal void RegisterMetareeShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetareeShot)
@@ -307,7 +306,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>After a lethal bomb, spawns debris while the body's graphics words are intact, then clears both indexes on the retained host record.</summary>
-    internal void RegisterMetareeBombReactions(EnemyAiTable table)
+    internal void RegisterMetareeBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MetareeShot)

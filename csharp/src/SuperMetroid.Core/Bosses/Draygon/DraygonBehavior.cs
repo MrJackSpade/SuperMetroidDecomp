@@ -1017,7 +1017,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
-    internal void RegisterDraygonBombReactions(EnemyAiTable table)
+    internal void RegisterDraygonBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DraygonShot)
@@ -1112,7 +1112,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
-    internal void RegisterDraygonPowerBombReactions(EnemyAiTable table)
+    internal void RegisterDraygonPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DraygonPowerBomb)
@@ -1123,7 +1123,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the body and linked-part contact behavior against Samus.</summary>
-    internal void RegisterDraygonTouch(EnemyAiTable table)
+    internal void RegisterDraygonTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DraygonTouch,
@@ -2140,7 +2140,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>
-    internal void RegisterDraygonShotReactions(EnemyAiTable table)
+    internal void RegisterDraygonShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DraygonShot)
@@ -2174,7 +2174,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Registers $A5:954D hurt AI: flashes body, eye, and tail together, while connected
     /// grapple electrocution may drain another 256 health every eighth frame.
     /// </summary>
-    internal void RegisterDraygonHurtAi(EnemyAiTable table) =>
+    internal void RegisterDraygonHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody,
             (slot, frame) => ApplyDraygonHurt(slot, RequireCompleteDraygonState(slot), frame.Samus));
 

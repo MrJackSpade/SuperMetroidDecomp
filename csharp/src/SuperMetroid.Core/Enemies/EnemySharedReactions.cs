@@ -1,42 +1,12 @@
-﻿namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// The enemy AI dispatch table. A native routine pointer can be shared by several definitions, so each routine
-/// keeps an ordered list of definition-guarded handlers; an unguarded handler must be the last for its routine.
+/// The reactions and AI-state handlers several species share, each list first-match in registration order: hurt, frozen,
+/// touch, shot, bomb and Power Bomb. Species register into it once per enemy system; the common participation answers
+/// from it for every participation an entity does not own.
 /// </summary>
-internal sealed class EnemyAiTable
+internal sealed class EnemySharedReactions
 {
-    /// <summary>Initialization handlers grouped by native routine, each with an optional enemy-definition guard.</summary>
-    private readonly Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, EnemyInitializationAiHandler Handler)>> _initialization = [];
-    /// <summary>Main AI handlers grouped by native routine in registration order.</summary>
-    private readonly Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, EnemyMainAiHandler Handler)>> _main = [];
-    /// <summary>Owners whose enemies run typed animations (#641).</summary>
-    private readonly List<(Func<RoomEnemySlot, bool> Matches, Action<RoomEnemySlot, EnemyInstructionContext> Advance)> _typedAnimations = [];
-
-    /// <summary>Registers a typed animation that advances matching enemies.</summary>
-    internal void AddTypedAnimation(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) =>
-        _typedAnimations.Add((Ensure.NotNull(matches), Ensure.NotNull(advance)));
-
-    /// <summary>The routine a banked header pointer names, or null when this build does not translate it.</summary>
-    /// <param name="bank">The header's AI bank.</param>
-    /// <param name="pointer">The bank-local routine pointer.</param>
-    internal static EnemyAiRoutine? Routine(byte bank, ushort pointer)
-    {
-        var routine = (EnemyAiRoutine)(int)new SnesAddress(bank, pointer);
-        return Enum.IsDefined(routine) ? routine : null;
-    }
-
-    /// <summary>The first registered typed animation whose owner matches <paramref name="slot"/>, or null.</summary>
-    internal Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation(RoomEnemySlot slot)
-    {
-        foreach ((Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) in _typedAnimations)
-        {
-            if (matches(slot))
-                return advance;
-        }
-        return null;
-    }
-
     /// <summary>Species-specific hurt handlers, with first matching entry taking precedence.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyHurtAiHandler Handler)> _hurt = [];
     /// <summary>Frozen private tails that may consume an enemy's frame before common thaw.</summary>
@@ -179,54 +149,5 @@ internal sealed class EnemyAiTable
                 return reaction;
         }
         return null;
-    }
-
-    /// <summary>Registers an initialization routine handler.</summary>
-    internal void RegisterInitialization(EnemyAiRoutine routine, Func<RoomEnemySlot, bool>? applies, EnemyInitializationAiHandler handler) =>
-        Add(_initialization, routine, applies, handler);
-
-    /// <summary>Registers a main AI routine handler.</summary>
-    internal void RegisterMain(EnemyAiRoutine routine, Func<RoomEnemySlot, bool>? applies, EnemyMainAiHandler handler) =>
-        Add(_main, routine, applies, handler);
-
-    /// <summary>The first registered initialization handler that applies to <paramref name="slot"/>.</summary>
-    internal bool TryGetInitialization(EnemyAiRoutine routine, RoomEnemySlot slot,
-        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out EnemyInitializationAiHandler? handler) =>
-        TryGet(_initialization, routine, slot, out handler);
-
-    /// <summary>The first registered main handler that applies to <paramref name="slot"/>.</summary>
-    internal bool TryGetMain(EnemyAiRoutine routine, RoomEnemySlot slot,
-        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out EnemyMainAiHandler? handler) =>
-        TryGet(_main, routine, slot, out handler);
-
-    /// <summary>Appends a routine handler while ensuring an unconditional handler stays last.</summary>
-    private static void Add<THandler>(Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, THandler Handler)>> table,
-        EnemyAiRoutine routine, Func<RoomEnemySlot, bool>? applies, THandler handler) where THandler : Delegate
-    {
-        Ensure.NotNull(handler);
-        if (!table.TryGetValue(routine, out var entries))
-            table[routine] = entries = [];
-        if (entries.Count > 0 && entries[^1].Applies is null)
-            throw new InvalidOperationException($"Enemy AI routine {routine} already has an unconditional handler.");
-        entries.Add((applies, handler));
-    }
-
-    /// <summary>Finds the first routine handler whose optional guard accepts this enemy slot.</summary>
-    private static bool TryGet<THandler>(Dictionary<EnemyAiRoutine, List<(Func<RoomEnemySlot, bool>? Applies, THandler Handler)>> table,
-        EnemyAiRoutine routine, RoomEnemySlot slot,
-        [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out THandler? handler) where THandler : Delegate
-    {
-        handler = null;
-        if (!table.TryGetValue(routine, out var entries))
-            return false;
-        foreach (var (applies, candidate) in entries)
-        {
-            if (applies is null || applies(slot))
-            {
-                handler = candidate;
-                return true;
-            }
-        }
-        return false;
     }
 }

@@ -864,7 +864,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
-    internal void RegisterKiHunterBombReactions(EnemyAiTable table)
+    internal void RegisterKiHunterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.EnemyDefinitionPointer) &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KiHunterShot)
@@ -923,7 +923,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
-    internal void RegisterKiHunterPowerBombReactions(EnemyAiTable table)
+    internal void RegisterKiHunterPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.KiHunterShot)
@@ -933,7 +933,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
-    internal void RegisterKiHunterShotReactions(EnemyAiTable table)
+    internal void RegisterKiHunterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KiHunterShot)

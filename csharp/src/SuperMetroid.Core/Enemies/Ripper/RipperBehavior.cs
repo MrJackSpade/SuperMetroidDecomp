@@ -246,7 +246,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
-    internal static void RegisterRipperBombReactions(EnemyAiTable table)
+    internal static void RegisterRipperBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.GRipperRipper2Shot)
@@ -292,7 +292,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Pins GRipper and Ripper II frozen visuals after accepted shot reactions.</summary>
-    internal static void RegisterRipperShotReactions(EnemyAiTable table)
+    internal static void RegisterRipperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.GRipperRipper2Shot)

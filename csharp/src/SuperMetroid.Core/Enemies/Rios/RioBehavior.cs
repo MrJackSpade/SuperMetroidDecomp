@@ -56,8 +56,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledProgram = null,
             Function = RioEnemyFunction.WaitingForSamus,
         };
-        (slot.Entity as RioEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Rio.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
@@ -269,7 +268,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Returns the initialized Rio state paired with this physical enemy slot.</summary>
     internal static RioEnemyState RequireRioState(RoomEnemySlot slot) =>
-        (slot.Entity as RioEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<RioEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rio state.");
 
     /// <summary>Ports Rio's initialization AI.</summary>

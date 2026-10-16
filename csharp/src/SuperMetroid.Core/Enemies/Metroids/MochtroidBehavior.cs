@@ -55,8 +55,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             AttachmentDamageTimer = 0,
             MovementMode = MochtroidMovementMode.NotTouchingSamus,
         };
-        (slot.Entity as MochtroidEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Mochtroid.")).State = state;
+        slot.SetSpeciesState(state);
         slot.Layer = 2;
         SetMochtroidProgram(
             slot, state, MochtroidProgram.FreeFlight);
@@ -264,7 +263,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Returns the state initialized for this physical enemy slot.</summary>
     internal static MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
-        (slot.Entity as MochtroidEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<MochtroidEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");
 
     /// <summary>Advances Mochtroid's typed animation.</summary>
@@ -291,7 +290,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the named attachment and drain reaction for Samus overlap.</summary>
-    internal void RegisterMochtroidTouch(EnemyAiTable table)
+    internal void RegisterMochtroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MochtroidTouch,
@@ -309,7 +308,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the Mochtroid-specific shot callback when its definition selects one.</summary>
-    internal static void RegisterMochtroidShotReactions(EnemyAiTable table)
+    internal static void RegisterMochtroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MochtroidShot));

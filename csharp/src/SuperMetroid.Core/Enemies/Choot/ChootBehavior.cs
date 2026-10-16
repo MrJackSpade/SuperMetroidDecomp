@@ -40,8 +40,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             _chootFallingOrigins,
             _chootInitialYSpeedTableIndexes,
             _chootJumpDelayTimers);
-        (slot.Entity as ChootEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Choot.")).State = state;
+        slot.SetSpeciesState(state);
 
         SetChootProgram(slot, state, ChootProgram.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
@@ -215,7 +214,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects Choot AI dispatch for an enemy slot that has not run its initializer.</summary>
     internal static ChootEnemyState RequireChootState(RoomEnemySlot slot) =>
-        (slot.Entity as ChootEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<ChootEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Choot state.");
 
     /// <summary>Advances Choot's typed animation.</summary>

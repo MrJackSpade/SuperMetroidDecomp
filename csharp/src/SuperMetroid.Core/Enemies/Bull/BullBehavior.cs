@@ -33,8 +33,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeBull(RoomEnemySlot slot)
     {
         var state = new BullEnemyState(slot, _extensions[slot.SlotIndex]);
-        (slot.Entity as BullEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Bull.")).State = state;
+        slot.SetSpeciesState(state);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -237,7 +236,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a Bull callback whose slot has not received species initialization.</summary>
     internal static BullEnemyState RequireBullState(RoomEnemySlot slot) =>
-        (slot.Entity as BullEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<BullEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Bull state.");
 
     /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>

@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 internal sealed class MagdolliteEntity(MagdolliteBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal MagdolliteEnemyState? State { get; set; }
+    /// <summary>The occupant's MagdolliteEnemyState, held by its physical slot.</summary>
+    internal MagdolliteEnemyState? State
+    {
+        get => Slot.SpeciesState<MagdolliteEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunMagdolliteInitializationAi;

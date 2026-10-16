@@ -517,7 +517,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the shared post-common Evir combat tail after bomb hits.</summary>
-    internal void RegisterEvirBombReactions(EnemyAiTable table)
+    internal void RegisterEvirBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.EvirShot)
@@ -568,7 +568,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Preserves power-bomb callbacks on both body and arms, including native relative aliases.</summary>
-    internal void RegisterEvirPowerBombReactions(EnemyAiTable table)
+    internal void RegisterEvirPowerBombReactions(EnemySharedReactions table)
     {
         // Touch and shot collision lists exclude the arms through property $0400, but $A0:A306's power-bomb walker
         // does not. Both body and arms therefore dispatch $A8:8B0C and its intentionally physical +$40/+80 follow-up
@@ -581,7 +581,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Copies accepted body-shot freeze state to arms and attached spit after common damage.</summary>
-    internal void RegisterEvirShotReactions(EnemyAiTable table)
+    internal void RegisterEvirShotReactions(EnemySharedReactions table)
     {
         // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
@@ -594,7 +594,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs common body contact and then Evir's physical-slot combat follow-up.</summary>
-    internal void RegisterEvirTouch(EnemyAiTable table)
+    internal void RegisterEvirTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
                                slot.Parameter1 == 0 &&

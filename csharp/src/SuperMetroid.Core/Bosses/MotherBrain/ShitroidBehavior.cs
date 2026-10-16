@@ -846,7 +846,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses bomb damage for recoil strength but ordinary slot zero for its direction, without health loss.</summary>
-    internal void RegisterShitroidBombReactions(EnemyAiTable table)
+    internal void RegisterShitroidBombReactions(EnemySharedReactions table)
     {
         // `$A9:F842` reads damage from the selected physical projectile slot, but always reads aim coordinates from
         // ordinary slot zero. For a bomb collision that means family-$0500 damage controls recoil strength while
@@ -920,7 +920,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the private power-bomb callback in place of common enemy damage.</summary>
-    internal void RegisterShitroidPowerBombReactions(EnemyAiTable table)
+    internal void RegisterShitroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.ShitroidPowerBomb)
@@ -930,7 +930,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
-    internal void RegisterShitroidShotReactions(EnemyAiTable table)
+    internal void RegisterShitroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShitroidShot)
@@ -947,7 +947,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses cutscene latching or recoil on contact instead of ordinary Samus damage.</summary>
-    internal void RegisterShitroidTouch(EnemyAiTable table)
+    internal void RegisterShitroidTouch(EnemySharedReactions table)
     {
         // `$A9:F789` replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.

@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Waver;
 internal sealed class WaverEntity(WaverBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal WaverEnemyState? State { get; set; }
+    /// <summary>The occupant's WaverEnemyState, held by its physical slot.</summary>
+    internal WaverEnemyState? State
+    {
+        get => Slot.SpeciesState<WaverEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => WaverBehavior.RunWaverInitializationAi;

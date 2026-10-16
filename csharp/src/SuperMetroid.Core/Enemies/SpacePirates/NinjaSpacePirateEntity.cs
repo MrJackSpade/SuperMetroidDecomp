@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal NinjaSpacePirateEnemyState? State { get; set; }
+    /// <summary>The occupant's NinjaSpacePirateEnemyState, held by its physical slot.</summary>
+    internal NinjaSpacePirateEnemyState? State
+    {
+        get => Slot.SpeciesState<NinjaSpacePirateEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunNinjaSpacePirateInitializationAi;

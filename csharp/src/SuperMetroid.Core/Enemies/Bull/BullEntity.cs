@@ -14,8 +14,12 @@ namespace SuperMetroid.Core.Enemies.Bull;
 internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal BullEnemyState? State { get; set; }
+    /// <summary>The occupant's BullEnemyState, held by its physical slot.</summary>
+    internal BullEnemyState? State
+    {
+        get => Slot.SpeciesState<BullEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Initialize;

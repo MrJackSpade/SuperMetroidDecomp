@@ -428,11 +428,14 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     internal RoomEarthquake Earthquake { get; }
 
     /// <summary>
-    /// Resolves native AI addresses to species handlers. The table contains delegates and is
-    /// rebuilt from its owners on first access after a debugger restore.
+    /// The reactions several species share. The lists contain delegates and are rebuilt from their owners on first
+    /// access after a debugger restore.
     /// </summary>
     [field: NonSerialized]
-    internal EnemyAiTable Ai => field ??= BuildEnemyAiTable();
+    internal EnemySharedReactions SharedReactions => field ??= BuildSharedReactions();
+
+    /// <summary>The shared reactions, for the common participation to resolve at use.</summary>
+    private EnemySharedReactions GetSharedReactions() => SharedReactions;
 
     /// <summary>The species registry that binds each installed occupant's entity.</summary>
     internal EnemySpeciesRegistry Species { get; }
@@ -689,7 +692,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
+        Species = new EnemySpeciesRegistry(new EnemyCommonParticipation(GetSharedReactions), [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior, PhantoonBehavior, MotherBrainBehavior, BabyMetroidCutsceneBehavior,
             new RidleyEntityFactory(RidleyBehavior, CeresRidleyBehavior, RidleyEncounter)]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
@@ -738,7 +741,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RoomStatus.BossId = 0;
         GunshipBehavior.LastGunshipEvent = GunshipFrameEvent.None;
         BeginEnemySoundRequestFrame();
-        // Each species resets its own room state, in the original order.
+        // Each species resets its own room state, in the original order; the slots drop the species states they hold.
+        foreach (RoomEnemySlot slot in SlotTable._slots)
+            slot.ClearSpeciesStates();
         foreach (IEnemySpecies species in _species)
             species.ResetForRoomLoad(request);
         GunshipBehavior.GunshipSavePromptPending = false;
@@ -1032,9 +1037,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8) =>
         RunMainAi(slot, frame, nmiFrameCounter8);
 
-    /// <summary>Shares the lazily rebuilt handler table with the enemy scheduler.</summary>
-    EnemyAiTable IEnemyDispatch.Ai => Ai;
-
     /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
     IReadOnlyList<ushort> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
 
@@ -1149,14 +1151,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     /// <summary>
-    /// Rebuilds the handler table after construction or debugger restore. Species handlers
-    /// precede shared handlers; owned instructions preserve first-match registration order.
+    /// Rebuilds the shared reactions after construction or debugger restore, in the established first-match order.
     /// </summary>
-    private EnemyAiTable BuildEnemyAiTable()
+    private EnemySharedReactions BuildSharedReactions()
     {
-        var table = new EnemyAiTable();
-        RegisterInitializationAi(table);
-        RegisterMainAi(table);
+        var table = new EnemySharedReactions();
         RegisterTouchHandlers(table);
         RegisterShotReactions(table);
         RegisterBombReactions(table);
@@ -1166,21 +1165,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         return table;
     }
 
-    /// <summary>Registers the shared common-RTL initializer that any header naming it runs (species own the rest).</summary>
-    private static void RegisterInitializationAi(EnemyAiTable table) =>
-        table.RegisterInitialization(EnemyAiRoutine.RTL_A2804C, null, (slot, level, samus, controllerInput, cameraX) => { });
-
-    /// <summary>Registers the shared common-RTL main routines that any header naming them runs (species own the rest).</summary>
-    private static void RegisterMainAi(EnemyAiTable table)
-    {
-        table.RegisterMain(EnemyAiRoutine.RTL_A3804C, null, (slot, frame, nmiFrameCounter8) => { });
-        table.RegisterMain(EnemyAiRoutine.RTL_A2804C, null, (slot, frame, nmiFrameCounter8) => { });
-    }
-
     // Each species registers its own run of reactions; first match wins, so the interleaving below is the
     // established precedence between species and shared registrations.
     /// <summary>Maps enemy-definition bomb reaction pointers to translated handlers.</summary>
-    private void RegisterBombReactions(EnemyAiTable table)
+    private void RegisterBombReactions(EnemySharedReactions table)
     {
         CrocomireBehavior.RegisterCrocomireBombReactions(table);
         KraidBehavior.RegisterKraidBombReactions(table);
@@ -1236,7 +1224,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // established precedence between species and shared registrations.
     // Matches are mutually exclusive: each names its definition and header reaction callback.
     /// <summary>Maps banked power-bomb reaction pointers for each supported species.</summary>
-    private void RegisterPowerBombReactions(EnemyAiTable table)
+    private void RegisterPowerBombReactions(EnemySharedReactions table)
     {
         // These headers install private callbacks instead of falling through common power-bomb damage. A literal RTL
         // intentionally does nothing; the shutter callbacks only run their trigger state machines. All still
@@ -1358,7 +1346,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // Matches are mutually exclusive. Kraid's parts precede the generic literal no-op header and the ordinary
     // normal-shot reaction is last, because Crocomire's tongue also uses NormalEnemyShot.
     /// <summary>Maps shot-response pointers, including species-specific damage behavior.</summary>
-    private void RegisterShotReactions(EnemyAiTable table)
+    private void RegisterShotReactions(EnemySharedReactions table)
     {
         DeadTorizoBehavior.RegisterDeadTorizoShotReactions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperShotReactions(table);
@@ -1422,7 +1410,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     // Matches are mutually exclusive (each names its definition and header callback); the ordinary normal-touch
     // handler is last because Crocomire's tongue also uses NormalEnemyTouch.
     /// <summary>Registers Samus-contact handlers after species instruction registrations.</summary>
-    private void RegisterTouchHandlers(EnemyAiTable table)
+    private void RegisterTouchHandlers(EnemySharedReactions table)
     {
         KraidBehavior.RegisterKraidNailTouch(table);
         KraidBehavior.RegisterKraidTouch(table);
@@ -1498,7 +1486,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     // Hurt AI is a first-match list in EnemyMain's original dispatch order; the shared literal no-op hurt pointer is last.
     /// <summary>Maps hurt-state AI pointers used while enemies are flashing or reacting.</summary>
-    private void RegisterHurtAi(EnemyAiTable table)
+    private void RegisterHurtAi(EnemySharedReactions table)
     {
         MetroidBehavior.RegisterMetroidHurtAi(table);
         BombTorizoBehavior.RegisterBombTorizoHurtAi(table);
@@ -1510,7 +1498,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     // Rinka's frozen tail runs before the common thaw and can consume the frame; the others run after it.
     /// <summary>Maps frozen-state AI pointers used while ice suspends normal behavior.</summary>
-    private void RegisterFrozenAi(EnemyAiTable table)
+    private void RegisterFrozenAi(EnemySharedReactions table)
     {
         RinkaBehavior.RegisterRinkaFrozenPreemption(table);
         MetroidBehavior.RegisterMetroidFrozenAi(table);

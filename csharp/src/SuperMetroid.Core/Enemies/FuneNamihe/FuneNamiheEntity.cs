@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.FuneNamihe;
 internal sealed class FuneNamiheEntity(FuneNamiheBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal FuneNamiheEnemyState? State { get; set; }
+    /// <summary>The occupant's FuneNamiheEnemyState, held by its physical slot.</summary>
+    internal FuneNamiheEnemyState? State
+    {
+        get => Slot.SpeciesState<FuneNamiheEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => FuneNamiheBehavior.RunFuneNamiheInitializationAi;

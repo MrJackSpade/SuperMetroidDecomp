@@ -81,8 +81,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = StokeAiFunction.MovingLeft,
             Direction = (StokeDirection)slot.Parameter1,
         };
-        (slot.Entity as StokeEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Stoke.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Initialization writes the common empty map, then picks the left list by default.
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
@@ -199,7 +198,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Looks up initialized Stoke dispatch state, failing if a slot reached AI before initialization.</summary>
     internal static StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
-        (slot.Entity as StokeEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<StokeEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
 
     /// <summary>Instruction <c>$A2:8990</c>: resume leftward movement.</summary>

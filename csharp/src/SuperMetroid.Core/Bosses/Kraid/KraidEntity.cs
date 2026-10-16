@@ -38,7 +38,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
     {
         EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle or EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidNail or EnemyDefinitionId.KraidNailBad => species.AdvanceKraidTypedAnimation,
-        EnemyDefinitionId.Kraid => Common.FindTypedAnimation(Slot),
+        EnemyDefinitionId.Kraid => null,
         _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

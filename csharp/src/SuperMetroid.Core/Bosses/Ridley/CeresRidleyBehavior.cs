@@ -1086,7 +1086,7 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>Routes exploding normal bombs to Ceres Ridley's shot counter after common bank-$A0 overlap.</summary>
-    internal void RegisterCeresRidleyBombReactions(EnemyAiTable table)
+    internal void RegisterCeresRidleyBombReactions(EnemySharedReactions table)
     {
         // `$A6:DF8A` branches on area index before it ever reaches common vulnerability damage. Ceres therefore
         // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the bank-$A0

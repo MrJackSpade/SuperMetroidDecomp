@@ -6,8 +6,12 @@ namespace SuperMetroid.Core.Enemies.Kago;
 internal sealed class KagoEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal KagoEnemyState? State { get; set; }
+    /// <summary>The occupant's KagoEnemyState, held by its physical slot.</summary>
+    internal KagoEnemyState? State
+    {
+        get => Slot.SpeciesState<KagoEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KagoBehavior.RunKagoInitializationAi;

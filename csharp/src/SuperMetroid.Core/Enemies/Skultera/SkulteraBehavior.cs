@@ -71,8 +71,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             _skulteraAngleDeltas,
             _skulteraPreviousYOffsets,
             _skulteraCurrentYOffsets);
-        (slot.Entity as SkulteraEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Skultera.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Parameter one's high byte selects initial facing: zero means right, any nonzero
         // value means left. Its low byte is multiplied by eight because each common speed
@@ -216,7 +215,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gets the initialized state for a Skultera slot, rejecting calls before its setup.</summary>
     internal static SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
-        (slot.Entity as SkulteraEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<SkulteraEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");
 
     /// <summary>Ports Skultera's initialization AI.</summary>

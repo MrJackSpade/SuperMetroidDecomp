@@ -152,15 +152,14 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
     internal static ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
-        (slot.Entity as ElevatorEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<ElevatorEnemyState>() ?? throw new InvalidOperationException(
             $"Elevator slot {slot.SlotIndex} was not initialized.");
 
     /// <summary>Ports <c>Elevator_Init</c> at $A3:94E6.</summary>
     internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new ElevatorEnemyState(slot);
-        (slot.Entity as ElevatorEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Elevator.")).State = state;
+        slot.SetSpeciesState(state);
 
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);

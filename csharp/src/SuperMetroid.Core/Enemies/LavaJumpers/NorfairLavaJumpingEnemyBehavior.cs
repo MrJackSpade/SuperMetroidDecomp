@@ -51,8 +51,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             AnimationFinished = false,
             InstalledProgram = null,
         };
-        (slot.Entity as NorfairLavaJumpingEnemyEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a NorfairLavaJumpingEnemy.")).State = state;
+        slot.SetSpeciesState(state);
 
         if (state.IsFollower)
         {
@@ -238,7 +237,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
     /// <summary>Returns the state initialized for this physical enemy slot.</summary>
     internal static NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
-        (slot.Entity as NorfairLavaJumpingEnemyEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<NorfairLavaJumpingEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair lava-jumping state.");
 
     /// <summary>Ports NorfairLavaJumpingEnemy's initialization AI.</summary>

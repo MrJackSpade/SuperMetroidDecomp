@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Polyp;
 internal sealed class PolypEntity(PolypBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal PolypEnemyState? State { get; set; }
+    /// <summary>The occupant's PolypEnemyState, held by its physical slot.</summary>
+    internal PolypEnemyState? State
+    {
+        get => Slot.SpeciesState<PolypEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunPolypInitializationAi;

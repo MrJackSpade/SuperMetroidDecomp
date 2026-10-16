@@ -9,8 +9,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's ZebetiteEnemyState, set by its initializer.</summary>
-    internal ZebetiteEnemyState? State { get; set; }
+    /// <summary>The occupant's ZebetiteEnemyState, held by its physical slot.</summary>
+    internal ZebetiteEnemyState? State
+    {
+        get => Slot.SpeciesState<ZebetiteEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunZebetiteInitializationAi;

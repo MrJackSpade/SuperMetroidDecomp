@@ -103,8 +103,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             DrainAccumulator = 0,
             Function = MetroidAiFunction.Homing,
         };
-        (slot.Entity as MetroidEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Metroid.")).State = state;
+        slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus);
     }
 
@@ -471,11 +470,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Finds initialized Metroid state for a live enemy slot or rejects an invalid callback.</summary>
     internal static MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
-        (slot.Entity as MetroidEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<MetroidEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metroid state.");
 
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
-    internal void RegisterMetroidBombReactions(EnemyAiTable table)
+    internal void RegisterMetroidBombReactions(EnemySharedReactions table)
     {
         // Metroid shot AI ignores bombs while frozen, detaches an attached body for family $0500, or applies its
         // peculiar slot-zero recoil otherwise.
@@ -516,7 +515,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
-    internal static void RegisterMetroidPowerBombReactions(EnemyAiTable table)
+    internal static void RegisterMetroidPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MetroidPowerBomb)
@@ -526,7 +525,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Metroid touch behavior, including attachment and suit-dependent draining.</summary>
-    internal void RegisterMetroidTouch(EnemyAiTable table)
+    internal void RegisterMetroidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MetroidTouch,
@@ -606,7 +605,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>
-    internal void RegisterMetroidShotReactions(EnemyAiTable table)
+    internal void RegisterMetroidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetroidShot)
@@ -617,10 +616,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers hurt AI ahead of frozen AI when both native handler bits are set; animation bytecode still advances.</summary>
-    internal static void RegisterMetroidHurtAi(EnemyAiTable table) =>
+    internal static void RegisterMetroidHurtAi(EnemySharedReactions table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, (slot, _) => ApplyMetroidHurt(slot));
 
     /// <summary>Registers the frozen Metroid handler that retains its outer-body state.</summary>
-    internal static void RegisterMetroidFrozenAi(EnemyAiTable table) =>
+    internal static void RegisterMetroidFrozenAi(EnemySharedReactions table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid, RunMetroidFrozen);
 }

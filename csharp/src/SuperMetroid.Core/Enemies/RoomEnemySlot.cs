@@ -30,6 +30,32 @@ public sealed class RoomEnemySlot
     internal IEnemyEntity? Entity { get; private set; }
 
     /// <summary>
+    /// Each species' state installed in this physical slot, keyed by state type. Like the slot's words it outlives the
+    /// occupant: a reaction tail that runs after common damage killed the enemy still reads it, until the next occupant of
+    /// that species replaces it or the room loads.
+    /// </summary>
+    private readonly Dictionary<string, object> _speciesStates = new(StringComparer.Ordinal);
+
+    /// <summary>The <typeparamref name="T"/> state last installed in this slot this room, or null.</summary>
+    internal T? SpeciesState<T>() where T : class =>
+        _speciesStates.TryGetValue(StateKey<T>(), out object? state) ? (T)state : null;
+
+    /// <summary>Installs or, with null, removes this slot's <typeparamref name="T"/> state.</summary>
+    internal void SetSpeciesState<T>(T? state) where T : class
+    {
+        if (state is null)
+            _speciesStates.Remove(StateKey<T>());
+        else
+            _speciesStates[StateKey<T>()] = state;
+    }
+
+    /// <summary>Drops every species state, at room load.</summary>
+    internal void ClearSpeciesStates() => _speciesStates.Clear();
+
+    /// <summary>The storage key of a state type.</summary>
+    private static string StateKey<T>() => typeof(T).FullName ?? throw new InvalidOperationException("A state type has no name.");
+
+    /// <summary>
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
     /// here, at the statement that changes the header pointer, because the cartridge re-reads the header each dispatch.
     /// </summary>

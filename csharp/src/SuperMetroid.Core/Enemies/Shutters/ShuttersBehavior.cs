@@ -28,8 +28,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         var state = new GrowingShutterEnemyState(slot);
-        (slot.Entity as ShuttersEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Shutters.")).GrowingShutterState = state;
+        slot.SetSpeciesState(state);
 
         // The initializer consumes init0 and the low extra-property word as a two-bit table
         // selector before clearing the latter. Keep native dispatch ordering independent
@@ -237,8 +236,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void InitializeHorizontalShutter(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new HorizontalShutterEnemyState(slot);
-        (slot.Entity as ShuttersEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Shutters.")).HorizontalShutterState = state;
+        slot.SetSpeciesState(state);
 
         ushort packedSpeedAndDirection = slot.CurrentInstruction;
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
@@ -628,21 +626,21 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Finds a growing shutter's room state by its physical enemy slot.</summary>
     private static GrowingShutterEnemyState RequireGrowingShutterState(RoomEnemySlot slot) =>
-        (slot.Entity as ShuttersEntity)?.GrowingShutterState ?? throw new InvalidOperationException(
+        slot.SpeciesState<GrowingShutterEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized growing-shutter state.");
 
     /// <summary>Finds a vertical shutter's room state by its physical enemy slot.</summary>
     private static VerticalShutterEnemyState RequireVerticalShutterState(RoomEnemySlot slot) =>
-        (slot.Entity as ShuttersEntity)?.VerticalShutterState ?? throw new InvalidOperationException(
+        slot.SpeciesState<VerticalShutterEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized vertical-shutter state.");
 
     /// <summary>Finds a horizontal shutter's room state by its physical enemy slot.</summary>
     private static HorizontalShutterEnemyState RequireHorizontalShutterState(RoomEnemySlot slot) =>
-        (slot.Entity as ShuttersEntity)?.HorizontalShutterState ?? throw new InvalidOperationException(
+        slot.SpeciesState<HorizontalShutterEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized horizontal-shutter state.");
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
-    internal void RegisterShuttersBombReactions(EnemyAiTable table)
+    internal void RegisterShuttersBombReactions(EnemySharedReactions table)
     {
         // `$A2:F0A2` never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // callback only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
@@ -652,7 +650,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs common bomb damage before reacting a destroyable vertical shutter.</summary>
-    internal void RegisterDestroyableShutterBombReactions(EnemyAiTable table)
+    internal void RegisterDestroyableShutterBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
@@ -743,7 +741,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
-    internal void RegisterShuttersPowerBombReactions(EnemyAiTable table)
+    internal void RegisterShuttersPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.VerticalShutterPowerBomb)
@@ -758,7 +756,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
-    internal void RegisterShuttersShotReactions(EnemyAiTable table)
+    internal void RegisterShuttersShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShootableVerticalShutterShot)
@@ -775,7 +773,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs common shot damage for destroyable shutters and movement reactions for horizontal ones.</summary>
-    internal void RegisterDestroyableAndHorizontalShutterShotReactions(EnemyAiTable table)
+    internal void RegisterDestroyableAndHorizontalShutterShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DestroyableVerticalShutterShot)
@@ -792,7 +790,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Uses Samus contact to react vertical shutters or manually eject her from stopped horizontal ones.</summary>
-    internal void RegisterShuttersTouch(EnemyAiTable table)
+    internal void RegisterShuttersTouch(EnemySharedReactions table)
     {
         // $F09D does not enter common contact damage. Body overlap is itself the trigger, and $F0B6 decides
         // whether this population mode may start moving.
@@ -822,8 +820,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         var state = new VerticalShutterEnemyState(slot);
-        (slot.Entity as ShuttersEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Shutters.")).VerticalShutterState = state;
+        slot.SetSpeciesState(state);
 
         ushort packedSpeedAndDirection = slot.CurrentInstruction;
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);

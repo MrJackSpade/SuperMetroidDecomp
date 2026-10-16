@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Metaree;
 internal sealed class MetareeEntity(MetareeBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal MetareeEnemyState? State { get; set; }
+    /// <summary>The occupant's MetareeEnemyState, held by its physical slot.</summary>
+    internal MetareeEnemyState? State
+    {
+        get => Slot.SpeciesState<MetareeEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MetareeBehavior.RunMetareeInitializationAi;

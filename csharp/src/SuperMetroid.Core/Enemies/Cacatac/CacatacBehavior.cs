@@ -104,8 +104,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - distance)),
             UpsideUp = upsideUp,
         };
-        (slot.Entity as CacatacEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Cacatac.")).State = state;
+        slot.SetSpeciesState(state);
         SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle);
     }
 
@@ -198,7 +197,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires an initialized typed state before a Cacatac AI or list callback runs.</summary>
     internal static CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
-        (slot.Entity as CacatacEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<CacatacEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>

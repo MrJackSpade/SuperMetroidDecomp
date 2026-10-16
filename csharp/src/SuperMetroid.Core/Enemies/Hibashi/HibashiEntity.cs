@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Hibashi;
 internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal HibashiEnemyState? State { get; set; }
+    /// <summary>The occupant's HibashiEnemyState, held by its physical slot.</summary>
+    internal HibashiEnemyState? State
+    {
+        get => Slot.SpeciesState<HibashiEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => HibashiBehavior.RunHibashiInitializationAi;

@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.WorkRobots;
 internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyShotAdmission
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal WorkRobotEnemyState? State { get; set; }
+    /// <summary>The occupant's WorkRobotEnemyState, held by its physical slot.</summary>
+    internal WorkRobotEnemyState? State
+    {
+        get => Slot.SpeciesState<WorkRobotEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunWorkRobotInitializationAi;

@@ -92,7 +92,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Ports <c>DeadSidehopper_Init</c> at <c>$A9:D7B6</c>.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
-        if ((slot.Entity as DeadSidehopperEntity)?.State is not null)
+        if (slot.SpeciesState<DeadSidehopperEnemyState>() is not null)
             throw new InvalidDataException($"Dead sidehopper slot {slot.SlotIndex} was initialized twice.");
 
         switch (slot.Parameter1)
@@ -161,8 +161,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
         var state = new DeadSidehopperEnemyState(slot, graphicsVariant, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset });
-        (slot.Entity as DeadSidehopperEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a DeadSidehopper.")).State = state;
+        slot.SetSpeciesState(state);
 
         CorpseRottingTableProcessor.Initialize(
             _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
@@ -570,7 +569,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
     internal static DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = (slot.Entity as DeadSidehopperEntity)?.State ??
+        DeadSidehopperEnemyState state = slot.SpeciesState<DeadSidehopperEnemyState>() ??
             throw new InvalidDataException(
                 $"Enemy slot {slot.SlotIndex} has no initialized dead-sidehopper state.");
         if (!ReferenceEquals(state.Slot, slot))
@@ -591,7 +590,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
-    internal static void RegisterDeadSidehopperBombReactions(EnemyAiTable table)
+    internal static void RegisterDeadSidehopperBombReactions(EnemySharedReactions table)
     {
         table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                                            c.SelectedShotAi == EnemyInteractionCallback.DeadSidehopperShot,
@@ -622,7 +621,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>
-    internal void RegisterDeadSidehopperPowerBombReactions(EnemyAiTable table)
+    internal void RegisterDeadSidehopperPowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DeadSidehopperPowerBomb)
@@ -632,7 +631,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
-    internal static void RegisterDeadSidehopperShotReactions(EnemyAiTable table)
+    internal static void RegisterDeadSidehopperShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DeadSidehopperShot)
@@ -649,7 +648,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Uses ordinary touch damage during transformation and starts decomposition afterward.</summary>
-    internal void RegisterDeadSidehopperTouch(EnemyAiTable table)
+    internal void RegisterDeadSidehopperTouch(EnemySharedReactions table)
     {
         // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage without a death animation. At
         // palette stage eight it instead starts the corpse decomposition and never enters common touch damage.

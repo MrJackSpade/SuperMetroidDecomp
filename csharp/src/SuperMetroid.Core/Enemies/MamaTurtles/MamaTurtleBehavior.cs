@@ -868,7 +868,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the baby wake callback after common bomb damage.</summary>
-    internal void RegisterMamaTurtleBombReactions(EnemyAiTable table)
+    internal void RegisterMamaTurtleBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.BabyTurtleShot)
@@ -931,7 +931,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs the baby wake callback after common projectile damage.</summary>
-    internal void RegisterMamaTurtleShotReactions(EnemyAiTable table)
+    internal void RegisterMamaTurtleShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BabyTurtleShot)
@@ -941,7 +941,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes Mama contact to shell/fall handling and baby contact to separation and wake behavior.</summary>
-    internal void RegisterMamaTurtleTouch(EnemyAiTable table)
+    internal void RegisterMamaTurtleTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MamaTurtleTouch,

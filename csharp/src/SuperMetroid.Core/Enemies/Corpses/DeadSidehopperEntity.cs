@@ -7,8 +7,12 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's state, set by its initializer.</summary>
-    internal DeadSidehopperEnemyState? State { get; set; }
+    /// <summary>The occupant's DeadSidehopperEnemyState, held by its physical slot.</summary>
+    internal DeadSidehopperEnemyState? State
+    {
+        get => Slot.SpeciesState<DeadSidehopperEnemyState>();
+        set => Slot.SetSpeciesState(value);
+    }
 
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunDeadSidehopperInitializationAi;

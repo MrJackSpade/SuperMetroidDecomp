@@ -61,8 +61,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             InitialYSpeedTableIndexThreeQuarters = 0,
             InitialYSpeedTableIndexHalf = 0,
         };
-        (slot.Entity as PuyoEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Puyo.")).State = state;
+        slot.SetSpeciesState(state);
         SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
     }
 
@@ -435,7 +434,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires initialized per-slot Puyo state before its AI dispatcher runs.</summary>
     internal static PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
-        (slot.Entity as PuyoEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<PuyoEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");
 
     /// <summary>Advances Puyo's typed animation.</summary>

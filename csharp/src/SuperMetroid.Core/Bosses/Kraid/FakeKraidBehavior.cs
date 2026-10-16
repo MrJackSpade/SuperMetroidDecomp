@@ -92,8 +92,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         var state = new FakeKraidEnemyState(slot);
-        (slot.Entity as FakeKraidEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a FakeKraid.")).State = state;
+        slot.SetSpeciesState(state);
 
         // The routine reads the already-published global random word; it does not advance
         // the RNG. Use the read callback when available and reserve NextRandom for older
@@ -333,7 +332,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Rejects a callback for a Mini-Kraid slot whose species state has not initialized.</summary>
     internal static FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
-        (slot.Entity as FakeKraidEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<FakeKraidEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
 
     /// <summary>
@@ -361,7 +360,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces generic bomb death with Mini-Kraid's explosion-three and four-drop sequence.</summary>
-    internal void RegisterFakeKraidBombReactions(EnemyAiTable table)
+    internal void RegisterFakeKraidBombReactions(EnemySharedReactions table)
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
         // Mini-Kraid drop. Its definition never runs the generic death, whatever callback a hitbox selects.
@@ -418,7 +417,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
-    internal void RegisterFakeKraidPowerBombReactions(EnemyAiTable table)
+    internal void RegisterFakeKraidPowerBombReactions(EnemySharedReactions table)
     {
         // Mini Kraid's private power-bomb callback still owns its four direct pickup explosions, spawned after its
         // death explosion.
@@ -430,7 +429,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
-    internal void RegisterFakeKraidShotReactions(EnemyAiTable table)
+    internal void RegisterFakeKraidShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FakeKraidShot)
@@ -449,7 +448,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs common Samus contact and routes a resulting lethal hit to Mini-Kraid's death sequence.</summary>
-    internal void RegisterFakeKraidTouch(EnemyAiTable table)
+    internal void RegisterFakeKraidTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FakeKraidTouch,

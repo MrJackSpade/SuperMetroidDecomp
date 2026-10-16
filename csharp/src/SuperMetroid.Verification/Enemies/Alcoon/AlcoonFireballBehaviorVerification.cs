@@ -31,7 +31,7 @@ internal static class AlcoonFireballBehaviorVerification
         source.VramTilesIndex = 512;
         source.PaletteIndex = 3072;
         var state = new AlcoonEnemyState(source, new ushort[32], new ushort[32], new ushort[32], new ushort[32], new ushort[32]);
-        (source.Entity as AlcoonEntity ?? throw new InvalidOperationException("Slot 0 is not bound to an Alcoon.")).State = state;
+        source.SetSpeciesState(state);
         foreach (short direction in new short[] { -2, 2 })
         {
             state.Velocity = state.Velocity.WithWholeX(direction);

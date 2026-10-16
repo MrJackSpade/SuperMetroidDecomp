@@ -62,8 +62,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             RequestedInstructionListIndex =
                 (WaverAnimationSelector)(slot.Parameter1 & 1),
         };
-        (slot.Entity as WaverEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Waver.")).State = state;
+        slot.SetSpeciesState(state);
 
         // The native initializer first installs the left steady animation and then invokes the
         // change detector. Parameter bit zero therefore changes only right-facing spawns;
@@ -149,7 +148,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires initialization state for a live Waver before processing its AI or spin opcode.</summary>
     internal static WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
-        (slot.Entity as WaverEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<WaverEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Waver state.");
 
     /// <summary>Ports Waver's initialization AI.</summary>

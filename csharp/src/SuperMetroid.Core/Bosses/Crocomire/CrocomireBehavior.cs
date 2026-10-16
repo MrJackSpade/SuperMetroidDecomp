@@ -351,7 +351,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             "Crocomire death extension is not initialized for the current room.");
 
     /// <summary>Registers component-specific bomb hit routines, including the native no-op gates.</summary>
-    internal void RegisterCrocomireBombReactions(EnemyAiTable table)
+    internal void RegisterCrocomireBombReactions(EnemySharedReactions table)
     {
         // Specials consulted before the selected literal no-op gate, in the original order.
         // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
@@ -399,7 +399,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
-    internal void RegisterCrocomirePowerBombReactions(EnemyAiTable table)
+    internal void RegisterCrocomirePowerBombReactions(EnemySharedReactions table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.CrocomirePowerBomb)
@@ -409,7 +409,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
-    internal void RegisterCrocomireShotReactions(EnemyAiTable table)
+    internal void RegisterCrocomireShotReactions(EnemySharedReactions table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                                      enemy.Definition.ShotAiPointer == 0 ||
@@ -430,7 +430,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers Crocomire component contact, including normal enemy touch damage.</summary>
-    internal void RegisterCrocomireTouch(EnemyAiTable table)
+    internal void RegisterCrocomireTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CrocomireHeaderTouch ||

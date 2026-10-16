@@ -97,8 +97,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
         var state = new WalkingSpacePirateEnemyState(slot);
-        (slot.Entity as WalkingSpacePirateEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a WalkingSpacePirate.")).State = state;
+        slot.SetSpeciesState(state);
 
         // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
         // independent projectile-flinch option and must not accidentally select right art.
@@ -456,7 +455,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Requires the physical slot to have been initialized as a walking pirate.</summary>
     internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
-        (slot.Entity as WalkingSpacePirateEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<WalkingSpacePirateEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
     /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>

@@ -74,8 +74,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
             IdleDisabled = false,
             BounceSpeedCalculated = false,
         };
-        (slot.Entity as BoyonEntity ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} is not bound to a Boyon.")).State = state;
+        slot.SetSpeciesState(state);
         SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 
@@ -220,7 +219,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Returns the initialized state paired with this physical enemy slot.</summary>
     internal static BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
-        (slot.Entity as BoyonEntity)?.State ?? throw new InvalidOperationException(
+        slot.SpeciesState<BoyonEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boyon state.");
 
     /// <summary>Instruction <c>$A2:88C6</c>: permit the arc and request sound $0E.</summary>

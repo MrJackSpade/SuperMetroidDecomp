@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -13,8 +15,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>The Botwoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BotwoonBehavior : IEnemySpecies
+internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BotwoonEntity(this, slot, common);
+
     /// <summary>Active room services and native RNG used by path and drop decisions.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Botwoon's thirteen body actors and spit projectiles.</summary>
@@ -623,10 +631,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         head.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Runs Botwoon's head as a typed animation in place of its bank-$B3 instruction lists (#641).</summary>
-    internal void RegisterBotwoonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon,
-            (slot, context) => AdvanceBotwoonHeadAnimation(slot, RequireBotwoonState(slot)));
+    /// <summary>Advances Botwoon's typed animation.</summary>
+    internal void AdvanceBotwoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceBotwoonHeadAnimation(slot, RequireBotwoonState(slot));
+    }
 
     /// <summary>
     /// Runs Botwoon's head animation where the enemy instruction interpreter would: the frame
@@ -888,23 +897,16 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.BotwoonsSpit);
     }
 
-    /// <summary>Associates Botwoon's definition pointer with its room-load initializer.</summary>
-    internal void RegisterBotwoonInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Botwoon's initialization AI.</summary>
+    internal void RunBotwoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Botwoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBotwoon(slot);
-        });
+        InitializeBotwoon(slot);
     }
 
-    /// <summary>Associates the head slot with Botwoon's per-frame state machine.</summary>
-    internal void RegisterBotwoonMainAi(EnemyAiTable table)
+    /// <summary>Ports Botwoon's main AI.</summary>
+    internal void RunBotwoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Botwoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBotwoonMain(slot, RequireBotwoonState(slot), frame.Samus);
-        });
+        RunBotwoonMain(slot, RequireBotwoonState(slot), frame.Samus);
     }
 
     /// <summary>Applies power-bomb damage while preserving Botwoon's delayed death traversal.</summary>

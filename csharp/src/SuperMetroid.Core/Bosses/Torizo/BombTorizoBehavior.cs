@@ -15,8 +15,14 @@ using SuperMetroid.Core.Bosses.Torizo.Artwork;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>The Bomb Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BombTorizoBehavior : IEnemySpecies
+internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BombTorizoEntity(this, slot, common);
+
     /// <summary>Supplies the live room services, boss flag, random state, and artwork for both statue variants.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves body movement against room blocks and slopes.</summary>
@@ -824,39 +830,33 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
             ? animation.Cursor.Program
             : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo program.");
 
-    /// <summary>Maps both Torizo definitions to the shared native initialization routine.</summary>
-    internal void RegisterBombTorizoInitializationAi(EnemyAiTable table)
+    /// <summary>Ports BombTorizo's initialization AI.</summary>
+    internal void RunBombTorizoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton controllerInput, ushort _1)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Torizo, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBombTorizo(slot, samus, controllerInput);
-        });
+        InitializeBombTorizo(slot, samus, controllerInput);
     }
 
-    /// <summary>Registers variant-specific main callbacks while retaining the shared state dispatcher.</summary>
-    internal void RegisterBombTorizoMainAi(EnemyAiTable table)
+    /// <summary>Ports BombTorizo's main AI.</summary>
+    internal void RunBombTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_BombTorizo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBombTorizoMain(slot, RequireBombTorizoState(slot), frame.Samus, frame.Level);
-        });
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_GoldenTorizo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunGoldenTorizoMain(
-                slot,
-                RequireBombTorizoState(slot),
-                frame.Samus,
-                frame.Level);
-        });
+        RunBombTorizoMain(slot, RequireBombTorizoState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs Bomb and Golden Torizo's body as typed programs (#641), fed room, Samus, input, and NMI state.</summary>
-    internal void RegisterBombTorizoTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
-            (slot, context) => AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext._enemyFrameNmiFrameCounter) }));
+    /// <summary>Ports GoldenTorizo's main AI.</summary>
+    internal void RunGoldenTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunGoldenTorizoMain(
+            slot,
+            RequireBombTorizoState(slot),
+            frame.Samus,
+            frame.Level);
+    }
+
+    /// <summary>Advances BombTorizo's typed animation.</summary>
+    internal void AdvanceBombTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceTorizoAnimation(slot, new TorizoInstructionInputs { Samus = context.Samus, Level = context.Level, ControllerInput = context.ControllerInput, FrameCounterLow = unchecked((byte)_frameContext._enemyFrameNmiFrameCounter) });
+    }
 
     /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
     internal void RegisterBombTorizoShotReactions(EnemyAiTable table)
@@ -2299,4 +2299,35 @@ internal sealed class BombTorizoBehavior : IEnemySpecies
     internal void RegisterBombTorizoHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             (slot, _) => ApplyBombTorizoHurt(slot));
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindTorizoHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
+            enemy.Definition.Bank == TorizoCollisionDefinitions.Bank))
+            return null;
+
+        foreach (GoldenTorizoCollisionComponent component in
+                 TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
+            foreach (GoldenTorizoCollisionHitbox hitbox in
+                     TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
+            {
+                ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
 }

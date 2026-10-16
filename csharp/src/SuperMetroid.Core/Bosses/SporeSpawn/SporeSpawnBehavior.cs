@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -14,8 +17,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
 /// <summary>The Spore Spawn species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class SporeSpawnBehavior : IEnemySpecies
+internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.SporeSpawn];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new SporeSpawnEntity(this, slot, common);
+
     /// <summary>Provides boss event state, installed colors, and the room RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates stalks, spore emitters, spores, and hardening dust effects.</summary>
@@ -380,30 +389,23 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers initialization of the single Spore Spawn body.</summary>
-    internal void RegisterSporeSpawnInitializationAi(EnemyAiTable table)
+    /// <summary>Ports SporeSpawn's initialization AI.</summary>
+    internal void RunSporeSpawnInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_SporeSpawn, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeSporeSpawn(slot);
-        });
+        InitializeSporeSpawn(slot);
     }
 
-    /// <summary>Registers the body state machine and its stalk updates.</summary>
-    internal void RegisterSporeSpawnMainAi(EnemyAiTable table)
+    /// <summary>Ports SporeSpawn's main AI.</summary>
+    internal void RunSporeSpawnMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_SporeSpawn, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
-        });
+        RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
     }
 
-    /// <summary>Runs Spore Spawn's body as typed programs in place of its bank-$A5 lists (#641).</summary>
-    internal void RegisterSporeSpawnTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn,
-            (slot, context) => AdvanceSporeSpawnAnimation(slot));
+    /// <summary>Advances SporeSpawn's typed animation.</summary>
+    internal void AdvanceSporeSpawnTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceSporeSpawnAnimation(slot);
+    }
 
     /// <summary>Runs Spore Spawn's body program where the enemy instruction interpreter would.</summary>
     internal void AdvanceSporeSpawnAnimation(RoomEnemySlot body)
@@ -425,7 +427,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
     internal void RegisterSporeSpawnShotReactions(EnemyAiTable table)
     {
-
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SporeSpawnShot)
         {
@@ -850,5 +851,42 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         audio.QueueLegacySound(LastSporeSpawnSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindSporeSpawnHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
+            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
+            SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer)))
+            return null;
+
+        // These twelve OAM frames are selected by Spore Spawn. Old visual
+        // overrides may carry Draygon-prefixed keys, but every rectangle
+        // and callback comes from the compiled gameplay catalog.
+        foreach (SporeSpawnCollisionComponent component in
+                 SporeSpawnCollisionDefinitions.ComponentsAt(
+                     enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
+            foreach (SporeSpawnCollisionHitbox hitbox in
+                     SporeSpawnCollisionDefinitions.HitboxesAt(
+                         component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
     }
 }

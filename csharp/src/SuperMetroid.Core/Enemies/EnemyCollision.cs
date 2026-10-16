@@ -491,10 +491,10 @@ internal sealed class EnemyCollision
                 enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap);
             bool headerSuppressesMultiboxShotCollision = usesExtendedHitboxes &&
                 IsCanonicalMultiboxNoOpAi(enemy.Definition.ShotAiPointer);
-            bool isCrocomire = enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-                enemy.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
+            bool admittedByOccupant = enemy.Entity is IEnemyNormalBombAdmission admission &&
+                admission.AdmitsNormalBombs(usesExtendedHitboxes);
             if ((!usesCommonShotAi && !usesLiteralNoOpShotAi &&
-                    !usesTranslatedPrivateShotAi && !isCrocomire) ||
+                    !usesTranslatedPrivateShotAi && !admittedByOccupant) ||
                 enemy.SpritemapPointer == 0 ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted) ||
@@ -929,64 +929,6 @@ internal sealed class EnemyCollision
         if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxCallback(target, out callback) is { } owned)
             return owned;
 
-        if (DraygonBehavior.IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
-            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank)
-        {
-            // Both OAM and BG2 art are replaceable presentation. Their native
-            // component offsets and hitbox pointers remain fixed gameplay data.
-            foreach (DraygonCollisionComponent component in
-                     DraygonCollisionDefinitions.ComponentsAt(
-                         enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (DraygonCollisionHitbox hitbox in
-                         DraygonCollisionDefinitions.HitboxesAt(
-                             component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
-            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            SporeSpawnCollisionDefinitions.IsFrame(enemy.SpritemapPointer))
-        {
-            // These twelve OAM frames are selected by Spore Spawn. Old visual
-            // overrides may carry Draygon-prefixed keys, but every rectangle
-            // and callback comes from the compiled gameplay catalog.
-            foreach (SporeSpawnCollisionComponent component in
-                     SporeSpawnCollisionDefinitions.ComponentsAt(
-                         enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (SporeSpawnCollisionHitbox hitbox in
-                         SporeSpawnCollisionDefinitions.HitboxesAt(
-                             component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
         if (PhantoonBehavior.IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer))
         {
             // Phantoon's extended frame roots include hitbox-list pointers,
@@ -1036,129 +978,6 @@ internal sealed class EnemyCollision
                     ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
                     if (!target.Overlaps(left, top, right, bottom))
                         continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-            enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
-            CrocomireBodyCollisionDefinitions.HasFrame(enemy.SpritemapPointer))
-        {
-            // Physical body components and their callback lists are compiled
-            // independently of Crocomire's replaceable OAM/BG2 presentation.
-            // Preserve native component/hitbox order: the first overlap wins.
-            foreach (CrocomireBodyCollisionComponent component in
-                     CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (CrocomireBodyCollisionHitbox hitbox in
-                         CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
-            enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
-            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
-             _room.Artwork is not null))
-        {
-            // These nine selected frames have one component each, but both
-            // referenced native hitbox lists are empty. Validate the exact
-            // engine-owned frame identity and return no touch/shot callback.
-            CrocomireTongueCollisionComponent component =
-                CrocomireTongueCollisionDefinitions.ComponentAt(enemy.SpritemapPointer);
-            _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
-                component.HitboxPointer);
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
-            enemy.Definition.Bank == TorizoCollisionDefinitions.Bank)
-        {
-            foreach (GoldenTorizoCollisionComponent component in
-                     TorizoCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (GoldenTorizoCollisionHitbox hitbox in
-                         TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
-            enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
-            KraidFootCollisionDefinitions.TryGetComponents(
-                enemy.SpritemapPointer, out var footComponents))
-        {
-            // Kraid's foot art is replaceable, but each native extended frame
-            // still places two physical components against one shared hitbox list.
-            foreach (KraidFootCollisionComponent component in footComponents)
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (KraidFootCollisionHitbox hitbox in
-                         KraidFootCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
-            enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
-            KraidArmCollisionDefinitions.TryGetComponents(
-                enemy.SpritemapPointer, out var kraidComponents))
-        {
-            // Kraid's arm art is editable, but the native extended spritemap
-            // also carries a separate, ordered physical component stream.
-            // Read that stream from the immutable cartridge definition catalog.
-            foreach (KraidArmCollisionComponent component in kraidComponents)
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (KraidArmCollisionHitbox hitbox in
-                         KraidArmCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-
                     callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
                     return true;
                 }

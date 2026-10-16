@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -16,8 +17,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class KraidBehavior : IEnemySpecies
+internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidLintMiddle, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KraidEntity(this, slot, common);
+
     /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves nail and foot movement against room terrain.</summary>
@@ -350,89 +357,82 @@ internal sealed class KraidBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.KraidCeilingRocks);
     }
 
-    /// <summary>Binds initializers for Kraid's body, arm, lint, foot, and nail records.</summary>
-    internal void RegisterKraidInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Kraid's initialization AI.</summary>
+    internal void RunKraidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Kraid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidBody(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidArm, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidArm(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidLintTop, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidLint(slot, expectedSlot: 2);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidLintMiddle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidLint(slot, expectedSlot: 3);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidLintBottom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintBottom, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidLint(slot, expectedSlot: 4);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidFoot, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidFoot(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidNail, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidNail(slot, expectedSlot: 6);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KraidNailBad, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKraidNail(slot, expectedSlot: 7);
-        });
+        InitializeKraidBody(slot);
     }
 
-    /// <summary>Binds frame updates for Kraid's body and physical parts.</summary>
-    internal void RegisterKraidMainAi(EnemyAiTable table)
+    /// <summary>Ports KraidArm's initialization AI.</summary>
+    internal void RunKraidArmInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeKraidArm(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Kraid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.VramWriteQueue, frame.SamusProjectiles, frame.SharedProjectiles);
-        });
+    /// <summary>Ports KraidLintTop's initialization AI.</summary>
+    internal void RunKraidLintTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKraidLint(slot, expectedSlot: 2);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidArm, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKraidArmMain(slot, frame.Camera.Y);
-        });
+    /// <summary>Ports KraidLintMiddle's initialization AI.</summary>
+    internal void RunKraidLintMiddleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKraidLint(slot, expectedSlot: 3);
+    }
 
-        EnemyMainAiHandler shared107 = (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKraidLintMain(slot, frame.Samus);
-        };
+    /// <summary>Ports KraidLintBottom's initialization AI.</summary>
+    internal void RunKraidLintBottomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKraidLint(slot, expectedSlot: 4);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidLintTop, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintTop, shared107);
+    /// <summary>Ports KraidFoot's initialization AI.</summary>
+    internal void RunKraidFootInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKraidFoot(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidLintMiddle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintMiddle, shared107);
+    /// <summary>Ports KraidNail's initialization AI.</summary>
+    internal void RunKraidNailInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKraidNail(slot, expectedSlot: 6);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidLintBottom, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidLintBottom, shared107);
+    /// <summary>Ports KraidNailBad's initialization AI.</summary>
+    internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeKraidNail(slot, expectedSlot: 7);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidFoot, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKraidFootMain(slot, frame.Camera.Y);
-        });
+    /// <summary>Ports Kraid's main AI.</summary>
+    internal void RunKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.VramWriteQueue, frame.SamusProjectiles, frame.SharedProjectiles);
+    }
 
-        EnemyMainAiHandler shared112 = (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKraidNailMain(slot, frame.Level);
-        };
+    /// <summary>Ports KraidArm's main AI.</summary>
+    internal void RunKraidArmMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKraidArmMain(slot, frame.Camera.Y);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidNail, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail, shared112);
+    /// <summary>Ports KraidLintTop's main AI.</summary>
+    internal void RunKraidLintTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKraidLintMain(slot, frame.Samus);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_KraidNailBad, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad, shared112);
+    /// <summary>Ports KraidFoot's main AI.</summary>
+    internal void RunKraidFootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKraidFootMain(slot, frame.Camera.Y);
+    }
+
+    /// <summary>Ports KraidNail's main AI.</summary>
+    internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKraidNailMain(slot, frame.Level);
     }
 
     /// <summary>Registers the spat rock's typed burst and the rock programs' cues.</summary>
@@ -456,10 +456,11 @@ internal sealed class KraidBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Runs Kraid's foot, arm, lints and fingernails as typed programs in place of their bank-$A7 lists (#641).</summary>
-    internal void RegisterKraidTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsKraidAnimatedPart(slot.EnemyDefinitionPointer),
-            (slot, context) => AdvanceKraidPartAnimation(slot));
+    /// <summary>Advances Kraid's typed animation.</summary>
+    internal void AdvanceKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceKraidPartAnimation(slot);
+    }
 
     /// <summary>Whether <paramref name="definition"/> is a Kraid part that runs a typed program.</summary>
     private static bool IsKraidAnimatedPart(EnemyDefinitionId definition) => definition is
@@ -2625,5 +2626,73 @@ internal sealed class KraidBehavior : IEnemySpecies
         {
             context.Projectile.GraphicsIndex = 0;
         }, EnemyProjectilePreInstruction.KraidRockSpit_UsePalette0);
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindKraidFootHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
+            enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
+            KraidFootCollisionDefinitions.TryGetComponents(
+            enemy.SpritemapPointer, out var footComponents)))
+            return null;
+
+        // Kraid's foot art is replaceable, but each native extended frame
+        // still places two physical components against one shared hitbox list.
+        foreach (KraidFootCollisionComponent component in footComponents)
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (KraidFootCollisionHitbox hitbox in
+                     KraidFootCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindKraidArmHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
+            enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
+            KraidArmCollisionDefinitions.TryGetComponents(
+            enemy.SpritemapPointer, out var kraidComponents)))
+            return null;
+
+        // Kraid's arm art is editable, but the native extended spritemap
+        // also carries a separate, ordered physical component stream.
+        // Read that stream from the immutable cartridge definition catalog.
+        foreach (KraidArmCollisionComponent component in kraidComponents)
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
+            foreach (KraidArmCollisionHitbox hitbox in
+                     KraidArmCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
     }
 }

@@ -104,19 +104,17 @@ internal sealed class EnemyInstructionInterpreter
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         string? family = null;
         bool found = false;
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
+        if (slot.Entity is IEnemyBg2Frames owner)
+        {
+            if (owner.FindBg2Frame(selected, _room) is { } lookup)
+                (family, found, writes) = lookup;
+        }
+        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
             slot.Definition.Bank == MotherBrainBodyVisualDefinitions.Bank &&
             MotherBrainBodyVisualDefinitions.HasBg2(selected))
         {
             family = "Mother Brain body";
             found = _room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
-        }
-        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
-            slot.Definition.Bank == CrocomireBodyVisualDefinitions.Bank &&
-            CrocomireBodyVisualDefinitions.HasBg2(selected))
-        {
-            family = "Crocomire body";
-            found = _room.InstalledArtwork.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
         }
         else if (PhantoonBehavior.IsPhantoonPartDefinition(slot.EnemyDefinitionPointer) &&
             slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank &&
@@ -124,13 +122,6 @@ internal sealed class EnemyInstructionInterpreter
         {
             family = "Phantoon";
             found = _room.InstalledArtwork.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
-        }
-        else if (DraygonBehavior.IsDraygonDefinition(slot.EnemyDefinitionPointer) &&
-            slot.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            DraygonBg2FrameDefinitions.IsFrame(selected))
-        {
-            family = "Draygon";
-            found = _room.InstalledArtwork.DraygonBg2Frames?.TryGet(selected, out writes) == true;
         }
         if (family is null)
             return;

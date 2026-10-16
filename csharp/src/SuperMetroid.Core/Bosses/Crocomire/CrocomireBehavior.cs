@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -17,8 +18,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>The Crocomire species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CrocomireBehavior : IEnemySpecies
+internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrocomireEntity(this, slot, common);
+
     /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves Crocomire against the arena's collision blocks.</summary>
@@ -379,28 +386,16 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.CrocomireBridgeCrumbling);
     }
 
-    /// <summary>Connects Crocomire body and component initialization pointers to encounter setup.</summary>
-    internal void RegisterCrocomireInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Crocomire's initialization AI.</summary>
+    internal void RunCrocomireInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Crocomire, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCrocomire(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CrocomireTongue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCrocomireTongue(slot);
-        });
+        InitializeCrocomire(slot);
     }
 
-    /// <summary>Connects live Crocomire, tongue, and death-sequence dispatch pointers.</summary>
-    internal void RegisterCrocomireMainAi(EnemyAiTable table)
+    /// <summary>Ports CrocomireTongue's initialization AI.</summary>
+    internal void RunCrocomireTongueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Crocomire, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCrocomireMain(slot, frame.Samus, frame.Camera.X);
-        });
+        InitializeCrocomireTongue(slot);
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
@@ -1403,13 +1398,16 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         fixedPosition = unchecked(fixedPosition + delta);
         return SnesFixedPosition.FromRaw(fixedPosition);
     }
-    /// <summary>Runs Crocomire's body and tongue as typed programs in place of their bank-$A4 instruction lists (#641).</summary>
-    internal void RegisterCrocomireTypedAnimations(EnemyAiTable table)
+    /// <summary>Advances Crocomire's typed animation.</summary>
+    internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire,
-            (slot, context) => AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X));
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue,
-            (slot, context) => AdvanceCrocomireTongueAnimation(slot));
+        AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
+    }
+
+    /// <summary>Advances CrocomireTongue's typed animation.</summary>
+    internal void AdvanceCrocomireTongueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceCrocomireTongueAnimation(slot);
     }
 
     /// <summary>
@@ -2356,14 +2354,17 @@ internal sealed class CrocomireBehavior : IEnemySpecies
         audio.QueueLegacyMusic(LastCrocomireMusicRequest?.Command, LastCrocomireMusicRequest?.Delay);
     }
 
-    /// <summary>Registers the tongue's native no-op AI while its instruction list follows the body.</summary>
-    internal static void RegisterCrocomireTongueMainAi(EnemyAiTable table)
+    /// <summary>Ports Crocomire's main AI.</summary>
+    internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-        table.RegisterMain(EnemyAiRoutine.MainAI_CrocomireTongue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue, (slot, frame, nmiFrameCounter8) =>
-        {
-            // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
-            // extended map position the component relative to Crocomire's body.
-        });
+        RunCrocomireMain(slot, frame.Samus, frame.Camera.X);
+    }
+
+    /// <summary>Ports CrocomireTongue's main AI.</summary>
+    internal static void RunCrocomireTongueMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    {
+        // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
+        // extended map position the component relative to Crocomire's body.
     }
 
     /// <summary>
@@ -2388,5 +2389,59 @@ internal sealed class CrocomireBehavior : IEnemySpecies
                     throw new InvalidOperationException($"Undefined {nameof(CrocomireProjectileCue)} {cue}.");
             }
         });
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindCrocomireBodyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+            enemy.Definition.Bank == CrocomireBodyCollisionDefinitions.Bank &&
+            CrocomireBodyCollisionDefinitions.HasFrame(enemy.SpritemapPointer)))
+            return null;
+
+        // Physical body components and their callback lists are compiled
+        // independently of Crocomire's replaceable OAM/BG2 presentation.
+        // Preserve native component/hitbox order: the first overlap wins.
+        foreach (CrocomireBodyCollisionComponent component in
+                 CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (CrocomireBodyCollisionHitbox hitbox in
+                     CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindCrocomireTongueHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
+            enemy.Definition.Bank == CrocomireTongueCollisionDefinitions.Bank &&
+            (CrocomireTongueCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+            probe.ArtworkInstalled)))
+            return null;
+
+        // These nine selected frames have one component each, but both
+        // referenced native hitbox lists are empty. Validate the exact
+        // engine-owned frame identity and return no touch/shot callback.
+        CrocomireTongueCollisionComponent component =
+            CrocomireTongueCollisionDefinitions.ComponentAt(enemy.SpritemapPointer);
+        _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
+            component.HitboxPointer);
+        return false;
+    
     }
 }

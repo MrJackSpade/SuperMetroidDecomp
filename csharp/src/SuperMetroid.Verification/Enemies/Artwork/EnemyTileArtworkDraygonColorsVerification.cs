@@ -100,6 +100,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         enemies.Presentation._cgram = cgram;
         enemies.Presentation._vram = new SnesVram();
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         enemies.DraygonBehavior.InitializeDraygonBody(body);
         DraygonEnemyState state = enemies.DraygonBehavior.Draygon ??
             throw new InvalidOperationException("Draygon body initialization lost its owner.");

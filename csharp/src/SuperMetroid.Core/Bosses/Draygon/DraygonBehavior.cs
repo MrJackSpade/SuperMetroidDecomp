@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -14,8 +17,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>The Draygon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class DraygonBehavior : IEnemySpecies
+internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DraygonEntity(this, slot, common);
+
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>
@@ -818,10 +827,11 @@ internal sealed class DraygonBehavior : IEnemySpecies
         part.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Runs Draygon's four parts as typed programs in place of their bank-$A5 instruction lists (#641).</summary>
-    internal void RegisterDraygonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsDraygonDefinition(slot.EnemyDefinitionPointer),
-            (slot, context) => AdvanceDraygonPartAnimation(slot, context.Samus));
+    /// <summary>Advances Draygon's typed animation.</summary>
+    internal void AdvanceDraygonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceDraygonPartAnimation(slot, context.Samus);
+    }
 
     /// <summary>
     /// Runs a Draygon part's program where the enemy instruction interpreter would: the frame expires on the update
@@ -1069,51 +1079,36 @@ internal sealed class DraygonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers initialization for the body and its linked eye, tail, and arms slots.</summary>
-    internal void RegisterDraygonInitializationAi(EnemyAiTable table)
+    /// <summary>Ports DraygonBody's initialization AI.</summary>
+    internal void RunDraygonBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_DraygonBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeDraygonBody(slot);
-        });
-
-        EnemyInitializationAiHandler shared109 = (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeDraygonPart(slot);
-        };
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_DraygonEye, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonEye, shared109);
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_DraygonTail, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonTail, shared109);
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_DraygonArms, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonArms, shared109);
+        InitializeDraygonBody(slot);
     }
 
-    /// <summary>Registers body and linked-part frame AI under their native routine pointers.</summary>
-    internal void RegisterDraygonMainAi(EnemyAiTable table)
+    /// <summary>Ports DraygonEye's initialization AI.</summary>
+    internal void RunDraygonEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeDraygonPart(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_DraygonBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody, (slot, frame, nmiFrameCounter8) =>
-        {
-            // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
-            // the separate 8-bit counter at $05B5; only its low bits are tested.
-            RunDraygonBodyMain(slot, frame.Samus, unchecked((byte)_frameContext._enemyFrameNmiFrameCounter));
-        });
+    /// <summary>Ports DraygonBody's main AI.</summary>
+    internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
+        // the separate 8-bit counter at $05B5; only its low bits are tested.
+        RunDraygonBodyMain(slot, frame.Samus, unchecked((byte)_frameContext._enemyFrameNmiFrameCounter));
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_DraygonEye, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonEye, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunDraygonPartMain(slot, frame.Samus);
-        });
+    /// <summary>Ports DraygonEye's main AI.</summary>
+    internal void RunDraygonEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunDraygonPartMain(slot, frame.Samus);
+    }
 
-        EnemyMainAiHandler shared3 = (slot, frame, nmiFrameCounter8) =>
-        {
-            RunDraygonPartMain(slot, frame.Samus);
-        };
-
-        table.RegisterMain(EnemyAiRoutine.RTL_A5C5AA, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonTail, shared3);
-
-        table.RegisterMain(EnemyAiRoutine.RTL_A5C5C4, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonArms, shared3);
+    /// <summary>Ports DraygonTail's main AI.</summary>
+    internal void RunDraygonTailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunDraygonPartMain(slot, frame.Samus);
     }
 
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
@@ -1929,7 +1924,6 @@ internal sealed class DraygonBehavior : IEnemySpecies
     /// </summary>
     public void DisableDraygonCannon(DraygonCannonControlWord word)
     {
-
         // Native writes WRAM, not an actor reference. The defeated room still has
         // cannon PLMs even though its enemy population no longer includes Draygon.
         _room.EnsureLoaded();
@@ -2183,4 +2177,37 @@ internal sealed class DraygonBehavior : IEnemySpecies
     internal void RegisterDraygonHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody,
             (slot, frame) => ApplyDraygonHurt(slot, RequireCompleteDraygonState(slot), frame.Samus));
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindDraygonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(DraygonBehavior.IsDraygonDefinition(enemy.EnemyDefinitionPointer) &&
+            enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank))
+            return null;
+
+        // Both OAM and BG2 art are replaceable presentation. Their native
+        // component offsets and hitbox pointers remain fixed gameplay data.
+        foreach (DraygonCollisionComponent component in
+                 DraygonCollisionDefinitions.ComponentsAt(
+                     enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (DraygonCollisionHitbox hitbox in
+                     DraygonCollisionDefinitions.HitboxesAt(
+                         component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
 }

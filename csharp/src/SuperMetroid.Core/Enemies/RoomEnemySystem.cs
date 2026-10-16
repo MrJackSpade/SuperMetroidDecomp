@@ -689,7 +689,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior]);
+        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior, BotwoonBehavior, SporeSpawnBehavior, BombTorizoBehavior, KraidBehavior, CrocomireBehavior, DraygonBehavior]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
@@ -1172,16 +1172,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         // Species register first; generic and cross-species registrations follow.
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneInitializationAi(table);
-        BombTorizoBehavior.RegisterBombTorizoInitializationAi(table);
-        BotwoonBehavior.RegisterBotwoonInitializationAi(table);
         CeresRidleyBehavior.RegisterCeresRidleyInitializationAi(table);
-        CrocomireBehavior.RegisterCrocomireInitializationAi(table);
-        DraygonBehavior.RegisterDraygonInitializationAi(table);
-        KraidBehavior.RegisterKraidInitializationAi(table);
         MotherBrainBehavior.RegisterMotherBrainInitializationAi(table);
         PhantoonBehavior.RegisterPhantoonInitializationAi(table);
         RidleyBehavior.RegisterRidleyInitializationAi(table);
-        SporeSpawnBehavior.RegisterSporeSpawnInitializationAi(table);
 
 
 
@@ -1194,20 +1188,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         // Species register first; generic and cross-species registrations follow.
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneMainAi(table);
-        BombTorizoBehavior.RegisterBombTorizoMainAi(table);
-        BotwoonBehavior.RegisterBotwoonMainAi(table);
         CeresRidleyBehavior.RegisterCeresRidleyMainAi(table);
-        CrocomireBehavior.RegisterCrocomireMainAi(table);
-        DraygonBehavior.RegisterDraygonMainAi(table);
-        KraidBehavior.RegisterKraidMainAi(table);
         MotherBrainBehavior.RegisterMotherBrainMainAi(table);
         PhantoonBehavior.RegisterPhantoonMainAi(table);
         RidleyBehavior.RegisterRidleyMainAi(table);
-        SporeSpawnBehavior.RegisterSporeSpawnMainAi(table);
         table.RegisterMain(EnemyAiRoutine.RTL_A3804C, null, (slot, frame, nmiFrameCounter8) =>
         { });
 
-        CrocomireBehavior.RegisterCrocomireTongueMainAi(table);
 
 
         table.RegisterMain(EnemyAiRoutine.RTL_A2804C, null, (slot, frame, nmiFrameCounter8) =>
@@ -1226,16 +1213,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     private void RegisterTypedAnimations(EnemyAiTable table)
     {
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
-        KraidBehavior.RegisterKraidTypedAnimations(table);
         PhantoonBehavior.RegisterPhantoonTypedAnimations(table);
         MotherBrainBehavior.RegisterMotherBrainTypedAnimations(table);
         MotherBrainBehavior.RegisterMotherBrainTubeTypedAnimations(table);
-        DraygonBehavior.RegisterDraygonTypedAnimations(table);
-        BotwoonBehavior.RegisterBotwoonTypedAnimations(table);
-        CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
         RidleyBehavior.RegisterRidleyTypedAnimations(table);
-        SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
-        BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
 }
 
     // Each species registers its own run of reactions; first match wins, so the interleaving below is the
@@ -1260,12 +1241,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadTorizoBehavior.RegisterDeadTorizoBombReactions(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperBombReactions(table);
         DeadTourianBehavior.RegisterDeadTourianBombReactions(table);
-        // `$A5:8046` is CreateDudShot. The native extended walker has already marked the physical bomb; no
-        // vulnerability, health, or boss state follows. Bomb-owned dud sprite/sound presentation remains a shared
-        // projectile-system seam, so the enemy-visible contract ends here.
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.DraygonBody or EnemyDefinitionId.SporeSpawn &&
-                                           c.SelectedShotAi == EnemyInteractionCallback.DudShot,
-            static _ => { });
         PhantoonBehavior.RegisterPhantoonBombReactions(table);
         MamaTurtleBehavior.RegisterMamaTurtleBombReactions(table);
         RinkaBehavior.RegisterRinkaBombReactions(table);

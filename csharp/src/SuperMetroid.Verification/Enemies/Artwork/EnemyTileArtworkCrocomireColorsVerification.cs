@@ -92,6 +92,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
         enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)((_, _) => { });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
+        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         enemies.CrocomireBehavior.InitializeCrocomire(body);
         CrocomireEnemyState state = (CrocomireEnemyState)(enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire."));
         AssertEqual(CrocomireDeathPhase.Fighting, (state ?? throw new InvalidOperationException("Verification requires state.")).DeathSequenceIndex,

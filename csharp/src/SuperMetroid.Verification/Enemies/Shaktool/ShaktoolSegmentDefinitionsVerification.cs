@@ -41,7 +41,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         {
             ShaktoolSegmentDefinition definition = definitions[index];
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
+            slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.Parameter2 = unchecked((ushort)(index * 2));
             slot.Properties = 0x0010;
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));

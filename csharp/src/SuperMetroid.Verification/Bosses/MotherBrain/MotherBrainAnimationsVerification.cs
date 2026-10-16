@@ -61,9 +61,9 @@ internal static class MotherBrainAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot bodySlot = enemies.SlotTable.Slots[0];
-        bodySlot.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
+        bodySlot.Bind(EnemyDefinitionId.MotherBrainBody, bodySlot.Definition);
         RoomEnemySlot headSlot = enemies.SlotTable.Slots[1];
-        headSlot.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
+        headSlot.Bind(EnemyDefinitionId.MotherBrainHead, headSlot.Definition);
         var state = new MotherBrainEnemyState(bodySlot) { Head = headSlot };
         enemies.MotherBrainEncounter.MotherBrain = state;
         return (enemies, state);

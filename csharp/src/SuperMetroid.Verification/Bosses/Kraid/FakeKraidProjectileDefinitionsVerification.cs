@@ -35,7 +35,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (bool movingRight in new[] { false, true })
         {
             var enemies = NewFakeKraidProjectileSystem(guarded);
-            var source = new RoomEnemySlot(0)
+            var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 VramTilesIndex = 0x0200,
@@ -73,7 +73,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         for (int row = 0; row < 3; row++)
         {
             var enemies = NewFakeKraidProjectileSystem(guarded);
-            var source = new RoomEnemySlot(0)
+            var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
                 VramTilesIndex = 0x0200,

@@ -75,7 +75,7 @@ internal static class RidleySupplementalArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         enemies.BindFixtureBus(NewRidleySupplementReadGuard(rom));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));
         var state = new RidleyEnemyState
         {

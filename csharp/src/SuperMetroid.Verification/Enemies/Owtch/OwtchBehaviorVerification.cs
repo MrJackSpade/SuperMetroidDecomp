@@ -28,8 +28,8 @@ internal static class OwtchBehaviorVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Owtch;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = OwtchFrameToolingDefinitions.Bank };
+            slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = OwtchFrameToolingDefinitions.Bank });
             slot.Parameter1 = (ushort)initial;
             enemies.OwtchBehavior.InitializeOwtch(slot);
             OwtchEnemyState state = enemies.OwtchStates[0] ?? throw new InvalidOperationException("Owtch has no state.");
@@ -38,7 +38,7 @@ internal static class OwtchBehaviorVerification
 
             state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(OwtchAnimations.Programs, loop, OwtchFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Programs, loop)), $"Owtch {program} loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(OwtchAnimations.Programs, loop)), $"Owtch {program} loop");
             AssertEqual(walking, state.Behavior, $"Owtch {program} cue sets main AI's direction");
         }
         Console.WriteLine("  Owtch behavior: the initializer picks each facing, the cues set the walking direction and the loops run on time.");

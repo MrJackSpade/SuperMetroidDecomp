@@ -27,8 +27,8 @@ internal static class CrocomireCutsceneVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewCrocomireTongueNoReadBus());
         var slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa4 };
+        slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa4 });
         slot.SpritemapPointer = 0xe6bc;
         object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>((ushort)8, (ushort)8), false, (ushort)0];
         AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments), "river corpse has native empty collision");

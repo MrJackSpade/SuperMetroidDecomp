@@ -127,7 +127,7 @@ internal static class DraygonAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
+        body.Bind(EnemyDefinitionId.DraygonBody, body.Definition);
         body.Position = body.Position.WithWhole(new(256, 384));
         var state = new DraygonEnemyState(body)
         {
@@ -135,9 +135,9 @@ internal static class DraygonAnimationsVerification
             Tail = enemies.SlotTable.Slots[2],
             Arms = enemies.SlotTable.Slots[3],
         };
-        state.Eye.EnemyDefinitionPointer = EnemyDefinitionId.DraygonEye;
-        state.Tail.EnemyDefinitionPointer = EnemyDefinitionId.DraygonTail;
-        state.Arms.EnemyDefinitionPointer = EnemyDefinitionId.DraygonArms;
+        state.Eye.Bind(EnemyDefinitionId.DraygonEye, state.Eye.Definition);
+        state.Tail.Bind(EnemyDefinitionId.DraygonTail, state.Tail.Definition);
+        state.Arms.Bind(EnemyDefinitionId.DraygonArms, state.Arms.Definition);
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
         enemies.DraygonBehavior.Draygon = state;
@@ -147,8 +147,8 @@ internal static class DraygonAnimationsVerification
     }
 
     /// <summary>Runs one update of <paramref name="part"/> through the production interpreter.</summary>
-    private static void Pass(RoomEnemySystem enemies, RoomEnemySlot part) =>
-        enemies.Instructions.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+    private static void Pass(RoomEnemySlot part) =>
+        EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
 
     /// <summary>
     /// The body's reset starts all four parts in the same update, gives the eye its tracking function and the
@@ -159,7 +159,7 @@ internal static class DraygonAnimationsVerification
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
         state.Body.InstructionTimer = NativeCountdown.Start(1);
-        Pass(enemies, state.Body);
+        Pass(state.Body);
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye), "the reset starts the eye");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail), "the reset starts the tail");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingRightIdle), state.Cursor(state.Arms), "the reset starts the arms");
@@ -188,7 +188,7 @@ internal static class DraygonAnimationsVerification
         {
             state.LastSoundLibrary2 = null;
             state.LastSoundLibrary3 = null;
-            Pass(enemies, arms);
+            Pass(arms);
             List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
             string at = $"Draygon dying update {update}";
             AssertEqual(native.Timer, arms.InstructionTimer.RawValue, $"{at}: timer");

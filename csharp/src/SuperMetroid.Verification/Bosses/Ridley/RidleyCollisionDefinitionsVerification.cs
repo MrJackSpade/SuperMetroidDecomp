@@ -23,14 +23,13 @@ internal static class RidleyCollisionDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
         compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Definition =
-            default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank };
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RidleyCollisionDefinitions.Bank });
         // The reference slot is read by the independent test-side cartridge
         // walker. The installed definition selects the new compiled Ridley branch.
-        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.Ridley, compiledSlot.Definition);
         AssertEqual(11, RidleyCollisionDefinitions.FramePointers.Length,
             "all Ceres/Norfair Ridley body frames have fixed collision");
         AssertEqual(17, RidleyCollisionDefinitions.HitboxPointers.Count(),

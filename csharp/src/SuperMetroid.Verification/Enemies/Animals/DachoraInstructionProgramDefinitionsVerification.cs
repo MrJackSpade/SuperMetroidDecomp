@@ -55,7 +55,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
                 $"Dachora {program} loop");
         }
 
@@ -99,8 +99,8 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Dachora;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
+        slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
         slot.Parameter1 = parameter;
         return (enemies, slot);
     }

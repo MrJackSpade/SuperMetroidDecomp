@@ -73,7 +73,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         {
             Offset16<RoomPixels> expected =
                 BombTorizoMovementDefinitions.Posture(tableOffset);
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
@@ -94,7 +94,7 @@ internal static class BombTorizoMovementDefinitionsVerification
 
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)
         {
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
                 Radius = new(8, 8),

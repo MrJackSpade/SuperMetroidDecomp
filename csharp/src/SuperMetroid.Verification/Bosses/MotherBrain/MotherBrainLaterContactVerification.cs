@@ -23,8 +23,8 @@ internal static class MotherBrainLaterContactVerification
         enemies.BindFixtureBus(bus);
         enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)(_ => { });
         var body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
-        body.Definition = RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer);
+        body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
+        body.Bind(body.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer));
         var state = new MotherBrainEnemyState(body) { Head = enemies.SlotTable.Slots[1], Form = 2, HitboxesEnabled = 7 };
         state.Head.Position = state.Head.Position.WithWhole(new(500, 500));
         state.NeckSegment1 = new(250, 80);

@@ -210,8 +210,8 @@ internal static class SporeSpawnAnimationsVerification
         var enemies = new RoomEnemySystem();
         enemies.TileArtwork = artwork ?? InstalledFixtures.EnemyTiles;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
-        body.Definition = default(RoomEnemyDefinition) with { Bank = BodyBankNumber };
+        body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
+        body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BodyBankNumber });
         body.Position = body.Position.WithWhole(new(128, 624));
         body.Health = 960;
         body.InstructionTimer = NativeCountdown.Start(1);
@@ -232,7 +232,7 @@ internal static class SporeSpawnAnimationsVerification
 
         for (int frame = 0; frame < frames; frame++)
         {
-            enemies.Instructions.ProcessInstructions(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyInstructionInterpreter.ProcessInstructions(body, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             afterFrame?.Invoke(enemies, body);
         }
         return (enemies, body);

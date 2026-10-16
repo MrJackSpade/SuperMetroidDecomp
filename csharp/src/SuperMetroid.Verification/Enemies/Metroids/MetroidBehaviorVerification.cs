@@ -22,8 +22,8 @@ internal static class MetroidBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank });
         // The room spawn primes the instruction timer before the species initializer runs.
         slot.InstructionTimer = NativeCountdown.Start(1);
         enemies.MetroidBehavior.InitializeMetroid(slot);
@@ -37,7 +37,7 @@ internal static class MetroidBehaviorVerification
             state.Program = AnimationProgramCursor<MetroidProgram>.Start(loop);
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Programs, loop, MetroidFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");
             AssertTrue(enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 is not null, $"Metroid {loop} loop plays its sound");
         }

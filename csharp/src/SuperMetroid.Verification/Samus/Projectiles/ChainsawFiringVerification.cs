@@ -148,13 +148,13 @@ internal static class ChainsawFiringVerification
         combatProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.SlotTable.Slots[0];
-        target.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-        target.Definition = default(RoomEnemyDefinition) with
+        target.Bind((EnemyDefinitionId)0x9000, target.Definition);
+        target.Bind(target.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
-        };
+        });
         target.Position = target.Position.WithWhole(new(139, 123));
         target.Radius = new(16, 16);
         target.Health = 1000;

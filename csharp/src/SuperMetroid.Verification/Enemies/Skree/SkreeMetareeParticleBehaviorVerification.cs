@@ -22,7 +22,7 @@ internal static class SkreeMetareeParticleBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, SkreeMetareeParticleNativeListAddresses.Extent, "Skree/Metaree particle");
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(guard);
-        var source = new RoomEnemySlot(0)
+        var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             VramTilesIndex = 512,

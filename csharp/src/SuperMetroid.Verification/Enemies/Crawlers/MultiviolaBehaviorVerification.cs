@@ -19,14 +19,14 @@ internal static class MultiviolaBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Multiviola;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank });
         enemies.MultiviolaBehavior.InitializeMultiviola(slot);
         AssertEqual(AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying), (enemies.MultiviolaBehavior._multiviolaStates[0] ?? throw new InvalidOperationException("Multiviola has no state.")).Program,
             "Multiviola initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MultiviolaAnimations.Programs, MultiviolaProgram.Flying, MultiviolaFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Programs, MultiviolaProgram.Flying)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MultiviolaAnimations.Programs, MultiviolaProgram.Flying)),
             "Multiviola runs its loop and returns through its goto");
         Console.WriteLine("  Multiviola behavior: the initializer starts and runs its loop.");
     }

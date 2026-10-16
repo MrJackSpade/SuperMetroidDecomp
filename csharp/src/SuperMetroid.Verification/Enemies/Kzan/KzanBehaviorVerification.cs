@@ -23,8 +23,8 @@ internal static class KzanBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.KzanTop;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank });
         slot.Position = slot.Position.WithWholeY(128);
         enemies.KzanBehavior.InitializeKzanTop(slot);
         AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),
@@ -33,7 +33,7 @@ internal static class KzanBehaviorVerification
         // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
         ushort frame = KzanAnimationsConstants.Spritemaps(KzanProgram.Idle).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 4), "Kzan shows its idle frame once and holds it");
+            EnemyInstructionRunner.ShownFrames(slot, 4), "Kzan shows its idle frame once and holds it");
         Console.WriteLine("  Kzan behavior: the top shows its idle pose and holds it.");
     }
 

@@ -52,8 +52,8 @@ internal static class HopperAnimationDefinitionsVerification
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = definitions[variant];
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = variant };
+            slot.Bind(definitions[variant], slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = variant });
             slot.Parameter1 = upsideDown ? (ushort)1 : (ushort)0;
             enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
@@ -66,7 +66,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertEqual(AnimationProgramCursor<HopperProgram>.Start(jumping), state.Program, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, 2), $"hopper airborne pose {context}");
+                EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
             AssertEqual(variant is 0 or 1 ? (ushort?)0x005d : null, enemies.HoppersBehavior.LastHopperSoundEffect,
@@ -76,9 +76,9 @@ internal static class HopperAnimationDefinitionsVerification
             AssertEqual(AnimationProgramCursor<HopperProgram>.Start(landed), state.Program, $"hopper landed handoff {context}");
             int[] holds = [2, 5, 2, 3];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(HopperAnimationsConstants.Spritemaps(landed), holds),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum()), $"hopper landing poses {context}");
+                EnemyInstructionRunner.ShownFrames(slot, holds.Sum()), $"hopper landing poses {context}");
             AssertTrue(!state.ReadyToHop, $"hopper landed program {context} holds its last pose before readiness");
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 1);
+            EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
@@ -112,10 +112,10 @@ internal static class HopperAnimationDefinitionsVerification
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.SidehopperTourian;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = 1 };
+        slot.Bind(EnemyDefinitionId.SidehopperTourian, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = 1 });
         enemies.HoppersBehavior.InitializeHopper(slot);
-        EnemyInstructionRunner.ShownFrames(enemies, slot, 1);
+        EnemyInstructionRunner.ShownFrames(slot, 1);
         AssertEqual((ushort?)0x005e, enemies.HoppersBehavior.LastHopperSoundEffect,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }

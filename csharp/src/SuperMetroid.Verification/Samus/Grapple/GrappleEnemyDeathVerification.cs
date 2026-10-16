@@ -28,12 +28,12 @@ internal static class GrappleEnemyDeathVerification
         const ushort header = 0x9000;
         SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.SlotTable.Slots[0];
-        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)header;
-        enemy.Definition = default(RoomEnemyDefinition) with
+        enemy.Bind((EnemyDefinitionId)header, enemy.Definition);
+        enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             GrappleAiPointer = GrappleAiRoutine.Kill,
             DeathAnimation = 4,
-        };
+        });
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
         enemy.Radius = new(8, 8);
         enemy.Health = 500;
@@ -110,11 +110,11 @@ internal static class GrappleEnemyDeathVerification
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = InstalledFixtures.EnemyTiles;
             var enemy = fixture.System.SlotTable.Slots[0];
-            enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-            enemy.Definition = default(RoomEnemyDefinition) with
+            enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
+            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 GrappleAiPointer = GrappleAiRoutine.Kill,
-            };
+            });
             enemy.Position = enemy.Position.WithWhole(new(100, 100));
             enemy.Radius = new(8, 8);
             enemy.Health = 500;

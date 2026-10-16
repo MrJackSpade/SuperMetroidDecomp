@@ -53,15 +53,15 @@ internal static class SparkMovementDefinitionsVerification
         {
             (RoomEnemySystem loopSystem, RoomEnemySlot loopSlot, _) = Start(rom, loop, intangible: false);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Programs, loop, SparkFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(loopSystem, loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Programs, loop)), $"Spark {loop} loop");
+                EnemyInstructionRunner.ShownFrames(loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Programs, loop)), $"Spark {loop} loop");
         }
         (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(rom, SparkProgram.FlickerOn, intangible: true);
-        EnemyInstructionRunner.ShownFrames(onSystem, on, 1);
+        EnemyInstructionRunner.ShownFrames(on, 1);
         AssertTrue(!on.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-on makes the actor tangible before its first flash");
-        EnemyInstructionRunner.ShownFrames(onSystem, on, 40);
+        EnemyInstructionRunner.ShownFrames(on, 40);
         AssertEqual(SparkProgram.Active, onState.Program?.Program, "Spark flicker-on runs into the active loop");
         (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(rom, SparkProgram.FlickerOut, intangible: false);
-        EnemyInstructionRunner.ShownFrames(outSystem, off, 40);
+        EnemyInstructionRunner.ShownFrames(off, 40);
         AssertTrue(off.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-out makes the actor intangible");
         AssertEqual(SparkProgram.FlickerOut, offState.Program?.Program, "Spark flicker-out holds");
         Console.WriteLine("  Spark: four native selections, the selector-three overread, both loops and both flickers with their collision cues pass.");
@@ -74,8 +74,8 @@ internal static class SparkMovementDefinitionsVerification
         enemies.BindFixtureBus(rom);
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Spark;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = SparkFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SparkFrameToolingDefinitions.Bank });
         enemies.SparkBehavior.InitializeSpark(slot);
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);

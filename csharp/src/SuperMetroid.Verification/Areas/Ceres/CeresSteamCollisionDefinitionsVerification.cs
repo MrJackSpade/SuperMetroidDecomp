@@ -32,16 +32,16 @@ internal static class CeresSteamCollisionDefinitionsVerification
             enemies.BindFixtureBus(denied);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
-            slot.Definition = default(RoomEnemyDefinition) with
-            { Bank = CeresSteamCollisionDefinitions.Bank };
+            slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            { Bank = CeresSteamCollisionDefinitions.Bank });
             slot.Parameter1 = (ushort)variant;
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < 90; frame++)
             {
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
                 if ((slot.SpritemapPointer & 0x8000) == 0)
                     continue;
                 AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
@@ -69,12 +69,11 @@ internal static class CeresSteamCollisionDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
         compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        compiledSlot.Definition =
-            default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank };
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank });
 
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
+        compiledSlot.Bind(EnemyDefinitionId.Steam, compiledSlot.Definition);
         AssertEqual(28, CeresSteamCollisionDefinitions.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),

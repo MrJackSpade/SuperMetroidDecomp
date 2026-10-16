@@ -51,7 +51,7 @@ internal static class MetroidBehaviorDefinitionsVerification
 
         for (int timer = 0; timer <= ushort.MaxValue; timer++)
         {
-            var slot = new RoomEnemySlot(0)
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0001, 0xffff)),
             };
@@ -96,8 +96,8 @@ internal static class MetroidBehaviorDefinitionsVerification
             ushort selectedRandom = random;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => selectedRandom));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
+            slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
             slot.InstructionTimer = NativeCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
             enemies.MetroidBehavior._metroidStates[0] = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
@@ -106,7 +106,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                     MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step.Kind == AnimationProgramStepKind.Cue)),
             };
 
-            enemies.Instructions.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
 
             AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
                 enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,

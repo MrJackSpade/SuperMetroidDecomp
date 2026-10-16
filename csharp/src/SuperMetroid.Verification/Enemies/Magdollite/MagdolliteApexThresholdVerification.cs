@@ -48,7 +48,7 @@ internal static class MagdolliteApexThresholdVerification
             for (int part = 0; part < 3; part++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[headSlot + part];
-                member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
                 member.Parameter1 = (ushort)part;
                 member.Parameter2 = 0;
                 member.Position = member.Position.WithWhole(new(0x01d8, 0x02a0));

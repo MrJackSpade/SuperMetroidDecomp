@@ -80,7 +80,7 @@ internal static class KraidMovementChoicesVerification
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         var body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.SlotTable.Slots[5];
         var part = new KraidPartState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

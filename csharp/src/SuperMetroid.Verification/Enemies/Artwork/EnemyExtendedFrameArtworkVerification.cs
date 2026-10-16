@@ -1457,12 +1457,12 @@ internal static class EnemyExtendedFrameArtworkVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         // A non-Ridley definition lets the focused OAM comparison isolate the
         // extended body from Ridley's separately drawn tail and wings.
-        slot.EnemyDefinitionPointer = bank == EnemyExtendedFrameDefinitions.Bank
-            ? PirateDefinitionForFrame(pointer) : EnemyDefinitionId.Boyon;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(bank == EnemyExtendedFrameDefinitions.Bank
+            ? PirateDefinitionForFrame(pointer) : EnemyDefinitionId.Boyon, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = bank,
-        };
+        });
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.SpritemapPointer = pointer;
@@ -1482,11 +1482,11 @@ internal static class EnemyExtendedFrameArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = art };
         enemies.BindFixtureBus(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = PirateDefinitionForFrame(pointer);
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(PirateDefinitionForFrame(pointer), slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = EnemyExtendedFrameDefinitions.Bank,
-        };
+        });
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
         SpacePirateCollisionComponent component =

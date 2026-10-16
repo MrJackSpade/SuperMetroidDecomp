@@ -105,7 +105,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
         enemies.BindFixtureBus(NewDeadTourianCorpseDefinitionReadGuard(rom));
         Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = enemyDefinition;
+        slot.Bind(enemyDefinition, slot.Definition);
         slot.Parameter1 = checked((ushort)(variantIndex * 2));
 
         initialize(slot);

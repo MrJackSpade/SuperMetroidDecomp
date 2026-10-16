@@ -122,7 +122,7 @@ internal static class EnemyRomTablePointersVerification
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
             system.BindFixtureBus(guarded);
             system.Presentation._cgram = new SnesCgram();
-            var slot = new RoomEnemySlot(0) { Parameter1 = parameter };
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = parameter };
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
@@ -134,7 +134,7 @@ internal static class EnemyRomTablePointersVerification
         {
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
             system.BindFixtureBus(guarded);
-            var torizo = new RoomEnemySlot(0)
+            var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),

@@ -40,7 +40,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(guard);
 
-        var source = new RoomEnemySlot(0)
+        var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             VramTilesIndex = 0x0200,

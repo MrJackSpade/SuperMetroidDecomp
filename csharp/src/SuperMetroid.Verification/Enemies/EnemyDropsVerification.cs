@@ -57,13 +57,13 @@ internal static class EnemyDropsVerification
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.PseudoScrew;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];
-        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-        enemy.Definition = default(RoomEnemyDefinition) with
+        enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
+        enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
-        };
+        });
         SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
@@ -342,7 +342,7 @@ internal static class EnemyDropsVerification
         const ushort enemyHeader = 0x9000;
         SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemySlot enemy = fixture.System.SlotTable.Slots[0];
-        enemy.EnemyDefinitionPointer = (EnemyDefinitionId)enemyHeader;
+        enemy.Bind((EnemyDefinitionId)enemyHeader, enemy.Definition);
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
         enemy.VramTilesIndex = 0x0200;
         enemy.PaletteIndex = 0x0c00;

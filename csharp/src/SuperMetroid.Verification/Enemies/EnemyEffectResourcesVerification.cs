@@ -56,7 +56,9 @@ internal static class EnemyEffectResourcesVerification
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var expected = new RoomEnemySystem(); var actual = new RoomEnemySystem();
-            expected.SlotTable.Slots[0].EnemyDefinitionPointer = actual.SlotTable.Slots[0].EnemyDefinitionPointer = definition;
+            var boundEnemyDefinitionPointer = definition;
+            expected.SlotTable.Slots[0].Bind(boundEnemyDefinitionPointer, expected.SlotTable.Slots[0].Definition);
+            actual.SlotTable.Slots[0].Bind(boundEnemyDefinitionPointer, actual.SlotTable.Slots[0].Definition);
             expected.SlotTable.Slots[0].Parameter1 = actual.SlotTable.Slots[0].Parameter1 = (ushort)(variant * 2);
             if (emptyCatalog) actual.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
             actual.BindFixtureBus(memory);

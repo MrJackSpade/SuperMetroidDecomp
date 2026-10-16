@@ -38,7 +38,7 @@ internal static class KraidGrowthCommandCursorVerification
         Action<RoomEnemySlot, ushort> footMain = enemies.KraidBehavior.RunKraidFootMain;
         var body = enemies.SlotTable.Slots[0];
         var foot = enemies.SlotTable.Slots[5];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         state.InitialHealth = 1000;
         body.Health = 874;
         body.VariableB = 0x96e2;

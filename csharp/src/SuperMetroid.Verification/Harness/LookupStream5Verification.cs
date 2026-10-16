@@ -1251,7 +1251,7 @@ internal static class LookupStream5Verification
             {
                 var enemies = new RoomEnemySystem();
                 var slot = enemies.SlotTable.Slots[0];
-                slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
+                slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
                 slot.Parameter2 = (ushort)(0x8000 | direction);
                 slot.Position = slot.Position.WithWhole(new(origin, origin));
                 new Action<RoomEnemySlot>(enemies.MorphBallEyeBehavior.InitializeMorphBallEye)(slot);
@@ -1265,7 +1265,7 @@ internal static class LookupStream5Verification
         }
         var owner = new RoomEnemySystem();
         var body = owner.SlotTable.Slots[1];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
+        body.Bind(EnemyDefinitionId.Eye, body.Definition);
         new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
         (owner.MorphBallEyeBehavior.MorphBallEyeStates[1] ?? throw new InvalidOperationException("Verification requires owner.MorphBallEyeBehavior.MorphBallEyeStates[1].")).ActivatedFlag = 1;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.BodySlotIndex = 1;
@@ -1847,9 +1847,9 @@ internal static class LookupStream5Verification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(rom));
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
-        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         var door = enemies.SlotTable.Slots[1];
-        door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
+        door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
         door.VariableB = 1; door.Position = door.Position.WithWholeY(80);
         foreach (ushort x in new ushort[] { 0, 1, 3, 255, 256, 511, ushort.MaxValue })
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })

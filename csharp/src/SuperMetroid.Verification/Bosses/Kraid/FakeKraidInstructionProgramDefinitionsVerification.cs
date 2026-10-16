@@ -140,8 +140,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
             slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.MiniKraid;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
+            slot.Bind(EnemyDefinitionId.MiniKraid, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa6 });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             samus = new SamusState
             {
@@ -162,7 +162,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             object?[] arguments =
                 [slot, samus, level, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

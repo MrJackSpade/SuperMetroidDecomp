@@ -2777,7 +2777,7 @@ internal static class LookupStream4Verification
                 enemies.BindFixtureBus(NewProjectileCompositionForbiddenBus());
                 enemies.Presentation._cgram = cgram;
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
-                RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+                RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
                 (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
@@ -2871,7 +2871,7 @@ internal static class LookupStream4Verification
                 enemies.Presentation._cgram = cgram;
                 enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+                slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 160 and < 192 ? Pack(document.Initial[color - 160])
@@ -3040,7 +3040,7 @@ internal static class LookupStream4Verification
         foreach (int freeSlots in new[] { 12, 2, 0 })
         {
             var enemies = new RoomEnemySystem();
-            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
+            foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.Bind((EnemyDefinitionId)0xffff, slot.Definition);
             for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
             enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
             int randomCalls = 0;

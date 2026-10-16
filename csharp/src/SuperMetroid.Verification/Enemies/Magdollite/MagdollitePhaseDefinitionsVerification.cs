@@ -41,7 +41,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         for (int index = 0; index < 3; index++)
         {
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
+            slot.Bind(EnemyDefinitionId.Magdollite, slot.Definition);
             slot.Parameter1 = (ushort)index;
             slot.Parameter2 = 0;
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0300));

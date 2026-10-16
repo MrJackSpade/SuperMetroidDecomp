@@ -83,8 +83,8 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+        slot.Bind(program.Namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         slot.Parameter1 = unchecked((ushort)((program.Namihe ? 1 : 0) | (program.Right ? 0x10 : 0)));
         slot.Parameter2 = 0;
         slot.Position = slot.Position.WithWhole(new(128, 128));
@@ -105,7 +105,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         int frames = program.Active ? 140 : 4;
         for (int frame = 0; frame < frames; frame++)
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
 
         return (enemies, slot);
     }

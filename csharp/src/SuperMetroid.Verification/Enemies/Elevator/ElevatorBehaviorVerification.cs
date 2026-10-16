@@ -19,14 +19,14 @@ internal static class ElevatorBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Elevator;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank });
         enemies.ElevatorBehavior.InitializeElevator(slot, null);
         AssertEqual(AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop), (enemies.ElevatorBehavior._elevatorStates[0] ?? throw new InvalidOperationException("The elevator has no state.")).Program,
             "elevator initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Programs, ElevatorProgram.Loop, ElevatorFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Programs, ElevatorProgram.Loop)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(ElevatorAnimations.Programs, ElevatorProgram.Loop)),
             "elevator runs its loop and returns through its goto");
         Console.WriteLine("  elevator behavior: the initializer starts and runs its loop.");
     }

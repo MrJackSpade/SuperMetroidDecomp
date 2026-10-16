@@ -112,7 +112,7 @@ internal static class CrocomireAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
+        body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         body.Position = body.Position.WithWhole(new(576, 144));
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Crocomire = state;
@@ -133,7 +133,7 @@ internal static class CrocomireAnimationsVerification
     private static void Pass(RoomEnemySystem enemies, CrocomireEnemyState state, SamusState? samus = null)
     {
         enemies.CrocomireBehavior.BeginEnemyFrame(new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false });
-        enemies.Instructions.ProcessInstructions(state.Body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+        EnemyInstructionInterpreter.ProcessInstructions(state.Body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
     /// <summary>
@@ -217,7 +217,7 @@ internal static class CrocomireAnimationsVerification
         {
             (RoomEnemySystem enemies, CrocomireEnemyState state) = NewCrocomire();
             RoomEnemySlot tongue = enemies.SlotTable.Slots[1];
-            tongue.EnemyDefinitionPointer = EnemyDefinitionId.CrocomireTongue;
+            tongue.Bind(EnemyDefinitionId.CrocomireTongue, tongue.Definition);
             state.Tongue = tongue;
             state.TongueProgram = program;
             state.TonguePosition = 0;
@@ -225,7 +225,7 @@ internal static class CrocomireAnimationsVerification
             var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, entry, 1, _ => 0);
             for (int update = 0; update < 60; update++)
             {
-                enemies.Instructions.ProcessInstructions(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+                EnemyInstructionInterpreter.ProcessInstructions(tongue, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
                 List<NativeEnemyListDefinitions.Callback> callbacks = native.Step(cartridge);
                 string at = $"Crocomire tongue {program} update {update}";
                 AssertEqual(0, callbacks.Count, $"{at}: the tongue lists have no callbacks");

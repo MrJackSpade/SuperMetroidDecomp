@@ -26,14 +26,14 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         {
             Start(slot, state, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PuyoAnimations.Programs, loop, PuyoFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PuyoAnimations.Programs, loop)), $"Puyo {loop} loop");
         }
         foreach (PuyoProgram pose in new[] { PuyoProgram.RightFrame0LeftFrame4, PuyoProgram.RightFrame1LeftFrame3, PuyoProgram.Frame2,
                      PuyoProgram.RightFrame3LeftFrame1, PuyoProgram.RightFrame4LeftFrame0 })
         {
             Start(slot, state, pose);
             ushort frame = PuyoAnimationsConstants.Spritemaps(pose).Single();
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"Puyo {pose} pose");
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), $"Puyo {pose} pose");
         }
         if (artwork is not null)
             foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
@@ -48,8 +48,8 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Puyo;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank });
         enemies.PuyoBehavior.InitializePuyo(slot);
         return (enemies, slot, enemies.PuyoStates[0] ?? throw new InvalidOperationException("Puyo has no state."));
     }

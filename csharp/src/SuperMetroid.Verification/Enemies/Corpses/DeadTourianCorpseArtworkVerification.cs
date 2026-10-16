@@ -203,7 +203,7 @@ internal static class DeadTourianCorpseArtworkVerification
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         enemies.BindFixtureBus(source);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = definition;
+        slot.Bind(definition, slot.Definition);
         slot.Parameter1 = checked((ushort)(variant * 2));
         new Action<RoomEnemySlot>(enemies.DeadTourianBehavior.InitializeDeadTourianCorpse)(slot);
     }

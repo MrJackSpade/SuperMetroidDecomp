@@ -48,7 +48,7 @@ internal static class EvirVisualsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
                 $"installed Evir {loop} shows its authored poses");
         }
         Console.WriteLine(

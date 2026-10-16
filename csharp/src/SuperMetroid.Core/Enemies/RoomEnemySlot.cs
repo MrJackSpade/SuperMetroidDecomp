@@ -7,8 +7,9 @@ namespace SuperMetroid.Core.Enemies;
 public sealed class RoomEnemySlot
 {
     /// <summary>Assigns the stable native $40-byte slot index before population data is copied in.</summary>
-    internal RoomEnemySlot(int slotIndex)
+    internal RoomEnemySlot(int slotIndex, EnemySpeciesRegistry registry)
     {
+        _registry = Ensure.NotNull(registry);
         SlotIndex = slotIndex;
         NativeIndex = checked((ushort)(slotIndex * RoomEnemySystem.NativeSlotSize));
     }
@@ -18,9 +19,35 @@ public sealed class RoomEnemySlot
     /// <summary>Native byte index into EnemyData, equal to <see cref="SlotIndex"/> times $40, rather than a WRAM address.</summary>
     public ushort NativeIndex { get; }
     /// <summary>Enemy.ID at slot +$00: bank-$A0 header identity; zero denotes a cleared/inactive slot.</summary>
-    public EnemyDefinitionId EnemyDefinitionPointer { get; internal set; }
+    public EnemyDefinitionId EnemyDefinitionPointer { get; private set; }
     /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
-    public RoomEnemyDefinition Definition { get; internal set; }
+    public RoomEnemyDefinition Definition { get; private set; }
+
+    /// <summary>The species registry that creates the entity for each installed occupant.</summary>
+    private readonly EnemySpeciesRegistry _registry;
+
+    /// <summary>The enemy occupying the slot, bound with its identity; null while the slot is empty.</summary>
+    internal IEnemyEntity? Entity { get; private set; }
+
+    /// <summary>
+    /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
+    /// here, at the statement that changes the header pointer, because the cartridge re-reads the header each dispatch.
+    /// </summary>
+    /// <param name="definitionPointer">The occupant's header pointer.</param>
+    /// <param name="definition">The occupant's header.</param>
+    internal void Bind(EnemyDefinitionId definitionPointer, RoomEnemyDefinition definition)
+    {
+        EnemyDefinitionPointer = definitionPointer;
+        Definition = definition;
+        Entity = definitionPointer == 0 ? null : _registry.Create(this);
+    }
+
+    /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other words.</summary>
+    internal void Unbind()
+    {
+        EnemyDefinitionPointer = 0;
+        Entity = null;
+    }
     /// <summary>Original population and character-offset values retained independently of mutable live slot fields.</summary>
     public RoomEnemySpawnSnapshot Spawn { get; internal set; }
     /// <summary>
@@ -88,7 +115,7 @@ public sealed class RoomEnemySlot
     /// <summary>Resets all mutable enemy, animation and actor scratch words when a native slot becomes inactive.</summary>
     internal void Clear()
     {
-        EnemyDefinitionPointer = 0;
+        Unbind();
         Definition = default;
         Spawn = default;
         Position = FixedPosition<RoomPixels>.Zero;

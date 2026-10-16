@@ -130,8 +130,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
-        enemy.EnemyDefinitionPointer = EnemyDefinitionId.Respawn;
-        enemy.Definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, enemy.EnemyDefinitionPointer);
+        enemy.Bind(EnemyDefinitionId.Respawn, EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, EnemyDefinitionId.Respawn));
         enemy.AiBank = enemy.Definition.Bank;
     }
 

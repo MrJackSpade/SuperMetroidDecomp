@@ -27,8 +27,8 @@ internal static class TorizoPaletteShakeVerification
         enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         enemies.Presentation._cgram = cgram;
         var actor = enemies.SlotTable.Slots[0];
-        actor.EnemyDefinitionPointer = EnemyDefinitionId.BombTorizo;
-        actor.Definition = RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer);
+        actor.Bind(EnemyDefinitionId.BombTorizo, actor.Definition);
+        actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer));
         var state = new TorizoEnemyState(actor, false);
         enemies.BombTorizoBehavior._torizoState = state;
         void Execute(TorizoCueKind kind) =>

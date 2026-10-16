@@ -27,13 +27,12 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 
         installed.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
-        installedSlot.Definition =
-            default(RoomEnemyDefinition) with
+        installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = DraygonBg2FrameDefinitions.Bank,
-            };
+            });
         // The test-only cartridge walker supplies an independent reference.
-        installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
+        installedSlot.Bind(EnemyDefinitionId.SporeSpawn, installedSlot.Definition);
         installedSlot.Position = installedSlot.Position.WithWhole(new(0x100, 0x100));
 
         var seenLists = new HashSet<ushort>();

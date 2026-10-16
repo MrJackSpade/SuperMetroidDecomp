@@ -25,7 +25,7 @@ internal static class BoyonBehaviorVerification
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Idle), idleState.Program, "Boyon initializer starts idling");
         idle.Properties = idle.Properties.With(EnemyProperties.ProcessOffScreen);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.IdleLoop, BoyonFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(idleSystem, idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.IdleLoop)), "Boyon idle loop");
+            EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.IdleLoop)), "Boyon idle loop");
         AssertTrue(!idle.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon idle stops off-screen processing");
 
         (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create(rom);
@@ -34,7 +34,7 @@ internal static class BoyonBehaviorVerification
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Bouncing), bounceState.Program, "Samus nearby starts the bounce");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.BouncingLoop, BoyonFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(bounceSystem, bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.BouncingLoop)), "Boyon bounce loop");
+            EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.BouncingLoop)), "Boyon bounce loop");
         AssertTrue(bounce.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon bounce processes off screen");
         AssertEqual((ushort?)BoyonNativeValues.BounceSound, bounceSystem.BoyonBehavior.LastBoyonSoundEffect, "Boyon bounce plays its sound");
         AssertTrue(!bounceState.BounceDisabled, "Boyon bounce permits the movement arc");
@@ -47,8 +47,8 @@ internal static class BoyonBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Boyon;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BoyonFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BoyonFrameToolingDefinitions.Bank });
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
         slot.Parameter2 = 64;
         slot.Position = slot.Position.WithWhole(new(256, 512));

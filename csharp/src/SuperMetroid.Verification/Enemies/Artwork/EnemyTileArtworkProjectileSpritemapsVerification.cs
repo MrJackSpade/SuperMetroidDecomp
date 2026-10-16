@@ -1000,7 +1000,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             enemies.BindFixtureBus(source);
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
-            var enemy = new RoomEnemySlot(0)
+            var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
                 VramTilesIndex = 0x0200,

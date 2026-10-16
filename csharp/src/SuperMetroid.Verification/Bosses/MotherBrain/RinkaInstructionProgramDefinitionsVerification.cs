@@ -61,8 +61,8 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
-        rinka.EnemyDefinitionPointer = EnemyDefinitionId.Rinka;
-        rinka.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
+        rinka.Bind(rinka.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         rinka.Parameter1 = special ? (ushort)1 : (ushort)0;
         rinka.InstructionTimer = NativeCountdown.Start(1);
 
@@ -80,7 +80,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         // One complete list is 127 timer frames plus zero-time callback/goto dispatch. The
         // margin proves that the native terminal goto loops rather than merely reaching it.
         for (int frame = 0; frame < 180; frame++)
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
 
         return (enemies, rinka);
     }

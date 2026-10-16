@@ -19,8 +19,8 @@ internal static class FirefleaBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Fireflea;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = FirefleaFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = FirefleaFrameToolingDefinitions.Bank });
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
         enemies.FirefleaBehavior.InitializeFireflea(slot);
@@ -28,7 +28,7 @@ internal static class FirefleaBehaviorVerification
             "Fireflea initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(FirefleaAnimations.Programs, FirefleaProgram.Loop, FirefleaFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Programs, FirefleaProgram.Loop)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(FirefleaAnimations.Programs, FirefleaProgram.Loop)),
             "Fireflea runs its loop and returns through its goto");
         Console.WriteLine("  Fireflea behavior: the initializer starts and runs its loop.");
     }

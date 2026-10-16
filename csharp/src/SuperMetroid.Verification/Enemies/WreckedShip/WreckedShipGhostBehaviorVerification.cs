@@ -20,15 +20,15 @@ internal static class WreckedShipGhostBehaviorVerification
         enemies.BindFixtureBus(rom);
         enemies.Presentation._cgram = new SnesCgram();
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
-        ghost.EnemyDefinitionPointer = EnemyDefinitionId.Coven;
-        ghost.Definition = default(RoomEnemyDefinition) with { Bank = WreckedShipGhostFrameToolingDefinitions.Bank };
+        ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
+        ghost.Bind(ghost.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = WreckedShipGhostFrameToolingDefinitions.Bank });
         enemies.WreckedShipGhostBehavior.InitializeWreckedShipGhost(ghost);
         AssertEqual(AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             (enemies.WreckedShipGhostBehavior._wreckedShipGhostStates[0] ?? throw new InvalidOperationException("The ghost has no state.")).Program,
             "real Wrecked Ship ghost initializer starts the floating loop");
         ushort[] loop = WreckedShipGhostAnimations.Spritemaps(WreckedShipGhostProgram.Floating).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [16, 16, 16, 16]),
-            EnemyInstructionRunner.ShownFrames(enemies, ghost, 49), "Wrecked Ship ghost floating loop and its goto");
+            EnemyInstructionRunner.ShownFrames(ghost, 49), "Wrecked Ship ghost floating loop and its goto");
         Console.WriteLine("  Wrecked Ship ghost behavior: the initializer starts and runs the floating loop.");
     }
 

@@ -26,7 +26,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         (RoomEnemySystem enemies, RoomEnemySlot slot, BlueBrinstarFaceBlockEnemyState state) = Create(rom, parameter2: 0);
         AssertEqual(AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial), state.Program, "face block starts neutral");
         ushort neutral = BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
-        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(enemies, slot, 3), "face block neutral pose");
+        AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), "face block neutral pose");
 
         foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockProgram program) in new[]
                  {
@@ -45,7 +45,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
             AssertEqual(AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(program), state.Program, $"face block {program} selection");
             int[] holds = [48, 16, 16];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimations.Spritemaps(program), holds),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum() + 1), $"face block {program} poses");
+                EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"face block {program} poses");
         }
 
         AssertEqual(5, BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).Distinct().Count(), "five distinct face-block poses");
@@ -61,8 +61,8 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.FaceBlock;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.FaceBlock, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BlueBrinstarFaceBlockFrameToolingDefinitions.Bank });
         slot.Parameter1 = 64;
         slot.Parameter2 = parameter2;
         slot.Position = slot.Position.WithWhole(new(256, 256));

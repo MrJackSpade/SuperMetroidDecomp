@@ -139,12 +139,12 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             enemies.BindFixtureBus(rom);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWall;
-            slot.Definition = default(RoomEnemyDefinition) with
+            slot.Bind(EnemyDefinitionId.PirateGreyWall, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = 0xb2,
                 Damage = 20,
-            };
+            });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
             slot.Parameter2 = 0x0080;
@@ -166,7 +166,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             object?[] arguments =
                 [slot, samus, level, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

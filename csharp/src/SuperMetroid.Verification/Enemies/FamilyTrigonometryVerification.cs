@@ -65,7 +65,7 @@ internal static class FamilyTrigonometryVerification
                 throw new InvalidDataException($"Yapping Maw product differs: word={word:X4}, low={low:X2}.");
         }
 
-        var bull = new RoomEnemySlot(0);
+        var bull = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         var bullState = new BullEnemyState(bull, new BullSharedTables { MaxSpeeds = new ushort[1], AnglesToSamus = new ushort[1], Angles = new ushort[1], ShotReactionDisableFlags = new ushort[1], AccelerationTimerResets = new ushort[1], DecelerationTimerResets = new ushort[1], ShotReactionDisableTimers = new ushort[1], PreviousHealth = new ushort[1] });
         static uint BullReference(uint initial, short sample, int speed)
         {
@@ -95,7 +95,7 @@ internal static class FamilyTrigonometryVerification
         var enemies = new RoomEnemySystem();
         var previous = enemies.SlotTable.Slots[0];
         var segment = enemies.SlotTable.Slots[1];
-        previous.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
+        previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
         var segmentState = new ShaktoolSegmentState(segment);
         Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })

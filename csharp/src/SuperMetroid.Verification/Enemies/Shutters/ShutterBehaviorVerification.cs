@@ -40,7 +40,7 @@ internal static class ShutterBehaviorVerification
         AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(ShutterProgram.KamerPlatform),
             kamerSystem.ShuttersBehavior._verticalShutterStates[0]?.Program, "Kamer vertical platform starts its loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Programs, ShutterProgram.KamerPlatform, ShutterFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(kamerSystem, kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Programs, ShutterProgram.KamerPlatform)),
+            EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Programs, ShutterProgram.KamerPlatform)),
             "Kamer platform loop and its goto");
         Console.WriteLine("  Shutter behavior: every shutter starts its pose and Kamer runs its platform loop.");
 
@@ -53,7 +53,7 @@ internal static class ShutterBehaviorVerification
             AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(program), cursor(enemies), $"shutter ${(int)definition:X4} initial animation");
             ushort pose = ShutterAnimationsConstants.Spritemaps(program).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([pose, pose], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"shutter ${(int)definition:X4} shows and holds its pose");
+                EnemyInstructionRunner.ShownFrames(slot, 3), $"shutter ${(int)definition:X4} shows and holds its pose");
         }
 
         RoomEnemySystem NewSystem()
@@ -68,8 +68,8 @@ internal static class ShutterBehaviorVerification
     private static RoomEnemySlot NewSlot(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = ShutterFrameToolingDefinitions.Bank };
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ShutterFrameToolingDefinitions.Bank });
         slot.CurrentInstruction = 0;
         slot.Parameter1 = 2;
         return slot;
@@ -79,7 +79,7 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
-        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0))
+        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry))
         {
             Function = VerticalShutterFunction.Initial,
         };
@@ -103,7 +103,7 @@ internal static class ShutterBehaviorVerification
     internal static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
-        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0));
+        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         for (ushort offset = 0; offset <= 8; offset += 2)
         {
             state.Function = HorizontalShutterFunction.Initial;

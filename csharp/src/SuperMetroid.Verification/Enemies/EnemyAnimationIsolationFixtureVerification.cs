@@ -68,8 +68,8 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => BossBitCalls != 0);
             Enemies.VerificationServices().SetAreaTorizoDefeated = (Action)(() => BossBitCalls++);
 
-            Actor.EnemyDefinitionPointer = golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon;
-            Actor.Definition = RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer);
+            Actor.Bind(golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon, Actor.Definition);
+            Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer));
             Actor.AiBank = Actor.Definition.Bank;
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);

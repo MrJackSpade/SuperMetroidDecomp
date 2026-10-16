@@ -30,7 +30,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(guarded);
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
-            enemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
+            enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
 
             enemies.DeathsAndDrops.StartGenericEnemyDeath(enemy, animation);
@@ -49,7 +49,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         var clamped = new RoomEnemySystem();
         clamped.BindFixtureBus(guarded);
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
-        clampedEnemy.EnemyDefinitionPointer = EnemyDefinitionId.Sciser;
+        clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, 5);
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
             ProgramOf(clamped.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive)),

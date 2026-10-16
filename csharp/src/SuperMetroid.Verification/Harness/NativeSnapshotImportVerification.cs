@@ -268,7 +268,7 @@ internal static class NativeSnapshotImportVerification
             int address = NativeSnapshotMemory.EnemyBase + index * 64;
             if (W(address) != 0)
                 AssertTrue((ushort)slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
-            slot.EnemyDefinitionPointer = (EnemyDefinitionId)W(address);
+            slot.Bind((EnemyDefinitionId)W(address), slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
             slot.Properties = W(address + 14);

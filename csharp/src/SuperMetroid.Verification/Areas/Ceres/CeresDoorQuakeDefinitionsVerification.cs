@@ -50,12 +50,12 @@ internal static class CeresDoorQuakeDefinitionsVerification
             RidleyEncounter = { CeresStatus = 1 },
             TileArtwork = InstalledFixtures.EnemyTiles,
         };
-        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(guarded);
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
-        door.EnemyDefinitionPointer = EnemyDefinitionId.CeresDoor;
+        door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
         door.VariableB = 1;
         door.Position = door.Position.WithWhole(new(100, 80));
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);

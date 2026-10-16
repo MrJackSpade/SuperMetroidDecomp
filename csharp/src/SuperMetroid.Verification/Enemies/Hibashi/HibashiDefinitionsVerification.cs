@@ -72,29 +72,29 @@ internal static class HibashiDefinitionsVerification
         Action<RoomEnemySlot> initializeProgram = programSystem.HibashiBehavior.InitializeHibashi;
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
-        programGraphics.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
-        programGraphics.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
+        programGraphics.Bind(EnemyDefinitionId.Hibashi, programGraphics.Definition);
+        programGraphics.Bind(programGraphics.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa6 });
         programGraphics.Parameter2 = 0;
         programGraphics.Position = programGraphics.Position.WithWhole(new(0x0180, 0x0200));
         initializeProgram(programGraphics);
 
         RoomEnemySlot programHitbox = programSystem.SlotTable.Slots[1];
-        programHitbox.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
-        programHitbox.Definition = default(RoomEnemyDefinition) with { Bank = 0xa6 };
+        programHitbox.Bind(EnemyDefinitionId.Hibashi, programHitbox.Definition);
+        programHitbox.Bind(programHitbox.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa6 });
         programHitbox.Parameter2 = 1;
         programHitbox.Position = programHitbox.Position.WithWhole(programGraphics.Position.Whole);
         initializeProgram(programHitbox);
 
         // A second geyser erupting in lockstep: its eruption sound is queued in the same frame.
         RoomEnemySlot twinGraphics = programSystem.SlotTable.Slots[2];
-        twinGraphics.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
-        twinGraphics.Definition = programGraphics.Definition;
+        twinGraphics.Bind(EnemyDefinitionId.Hibashi, twinGraphics.Definition);
+        twinGraphics.Bind(twinGraphics.EnemyDefinitionPointer, programGraphics.Definition);
         twinGraphics.Parameter2 = 0;
         twinGraphics.Position = twinGraphics.Position.WithWhole(new(448, 512));
         initializeProgram(twinGraphics);
         RoomEnemySlot twinHitbox = programSystem.SlotTable.Slots[3];
-        twinHitbox.EnemyDefinitionPointer = EnemyDefinitionId.Hibashi;
-        twinHitbox.Definition = programGraphics.Definition;
+        twinHitbox.Bind(EnemyDefinitionId.Hibashi, twinHitbox.Definition);
+        twinHitbox.Bind(twinHitbox.EnemyDefinitionPointer, programGraphics.Definition);
         twinHitbox.Parameter2 = 1;
         twinHitbox.Position = twinHitbox.Position.WithWhole(twinGraphics.Position.Whole);
         initializeProgram(twinHitbox);
@@ -111,12 +111,12 @@ internal static class HibashiDefinitionsVerification
         // The visible stream needs 59 actor frames through its final cue; the margin proves both actors stay asleep.
         for (int frame = 0; frame < 70; frame++)
         {
-            EnemyInstructionRunner.Process(programSystem, graphicsArguments);
+            EnemyInstructionRunner.Process(graphicsArguments);
             shownSpritemaps.Add(programGraphics.SpritemapPointer);
-            EnemyInstructionRunner.Process(programSystem, hitboxArguments);
+            EnemyInstructionRunner.Process(hitboxArguments);
             shownSpritemaps.Add(programHitbox.SpritemapPointer);
-            EnemyInstructionRunner.Process(programSystem, twinGraphicsArguments);
-            EnemyInstructionRunner.Process(programSystem, twinHitboxArguments);
+            EnemyInstructionRunner.Process(twinGraphicsArguments);
+            EnemyInstructionRunner.Process(twinHitboxArguments);
         }
         AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitionsTooling.Spritemaps()), "the Hibashi shows every authored pose");
         AssertEqual(HibashiAnimations.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
@@ -140,8 +140,8 @@ internal static class HibashiDefinitionsVerification
         HibashiEnemyState graphicsState = programSystem.HibashiStates[0] ?? throw new InvalidOperationException("The Hibashi graphics part has no state.");
         HibashiEnemyState hitboxState = programSystem.HibashiStates[1] ?? throw new InvalidOperationException("The Hibashi hitbox part has no state.");
         (AnimationProgramCursor<HibashiProgram> graphicsAsleep, AnimationProgramCursor<HibashiProgram> hitboxAsleep) = (graphicsState.Program, hitboxState.Program);
-        EnemyInstructionRunner.Process(programSystem, graphicsArguments);
-        EnemyInstructionRunner.Process(programSystem, hitboxArguments);
+        EnemyInstructionRunner.Process(graphicsArguments);
+        EnemyInstructionRunner.Process(hitboxArguments);
         AssertEqual(graphicsAsleep, graphicsState.Program, "Hibashi graphics program sleeps after finishing");
         AssertEqual(hitboxAsleep, hitboxState.Program, "Hibashi hitbox program sleeps on its one pose");
         AssertEqual(HibashiProgram.Graphics, graphicsState.Program.Program, "Hibashi graphics part runs the eruption");

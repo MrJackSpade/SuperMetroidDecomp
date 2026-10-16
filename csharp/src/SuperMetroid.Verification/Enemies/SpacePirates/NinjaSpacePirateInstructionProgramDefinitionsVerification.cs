@@ -170,8 +170,8 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
+            slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.Radius = new(8, 16);
             slot.Parameter2 = 0x0080;
@@ -188,7 +188,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             object?[] arguments =
                 [slot, samus, null, Position16<RoomPixels>.Zero, SnesButton.None];
-            for (int frame = 0; frame < frames; frame++) EnemyInstructionRunner.Process(enemies, arguments);
+            for (int frame = 0; frame < frames; frame++) EnemyInstructionRunner.Process(arguments);
         }
     }
 

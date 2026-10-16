@@ -22,14 +22,14 @@ internal static class DeadTorizoBehaviorVerification
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureBus(rom);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
-        corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
-        corpse.Definition = default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameToolingDefinitions.Bank };
+        corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
+        corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameToolingDefinitions.Bank });
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
         AssertEqual(AnimationProgramCursor<DeadTorizoProgram>.Start(DeadTorizoProgram.Stationary),
             enemies.DeadTorizoBehavior._deadTorizoProgram, "real Dead Torizo initializer starts the stationary pose");
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-            EnemyInstructionRunner.ShownFrames(enemies, corpse, 3), "Dead Torizo stationary pose");
+            EnemyInstructionRunner.ShownFrames(corpse, 3), "Dead Torizo stationary pose");
         Console.WriteLine("  Dead Torizo behavior: the initializer starts the stationary pose and it holds.");
     }
 

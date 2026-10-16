@@ -38,15 +38,15 @@ internal static class BossDisplayBindingsFixtureVerification
             _slot = slot;
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
             Enemies.BindFixtureBus(Memory); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
-            Actor.EnemyDefinitionPointer = definition;
-            Actor.Definition = RoomEnemyDefinitionCatalog.Get(definition);
+            Actor.Bind(definition, Actor.Definition);
+            Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.AiBank = Actor.Definition.Bank;
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Properties = (ushort)EnemyProperties.ProcessInstructions;
             Enemies.Drawing.Enqueue(0, Actor.NativeIndex);
-            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(Enemies.Instructions.ProcessInstructions);
+            instructions = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
             hitbox = new HitboxQuery(Enemies.Collision.TryFindExtendedHitboxCallback);
         }
 

@@ -201,7 +201,7 @@ internal static class RightFacingGateGlitchVerification
         foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
         {
             if (!ReferenceEquals(enemy, frozen))
-                enemy.EnemyDefinitionPointer = 0;
+                enemy.Bind(0, enemy.Definition);
         }
         frozen.Position = frozen.Position.WithWhole(new(checked((ushort)frozenEnemyX), 139));
         frozen.FrozenTimer = NativeCountdown.Start(1000);

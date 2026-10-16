@@ -35,11 +35,11 @@ internal static class TorizoInstructionVramArtworkVerification
         var installedVram = new SnesVram();
         installedEnemies.Presentation._vram = installedVram;
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
-        installedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
-        installedSlot.Definition = default(RoomEnemyDefinition) with
+        installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
+        installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = TorizoInstructionVramTransferDefinitions.Bank,
-        };
+        });
 
         ushort previousInstruction = 0;
         var authoredOpcodes = new HashSet<ushort>();
@@ -132,8 +132,8 @@ internal static class TorizoInstructionVramArtworkVerification
         var editedVram = new SnesVram();
         editedEnemies.Presentation._vram = editedVram;
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
-        editedSlot.EnemyDefinitionPointer = EnemyDefinitionId.GoldenTorizo;
-        editedSlot.Definition = installedSlot.Definition;
+        editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
+        editedSlot.Bind(editedSlot.EnemyDefinitionPointer, installedSlot.Definition);
         // Golden Torizo's initial program uploads its awakening sheet first.
         int goldenUpload = TorizoAnimations.Programs.Steps(TorizoBodyProgram.GoldenInitial0)
             .First(step => step.Kind == AnimationProgramStepKind.Cue && step.Cue.Kind == TorizoCueKind.CopyTiles).Cue.Transfer;

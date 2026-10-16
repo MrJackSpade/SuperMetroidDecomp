@@ -161,12 +161,12 @@
       "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
     },
     {
-      "type": "SuperMetroid.Core.Enemies.EnemyInstructionInterpreter",
+      "type": "SuperMetroid.Core.Enemies.EnemySpeciesRegistry",
       "flags": [
         "back-reference:SuperMetroid.Core.Enemies.RoomEnemySystem"
       ],
       "disposition": "dispatch-interface",
-      "reason": "Receives the enemy system only as IEnemyDispatch (slot initialization, AI dispatch, the AI table and interactive indexes): species spawn and run other species through the registry every species populates."
+      "reason": "Receives the enemy system only as IEnemyDispatch, so unconverted species bind TableBackedEnemyEntity over the system's AI table (#1312); the reference goes with the table in #1312 stage 8."
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyPopulationLoader",

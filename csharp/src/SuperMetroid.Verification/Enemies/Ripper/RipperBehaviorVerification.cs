@@ -109,7 +109,7 @@ internal static class RipperBehaviorVerification
             List<(int Update, ushort Spritemap)> shown = [];
             for (int update = 0; update < 31; update++)
             {
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
                 if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
                 {
                     shown.Add((update, slot.SpritemapPointer));
@@ -126,8 +126,8 @@ internal static class RipperBehaviorVerification
     private static RoomEnemySlot NewSlot(RoomEnemySystem enemies, EnemyDefinitionId definition)
     {
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = RipperFrameToolingDefinitions.Bank };
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RipperFrameToolingDefinitions.Bank });
         return slot;
     }
 

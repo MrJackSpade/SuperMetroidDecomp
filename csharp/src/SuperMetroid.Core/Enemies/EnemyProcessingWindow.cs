@@ -61,7 +61,7 @@ internal sealed class EnemyProcessingWindow
                 continue;
             if (slot.Properties.HasAny(EnemyProperties.Deleted))
             {
-                slot.EnemyDefinitionPointer = 0;
+                slot.Unbind();
                 continue;
             }
 

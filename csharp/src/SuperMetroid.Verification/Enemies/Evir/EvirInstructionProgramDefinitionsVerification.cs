@@ -35,7 +35,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
                 $"Evir {loop} loop");
         }
 
@@ -43,11 +43,11 @@ internal static class EvirInstructionProgramDefinitionsVerification
             var enemies = NewEvirInstructionSystem(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             EvirEnemyState state = PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
-            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4);
+            _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
             AnimationProgramCursor<EvirProgram>? held = state.Program;
-            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4);
+            _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(held, state.Program, "normal Evir projectile holds its flight pose");
         }
 
@@ -69,7 +69,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = NativeCountdown.Start(1);
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
                 if (call == 0)
                     AssertEqual((ushort)8, state.RegenerationXOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
@@ -103,8 +103,8 @@ internal static class EvirInstructionProgramDefinitionsVerification
         EnemyDefinitionId definition,
         EvirProgram program)
     {
-        slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = EvirFrameToolingDefinitions.Bank };
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = EvirFrameToolingDefinitions.Bank });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new EvirEnemyState(slot)
         {

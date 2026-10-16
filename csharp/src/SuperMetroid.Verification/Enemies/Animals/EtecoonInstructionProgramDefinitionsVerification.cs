@@ -37,7 +37,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Programs, program, EtecoonFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Programs, program)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Programs, program)),
                 $"Etecoon {program} loop");
         }
 
@@ -46,9 +46,9 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon(rom);
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Flexing);
             slot.InstructionTimer = NativeCountdown.Start(1);
-            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 4 * 6 * 8 + 2 * 32);
+            _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
             AnimationProgramCursor<EtecoonProgram> held = state.Program;
-            _ = EnemyInstructionRunner.ShownFrames(enemies, slot, 8);
+            _ = EnemyInstructionRunner.ShownFrames(slot, 8);
             AssertEqual(held, state.Program, "Etecoon flex ends asleep");
             AssertEqual(EtecoonAnimations.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
             AssertEqual((ushort)0, slot.Timer.RawValue, "Etecoon flex loop count expires");
@@ -68,8 +68,8 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa7 };
+        slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
         enemies.EtecoonBehavior.InitializeEtecoon(slot);
         return (enemies, slot, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
     }

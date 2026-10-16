@@ -23,8 +23,8 @@ internal static class EtecoonFanfareVerification
         for (int index = 0; index < 3; index++)
         {
             var slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Etecoon;
-            slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
+            slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer));
             slot.AiBank = slot.Definition.Bank;
             slot.Health = slot.Definition.Health;
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);

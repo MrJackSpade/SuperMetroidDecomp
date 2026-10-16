@@ -225,14 +225,14 @@ internal static class LookupStream1Verification
                 ushort duration = Word(0xb30000 | address), visual = Word(0xb30000 | (address + 2));
                 for (int held = 0; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(enemies, arguments); calls++;
+                    EnemyInstructionRunner.Process(arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every uninterrupted escape Dachora exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Native escape Dachora pose order");
                     AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Native callback displacement occurs only at pose completion");
                 }
             }
             AssertEqual(program == 0 ? 180 : program == 1 ? 120 : 163, calls, "Exact full native pacing/departure duration");
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
             expectedX += Word(0xb3eadf);
             AssertEqual(unchecked((ushort)expectedX), slot.Position.X.Whole, "Final movement callback is preserved");
             ushort next = program == 0 ? (ushort)0xe968 : program == 1 ? (ushort)0xe9d4 : (ushort)0xea80;
@@ -250,8 +250,8 @@ internal static class LookupStream1Verification
         enemies.BindFixtureBus(bus);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
-        dachora.EnemyDefinitionPointer = EnemyDefinitionId.DachoraEscape;
-        dachora.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
+        dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
+        dachora.Bind(dachora.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb3 });
         dachora.Position = dachora.Position.WithWhole(new(256, 200));
         enemies.EscapeAnimalsBehavior.InitializeEscapeDachora(dachora);
         return enemies;
@@ -272,13 +272,13 @@ internal static class LookupStream1Verification
             enemies.BindFixtureBus(rom);
             Action<RoomEnemySlot> initialize = enemies.PowampBehavior.InitializePowamp;
             var balloon = enemies.SlotTable.Slots[0];
-            balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
-            balloon.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
+            balloon.Bind(balloon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             balloon.Parameter1 = 1;
             initialize(balloon);
             var body = enemies.SlotTable.Slots[1];
-            body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
-            body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            body.Bind(EnemyDefinitionId.Powamp, body.Definition);
+            body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
@@ -300,7 +300,7 @@ internal static class LookupStream1Verification
                 ushort sprite = Word(0xa80000 | (address + 2));
                 for (int held = 0; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(enemies, arguments); calls++;
+                    EnemyInstructionRunner.Process(arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every uninterrupted Powamp hold tick");
                     AssertEqual(sprite, slot.SpritemapPointer, "Native Powamp held visual");
                     if (!isBody)
@@ -312,7 +312,7 @@ internal static class LookupStream1Verification
                 }
             }
             AssertEqual(root == 0xc163 ? 15 : root == 0xc173 ? 27 : 167, calls, "Native Powamp sequence duration");
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
             if (isBody)
             {
                 AssertEqual(Word(0xa80000 | (root + 2)), slot.SpritemapPointer, "Actual Powamp loop repeats first pose");
@@ -324,7 +324,7 @@ internal static class LookupStream1Verification
                 ushort terminalY = balloon.Position.Y.Whole;
                 PowampBehavior.AlignPowampBalloonY(body, pair);
                 AssertEqual(terminalY, balloon.Position.Y.Whole, "Sleep preserves terminal balloon collision center");
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
                 AssertEqual(ushort.MaxValue, slot.InstructionTimer.RawValue, "Sleeping Powamp retains native timer underflow");
             }
         }
@@ -347,8 +347,8 @@ internal static class LookupStream1Verification
             enemies.BindFixtureBus(rom);
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };
+            slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
             slot.InstructionTimer = NativeCountdown.Start(1);
             enemies.MetroidBehavior._metroidStates[0] = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
@@ -359,12 +359,12 @@ internal static class LookupStream1Verification
             {
                 ushort address = (ushort)(root + record * 4);
                 ushort duration = Word(0xa30000 | address), visual = Word(0xa30000 | (address + 2));
-                EnemyInstructionRunner.Process(enemies, arguments); calls++;
+                EnemyInstructionRunner.Process(arguments); calls++;
                 AssertEqual(duration, slot.InstructionTimer.RawValue, "Actual Metroid duration reload");
                 AssertEqual(visual, slot.SpritemapPointer, "Actual native inside-pose identity");
                 for (int held = 1; held < duration; held++)
                 {
-                    EnemyInstructionRunner.Process(enemies, arguments); calls++;
+                    EnemyInstructionRunner.Process(arguments); calls++;
                     AssertEqual((ushort)(duration - held), slot.InstructionTimer.RawValue, "Every actual Metroid exposure tick");
                     AssertEqual(visual, slot.SpritemapPointer, "Held Metroid inside pose stays selected");
                 }
@@ -372,7 +372,7 @@ internal static class LookupStream1Verification
                 AssertTrue(enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 is null, "No Metroid callback before loop boundary");
             }
             AssertEqual(chasing ? 256 : 64, calls, "Exact native pulse-loop length");
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
             AssertEqual((ushort?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2, "Native loop callback sound");

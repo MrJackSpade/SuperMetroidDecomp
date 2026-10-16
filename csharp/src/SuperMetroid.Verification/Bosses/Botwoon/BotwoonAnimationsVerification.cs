@@ -194,7 +194,7 @@ internal static class BotwoonAnimationsVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
-        head.EnemyDefinitionPointer = EnemyDefinitionId.Botwoon;
+        head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         var state = new BotwoonEnemyState(head);
         enemies.BotwoonBehavior._botwoonState = state;
         return (enemies, head, state);
@@ -219,7 +219,7 @@ internal static class BotwoonAnimationsVerification
         for (int update = 0; update < 70; update++)
         {
             enemies.BotwoonBehavior.LastBotwoonSoundEffect = null;
-            enemies.Instructions.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
+            EnemyInstructionInterpreter.ProcessInstructions(head, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
             bool nativeSound = native.Step(rom);
             string at = $"Botwoon {label} update {update}";
             AssertEqual(native.Timer, head.InstructionTimer.RawValue, $"{at}: timer");

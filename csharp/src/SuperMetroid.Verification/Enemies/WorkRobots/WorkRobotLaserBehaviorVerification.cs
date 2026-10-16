@@ -19,7 +19,7 @@ internal static class WorkRobotLaserBehaviorVerification
         var guard = NativeEnemyProjectileListGuard.Forbidding(rom, WorkRobotLaserNativeListAddresses.Extent, "Work Robot laser");
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(guard);
-        var robot = new RoomEnemySlot(0)
+        var robot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)),
             Radius = new(12, 16),

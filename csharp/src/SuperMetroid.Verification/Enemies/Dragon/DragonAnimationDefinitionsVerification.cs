@@ -78,8 +78,8 @@ internal static class DragonAnimationDefinitionsVerification
         enemies.BindFixtureBus(NewDragonAnimationReadGuard(rom));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-        wing.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
+        body.Bind(EnemyDefinitionId.Dragon, body.Definition);
+        wing.Bind(EnemyDefinitionId.Dragon, wing.Definition);
         body.Parameter1 = 0;
         wing.Parameter1 = 1;
         wing.Position = wing.Position.WithWholeX(0x0100);
@@ -130,7 +130,7 @@ internal static class DragonAnimationDefinitionsVerification
     }
 
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
-    private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index)
+    private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index, EnemySlotFixtures.Registry)
     {
         InstructionTimer = NativeCountdown.Start(0x2222),
         Timer = NativeCountdown.Start(0x3333),

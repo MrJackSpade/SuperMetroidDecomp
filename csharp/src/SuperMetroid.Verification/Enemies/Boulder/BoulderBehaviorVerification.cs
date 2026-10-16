@@ -19,8 +19,8 @@ internal static class BoulderBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Boulder;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BoulderFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BoulderFrameToolingDefinitions.Bank });
         slot.CurrentInstruction = 8;
         slot.Parameter1 = 256;
         slot.Parameter2 = 264;
@@ -30,7 +30,7 @@ internal static class BoulderBehaviorVerification
             "Boulder initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoulderAnimations.Programs, BoulderProgram.Left, BoulderFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(BoulderAnimations.Programs, BoulderProgram.Left)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BoulderAnimations.Programs, BoulderProgram.Left)),
             "Boulder runs its loop and returns through its goto");
         Console.WriteLine("  Boulder behavior: the initializer starts and runs its loop.");
     }

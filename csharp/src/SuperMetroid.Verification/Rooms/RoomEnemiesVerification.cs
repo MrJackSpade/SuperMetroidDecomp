@@ -917,7 +917,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     // $FC and displaces the door four pixels left.
     SeedCeresDoorQuakeOverlay(bus);
     RoomEnemySlot overlayDoor = enemies.SlotTable.Slots[1];
-    overlayDoor.EnemyDefinitionPointer = ceresDoorDefinitionPointer;
+    overlayDoor.Bind(ceresDoorDefinitionPointer, overlayDoor.Definition);
     overlayDoor.VariableB = 1;
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
@@ -933,7 +933,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).X,
             $"Ceres private door hook byte-indexed quake phase {timer}");
     }
-    overlayDoor.EnemyDefinitionPointer = 0;
+    overlayDoor.Bind(0, overlayDoor.Definition);
     enemies.RidleyEncounter.CeresStatus = 0;
     enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
 

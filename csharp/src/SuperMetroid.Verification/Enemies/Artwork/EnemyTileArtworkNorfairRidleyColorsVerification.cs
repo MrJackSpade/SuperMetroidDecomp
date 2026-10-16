@@ -214,7 +214,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             enemy.Presentation._cgram = cgram;
             enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+            slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
             enemy.RidleyBehavior.InitializeNorfairRidley(slot);
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");

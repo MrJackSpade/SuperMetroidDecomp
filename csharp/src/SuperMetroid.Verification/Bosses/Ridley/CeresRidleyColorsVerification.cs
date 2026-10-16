@@ -154,7 +154,7 @@ internal static class CeresRidleyColorsVerification
         }
         Suite(nameof(VerifyNorfairHealthPalette), () => VerifyNorfairHealthPalette());
         Suite(nameof(VerifyCeresAlarmPalette), () => VerifyCeresAlarmPalette());
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
+        slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         RidleyEnemyState activeRidley = enemies.RidleyEncounter.Ridley ??
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;

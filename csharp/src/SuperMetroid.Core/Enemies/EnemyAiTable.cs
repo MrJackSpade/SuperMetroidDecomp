@@ -17,19 +17,17 @@ internal sealed class EnemyAiTable
     internal void AddTypedAnimation(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) =>
         _typedAnimations.Add((Ensure.NotNull(matches), Ensure.NotNull(advance)));
 
-    /// <summary>Whether <paramref name="slot"/>'s owner runs a typed animation.</summary>
-    internal bool HasTypedAnimation(RoomEnemySlot slot) => FindTypedAnimation(slot) is not null;
-
-    /// <summary>Advances <paramref name="slot"/>'s typed animation, which its owner must have.</summary>
-    internal void AdvanceTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    /// <summary>The routine a banked header pointer names, or null when this build does not translate it.</summary>
+    /// <param name="bank">The header's AI bank.</param>
+    /// <param name="pointer">The bank-local routine pointer.</param>
+    internal static EnemyAiRoutine? Routine(byte bank, ushort pointer)
     {
-        Action<RoomEnemySlot, EnemyInstructionContext> advance = FindTypedAnimation(slot) ?? throw new InvalidOperationException(
-            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} has no typed animation.");
-        advance(slot, context);
+        var routine = (EnemyAiRoutine)(int)new SnesAddress(bank, pointer);
+        return Enum.IsDefined(routine) ? routine : null;
     }
 
     /// <summary>The first registered typed animation whose owner matches <paramref name="slot"/>, or null.</summary>
-    private Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation(RoomEnemySlot slot)
+    internal Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation(RoomEnemySlot slot)
     {
         foreach ((Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot, EnemyInstructionContext> advance) in _typedAnimations)
         {
@@ -65,30 +63,24 @@ internal sealed class EnemyAiTable
     internal void AddFrozenPreemption(Func<RoomEnemySlot, bool> matches, EnemyFrozenPreemption preemption) =>
         _frozenPreemptions.Add((Ensure.NotNull(matches), Ensure.NotNull(preemption)));
 
-    /// <summary>Runs the frozen enemy's private tail, if it has one; true when that tail consumed the slot's frame.</summary>
-    internal bool TryPreemptFrozen(RoomEnemySlot slot)
+    /// <summary>The frozen enemy's private tail, if it has one; when it returns true it consumed the slot's frame.</summary>
+    internal EnemyFrozenPreemption? FindFrozenPreemption(RoomEnemySlot slot)
     {
         foreach (var (matches, preemption) in _frozenPreemptions)
         {
             if (matches(slot))
-                return preemption(slot);
+                return preemption;
         }
-        return false;
+        return null;
     }
 
     /// <summary>Adds an AI that runs for a frozen enemy after the common thaw step.</summary>
     internal void AddFrozen(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot> handler) =>
         _frozen.Add((Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
-    /// <summary>Runs every frozen AI whose match accepts the enemy, in registration order.</summary>
-    internal void RunFrozen(RoomEnemySlot slot)
-    {
-        foreach (var (matches, handler) in _frozen)
-        {
-            if (matches(slot))
-                handler(slot);
-        }
-    }
+    /// <summary>Every frozen AI whose match accepts the enemy, in registration order.</summary>
+    internal IReadOnlyList<Action<RoomEnemySlot>> FrozenHandlers(RoomEnemySlot slot) =>
+        [.. _frozen.Where(entry => entry.Matches(slot)).Select(entry => entry.Handler)];
 
     /// <summary>Touch reactions selected by the first matching enemy predicate.</summary>
     private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyTouchHandler Handler)> _touch = [];

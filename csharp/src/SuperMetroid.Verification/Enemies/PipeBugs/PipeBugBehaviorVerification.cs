@@ -39,7 +39,7 @@ internal static class PipeBugBehaviorVerification
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
             PipeBugsBehavior.InstallPipeBugProgram(slot, state, program);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(PipeBugAnimations.Programs, program, PipeBugFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Programs, program)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(PipeBugAnimations.Programs, program)),
                 $"Pipe Bug {program} loop");
         }
         Console.WriteLine("  Pipe Bug behavior: four initializers start their native loops and all sixteen loops run on time.");
@@ -56,8 +56,8 @@ internal static class PipeBugBehaviorVerification
     /// <summary>Runs <paramref name="definition"/>'s real initializer on <paramref name="slot"/>.</summary>
     private static PipeBugEnemyState Initialize(RoomEnemySystem enemies, RoomEnemySlot slot, EnemyDefinitionId definition, ushort parameter)
     {
-        slot.EnemyDefinitionPointer = definition;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = PipeBugFrameToolingDefinitions.Bank };
+        slot.Bind(definition, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PipeBugFrameToolingDefinitions.Bank });
         slot.Parameter1 = parameter;
         switch (definition)
         {

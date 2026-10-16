@@ -109,8 +109,8 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyWalking;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
+            slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             enemies.WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
             var samus = new SamusState
@@ -129,7 +129,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             object?[] arguments =
                 [slot, samus, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

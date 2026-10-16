@@ -35,7 +35,7 @@ internal static class MotherBrainHeadHitboxVerification
         AssertEqual(AnimationProgramCursor<MotherBrainHeadProgram>.Start(MotherBrainHeadProgram.Initial), state.BrainCursor,
             "the brain program starts at InstList_MotherBrainHead_Initial");
 
-        runtime.Enemies.Instructions.ProcessInstructions(head, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+        EnemyInstructionInterpreter.ProcessInstructions(head, null, null, Position16<RoomPixels>.Zero, (ushort)0);
         AssertEqual((ushort)0xa320, head.SpritemapPointer, "the head enemy carries the dummy list's hitbox frame");
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches

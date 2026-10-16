@@ -233,15 +233,15 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool wallFrame = pointer != EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap &&
                 !ninjaFramePointers.Contains(pointer) &&
                 !walkingFramePointers.Contains(pointer);
-            slot.EnemyDefinitionPointer = compiledPirate switch
+            slot.Bind(compiledPirate switch
             {
                 false => (EnemyDefinitionId)0xffff,
                 true when ninjaFramePointers.Contains(pointer) =>
                     EnemyDefinitionId.PirateGreyNinja,
                 true when wallFrame => EnemyDefinitionId.PirateGreyWall,
                 _ => EnemyDefinitionId.PirateGreyWalking,
-            };
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };
+            }, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(x, y));
             return (enemies, slot);

@@ -36,9 +36,9 @@ internal static class RidleyBreakupProgramsVerification
         enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> death = enemies.RidleyBehavior.TickNorfairRidleyDeathExplosions;
-        var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(enemies.Instructions.ProcessInstructions);
+        var process = new Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton>(EnemyInstructionInterpreter.ProcessInstructions);
         var body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
+        body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         var state = new RidleyEnemyState
         {
             GrabState = 1, FunctionTimer = NativeCountdown.Start(0),

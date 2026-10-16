@@ -44,20 +44,20 @@ internal static class MorphBallEyeBehaviorVerification
             ushort shut = MorphBallEyeAnimationsConstants.Spritemaps(closed).Single();
             int[] holds = [8, 48, 5, 48];
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. MorphBallEyeAnimationsConstants.Spritemaps(closing), shut], holds),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum() + 1), $"eye {closing} closes and holds");
+                EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"eye {closing} closes and holds");
         }
 
         (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(rom, parameter1: 0, parameter2: 0);
         tracking.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(MorphBallEyeProgram.Active);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active, MorphBallEyeFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(tracker, eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active)),
+            EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active)),
             "eye tracking loop");
         ushort[] active = [.. MorphBallEyeAnimationsConstants.Spritemaps(MorphBallEyeProgram.Active)];
         for (int pose = 0; pose < active.Length; pose++)
         {
             tracking.Program = new AnimationProgramCursor<MorphBallEyeProgram>(MorphBallEyeProgram.Active, pose);
             eye.InstructionTimer = NativeCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(tracker, eye, 1),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames([active[pose]], [1]), EnemyInstructionRunner.ShownFrames(eye, 1),
                 $"eye tracking pose {pose}");
         }
         Console.WriteLine("  Morph Ball eye behavior: initial eyelid and mount poses, both closings and every tracking pose pass.");
@@ -69,8 +69,8 @@ internal static class MorphBallEyeBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Eye;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank });
         slot.Parameter1 = parameter1;
         slot.Parameter2 = parameter2;
         enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);

@@ -494,7 +494,7 @@ internal static class RidleyFullMovieVerification
     /// <summary>Checks that Ridley enters his screen gate only after the prior Y position becomes visible.</summary>
     internal static void VerifyRidleyScreenGate()
     {
-        var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
+        var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
         var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = NativeCountdown.Start(3) };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>((ushort)0, (ushort)287));
@@ -625,7 +625,7 @@ internal static class RidleyFullMovieVerification
             CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
         foreach (var sample in cases)
         {
-            var slot = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
                 InstructionTimer = NativeCountdown.Start(7), Timer = NativeCountdown.Start(9) };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
             state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
@@ -638,7 +638,7 @@ internal static class RidleyFullMovieVerification
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer.RawValue, "loop counter is preserved when no turn is needed");
         }
         var hoverState = new RidleyEnemyState { FunctionTimer = NativeCountdown.Start(0), Function = RidleyAiFunction.NorfairHover };
-        RidleyBehavior.TickNorfairRidleyHover(new RoomEnemySlot(0), hoverState);
+        RidleyBehavior.TickNorfairRidleyHover(new RoomEnemySlot(0, EnemySlotFixtures.Registry), hoverState);
         AssertEqual(ushort.MaxValue, hoverState.FunctionTimer.RawValue, "native hover decrements zero before selecting next attack");
         AssertEqual(RidleyAiFunction.NorfairSelectAttack, hoverState.Function, "negative hover timer exits before movement");
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");

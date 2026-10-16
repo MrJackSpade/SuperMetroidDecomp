@@ -25,8 +25,8 @@ internal static class WaverBehaviorVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Waver;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = WaverFrameToolingDefinitions.Bank };
+            slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = WaverFrameToolingDefinitions.Bank });
             enemies.WaverBehavior.InitializeWaver(slot);
             WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             state.CurrentInstructionListIndex = selector == WaverAnimationSelector.None ? WaverAnimationSelector.FacingRight : WaverAnimationSelector.None;
@@ -41,7 +41,7 @@ internal static class WaverBehaviorVerification
             int duration = frames.Length == 1 ? 1 : 8;
             ushort[] shown = duration == 1 ? [.. frames, frames[^1]] : frames;
             string expected = EnemyInstructionRunner.ExpectedFrames(shown, shown.Select(_ => duration));
-            AssertEqual(expected, EnemyInstructionRunner.ShownFrames(enemies, slot, frames.Length * duration + 2), $"Waver {selector} animation");
+            AssertEqual(expected, EnemyInstructionRunner.ShownFrames(slot, frames.Length * duration + 2), $"Waver {selector} animation");
             AssertEqual(selector.HasFlag(WaverAnimationSelector.Spinning), state.SpinFinished, $"Waver {selector} spin-completion cue");
         }
         Console.WriteLine("  Waver behavior: both steady poses and both spins run, and only the spins report completion.");

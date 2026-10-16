@@ -137,12 +137,12 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
-            body.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreen;
-            body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            body.Bind(EnemyDefinitionId.KihunterGreen, body.Definition);
+            body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
             RoomEnemySlot wings = enemies.SlotTable.Slots[1];
-            wings.EnemyDefinitionPointer = EnemyDefinitionId.KihunterGreenWings;
-            wings.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.Definition);
+            wings.Bind(wings.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             initializeBody(body);
             initializeWings(wings);
             return (enemies, body, wings,
@@ -167,7 +167,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

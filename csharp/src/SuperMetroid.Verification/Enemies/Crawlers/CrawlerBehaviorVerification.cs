@@ -35,8 +35,8 @@ internal static class CrawlerBehaviorVerification
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureBus(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = definition;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank };
+            slot.Bind(definition, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });
             // The population parameter, read before initialization, selects the surface; InitAI_Viola reads the property bits.
             slot.CurrentInstruction = (ushort)orientation;
             if (family == CrawlerAnimationFamily.Viola)
@@ -53,7 +53,7 @@ internal static class CrawlerBehaviorVerification
             CrawlerProgram loop = CrawlerAnimations.Programs.Steps(program)
                 .Single(step => step.Kind is AnimationProgramStepKind.FallInto or AnimationProgramStepKind.GoTo).Target;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
             CrawlerEnemyFunction expected = family == CrawlerAnimationFamily.HZoomer
                 ? sideWall ? CrawlerEnemyFunction.HZoomerCrawlingVertically : CrawlerEnemyFunction.HZoomerCrawlingHorizontally

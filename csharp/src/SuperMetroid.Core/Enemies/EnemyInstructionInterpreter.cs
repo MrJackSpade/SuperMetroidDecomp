@@ -84,17 +84,14 @@ internal sealed class EnemyInstructionInterpreter
     private readonly EnemyPresentation _presentation;
     /// <summary>Provides installed visual assets and room scratch memory.</summary>
     private readonly EnemyRoomBinding _room;
-    /// <summary>Supplies species-owned private instruction handlers.</summary>
-    private readonly IEnemyDispatch _dispatch;
 
-    /// <summary>Captures visual, room, encounter, and species dispatch owners for instruction execution.</summary>
-    internal EnemyInstructionInterpreter(CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room, IEnemyDispatch dispatch)
+    /// <summary>Captures visual, room and encounter owners for instruction execution.</summary>
+    internal EnemyInstructionInterpreter(CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room)
     {
         _crocomireBehavior = crocomireBehavior;
         _motherBrainEncounter = motherBrainEncounter;
         _presentation = presentation;
         _room = room;
-        _dispatch = dispatch;
     }
     /// <summary>
     /// Draws the BG2 half of the already resolved visual frame. The common writer
@@ -169,19 +166,19 @@ internal sealed class EnemyInstructionInterpreter
     /// Advances one enemy's typed animation (#641). Every enemy that processes instructions runs a typed program; one
     /// without is a missing conversion and fails here rather than reading cartridge instruction lists.
     /// </summary>
-    internal void ProcessInstructions(
+    internal static void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,
         RoomLevelData? level,
         Position16<RoomPixels> camera,
         SnesButton controllerInput)
     {
-        if (!_dispatch.Ai.HasTypedAnimation(slot))
+        if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not { } advance)
         {
             throw new InvalidDataException(
                 $"Enemy {slot.EnemyDefinitionPointer} processes instructions but has no typed animation.");
         }
-        _dispatch.Ai.AdvanceTypedAnimation(slot, new EnemyInstructionContext
+        advance(slot, new EnemyInstructionContext
             { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });
     }
 }

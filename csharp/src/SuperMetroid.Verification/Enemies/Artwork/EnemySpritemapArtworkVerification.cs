@@ -120,21 +120,21 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         enemies.BindFixtureBus(rom);
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
-        bull.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
-        bull.Definition = default(RoomEnemyDefinition) with
-            { Bank = EnemySpritemapDefinitions.BullBank };
+        bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
+        bull.Bind(bull.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            { Bank = EnemySpritemapDefinitions.BullBank });
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
             [bull, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int frame = 0; frame < 41; frame++)
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
             "installed Bull normal animation loops back to its first frame on time");
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException(
             "Bull initializer did not publish typed state.");
         BullBehavior.ResolveBullImmuneShot(bull, state, (ushort)2);
         for (int frame = 0; frame < 61; frame++)
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
         AssertEqual(BullAnimationsConstants.Spritemaps(BullProgram.Normal).First(), bull.SpritemapPointer,
             "installed Bull immune-shot program returns to the normal loop");
         AssertEqual((ushort)0, bull.Timer.RawValue,
@@ -2944,8 +2944,8 @@ internal static class EnemySpritemapArtworkVerification
             enemies.BindFixtureBus(guard);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = definition;
-            slot.Definition = default(RoomEnemyDefinition) with
+            slot.Bind(definition, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
                 { Bank = definition == EnemyDefinitionId.YappingMaw
                     ? YappingMawVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.KihunterGreen or
@@ -3047,11 +3047,11 @@ internal static class EnemySpritemapArtworkVerification
                           EnemyDefinitionId.Metaree or
                           EnemyDefinitionId.Skree
                             ? EnemySpritemapDefinitions.SkulteraBank
-                        : EnemySpritemapDefinitions.BoyonBank };
+                        : EnemySpritemapDefinitions.BoyonBank });
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             if (spritemapBank is byte bank)
-                slot.Definition = slot.Definition with { Bank = bank };
+                slot.Bind(slot.EnemyDefinitionPointer, slot.Definition with { Bank = bank });
             slot.SpritemapPointer = pointer;
             slot.InstructionTimer = NativeCountdown.Start(7);
             slot.Timer = NativeCountdown.Start(9);

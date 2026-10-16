@@ -27,7 +27,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
         {
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(guarded);
-            var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
+            var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0200))};
             enemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body);
             var request = new MotherBrainDeathExplosionRequest(
                 Offset: new(-7, 9),

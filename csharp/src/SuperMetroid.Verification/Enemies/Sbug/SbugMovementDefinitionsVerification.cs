@@ -30,7 +30,7 @@ internal static class SbugMovementDefinitionsVerification
         Action<RoomEnemySlot> initialize = enemies.SbugBehavior.InitializeSbug;
         Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Sbug;
+        slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
 
         for (ushort directionIndex = 0; directionIndex < 16; directionIndex++)
         {
@@ -66,7 +66,7 @@ internal static class SbugMovementDefinitionsVerification
             // Each loop shows its four frames five updates apiece, then its goto shows the first again.
             ushort[] loop = SbugAnimationsConstants.Spritemaps(state.Program.Program).ToArray();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [5, 5, 5, 5, 5]),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, 21), $"Sbug facing loop {selector}");
+                EnemyInstructionRunner.ShownFrames(slot, 21), $"Sbug facing loop {selector}");
         }
 
         var samus = new SamusState

@@ -67,8 +67,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
 
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.EnemyDefinitionPointer = definitionPointer;
-                slot.Definition = definition;
+                slot.Bind(definitionPointer, slot.Definition);
+                slot.Bind(slot.EnemyDefinitionPointer, definition);
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
                 slot.Layer = definition.Layer;
@@ -84,7 +84,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 bool translatedRecord = true;
                 try
                 {
-                    enemies.RunInitializationAi(slot, null, new SamusState(), (ushort)0, (ushort)0);
+                    RoomEnemySystem.RunInitializationAi(slot, null, new SamusState(), (ushort)0, (ushort)0);
                 }
                 catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(
@@ -114,7 +114,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
 
                 // Every instruction-processing enemy runs a typed program (#641); none reads cartridge lists.
                 definitionNeedsOwner = true;
-                if (enemies.Ai.HasTypedAnimation(slot))
+                if (enemies.Ai.FindTypedAnimation(slot) is not null)
                     definitionHasOwner = true;
                 else
                     unresolved.Add($"${(int)definitionPointer:X4} has no typed animation");
@@ -145,10 +145,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
         var unknownEnemies = new RoomEnemySystem();
         unknownEnemies.BindFixtureBus(rom);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
-        unknown.EnemyDefinitionPointer = (EnemyDefinitionId)0x9000;
-        unknown.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
+        unknown.Bind(unknown.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
-            () => EnemyInstructionRunner.Process(unknownEnemies, [unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
+            () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
             "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");
         AssertTrue(
             unknownException.Message.Contains("has no typed animation", StringComparison.Ordinal),

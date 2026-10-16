@@ -27,8 +27,8 @@ internal static class EvirDeathFrameVerification
         for (int index = 6; index <= 8; index++)
         {
             var slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir;
-            slot.Definition = RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer);
+            slot.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer));
             slot.AiBank = slot.Definition.Bank;
             slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);

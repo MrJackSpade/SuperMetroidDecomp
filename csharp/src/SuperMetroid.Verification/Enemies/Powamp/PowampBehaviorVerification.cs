@@ -23,13 +23,13 @@ internal static class PowampBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot balloon = enemies.SlotTable.Slots[0];
-        balloon.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
-        balloon.Definition = default(RoomEnemyDefinition) with { Bank = PowampFrameToolingDefinitions.Bank };
+        balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
+        balloon.Bind(balloon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PowampFrameToolingDefinitions.Bank });
         balloon.Parameter1 = 1;
         enemies.PowampBehavior.InitializePowamp(balloon);
         RoomEnemySlot body = enemies.SlotTable.Slots[1];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.Powamp;
-        body.Definition = default(RoomEnemyDefinition) with { Bank = PowampFrameToolingDefinitions.Bank };
+        body.Bind(EnemyDefinitionId.Powamp, body.Definition);
+        body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PowampFrameToolingDefinitions.Bank });
         enemies.PowampBehavior.InitializePowamp(body);
         AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BalloonDeflated), enemies.PowampBehavior.RequirePowampState(balloon).Program,
             "the balloon starts deflated");

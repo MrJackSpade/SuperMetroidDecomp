@@ -31,8 +31,8 @@ internal static class RioInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot rio = enemies.SlotTable.Slots[0];
-        rio.EnemyDefinitionPointer = EnemyDefinitionId.Rio;
-        rio.Definition = default(RoomEnemyDefinition) with { Bank = RioFrameToolingDefinitions.Bank };
+        rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
+        rio.Bind(rio.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RioFrameToolingDefinitions.Bank });
         // The room spawn primes the instruction timer before the species initializer runs.
         rio.InstructionTimer = NativeCountdown.Start(1);
         enemies.RioBehavior.InitializeRio(rio);
@@ -43,7 +43,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         // Idle shows its two poses, then runs into the ten-pose post-swoop idle, which returns to idle.
         IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioProgram.Idle, RioProgram.PostSwoopIdle);
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. idlePass, RioAnimationsConstants.Spritemaps(RioProgram.Idle).First()], Enumerable.Repeat(4, 13)),
-            EnemyInstructionRunner.ShownFrames(enemies, rio, 12 * 4 + 1),
+            EnemyInstructionRunner.ShownFrames(rio, 12 * 4 + 1),
             "idle runs into the post-swoop idle and returns");
 
         foreach (RioProgram swoop in new[] { RioProgram.SwoopingPart1, RioProgram.SwoopCooldown })
@@ -52,18 +52,18 @@ internal static class RioInstructionProgramDefinitionsVerification
             state.Program = AnimationProgramCursor<RioProgram>.Start(swoop);
             rio.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(RioAnimationsConstants.Spritemaps(swoop), Enumerable.Repeat(3, 5)),
-                EnemyInstructionRunner.ShownFrames(enemies, rio, 5 * 3),
+                EnemyInstructionRunner.ShownFrames(rio, 5 * 3),
                 $"Rio {swoop} shows its five poses");
             AssertTrue(!state.AnimationFinished, $"Rio {swoop} is still showing its last pose");
             // The finished cue runs when the last pose's time runs out, on the next update.
-            _ = EnemyInstructionRunner.ShownFrames(enemies, rio, 1);
+            _ = EnemyInstructionRunner.ShownFrames(rio, 1);
             AssertTrue(state.AnimationFinished, $"Rio {swoop} tells main AI it has finished");
         }
 
         state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.SwoopingPart2);
         rio.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(RioAnimations.Programs, RioProgram.SwoopingPart2, RioFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, rio, EnemyInstructionRunner.LoopUpdates(RioAnimations.Programs, RioProgram.SwoopingPart2)),
+            EnemyInstructionRunner.ShownFrames(rio, EnemyInstructionRunner.LoopUpdates(RioAnimations.Programs, RioProgram.SwoopingPart2)),
             "second swoop phase loops");
 
         Suite(nameof(RioAnimationsVerification.VerifyRioAnimations), () => RioAnimationsVerification.VerifyRioAnimations(rom));

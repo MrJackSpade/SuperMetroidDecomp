@@ -44,7 +44,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             for (int call = 0; call < calls; call++)
             {
                 slot.InstructionTimer = NativeCountdown.Start(1);
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
             }
             AssertEqual(visible, state.FollowerVisible, $"Lower Norfair Rio {name} publishes follower visibility");
             AssertEqual(signal, state.AnimationSignal, $"Lower Norfair Rio {name} animation signal");
@@ -65,15 +65,15 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         var states = (LowerNorfairRioEnemyState?[])enemies.LowerNorfairRioBehavior._lowerNorfairRioStates;
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
-        parent.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
-        parent.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
+        parent.Bind(parent.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
         AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), states[0]?.Program,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
-        follower.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
-        follower.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
+        follower.Bind(follower.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         follower.Parameter1 = 0x8000;
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), states[1]?.Program,
@@ -88,8 +88,8 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Holtz;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa2 };
+        slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new LowerNorfairRioEnemyState(slot) { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
         ((LowerNorfairRioEnemyState?[])enemies.LowerNorfairRioBehavior._lowerNorfairRioStates)[0] = state;

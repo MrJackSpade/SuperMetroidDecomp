@@ -24,8 +24,8 @@ internal static class DeadTourianBehaviorVerification
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureBus(rom);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
-        corpse.EnemyDefinitionPointer = EnemyDefinitionId.CorpseSidehopper;
-        corpse.Definition = default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank };
+        corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
+        corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank });
         corpse.Parameter1 = 0;
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperIdle),
@@ -36,14 +36,14 @@ internal static class DeadTourianBehaviorVerification
             enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, pose);
             ushort frame = DeadTourianAnimationsConstants.Spritemaps(pose).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
-                EnemyInstructionRunner.ShownFrames(enemies, corpse, 3), $"dead Sidehopper {pose} pose");
+                EnemyInstructionRunner.ShownFrames(corpse, 3), $"dead Sidehopper {pose} pose");
         }
 
         enemies.DeadSidehopperBehavior.SetDeadSidehopperProgram(corpse, DeadTourianProgram.SidehopperHopping);
         ushort[] hop = DeadTourianAnimationsConstants.Spritemaps(DeadTourianProgram.SidehopperHopping).ToArray();
         int[] holds = [2, 4, 5, 48, 5, 4, 5, 4];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(hop, holds),
-            EnemyInstructionRunner.ShownFrames(enemies, corpse, holds.Sum() + 1), "dead Sidehopper hop");
+            EnemyInstructionRunner.ShownFrames(corpse, holds.Sum() + 1), "dead Sidehopper hop");
         AssertEqual(DeadSidehopperAiFunction.BeginPostLandingDelay,
             (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0].")).Function,
             "the landing cue returns ownership to main AI");

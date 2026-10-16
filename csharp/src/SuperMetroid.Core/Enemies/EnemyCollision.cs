@@ -126,7 +126,7 @@ internal sealed class EnemyCollision
             // dummy 8x8 radius here. An actor with no translated touch reaction is skipped.
             if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
                 slot.Properties.HasAny(EnemyProperties.Deleted) ||
-                _dispatch.Ai.FindTouch(slot) is not { } touch)
+                (slot.Entity as IEnemyTouchReaction)?.FindTouch() is not { } touch)
             {
                 continue;
             }
@@ -214,7 +214,7 @@ internal sealed class EnemyCollision
                 enemy.Properties.HasAny(
                     EnemyProperties.Deleted |
                     EnemyProperties.IgnoreSamusCollision) ||
-                _dispatch.Ai.FindShot(enemy) is not { } reaction)
+                (enemy.Entity as IEnemyShotReaction)?.FindShot() is not { } reaction)
             {
                 continue;
             }
@@ -577,13 +577,14 @@ internal sealed class EnemyCollision
                     selectedShotAi,
                     selectedShotAiPointer,
                     usesExtendedHitboxes);
-                if (_dispatch.Ai.FindBombSpecial(bombContext) is { } special)
+                var bombReactions = enemy.Entity as IEnemyBombReaction;
+                if (bombReactions?.FindBombSpecial(bombContext) is { } special)
                 {
                     special(bombContext);
                 }
                 else if (!selectedLiteralNoOp)
                 {
-                    if (_dispatch.Ai.FindBombSpecialAfterNoOp(bombContext) is { } afterNoOp)
+                    if (bombReactions?.FindBombSpecialAfterNoOp(bombContext) is { } afterNoOp)
                     {
                         afterNoOp(bombContext);
                     }
@@ -591,7 +592,7 @@ internal sealed class EnemyCollision
                     {
                         // A private callback that rejects the bomb returns before common damage; bank $A0 has
                         // already marked the bomb, so rejection belongs here rather than in collision admission.
-                        EnemyBombReaction? reaction = _dispatch.Ai.FindBombCommon(bombContext);
+                        EnemyBombReaction? reaction = bombReactions?.FindBombCommon(bombContext);
                         if (reaction?.Rejects?.Invoke(bombContext) != true)
                         {
                             bombContext = bombContext with { HealthBefore = enemy.Health };
@@ -799,7 +800,7 @@ internal sealed class EnemyCollision
                 continue;
 
             ushort reactionPointerWord = enemy.Definition.PowerBombReactionPointer;
-            EnemyPowerBombReaction? reaction = _dispatch.Ai.FindPowerBomb(enemy);
+            EnemyPowerBombReaction? reaction = (enemy.Entity as IEnemyPowerBombReaction)?.FindPowerBomb();
             if (reaction?.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
             if (reactionPointerWord != 0 && reaction is null)

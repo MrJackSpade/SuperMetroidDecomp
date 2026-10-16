@@ -24,7 +24,7 @@ internal static class DeadTorizoCollisionVerification
             enemies.BindFixtureBus(installation.OpenRuntimeAddressSpace());
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             var slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
+            slot.Bind(EnemyDefinitionId.CorpseTorizo, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(120, 100));
             slot.Radius = new(16, 32);
             enemies.DeadTorizoBehavior.InitializeDeadTorizo(slot);

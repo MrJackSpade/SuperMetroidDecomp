@@ -108,23 +108,21 @@ internal static class ShaktoolInstructionDefinitionsVerification
             int slotIndex = Math.Min(index, 6);
             (enemies.ShaktoolSegments[slotIndex] ?? throw new InvalidOperationException("Verification requires a Shaktool segment.")).Program =
                 AnimationProgramCursor<ShaktoolProgram>.Start(steadyPrograms[index]);
-            RunForcedShaktoolInstructions(enemies, enemies.SlotTable.Slots[slotIndex], 5);
+            RunForcedShaktoolInstructions(enemies.SlotTable.Slots[slotIndex], 5);
         }
 
         RoomEnemySlot tail = enemies.SlotTable.Slots[6];
         ShaktoolSegmentState tailState = enemies.ShaktoolSegments[6] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[6].");
         enemies.ShaktoolBehavior.ReverseShaktoolAfterCollision(tail, tailState, tail.Position.Whole);
         for (int index = 0; index < 7; index++)
-            RunForcedShaktoolInstructions(enemies, enemies.SlotTable.Slots[index], 8);
+            RunForcedShaktoolInstructions(enemies.SlotTable.Slots[index], 8);
 
         Suite(nameof(ShaktoolAnimationsVerification.VerifyShaktoolAnimations), () => ShaktoolAnimationsVerification.VerifyShaktoolAnimations(rom));
         Console.WriteLine("Shaktool: every steady and collision program runs on the real seven-segment group.");
     }
 
     /// <summary>Forces successive instruction steps and reports whether they moved the segment.</summary>
-    private static bool RunForcedShaktoolInstructions(
-        RoomEnemySystem enemies,
-        RoomEnemySlot segment,
+    private static bool RunForcedShaktoolInstructions(RoomEnemySlot segment,
         int steps)
     {
         bool moved = false;
@@ -134,7 +132,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
         {
             (ushort X, ushort Y) before = (segment.Position.X.Whole, segment.Position.Y.Whole);
             segment.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
             moved |= segment.Position.X.Whole != before.X || segment.Position.Y.Whole != before.Y;
         }
         return moved;
@@ -151,8 +149,8 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (int index = 0; index < 7; index++)
         {
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.Shaktool;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xaa };
+            slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xaa });
             slot.Parameter2 = unchecked((ushort)(index * 2));
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);

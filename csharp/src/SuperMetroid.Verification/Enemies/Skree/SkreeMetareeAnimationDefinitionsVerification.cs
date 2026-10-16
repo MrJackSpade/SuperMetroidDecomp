@@ -161,7 +161,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     }
 
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
-    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0)
+    private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
         InstructionTimer = NativeCountdown.Start(0x2222),
         Timer = NativeCountdown.Start(0x3333),

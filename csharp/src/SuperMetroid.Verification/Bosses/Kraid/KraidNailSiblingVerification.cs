@@ -65,7 +65,7 @@ internal static class KraidNailSiblingVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
         enemies.KraidBehavior.Kraid = state;
-        enemies.SlotTable.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
+        enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.Kraid, enemies.SlotTable.Slots[0].Definition);
         ushort random = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Nail initialization must not advance RNG."));

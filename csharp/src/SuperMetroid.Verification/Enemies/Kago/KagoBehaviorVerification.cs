@@ -23,15 +23,15 @@ internal static class KagoBehaviorVerification
         enemies.BindFixtureBus(rom);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Kago;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = KagoFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Kago, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KagoFrameToolingDefinitions.Bank });
         slot.Parameter1 = 10;
         enemies.KagoBehavior.InitializeKago(slot);
         KagoEnemyState state = enemies.KagoStates[0] ?? throw new InvalidDataException("Kago initializer did not publish typed state.");
         AssertEqual(AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow), state.Program, "Kago initializer animation");
         ushort[] slow = KagoAnimationsConstants.Spritemaps(KagoProgram.Slow).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. slow, slow[0]], [10, 10, 10, 10, 10]),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 41), "Kago slow loop");
+            EnemyInstructionRunner.ShownFrames(slot, 41), "Kago slow loop");
 
         enemies.KagoBehavior.ResolveKagoShotAfterCommon(slot, state);
         AssertTrue(state.UsesFastAnimation, "Kago real shot handoff selects fast animation");
@@ -39,7 +39,7 @@ internal static class KagoBehaviorVerification
         AssertEqual(1, state.SpawnedBugCount, "Kago real shot handoff retains its projectile side effect");
         ushort[] fast = KagoAnimationsConstants.Spritemaps(KagoProgram.Fast).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. fast, fast[0]], [3, 3, 3, 3, 3]),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 13), "Kago post-hit loop");
+            EnemyInstructionRunner.ShownFrames(slot, 13), "Kago post-hit loop");
         Console.WriteLine("  Kago behavior: the slow loop and the shot handoff to the post-hit loop run as the cartridge does.");
     }
 

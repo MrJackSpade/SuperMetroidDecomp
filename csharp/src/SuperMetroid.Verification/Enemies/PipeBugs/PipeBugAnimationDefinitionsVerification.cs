@@ -26,9 +26,9 @@ internal static class PipeBugAnimationDefinitionsVerification
             var initializedEnemies = new RoomEnemySystem();
             initializedEnemies.BindFixtureBus(guarded);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
-            initializedSlot.EnemyDefinitionPointer = strong
+            initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo
-                : EnemyDefinitionId.Zeb;
+                : EnemyDefinitionId.Zeb, initializedSlot.Definition);
             initializedSlot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
             initializedEnemies.PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
@@ -48,7 +48,7 @@ internal static class PipeBugAnimationDefinitionsVerification
 
                 var enemies = new RoomEnemySystem();
                 enemies.BindFixtureBus(guarded);
-                var slot = new RoomEnemySlot(0)
+                var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
                     Parameter1 = strong ? (ushort)1 : (ushort)0,
                     InstructionTimer = NativeCountdown.Start(0x2222),

@@ -29,15 +29,16 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
         compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        nativeSlot.Definition = compiledSlot.Definition =
-            default(RoomEnemyDefinition) with
+        var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = CrocomireBodyCollisionDefinitions.Bank };
+        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
         // The native side uses the independent test-side ROM walker. The
         // installed side selects Crocomire's compiled physical data.
-        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
+        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.Crocomire, compiledSlot.Definition);
         compiledSlot.Position = compiledSlot.Position.WithWholeX(0x1000);
         nativeSlot.Position = nativeSlot.Position.WithWholeX(0x1000);
         compiledSlot.Position = compiledSlot.Position.WithWholeY(0x1000);

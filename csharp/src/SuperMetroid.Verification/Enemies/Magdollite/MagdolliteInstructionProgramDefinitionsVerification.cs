@@ -137,8 +137,8 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
             for (int index = 0; index < 3; index++)
             {
                 RoomEnemySlot member = enemies.SlotTable.Slots[index];
-                member.EnemyDefinitionPointer = EnemyDefinitionId.Magdollite;
-                member.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+                member.Bind(EnemyDefinitionId.Magdollite, member.Definition);
+                member.Bind(member.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
                 member.Parameter1 = (ushort)index;
                 member.Parameter2 = 0;
                 member.Position = member.Position.WithWhole(new(0x0080, 0x0080));
@@ -160,7 +160,7 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         {
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int frame = 0; frame < frames; frame++)
-                EnemyInstructionRunner.Process(enemies, arguments);
+                EnemyInstructionRunner.Process(arguments);
         }
     }
 

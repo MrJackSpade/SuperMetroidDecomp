@@ -30,11 +30,11 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.DraygonBody;
-        slot.Definition = default(RoomEnemyDefinition) with
+        slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameDefinitions.Bank,
-        };
+        });
         slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
 
         int draygonFrames = 0;

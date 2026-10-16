@@ -31,7 +31,7 @@ internal static class PhantoonSoundDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewPhantoonSoundReadGuard(rom));
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.PhantoonBody;
+        body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         var state = new PhantoonEnemyState(body)
         {
             Eye = enemies.SlotTable.Slots[1],

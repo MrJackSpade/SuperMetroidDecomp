@@ -30,13 +30,13 @@ internal static class CacatacBehaviorVerification
             AssertEqual(AnimationProgramCursor<CacatacProgram>.Start(idle), state.Program, $"Cacatac {orientation} starts idling");
             state.Function = CacatacEnemyFunction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Programs, loop, CacatacFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Programs, loop)), $"Cacatac {orientation} idle loop");
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Programs, loop)), $"Cacatac {orientation} idle loop");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} idle restores patrol");
 
             (enemies, slot, state) = Create(rom, upsideUp);
             state.Function = CacatacEnemyFunction.Stopped;
             CacatacBehavior.SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 53);
+            EnemyInstructionRunner.ShownFrames(slot, 53);
             AssertEqual(loop, state.Program.Program, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} attack resumes patrol");
             AssertEqual((ushort?)CacatacNativeValues.SpikeSound, enemies.CacatacBehavior.LastCacatacSoundEffect, $"Cacatac {orientation} attack plays the spike sound");
@@ -57,8 +57,8 @@ internal static class CacatacBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Cacatac;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank });
         slot.Parameter1 = upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0;
         enemies.CacatacBehavior.InitializeCacatac(slot);
         return (enemies, slot, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));

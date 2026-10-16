@@ -29,16 +29,16 @@ internal static class DragonBehaviorVerification
             {
                 case DragonAnimationSelector.IdleFacingLeft or DragonAnimationSelector.IdleFacingRight:
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([poses[0], poses[0]], [1, 1]),
-                        EnemyInstructionRunner.ShownFrames(enemies, slot, 3), $"Dragon {program} pose");
+                        EnemyInstructionRunner.ShownFrames(slot, 3), $"Dragon {program} pose");
                     break;
                 case DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight:
                     AssertEqual(EnemyInstructionRunner.ExpectedLoop(DragonAnimations.Programs, program, DragonFrameDefinitions.Spritemap),
-                        EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Programs, program)), $"Dragon {program} loop");
+                        EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Programs, program)), $"Dragon {program} loop");
                     break;
                 default:
                     int[] holds = [32, 3, 7, 3, 1];
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. poses, poses[^1]], [.. holds, 1]),
-                        EnemyInstructionRunner.ShownFrames(enemies, slot, holds.Sum() + 2), $"Dragon {program} poses");
+                        EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 2), $"Dragon {program} poses");
                     break;
             }
             bool attacks = selector is DragonAnimationSelector.AttackingFacingLeft or DragonAnimationSelector.AttackingFacingRight;
@@ -61,8 +61,8 @@ internal static class DragonBehaviorVerification
             for (int part = 0; part < 2; part++)
             {
                 RoomEnemySlot slot = enemies.SlotTable.Slots[bodySlot + part];
-                slot.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-                slot.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank };
+                slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
+                slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });
                 slot.Parameter1 = (ushort)part;
                 enemies.DragonBehavior.InitializeDragon(slot);
             }
@@ -88,8 +88,8 @@ internal static class DragonBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Dragon;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });
         slot.Parameter1 = selector is DragonAnimationSelector.WingsFacingLeft or DragonAnimationSelector.WingsFacingRight ? (ushort)1 : (ushort)0;
         enemies.DragonBehavior.InitializeDragon(slot);
         DragonEnemyState state = enemies.DragonStates[0] ?? throw new InvalidOperationException("Dragon has no state.");

@@ -25,8 +25,8 @@ internal static class MotherBrainPlasmaImpactVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         var head = enemies.SlotTable.Slots[1];
-        head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
-        head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);
+        head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
+        head.Bind(head.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer));
         head.Properties = head.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         head.Position = head.Position.WithWhole(new(128, 128));
         head.Radius = new(16, 16);

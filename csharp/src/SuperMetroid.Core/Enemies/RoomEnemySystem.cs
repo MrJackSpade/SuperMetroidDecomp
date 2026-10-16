@@ -434,6 +434,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     [field: NonSerialized]
     internal EnemyAiTable Ai => field ??= BuildEnemyAiTable();
 
+    /// <summary>The species registry that binds each installed occupant's entity.</summary>
+    internal EnemySpeciesRegistry Species { get; }
+
     /// <summary>The loaded room's address space, services and artwork, shared with the composed owners.</summary>
     internal EnemyRoomBinding Room { get; } = new();
 
@@ -596,7 +599,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
         BotwoonBehavior = new BotwoonBehavior(Room, Projectiles, SpriteObjects, SlotTable, Presentation, Collision, DeathsAndDrops);
-        Instructions = new EnemyInstructionInterpreter(CrocomireBehavior, MotherBrainEncounter, Presentation, Room, this);
+        Instructions = new EnemyInstructionInterpreter(CrocomireBehavior, MotherBrainEncounter, Presentation, Room);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { CeresRidleyBehavior = CeresRidleyBehavior, DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, RidleyEncounter = RidleyEncounter, Room = Room, SlotTable = SlotTable });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops });
         BlueBrinstarFaceBlockBehavior = new BlueBrinstarFaceBlockBehavior(Room, Presentation, ElevatorBehavior);
@@ -686,8 +689,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
+        Species = new EnemySpeciesRegistry(this, []);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
-            SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex);
+            SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
 
     /// <summary>Collision words read from the current slots after their AI has run.</summary>
@@ -851,7 +855,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // clears bit two; falling through here prematurely clears flash.
                 if (!ranActorAi &&
                     (slot.AiStates & EnemyAiStates.Hurt) != 0 &&
-                    Ai.FindHurt(slot) is { } hurt)
+                    (slot.Entity as IEnemyHurtAi)?.FindHurt() is { } hurt)
                 {
                     hurt(slot, frame);
                     ranActorAi = true;
@@ -864,7 +868,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                     // Rinka's termination tail clears/replaces the current actor record.
                     // The active-index array was frozen before AI, so skip the remainder
                     // of this stale entry exactly as the private routine's death call does.
-                    if (Ai.TryPreemptFrozen(slot))
+                    var frozen = slot.Entity as IEnemyFrozenAi;
+                    if (frozen?.FindFrozenPreemption() is { } preemption && preemption(slot))
                         continue;
 
                     // Test the clock before decrementing: reaching zero retains frozen
@@ -883,7 +888,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
                         slot.FrozenTimer = NativeCountdown.FromRaw(slot.AiStates.NativeWord);
                     }
-                    Ai.RunFrozen(slot);
+                    foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
+                        handler(slot);
                     // The native frame clock advances after every selected AI call,
                     // including frozen AI. Instruction gating below remains separate.
                     ranActorAi = true;
@@ -904,7 +910,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                     // callback still owned the two composited outer sprite objects.
                     if ((slot.AiStates & EnemyAiStates.Frozen) == 0 &&
                         slot.Properties.HasAny(EnemyProperties.ProcessInstructions))
-                        Instructions.ProcessInstructions(
+                        EnemyInstructionInterpreter.ProcessInstructions(
                             slot,
                             frame.Samus,
                             frame.Level,
@@ -973,8 +979,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         (ushort tileIndex, ushort paletteIndex) = PopulationLoader.FindGraphicsIndexes(population.DefinitionPointer);
 
-        slot.EnemyDefinitionPointer = population.DefinitionPointer;
-        slot.Definition = definition;
+        slot.Bind(population.DefinitionPointer, definition);
         slot.Radius = new(definition.Radius.X, definition.Radius.Y);
         slot.Health = definition.Health;
         slot.Layer = definition.Layer;
@@ -999,24 +1004,17 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
-    internal void RunInitializationAi(
+    internal static void RunInitializationAi(
         RoomEnemySlot slot,
         RoomLevelData? level = null,
         SamusState? samus = null,
         SnesButton controllerInput = SnesButton.None,
         ushort cameraX = 0)
     {
-        int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer));
-        var routine = (EnemyAiRoutine)address;
-        if (!Enum.IsDefined(routine))
+        EnemyInitializationAiHandler handler = (slot.Entity as IEnemyInitialization)?.FindInitialization() ??
             throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
-        if (!Ai.TryGetInitialization(routine, slot, out EnemyInitializationAiHandler? handler))
-        {
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI ${address:X6} is not translated.");
-
-        }
+                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI " +
+                $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer):X6} is not translated.");
         handler(slot, level, samus, controllerInput, cameraX);
     }
 
@@ -1041,19 +1039,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     IReadOnlyList<ushort> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
 
     /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
-    internal void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
-        int address = ((int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer));
-        var routine = (EnemyAiRoutine)address;
-        if (!Enum.IsDefined(routine))
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
-        if (!Ai.TryGetMain(routine, slot, out EnemyMainAiHandler? handler))
-        {
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI ${address:X6} is not translated.");
-
-        }
+        EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
+            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI " +
+            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer):X6} is not translated.");
         handler(slot, frame, nmiFrameCounter8);
     }
 

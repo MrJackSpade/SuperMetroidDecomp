@@ -37,7 +37,7 @@ internal static class TorizoInitializationDefinitionsVerification
             Action<RoomEnemySlot, SamusState?, SnesButton> initializeWithInput = enemies.BombTorizoBehavior.InitializeBombTorizo;
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);
             var actor = enemies.SlotTable.Slots[0];
-            actor.EnemyDefinitionPointer = variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo;
+            actor.Bind(variant == 0 ? EnemyDefinitionId.BombTorizo : EnemyDefinitionId.GoldenTorizo, actor.Definition);
             for (int properties = 0; properties <= ushort.MaxValue; properties++)
             {
                 actor.Properties = (ushort)properties;

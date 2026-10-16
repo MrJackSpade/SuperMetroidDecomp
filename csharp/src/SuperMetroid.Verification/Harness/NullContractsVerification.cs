@@ -60,7 +60,7 @@ internal static class NullContractsVerification
         AssertThrows<InvalidOperationException>(() => _ = player.IntroducedSamus, "gameplay Samus requires her introduction");
         player.Samus = new SamusState();
         AssertTrue(ReferenceEquals(player.Samus, player.IntroducedSamus), "the introduced Samus is the attached actor");
-        var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0));
+        var phantoon = new PhantoonEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
         AssertThrows<InvalidOperationException>(() => _ = phantoon.Eye, "Phantoon's eye requires part initialization");
         var enemies = new RoomEnemySystem();
         AssertThrows<InvalidOperationException>(() => _ = enemies.Presentation.Cgram, "enemy palettes require bound CGRAM");

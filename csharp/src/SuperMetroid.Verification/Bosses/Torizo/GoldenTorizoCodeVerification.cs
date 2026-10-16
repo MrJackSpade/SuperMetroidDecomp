@@ -36,10 +36,10 @@ internal static class GoldenTorizoCodeVerification
             enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
             enemies.Presentation._cgram = new SnesCgram();
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
-            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(enemies.RunInitializationAi);
+            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(RoomEnemySystem.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
-            actor.EnemyDefinitionPointer = header;
-            actor.Definition = RoomEnemyDefinitionCatalog.Get(header);
+            actor.Bind(header, actor.Definition);
+            actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(header));
             var samus = new SamusState
             {
                 Health = 1500, MaxHealth = 1599, ReserveEnergy = 400, MaxReserveEnergy = 400,

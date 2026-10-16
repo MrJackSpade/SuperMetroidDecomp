@@ -37,13 +37,14 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
         compiled.BindFixtureBus(denied);
-        var nativeSlot = new RoomEnemySlot(0);
+        var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
-        nativeSlot.Definition = compiledSlot.Definition =
-            default(RoomEnemyDefinition) with
+        var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
-        nativeSlot.EnemyDefinitionPointer = (EnemyDefinitionId)0xffff;
-        compiledSlot.EnemyDefinitionPointer = EnemyDefinitionId.Oum;
+        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
+        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
+        nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
+        compiledSlot.Bind(EnemyDefinitionId.Oum, compiledSlot.Definition);
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.HitboxPointers.Count(),

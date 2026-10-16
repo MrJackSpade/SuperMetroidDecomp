@@ -35,8 +35,8 @@ internal static class AtomicMovementDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewAtomicInstructionReadGuard(new TestAddressSpace()));
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Atomic;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = AtomicFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Atomic, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = AtomicFrameToolingDefinitions.Bank });
 
         for (ushort selector = 0; selector < 4; selector++)
         {
@@ -58,7 +58,7 @@ internal static class AtomicMovementDefinitionsVerification
 
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(AtomicAnimations.Programs, program, AtomicFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Programs, program)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(AtomicAnimations.Programs, program)),
                 $"Atomic spinning loop {selector}");
         }
 

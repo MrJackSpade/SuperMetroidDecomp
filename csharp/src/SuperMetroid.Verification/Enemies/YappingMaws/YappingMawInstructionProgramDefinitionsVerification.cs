@@ -34,7 +34,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameDefinitions.Spritemap),
-                EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Programs, entry)),
+                EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Programs, entry)),
                 $"Yapping Maw attack direction {direction} loop");
             AssertEqual((ushort?)0x002f, enemies.YappingMawBehavior.LastYappingMawSoundEffect,
                 $"Yapping Maw attack direction {direction} publishes its sound");
@@ -55,14 +55,12 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 NewYappingMawInstructionSystem(rom, entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
-            RunYappingMawInstructionFrames(enemies, arguments, slot, count: 1);
+            RunYappingMawInstructionFrames(arguments, slot, count: 1);
             AssertEqual(x, state.HeldSamusOffset.X,
                 $"Yapping Maw {name} callback X offset");
             AssertEqual(y, state.HeldSamusOffset.Y,
                 $"Yapping Maw {name} callback Y offset");
-            RunYappingMawInstructionFrames(
-                enemies,
-                arguments,
+            RunYappingMawInstructionFrames(arguments,
                 slot,
                 count: calls - 1);
             AssertEqual(YappingMawAnimations.Spritemaps(loop).First(), slot.SpritemapPointer,
@@ -92,8 +90,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(bus);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
-            slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+            slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
+            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.Parameter1 = 128;
             slot.Parameter2 = parameter2;
@@ -121,8 +119,8 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.YappingMaw;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
+        slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
         var states = (YappingMawEnemyState?[])enemies.YappingMawBehavior._yappingMawStates;
@@ -131,16 +129,14 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Forces each requested instruction call through the production enemy interpreter.</summary>
-    private static void RunYappingMawInstructionFrames(
-        RoomEnemySystem enemies,
-        object?[] arguments,
+    private static void RunYappingMawInstructionFrames(object?[] arguments,
         RoomEnemySlot slot,
         int count)
     {
         for (int call = 0; call < count; call++)
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
         }
     }
 

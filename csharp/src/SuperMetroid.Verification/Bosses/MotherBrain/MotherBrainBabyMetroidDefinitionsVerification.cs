@@ -49,7 +49,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
         enemies.Presentation._cgram = new SnesCgram();
 
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
-        body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
+        body.Bind(EnemyDefinitionId.MotherBrainBody, body.Definition);
         var state = new MotherBrainEnemyState(body)
         {
             RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence(),

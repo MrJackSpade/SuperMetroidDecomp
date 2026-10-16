@@ -111,11 +111,11 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem(guard);
-            enemy.Definition = default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = (byte)(callback >> 16),
                 TouchAiPointer = unchecked((ushort)callback),
-            };
+            });
             var samus = new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
@@ -136,11 +136,11 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem(guard);
-            enemy.Definition = default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = (byte)(callback >> 16),
                 ShotAiPointer = unchecked((ushort)callback),
-            };
+            });
             var projectiles = new SamusProjectileSystem();
             SamusProjectileSlot projectile = projectiles.Slots[0];
             projectile.Type = 0x8000;
@@ -168,7 +168,7 @@ internal static class ShotCallbackDefinitionsVerification
             var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy.NativeIndex);
-            enemy.EnemyDefinitionPointer = (EnemyDefinitionId)0x1234;
+            enemy.Bind((EnemyDefinitionId)0x1234, enemy.Definition);
             enemy.SpritemapPointer = 1;
             enemy.Position = enemy.Position.WithWhole(new(0x0100, 0x0100));
             enemy.Radius = new(8, 8);

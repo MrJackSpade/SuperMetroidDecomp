@@ -43,9 +43,9 @@ internal static class MotherBrainEffectBehaviorVerification
         AssertTrue(!breath.IsActive, "room-system Mother Brain purple breath reaches its deletion");
 
         RoomEnemySystem rainbowEnemies = CreateRoomEnemySystem(guard);
-        var rainbowState = new MotherBrainEnemyState(new RoomEnemySlot(0))
+        var rainbowState = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry))
         {
-            Head = new RoomEnemySlot(1) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) },
+            Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(311, 139)) },
         };
         rainbowEnemies.MotherBrainEncounter.MotherBrain = rainbowState;
         rainbowEnemies.MotherBrainBehavior.SpawnMotherBrainRainbowChargingProjectile();
@@ -73,7 +73,7 @@ internal static class MotherBrainEffectBehaviorVerification
         {
             RoomEnemySystem deathEnemies = CreateRoomEnemySystem(guard);
             deathEnemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(
-                new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) });
+                new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) });
             deathEnemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(
                 new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), ProjectileParameter: parameter, SoundEffect: 0));
             RoomEnemyProjectileSlot deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
@@ -118,7 +118,7 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyHandBeam()
         {
             RoomEnemySystem handBeamEnemies = CreateRoomEnemySystem(guard);
-            var handBeamState = new MotherBrainEnemyState(new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) });
+            var handBeamState = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(112, 144)) });
             handBeamEnemies.MotherBrainEncounter.MotherBrain = handBeamState;
             var handBeamTarget = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             handBeamEnemies.MotherBrainBehavior.SpawnMotherBrainHandBeamCharging(handBeamState, handBeamTarget);
@@ -162,9 +162,9 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyOnionRing()
         {
             RoomEnemySystem ringEnemies = CreateRoomEnemySystem(guard);
-            var ringState = new MotherBrainEnemyState(new RoomEnemySlot(0))
+            var ringState = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry))
             {
-                Head = new RoomEnemySlot(1) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) },
+                Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) },
             };
             ringEnemies.MotherBrainEncounter.MotherBrain = ringState;
             ringEnemies.MotherBrainBehavior.SpawnMotherBrainOnionRing(ringState, (byte)0);
@@ -200,9 +200,9 @@ internal static class MotherBrainEffectBehaviorVerification
         void VerifyDrool(RoomEnemyProjectileKind expectedKind, ushort neckAngleDelta)
         {
             RoomEnemySystem droolEnemies = CreateRoomEnemySystem(guard);
-            var state = new MotherBrainEnemyState(new RoomEnemySlot(0))
+            var state = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry))
             {
-                Head = new RoomEnemySlot(1) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) },
+                Head = new RoomEnemySlot(1, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(256, 128)) },
                 DroolGenerationEnabled = true,
                 NeckAngleDelta = neckAngleDelta,
             };

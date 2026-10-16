@@ -118,12 +118,12 @@ internal static class EscapeEtecoonDefinitionsVerification
         foreach (EscapeEtecoonProgram program in programs)
         {
             state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(program);
-            RunForcedEscapeEtecoonUpdates(enemies, etecoon, 7, shown);
+            RunForcedEscapeEtecoonUpdates(etecoon, 7, shown);
         }
 
         ushort xBeforeGratitude = etecoon.Position.X.Whole;
         state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(EscapeEtecoonProgram.ExpressGratitudeThenEscape);
-        RunForcedEscapeEtecoonUpdates(enemies, etecoon, 40, shown);
+        RunForcedEscapeEtecoonUpdates(etecoon, 40, shown);
         AssertTrue(unchecked((short)(etecoon.Position.X.Whole - xBeforeGratitude)) < 0,
             "escape Etecoon gratitude program applies its repeated left displacement");
         AssertEqual(EscapeEtecoonPreInstruction.EscapeRight, state.PreInstruction,
@@ -152,17 +152,15 @@ internal static class EscapeEtecoonDefinitionsVerification
         enemies.BindFixtureBus(bus);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
-        etecoon.EnemyDefinitionPointer = EnemyDefinitionId.EtecoonEscape;
-        etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };
+        etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
+        etecoon.Bind(etecoon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb3 });
         etecoon.Parameter1 = 0;
         enemies.EscapeAnimalsBehavior.InitializeEscapeEtecoon(etecoon);
         return enemies;
     }
 
     /// <summary>Forces <paramref name="steps"/> program updates, recording each pose shown.</summary>
-    private static void RunForcedEscapeEtecoonUpdates(
-        RoomEnemySystem enemies,
-        RoomEnemySlot etecoon,
+    private static void RunForcedEscapeEtecoonUpdates(RoomEnemySlot etecoon,
         int steps,
         HashSet<ushort> shown)
     {
@@ -171,7 +169,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         for (int step = 0; step < steps; step++)
         {
             etecoon.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionRunner.Process(enemies, arguments);
+            EnemyInstructionRunner.Process(arguments);
             shown.Add(etecoon.SpritemapPointer);
         }
     }

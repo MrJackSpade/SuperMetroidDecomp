@@ -22,13 +22,13 @@ internal static class BullBehaviorVerification
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(rom);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        slot.EnemyDefinitionPointer = EnemyDefinitionId.Bull;
-        slot.Definition = default(RoomEnemyDefinition) with { Bank = BullFrameToolingDefinitions.Bank };
+        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
+        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BullFrameToolingDefinitions.Bank });
         enemies.BullBehavior.InitializeBull(slot);
         BullEnemyState state = enemies.BullStates[0] ?? throw new InvalidDataException("Bull initializer did not publish typed state.");
         AssertEqual(AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal), state.Program, "Bull initializer animation");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BullAnimations.Programs, BullProgram.Normal, BullFrameDefinitions.Spritemap),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Programs, BullProgram.Normal)),
+            EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(BullAnimations.Programs, BullProgram.Normal)),
             "Bull normal loop");
 
         BullBehavior.ResolveBullImmuneShot(slot, state, 2);
@@ -36,7 +36,7 @@ internal static class BullBehaviorVerification
         ushort[] shot = BullAnimationsConstants.Spritemaps(BullProgram.ShotLoop).ToArray();
         ushort[] expected = [.. Enumerable.Repeat(shot, 5).SelectMany(frames => frames), BullAnimationsConstants.Spritemaps(BullProgram.Normal).First()];
         AssertEqual(EnemyInstructionRunner.ExpectedFrames(expected, Enumerable.Repeat(3, expected.Length)),
-            EnemyInstructionRunner.ShownFrames(enemies, slot, 61), "Bull shot program repeats five times and returns to normal");
+            EnemyInstructionRunner.ShownFrames(slot, 61), "Bull shot program repeats five times and returns to normal");
         AssertEqual((ushort)0, slot.Timer.RawValue, "Bull shot loop exhausts its native repeat timer");
         Console.WriteLine("  Bull behavior: the normal loop and the five-repeat immune-shot reaction run as the cartridge does.");
     }

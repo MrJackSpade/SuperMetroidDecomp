@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.FaceBlocks;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
+internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.FaceBlock];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BlueBrinstarFaceBlockEntity(this, slot, common);
+
     /// <summary>Supplies installed auxiliary colors for the face-block animation.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Provides the live OBJ palette rows written by the graphics hook.</summary>
@@ -34,10 +42,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     /// <summary>First OBJ palette color affected by the graphics-drawn hook.</summary>
     private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
-    /// <summary>Per-slot state for face blocks in the current room.</summary>
-    internal readonly BlueBrinstarFaceBlockEnemyState?[] _blueBrinstarFaceBlockStates =
-        new BlueBrinstarFaceBlockEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     // The cartridge stores this animation in the shared enemy-graphics-drawn hook words,
     // not per enemy. Multiple blocks repeatedly select the same graphics-set palette during
     // main AI, and whichever eligible block runs last therefore owns this one shared base.
@@ -53,7 +57,6 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     /// <summary>Clears actor and singleton graphics-hook state at room-load time.</summary>
     internal void ResetBlueBrinstarFaceBlockRoomState()
     {
-        Array.Clear(_blueBrinstarFaceBlockStates);
         _blueBrinstarFaceBlockPaletteHookInstalled = false;
         _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(0);
         _blueBrinstarFaceBlockPaletteFrame = 0;
@@ -64,7 +67,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new BlueBrinstarFaceBlockEnemyState(slot);
-        _blueBrinstarFaceBlockStates[slot.SlotIndex] = state;
+        (slot.Entity as BlueBrinstarFaceBlockEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a BlueBrinstarFaceBlock.")).State = state;
 
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.
@@ -191,45 +195,35 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects AI dispatch for a face-block slot that was not initialized on room load.</summary>
-    private BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
+    internal static BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
         RoomEnemySlot slot) =>
-        _blueBrinstarFaceBlockStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+        (slot.Entity as BlueBrinstarFaceBlockEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Blue Brinstar face-block state.");
 
-    /// <summary>Runs the face block's neutral and turning animations as typed programs (#641).</summary>
-    internal void RegisterBlueBrinstarFaceBlockTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireBlueBrinstarFaceBlockState(slot);
-            AnimationProgramCursor<BlueBrinstarFaceBlockProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, BlueBrinstarFaceBlockAnimations.Programs, ref cursor, BlueBrinstarFaceBlockFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Registers the face-block initializer for matching enemy-definition slots.</summary>
-    internal void RegisterBlueBrinstarFaceBlockInitializationAi(EnemyAiTable table)
+    /// <summary>Advances BlueBrinstarFaceBlock's typed animation.</summary>
+    internal static void AdvanceBlueBrinstarFaceBlockTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_FaceBlock, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBlueBrinstarFaceBlock(slot, samus);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireBlueBrinstarFaceBlockState(slot);
+        AnimationProgramCursor<BlueBrinstarFaceBlockProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, BlueBrinstarFaceBlockAnimations.Programs, ref cursor, BlueBrinstarFaceBlockFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers proximity/side activation after resolving the slot's initialized state.</summary>
-    internal void RegisterBlueBrinstarFaceBlockMainAi(EnemyAiTable table)
+    /// <summary>Ports BlueBrinstarFaceBlock's initialization AI.</summary>
+    internal void RunBlueBrinstarFaceBlockInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
     {
+        InitializeBlueBrinstarFaceBlock(slot, samus);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_FaceBlock, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBlueBrinstarFaceBlockMain(
-                slot,
-                RequireBlueBrinstarFaceBlockState(slot),
-                frame.Samus);
-        });
+    /// <summary>Ports BlueBrinstarFaceBlock's main AI.</summary>
+    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunBlueBrinstarFaceBlockMain(
+            slot,
+            RequireBlueBrinstarFaceBlockState(slot),
+            frame.Samus);
     }
 
     /// <inheritdoc/>

@@ -70,7 +70,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
-        enemies.EtecoonBehavior.InitializeEtecoon(slot);
+        EtecoonBehavior.InitializeEtecoon(slot);
         return (enemies, slot, enemies.EtecoonStates[0] ?? throw new InvalidOperationException("The Etecoon has no state."));
     }
 

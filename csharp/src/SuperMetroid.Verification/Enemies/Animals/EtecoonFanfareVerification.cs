@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
@@ -31,7 +32,7 @@ internal static class EtecoonFanfareVerification
             slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));
             slot.Properties = 0x0c00;
             slot.Parameter2 = (ushort)index;
-            enemies.EtecoonBehavior.InitializeEtecoon(slot);
+            EtecoonBehavior.InitializeEtecoon(slot);
         }
         var samus = new SamusState { Position = new(new(0x240, 0), new(0xb98, 0)), Health = 999, MaxHealth = 999 };
         var level = new RoomLevelData(new Extent16<RoomBlocks>(48, 192), new RoomLevelPlanes(new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192]), new byte[8]);

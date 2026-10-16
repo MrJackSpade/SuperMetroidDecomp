@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
@@ -12,8 +14,14 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Enemies.YappingMaws;
 
 /// <summary>The Yapping Maw species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class YappingMawBehavior : IEnemySpecies
+internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.YappingMaw];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new YappingMawEntity(this, slot, common);
+
     /// <summary>Supplies the room context needed when the Maw changes Samus' pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
@@ -73,10 +81,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     /// <summary>Delay after full retraction before Samus input is released.</summary>
     private const ushort YappingMawRetractedDelayFrames = 64;
 
-    /// <summary>Per-slot Maw state including body links, extension, and held-Samus offset.</summary>
-    internal readonly YappingMawEnemyState?[] _yappingMawStates =
-        new YappingMawEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two $2F request emitted by animation opcode $A133.</summary>
     public ushort? LastYappingMawSoundEffect { get; private set; }
 
@@ -91,7 +95,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames),
             OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
         };
-        _yappingMawStates[slot.SlotIndex] = state;
+        (slot.Entity as YappingMawEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a YappingMaw.")).State = state;
 
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(slot.Parameter2 == 0
             ? YappingMawProgram.AttackingDown
@@ -596,12 +601,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     }
 
     /// <summary>Requires the state installed by Maw initialization for a given enemy slot.</summary>
-    internal YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>
-        _yappingMawStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>
+        (slot.Entity as YappingMawEntity)?.State ?? throw new InvalidOperationException(
             $"Yapping Maw slot {slot.SlotIndex} has no initialized native state.");
 
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>
-    internal void RegisterYappingMawBombReactions(EnemyAiTable table)
+    internal static void RegisterYappingMawBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.YappingMawShot)
@@ -610,45 +615,36 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers the Maw initializer and its auxiliary actor setup.</summary>
-    internal void RegisterYappingMawInitializationAi(EnemyAiTable table)
+    /// <summary>Ports YappingMaw's initialization AI.</summary>
+    internal void RunYappingMawInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_YappingMaw, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeYappingMaw(slot);
-        });
+        InitializeYappingMaw(slot);
     }
 
-    /// <summary>Routes Maw main AI through its extension, hold, and retraction phases.</summary>
-    internal void RegisterYappingMawMainAi(EnemyAiTable table)
+    /// <summary>Ports YappingMaw's main AI.</summary>
+    internal void RunYappingMawMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_YappingMaw, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunYappingMawMain(
-                slot,
-                RequireYappingMawState(slot),
-                frame.Samus,
-                frame.Camera);
-        });
+        RunYappingMawMain(
+            slot,
+            RequireYappingMawState(slot),
+            frame.Samus,
+            frame.Camera);
     }
 
-    /// <summary>Runs the Yapping Maw's bites and cooldowns as typed programs (#641).</summary>
-    internal void RegisterYappingMawTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireYappingMawState(slot);
-            AnimationProgramCursor<YappingMawProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, YappingMawAnimations.Programs, ref cursor, YappingMawFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyYappingMawCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances YappingMaw's typed animation.</summary>
+    internal void AdvanceYappingMawTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireYappingMawState(slot);
+        AnimationProgramCursor<YappingMawProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, YappingMawAnimations.Programs, ref cursor, YappingMawFrameDefinitions.Spritemap,
+                (cue, _) => ApplyYappingMawCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
-    internal void RegisterYappingMawShotReactions(EnemyAiTable table)
+    internal static void RegisterYappingMawShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YappingMawShot)
@@ -658,7 +654,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     }
 
     /// <summary>Registers contact as a grab that locks Samus without ordinary touch damage.</summary>
-    internal void RegisterYappingMawTouch(EnemyAiTable table)
+    internal static void RegisterYappingMawTouch(EnemyAiTable table)
     {
         // $A8:A799 replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
         // ownership to the mouth state machine.
@@ -671,7 +667,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastYappingMawSoundEffect = null;
-        Array.Clear(_yappingMawStates);
     }
 
     /// <inheritdoc/>
@@ -687,7 +682,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     }
 
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>
-    internal void RegisterYappingMawFrozenAi(EnemyAiTable table) =>
+    internal static void RegisterYappingMawFrozenAi(EnemyAiTable table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw,
             slot => RunYappingMawFrozen(slot, RequireYappingMawState(slot)));
 }

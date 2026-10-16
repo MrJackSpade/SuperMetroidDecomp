@@ -141,7 +141,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as CrawlerEntity)?.State)];
 
         /// <summary>Typed state for powered and deactivated Work Robots in all physical slots.</summary>
-        internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates => self.WorkRobotBehavior._workRobotStates;
+        internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WorkRobotEntity)?.State)];
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rio.</summary>
         internal IReadOnlyList<RioEnemyState?> RioStates =>
@@ -226,7 +227,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed face-block state in fixed physical enemy-slot order.</summary>
         internal IReadOnlyList<BlueBrinstarFaceBlockEnemyState?> BlueBrinstarFaceBlockStates =>
-            self.BlueBrinstarFaceBlockBehavior._blueBrinstarFaceBlockStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BlueBrinstarFaceBlockEntity)?.State)];
 
         /// <summary>Frame-local drops requested by destroyed free-floating spores.</summary>
         internal IReadOnlyList<SporeSpawnDropRequest> SporeSpawnDropRequests =>
@@ -268,7 +269,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<ushort> ActiveEnemyIndexes => self.ProcessingWindow._activeEnemyIndexes;
 
         /// <summary>Typed native state for every physical Etecoon slot.</summary>
-        internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates => self.EtecoonBehavior._etecoonStates;
+        internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as EtecoonEntity)?.State)];
 
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
         internal IReadOnlyList<ushort> InteractiveEnemyIndexes => self.ProcessingWindow._interactiveEnemyIndexes;
@@ -314,11 +316,12 @@ internal static class RoomEnemySystemAccess
             self.PhantoonBehavior._phantoonFlameDropRequests;
 
         /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
-        internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates => self.YappingMawBehavior._yappingMawStates;
+        internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as YappingMawEntity)?.State)];
 
         /// <summary>Typed Oum state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<MaridiaLargeSnailEnemyState?> MaridiaLargeSnailStates =>
-            self.MaridiaLargeSnailBehavior._maridiaLargeSnailStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MaridiaLargeSnailEntity)?.State)];
 
         /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<BeetomEnemyState?> BeetomStates =>

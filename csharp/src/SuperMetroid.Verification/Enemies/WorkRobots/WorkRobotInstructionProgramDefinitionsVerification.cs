@@ -62,8 +62,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         robot.Bind(robot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         robot.Radius = new(8, 16);
         var state = new WorkRobotEnemyState(robot) { Powered = true, Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial) };
-        var states = (WorkRobotEnemyState?[])enemies.WorkRobotBehavior._workRobotStates;
-        states[0] = state;
+        (robot.Entity as WorkRobotEntity ?? throw new InvalidOperationException("The fixture slot is not bound to a work robot.")).State = state;
         return enemies;
     }
 

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Animals;
 
 /// <summary>The Dachora species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class DachoraBehavior : IEnemySpecies
+internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dachora];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DachoraEntity(this, slot, common);
+
     /// <summary>Provides the room bus and active context for Dachora's native AI.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Probes floors, walls, and ceiling during the run and shinespark arc.</summary>
@@ -28,7 +35,6 @@ internal sealed class DachoraBehavior : IEnemySpecies
         _slotTable = slotTable;
         _presentation = presentation;
     }
-
 
     /// <summary>Native $A7:F4C9 horizontal proximity threshold for activating the bird.</summary>
     private const int DachoraActivationXDistance = 96;
@@ -55,18 +61,15 @@ internal sealed class DachoraBehavior : IEnemySpecies
     /// <summary>Scripted room X where Dachora begins its stored-shine demonstration.</summary>
     private const ushort DachoraShinesparkX = 1152;
 
-    /// <summary>Per-slot body and echo state reset when a new room population loads.</summary>
-    internal readonly DachoraEnemyState?[] _dachoraStates =
-        new DachoraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two Dachora sound request during this frame.</summary>
     public ushort? LastDachoraSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Dachora</c> at <c>$A7:F4DD</c>.</summary>
-    internal void InitializeDachora(RoomEnemySlot slot)
+    internal static void InitializeDachora(RoomEnemySlot slot)
     {
         var state = new DachoraEnemyState(slot);
-        _dachoraStates[slot.SlotIndex] = state;
+        (slot.Entity as DachoraEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Dachora.")).State = state;
 
         // Native property $2000 both disables Samus collision and admits enemy bytecode.
         // Population property $0400 already excludes these actors from host interaction.
@@ -520,8 +523,8 @@ internal sealed class DachoraBehavior : IEnemySpecies
     }
 
     /// <summary>Finds initialized Dachora state for a body or echo callback.</summary>
-    private DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
-        _dachoraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
+        (slot.Entity as DachoraEntity)?.State ?? throw new InvalidOperationException(
             $"Dachora slot {slot.SlotIndex} has no initialized native state.");
 
     /// <summary>Starts an authored Dachora animation at its first tick.</summary>
@@ -562,48 +565,38 @@ internal sealed class DachoraBehavior : IEnemySpecies
         return (SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
     }
 
-    /// <summary>Runs the Dachora's and its echoes' animations as typed programs (#641).</summary>
-    internal void RegisterDachoraTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireDachoraState(slot);
-            AnimationProgramCursor<DachoraProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Registers Dachora's initialization callback for body and echo records.</summary>
-    internal void RegisterDachoraInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Dachora's typed animation.</summary>
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Dachora, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeDachora(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireDachoraState(slot);
+        AnimationProgramCursor<DachoraProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers Dachora's body and echo frame dispatch under the bank-$A7 main AI identity.</summary>
-    internal void RegisterDachoraMainAi(EnemyAiTable table)
+    /// <summary>Ports Dachora's initialization AI.</summary>
+    internal static void RunDachoraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeDachora(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Dachora, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dachora, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunDachoraMain(
-                slot,
-                RequireDachoraState(slot),
-                frame.Samus,
-                frame.Level,
-                nmiFrameCounter8);
-        });
+    /// <summary>Ports Dachora's main AI.</summary>
+    internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    {
+        RunDachoraMain(
+            slot,
+            RequireDachoraState(slot),
+            frame.Samus,
+            frame.Level,
+            nmiFrameCounter8);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastDachoraSoundEffect = null;
-        Array.Clear(_dachoraStates);
     }
 
     /// <inheritdoc/>

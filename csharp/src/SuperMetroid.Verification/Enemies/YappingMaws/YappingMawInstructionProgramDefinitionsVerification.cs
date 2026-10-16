@@ -123,8 +123,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new YappingMawEnemyState(slot) { Program = AnimationProgramCursor<YappingMawProgram>.Start(entry) };
-        var states = (YappingMawEnemyState?[])enemies.YappingMawBehavior._yappingMawStates;
-        states[0] = state;
+        (slot.Entity as YappingMawEntity ?? throw new InvalidOperationException("The fixture slot is not bound to a Yapping Maw.")).State = state;
         return (enemies, slot, state);
     }
 

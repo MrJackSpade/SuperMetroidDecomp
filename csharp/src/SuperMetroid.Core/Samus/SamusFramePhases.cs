@@ -85,16 +85,15 @@ internal sealed class SamusFramePhases
     }
 
     /// <summary>
-    /// Queues <c>Update_Beam_Tiles_and_Palette</c> at <c>$90:AC8D</c> for the live beam
-    /// word supplied by pause teardown. State `$11` performs this restore under forced
-    /// blank so the first resumed gameplay frame uses the newly equipped combination.
+    /// Loads the palette half of <c>Update_Beam_Tiles_and_Palette</c> at <c>$90:AC8D</c> for the live beam
+    /// word supplied by pause teardown. State `$11` performs this restore under forced blank so the first
+    /// resumed gameplay frame uses the newly equipped combination; the projectile pages bind its characters.
     /// </summary>
-    internal void QueueGameplayBeamTilesAndLoadPalette(ushort equippedBeams) =>
-        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
+    internal void LoadGameplayBeamPalette(ushort equippedBeams) =>
+        SamusProjectileSystem.LoadBeamPalette(
             _addressSpace,
-            _vramWrites,
             _cgram,
-            equippedBeams, _artwork.BeamArtwork);
+            equippedBeams, _artwork.BeamArtwork?.Palettes);
 
     /// <summary>
     /// <c>GrappleBeamHandler</c> ($9B:C490), reached from the HUD-selection dispatch of

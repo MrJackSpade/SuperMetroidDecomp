@@ -76,6 +76,10 @@ internal sealed class GameplayActorDrawing
         _vramWrites = dependencies.VramWrites;
         _addressSpace = dependencies.AddressSpace;
     }
+
+    /// <summary>What Samus's projectile, bomb, flare and trail draws bind: compositions and the page her equipped beams select.</summary>
+    private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileCompositions, _artwork.ProjectileObjects,
+        _player.Samus?.EquippedBeams ?? 0);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
     internal void DrawGameplayActors(bool deathOwnsSamus, bool advanceSamusPalette = true)
     {
@@ -85,8 +89,8 @@ internal sealed class GameplayActorDrawing
         // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
         if (!deathOwnsSamus)
         {
-            _bombProjectiles.Draw(_addressSpace, _oam, _room.Camera.PixelPosition, _artwork.ProjectileCompositions);
-            _projectiles.DrawExplosions(_addressSpace, _oam, _room.Camera.PixelPosition, _artwork.ProjectileCompositions);
+            _bombProjectiles.Draw(_addressSpace, _sprites, _room.Camera.PixelPosition, ProjectileArtwork);
+            _projectiles.DrawExplosions(_addressSpace, _sprites, _room.Camera.PixelPosition, ProjectileArtwork);
         }
 
         // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
@@ -305,14 +309,21 @@ internal sealed class GameplayActorDrawing
                     // `$90:EB52` advances/emits the ordinary charge flare before it
                     // falls through to `$90:EB55`. Grapple's handler never calls this,
                     // including its cancel/release fallback frames.
-                    _projectiles.HandleChargeFlareAndDraw(
+                    // The flare animates as a simulation phase, then shows what it advanced to.
+                    ChargeFlareComponents flare = _projectiles.AdvanceChargeFlare(_player.Samus);
+                    _projectiles.DrawChargeFlare(
                         _addressSpace,
-                        _oam,
+                        _sprites,
                         _player.Samus,
                         _room.Camera.PixelPosition,
+                        flare,
                         _display.ActiveSamusMode7Transform,
-                        _artwork.ChargeFlarePlacement,
-                        _artwork.ChargeFlareCompositions);
+                        new ChargeFlareArtwork
+                        {
+                            Placement = _artwork.ChargeFlarePlacement,
+                            Compositions = _artwork.ChargeFlareCompositions,
+                            Objects = ProjectileArtwork,
+                        });
                 }
 
                 // `$90:EB55` begins here for all three routes: ordinary, active grapple,
@@ -393,17 +404,15 @@ internal sealed class GameplayActorDrawing
             // all live beam art still receives later OAM indices than Samus's body.
             _projectiles.DrawLiveProjectiles(
                 _addressSpace,
-                _oam,
+                _sprites,
                 _room.Camera.PixelPosition,
-                _nmi.NmiFrameCounter, _artwork.ProjectileCompositions);
+                _nmi.NmiFrameCounter, ProjectileArtwork);
             // `$93:82F7` immediately follows the ordinary projectile draw with bank
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.
-            _projectiles.HandleTrailsAndDraw(
-                _addressSpace,
-                _oam,
-                _room.Camera.PixelPosition,
-                _freeze.TimeIsFrozen, _artwork.TrailArtwork);
+            // Trails animate as a simulation phase, under time freeze too, then show where they are.
+            _projectiles.AdvanceTrails(_addressSpace, _freeze.TimeIsFrozen, _artwork.TrailArtwork);
+            _projectiles.DrawTrails(_sprites, _room.Camera.PixelPosition, _artwork.TrailArtwork, ProjectileArtwork);
 
             // The native post-draw input snapshot survives the next alpha pass. In
             // particular, Fire can first cancel a spin and then start Grapple without

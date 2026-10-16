@@ -28,7 +28,7 @@ internal static class KraidReportedCollisionsVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.SelectedHudItem = 0;
         samus.EquippedBeams = samus.CollectedBeams = (ushort)SamusBeamFlags.Spazer;
-        runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
+        runtime.SamusPhases.LoadGameplayBeamPalette(samus.EquippedBeams);
         foreach (bool closed in new[] { false, true })
         Check(closed ? "Uncharged Spazer closed-head impact" : "Uncharged Spazer open-head impact", () =>
         {

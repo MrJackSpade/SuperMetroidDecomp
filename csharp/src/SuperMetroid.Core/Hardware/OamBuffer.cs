@@ -51,7 +51,7 @@ public sealed class OamBuffer
     /// in four-byte increments and reaches <c>$0200</c> when all 128 sprites are occupied.
     /// </summary>
     [PpuLayoutAccess]
-    public int NextByteOffset { get; private set; }
+    public int NextByteOffset { get; internal set; }
 
     /// <summary>Sprites appended since <see cref="BeginFrame"/>, counted by the record cursor (a wrapped cursor counts from zero again).</summary>
     public int AppendedSpriteCount => NextByteOffset / LowRecordByteCount;
@@ -111,26 +111,6 @@ public sealed class OamBuffer
         WriteAttributes(lowOffset, finalAttributes);
         SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
         NextByteOffset += 4;
-    }
-
-    /// <summary>
-    /// Emits an authored projectile visual part using the $81:8A4B/$81:8A2B tail:
-    /// preserve source attributes, wrap Y and wrap the write position after 128 OBJs.
-    /// Unlike menu parts, it neither parks vertically wrapped parts nor stops at capacity.
-    /// The caller owns whole-projectile viewport admission.
-    /// </summary>
-    public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
-        SnesObjAttributeWord attributes, Position16<OamPixels> origin)
-    {
-        ushort x = unchecked((ushort)(origin.X + xOffset.Raw));
-        byte y = unchecked((byte)(origin.Y + yOffset));
-        int spriteIndex = NextByteOffset >> 2;
-        int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = (byte)x;
-        _lowTable[lowOffset + 1] = y;
-        WriteAttributes(lowOffset, attributes);
-        SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, xOffset.IsLarge));
-        NextByteOffset = (NextByteOffset + 4) % LowTableByteCount;
     }
 
     /// <summary>Draws an installed enemy frame without reading visual records from ROM.</summary>
@@ -222,30 +202,6 @@ public sealed class OamBuffer
     }
 
     /// <summary>
-    /// Appends one projectile-trail OBJ exactly as <c>$90:B700/$90:B766</c> do: four low-OAM
-    /// bytes, no high-OAM write, and a non-wrapping stack increment.
-    /// </summary>
-    /// <remarks>
-    /// The distinction from <see cref="AddRawSmallSprite"/> is small but observable at the
-    /// 128th OBJ. The trail handler permits offset <c>$01FC</c>, advances the native stack to
-    /// <c>$0200</c>, and then rejects every later trail. It also knows that both screen
-    /// coordinates have zero high bytes, so the cleared high-OAM pair already describes a
-    /// small object at X 0..255 and is deliberately left untouched.
-    /// </remarks>
-    public void AddProjectileTrailSprite(Position16<OamPixels> position, SnesObjAttributeWord attributes)
-    {
-        if (NextByteOffset >= LowTableByteCount)
-            return;
-
-        // Only the low bytes are stored: the caller has already admitted an on-screen point.
-        int lowOffset = NextByteOffset;
-        _lowTable[lowOffset] = unchecked((byte)position.X);
-        _lowTable[lowOffset + 1] = unchecked((byte)position.Y);
-        WriteAttributes(lowOffset, attributes);
-        NextByteOffset += 4;
-    }
-
-    /// <summary>
     /// Ports <c>$80:896E</c>: move every unused sprite to Y=<c>$F0</c> and reset the OAM
     /// stack pointer for the following construction pass.
     /// </summary>
@@ -328,7 +284,7 @@ public sealed class OamBuffer
     }
 
     /// <summary>Replaces one sprite's two-bit high-OAM pair without disturbing its three neighbors.</summary>
-    private void SetHighTablePair(int spriteIndex, SnesOamHighTablePair pair)
+    internal void SetHighTablePair(int spriteIndex, SnesOamHighTablePair pair)
     {
         int byteIndex = spriteIndex >> 2;
         int shift = (spriteIndex & 3) * 2;
@@ -341,7 +297,7 @@ public sealed class OamBuffer
     }
 
     /// <summary>Stores one typed packed attribute word in the low-OAM record.</summary>
-    private void WriteAttributes(int lowOffset, SnesObjAttributeWord attributes)
+    internal void WriteAttributes(int lowOffset, SnesObjAttributeWord attributes)
     {
         _lowTable[lowOffset + 2] = unchecked((byte)attributes.Raw);
         _lowTable[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);

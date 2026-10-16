@@ -68,6 +68,32 @@ internal static class InstalledFixtures
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
 
+    /// <summary>
+    /// Projectile draw artwork binding <paramref name="compositions"/> (the installed ones when null) to pages of the
+    /// installed beam and trail characters over a blank standard OBJ page, for checks of draw geometry and bindings.
+    /// </summary>
+    internal static ProjectileDrawArtwork ProjectileArtwork(ProjectileSpriteCatalog? compositions = null, ushort equippedBeams = 0) =>
+        new(compositions ?? Projectiles.Catalog, projectilePages.Value, equippedBeams);
+
+    /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
+    internal static SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;
+    /// <summary>Backing loader for <see cref="StandardObjects"/>.</summary>
+    private static readonly Lazy<SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas> standardObjects =
+        new(() => RepositoryInstallation.Installation.LoadStandardObjects());
+
+    /// <summary>Binds the installed standard OBJ sheet and beam and trail artwork a runtime's projectile pages compose.</summary>
+    internal static void BindProjectileArtwork(SuperMetroid.Core.Runtime.SuperMetroidRuntime runtime)
+    {
+        runtime.Artwork.StandardObjectArt = StandardObjects;
+        runtime.Artwork.BeamArtwork = Projectiles.BeamTiles;
+        runtime.Artwork.TrailArtwork = Projectiles.Trails;
+    }
+
+    /// <summary>The installed beam and trail characters over a blank standard OBJ page.</summary>
+    private static readonly Lazy<ProjectileObjectPages> projectilePages = new(() => new(
+        SuperMetroid.Core.Assets.SpriteFrameTestArtwork.StandardObjects, Projectiles.BeamTiles,
+        Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters.")));
+
     /// <summary>The installation's Samus body and arm-cannon artwork, loaded once per process.</summary>
     internal static SamusBodyArtworkCatalog SamusBody => samusBody.Value;
 

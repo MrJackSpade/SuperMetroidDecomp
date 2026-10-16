@@ -20,4 +20,8 @@ public enum SpriteArtworkKind
     SamusDeathExplosion,
     /// <summary>The standard OBJ page with the grapple endpoint and rope characters over characters $20-$24.</summary>
     GrappleTilesOnStandardObjects,
+    /// <summary>An OBJ page with the beam characters of the combination its variant names and both trail sheets.</summary>
+    ProjectileObjects,
+    /// <summary>The intro's OBJ page: its intro sheet with the cinematic characters over its tail.</summary>
+    IntroObjects,
 }

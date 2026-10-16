@@ -1,3 +1,5 @@
+using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDrawEntriesVerification;
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -625,6 +627,11 @@ internal static void VerifySamusMorphBallMovement()
     AssertEqual(59, bombs.Slots[0].BombTimer.RawValue, "placement frame immediately decrements timer 60 to 59");
     AssertEqual(0x001e, bombs.Slots[0].Damage, "bomb damage follows bank-$93 data pointer");
     AssertEqual(0xad45, bombs.Slots[0].SpritemapPointer, "first instruction selects ROM bomb spritemap");
+    ProjectileDrawArtwork bombArtwork = InstalledFixtures.ProjectileArtwork();
+    AssertProjectileEntry(
+        DrawnEntries(frame => bombs.Draw(bus, frame, layer1: new(0, 0), bombArtwork)),
+        new SpriteSource(SpriteSourceKind.SamusBomb, 0), bombArtwork.Sprites.Frame(bombs.Slots[0].SpritemapPointer), bombArtwork,
+        new Position16<ScreenPixels>((ushort)bombs.Slots[0].Position.X.Whole, (ushort)bombs.Slots[0].Position.Y.Whole), "Bomb");
     AssertEqual(4, bombs.Slots[0].Radius.X, "first instruction publishes ROM X radius");
     AssertEqual(4, bombs.Slots[0].Radius.Y, "first instruction publishes ROM Y radius");
 
@@ -905,10 +912,9 @@ internal static void VerifySamusMorphBallMovement()
         powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);
     AssertTrue(powerBombs.Slots[0].InstructionPointer >= 0x9fa3,
         "power-bomb timer fifteen enters retail fast list");
-    var armedPowerBombOam = new OamBuffer();
-    armedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, armedPowerBombOam, layer1: new(0, 0), compositions: InstalledFixtures.Projectiles.Catalog);
-    AssertTrue(armedPowerBombOam.NextByteOffset > 0,
+    OamBuffer armedPowerBombOam = SpriteFrameBuffer.DrawnOam(frame =>
+        powerBombs.Draw(bus, frame, layer1: new(0, 0), InstalledFixtures.ProjectileArtwork()));
+    AssertTrue(armedPowerBombOam.LastFinalizedSpriteCount > 0,
         "armed Power Bomb draws its fast-list spritemap before detonation");
 
     BombProjectileFrameResult powerBombFuse = default;
@@ -927,10 +933,9 @@ internal static void VerifySamusMorphBallMovement()
         new SamusSoundRequest(SoundEffectLibrary1Sounds.PowerBombExplosion, 15),
         (powerBombFuse.SoundRequests ?? throw new InvalidOperationException("Verification requires powerBombFuse.SoundRequests.")).Single(),
         "power-bomb spawn queues cartridge library-one explosion sound");
-    var detonatedPowerBombOam = new OamBuffer();
-    detonatedPowerBombOam.BeginFrame();
-    powerBombs.Draw(bus, detonatedPowerBombOam, layer1: new(0, 0), compositions: InstalledFixtures.Projectiles.Catalog);
-    AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
+    OamBuffer detonatedPowerBombOam = SpriteFrameBuffer.DrawnOam(frame =>
+        powerBombs.Draw(bus, frame, layer1: new(0, 0), InstalledFixtures.ProjectileArtwork()));
+    AssertEqual(0, detonatedPowerBombOam.LastFinalizedSpriteCount,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
     powerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = floor }, powerBombSamus, 0, 0);

@@ -943,7 +943,7 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream2Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6340	287
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Harness/LookupStream3Verification.cs	SME6342	7
-csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	513
+csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6340	511
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6341	1
 csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME6342	5
 csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs	SME6340	128
@@ -1267,7 +1267,7 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/ChargeFlareDefinitionsVer
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ChargeFlarePlacementVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ChargeFlareProductionVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/CompiledProjectileMathVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamGraphicsVerification.cs	SME6340	36
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamGraphicsVerification.cs	SME6340	35
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamGraphicsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamSelectionVerification.cs	SME6340	35
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamSelectionVerification.cs	SME6342	1
@@ -1309,10 +1309,10 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailDefinition
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectileRomDataVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	482
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	480
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6341	3
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6342	7
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/SpacetimeBeamVerification.cs	SME6340	35
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/SpacetimeBeamVerification.cs	SME6340	34
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SuperMissileDeathAnimationVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/WrapShotEnemiesVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/WrapShotEnemiesVerification.cs	SME6341	1

@@ -136,16 +136,18 @@ internal static class ProjectileCompositionsVerification
             bomb.BombTimer = NativeCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
-                var native = new OamBuffer(); var extracted = new OamBuffer();
-                shots.DrawLiveProjectiles(rom, native, Position16<RoomPixels>.Zero, parity, content);
-                shots.DrawExplosions(rom, native, Position16<RoomPixels>.Zero, content);
-                bombs.Draw(rom, native, Position16<RoomPixels>.Zero, content);
-                shots.DrawLiveProjectiles(forbidden, extracted, Position16<RoomPixels>.Zero, parity, content);
-                shots.DrawExplosions(forbidden, extracted, Position16<RoomPixels>.Zero, content);
-                bombs.Draw(forbidden, extracted, Position16<RoomPixels>.Zero, content);
-                AssertTrue(native.ImageEquals(extracted),
+                ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork(content);
+                var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
+                native.BeginFrame(); extracted.BeginFrame();
+                shots.DrawLiveProjectiles(rom, native, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawExplosions(rom, native, Position16<RoomPixels>.Zero, artwork);
+                bombs.Draw(rom, native, Position16<RoomPixels>.Zero, artwork);
+                shots.DrawLiveProjectiles(forbidden, extracted, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawExplosions(forbidden, extracted, Position16<RoomPixels>.Zero, artwork);
+                bombs.Draw(forbidden, extracted, Position16<RoomPixels>.Zero, artwork);
+                AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
                     "Production projectile composition preserves admission, flicker and OAM");
-                AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Composition owner preserves OAM cursor");
+                AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
                 AssertEqual((ushort)123, shot.Damage, "Composition does not mutate damage");
                 AssertEqual((ushort)7, shot.Radius.X, "Composition does not mutate X radius");
                 AssertEqual((ushort)9, shot.Radius.Y, "Composition does not mutate Y radius");
@@ -154,9 +156,11 @@ internal static class ProjectileCompositionsVerification
             if (type == 0x300)
             {
                 bomb.BombTimer = NativeCountdown.Start(0);
-                var hidden = new OamBuffer();
-                bombs.Draw(forbidden, hidden, Position16<RoomPixels>.Zero, content);
-                AssertEqual(0, hidden.NextByteOffset, "Detonated power bomb remains hidden with extracted art");
+                var hidden = new SpriteFrameBuffer();
+                hidden.BeginFrame();
+                bombs.Draw(forbidden, hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));
+                hidden.FinalizeFrame();
+                AssertEqual(0, hidden.Draws.Length, "Detonated power bomb remains hidden with extracted art");
             }
         }
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
@@ -185,9 +189,11 @@ internal static class ProjectileCompositionsVerification
         game.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
-            target.Oam.BeginFrame();
+            target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ConcatToArray(target.Oam.HighTable);
+            target.Sprites.FinalizeFrame();
+            OamBuffer image = target.Sprites.FinalizedAsOam();
+            return image.LowTable.ConcatToArray(image.HighTable);
         }
         // Seed only a visible timed composition. The shared production actor draw, not
         // a duplicate test emitter, must bind all three owner passes to host content.

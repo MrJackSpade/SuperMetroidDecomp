@@ -24,15 +24,6 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
         VramAssetId.ProjectileMissileTrailTiles => Missile,
         _ => throw new InvalidDataException($"Trail atlas cannot resolve {asset}."),
     };
-    /// <summary>Queues ice/wave then missile artwork at VRAM words $6380 and $6480, preserving the unrelated standard OBJ tiles $40..$47 between their ranges.</summary>
-    /// <param name="queue">Destination asset-write queue; queued identities must resolve through the installed trail provider when executed.</param>
-    public void QueueTo(VramWriteQueue queue)
-    {
-        queue.EnqueueAsset(VramAssetId.ProjectileIceWaveTrailTiles, checked((ushort)IceAndWave.Length),
-            ProjectileTrailVram.IceWaveTrailDma);
-        queue.EnqueueAsset(VramAssetId.ProjectileMissileTrailTiles, checked((ushort)Missile.Length),
-            ProjectileTrailVram.MissileTrailDma);
-    }
     /// <summary>Loads the 96-by-8 indexed PNG as twelve left-to-right 8-pixel tiles and encodes their palette indices into four-bit SNES planar character bytes.</summary>
     /// <param name="png">Caller-owned image stream; indices 0..15 are pens rather than final CGRAM colors.</param>
     /// <returns>Installed character art split into eight ice/wave tiles followed by four missile tiles, excluding the native inter-range gap.</returns>
@@ -40,12 +31,5 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     {
         var image = IndexedPng.Read(png, new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Size, 4));
-    }
-    /// <summary>Immediately uploads the two trail ranges in ice/wave-then-missile order at VRAM bytes $C700 and $C900, leaving the intervening $0100-byte region untouched.</summary>
-    /// <param name="vram">Destination VRAM; this changes character pixels only, not sprite attributes, palettes, or trail lifetimes.</param>
-    public void LoadTo(SnesVram vram)
-    {
-        new ProjectileTrailVram(vram).IceWaveTrail.Load(IceAndWave.Span);
-        new ProjectileTrailVram(vram).MissileTrail.Load(Missile.Span);
     }
 }

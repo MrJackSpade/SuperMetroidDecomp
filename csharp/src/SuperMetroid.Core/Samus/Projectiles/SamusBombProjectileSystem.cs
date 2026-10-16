@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -261,12 +262,12 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public void Draw(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        SuperMetroid.Core.Samus.Artwork.ProjectileSpriteCatalog? compositions = null)
+        ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -295,9 +296,9 @@ public sealed class SamusBombProjectileSystem
             if (screenX < -48 || screenX >= 304 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
                 continue;
 
-            (compositions ?? throw new InvalidOperationException(
-                "Bomb projectiles require installed sprite compositions."))
-                .Draw(slot.SpritemapPointer, oam, new(unchecked((ushort)screenX), screenY));
+            sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
+                artwork.Sprites.Frame(slot.SpritemapPointer), artwork.Page,
+                new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
         }
     }
 

@@ -211,10 +211,9 @@ internal sealed class NmiHandler
             CaptureXrayRevealTilemap());
         _artwork.PublishReboundHudArtwork();
         _vramWrites.DrainTo(_vram, RuntimeMemory.RequireBus(_addressSpace), _artwork);
-        // A rebound snapshot may retain old VRAM and legacy queued transfers.
+        // A rebound snapshot may retain old CGRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
-        _artwork.PublishReboundBeamArtwork();
-        _artwork.PublishReboundTrailArtwork();
+        _artwork.PublishReboundBeamPalette();
         _xray.TransferXrayBg1Read();
     }
 

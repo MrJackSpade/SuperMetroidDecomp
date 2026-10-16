@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Abilities;
@@ -110,29 +111,19 @@ public sealed class SamusProjectileSystem
     public SamusProjectileSpawnSnapshot? LastFiredProjectileSnapshot { get; private set; }
 
     /// <summary>
-    /// Executes <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D for the equipped beam.
+    /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D for the equipped beam: sixteen
+    /// words into sprite palette six, CGRAM colors $E0-$EF. Its characters are not copied: the projectile OBJ
+    /// pages bind the equipped beam's characters (<see cref="SuperMetroid.Core.Samus.Artwork.ProjectileObjectPages"/>).
     /// </summary>
-    /// <remarks>
-    /// The 256 tile bytes are DMAed from bank $9A to VRAM word $6300. Sixteen palette
-    /// words are copied from bank $90 into sprite palette six, CGRAM colors $E0-$EF.
-    /// Projectile spritemaps already reference those hardware locations; omitting this
-    /// room/equipment-time upload produces valid OAM whose pixels are all transparent.
-    /// </remarks>
-    public static void LoadBeamTilesAndPalette(
+    public static void LoadBeamPalette(
         ISnesAddressSpace bus,
-        SnesVram vram,
         SnesCgram cgram,
         ushort equippedBeams,
-        SuperMetroid.Core.Samus.Artwork.BeamTileCatalog? artwork = null)
+        SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-
-        SamusBeamCombination beamType = SelectedCombination(equippedBeams);
-        LoadBeamTiles(bus, vram, equippedBeams, artwork);
-
-        LoadSelectedBeamPalette(bus, cgram, beamType, artwork?.Palettes);
+        LoadSelectedBeamPalette(bus, cgram, SelectedCombination(equippedBeams), palettes);
     }
 
     /// <summary>
@@ -167,46 +158,6 @@ public sealed class SamusProjectileSystem
                 throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
         }
     }
-    /// <summary>Replays the tile-only half of $90:AC8D after external OBJ artwork is rebound.</summary>
-    public static void LoadBeamTiles(ISnesAddressSpace bus, SnesVram vram,
-        ushort equippedBeams, SuperMetroid.Core.Samus.Artwork.BeamTileCatalog? artwork = null)
-    {
-        Ensure.NotNull(bus);
-        Ensure.NotNull(vram);
-        SamusBeamCombination beamType = SelectedCombination(equippedBeams);
-        SuperMetroid.Core.Samus.Artwork.BeamTileCatalog installed = artwork ?? throw new InvalidOperationException(
-            "Beam tiles require installed artwork.");
-        new SamusVram(vram).BeamTiles.Load(installed.Resolve(SuperMetroid.Core.Samus.Artwork.BeamTileCatalog.AssetFor(beamType)).Span);
-    }
-
-    /// <summary>
-    /// Queues the tile half of $90:AC8D after the room's standard-sprite upload and applies
-    /// the matching final palette to the modeled CGRAM buffer.
-    /// </summary>
-    public static void QueueBeamTilesAndLoadPalette(
-        ISnesAddressSpace bus,
-        VramWriteQueue writes,
-        SnesCgram cgram,
-        ushort equippedBeams,
-        SuperMetroid.Core.Samus.Artwork.BeamTileCatalog? artwork = null,
-        SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes = null)
-    {
-        Ensure.NotNull(bus);
-        Ensure.NotNull(writes);
-        Ensure.NotNull(cgram);
-
-        SamusBeamCombination beamType = SelectedCombination(equippedBeams);
-
-        // Preserve the native queue position and seven-byte tail increment. Unsupported
-        // beam combinations retain physical adjacent-table reads used by glitch paths.
-        _ = artwork ?? throw new InvalidOperationException("Beam tiles require installed artwork.");
-        writes.EnqueueAsset(SuperMetroid.Core.Samus.Artwork.BeamTileCatalog.AssetFor(beamType),
-            SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.ByteCount, SamusVram.BeamTilesDma);
-
-        palettes ??= artwork?.Palettes;
-        LoadSelectedBeamPalette(bus, cgram, beamType, palettes);
-    }
-
     /// <summary>
     /// Runs <c>HandleBeamChargePalettes</c> at <c>$91:D743-$D7D4</c> against the
     /// modeled Samus CGRAM palette.
@@ -586,23 +537,15 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Runs and draws <c>$90:BAFC</c>'s three charge-flare animation components before Samus.
+    /// Advances <c>$90:BAFC</c>'s three charge-flare animation components as a simulation phase and reports which
+    /// components this frame shows, in native order. Nothing here depends on the display.
     /// </summary>
-    public void HandleChargeFlareAndDraw(
-        ISnesAddressSpace bus,
-        OamBuffer oam,
-        SamusState samus,
-        Position16<RoomPixels> layer1,
-        SamusMode7Transform? mode7Transform = null,
-        SuperMetroid.Core.Samus.Artwork.ChargeFlarePlacementCatalog? placement = null,
-        SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog? compositions = null)
+    public ChargeFlareComponents AdvanceChargeFlare(SamusState samus)
     {
-        Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
         Ensure.NotNull(samus);
 
         if (Charge.FlareCounter == 0)
-            return;
+            return default;
 
         if (samus.HyperBeam != 0)
         {
@@ -629,10 +572,9 @@ public sealed class SamusProjectileSystem
                         Charge._flareTimers[component] = NativeCountdown.Start(3);
                     }
                 }
-
-                Animation.DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
             }
-            return;
+            // Every component is shown, the fast spark first, even on the frame that ends the flare.
+            return new ChargeFlareComponents(3, Descending: true);
         }
 
         // Calls 1..14 initialize/retain the hidden animation state. Call 15 begins drawing
@@ -645,26 +587,41 @@ public sealed class SamusProjectileSystem
             Charge._flareTimers[2] = NativeCountdown.Start(4);
         }
         if (Charge.FlareCounter < 15)
-            return;
+            return default;
 
         int componentCount = Charge.FlareCounter < 30 ? 1 : 3;
         for (int component = 0; component < componentCount; component++)
-        {
             Animation.AdvanceFlareComponent(component);
-            Animation.DrawFlareComponent(bus, oam, samus, layer1, component, mode7Transform, new ChargeFlareArtwork { Placement = placement, Compositions = compositions });
-        }
+        return new ChargeFlareComponents(componentCount, Descending: false);
+    }
+
+    /// <summary>Publishes the charge-flare components <see cref="AdvanceChargeFlare"/> reported, before Samus.</summary>
+    public void DrawChargeFlare(
+        ISnesAddressSpace bus,
+        SpriteFrameBuffer sprites,
+        SamusState samus,
+        Position16<RoomPixels> layer1,
+        ChargeFlareComponents components,
+        SamusMode7Transform? mode7Transform,
+        ChargeFlareArtwork artwork)
+    {
+        Ensure.NotNull(bus);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(samus);
+        foreach (int component in components.DrawOrder)
+            Animation.DrawFlareComponent(bus, sprites, samus, layer1, component, mode7Transform, artwork);
     }
 
     /// <summary>Draws `$93:8254`'s live ordinary-projectile subset after Samus.</summary>
     public void DrawLiveProjectiles(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter,
-        SuperMetroid.Core.Samus.Artwork.ProjectileSpriteCatalog? compositions = null)
+        ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -695,39 +652,55 @@ public sealed class SamusProjectileSystem
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if (unchecked((short)slot.SpritemapPointer) < 0)
-                ProjectileAnimation.DrawSlot(oam, slot, layer1, horizontalMargin: null, compositions);
+                ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slotIndex),
+                    slot, layer1, horizontalMargin: null, artwork);
         }
     }
 
     /// <summary>
-    /// Runs and draws <c>$90:B6A9</c>'s eighteen projectile-trail slots after the ordinary
-    /// projectile pass. Each side owns its own timer, instruction pointer, position, and OBJ.
+    /// Advances <c>$90:B6A9</c>'s eighteen projectile-trail slots as a simulation phase, after the ordinary
+    /// projectile pass. Each side owns its own timer, instruction pointer and position.
     /// </summary>
-    /// <param name="bus">Address space passed to the trail instruction and draw helpers.</param>
-    /// <param name="oam">Mutable OBJ destination appended in descending trail-slot order, left side before right.</param>
-    /// <param name="layer1">Whole-pixel room camera origin subtracted from trail coordinates when drawing.</param>
+    /// <param name="bus">Address space passed to the trail instruction helpers.</param>
     /// <param name="timeIsFrozen">
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
     /// </param>
     /// <param name="artwork">Installed trail frame artwork; required by a trail side when it resolves a timed display record.</param>
-    public void HandleTrailsAndDraw(
+    public void AdvanceTrails(
         ISnesAddressSpace bus,
-        OamBuffer oam,
-        Position16<RoomPixels> layer1,
         bool timeIsFrozen,
         SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork = null)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
 
         // Native Y starts at byte index $22, so the most recently preferred allocation slot
-        // is also handled first. Preserve that order because overlapping 8x8 OBJs reveal it.
+        // is also handled first, left side before right.
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = SlotTable._trailSlots[slotIndex];
-            ProjectileTrails.HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: true, artwork);
-            ProjectileTrails.HandleTrailSideAndDraw(bus, oam, slot, layer1, timeIsFrozen, isLeft: false, artwork);
+            ProjectileTrails.AdvanceTrailSide(bus, slot, timeIsFrozen, isLeft: true, artwork);
+            ProjectileTrails.AdvanceTrailSide(bus, slot, timeIsFrozen, isLeft: false, artwork);
+        }
+    }
+
+    /// <summary>Publishes every live trail side, in the advance's slot and side order.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="layer1">Whole-pixel room camera origin subtracted from trail coordinates.</param>
+    /// <param name="artwork">Installed trail frame artwork.</param>
+    /// <param name="objects">The projectile OBJ page the trail characters are bound in.</param>
+    public void DrawTrails(
+        SpriteFrameBuffer sprites,
+        Position16<RoomPixels> layer1,
+        SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork,
+        ProjectileDrawArtwork objects)
+    {
+        Ensure.NotNull(sprites);
+        for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
+        {
+            SamusProjectileTrailSlot slot = SlotTable._trailSlots[slotIndex];
+            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, isLeft: true, artwork, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, isLeft: false, artwork, objects);
         }
     }
 
@@ -736,12 +709,12 @@ public sealed class SamusProjectileSystem
     /// </summary>
     public void DrawExplosions(
         ISnesAddressSpace bus,
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        SuperMetroid.Core.Samus.Artwork.ProjectileSpriteCatalog? compositions = null)
+        ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(bus);
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -752,7 +725,8 @@ public sealed class SamusProjectileSystem
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            ProjectileAnimation.DrawSlot(oam, slot, layer1, horizontalMargin: 48, compositions);
+            ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slotIndex),
+                slot, layer1, horizontalMargin: 48, artwork);
         }
     }
 

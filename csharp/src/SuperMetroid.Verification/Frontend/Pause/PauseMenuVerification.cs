@@ -209,7 +209,7 @@ internal static class PauseMenuVerification
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
         var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
         resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
-        resumeRuntime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
+        resumeRuntime.SamusPhases.LoadGameplayBeamPalette(samus.EquippedBeams);
         resumeRuntime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         AssertEqual(0x40, resumeRuntime.Vram.ReadByte(0x6300 * 2),
             "unpause NMI exposes newly equipped Wave character data");

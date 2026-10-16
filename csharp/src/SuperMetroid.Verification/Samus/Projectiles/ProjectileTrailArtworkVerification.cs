@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -26,7 +28,10 @@ internal static class ProjectileTrailArtworkVerification
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
         byte[] json = ProjectileTrailExtractor.Extract(bus);
-        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
+        // Runtime binding composes projectile pages from the catalog's characters, so the fixture carries the installed ones.
+        ProjectileTrailAtlas installedTrailTiles = InstalledFixtures.Projectiles.Trails.Tiles
+            ?? throw new InvalidOperationException("The installation has no trail characters.");
+        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json), installedTrailTiles);
         var encountered = new HashSet<ushort>();
         foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
         {
@@ -47,10 +52,14 @@ internal static class ProjectileTrailArtworkVerification
             }
             for (int frame = 0; frame < 80; frame++)
             {
-                var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
+                var nativeOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
                 DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeOam, frozenFrame);
-                authoredSystem.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
+                OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(sprites =>
+                {
+                    authoredSystem.AdvanceTrails(NewProjectileCompositionForbiddenBus(), frozenFrame, catalog);
+                    authoredSystem.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
+                });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
@@ -81,20 +90,25 @@ internal static class ProjectileTrailArtworkVerification
         int draws = 0;
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
-        foreach (int preceding in new[] { 0, 127, 128 })
         {
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
             var system = new SamusProjectileSystem();
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(3);
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.TileNumberAttributes = attributes;
-            var native = new OamBuffer(); var authored = new OamBuffer();
-            for (int i = 0; i < preceding; i++)
-            { native.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); authored.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); }
-            system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), native, Position16<RoomPixels>.Zero, true);
-            system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
+            // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
+            OamBuffer native = SpriteFrameBuffer.DrawnOam(sprites =>
+            {
+                system.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, null);
+                system.DrawTrails(sprites, Position16<RoomPixels>.Zero, null, InstalledFixtures.ProjectileArtwork());
+            });
+            OamBuffer authored = SpriteFrameBuffer.DrawnOam(sprites =>
+            {
+                system.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, catalog);
+                system.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
+            });
             AssertTrue(native.ImageEquals(authored), "Trail catalog preserves native culling and complete OAM bytes");
-            AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
+            AssertEqual(native.LastFinalizedSpriteCount, authored.LastFinalizedSpriteCount, "Trail catalog retains its sprite count");
             AssertEqual(3, side.InstructionTimer.RawValue, "Frozen draw cannot advance trail animation");
             AssertEqual(attributes, side.TileNumberAttributes, "Artwork selection does not mutate stored trail attributes");
             draws++;
@@ -109,13 +123,23 @@ internal static class ProjectileTrailArtworkVerification
         var animation = new SamusProjectileSystem();
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
         trail.InstructionPointer = first; trail.InstructionTimer = NativeCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
-        var frozen = new OamBuffer();
-        animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), frozen, Position16<RoomPixels>.Zero, true, edited);
+        OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
+        {
+            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, edited);
+            animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, edited, InstalledFixtures.ProjectileArtwork());
+        });
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
-        animation.HandleTrailsAndDraw(bus, new OamBuffer(), Position16<RoomPixels>.Zero, false, catalog);
-        var original = new OamBuffer(); var changed = new OamBuffer();
-        animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), original, Position16<RoomPixels>.Zero, true, catalog);
-        animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), changed, Position16<RoomPixels>.Zero, true, edited);
+        animation.AdvanceTrails(bus, false, catalog);
+        OamBuffer original = SpriteFrameBuffer.DrawnOam(sprites =>
+        {
+            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, catalog);
+            animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
+        });
+        OamBuffer changed = SpriteFrameBuffer.DrawnOam(sprites =>
+        {
+            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, edited);
+            animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, edited, InstalledFixtures.ProjectileArtwork());
+        });
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
         AssertEqual(1, trail.InstructionTimer.RawValue, "Rebound art retains current timer");
         document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(first))["duration"] = 0;
@@ -128,7 +152,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
         // Round-trip an edited frame node through the same JSON catalog validation as installed assets.
-        static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
+        ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())), installedTrailTiles);
     }
 
     /// <summary>Interprets the native trail words and sibling-targeted movement as an independent OAM and timer reference.</summary>
@@ -187,12 +211,15 @@ internal static class ProjectileTrailArtworkVerification
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         game.runtime = runtime;
+        // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
+        InstalledFixtures.BindProjectileArtwork(runtime);
         // Run the gameplay actor draw pass into a fresh OAM frame and capture its low table.
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
-            target.Oam.BeginFrame();
+            target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ToArray();
+            target.Sprites.FinalizeFrame();
+            return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }
         byte[] native = Draw(runtime);
         game.BindArtwork(game.Artwork with

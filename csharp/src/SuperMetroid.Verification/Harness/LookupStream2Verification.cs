@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using SuperMetroid.Verification.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.LavaJumpers;
@@ -1408,11 +1409,15 @@ internal static class LookupStream2Verification
             }
             for (int frame = 0; frame < 80; frame++)
             {
-                var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
+                var nativeOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Left, nativeOam, frozenFrame);
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
-                authoredSystem.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
+                OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(frame =>
+                {
+                    authoredSystem.AdvanceTrails(NewProjectileCompositionForbiddenBus(), frozenFrame, catalog);
+                    authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
+                });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {

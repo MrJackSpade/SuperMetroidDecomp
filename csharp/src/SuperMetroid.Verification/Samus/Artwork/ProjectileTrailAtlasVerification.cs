@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -17,13 +18,15 @@ internal static class ProjectileTrailAtlasVerification
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));
         Suite(nameof(VerifyTrailAtlasBinding), () => VerifyTrailAtlasBinding(bus, png));
-        var runtime = CreateRetailRuntimeFixture(bus);
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0, true);
-        byte[] native = runtime.Vram.Bytes.ToArray();
-        atlas.LoadTo(runtime.Vram);
-        AssertTrue(native.SequenceEqual(runtime.Vram.Bytes), "Stock trail PNG preserves complete VRAM after production room/NMI setup");
+        // The bound projectile page places the trail characters where the standard upload holds them.
+        SpriteArtwork standard = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
+            InstalledFixtures.StandardObjects.Transfer.Span);
+        byte[] native = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, atlas).For((ushort)0).Characters.ToArray();
+        int iceWaveByte = ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
+        int missileByte = ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
+        AssertTrue(standard.Characters.Slice(iceWaveByte, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span) &&
+            standard.Characters.Slice(missileByte, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span),
+            "Stock trail PNG reproduces the standard sheet's trail characters");
         for (int tile = 0; tile < 12; tile++)
         {
             var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
@@ -32,12 +35,11 @@ internal static class ProjectileTrailAtlasVerification
             IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             changed.Position = 0;
             var edited = ProjectileTrailAtlas.Load(changed);
-            var actual = new SnesVram(); actual.LoadBytes(0, native);
-            edited.LoadTo(actual);
-            int changedByte = tile < 8 ? ProjectileTrailAtlasDefinitions.IceWaveDestinationWord * 2 + tile * 32
-                : ProjectileTrailAtlasDefinitions.MissileDestinationWord * 2 + (tile - 8) * 32;
+            ReadOnlySpan<byte> actual = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, edited).For((ushort)0).Characters;
+            int changedByte = tile < 8 ? iceWaveByte + tile * SpriteArtwork.CharacterByteCount
+                : missileByte + (tile - 8) * SpriteArtwork.CharacterByteCount;
             for (int i = 0; i < native.Length; i++)
-                AssertEqual((byte)(native[i] ^ (i == changedByte ? 0x80 : 0)), actual.Bytes[i], "Trail pixel edit changes exactly its mapped bit, preserving gap and neighboring characters");
+                AssertEqual((byte)(native[i] ^ (i == changedByte ? 0x80 : 0)), actual[i], "Trail pixel edit changes exactly its mapped bit, preserving gap and neighboring characters");
         }
         using var wrong = new MemoryStream();
         IndexedPng.Write(wrong, new(8, 8), new byte[64], SnesGraphics.DiagnosticPalette(16));
@@ -69,14 +71,13 @@ internal static class ProjectileTrailAtlasVerification
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.NmiHandler.RunNmi(0, true);
         byte[] before = runtime.Vram.Bytes.ToArray();
         runtime.Artwork.TrailArtwork = catalog;
-        runtime.NmiHandler.RunNmi(0, false);
-        AssertTrue(before.SequenceEqual(runtime.Vram.Bytes), "Trail rebind does not change retained lag-frame VRAM");
         runtime.NmiHandler.RunNmi(0, true);
+        AssertTrue(before.SequenceEqual(runtime.Vram.Bytes), "Trail rebind is a page binding, not a VRAM write");
         Check(runtime);
-        // Room initialization queues a new standard OBJ upload even after the first
-        // host rebind is consumed. Its typed replacements must survive that upload.
+        // Room initialization reloads the standard OBJ sheet; the bound trail characters stay on the page.
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.NmiHandler.RunNmi(0, true);
         Check(runtime);
@@ -92,8 +93,10 @@ internal static class ProjectileTrailAtlasVerification
         Check(restored);
         void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
-            AssertTrue(target.Vram.Bytes.Slice(ProjectileTrailAtlasDefinitions.IceWaveDestinationWord * 2, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span), "Accepted NMI installs current ice/wave trail PNG");
-            AssertTrue(target.Vram.Bytes.Slice(ProjectileTrailAtlasDefinitions.MissileDestinationWord * 2, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span), "Accepted NMI installs current missile trail PNG");
+            ReadOnlySpan<byte> page = (target.Artwork.ProjectileObjects
+                ?? throw new InvalidOperationException("The runtime has no projectile page.")).For((ushort)0).Characters;
+            AssertTrue(page.Slice(ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span), "The bound page shows the current ice/wave trail PNG");
+            AssertTrue(page.Slice(ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span), "The bound page shows the current missile trail PNG");
         }
     }
 }

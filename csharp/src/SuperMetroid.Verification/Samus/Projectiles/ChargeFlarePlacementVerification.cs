@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text;
@@ -41,7 +43,8 @@ internal static class ChargeFlarePlacementVerification
         var system = new SamusProjectileSystem();
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
-        var draw = new Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<ISnesAddressSpace, SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        ProjectileDrawArtwork objects = InstalledFixtures.ProjectileArtwork();
         int cases = 0;
         foreach (SamusPoseId pose in new[]
         {
@@ -60,7 +63,7 @@ internal static class ChargeFlarePlacementVerification
             bool running = bus.ReadCartridgeByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadCartridgeByte(record) == 4;
             byte yOffset = bus.ReadCartridgeByte(record + 4);
-            var native = new OamBuffer(); var actual = new OamBuffer();
+            var native = new OamBuffer();
             int xTable = running ? SamusProjectileRomData.Origins.FlareRunningX : SamusProjectileRomData.Origins.FlareDefaultX;
             int yTable = running ? SamusProjectileRomData.Origins.FlareRunningY : SamusProjectileRomData.Origins.FlareDefaultY;
             short Word(int address) => unchecked((short)CartridgeImportSource.Require(bus).ReadCartridgeWord(address));
@@ -70,22 +73,23 @@ internal static class ChargeFlarePlacementVerification
             ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
             if ((SnesLittleEndian.HighByteInPlace(y)) == 0) DrawImportedFlareSpritemap(bus, native, selector, new(x, y));
-            drawMetadata(actual, samus, Position16<RoomPixels>.Zero, component, transform,
-                new ChargeFlareArtwork { Placement = stock, Compositions = sprites },
-                new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft });
+            OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => drawMetadata(frame, samus, Position16<RoomPixels>.Zero, component, transform,
+                new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects },
+                new ChargeFlarePose { Direction = direction, Running = running, PoseYOffset = yOffset, FacingLeft = facingLeft }));
             AssertTrue(native.ImageEquals(actual), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
-            AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
+            AssertEqual(native.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Flare placement preserves OAM admission");
             cases++;
         }
         var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
-        var original = new OamBuffer(); var changed = new OamBuffer();
-        draw(bus, original, subject, Position16<RoomPixels>.Zero, 0, null, new ChargeFlareArtwork { Placement = stock, Compositions = sprites });
-        draw(bus, changed, subject, Position16<RoomPixels>.Zero, 0, null, new ChargeFlareArtwork { Placement = edited, Compositions = sprites });
-        AssertTrue(original.NextByteOffset > 0, "Edited flare placement fixture draws visible sprites");
-        AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Visual shift retains sprite count");
-        for (int i = 0; i < original.NextByteOffset / 4; i++)
+        OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(bus, frame, subject, Position16<RoomPixels>.Zero, 0, null,
+            new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
+        OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(bus, frame, subject, Position16<RoomPixels>.Zero, 0, null,
+            new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
+        AssertTrue(original.LastFinalizedSpriteCount > 0, "Edited flare placement fixture draws visible sprites");
+        AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Visual shift retains sprite count");
+        for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
         {
             AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Editable placement shifts the actual flare OBJ seven pixels");
             AssertEqual(original.GetEntry(i).Y, changed.GetEntry(i).Y, "X-only flare edit preserves Y");
@@ -101,13 +105,16 @@ internal static class ChargeFlarePlacementVerification
                 Array.Fill(frames, (ushort)2);
             }
             subject.HyperBeam = hyper;
-            original = new OamBuffer(); changed = new OamBuffer();
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
-            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, new(0, 0), placement: stock, compositions: sprites);
-            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, new(0, 0), placement: edited, compositions: sprites);
-            AssertTrue(original.NextByteOffset > 0, "Public normal/Hyper flare producer emits visible components");
-            AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Public flare placement preserves component admission");
-            for (int i = 0; i < original.NextByteOffset / 4; i++)
+            original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(guarded, frame, subject, new(0, 0),
+                originalSystem.AdvanceChargeFlare(subject), null,
+                new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
+            changed = SpriteFrameBuffer.DrawnOam(frame => editedSystem.DrawChargeFlare(guarded, frame, subject, new(0, 0),
+                editedSystem.AdvanceChargeFlare(subject), null,
+                new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
+            AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
+            AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Public flare placement preserves component admission");
+            for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
                 AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Public normal/Hyper path forwards selected placement to all components");
             AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
@@ -123,7 +130,7 @@ internal static class ChargeFlarePlacementVerification
         static ChargeFlarePlacementCatalog Load(JsonNode node) => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
     /// <summary>Invokes the renderer's private flare component path with explicit compiled pose metadata.</summary>
-    internal delegate void FlareMetadataDraw(OamBuffer oam, SamusState samus,
+    internal delegate void FlareMetadataDraw(SpriteFrameBuffer sprites, SamusState samus,
         Position16<RoomPixels> layer1, int component, SamusMode7Transform? transform,
         ChargeFlareArtwork artwork, ChargeFlarePose pose);
 
@@ -164,11 +171,14 @@ internal static class ChargeFlarePlacementVerification
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = CreateRetailGameFixture(bus);
         game.runtime = runtime;
+        // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
+        InstalledFixtures.BindProjectileArtwork(runtime);
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
-            target.Oam.BeginFrame();
+            target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ToArray();
+            target.Sprites.FinalizeFrame();
+            return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }
         byte[] native = Draw(runtime);
         game.BindArtwork(game.Artwork with

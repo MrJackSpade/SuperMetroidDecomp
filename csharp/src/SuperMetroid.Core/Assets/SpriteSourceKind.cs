@@ -24,4 +24,12 @@ public enum SpriteSourceKind
     SamusEcho,
     /// <summary>Samus's death explosion.</summary>
     SamusDeathExplosion,
+    /// <summary>A Samus projectile or its explosion; the instance is its projectile slot.</summary>
+    SamusProjectile,
+    /// <summary>A bomb or power bomb; the instance is its bomb slot.</summary>
+    SamusBomb,
+    /// <summary>A charge-flare component; the instance is the component (0 flare, 1 and 2 sparks).</summary>
+    SamusChargeFlare,
+    /// <summary>One side of a projectile trail; the instance is its trail slot times two plus left (0) or right (1).</summary>
+    SamusProjectileTrail,
 }

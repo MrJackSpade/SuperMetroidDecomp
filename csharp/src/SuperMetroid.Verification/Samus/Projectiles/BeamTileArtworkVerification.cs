@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.BeamPaletteArtworkVerification;
@@ -30,7 +31,7 @@ internal static class BeamTileArtworkVerification
         var files = BeamTileExtractor.Extract(bus);
         var palettes = BeamPaletteCatalog.Load(new MemoryStream(BeamPaletteExtractor.Extract(bus)));
         var catalog = BeamTileCatalog.Load(files, palettes);
-        Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus, catalog));
+        Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(bus));
         Suite(nameof(VerifyRuntimeBeamArtwork), () => VerifyRuntimeBeamArtwork(bus, files, catalog));
         AssertEqual(14, files.Count, "Every legal beam combination and both bounded invalid uploads have editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
@@ -53,33 +54,26 @@ internal static class BeamTileArtworkVerification
             for (int index = 0; index < native.Bytes.Length; index++)
                 if (index != firstByte) AssertEqual(native.Bytes[index], extracted.Bytes[index], "Beam edit cannot change neighboring VRAM or other pixels");
             AssertEqual(BeamTileAtlasDefinitions.ByteCount, edited.Transfer.Length, "Edited upload retains native DMA size");
-            var queue = new VramWriteQueue();
             var actualPalette = new SnesCgram(); var expectedPalette = new SnesCgram();
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewBeamArtworkReadGuard(bus), queue, actualPalette, selection, catalog);
+            SamusProjectileSystem.LoadBeamPalette(NewBeamArtworkReadGuard(bus), actualPalette, selection, catalog.Palettes);
             var legacyVram = new SnesVram();
             nativeQueue.DrainTo(legacyVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
             AssertTrue(legacyVram.ImageEquals(native), "Legacy beam source resolves exact native pixels without ROM DMA");
-            // Recreate the consumed reference queue for the native record-layout assertions.
-            LoadNativeBeamFixture(bus, null, expectedPalette, nativeQueue, selection);
-            AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Beam PNG keeps native seven-byte queue size");
-            AssertEqual(nativeQueue.Entries[0].SizeInBytes, queue.Entries[0].SizeInBytes, "Queued beam transfer retains byte count");
-            AssertEqual(nativeQueue.Entries[0].EncodedVramDestination, queue.Entries[0].EncodedVramDestination, "Queued beam retains destination");
+            // The page the selection binds shows the native beam characters at their DMA destination.
+            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, catalog,
+                InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+            AssertTrue(pages.For(selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
+                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(native.Bytes.Slice(BeamTileAtlasDefinitions.DestinationWord * 2, BeamTileAtlasDefinitions.ByteCount)),
+                "The bound projectile page shows the native beam characters");
             AssertTrue(new CgramPalettes(actualPalette).ImageEquals(new CgramPalettes(expectedPalette)), "PNG selection leaves beam palette behavior unchanged");
-            using var state = new MemoryStream();
-            SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(state, queue);
-            state.Position = 0;
-            var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
-            var stockVram = new SnesVram();
-            queue.DrainTo(stockVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), catalog);
-            AssertTrue(stockVram.ImageEquals(native), "Queued PNG publishes native pixels only at drain");
             var replacements = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(SamusBeamCombinations.FromTableIndex(selection))] = editedPng.ToArray() };
-            var editedCatalog = BeamTileCatalog.Load(replacements);
-            var reboundVram = new SnesVram();
-            restored.DrainTo(reboundVram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), editedCatalog);
-            AssertTrue(reboundVram.ImageEquals(extracted), "Restored pending transfer resolves current PNG, not serialized stock bytes");
-            AssertEqual(0, restored.TailInBytes, "NMI clears restored asset queue");
+            var editedPages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, BeamTileCatalog.Load(replacements),
+                InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+            AssertTrue(editedPages.For(selection).Characters.Slice(ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount,
+                    BeamTileAtlasDefinitions.ByteCount).SequenceEqual(extracted.Bytes.Slice(BeamTileAtlasDefinitions.DestinationWord * 2, BeamTileAtlasDefinitions.ByteCount)),
+                "The bound page shows the edited PNG");
         }
         using var wrongSize = new MemoryStream();
         IndexedPng.Write(wrongSize, new(8, 8), new byte[64], new[] { new Rgba32(0, 0, 0, 255) });
@@ -92,7 +86,7 @@ internal static class BeamTileArtworkVerification
         invalidIndex.Position = 0;
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(invalidIndex, 0), "Beam index exceeds four bit hardware palette");
         AssertThrows<InvalidDataException>(() => BeamTileAtlas.Load(new MemoryStream(new byte[8]), 0), "Malformed beam PNG rejected");
-        Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
+        Console.WriteLine("Beam PNG artwork: twelve native uploads reproduced on the bound page, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
     /// <summary>Reconstructs the cartridge's selected beam tile transfer and palette as a native comparison fixture.</summary>
@@ -141,30 +135,25 @@ internal static class BeamTileArtworkVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.NmiHandler.RunNmi(0, true);
         byte[] previous = runtime.Vram.Bytes.ToArray();
-        // Simulate an old snapshot with a queued ROM beam upload before host rebind.
-        LoadNativeBeamFixture(bus, null, runtime.Cgram, runtime.VramWrites, 0);
         runtime.Artwork.BeamArtwork = edited;
-        AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG leaves retained VRAM unchanged");
-        runtime.NmiHandler.RunNmi(0, false);
-        AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Lag NMI does not publish rebound artwork");
-        runtime.NmiHandler.RunNmi(0, true);
-        int start = BeamTileAtlasDefinitions.DestinationWord * 2;
-        AssertTrue(runtime.Vram.Bytes.Slice(start, 256).SequenceEqual(edited.Resolve(BeamTileCatalog.AssetFor(0)).Span),
-            "Accepted NMI uses current PNG after legacy queued writes");
-        runtime.SamusPhases.QueueGameplayBeamTilesAndLoadPalette(1);
-        AssertEqual(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave), runtime.VramWrites.Entries[0].AssetId, "Runtime equipment upload uses typed beam selection");
+        AssertTrue(previous.SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG is a page binding, not a VRAM write");
+        int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
+        AssertTrue(BoundBeamCharacters(runtime, 0).SequenceEqual(edited.Resolve(BeamTileCatalog.AssetFor(0)).Span),
+            "The bound page shows the current PNG");
         using var saved = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
         saved.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
         AssertTrue(restored.Artwork.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
         BindRetailRuntimeFixture(restored);
-        restored.Player.IntroducedSamus.EquippedBeams = 1;
         restored.Artwork.BeamArtwork = stock;
-        restored.NmiHandler.RunNmi(0, true);
-        AssertTrue(restored.Vram.Bytes.Slice(start, 256).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave)).Span),
-            "Restored runtime resolves queued beam selection through its bound provider");
-        Console.WriteLine("Runtime beam PNG: retained/lag display stability, accepted-NMI refresh after legacy writes, equipment queue and restored provider pass.");
+        AssertTrue(BoundBeamCharacters(restored, 1).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave)).Span),
+            "Restored runtime binds the equipped selection through its current provider");
+        Console.WriteLine("Runtime beam PNG: VRAM untouched by rebind, bound page follows current PNG and restored provider pass.");
+
+        ReadOnlySpan<byte> BoundBeamCharacters(SuperMetroid.Core.Runtime.SuperMetroidRuntime target, ushort equippedBeams) =>
+            (target.Artwork.ProjectileObjects ?? throw new InvalidOperationException("The runtime has no projectile page."))
+                .For(equippedBeams).Characters.Slice(first, BeamTileAtlasDefinitions.ByteCount);
     }
 
     /// <summary>Runs beam artwork and runtime transfer checks with the retail cartridge oracle.</summary>

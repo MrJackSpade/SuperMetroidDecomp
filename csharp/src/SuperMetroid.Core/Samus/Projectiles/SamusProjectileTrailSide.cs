@@ -11,6 +11,11 @@ public sealed class SamusProjectileTrailSide
     public ushort InstructionPointer { get; internal set; }
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
     public ushort TileNumberAttributes { get; internal set; }
+    /// <summary>
+    /// Room-pixel position the side shows this frame: <see cref="Position"/> when the side last advanced. `$90:B6A9`
+    /// draws each side right after advancing it, so a sibling's later move command shows only on the next frame.
+    /// </summary>
+    public Position16<RoomPixels> DisplayedPosition { get; internal set; }
 
     /// <summary>Resets the sprite position, timer, instruction pointer, and OBJ attributes for one trail side.</summary>
     internal void ClearFields()
@@ -19,5 +24,6 @@ public sealed class SamusProjectileTrailSide
         InstructionTimer = NativeCountdown.Start(0);
         InstructionPointer = 0;
         TileNumberAttributes = 0;
+        DisplayedPosition = Position16<RoomPixels>.Zero;
     }
 }

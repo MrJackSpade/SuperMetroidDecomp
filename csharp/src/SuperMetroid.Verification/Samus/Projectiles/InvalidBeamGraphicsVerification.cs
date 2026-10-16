@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -48,7 +50,7 @@ internal static class InvalidBeamGraphicsVerification
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SnesCgram();
-            SamusProjectileSystem.LoadBeamTilesAndPalette(bus, new SnesVram(), ordinary, beam, artwork);
+            SamusProjectileSystem.LoadBeamPalette(bus, ordinary, beam, artwork.Palettes);
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
             int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
@@ -59,30 +61,20 @@ internal static class InvalidBeamGraphicsVerification
         // native probe notes. These are WRAM words; CGRAM discards their high bit.
         ushort[] nativePalette = [0x0890, 0x30c2, 0x5822, 0x90ec, 0x6ead, 0x2919, 0x000f, 0xfcaa,
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
-        foreach (bool queued in new[] { false, true })
         {
-            var vram = new SnesVram();
             var cgram = new SnesCgram();
-            if (queued)
-            {
-                var writes = new VramWriteQueue();
-                SamusProjectileSystem.QueueBeamTilesAndLoadPalette(gameplayBus, writes, cgram, 0x000d, artwork);
-                AssertEqual(1, writes.Entries.Count, "Chainsaw queues one native graphics transfer");
-                using var saved = new MemoryStream();
-                SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, writes);
-                saved.Position = 0;
-                var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(saved);
-                restored.DrainTo(vram, ReferenceMutableMemory.From(bus), artwork);
-            }
-            else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x000d, artwork);
+            SamusProjectileSystem.LoadBeamPalette(gameplayBus, cgram, 0x000d, artwork.Palettes);
+            // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
+            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
+                InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+            ReadOnlySpan<byte> page = pages.For(0x000d).Characters;
+            int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)
-                AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), vram.ReadByte(0xc600 + offset),
-                    $"Chainsaw native DMA byte {offset}, queued={queued}");
+                AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), page[first + offset], $"Chainsaw native DMA byte {offset}");
             for (int color = 0; color < nativePalette.Length; color++)
-                AssertEqual(nativePalette[color] & 0x7fff, cgram.Colors[0xe0 + color],
-                    $"Chainsaw native palette color {color}, queued={queued}");
+                AssertEqual(nativePalette[color] & 0x7fff, cgram.Colors[0xe0 + color], $"Chainsaw native palette color {color}");
         }
-        Console.WriteLine("Chainsaw graphics: both production loaders match native DMA and instruction-context palette trace.");
+        Console.WriteLine("Chainsaw graphics: the bound page matches native DMA and the palette matches the instruction-context trace.");
     }
 
     /// <summary>Runs invalid-beam graphics and production magic-number checks.</summary>

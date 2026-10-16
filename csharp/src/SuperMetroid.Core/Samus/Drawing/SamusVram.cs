@@ -15,10 +15,4 @@ public readonly struct SamusVram(SnesVram vram)
 
     /// <summary>Second half of the bottom-body tiles.</summary>
     public VramRegion BodyBottomSecond => new(vram, SamusVramLayout.BodyBottomSecond);
-
-    /// <summary>The selected beam's characters.</summary>
-    public VramRegion BeamTiles => new(vram, SamusVramLayout.BeamTiles);
-
-    /// <summary>Queued-DMA destination of the beam characters.</summary>
-    public static VramDmaDestination BeamTilesDma => VramDmaDestination.At(SamusVramLayout.BeamTiles);
 }

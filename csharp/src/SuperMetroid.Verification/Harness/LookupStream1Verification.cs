@@ -1664,7 +1664,8 @@ internal static class LookupStream1Verification
         var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
-        var draw = new Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<ISnesAddressSpace, SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
         var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
@@ -1681,14 +1682,16 @@ internal static class LookupStream1Verification
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
             short x = Word((running ? 0x90c1dc : 0x90c1a8) + direction * 2);
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
-            var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
+            var expected = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
-            draw(NewLookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, new ChargeFlareArtwork { Placement = stock, Compositions = compositions });
-            draw(NewLookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, new ChargeFlareArtwork { Placement = shifted, Compositions = compositions });
+            OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(NewLookupFlareForbiddenBus(), frame, samus, Position16<RoomPixels>.Zero, 0, null,
+                new ChargeFlareArtwork { Placement = stock, Compositions = compositions, Objects = flareObjects }));
+            OamBuffer edited = SpriteFrameBuffer.DrawnOam(frame => draw(NewLookupFlareForbiddenBus(), frame, samus, Position16<RoomPixels>.Zero, 0, null,
+                new ChargeFlareArtwork { Placement = shifted, Compositions = compositions, Objects = flareObjects }));
             AssertTrue(expected.ImageEquals(actual), "Actual flare OAM matches independently positioned native sprite");
-            AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
-            AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");
-            for (int index = 0; index < actual.NextByteOffset / 4; index++)
+            AssertEqual(expected.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Native flare OAM admission");
+            AssertTrue(actual.LastFinalizedSpriteCount > 0, "Focused flare placement fixture emits its native sprite");
+            for (int index = 0; index < actual.LastFinalizedSpriteCount; index++)
             {
                 AssertEqual((actual.GetEntry(index).X + 7) & 511, edited.GetEntry(index).X, "Actual flare uses independently edited placement");
                 AssertEqual(actual.GetEntry(index).Y, edited.GetEntry(index).Y, "X edit preserves actual flare Y");

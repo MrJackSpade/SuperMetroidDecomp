@@ -21,7 +21,7 @@ internal static class BeamPaletteArtworkVerification
 {
     /// <summary>Compares every beam selection's CGRAM with native output and checks isolated JSON color edits.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus, BeamTileCatalog tiles)
+    internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
         var catalog = BeamPaletteCatalog.Load(new MemoryStream(bytes));
@@ -34,16 +34,15 @@ internal static class BeamPaletteArtworkVerification
                 expected.SetColor(i, Bgr555.FromWord((ushort)(i * 31)));
                 actual.SetColor(i, Bgr555.FromWord((ushort)(i * 31)));
             }
-            var nativeQueue = new VramWriteQueue(); var queue = new VramWriteQueue();
+            var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, actual, selection, tiles, catalog);
+            SamusProjectileSystem.LoadBeamPalette(NewProjectileCompositionForbiddenBus(), actual, selection, catalog);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
-            AssertEqual(nativeQueue.TailInBytes, queue.TailInBytes, "Palette selection retains tile queue timing");
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), new VramWriteQueue(), actual, selection, tiles, edited);
+            SamusProjectileSystem.LoadBeamPalette(NewProjectileCompositionForbiddenBus(), actual, selection, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");
@@ -133,7 +132,7 @@ internal static class BeamPaletteArtworkVerification
     internal static int BeamPaletteArtworkCommand()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(rom, BeamTileCatalog.Load(BeamTileExtractor.Extract(rom))));
+        Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(rom));
         return 0;
     }
 }

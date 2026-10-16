@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Samus.Movement;
@@ -52,13 +53,14 @@ internal sealed class ProjectileAnimation
             : unchecked((ushort)(_slotTable.ProjectileCounter - 1));
     }
 
-    /// <summary>Draws an installed projectile composition when its screen origin passes native horizontal and Y-byte clipping.</summary>
+    /// <summary>Publishes an installed projectile composition when its screen origin passes native horizontal and Y-byte clipping.</summary>
     internal static void DrawSlot(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteSource source,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
         int? horizontalMargin,
-        SuperMetroid.Core.Samus.Artwork.ProjectileSpriteCatalog? compositions)
+        ProjectileDrawArtwork artwork)
     {
         short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
         ushort screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
@@ -68,9 +70,8 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        (compositions ?? throw new InvalidOperationException(
-            "Samus projectiles require installed sprite compositions."))
-            .Draw(slot.SpritemapPointer, oam, new(unchecked((ushort)screenX), screenY));
+        sprites.Add(new SpriteDraw(source, artwork.Sprites.Frame(slot.SpritemapPointer), artwork.Page,
+            new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
     }
 
     /// <summary>Advances a flare component only after its countdown underflows, honoring restart and rewind delay commands.</summary>
@@ -122,17 +123,17 @@ internal sealed class ProjectileAnimation
     }
 
     /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
-    internal void DrawFlareComponent(ISnesAddressSpace bus, OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
+    internal void DrawFlareComponent(ISnesAddressSpace bus, SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
     {
         byte direction = samus.PoseMetadata.ReadShotDirection(bus);
         if (direction >= 16)
             return;
 
-        DrawFlareComponentWithMetadata(oam, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind(bus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset(bus)), FacingLeft = samus.PoseMetadata.IsFacingLeft(bus) });
+        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind(bus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset(bus)), FacingLeft = samus.PoseMetadata.IsFacingLeft(bus) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>
-    internal void DrawFlareComponentWithMetadata(OamBuffer oam, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
+    internal void DrawFlareComponentWithMetadata(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork, ChargeFlarePose pose)
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
@@ -170,7 +171,8 @@ internal sealed class ProjectileAnimation
         // gameplay effect, so the port draws nothing for it (#1275, Mother Brain glitch movie).
         if (!SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog.Contains(tableIndex))
             return;
-        catalog.Draw(tableIndex, oam, new(screenX, screenY));
+        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusChargeFlare, component), catalog.Frame(tableIndex),
+            artwork.Objects.Page, new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
     }
 
     /// <summary>Clears all component frames and countdowns when charge-flare animation is retired.</summary>

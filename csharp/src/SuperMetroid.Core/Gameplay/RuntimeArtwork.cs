@@ -193,8 +193,10 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set
         {
             field = value;
-            StandardObjects = value is null ? null : StandardObjectPage(value);
+            StandardObjects = value is null ? null
+                : ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), value.Transfer.Span);
             _player.Samus?.Presentation.TileTransfers.BindStandardObjects(StandardObjects);
+            BindProjectileObjects();
         }
     }
 
@@ -205,16 +207,18 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     [field: NonSerialized]
     public SpriteArtwork? StandardObjects { get; private set; }
 
-    /// <summary>Copies the sheet into a page of every nine-bit OBJ character plus large-part overhang.</summary>
-    private static SpriteArtwork StandardObjectPage(RoomCharacterAtlas sheet)
-    {
-        var characters = new byte[(StandardObjectPageCharacters + SpriteArtwork.CharactersPerRow + 1) * SpriteArtwork.CharacterByteCount];
-        sheet.Transfer.Span.CopyTo(characters);
-        return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.StandardObjects), characters);
-    }
+    /// <summary>
+    /// The standard OBJ page with the equipped beam's and both trails' characters, which Samus's projectiles,
+    /// bombs, charge flare and trails draw from; null until the standard sheet, beam and trail artwork are all bound.
+    /// </summary>
+    [field: NonSerialized]
+    public ProjectileObjectPages? ProjectileObjects { get; private set; }
 
-    /// <summary>Characters a nine-bit OBJ name selects.</summary>
-    private const int StandardObjectPageCharacters = 512;
+    /// <summary>Recomposes <see cref="ProjectileObjects"/> from the currently bound sheets.</summary>
+    private void BindProjectileObjects() =>
+        ProjectileObjects = StandardObjects is { } page && BeamArtwork is { } beams && TrailArtwork?.Tiles is { } trails
+            ? new ProjectileObjectPages(page, beams, trails)
+            : null;
 
     /// <summary>Rebinds authored visual frame choices to both native projectile slot owners.</summary>
     [field: NonSerialized]     public ProjectileFrameBindingCatalog? ProjectileFrameBindings
@@ -250,23 +254,39 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         }
     }
 
-    /// <summary>Whether accepted NMI must publish rebound projectile trail characters.</summary>
-    [NonSerialized] private ProjectileTrailAtlas? pendingTrailTiles;
-    /// <summary>Current projectile-trail tiles and visual compositions; rebinding refreshes installed tiles at the next display boundary.</summary>
+    /// <summary>Current projectile-trail characters and visual compositions; the projectile pages bind them.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
         get;
-        set { field = value; pendingTrailTiles = value?.Tiles; }
+        set { field = value; BindProjectileObjects(); }
     }
 
-    /// <summary>Whether accepted NMI must publish the current beam tiles and normal palette.</summary>
-    [NonSerialized] private BeamTileCatalog? pendingBeamArtwork;
+    /// <summary>Beam artwork bound since the last accepted NMI, whose palette that NMI publishes.</summary>
+    [NonSerialized] private BeamTileCatalog? pendingBeamPalette;
 
-    /// <summary>Current beam tiles. Rebinding changes the next accepted display, not the retained frame.</summary>
+    /// <summary>Current beam characters and palettes; the projectile pages bind the equipped beam's characters.</summary>
     [field: NonSerialized]     public BeamTileCatalog? BeamArtwork
     {
         get;
-        set { field = value; pendingBeamArtwork = value; }
+        set { field = value; pendingBeamPalette = value; BindProjectileObjects(); }
+    }
+
+    /// <summary>
+    /// Loads a newly bound beam artwork's palette for the equipped beams at an accepted NMI. The characters need no
+    /// publication: the projectile pages bind them.
+    /// </summary>
+    internal void PublishReboundBeamPalette()
+    {
+        if (pendingBeamPalette is not { } beamArtwork || _player.Samus is not { } samus) return;
+        // Do not reinterpret invalid combination overreads as a legal replacement.
+        if (new SuperMetroid.Core.Samus.Projectiles.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is SuperMetroid.Core.Samus.Projectiles.SamusBeamCombination selection &&
+            selection.IsRetail &&
+            // An in-flight effect owns these colors across frames. Its own completion
+            // restores the selected normal palette; host rebind must not erase its phase.
+            samus.CrystalFlash.SpecialPaletteKind != SuperMetroid.Core.Samus.Abilities.SamusSpecialPaletteType.CrystalFlash &&
+            !samus.Drained.HyperBeamPaletteFx.IsActive)
+            beamArtwork.Palettes?.LoadTo(_cgram, selection);
+        pendingBeamPalette = null;
     }
 
     /// <summary>Dispatches a typed VRAM asset to its bound gunship, Grapple, trail, HUD, or beam catalog.</summary>
@@ -295,33 +315,6 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
             : (BeamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
 
-    /// <summary>Publishes rebound projectile trails after any restored legacy queue drains.</summary>
-    internal void PublishReboundTrailArtwork()
-    {
-        if (pendingTrailTiles is not { } trailTiles) return;
-        // A restored legacy queue can still contain the standard OBJ upload. Publish
-        // current host art only after that queue drains, and only on accepted NMIs.
-        trailTiles.LoadTo(_vram);
-        pendingTrailTiles = null;
-    }
-
-    /// <summary>Publishes the retail-selected beam art while preserving active special palette effects.</summary>
-    internal void PublishReboundBeamArtwork()
-    {
-        if (pendingBeamArtwork is not { } beamArtwork || _player.Samus is not { } samus) return;
-        // Do not reinterpret invalid combination overreads as a legal replacement.
-        if (new SuperMetroid.Core.Samus.Projectiles.SamusBeamLoadoutWord(samus.EquippedBeams).Combination is SuperMetroid.Core.Samus.Projectiles.SamusBeamCombination selection &&
-            selection.IsRetail)
-        {
-            new SuperMetroid.Core.Samus.Drawing.SamusVram(_vram).BeamTiles.Load(beamArtwork.Resolve(BeamTileCatalog.AssetFor(selection)).Span);
-            // An in-flight effect owns these colors across frames. Its own completion
-            // restores the selected normal palette; host rebind must not erase its phase.
-            if (samus.CrystalFlash.SpecialPaletteKind != SuperMetroid.Core.Samus.Abilities.SamusSpecialPaletteType.CrystalFlash &&
-                !samus.Drained.HyperBeamPaletteFx.IsActive)
-                beamArtwork.Palettes?.LoadTo(_cgram, selection);
-        }
-        pendingBeamArtwork = null;
-    }
 
     /// <summary>Current external timed-projectile composition catalog, independent of mechanics.</summary>
     [field: NonSerialized]

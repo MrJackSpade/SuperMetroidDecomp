@@ -1,3 +1,4 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.MaridiaSnails;
 using SuperMetroid.Verification.Enemies.Skree;
@@ -1750,14 +1751,8 @@ internal static class LookupStream4Verification
                 var actual = new SnesCgram();
                 for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, Bgr555.FromWord((ushort)(index * 31)));
                 if (edit is -1 or 0 or 575)
-                {
-                    var queue = new VramWriteQueue();
-                    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, actual,
-                        (ushort)(selection | 0x1000), artwork, selected);
-                    AssertEqual(7, queue.TailInBytes, "Actual beam palette producer preserves seven-byte tile queue");
-                    AssertEqual(BeamTileAtlasDefinitions.ByteCount, (int)queue.Entries[0].SizeInBytes, "actual palette producer preserves tile extent");
-                    AssertEqual(BeamTileAtlasDefinitions.DestinationWord, queue.Entries[0].EncodedVramDestination, "actual palette producer preserves tile destination");
-                }
+                    SamusProjectileSystem.LoadBeamPalette(NewProjectileCompositionForbiddenBus(), actual,
+                        (ushort)(selection | 0x1000), selected);
                 else selected.LoadTo(actual, SamusBeamCombinations.FromTableIndex(selection));
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
                 for (int index = 0; index < SnesCgram.ColorCount; index++)
@@ -1772,7 +1767,7 @@ internal static class LookupStream4Verification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => stock.LoadTo(new SnesCgram(), SamusBeamCombinations.FromTableIndex(invalid)), "Calculated beam colors preserve selection bounds");
-        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection/queue producers and read guard pass.");
+        Console.WriteLine("Beam paint:192 native selected words,zero stock overrides,576 independent RGB edits,6924 exact palette copies including36 actual masked-selection producers and read guard pass.");
     }
 
     /// <summary>Checks Ridley movement policy constants and branch data against the cartridge.</summary>
@@ -3178,22 +3173,20 @@ internal static class LookupStream4Verification
         AssertEqual(2912, derivedTotal, "Twelve standalone selections calculate exactly2912 orientation, row-pattern, blank and approved pen occurrences");
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => BeamTileAtlas.Load(new MemoryStream(), SamusBeamCombinations.FromTableIndex(invalid)), "Beam atlas rejects unsupported selection before decoding PNG");
-        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage, independent edits and actual queued NMI drains pass.");
+        Console.WriteLine("Beam geometry: twelve native256-byte uploads,5046 calculated/shared pixels,5 narrowly retained pen roles and1093 required basis pixels; exact stock storage, independent edits and the bound projectile page pass.");
 
+        // The projectile page the selection binds shows the calculated characters where `$90:AC8D`'s DMA put them
+        // (native immediates: $0100 bytes at VMADD $6300), and leaves the characters around them alone.
         void VerifyQueued(BeamTileCatalog selected, int selection, byte[] expected)
         {
-            var queue = new VramWriteQueue();
-            var cgram = new SnesCgram();
-            SamusProjectileSystem.QueueBeamTilesAndLoadPalette(NewProjectileCompositionForbiddenBus(), queue, cgram, (ushort)selection, selected);
-            AssertEqual(7, queue.TailInBytes, "Beam geometry retains native seven-byte queue record");
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), (int)queue.Entries[0].SizeInBytes, "Actual beam DMA length matches native immediate0100");
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6), (int)queue.Entries[0].EncodedVramDestination, "Actual beam DMA destination matches native immediate6300");
-            var vram = new SnesVram();
-            queue.DrainTo(vram, ReferenceMutableMemory.From(NewProjectileCompositionForbiddenBus()), selected);
-            AssertTrue(expected.SequenceEqual(vram.Bytes.Slice(0x6300 * 2, 256)), "NMI resolves current calculated pixels without runtime cartridge reads");
-            AssertEqual((byte)0, vram.ReadByte(0x6300 * 2 - 1), "Beam transfer preserves preceding VRAM byte");
-            AssertEqual((byte)0, vram.ReadByte(0x6300 * 2 + 256), "Beam transfer preserves following VRAM byte");
-            AssertEqual(0, queue.TailInBytes, "NMI clears the consumed calculated beam transfer");
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
+            int first = ((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
+            var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.Trails.Tiles
+                ?? throw new InvalidOperationException("The installation has no trail characters."));
+            ReadOnlySpan<byte> page = pages.For((ushort)selection).Characters;
+            AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
+                "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");
+            AssertEqual((byte)0, page[first * SpriteArtwork.CharacterByteCount - 1], "Beam characters leave the preceding character alone");
         }
 
         static byte ReadPixel(byte[] native, int pixel)

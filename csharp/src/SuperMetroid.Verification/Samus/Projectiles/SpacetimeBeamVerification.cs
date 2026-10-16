@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Assets;
 using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -327,21 +329,18 @@ internal static class SpacetimeBeamVerification
         byte[] nativeTiles = ReadRetailSpacetimeGraphicsOracle(bus);
         AssertTrue(artwork.TryResolve(SpacetimeBeamGraphicsDefinitions.TileSource, 256, out _),
             "legacy SpaceTime graphics queue resolves through installed artwork");
-        foreach (bool queued in new[] { false, true })
+        // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
+        var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
+            InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
+        ReadOnlySpan<byte> page = pages.For((ushort)0x100e).Characters;
+        int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
+        for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");
+        foreach (int seed in new[] { 5, 19 })
         {
             // The palette aliases current enemy-projectile WRAM; changing it must be observable.
-            for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + (queued ? 19 : 5)));
-            var vram = new SnesVram(); var cgram = new SnesCgram();
-            if (queued)
-            {
-                var writes = new VramWriteQueue();
-                SamusProjectileSystem.QueueBeamTilesAndLoadPalette(gameplayBus, writes, cgram, 0x100e, artwork);
-                AssertEqual(1, writes.Entries.Count, "unpausing SpaceTime queues one beam upload");
-                writes.DrainTo(vram, gameplayBus, artwork);
-            }
-            else SamusProjectileSystem.LoadBeamTilesAndPalette(gameplayBus, vram, cgram, 0x100e, artwork);
-            for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i],
-                vram.ReadByte(0xc600 + i), "SpaceTime native tile bytes");
+            for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
+            var cgram = new SnesCgram();
+            SamusProjectileSystem.LoadBeamPalette(gameplayBus, cgram, 0x100e, artwork.Palettes);
             for (int i = 0; i < 16; i++) AssertEqual(bus.ReadWorkRamWord(0x7e19ff + i * 2) & 0x7fff, cgram.Colors[0xe0 + i],
                 "SpaceTime colors retain current mutable memory rather than a frozen palette");
         }

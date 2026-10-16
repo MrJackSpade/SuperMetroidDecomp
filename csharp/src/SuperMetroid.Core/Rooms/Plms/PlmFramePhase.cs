@@ -159,11 +159,11 @@ internal sealed class PlmFramePhase
                     InWorldCollectibleKind.SpazerBeam or
                     InWorldCollectibleKind.PlasmaBeam)
                 {
-                    SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
+                    // The projectile pages bind the new beam's characters; only its palette is loaded.
+                    SamusProjectileSystem.LoadBeamPalette(
                         _addressSpace,
-                        _vramWrites,
                         _cgram,
-                        samus.EquippedBeams, _artwork.BeamArtwork);
+                        samus.EquippedBeams, _artwork.BeamArtwork?.Palettes);
                 }
                 else if (pickup.Kind is
                          InWorldCollectibleKind.VariaSuit or

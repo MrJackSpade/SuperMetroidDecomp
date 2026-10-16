@@ -24,21 +24,6 @@ public sealed class ProjectileSpriteCatalog
     /// <summary>Whole frames already built, by composition identity.</summary>
     private readonly System.Collections.Concurrent.ConcurrentDictionary<ushort, SpriteFrame> wholeFrames = new();
 
-    /// <summary>Emits one installed projectile composition in authored OAM order using native projectile coordinate wrapping, without advancing animation or collision state.</summary>
-    /// <param name="id">Bank-$93 spritemap offset selected by a timed projectile record, not an instruction-list pointer or projectile family.</param>
-    /// <param name="oam">Destination OAM buffer; the native wrapping insertion cursor advances for every part.</param>
-    /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
-    /// <exception cref="InvalidDataException">The requested sprite identity is not installed.</exception>
-    public void Draw(ushort id, OamBuffer oam, Position16<OamPixels> origin)
-    {
-        if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
-        for (int index = 0; index < parts.PartCount; index++)
-        {
-            var part = parts.Part(index);
-            oam.AddProjectileSpritePart(part.X, part.Y, part.Attributes, origin);
-        }
-    }
-
     /// <summary>Validates and compiles the complete required projectile spritemap set into independently owned visual compositions, including the empty Nothing frame.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
     /// <returns>Installed artwork keyed by the 417 native timed-record spritemap identities. Matching stock geometry may use immutable calculated parts; authored changes retain their compiled parts.</returns>

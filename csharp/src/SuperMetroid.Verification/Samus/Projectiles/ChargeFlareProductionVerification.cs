@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
@@ -44,15 +46,13 @@ internal static class ChargeFlareProductionVerification
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
             {
-                var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
-                native.HandleChargeFlareAndDraw(bus, a, samus, new(0, 0),
-                    placement: placement, compositions: stock);
-                compiled.HandleChargeFlareAndDraw(guarded, b, samus, new(0, 0), placement: placement, compositions: stock);
-                changed.HandleChargeFlareAndDraw(guarded, c, samus, new(0, 0), placement: placement, compositions: edited);
+                OamBuffer a = native.ChargeFlareOam(bus, samus, new(0, 0), placement, stock);
+                OamBuffer b = compiled.ChargeFlareOam(guarded, samus, new(0, 0), placement, stock);
+                OamBuffer c = changed.ChargeFlareOam(guarded, samus, new(0, 0), placement, edited);
                 AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
-                AssertEqual(a.NextByteOffset, b.NextByteOffset, "Flare producer preserves OAM cursor");
-                AssertEqual(a.NextByteOffset, c.NextByteOffset, "Edited flare producer preserves component count");
-                for (int i = 0; i < a.NextByteOffset / 4; i++)
+                AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
+                AssertEqual(a.LastFinalizedSpriteCount, c.LastFinalizedSpriteCount, "Edited flare producer preserves component count");
+                for (int i = 0; i < a.LastFinalizedSpriteCount; i++)
                 {
                     AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "All emitted normal/Hyper components consume edited composition");
                     AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Composition X edit preserves emitted Y");
@@ -70,10 +70,8 @@ internal static class ChargeFlareProductionVerification
             Array.Fill(invalidSelector.Charge._flareFrames, outOfTableFrame);
             var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.Presentation.TileTransfers.BindArtwork(body);
-            var outOfTableOam = new OamBuffer();
-            invalidSelector.HandleChargeFlareAndDraw(
-                guarded, outOfTableOam, subject, new(0, 0), placement: placement, compositions: stock);
-            AssertEqual(0, outOfTableOam.NextByteOffset,
+            OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(guarded, subject, new(0, 0), placement, stock);
+            AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
 
@@ -86,6 +84,7 @@ internal static class ChargeFlareProductionVerification
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
+        InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = new SuperMetroidGame(bus);
@@ -133,9 +132,11 @@ internal static class ChargeFlareProductionVerification
 
         static byte[] Draw(SuperMetroidRuntime target)
         {
-            target.Oam.BeginFrame();
+            target.Sprites.BeginFrame();
             target.ActorDrawing.DrawGameplayActors(false, false);
-            return target.Oam.LowTable.ConcatToArray(target.Oam.HighTable).Concat(BitConverter.GetBytes(target.Oam.NextByteOffset)).ToArray();
+            target.Sprites.FinalizeFrame();
+            OamBuffer image = target.Sprites.FinalizedAsOam();
+            return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();
         }
         static SamusProjectileSystem Create()
         {

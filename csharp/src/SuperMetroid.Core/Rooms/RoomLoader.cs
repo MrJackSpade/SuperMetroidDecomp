@@ -1050,11 +1050,10 @@ internal sealed class RoomLoader
             _plms.DoorPlms.TrySpawnDoorClosingPlm(_addressSpace, _room.LevelData, door, _system);
         }
 
-        // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies.
-        // Golden Torizo's code mutates equipment during initialization; its grant must
-        // not retroactively select the artwork uploaded for this room transition.
-        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
-            _addressSpace, _vramWrites, _cgram, _player.Samus?.EquippedBeams ?? 0, _artwork.BeamArtwork);
+        // $82:E4CC updates the entering beam's palette before $82:E4D8 initializes enemies;
+        // the projectile pages bind its characters.
+        SamusProjectileSystem.LoadBeamPalette(
+            _addressSpace, _cgram, _player.Samus?.EquippedBeams ?? 0, _artwork.BeamArtwork?.Palettes);
 
         _enemies.Load(new RoomEnemyLoadRequest(
             _addressSpace,

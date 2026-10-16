@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Projectile trails: spawning a trail behind a shot, its animation frame, and drawing each side.</summary>
@@ -99,12 +100,10 @@ internal sealed class ProjectileTrails
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
         unchecked((ushort)(origin + unchecked((sbyte)encodedOffset) + constant));
 
-    /// <summary>Advances one side's instruction stream unless frozen, then draws only in-range screen coordinates.</summary>
-    internal static void HandleTrailSideAndDraw(
+    /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
+    internal static void AdvanceTrailSide(
         ISnesAddressSpace bus,
-        OamBuffer oam,
         SamusProjectileTrailSlot pair,
-        Position16<RoomPixels> layer1,
         bool timeIsFrozen,
         bool isLeft,
         SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork)
@@ -167,16 +166,36 @@ internal sealed class ProjectileTrails
             }
         }
 
+        side.DisplayedPosition = side.Position;
+    }
+
+    /// <summary>Publishes one live side at in-range screen coordinates only.</summary>
+    internal static void DrawTrailSide(
+        SpriteFrameBuffer sprites,
+        SamusProjectileTrailSlot pair,
+        int slotIndex,
+        Position16<RoomPixels> layer1,
+        bool isLeft,
+        SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork,
+        ProjectileDrawArtwork objects)
+    {
+        SamusProjectileTrailSide side = isLeft ? pair.Left : pair.Right;
+        // A finished side, including one that ended in this frame's advance, shows nothing.
+        if (side.InstructionTimer.IsZero)
+            return;
+
         // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
-        ushort screenX = unchecked((ushort)(side.Position.X - layer1.X));
-        ushort screenY = unchecked((ushort)(side.Position.Y - layer1.Y));
+        ushort screenX = unchecked((ushort)(side.DisplayedPosition.X - layer1.X));
+        ushort screenY = unchecked((ushort)(side.DisplayedPosition.Y - layer1.Y));
         if ((SnesLittleEndian.HighByteInPlace(screenX)) != 0 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
-        oam.AddProjectileTrailSprite(
-            new Position16<OamPixels>(unchecked((byte)screenX), unchecked((byte)screenY)),
-            artwork is null ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes));
+        SnesObjAttributeWord attributes = artwork is null
+            ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes);
+        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (isLeft ? 0 : 1)),
+            ObjPartFrames.SmallObject(attributes, 0), objects.Page,
+            new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
     }
 }

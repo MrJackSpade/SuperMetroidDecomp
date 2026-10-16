@@ -80,7 +80,6 @@ internal sealed class GameplayHudSetup
         else
             _vramWrites.EnqueueAsset(VramAssetId.StandardObjectTiles, StandardObjectArtworkFormat.TransferByteCount,
                 GameplayVram.ObjectCharactersDma());
-        _artwork.TrailArtwork?.Tiles?.QueueTo(_vramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
         // room enemy loader has already populated the modeled VRAM for immediate watches;

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class ChargeFlareSpriteCatalog
 {
     /// <summary>Installed OAM parts keyed by the distinct flare composition pointers.</summary>
-    private readonly ProjectileSpriteCatalog sprites;
+    internal readonly ProjectileSpriteCatalog sprites;
     /// <summary>Keeps the compiled compositions separate from native selector cadence and placement.</summary>
     private ChargeFlareSpriteCatalog(ProjectileSpriteCatalog sprites) => this.sprites = sprites;
 
@@ -25,13 +25,5 @@ public sealed class ChargeFlareSpriteCatalog
         if (selector >= ChargeFlareSpriteDefinitions.Selectors.Length)
             throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");
         return sprites.Frame(ChargeFlareSpriteDefinitions.Selectors[selector]);
-    }
-
-    /// <summary>Draws a valid native charge-flare selector without consulting ROM.</summary>
-    public void Draw(ushort selector, OamBuffer oam, Position16<OamPixels> origin)
-    {
-        if (selector >= ChargeFlareSpriteDefinitions.Selectors.Length)
-            throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");
-        sprites.Draw(ChargeFlareSpriteDefinitions.Selectors[selector], oam, origin);
     }
 }

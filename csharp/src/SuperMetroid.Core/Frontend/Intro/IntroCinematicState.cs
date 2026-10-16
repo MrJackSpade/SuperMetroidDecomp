@@ -25,13 +25,29 @@ public sealed class IntroCinematicState
 {
     /// <summary>Reusable final frame; a returned image remains valid until the next cinematic render.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
-    /// <summary>Requests a trail tile upload after the host binds replacement artwork.</summary>
-    [NonSerialized] private ProjectileTrailAtlas? pendingTrailTiles;
-    /// <summary>Host-owned trail artwork whose binding requests a tile refresh on the next display.</summary>
+    /// <summary>Host-owned trail artwork; the flashback projectile pages bind its characters.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
     {
         get;
-        set { field = value; pendingTrailTiles = value?.Tiles; }
+        set { field = value; BindProjectileObjects(); }
+    }
+    /// <summary>The intro OBJ page with the power beam's and both trails' characters, which flashback projectiles draw from.</summary>
+    [NonSerialized] private ProjectileObjectPages? projectilePages;
+    /// <summary>
+    /// Recomposes <see cref="projectilePages"/>: `$8B:A3AC` leaves the power beam's characters and the standard upload
+    /// leaves the trail characters over the intro and cinematic OBJ sheets for both gameplay flashbacks.
+    /// </summary>
+    private void BindProjectileObjects()
+    {
+        if (characterArtwork is not { } sheets || beamArtwork is not { } beams || TrailArtwork?.Tiles is not { } trails)
+        {
+            projectilePages = null;
+            return;
+        }
+        var id = new SpriteArtworkId(SpriteArtworkKind.IntroObjects);
+        SpriteArtwork page = ObjCharacterPage.With(id, ObjCharacterPage.Create(id, sheets.IntroObjectCharacters.Transfer.Span),
+            sheets.CinematicObjectCharacters.Transfer.Span, ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
+        projectilePages = new ProjectileObjectPages(page, beams, trails);
     }
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
@@ -83,14 +99,13 @@ public sealed class IntroCinematicState
     public void BindBeamArtwork(BeamTileCatalog? value)
     {
         beamArtwork = value;
-        if (value is not null)
-            SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0,
-                artwork: value);
+        BindProjectileObjects();
     }
     /// <summary>Rebinds installed BG and OBJ pixels after restoring emulated state.</summary>
     public void BindCharacterArtwork(IntroCinematicArtworkCatalog? value)
     {
         characterArtwork = value;
+        BindProjectileObjects();
         ceresFlight?.BindArtwork(value?.CeresFlight);
         if (value is not null)
         {
@@ -124,10 +139,6 @@ public sealed class IntroCinematicState
             intro.BackgroundPages.Load(value.BackgroundPages.Span);
             intro.IntroObjectCharacters.Load(value.IntroObjectCharacters.Transfer.Span);
             intro.CinematicObjectCharacters.Load(value.CinematicObjectCharacters.Transfer.Span);
-            // $8B:A3AC uploads beam tiles after the opening OBJ sheets; retain that
-            // overlap without reloading the beam palette over a restored scene palette.
-            SamusProjectileSystem.LoadBeamTiles(bus, vram, equippedBeams: 0,
-                beamArtwork);
         }
         else
             objects?.BindEyeArtwork(null);
@@ -256,6 +267,7 @@ public sealed class IntroCinematicState
         this.characterArtwork = characterArtwork ?? throw new InvalidOperationException(
             "Opening cinematic requires installed artwork.");
         this.beamArtwork = beamArtwork;
+        BindProjectileObjects();
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(cgram);
         new CgramPalettes(cgram).Image.CopyTo(introPalette);
@@ -292,11 +304,9 @@ public sealed class IntroCinematicState
         intro.IntroObjectCharacters.Load(characterArtwork.IntroObjectCharacters.Transfer.ToArray());
         intro.CinematicObjectCharacters.Load(introObjects.AsSpan(0, IntroCinematicRomData.Vram.ObjectCharacterBytes));
 
-        // $8B:A3AC performs the ordinary beam tile/palette upload before copying the full
-        // intro palette. The projectile tile DMA remains resident for both gameplay
-        // flashbacks; restore the later intro CGRAM copy after using the shared helper.
-        SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram,
-            equippedBeams: 0, beamArtwork);
+        // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
+        // replaces it; the flashback projectile pages bind the beam's characters.
+        SamusProjectileSystem.LoadBeamPalette(bus, cgram, equippedBeams: 0, beamArtwork?.Palettes);
         characterArtwork.Palette.LoadTo(cgram);
 
         // The PPU loads above are invisible: the intro stays in forced blank until its fade.
@@ -1235,13 +1245,6 @@ public sealed class IntroCinematicState
     internal SpriteFrameBuffer PrepareMotherBrainOam()
     {
         // Both direct rendering and detached capture enter here once per display.
-        // The intro's standard OBJ upload owns these same trail regions; its separate
-        // compressed cinematic sheet starts later and must not be replaced.
-        if (pendingTrailTiles is { } trailTiles)
-        {
-            trailTiles.LoadTo(vram);
-            pendingTrailTiles = null;
-        }
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         OamBuffer oam = sprites.Oam;
@@ -1250,9 +1253,12 @@ public sealed class IntroCinematicState
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
             FlashbackSamus.Presentation.Draw(bus, sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
-            flashbackProjectiles.DrawLiveProjectiles(bus, oam, Position16<RoomPixels>.Zero, nmiFrameCounter, ProjectileCompositions);
-            flashbackProjectiles.HandleTrailsAndDraw(bus, oam, Position16<RoomPixels>.Zero, timeIsFrozen: false, TrailArtwork);
-            flashbackProjectiles.DrawExplosions(bus, oam, Position16<RoomPixels>.Zero, ProjectileCompositions);
+            // The flashback's VRAM holds the power beam's characters whatever beam its Samus fires.
+            var projectileArtwork = new ProjectileDrawArtwork(ProjectileCompositions, projectilePages, EquippedBeams: 0);
+            flashbackProjectiles.DrawLiveProjectiles(bus, sprites, Position16<RoomPixels>.Zero, nmiFrameCounter, projectileArtwork);
+            flashbackProjectiles.AdvanceTrails(bus, timeIsFrozen: false, TrailArtwork);
+            flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, TrailArtwork, projectileArtwork);
+            flashbackProjectiles.DrawExplosions(bus, sprites, Position16<RoomPixels>.Zero, projectileArtwork);
         }
         flashbackRinkas?.Draw(oam, characterArtwork?.RinkaSprites);
         flashbackMotherBrainExplosions?.Draw(oam,

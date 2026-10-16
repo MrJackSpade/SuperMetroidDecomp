@@ -22,11 +22,6 @@ public static class SamusVramLayout
     public static readonly PpuLayoutCell BodyBottomSecond = new(nameof(BodyBottomSecond), PpuLayoutRegion.Vram,
         SamusRenderingRomData.TileTransfers.BottomDestinations.Second, HalfRowWords, "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
 
-    /// <summary>VMADD $6300-$637F: the selected beam's projectile characters (<c>$90:AC8D</c>).</summary>
-    public static readonly PpuLayoutCell BeamTiles = new(nameof(BeamTiles), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.DestinationWord, SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.ByteCount / sizeof(ushort),
-        "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
-
     /// <summary>Words in each half of a Samus body tile row: eight 4-bpp characters.</summary>
     private const int HalfRowWords = 0x80;
 }

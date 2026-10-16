@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Atomic;
 internal sealed class AtomicEntity(AtomicBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's AtomicEnemyState, held by its physical slot.</summary>
-    internal AtomicEnemyState? State
-    {
-        get => Slot.SpeciesState<AtomicEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunAtomicInitializationAi;
 

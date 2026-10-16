@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 public static class DraygonCannonWorkRamAddresses
 {
-    /// <summary><c>$7E:8802</c>: the first cannon-control word, the upper-left cannon's.</summary>
-    public const int ControlWordsStart = 0x7e8802;
 
     /// <summary>Each cannon word by the bank-relative address PLM arguments store it at.</summary>
     private static readonly Dictionary<ushort, DraygonCannonControlWord> ByPointer = new()

@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Metroids;
 internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's MetroidEnemyState, held by its physical slot.</summary>
-    internal MetroidEnemyState? State
-    {
-        get => Slot.SpeciesState<MetroidEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunMetroidInitializationAi;
 

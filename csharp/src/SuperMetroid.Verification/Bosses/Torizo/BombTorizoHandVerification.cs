@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Torizo;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Checks Bomb Torizo's hand PLM from inventory gating through debris, VRAM transfer, and deletion.</summary>
 internal static class BombTorizoHandVerification
@@ -112,7 +113,7 @@ internal static class BombTorizoHandVerification
             // Drain that exact production request through the runtime's installed-art
             // provider and RAM-only memory boundary, as the accepted NMI does.
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(memory, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(memory, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Enemies.TileArtwork = installedArtwork;
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(request.SizeInBytes, request.SourceAddress,

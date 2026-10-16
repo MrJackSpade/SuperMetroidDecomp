@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class DachoraEntity(DachoraBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's DachoraEnemyState, held by its physical slot.</summary>
-    internal DachoraEnemyState? State
-    {
-        get => Slot.SpeciesState<DachoraEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => DachoraBehavior.RunDachoraInitializationAi;
 

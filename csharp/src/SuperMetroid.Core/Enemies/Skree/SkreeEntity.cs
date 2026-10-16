@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Skree;
 internal sealed class SkreeEntity(SkreeBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's SkreeEnemyState, held by its physical slot.</summary>
-    internal SkreeEnemyState? State
-    {
-        get => Slot.SpeciesState<SkreeEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => SkreeBehavior.RunSkreeInitializationAi;
 

@@ -74,7 +74,8 @@ internal static class ChargeFlareProductionVerification
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
 
-        var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes);
+        runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ChargeFlarePlacement = placement;
         runtime.Artwork.ChargeFlareCompositions = stock;

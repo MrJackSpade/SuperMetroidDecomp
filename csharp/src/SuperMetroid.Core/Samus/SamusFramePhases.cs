@@ -246,17 +246,6 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
                     $"uninitialized pose ${(int)_player.IntroducedSamus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
-    /// <summary>The alpha handler installed for this frame, from the movement, death and lock flags.</summary>
-    private SamusAlphaHandler DeriveAlphaHandler(SamusHandlerFrame frame, SamusState samus)
-    {
-        if (!_player.GroundedSamusMovementEnabled)
-            return SamusAlphaHandler.None;
-        if (frame.DeathOwnsSamus)
-            return SamusAlphaHandler.Fatal;
-        if (frame.AlphaInputLocked(samus))
-            return SamusAlphaHandler.Locked;
-        return _attractDemo.IsAttractDemo ? SamusAlphaHandler.Demo : SamusAlphaHandler.Normal;
-    }
 
     /// <summary>
     /// The beta handler installed for this beta: the first of death, the suit's empty beta, command zero, command six,
@@ -1174,7 +1163,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.DeathOwnsSamus = samus.DeathSequence.IsActive;
-        frame.Mode = new SamusControlMode(DeriveAlphaHandler(frame, samus), DeriveBetaHandler(frame, samus));
+        frame.Mode = new SamusControlMode(DeriveBetaHandler(frame, samus));
         // Sound queues are global persistent engines on hardware, but this typed host
         // publication is scoped to one frame's Samus handler. It opened before the HDMA
         // pass, ahead of `$91:F046`'s landing sounds during collision.

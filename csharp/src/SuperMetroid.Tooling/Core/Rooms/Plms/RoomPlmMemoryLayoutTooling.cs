@@ -1,6 +1,6 @@
 ﻿namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>Development-tool members of <see cref="RoomPlmMemoryLayout"/>; never linked by player hosts.</summary>
+/// <summary>Native PLM program-word layout that only development tools read; never linked by player hosts.</summary>
 internal static class RoomPlmMemoryLayoutTooling
 {
     /// <summary>Cartridge-resident program identities begin at bank offset $8000.</summary>

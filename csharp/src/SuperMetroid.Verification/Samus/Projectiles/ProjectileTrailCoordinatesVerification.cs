@@ -201,10 +201,10 @@ internal static class ProjectileTrailCoordinatesVerification
             int bank = SnesAddressMath.BankNumber(source);
             int offset = SnesAddressMath.OffsetInBank(source);
             if ((bank & 0x40) == 0 &&
-                (offset >= SnesBusLayout.ReservedBBusStart &&
-                 offset <= SnesBusLayout.ReservedBBusEnd ||
-                 offset >= SnesBusLayout.UnpopulatedExpansionStart &&
-                 offset <= SnesBusLayout.UnpopulatedExpansionEnd))
+                (offset >= SnesBusLayoutConstants.ReservedBBusStart &&
+                 offset <= SnesBusLayoutConstants.ReservedBBusEnd ||
+                 offset >= SnesBusLayoutConstants.UnpopulatedExpansionStart &&
+                 offset <= SnesBusLayoutConstants.UnpopulatedExpansionEnd))
                 return memoryDataRegister;
 
             return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(source)) switch

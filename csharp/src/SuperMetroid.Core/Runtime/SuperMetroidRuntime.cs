@@ -140,15 +140,6 @@ public sealed class SuperMetroidRuntime
     /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
-    public SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt = null)
-        : this(addressSpace, overrides, initialPaletteArt, new FrameClock(), new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue())
-    {
-    }
-
-    /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
-    /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
-    /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
-    /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
     /// <param name="mode7QueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
     internal SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt,
@@ -289,19 +280,6 @@ public sealed class SuperMetroidRuntime
     /// <summary>The last enemy pass's results, for readers after the frame.</summary>
     internal IEnemyFrameResults EnemyFrameResults => Enemies;
 
-    /// <summary>
-    /// Native elevator status word at WRAM <c>$0E18</c>. The room's elevator actor owns this
-    /// producer. Every nonzero status runs forward-facing `$00/$9B` through `$90:A392`'s
-    /// exact one-pixel downward terrain scan. Destination arrival depends on that scan to
-    /// wake cartridge scroll PLMs along the elevator shaft. The host-only collapsed door
-    /// transition suppresses only repeated pseudo-door publication during status two/three;
-    /// every other terrain reaction remains native.
-    /// </summary>
-    public ushort ElevatorStatus
-    {
-        get => (ushort)Enemies.Elevator.ElevatorStatus;
-        set => Enemies.Elevator.SetElevatorStatusForDebugging(value);
-    }
 
     /// <summary>
     /// WRAM GameState ($0998) of the frontend dispatch now running. Samus commands such as

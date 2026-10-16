@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Platforms;
 internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's PlatformEnemyState, held by its physical slot.</summary>
-    internal PlatformEnemyState? State
-    {
-        get => Slot.SpeciesState<PlatformEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunPlatformsInitializationAi;
 

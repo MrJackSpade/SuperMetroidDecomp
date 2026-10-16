@@ -58,7 +58,7 @@ internal static class OperationContractsVerification
             SharedProjectiles = new SamusBombProjectileSystem(),
             VramWriteQueue = new VramWriteQueue(),
         };
-        var clock = new FrameCounters(3, 260);
+        var clock = new FrameCounters(3);
         var masked = new GrappleBehavior.GrappleWrappedAiFrame(new ClockedEnemyAiFrame(frame, clock));
         AssertTrue(masked.Camera == frame.Camera && ReferenceEquals(masked.Samus, samus) &&
             masked.NewlyPressedControllerInput == frame.NewlyPressedControllerInput && masked.ControllerInput == frame.ControllerInput &&

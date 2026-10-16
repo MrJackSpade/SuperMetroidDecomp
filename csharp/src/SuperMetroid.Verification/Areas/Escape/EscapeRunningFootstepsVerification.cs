@@ -42,12 +42,12 @@ internal static class EscapeRunningFootstepsVerification
             var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
-            var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
             runtime.Player.Samus = samus;
             var motherBrain = new MotherBrainEnemyState(runtime.Enemies.SlotTable.Slots[0]);
             runtime.Enemies.MotherBrainEncounter.MotherBrain = motherBrain;
             // Area flags are outside this fixture. Preserve the actual timer requests.
-            runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequests.None with
+            runtime.EnemyRoomEffects.ApplyPendingMotherBrainPlms(EnemyRoomEffectRequestsConstants.None with
             {
                 MotherBrainDeathStep = request with { MotherBrainBossBitRequested = false, ZebesTimebombEventRequested = false },
             });

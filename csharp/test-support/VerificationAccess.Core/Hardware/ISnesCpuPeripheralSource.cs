@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// Optional source for CPU register/expansion reads outside WRAM and SRAM.

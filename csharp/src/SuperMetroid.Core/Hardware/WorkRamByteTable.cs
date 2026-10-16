@@ -17,13 +17,6 @@ public readonly struct WorkRamByteTable
     /// <summary>The number of bytes in the buffer.</summary>
     public int Length => bytes.Length;
 
-    /// <summary>Byte <paramref name="index"/> of the buffer.</summary>
-    public byte this[int index]
-    {
-        get => bytes.Read(index);
-        set => bytes.Write(index, value);
-    }
-
     /// <summary>Reads the whole buffer into <paramref name="destination"/>, in address order.</summary>
     public void CopyTo(Span<byte> destination)
     {
@@ -34,22 +27,4 @@ public readonly struct WorkRamByteTable
 
     /// <summary>Writes <paramref name="source"/> over the whole buffer, in address order.</summary>
     public void CopyFrom(ReadOnlySpan<byte> source) => bytes.Write(source);
-
-    /// <summary>Writes <paramref name="value"/> to every byte, in address order.</summary>
-    public void Fill(byte value)
-    {
-        for (int index = 0; index < Length; index++)
-            bytes.Write(index, value);
-    }
-
-    /// <summary>Reads the little-endian word whose low byte is at <paramref name="byteOffset"/>, low byte first.</summary>
-    public ushort ReadWord(int byteOffset) =>
-        (ushort)(SnesLittleEndian.Word(bytes.Read(byteOffset), bytes.Read(byteOffset + 1)));
-
-    /// <summary>Writes the little-endian word whose low byte is at <paramref name="byteOffset"/>, low byte first.</summary>
-    public void WriteWord(int byteOffset, ushort value)
-    {
-        bytes.Write(byteOffset, (byte)value);
-        bytes.Write(byteOffset + 1, SnesLittleEndian.HighByte(value));
-    }
 }

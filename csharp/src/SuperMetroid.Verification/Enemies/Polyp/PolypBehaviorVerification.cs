@@ -23,7 +23,7 @@ internal static class PolypBehaviorVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PolypFrameToolingDefinitions.Bank });
         enemies.PolypBehavior.InitializePolyp(slot);
         AssertEqual(AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
-            ((enemies.SlotTable.Slots[0].Entity as PolypEntity)?.State ?? throw new InvalidOperationException("The Polyp has no state.")).Program,
+            (enemies.SlotTable.Slots[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Program,
             "real Polyp initializer starts the stationary program");
         // The update that reaches the native sleep yields with the new-frame flag still set, so it reads as shown twice.
         ushort frame = PolypAnimationsConstants.Spritemaps(PolypProgram.Stationary).Single();

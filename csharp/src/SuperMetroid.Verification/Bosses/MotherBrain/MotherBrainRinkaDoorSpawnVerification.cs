@@ -38,7 +38,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
-        game.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
+        game.Session.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
 
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;

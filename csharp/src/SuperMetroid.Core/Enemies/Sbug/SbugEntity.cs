@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 internal sealed class SbugEntity(SbugBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's SbugEnemyState, held by its physical slot.</summary>
-    internal SbugEnemyState? State
-    {
-        get => Slot.SpeciesState<SbugEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => SbugBehavior.RunSbugInitializationAi;
 

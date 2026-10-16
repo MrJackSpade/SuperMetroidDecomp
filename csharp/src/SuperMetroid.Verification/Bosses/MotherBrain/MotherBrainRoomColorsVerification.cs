@@ -9,6 +9,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
 /// <summary>Installed and edited Mother Brain room-color checks across entry, flash, phase two, and recovery-light CGRAM writes.</summary>
@@ -97,10 +98,8 @@ internal static class MotherBrainRoomColorsVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "Mother Brain room-color override changes selected-content identity");
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes)
-        {
-            Artwork = { MapPresentation = edited },
-        };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(rom, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        runtime.Artwork.MapPresentation = edited;
         AssertTrue(ReferenceEquals(runtime.Enemies.Presentation.MotherBrainRoomColors,
             edited.MotherBrainRoomColors),
             "installed Mother Brain room colors reach the production enemy binding");

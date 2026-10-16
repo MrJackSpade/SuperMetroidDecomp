@@ -22,7 +22,7 @@ internal static class MultiviolaBehaviorVerification
         slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank });
         MultiviolaBehavior.InitializeMultiviola(slot);
-        AssertEqual(AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying), ((enemies.SlotTable.Slots[0].Entity as MultiviolaEntity)?.State ?? throw new InvalidOperationException("Multiviola has no state.")).Program,
+        AssertEqual(AnimationProgramCursor<MultiviolaProgram>.Start(MultiviolaProgram.Flying), (enemies.SlotTable.Slots[0].EntityState<MultiviolaEntity, MultiviolaEnemyState>() ?? throw new InvalidOperationException("Multiviola has no state.")).Program,
             "Multiviola initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MultiviolaAnimations.Programs, MultiviolaProgram.Flying, MultiviolaFrameDefinitions.Spritemap),

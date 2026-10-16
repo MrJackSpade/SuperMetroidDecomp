@@ -7,27 +7,6 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's GrowingShutterEnemyState, held by its physical slot.</summary>
-    internal GrowingShutterEnemyState? GrowingShutterState
-    {
-        get => Slot.SpeciesState<GrowingShutterEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
-    /// <summary>The occupant's VerticalShutterEnemyState, held by its physical slot.</summary>
-    internal VerticalShutterEnemyState? VerticalShutterState
-    {
-        get => Slot.SpeciesState<VerticalShutterEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
-    /// <summary>The occupant's HorizontalShutterEnemyState, held by its physical slot.</summary>
-    internal HorizontalShutterEnemyState? HorizontalShutterState
-    {
-        get => Slot.SpeciesState<HorizontalShutterEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
     {

@@ -11276,19 +11276,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireDropRequest",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireDropRequest.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireEnemyState",
       "kind": "class",
       "scope": "product",
@@ -13328,19 +13315,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidCueKind.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.FakeKraidDropRequest",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/FakeKraidDropRequest.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -16673,19 +16647,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBombDropRequest",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainBombDropRequest.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainBrainFunction",
@@ -28686,14 +28647,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Corpses.DeadMonsterRottingDefinitionsTooling",
+      "type": "SuperMetroid.Core.Enemies.Corpses.DeadMonsterRottingDefinitionsAccess",
       "kind": "static class",
-      "scope": "tool",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Tooling"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Corpses/DeadMonsterRottingDefinitionsTooling.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Corpses/DeadMonsterRottingDefinitionsAccess.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -30253,6 +30217,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorBehaviorAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Elevator/ElevatorBehaviorAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorBehaviorAccess.extension(SuperMetroid.Core.Enemies.Elevator.ElevatorBehavior)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Elevator/ElevatorBehaviorAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorDoorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31078,6 +31074,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyExtraPropertyWord",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyExtraPropertyWord.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyFireballLaunchDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31566,6 +31575,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.EnemyPropertyWord",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyPropertyWord.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.EnemyQuadraticSpeedDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -31998,6 +32020,22 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.EnemyRoomEffectRequestsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/EnemyRoomEffectRequestsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyRoomEffects",
@@ -39769,6 +39807,38 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.RoomEnemySlotEntityStateAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemySlotEntityStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.RoomEnemySlotEntityStateAccess.extension(SuperMetroid.Core.Enemies.RoomEnemySlot)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/RoomEnemySlotEntityStateAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.RoomEnemySpawnSnapshot",
       "kind": "record struct",
       "scope": "product",
@@ -42833,19 +42903,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPlmRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticPlms",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPlms.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -55304,6 +55361,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseEquipmentBit.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Pause.PauseEquipmentCategories",
       "kind": "static class",
       "scope": "product",
@@ -55625,19 +55695,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Pause.PauseReserveLabelRomData",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Pause/PauseReserveLabelRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Pause.PauseReserveTankRomData",
@@ -62136,6 +62193,22 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.Hardware.CpuBusCellConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/CpuBusCellConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Hardware.CpuBusRegion",
       "kind": "enum",
       "scope": "product",
@@ -62147,19 +62220,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.CpuBusViewOfAttribute",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/CpuBusViewOfAttribute.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Hardware.EnemySpritemapPart",
@@ -62359,12 +62419,15 @@
     {
       "type": "SuperMetroid.Core.Hardware.ISnesCpuPeripheralSource",
       "kind": "interface",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/ISnesCpuPeripheralSource.cs"
+        "csharp/test-support/VerificationAccess.Core/Hardware/ISnesCpuPeripheralSource.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -62945,6 +63008,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Hardware.SnesBusLayoutConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/SnesBusLayoutConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Hardware.SnesCarry",
       "kind": "static class",
       "scope": "product",
@@ -63418,6 +63497,38 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Hardware.SnesWordReadsAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/SnesWordReadsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.SnesWordReadsAccess.extension(SuperMetroid.Core.Hardware.ISnesMutableMemory)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/SnesWordReadsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Hardware.StagingByteView",
       "kind": "struct",
       "scope": "product",
@@ -63429,6 +63540,38 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.StagingByteViewAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/StagingByteViewAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.StagingByteViewAccess.extension(SuperMetroid.Core.Hardware.StagingByteView)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/StagingByteViewAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Hardware.StagingWordView",
@@ -63574,27 +63717,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.WorkRamWordTable",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/WorkRamWordTable.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.WramByte",
       "kind": "struct",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/WramByte.cs"
+        "csharp/test-support/VerificationAccess.Core/Hardware/WramByte.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -63626,14 +63759,33 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.WramWords",
-      "kind": "struct",
-      "scope": "product",
+      "type": "SuperMetroid.Core.Hardware.WramWordConstants",
+      "kind": "static class",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/WramWords.cs"
+        "csharp/test-support/VerificationAccess.Core/Hardware/WramWordConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Hardware.WramWords",
+      "kind": "struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Hardware/WramWords.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -71707,27 +71859,27 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallExplosionDefinitions",
+      "type": "SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallExplosionDefinitionsTooling",
+      "type": "SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling",
       "kind": "class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Rooms/Plms/OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -73867,12 +74019,15 @@
     {
       "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmMemoryLayout",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmMemoryLayout.cs"
+        "csharp/test-support/VerificationAccess.Core/Rooms/Plms/RoomPlmMemoryLayout.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -81149,19 +81304,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Drawing.SamusArmCannonDefinitions.HudSelection",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusArmCannonDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Drawing.SamusArmCannonDefinitionsConstants",
       "kind": "static class",
       "scope": "test",
@@ -81456,6 +81598,22 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Samus/Drawing/SamusRenderingRomDataArmCannonConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Drawing.SamusRenderingRomDataBanksConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Drawing/SamusRenderingRomDataBanksConstants.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -82340,6 +82498,32 @@
         "back-reference:SuperMetroid.Core.Samus.SamusState"
       ],
       "review": "reviewed"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.HudItem",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/HudItem.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.HudItems",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/HudItems.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.IAttractSamusInput",
@@ -84323,6 +84507,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Samus.Projectiles.ChainsawBeamGraphicsDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Samus/Projectiles/ChainsawBeamGraphicsDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Samus.Projectiles.ChainsawWindow",
       "kind": "class",
       "scope": "product",
@@ -86285,14 +86485,40 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Samus.SamusAlphaHandler",
+      "type": "SuperMetroid.Core.Samus.ReserveTankMode",
       "kind": "enum",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Samus/SamusAlphaHandler.cs"
+        "csharp/src/SuperMetroid.Core/Samus/ReserveTankMode.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.ReserveTankModes",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/ReserveTankModes.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.ResumeChargingBeamSoundLatch",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/ResumeChargingBeamSoundLatch.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -86550,6 +86776,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.SamusQuantity",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/SamusQuantity.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Samus.SamusReserveAutoRecoveryState",
@@ -87021,6 +87260,38 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Saves.SaveSlotStoreAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Saves/SaveSlotStoreAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Saves.SaveSlotStoreAccess.extension(SuperMetroid.Core.Saves.SaveSlotStore)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Saves/SaveSlotStoreAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Saves.SaveSnapshotContext",
@@ -90395,6 +90666,20 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.SourceLayout.GeneratedSource",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit",
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/SourceLayout/GeneratedSource.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.SourceLayout.OneTypePerFileAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -90412,7 +90697,6 @@
       "kind": "class",
       "scope": "tool",
       "assemblies": [
-        "SuperMetroid.ArchitectureAudit",
         "SuperMetroid.EnsureAnalyzer"
       ],
       "files": [
@@ -95263,6 +95547,19 @@
       ],
       "files": [
         "csharp/test-support/VerificationImporters/RoomPlmPopulationImporter.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.TestSupport.VerificationImporters.SamusSnapshotWords",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationImporters/SamusSnapshotWords.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -117351,6 +117648,32 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "System.Diagnostics.CodeAnalysis.NotNullWhenAttribute",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Polyfills/Diagnostics/CodeAnalysis/NotNullWhenAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "System.Runtime.CompilerServices.IsExternalInit",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Polyfills/Runtime/CompilerServices/IsExternalInit.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     }
   ]
 }

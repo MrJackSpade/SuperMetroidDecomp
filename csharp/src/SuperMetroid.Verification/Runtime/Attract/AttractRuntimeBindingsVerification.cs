@@ -29,7 +29,7 @@ internal static class AttractRuntimeBindingsVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         // Exact cause of #1171: the previous attract path constructed this owner
         // without passing its already-installed palette catalog.
-        AssertThrows<InvalidOperationException>(() => _ = new SuperMetroidRuntime(memory, HostGameplayOverrides.None),
+        AssertThrows<InvalidOperationException>(() => _ = SuperMetroidRuntime.Create(memory, HostGameplayOverrides.None),
             "omitting installed palettes reproduces the attract runtime construction failure");
         var game = new SuperMetroidGame(memory, new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions
             { Invincibility = true, InfiniteAmmo = true, PreventEscapeTimeout = true });

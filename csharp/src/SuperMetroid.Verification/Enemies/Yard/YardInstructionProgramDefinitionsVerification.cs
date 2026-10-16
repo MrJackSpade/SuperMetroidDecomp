@@ -28,7 +28,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     internal static void VerifyYardInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemySlot yard);
-        YardEnemyState state = (enemies.SlotTable.Slots[0].Entity as YardEntity)?.State ?? throw new InvalidOperationException("The Yard has no state.");
+        YardEnemyState state = enemies.SlotTable.Slots[0].EntityState<YardEntity, YardEnemyState>() ?? throw new InvalidOperationException("The Yard has no state.");
         foreach (YardProgram program in Enum.GetValues<YardProgram>())
         {
             state.Program = AnimationProgramCursor<YardProgram>.Start(program);

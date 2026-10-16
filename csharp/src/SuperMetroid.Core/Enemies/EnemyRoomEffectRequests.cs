@@ -28,8 +28,6 @@ public readonly record struct EnemyRoomEffectRequests(
     IReadOnlyList<MotherBrainPlmRequest> MotherBrainPlms,
     IReadOnlyList<ShitroidPlmRequest> ShitroidPlms)
 {
-    /// <summary>No requests.</summary>
-    public static EnemyRoomEffectRequests None { get; } = new(null, null, [], [], null, 0, [], []);
 
     /// <summary>Two request sets are equal when every value and every list's contents, in order, are equal.</summary>
     public bool Equals(EnemyRoomEffectRequests other) =>

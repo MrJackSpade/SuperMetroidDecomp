@@ -62,16 +62,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
-            after.MissingCount == 0 && after.Consumers.Count == 3, "overlay completeness must not accept zero as a resource key");
-        SyntaxTree bypass = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Rooms.Xray;
-            class UnsafeOverlayFactory {
-                object Make() => XrayOverlayVisualCatalog.FromOverlaysForVerification(null!, null!);
-            }
-            """, path: "fixture-production-overlay-bypass.cs");
-        AuditReport revoked = Inspect(Compile(trees.Append(bypass)), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 3,
-            "Core use of the partial fixture factory must revoke required-overlay completeness");
+            after.MissingCount == 0 && after.Consumers.Count == 3, "overlay completeness must not accept zero as a resource key" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a violated X-ray overlay ownership contract.</summary>

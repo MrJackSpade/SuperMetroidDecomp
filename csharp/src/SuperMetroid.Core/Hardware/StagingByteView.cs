@@ -31,16 +31,6 @@ public readonly struct StagingByteView
         set => buffer[Offset(index)] = value;
     }
 
-    /// <summary>Reads the whole view into <paramref name="destination"/>, in address order.</summary>
-    public void CopyTo(Span<byte> destination)
-    {
-        Ensure.LengthEqual<byte>(destination, Length);
-        Span.CopyTo(destination);
-    }
-
-    /// <summary>Writes <paramref name="source"/> over the whole view, in address order.</summary>
-    public void CopyFrom(ReadOnlySpan<byte> source) => Ensure.LengthEqual(source, Length).CopyTo(Span);
-
     /// <summary>Writes <paramref name="value"/> to every byte.</summary>
     public void Fill(byte value) => Span.Fill(value);
 
@@ -55,7 +45,7 @@ public readonly struct StagingByteView
     }
 
     /// <summary>The view's bytes.</summary>
-    private Span<byte> Span => buffer.AsSpan(start, Length);
+    internal Span<byte> Span => buffer.AsSpan(start, Length);
 
     /// <summary>Checks a byte index and locates it in the buffer.</summary>
     private int Offset(int index) => (uint)index < (uint)Length

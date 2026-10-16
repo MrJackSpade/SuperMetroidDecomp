@@ -466,12 +466,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         AdvanceKraidPartAnimation(slot);
     }
 
-    /// <summary>Whether <paramref name="definition"/> is a Kraid part that runs a typed program.</summary>
-    private static bool IsKraidAnimatedPart(EnemyDefinitionId definition) => definition is
-        EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidLintTop or EnemyDefinitionId.KraidLintMiddle or
-        EnemyDefinitionId.KraidLintBottom or EnemyDefinitionId.KraidFoot or EnemyDefinitionId.KraidNail or
-        EnemyDefinitionId.KraidNailBad;
-
     /// <summary>Installs <paramref name="program"/> as the part's program, as a native list-pointer store does; the caller sets the timer.</summary>
     private void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
         RequireKraidState(part).Parts[part.SlotIndex].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);

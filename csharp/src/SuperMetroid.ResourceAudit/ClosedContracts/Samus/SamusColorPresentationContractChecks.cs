@@ -78,9 +78,9 @@ internal static class SamusColorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 27, "twenty-seven calls must reproduce the missing adapters first");
+        Require(before.UnresolvedCount == 27, "twenty-seven calls must reproduce the missing adapters first" + " (" + before.Describe() + ")");
         Require(report.Classifications.Count == 14 && report.UnresolvedCount == 13 && report.MissingCount == 0 &&
-            report.Consumers.Count == 27, "complete supported domains and false membership queries qualify; bad selectors still fail");
+            report.Consumers.Count == 27, "complete supported domains and false membership queries qualify; bad selectors still fail" + " (" + report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("selected PreExplosion", StringComparison.Ordinal)),
             "a known short pre-explosion stream must not borrow explosion capacity");
         Require(report.Classifications.Any(item => item.Owner == "SamusVisorColorCatalog.TryResolveByteOffset"),

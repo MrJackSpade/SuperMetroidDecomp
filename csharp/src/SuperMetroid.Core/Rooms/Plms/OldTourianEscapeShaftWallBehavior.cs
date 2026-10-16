@@ -40,22 +40,22 @@ internal sealed class OldTourianEscapeShaftWallBehavior
             projectile,
             RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion,
             graphicsIndex: 0);
-        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionDefinitions.XPosition);
-        projectile.Variable0 = OldTourianEscapeShaftWallExplosionDefinitions.XPosition;
-        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionDefinitions.YPosition);
-        projectile.Variable1 = OldTourianEscapeShaftWallExplosionDefinitions.YPosition;
+        projectile.Position = projectile.Position.WithWholeX(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition);
+        projectile.Variable0 = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.XPosition;
+        projectile.Position = projectile.Position.WithWholeY(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition);
+        projectile.Variable1 = OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.YPosition;
     }
 
 
     /// <summary>Registers the wall explosion's library-two sound opcode only for the owned projectile kind, then advances its cursor.</summary>
     internal void RegisterWallExplosionSoundInstruction(EnemyProjectileHandlerTable table)
     {
-        table.RegisterInstruction(EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, projectile => OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind),
+        table.RegisterInstruction(EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6, projectile => OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Owns(projectile.Kind),
             (RoomEnemyProjectileSlot projectile, SamusState? samus, Position16<RoomPixels> camera, ushort word, ref ushort cursor) =>
             {
                 _audio.QueueEnemySound(
-                    OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSound,
-                    OldTourianEscapeShaftWallExplosionDefinitions.ExplosionSoundMaximum);
+                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSound,
+                    OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ExplosionSoundMaximum);
                 cursor = unchecked((ushort)(cursor + 3));
                 return EnemyProjectileInstructionOutcome.Continue;
             });

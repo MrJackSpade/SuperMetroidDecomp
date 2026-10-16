@@ -55,6 +55,6 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = room.InstalledArtwork.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
-        return new("Crocomire body", found, writes);
+        return new();
     }
 }

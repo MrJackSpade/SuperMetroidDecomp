@@ -718,8 +718,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         Bgr555 Body(int frame, int color);
         /// <summary>Reads a phase's rear-leg ink.</summary>
         Bgr555 Leg(int frame, int color);
-        /// <summary>Reads the phase's optional WRAM spill ink.</summary>
-        Bgr555? Trailing(int frame);
     }
 
     /// <summary>Revival rounds endpoint RGB5 channels to nearest, retaining sparse authored exceptions including a stock tissue hold.</summary>
@@ -757,8 +755,6 @@ public sealed class MotherBrainRainbowPalettePresentation
         public Bgr555 Body(int frame, int color) => Color(frame, color);
         /// <summary>Reads a rear ink after the body range in the flattened fade.</summary>
         public Bgr555 Leg(int frame, int color) => Color(frame, BodyCount + color);
-        /// <summary>Reads the WRAM spill ink after body and rear colors.</summary>
-        public Bgr555? Trailing(int frame) => Color(frame, BodyCount + LegCount);
 
         /// <summary>Prefers an authored exception to the calculated revival shade.</summary>
         private Bgr555 Color(int frame, int color) => suppliedOverrides.TryGetValue((frame, color), out Bgr555 supplied)

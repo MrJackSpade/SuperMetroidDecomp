@@ -263,20 +263,6 @@ public static class SaveRamCodec
     }
 
     /// <summary>
-    /// The carry <c>DetermineNumberOfDemoSets</c> ($80:8261) returns at boot, which <c>MainGameLoop</c> then preserves
-    /// (<see cref="Bank80SystemState.MainGameLoopCarry"/>). When all three slots fail <c>LoadFromSRAM</c>, its final
-    /// carry-set return survives the corrupt-marker loop. Otherwise the completion-marker words are compared from the
-    /// last down: a full match leaves the final comparison's carry set, and the first mismatch leaves the unsigned
-    /// comparison of that SRAM word against the marker word.
-    /// </summary>
-    internal static bool DetermineBootMainLoopCarry(ReadOnlySpan<byte> image)
-    {
-        if (!IsSlotValid(image, 0) && !IsSlotValid(image, 1) && !IsSlotValid(image, 2))
-            return true;
-        return MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length));
-    }
-
-    /// <summary>
     /// The carry of comparing the marker field's words with the completion signature's, from the last down: a full
     /// match leaves the final comparison's carry set, and the first mismatch leaves the unsigned comparison.
     /// </summary>

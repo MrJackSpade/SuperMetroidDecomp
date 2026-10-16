@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Powamp;
 internal sealed class PowampEntity(PowampBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's PowampEnemyState, held by its physical slot.</summary>
-    internal PowampEnemyState? State
-    {
-        get => Slot.SpeciesState<PowampEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunPowampInitializationAi;
 

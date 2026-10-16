@@ -24,6 +24,10 @@ internal static class PlmDoorPresentationContractChecks
             .DistinctBy(source => source.Path).Select(source => CSharpSyntaxTree.ParseText(
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
+        // The consumer names escape-gate draws through this internal enum; compiled from source so its constants bind.
+        const string escapeGateDraws = "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEscapeGateDraw.cs";
+        if (trees.All(tree => tree.FilePath != escapeGateDraws))
+            trees.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(escapeGateDraws), path: escapeGateDraws));
         const string consumer = """
             using SuperMetroid.Core.Bosses.MotherBrain;
             using SuperMetroid.Core.Rooms.Doors;
@@ -80,9 +84,10 @@ internal static class PlmDoorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 16, "sixteen calls must reproduce absent adapters first");
+        Require(before.UnresolvedCount == 16, "sixteen calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(report.Classifications.Count == 8 && report.UnresolvedCount == 8 && report.MissingCount == 0 &&
-            report.Consumers.Count == 16, "known aliases qualify but unsupported pointers and narrow widths still fail");
+            report.Consumers.Count == 16, "known aliases qualify but unsupported pointers and narrow widths still fail (expected 8/8/0/16; " +
+            report.Describe() + ")");
         Require(report.Findings.Any(item => item.Message.Contains("drawPointer", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),
             "invalid pointers and words retain exact shape findings");

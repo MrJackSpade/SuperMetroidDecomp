@@ -64,11 +64,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     public ushort? LastFuneNamiheSoundEffect { get; private set; }
 
-    /// <summary>Restricts the shared initializer, main AI, and private opcodes to Fune or Namihe enemy definitions.</summary>
-    internal static bool IsFuneNamiheDefinition(EnemyDefinitionId definitionPointer) =>
-        definitionPointer is EnemyDefinitionId.Fune or
-            EnemyDefinitionId.Namihe;
-
     /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
     {

@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Nuclear;
 internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's NuclearWaffleEnemyState, held by its physical slot.</summary>
-    internal NuclearWaffleEnemyState? State
-    {
-        get => Slot.SpeciesState<NuclearWaffleEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunNuclearWaffleInitializationAi;
 

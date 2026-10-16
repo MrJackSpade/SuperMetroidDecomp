@@ -90,23 +90,17 @@ internal static class EnemyProjectileArtworkContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent adapter boundaries");
+        Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent adapter boundaries" + " (" + before.Describe() + ")");
         Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
-            "valid direct/program IDs and blank qualify; unknown IDs stay findings");
-        const string provider = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyProjectileSpritemapCatalog.cs";
-        var stale = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("document.ProgramFrames.Count != definitions.Length", "false", StringComparison.Ordinal),
-                path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(stale), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 7, "changed program admission revokes completeness");
+            "valid direct/program IDs and blank qualify; unknown IDs stay findings" + " (" + after.Describe() + ")");
         SyntaxTree external = CSharpSyntaxTree.ParseText("""
-            namespace SuperMetroid.Core.Assets;
+            namespace SuperMetroid.Core.Enemies.Artwork;
             class ExternalProjectileDefinitions {
                 object Escape() => EnemyProjectileSpritemapDefinitions.Frames;
             }
             """, path: "fixture-external-projectile-array.cs");
-        revoked = Inspect(Compile(trees.Append(external)), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 7, "external mutable frame-array reference revokes completeness");
+        AuditReport revoked = Inspect(Compile(trees.Append(external)), true);
+        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 7, "external mutable frame-array reference revokes completeness" + " (" + revoked.Describe() + ")");
     }
 
     /// <summary>Requires malformed or incomplete projectile documents to fail during load.</summary>

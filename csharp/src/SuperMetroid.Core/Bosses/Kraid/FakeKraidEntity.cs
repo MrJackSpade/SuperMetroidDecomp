@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class FakeKraidEntity(FakeKraidBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's FakeKraidEnemyState, held by its physical slot.</summary>
-    internal FakeKraidEnemyState? State
-    {
-        get => Slot.SpeciesState<FakeKraidEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunFakeKraidInitializationAi;
 

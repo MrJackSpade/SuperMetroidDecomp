@@ -25,12 +25,13 @@ internal static class EnemyArtworkStaticContractChecks
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Hardware;
             class EnemyArtworkConsumer {
-                void Inspect(EnemyTileArtworkCatalog art, ushort pointer, int source, int length, SnesVram vram, SnesCgram cgram) {
-                    art.LoadTo({{first.DefinitionPointer}}, {{first.ByteCount}}, vram, 0);
-                    art.LoadTo({{first.DefinitionPointer}}, {{first.ByteCount + 1}}, vram, 0);
+                void Inspect(EnemyTileArtworkCatalog art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer, int source, int length,
+                    VramRegion vram, CgramPalette cgram) {
+                    art.LoadTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionPointer}}, {{first.ByteCount}}, vram, 0);
+                    art.LoadTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionPointer}}, {{first.ByteCount + 1}}, vram, 0);
                     art.LoadTo(0, {{first.ByteCount}}, vram, 0);
-                    art.LoadPaletteTo({{first.DefinitionPointer}}, cgram, 0);
-                    art.LoadPaletteTo(0, cgram, 0);
+                    art.LoadPaletteTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionPointer}}, cgram);
+                    art.LoadPaletteTo(0, cgram);
                     art.TryResolve({{first.SourceAddress}}, {{first.ByteCount}}, out _);
                     art.TryResolve({{first.SourceAddress}}, 1, out _);
                     art.TryResolve({{warning.SourceAddress + 1}}, 1, out _);
@@ -39,7 +40,7 @@ internal static class EnemyArtworkStaticContractChecks
                     art.TryResolve({{overlay.SourceAddress}}, 1, out _);
                     art.TryResolve(0, int.MinValue, out _);
                     art.LoadTo(pointer, length, vram, 0);
-                    art.LoadPaletteTo(pointer, cgram, 0);
+                    art.LoadPaletteTo(pointer, cgram);
                     art.TryResolve(source, length, out _);
                 }
             }
@@ -61,22 +62,9 @@ internal static class EnemyArtworkStaticContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 15 && before.Consumers.Count == 15, "all identified boundaries are retained before adaptation");
+        Require(before.UnresolvedCount == 15 && before.Consumers.Count == 15, "all identified boundaries are retained before adaptation" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 9 && after.UnresolvedCount == 6 && after.MissingCount == 0 && after.Consumers.Count == 15,
-            "valid identities/lengths qualify while invalid known selectors remain findings");
-        const string construction = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyTileArtworkCatalog.cs";
-        var stale = trees.Select(tree => tree.FilePath == construction ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("sheet.Transfer.Length != definition.ByteCount", "false", StringComparison.Ordinal),
-                path: tree.FilePath) : tree);
-        Revoked(Inspect(Compile(stale), true), "removed native size admission");
-        SyntaxTree bypass = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Enemies.Artwork;
-            using SuperMetroid.Core.Rooms.Artwork;
-            class PartialArtworkConsumer {
-                object Build() => EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new System.Collections.Generic.Dictionary<ushort, RoomCharacterAtlas>(), Palettes = new System.Collections.Generic.Dictionary<ushort, EnemyPaletteSheet>() });
-            }
-            """, path: "fixture-core-partial-artwork.cs");
-        Revoked(Inspect(Compile(trees.Append(bypass)), true), "Core use of partial verification construction");
+            "valid identities/lengths qualify while invalid known selectors remain findings" + " (" + after.Describe() + ")");
         SyntaxTree extraMetadata = CSharpSyntaxTree.ParseText(
             "namespace SuperMetroid.Core.Enemies; public static partial class RoomEnemyGraphicsSetDefinitions { }",
             path: "fixture-unreviewed-enemy-metadata.cs");

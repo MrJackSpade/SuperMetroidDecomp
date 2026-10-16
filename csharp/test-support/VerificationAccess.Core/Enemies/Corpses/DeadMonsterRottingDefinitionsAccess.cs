@@ -1,7 +1,7 @@
-﻿namespace SuperMetroid.Core.Enemies.Corpses;
+namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Development-tool members of <see cref="DeadMonsterRottingDefinitions"/>; never linked by player hosts.</summary>
-internal static class DeadMonsterRottingDefinitionsTooling
+/// <summary>Verification access to <see cref="DeadMonsterRottingDefinitions"/> members production does not use.</summary>
+internal static class DeadMonsterRottingDefinitionsAccess
 {
     /// <summary>Enumerates the ten authored corpse-rotting transfer tables
     /// for Sidehopper, Zoomer, Ripper, and Skree in native table order.</summary>

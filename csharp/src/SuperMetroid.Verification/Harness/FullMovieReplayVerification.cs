@@ -131,7 +131,7 @@ internal static class FullMovieReplayVerification
         var uploadNmis = new EvidencedDoorMusicUploadNmis();
         game.DoorMusicUploadNmis = uploadNmis;
         var loaderProgress = new EvidencedDoorLoaderProgress();
-        game.DoorLoaderProgress = loaderProgress;
+        game.Session.DoorLoaderProgress = loaderProgress;
         var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
         game.SoundAcknowledgements = soundAcknowledgements;
         int excludedBefore = 0, uncheckpointedUpdates = 0;
@@ -229,7 +229,7 @@ internal static class FullMovieReplayVerification
             {
                 game = CreateRetailGameFixture(game.Session.bus, game.Saves, renderGameplayFrames: false);
                 game.DoorMusicUploadNmis = uploadNmis;
-                game.DoorLoaderProgress = loaderProgress;
+                game.Session.DoorLoaderProgress = loaderProgress;
                 game.SoundAcknowledgements = soundAcknowledgements;
                 Console.WriteLine($"{movie.Name} movie: console reset before update {update + 1} " +
                     $"(source frame {updates[update].SourceFrame}); the port reboots on the same cartridge.");

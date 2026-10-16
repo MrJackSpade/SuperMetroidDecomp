@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Yard;
 internal sealed class YardEntity(YardEnemyBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's YardEnemyState, held by its physical slot.</summary>
-    internal YardEnemyState? State
-    {
-        get => Slot.SpeciesState<YardEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => YardEnemyBehavior.RunYardInitializationAi;
 

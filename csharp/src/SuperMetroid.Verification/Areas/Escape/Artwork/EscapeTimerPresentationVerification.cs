@@ -16,6 +16,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification
@@ -85,7 +86,7 @@ internal static class EscapeTimerPresentationVerification
             EscapeTimerTileAtlasFormat.SecondDestinationWord * 2, nativeSecondTiles.Length)),
             "Mother Brain synchronous second timer transfer uses installed artwork");
 
-        var restoredQueueRuntime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
+        var restoredQueueRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: initialPalettes);
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
             EscapeTimerTileRomData.FirstSourceAddress, VramDmaDestination.FromNative(EscapeTimerTileAtlasFormat.FirstDestinationWord));
         restoredQueueRuntime.VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,

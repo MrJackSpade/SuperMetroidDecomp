@@ -848,7 +848,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
         FrameContext._enemyFrameNmiFrameCounter = frame.NmiFrameCounter ?? FrameContext._randomEnemyCounter;
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
-            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter), FrameContext._enemyFrameNmiFrameCounter));
+            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter)));
         FrameResults.Begin();
         BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)

@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's BlueBrinstarFaceBlockEnemyState, held by its physical slot.</summary>
-    internal BlueBrinstarFaceBlockEnemyState? State
-    {
-        get => Slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunBlueBrinstarFaceBlockInitializationAi;
 

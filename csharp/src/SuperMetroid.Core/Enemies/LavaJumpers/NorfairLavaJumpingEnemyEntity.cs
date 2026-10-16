@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.LavaJumpers;
 internal sealed class NorfairLavaJumpingEnemyEntity(NorfairLavaJumpingEnemyBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's NorfairLavaJumpingEnemyState, held by its physical slot.</summary>
-    internal NorfairLavaJumpingEnemyState? State
-    {
-        get => Slot.SpeciesState<NorfairLavaJumpingEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunNorfairLavaJumpingEnemyInitializationAi;
 

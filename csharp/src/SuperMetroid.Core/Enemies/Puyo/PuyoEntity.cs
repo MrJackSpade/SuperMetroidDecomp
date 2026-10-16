@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Puyo;
 internal sealed class PuyoEntity(PuyoBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's PuyoEnemyState, held by its physical slot.</summary>
-    internal PuyoEnemyState? State
-    {
-        get => Slot.SpeciesState<PuyoEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => PuyoBehavior.RunPuyoInitializationAi;
 

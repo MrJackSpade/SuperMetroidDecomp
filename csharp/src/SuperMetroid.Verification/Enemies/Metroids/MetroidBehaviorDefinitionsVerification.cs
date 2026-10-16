@@ -116,7 +116,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa3e9d1), slot.SpritemapPointer,
                 $"production Metroid script spritemap {random}");
             AssertEqual(new AnimationProgramCursor<MetroidProgram>(MetroidProgram.ChasingSamus, 1),
-                ((enemies.SlotTable.Slots[0].Entity as MetroidEntity)?.State ?? throw new InvalidOperationException("The Metroid has no state.")).Program,
+                (enemies.SlotTable.Slots[0].EntityState<MetroidEntity, MetroidEnemyState>() ?? throw new InvalidOperationException("The Metroid has no state.")).Program,
                 $"production Metroid script continuation {random}");
         }
     }

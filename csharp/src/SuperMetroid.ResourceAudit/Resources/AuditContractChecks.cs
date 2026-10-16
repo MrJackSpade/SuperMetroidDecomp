@@ -57,7 +57,7 @@ internal static class AuditContractChecks
         foreach (var call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, semantic, exports, report);
         Require(report.MissingCount == 2 && report.UnresolvedCount == 2,
-            "public/internal constant lookups must be missing; dynamic ID and new catalog must be unresolved");
+            "public/internal constant lookups must be missing; dynamic ID and new catalog must be unresolved" + " (" + report.Describe() + ")");
         Require(report.Findings.Single(item => item.Domain == ResourceDomains.EnemySimple && item.Code == AuditReport.Missing).Resource == "A2:AD81",
             "compiler-resolved named arguments must retain the actual bank/pointer identity");
         exports.Add(ResourceDomains.EnemySimple, "A2:AD81");
@@ -66,7 +66,7 @@ internal static class AuditContractChecks
         foreach (var call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, semantic, exports, fixedReport);
         Require(fixedReport.MissingCount == 0 && fixedReport.UnresolvedCount == 2,
-            "adding an export must not conceal unresolved consumers");
+            "adding an export must not conceal unresolved consumers" + " (" + fixedReport.Describe() + ")");
         fixedReport.Sort();
         string first = JsonSerializer.Serialize(fixedReport, AuditReport.JsonOptions);
         fixedReport.Sort();
@@ -194,7 +194,7 @@ internal static class AuditContractChecks
         var missing = new AuditReport();
         MotherBrainRoomFlashAudit.Inspect("fixture.cs", exports, missing);
         Require(missing.MissingCount == MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount &&
-            missing.UnresolvedCount == 0, "absent flash rows must be concrete omissions, not an ignored program kind");
+            missing.UnresolvedCount == 0, "absent flash rows must be concrete omissions, not an ignored program kind" + " (" + missing.Describe() + ")");
         MotherBrainRoomFlashAudit.Install(exports);
         var present = new AuditReport();
         MotherBrainRoomFlashAudit.Inspect("fixture.cs", exports, present);
@@ -204,7 +204,7 @@ internal static class AuditContractChecks
             .PresentationWordAddress(MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount - 1) + 1));
         var changed = new AuditReport();
         MotherBrainRoomFlashAudit.RequireOperands([neighboringOperand], "fixture.cs", exports, changed);
-        Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission");
+        Require(changed.MissingCount == 1, "a changed/unaligned color identity must remain a concrete omission" + " (" + changed.Describe() + ")");
 
         var document = RequiredJson.Deserialize<SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainRoomColorDocument>(
             MotherBrainRoomFlashAudit.ExtractDeclarationDocument(), ArtworkJson.Options);

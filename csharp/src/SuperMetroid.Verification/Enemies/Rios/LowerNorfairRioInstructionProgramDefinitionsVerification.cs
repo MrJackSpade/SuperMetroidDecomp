@@ -67,7 +67,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.Bind(parent.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
-        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), (enemies.SlotTable.Slots[0].Entity as LowerNorfairRioEntity)?.State?.Program,
+        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), enemies.SlotTable.Slots[0].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -75,7 +75,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         follower.Parameter1 = 0x8000;
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), (enemies.SlotTable.Slots[1].Entity as LowerNorfairRioEntity)?.State?.Program,
+        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), enemies.SlotTable.Slots[1].EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()?.Program,
             "Lower Norfair Rio follower initializer selects flames");
     }
 

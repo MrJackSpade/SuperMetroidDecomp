@@ -38,7 +38,7 @@ internal static class PlmProgressionClosedContractDefinitions
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmBotwoonWallVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Botwoon/BotwoonWallPlmDrawDefinitions.cs")]),
-        new("SuperMetroid.Core.Rooms.Plms.RoomPlmKraidVisualCatalog", "plm-kraid-room-complete-draws", ["GetWord"],
+        new("SuperMetroid.Core.Rooms.Plms.RoomPlmKraidVisualCatalog", "plm-kraid-room-complete-draws", ["GetWord", "Frame", "Append"],
             [SharedDrawShape, ElevatubeDefinition,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmKraidVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidRoomPlmDrawDefinitions.cs")]),

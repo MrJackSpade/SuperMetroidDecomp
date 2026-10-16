@@ -95,9 +95,6 @@ internal static class EnemySoundEffectDefinitions
     /// <summary>Library-two sound selected by Metroid's private animation bytecode.</summary>
     internal const ushort MetroidAnimationSoundEffect = 0x0050;
 
-    /// <summary>Library-three ice sound queued when an unfrozen Metroid takes an Ice shot.</summary>
-    internal const ushort MetroidIceSoundEffect = 0x000a;
-
     /// <summary>Library-two sound queued when an unfrozen Metroid recoils.</summary>
     internal const ushort MetroidRecoilSoundEffect = 0x005a;
 

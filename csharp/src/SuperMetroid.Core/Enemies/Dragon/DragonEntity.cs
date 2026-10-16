@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Dragon;
 internal sealed class DragonEntity(DragonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's DragonEnemyState, held by its physical slot.</summary>
-    internal DragonEnemyState? State
-    {
-        get => Slot.SpeciesState<DragonEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunDragonInitializationAi;
 

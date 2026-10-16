@@ -40,10 +40,10 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     private const int ElevatorSpeedFixed = 98304;
 
     /// <summary>WRAM $0E16. Collision with an elevator pseudo-door publishes value one.</summary>
-    public ushort ElevatorFlags { get; private set; }
+    public ushort ElevatorFlags { get; internal set; }
 
     /// <summary>WRAM $0E18, shared across the departure and destination room actors.</summary>
-    public ElevatorActorStatus ElevatorStatus { get; private set; }
+    public ElevatorActorStatus ElevatorStatus { get; internal set; }
 
     /// <summary>WRAM $0799. Bit 15 means the active elevator is travelling upward.</summary>
     public ushort ElevatorDirection { get; private set; }
@@ -107,19 +107,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     {
         ElevatorStatus = ElevatorActorStatus.Inactive;
         ElevatorFlags = 0;
-    }
-
-    /// <summary>
-    /// Debugger/test seam for the already-public runtime WRAM word. Production changes are
-    /// still made by collision, actor AI, and room loading rather than arbitrary callers.
-    /// </summary>
-    public void SetElevatorStatusForDebugging(ushort status)
-    {
-        if (status > (ushort)ElevatorActorStatus.ReturningToRest)
-            throw new ArgumentOutOfRangeException(nameof(status));
-        ElevatorStatus = (ElevatorActorStatus)status;
-        if (ElevatorStatus == ElevatorActorStatus.Inactive)
-            ElevatorFlags = 0;
     }
 
     /// <summary>Clears room-local actors while preserving travel globals across the source and destination rooms.</summary>

@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's BeetomEnemyState, held by its physical slot.</summary>
-    internal BeetomEnemyState? State
-    {
-        get => Slot.SpeciesState<BeetomEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunBeetomInitializationAi;
 

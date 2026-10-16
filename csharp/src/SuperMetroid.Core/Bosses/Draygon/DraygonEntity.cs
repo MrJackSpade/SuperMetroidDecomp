@@ -51,6 +51,6 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = room.InstalledArtwork.DraygonBg2Frames?.TryGet(selected, out writes) == true;
-        return new("Draygon", found, writes);
+        return new();
     }
 }

@@ -39,8 +39,8 @@ internal static class StandardObjectArtworkVerification
 
             var guard = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
-            var runtime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: palettes)
-                { Artwork = { StandardObjectArt = baseline } };
+            var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: palettes);
+            runtime.Artwork.StandardObjectArt = baseline;
             runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
                 StandardObjectArtworkAddresses.Source,
                 GameplayVram.ObjectCharactersDma());
@@ -65,8 +65,8 @@ internal static class StandardObjectArtworkVerification
             RoomCharacterAtlas edited = StandardObjectArtworkFiles.Load(stock, overrides);
             AssertTrue(!edited.Transfer.Span.SequenceEqual(baseline.Transfer.Span),
                 "selected indexed PNG changes the native standard OBJ transfer");
-            var editedRuntime = new SuperMetroidRuntime(guard, HostGameplayOverrides.None, initialPaletteArt: palettes)
-                { Artwork = { StandardObjectArt = edited } };
+            var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: palettes);
+            editedRuntime.Artwork.StandardObjectArt = edited;
             editedRuntime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
                 StandardObjectArtworkAddresses.Source,
                 GameplayVram.ObjectCharactersDma());

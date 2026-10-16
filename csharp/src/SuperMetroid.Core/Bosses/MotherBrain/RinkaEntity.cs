@@ -9,13 +9,6 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's RinkaEnemyState, held by its physical slot.</summary>
-    internal RinkaEnemyState? State
-    {
-        get => Slot.SpeciesState<RinkaEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunRinkaInitializationAi;
 

@@ -13,7 +13,7 @@ public sealed class SaveSlotStore
     public const int SlotCount = SaveRamLayout.SlotCount;
 
     /// <summary>Each slot's decoded record; null is an empty or invalid slot.</summary>
-    private readonly SuperMetroidSaveSlot?[] slots = new SuperMetroidSaveSlot?[SlotCount];
+    internal readonly SuperMetroidSaveSlot?[] slots = new SuperMetroidSaveSlot?[SlotCount];
 
     /// <summary>The file-select menu's persistent selection.</summary>
     private int selectedSlot;
@@ -53,13 +53,6 @@ public sealed class SaveSlotStore
 
     /// <summary>Installs map rules after a host binds artwork, or after restoring a store that did not serialize them.</summary>
     internal void BindMapPresentation(IAreaMapSource? maps) => mapPresentation = maps;
-
-    /// <summary><c>LoadFromSRAM</c>'s outcome: whether <paramref name="slot"/> holds a save.</summary>
-    public bool IsSlotValid(int slot)
-    {
-        SaveRamCodec.ValidateSlot(slot);
-        return slots[slot] is not null;
-    }
 
     /// <summary>A detached copy of the save in <paramref name="slot"/>, or null when it is empty or invalid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(int slot)

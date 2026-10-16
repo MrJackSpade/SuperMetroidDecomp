@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 internal sealed class FirefleaEntity(FirefleaBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's FirefleaEnemyState, held by its physical slot.</summary>
-    internal FirefleaEnemyState? State
-    {
-        get => Slot.SpeciesState<FirefleaEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunFirefleaInitializationAi;
 

@@ -33,20 +33,21 @@ internal static class CinematicPresentationContractChecks
                     IntroCaretSpritePresentation caret, IntroMotherBrainSpritePresentation motherBrain,
                     IntroMotherBrainExplosionSpritePresentation explosions, CeresDoorVisualCatalog door,
                     EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
-                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, OamBuffer oam) {
+                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, OamBuffer oam,
+                    SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteArtwork timerArtwork) {
                     palette.Apply(cgram);
                     gradient.Resolve(ushort.MaxValue);
-                    title.DrawSprite(TitleSequenceRomData.Sprites.SuperMetroidLogo, oam, 0, 0, 0);
-                    title.DrawSprite(TitleSequenceRomData.Sprites.Blank, oam, 0, 0, 0);
-                    title.DrawSprite(ushort.MaxValue, oam, 0, 0, 0);
+                    title.DrawSprite(TitleSequenceRomData.Sprites.SuperMetroidLogo, oam, default, 0);
+                    title.DrawSprite(TitleSequenceRomData.Sprites.Blank, oam, default, 0);
+                    title.DrawSprite(ushort.MaxValue, oam, default, 0);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount);
-                    caret.Draw(IntroCaretSpriteDefinitions.Still, oam, 0, 0, 0);
-                    caret.Draw(IntroCaretSpriteDefinitions.Still + 1, oam, 0, 0, 0);
-                    motherBrain.Draw(IntroMotherBrainSpriteDefinitions.FrameTwo, oam, 0, 0, 0);
-                    motherBrain.Draw(IntroMotherBrainSpriteDefinitions.FrameTwo + 1, oam, 0, 0, 0);
-                    explosions.Draw(IntroMotherBrainExplosionSpriteDefinitions.BigStart, oam, 0, 0, 0);
-                    explosions.Draw(IntroMotherBrainExplosionSpriteDefinitions.End, oam, 0, 0, 0);
+                    caret.Draw(IntroCaretSpriteDefinitions.Still, oam, default, 0);
+                    caret.Draw(IntroCaretSpriteDefinitions.Still + 1, oam, default, 0);
+                    motherBrain.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, oam, default, 0);
+                    motherBrain.Draw(IntroMotherBrainSpriteDefinitions.FrameZero + 1, oam, default, 0);
+                    explosions.Draw(IntroMotherBrainExplosionSpriteDefinitions.BigStart, oam, default, 0);
+                    explosions.Draw(IntroMotherBrainExplosionSpriteDefinitions.BigStart + 1, oam, default, 0);
                     door.LoadTiles(vram);
                     door.LoadNormalColors(cgram, CeresDoorVisualRomData.NormalTargetColor);
                     door.LoadEscapeColors(cgram, CeresDoorVisualRomData.ActiveTargetColor);
@@ -54,7 +55,7 @@ internal static class CinematicPresentationContractChecks
                     door.LoadAnimationColors(cgram, CeresDoorVisualRomData.AnimationRowCount);
                     door.LoadMode7DoorFrame(vram, CeresDoorVisualRomData.Mode7FrameCount - 1);
                     door.LoadMode7DoorFrame(vram, CeresDoorVisualRomData.Mode7FrameCount);
-                    timer.Draw(countdown, oam);
+                    timer.Draw(countdown, sprites, timerArtwork);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 18, out _);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 0, out _);
                     overlay.TryResolve(0, 0, out _);
@@ -79,9 +80,9 @@ internal static class CinematicPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 24, "twenty-four constructed calls must reproduce absent adapters first");
+        Require(before.UnresolvedCount == 24, "twenty-four constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 16 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 24, "supported sets and valid false membership queries qualify; unowned pointers and bad array indices fail");
+            after.Consumers.Count == 24, "supported sets and valid false membership queries qualify; unowned pointers and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlayTilemapCatalog.TryResolve") == 3,
             "unsupported overlay source/length queries validly return false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
@@ -97,7 +98,7 @@ internal static class CinematicPresentationContractChecks
         Require(revoked.Classifications.Count == 15 && revoked.UnresolvedCount == 9 &&
             revoked.Findings.Any(item => item.Owner == "EscapeTimerPresentation.Draw" &&
                 item.Message.Contains("stale", StringComparison.Ordinal)),
-            "external access to mutable AnchorNames must revoke the fixed timer-anchor proof");
+            "external access to mutable AnchorNames must revoke the fixed timer-anchor proof" + " (" + revoked.Describe() + ")");
     }
 
     /// <summary>Raises a contract failure with the specific source-only fixture expectation.</summary>

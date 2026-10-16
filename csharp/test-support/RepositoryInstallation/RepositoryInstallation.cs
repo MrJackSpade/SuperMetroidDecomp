@@ -58,7 +58,7 @@ internal static class RepositoryInstallation
         bool playerInvincibilityEnabled = false, bool infiniteAmmoEnabled = false,
         MapRevealMode mapRevealMode = MapRevealMode.None, bool preventEscapeTimeout = false)
     {
-        var runtime = new SuperMetroidRuntime(addressSpace, new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(addressSpace, new HostGameplayOverrides { PlayerInvincibilityEnabled = playerInvincibilityEnabled, InfiniteAmmoEnabled = infiniteAmmoEnabled, MapRevealMode = mapRevealMode, PreventEscapeTimeout = preventEscapeTimeout }, Installation.LoadGameplayBasePalettes());
         BindRuntime(runtime);
         return runtime;
     }

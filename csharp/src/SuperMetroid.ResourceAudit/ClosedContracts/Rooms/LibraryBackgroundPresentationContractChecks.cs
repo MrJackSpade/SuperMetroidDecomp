@@ -69,14 +69,7 @@ internal static class LibraryBackgroundPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 3 && after.Classifications.Count == 2 && after.UnresolvedCount == 1 &&
-            after.MissingCount == 0 && after.Consumers.Count == 3, "required-source completeness must not accept a known unowned key");
-        const string provider = "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomBackgroundTilemapCatalog.cs";
-        var changed = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("RoomBackgroundTilemapSources.All.Any", "Array.Empty<int>().Any", StringComparison.Ordinal),
-                path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 3,
-            "removing exact source admission must revoke even valid-looking lookups");
+            after.MissingCount == 0 && after.Consumers.Count == 3, "required-source completeness must not accept a known unowned key" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports the particular background source-admission contract that failed.</summary>

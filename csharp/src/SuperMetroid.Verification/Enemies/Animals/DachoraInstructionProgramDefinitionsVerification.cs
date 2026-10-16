@@ -42,7 +42,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
-            AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), (enemies.SlotTable.Slots[0].Entity as DachoraEntity)?.State?.Program,
+            AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>()?.Program,
                 $"Dachora initializer parameter ${parameter:X4}");
         }
 
@@ -53,7 +53,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
-            DachoraEnemyState state = (enemies.SlotTable.Slots[0].Entity as DachoraEntity)?.State ?? throw new InvalidOperationException("The Dachora has no state.");
+            DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
             slot.InstructionTimer = NativeCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameDefinitions.Spritemap),
@@ -70,7 +70,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
-            DachoraEnemyState state = (enemies.SlotTable.Slots[0].Entity as DachoraEntity)?.State ?? throw new InvalidOperationException("The Dachora has no state.");
+            DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
             // One $1000 subspeed step from just below each threshold lands exactly on whole speeds four and eight.
             state.Program = new AnimationProgramCursor<DachoraProgram>(slow, 3);

@@ -35,9 +35,6 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
     /// <summary>Tests whether any requested verified beam-equipment bits are set.</summary>
     public bool HasAny(SamusBeamFlags flags) => (KnownFlags & flags) != 0;
 
-    /// <summary>Converts a raw equipped-beam word to its lossless semantic view.</summary>
-    public static implicit operator SamusBeamLoadoutWord(ushort raw) => new(raw);
-
     /// <summary>The loadout word of a beam set.</summary>
     public SamusBeamLoadoutWord(SamusBeamFlags beams) : this(beams.ToNativeWord())
     {

@@ -72,9 +72,6 @@ public sealed class SuperMetroidGame
     [field: NonSerialized]
     private AttractGamePhases AttractPhases => field ??= new AttractGamePhases(Session);
 
-    /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
-    public GameArtwork Artwork { get => Session.Artwork; }
-
     /// <summary>
     /// Binds installed artwork at startup and after debugger-state restoration. Each catalog whose reference
     /// changed reaches the live runtime and scenes that hold it; unchanged catalogs are left alone.
@@ -420,9 +417,6 @@ public sealed class SuperMetroidGame
 
     /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
     public IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; set; } = LagFreeDoorMusicUploadNmis.Instance;
-
-    /// <summary>How far the cartridge's door loader has progressed; see <see cref="IDoorLoaderProgressSource"/>.</summary>
-    public IDoorLoaderProgressSource DoorLoaderProgress { get => Session.DoorLoaderProgress; set => Session.DoorLoaderProgress = value; }
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(SnesButton controllerInput)

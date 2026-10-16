@@ -51,8 +51,4 @@ internal static class KraidMouthHitboxDefinitions
         throw new InvalidDataException(
             $"Kraid mouth hitbox $A7:{pointer:X4} is outside the compiled geometry catalog.");
     }
-
-    /// <summary>Advances a native 16-bit pointer without carrying into another bank.</summary>
-    private static ushort AddWithinBank(ushort pointer, int offset) =>
-        unchecked((ushort)(pointer + offset));
 }

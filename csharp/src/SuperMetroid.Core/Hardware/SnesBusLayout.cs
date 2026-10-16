@@ -16,20 +16,10 @@ public static class SnesBusLayout
     public const int FirstWorkRamBank = 0x7e;
     /// <summary>System banks $00-$3F/$80-$BF mirror the first 8 KiB of bank-$7E WRAM through $1FFF.</summary>
     public const int WorkRamMirrorEnd = 0x2000;
-    /// <summary>Start of the unconnected $6000-$7FFF cartridge expansion window.</summary>
-    public const int ExpansionStart = 0x6000;
     /// <summary>Banks $80-$BF mirror the system-bank expansion window of $00-$3F.</summary>
     public const int MirrorBankMask = 0x7f;
     /// <summary>First non-system bank after the $00-$3F expansion windows.</summary>
     public const int SystemBankLimit = 0x40;
-    /// <summary>$2184: first unused B-bus register after the WRAM port registers.</summary>
-    public const int ReservedBBusStart = 0x2184;
-    /// <summary>$21FF: final address in the mirrored B-bus register window.</summary>
-    public const int ReservedBBusEnd = 0x21ff;
-    /// <summary>$2200: first A-bus expansion address; no device responds on Super Metroid's cartridge.</summary>
-    public const int UnpopulatedExpansionStart = 0x2200;
-    /// <summary>$3FFF: final expansion address before the CPU controller-register window.</summary>
-    public const int UnpopulatedExpansionEnd = 0x3fff;
 
     /// <summary>Whether <paramref name="bank"/> is one of the two WRAM banks.</summary>
     public static bool IsWorkRamBank(int bank) => bank is 0x7e or 0x7f;

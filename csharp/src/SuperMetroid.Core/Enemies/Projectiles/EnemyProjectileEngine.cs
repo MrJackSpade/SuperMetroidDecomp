@@ -984,8 +984,8 @@ internal sealed class EnemyProjectileEngine
         RoomEnemyProjectileSlot projectile,
         ushort address)
     {
-        if (OldTourianEscapeShaftWallExplosionDefinitions.Owns(projectile.Kind))
-            return OldTourianEscapeShaftWallExplosionDefinitions.ReadMechanicsWord(address);
+        if (OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Owns(projectile.Kind))
+            return OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (SpacePirateProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {

@@ -56,40 +56,13 @@ internal sealed class ClosedPresentationAudit
                         .Where(name => name.Identifier.ValueText == "IconNames")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
                             field.ContainingType.ToDisplayString() == typeof(GameplayHudDefinitions).FullName));
-            // A verification credits instance may have any positive row count.
-            // Its use in Core invalidates the production loader's fixed row proof;
-            // do not assume retail dimensions merely from the provider's type.
-            if (valid && contract.Type == typeof(CreditsPresentation).FullName)
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "FromCompiledRowsForVerification")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
-                            factory.ContainingType.ToDisplayString() == typeof(CreditsPresentation).FullName));
-            // Partial room geometry is useful in focused fixtures, but a Core
-            // caller of that factory invalidates complete production membership.
-            if (valid && contract.Type == typeof(SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog).FullName)
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "FromLayoutsForVerification")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
-                            factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog).FullName));
-            if (valid && contract.Type == typeof(SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalog).FullName)
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "FromOverlaysForVerification")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
-                            factory.ContainingType.ToDisplayString() == typeof(SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalog).FullName));
+            // Partial fixture factories for credits, room layouts, X-ray overlays and enemy tile artwork live in
+            // test-support, which Core and Tooling cannot reference, so no production caller can reach them.
             if (valid && contract.Type == typeof(EnemyTileArtworkCatalog).FullName)
             {
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "FromArtworkForVerification")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IMethodSymbol factory &&
-                            factory.ContainingType.ToDisplayString() == typeof(EnemyTileArtworkCatalog).FullName));
                 // Additional partial metadata declarations could mutate the private
                 // native arrays used to derive installation keys and DMA lengths.
-                if (valid)
-                    valid = new[] { typeof(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions).FullName,
+                valid = new[] { typeof(SuperMetroid.Core.Enemies.RoomEnemyGraphicsSetDefinitions).FullName,
                         typeof(SuperMetroid.Core.Enemies.RoomEnemyDefinitionCatalog).FullName, typeof(EnemyTileSourceDefinitions).FullName }
                         .All(type => compilation.GetTypeByMetadataName((type ?? throw new InvalidOperationException("Verification requires type."))) is { } dependency &&
                             dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
@@ -143,13 +116,10 @@ internal sealed class ClosedPresentationAudit
             if (valid && contract.Type == typeof(SamusArmCannonArtworkCatalog).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText is "FromPlacement" or "TileSourcePointers")
+                        .Where(name => name.Identifier.ValueText == "FromPlacement")
                         .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
                             IMethodSymbol { Name: "FromPlacement" } factory &&
-                                factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkCatalog).FullName ||
-                            compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is
-                            IFieldSymbol { Name: "TileSourcePointers" } field &&
-                                field.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkFormat).FullName));
+                                factory.ContainingType.ToDisplayString() == typeof(SamusArmCannonArtworkCatalog).FullName));
             foreach (string method in contract.Methods)
                 contracts.Add((contract.Type, method), (contract, valid));
             if (!valid)
@@ -188,6 +158,11 @@ internal sealed class ClosedPresentationAudit
             Gap("Closed-provider operation could not be bound.");
             return true;
         }
+        if (SuperMetroid.ResourceAudit.Resources.ConsumerAudit.UnboundArguments(call, semantic) is { } unbound)
+        {
+            Gap(unbound);
+            return true;
+        }
         string? invalid = InvalidConstantIndex(operation, provider.Name) ?? PlmVisualDomainAudit.InvalidConstants(operation)
             ?? SpecializedColorDomainAudit.InvalidConstants(operation) ?? PausePresentationDomainAudit.InvalidConstants(operation)
             ?? EnemyArtworkDomainAudit.InvalidConstants(operation)
@@ -218,23 +193,41 @@ internal sealed class ClosedPresentationAudit
         return true;
     }
 
-    /// <summary>Rejects literal arguments outside the reviewed finite identities or numeric index ranges.</summary>
-    private static string? InvalidConstantIndex(IInvocationOperation operation, string provider)
+    /// <summary>
+    /// Literal selections in an invocation: each constant argument under its parameter name, and each constant
+    /// constructor argument of a constructed value (a coordinate) as <c>parameter.Component</c>.
+    /// </summary>
+    private static IEnumerable<(string Parameter, object Value)> ConstantSelections(IInvocationOperation operation)
     {
         foreach (IArgumentOperation argument in operation.Arguments)
         {
-            var owner = (Type: provider,
-                Method: operation.TargetMethod.Name, Parameter: (argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.")).Name);
-            if (argument.Value.ConstantValue is not { HasValue: true, Value: not null } value) continue;
+            string parameter = (argument.Parameter ?? throw new InvalidOperationException("Verification requires argument.Parameter.")).Name;
+            IOperation value = argument.Value is IConversionOperation conversion ? conversion.Operand : argument.Value;
+            if (argument.Value.ConstantValue is { HasValue: true, Value: not null } constant)
+                yield return (parameter, constant.Value);
+            else if (value is IObjectCreationOperation creation)
+                foreach (IArgumentOperation component in creation.Arguments)
+                    if (component.Value.ConstantValue is { HasValue: true, Value: not null } part)
+                        yield return (parameter + "." + (component.Parameter ?? throw new InvalidOperationException(
+                            "Verification requires component.Parameter.")).Name, part.Value);
+        }
+    }
+
+    /// <summary>Rejects literal arguments outside the reviewed finite identities or numeric index ranges.</summary>
+    private static string? InvalidConstantIndex(IInvocationOperation operation, string provider)
+    {
+        foreach ((string parameter, object constantValue) in ConstantSelections(operation))
+        {
+            var owner = (Type: provider, Method: operation.TargetMethod.Name, Parameter: parameter);
             int[]? identities = ClosedPresentationIdentityDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             ProviderIndexDomain? range = ClosedPresentationIndexDefinitions.Get(owner.Type, owner.Method, owner.Parameter);
             if (identities is null && range is null) continue;
-            int number = Convert.ToInt32(value.Value);
+            int number = Convert.ToInt32(constantValue);
             if (identities is not null && !identities.Contains(number))
                 return $"Constant {owner.Parameter}={number} is not owned by the reviewed {owner.Type}.{owner.Method} resource domain.";
             if (range is null) continue;
             // White-frame Draygon hurt does not select a health band at all.
-            if (owner is ("DraygonColorCatalog", "ApplyHurt", "healthTableByteIndex") &&
+            if (owner is ("DraygonColorCatalog", "ApplyHurt", "healthBand") &&
                 operation.Arguments.Single(arg => arg.Parameter?.Name == "whiteFrame").Value.ConstantValue
                     is { HasValue: true, Value: true }) continue;
             if (owner is ("SporeSpawnColorCatalog", "ResolveDeath", "frame") &&

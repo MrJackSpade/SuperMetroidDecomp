@@ -183,8 +183,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
 
         Add(frames, "ceres_ridley", RidleyFireballVisualDefinitions.ProjectileFrameCount,
             index => RidleyFireballVisualDefinitions.PresentationKey(RidleyFireballVisualDefinitions.ProjectileFrames[index]));
-        Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordCount,
-            OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress);
+        Add(frames, "old_tourian_escape_wall_explosion", OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordCount,
+            OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "cacatac_spike", CacatacProjectileFrameDefinitions.PoseCount,
             index => CacatacProjectileFrameDefinitions.PresentationKey(new(index)));
         Add(frames, "botwoon", BotwoonVisualDefinitions.ProjectileFrameCount,

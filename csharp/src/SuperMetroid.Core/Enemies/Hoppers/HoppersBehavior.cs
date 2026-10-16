@@ -58,14 +58,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
     private const ushort MaximumHopperYSpeedTableIndex = 64;
 
-    /// <summary>Recognizes the Sidehopper and Dessgeega variants served by this shared bank-$A3 AI.</summary>
-    internal static bool IsHopperDefinition(EnemyDefinitionId definitionPointer) => definitionPointer is
-        EnemyDefinitionId.Sidehopper or
-        EnemyDefinitionId.Dessgeega or
-        EnemyDefinitionId.SidehopperLarge or
-        EnemyDefinitionId.SidehopperTourian or
-        EnemyDefinitionId.DessgeegaLarge;
-
     /// <summary>Ports <c>InitAI_Hopper</c> at $A3:AB09.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
     {

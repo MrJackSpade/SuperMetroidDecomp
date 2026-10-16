@@ -20,6 +20,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
+using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
@@ -34,8 +35,8 @@ internal static class ClosedPresentationIndexDefinitions
     {
         ("GameplayHudPresentation", "TryApplyIcon", "itemIndex") => new(0, 5),
         ("GameplayHudPresentation", "ApplyAmmo", "itemIndex") => new(0, 3),
-        ("GameplayHudPresentation", "MinimapCellIndex", "outputX") => new(0, 5),
-        ("GameplayHudPresentation", "MinimapCellIndex", "outputY") => new(0, 3),
+        ("GameplayHudPresentation", "MinimapCellIndex", "output.X") => new(0, GameplayHudPresentation.MinimapSize.X),
+        ("GameplayHudPresentation", "MinimapCellIndex", "output.Y") => new(0, GameplayHudPresentation.MinimapSize.Y),
         ("FileSelectPresentation", "WriteDigit", "digit") => new(0, 10),
         ("FileSelectPresentation", "Slot" or "WriteSlotLetter" or "DrawHelmet", "slot") => new(0, 3),
         ("FileSelectPresentation", "DrawCursor", "frame") => new(0, 4),
@@ -56,8 +57,8 @@ internal static class ClosedPresentationIndexDefinitions
         ("CeresRidleyColorCatalog", "ApplyHealth", "row") => new(0, CeresRidleyPaletteRomData.HealthRowCount),
         ("CeresRidleyColorCatalog", "ApplyAlarm", "row") => new(0, CeresRidleyPaletteRomData.AlarmRowCount),
         ("CeresRidleyColorCatalog", "ApplyBaby", "row") => new(0, CeresRidleyPaletteRomData.BabyRowCount),
-        ("DraygonColorCatalog", "ApplyHealthBand", "tableByteIndex") => new(0, DraygonColorRomData.HealthBandCount, sizeof(ushort)),
-        ("DraygonColorCatalog", "ApplyHurt", "healthTableByteIndex") => new(0, DraygonColorRomData.HealthBandCount, sizeof(ushort)),
+        ("DraygonColorCatalog", "ApplyHealthBand", "band") => new(0, DraygonColorRomData.HealthBandCount),
+        ("DraygonColorCatalog", "ApplyHurt", "healthBand") => new(0, DraygonColorRomData.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "band") => new(0, PhantoonColorRomData.HealthBandCount),
         ("PhantoonColorCatalog", "ResolveHealth", "color") => new(0, PhantoonColorRomData.HealthBandColorCount),
         ("PhantoonColorCatalog", "ResolveFadeOut", "color") => new(0, PhantoonColorRomData.FadeOutCount),
@@ -133,7 +134,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("CeresDoorVisualCatalog", "LoadMode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
         ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount, Additional: (int)VramAssetId.BeamChainsawTiles, AdditionalMaximum: (int)VramAssetId.BeamSpacetimeTiles),
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
-        ("ChargeFlareSpriteCatalog", "Draw", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),
+        ("ChargeFlareSpriteCatalog", "Frame", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),
         ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),
         ("SamusBodyArtworkCatalog", "GraphicsYOffset", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
         ("SamusSpritemapArtworkCatalog", "TopBase" or "BottomBase", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),

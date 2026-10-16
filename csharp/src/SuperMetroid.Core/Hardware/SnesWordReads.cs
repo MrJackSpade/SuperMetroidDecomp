@@ -26,13 +26,6 @@ public static class SnesWordReads
     /// </summary>
     extension(ISnesMutableMemory memory)
     {
-        /// <summary>Reads the little-endian WRAM word at <paramref name="cpuAddress"/> on the linear 24-bit bus.</summary>
-        public ushort ReadWorkRamWord(int cpuAddress)
-        {
-            Ensure.NotNull(memory);
-            byte low = memory.ReadWorkRamByte(cpuAddress);
-            return (ushort)(low | memory.ReadWorkRamByte(cpuAddress + 1) << 8);
-        }
 
         /// <summary>Reads the little-endian WRAM word at <paramref name="cpuAddress"/>, its high byte wrapping within the bank.</summary>
         public ushort ReadWorkRamWordFixedBank(int cpuAddress)

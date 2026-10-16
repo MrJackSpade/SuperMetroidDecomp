@@ -106,17 +106,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Recognizes crawler species that use the shared bank-A3 surface routine rather than orange Zoomer's chase AI.</summary>
-    private static bool IsSharedCrawlerDefinition(EnemyDefinitionId definitionPointer) =>
-        definitionPointer is
-            EnemyDefinitionId.Sciser or
-            EnemyDefinitionId.Zero or
-            EnemyDefinitionId.Viola or
-            EnemyDefinitionId.Zeela or
-            EnemyDefinitionId.Sova or
-            EnemyDefinitionId.Zoomer or
-            EnemyDefinitionId.MZoomer;
-
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
     internal static void InitializeHZoomer(RoomEnemySlot slot)
     {

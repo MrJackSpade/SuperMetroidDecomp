@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Flies;
 internal sealed class FliesEntity(FliesBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's FlyEnemyState, held by its physical slot.</summary>
-    internal FlyEnemyState? State
-    {
-        get => Slot.SpeciesState<FlyEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => FliesBehavior.RunFliesInitializationAi;
 

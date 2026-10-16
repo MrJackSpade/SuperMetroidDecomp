@@ -6,7 +6,7 @@ internal static class ProjectileClosedContractDefinitions
     /// <summary>Lists the reviewed projectile and grapple presentation entry points with the source files required to keep each visual contract self-contained.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Samus.Artwork.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve"],
+        new("SuperMetroid.Core.Samus.Artwork.BeamTileCatalog", "beam-complete-sheet-selection", ["Resolve", "TryResolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/SamusEquipmentFlags.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileAtlas.cs"),
@@ -27,7 +27,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Projectiles/SamusProjectileDirectionWord.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Grapple/GrappleFiringDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Grapple/SamusGrappleRomData.cs")]),
-        new("SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog", "flare-complete-private-composition-set", ["Draw"],
+        new("SuperMetroid.Core.Samus.Artwork.ChargeFlareSpriteCatalog", "flare-complete-private-composition-set", ["Frame"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlareSpriteCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ChargeFlareSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ProjectileSpriteCatalog.cs"),
@@ -58,7 +58,7 @@ internal static class ProjectileClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleSpriteDefinitions.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.GrappleSwingFrameCatalog", "grapple-complete-byte-angle-display-map", ["Resolve"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/GrappleSwingFrameCatalog.cs")]),
-        new("SuperMetroid.Core.Samus.Artwork.ProjectileSpriteCatalog", "projectile-production-complete-compositions", ["Draw"],
+        new("SuperMetroid.Core.Samus.Artwork.ProjectileSpriteCatalog", "projectile-production-complete-compositions", ["Frame"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/ProjectileSpriteCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/ProjectileSpriteDefinitions.cs"),

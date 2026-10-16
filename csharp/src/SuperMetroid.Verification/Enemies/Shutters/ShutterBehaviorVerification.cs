@@ -23,23 +23,23 @@ internal static class ShutterBehaviorVerification
     {
         VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterProgram.GrowingTenPixels,
             (enemies, slot) => ShuttersBehavior.InitializeGrowingShutter(slot),
-            enemies => (enemies.SlotTable.Slots[0].Entity as ShuttersEntity)?.GrowingShutterState?.Program);
+            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, GrowingShutterEnemyState>()?.Program);
         foreach (EnemyDefinitionId definition in new[] { EnemyDefinitionId.ShutterShootable, EnemyDefinitionId.ShutterDestroyable })
         {
             VerifyPose(definition, ShutterProgram.FortyPixels,
                 (enemies, slot) => ShuttersBehavior.InitializeVerticalShutter(slot),
-                enemies => (enemies.SlotTable.Slots[0].Entity as ShuttersEntity)?.VerticalShutterState?.Program);
+                enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Program);
         }
         VerifyPose(EnemyDefinitionId.ShutterHorizShootable, ShutterProgram.Horizontal,
             (enemies, slot) => ShuttersBehavior.InitializeHorizontalShutter(slot, null),
-            enemies => (enemies.SlotTable.Slots[0].Entity as ShuttersEntity)?.HorizontalShutterState?.Program);
+            enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, HorizontalShutterEnemyState>()?.Program);
 
         RoomEnemySystem kamerSystem = NewSystem();
         RoomEnemySlot kamer = NewSlot(kamerSystem, EnemyDefinitionId.Kamer);
         kamer.Bind(EnemyDefinitionId.Kamer, kamer.Definition);
         ShuttersBehavior.InitializeVerticalShutter(kamer);
         AssertEqual(AnimationProgramCursor<ShutterProgram>.Start(ShutterProgram.KamerPlatform),
-            (kamerSystem.SlotTable.Slots[0].Entity as ShuttersEntity)?.VerticalShutterState?.Program, "Kamer vertical platform starts its loop");
+            kamerSystem.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Program, "Kamer vertical platform starts its loop");
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ShutterAnimations.Programs, ShutterProgram.KamerPlatform, ShutterFrameDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(kamer, EnemyInstructionRunner.LoopUpdates(ShutterAnimations.Programs, ShutterProgram.KamerPlatform)),
             "Kamer platform loop and its goto");

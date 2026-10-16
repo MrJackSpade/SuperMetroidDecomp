@@ -62,10 +62,9 @@ internal static class ClosedPresentationIdentityDefinitions
                 ProjectileTrailDefinitions.Missile }).Distinct().ToArray(),
         ("ProjectileFrameBindingCatalog", "Resolve", "instructionPointer") => SamusProjectileRecordDefinitions.TimedRecordAddresses
             .Select(pointer => (int)pointer).ToArray(),
-        ("ProjectileSpriteCatalog", "Draw", "id") => ProjectileSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
+        ("ProjectileSpriteCatalog", "Frame", "id") => ProjectileSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
         ("RoomFxLayer3TilemapCatalog", "Resolve", "type") => RoomFxLayer3TilemapFormat.Types.Select(type => (int)type).ToArray(),
         ("RoomFxPaletteBlendCatalog", "Apply", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).Append(0).ToArray(),
-        ("RoomFxPaletteBlendCatalog", "Resolve", "selection") => RoomFxPaletteBlendDefinitions.Ids.Select(id => (int)id).ToArray(),
         ("RoomCharacterAtlasCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.CharacterAddress),
         ("RoomMetatileCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.BlockDefinitionsAddress),
         ("RoomStaticPaletteCatalog", "Get", "sourceAddress") => TilesetSources(definition => definition.PaletteAddress),

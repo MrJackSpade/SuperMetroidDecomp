@@ -52,7 +52,7 @@ internal static class ClosedPresentationContractChecks
                     SnesCgram cgram, Span<ushort> tiles, Span<byte> bytes,
                     OamBuffer oam, int dynamicIndex, string dynamicName) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
-                    hud.MinimapCellIndex(99, 0);
+                    hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));
                     menu.DrawCursor(oam, dynamicIndex, new(0,0));
                     menu.DynamicAnchor(FileSelectPresentationDefinitions.CopyConfirmSourceAnchor);
                     menu.DynamicAnchor("Missing.Anchor");
@@ -72,16 +72,16 @@ internal static class ClosedPresentationContractChecks
                     reserve.ApplyArrowColors(cgram, true, dynamicIndex, 6, 11);
                     reserve.ApplyDigit(bytes, 0, 10);
                     beam.LoadTo(cgram, 0);
-                    beam.LoadTo(cgram, 12);
+                    beam.LoadTo(cgram, (SuperMetroid.Core.Samus.Projectiles.SamusBeamCombination)12);
                     ridley.ApplyHealth(cgram, 0);
                     ridley.ApplyHealth(cgram, 3);
                     crocomire.ApplyFightBody(cgram);
-                    crocomire.ResolveFightBody(0);
+                    ridley.ResolveRetreatShared(0);
                     spores.ResolveSpore(0);
                     spores.ResolveDeath(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
                     draygon.ApplyHealthBand(cgram, 7);
-                    draygon.ApplyHealthBand(cgram, 0);
-                    draygon.ApplyHurt(cgram, true, 0);
+                    draygon.ApplyHealthBand(cgram, 8);
+                    draygon.ApplyHurt(cgram, true, 8);
                     phantoon.ResolvePowerOn(111);
                     phantoon.ResolvePowerOn(112);
                     statues.ApplyEye(cgram, 6);
@@ -95,7 +95,7 @@ internal static class ClosedPresentationContractChecks
                     death.BodyColor(15, 13);
                     death.CorpseColor(8, 0);
                     chozo.ApplyLowerNorfair(cgram);
-                    chozo.ResolveLowerNorfair(0);
+                    chozo.ResolveTubeCracks(0);
                     basePalette.LoadEnemyProjectileSprites(cgram, dynamicIndex);
                     samusDeath.SuitedColor(2, 9, 15);
                     samusDeath.SuitedColor(3, 9, 15);
@@ -117,7 +117,7 @@ internal static class ClosedPresentationContractChecks
         var before = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
-        Require(before.UnresolvedCount == 49, "the fixture must reproduce the identified missing-adapter boundaries first");
+        Require(before.UnresolvedCount == 49, "the fixture must reproduce the identified missing-adapter boundaries first" + " (" + before.Describe() + ")");
         var report = new AuditReport();
         foreach (InvocationExpressionSyntax call in calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
@@ -125,12 +125,12 @@ internal static class ClosedPresentationContractChecks
             $"only reviewed valid-domain operations and installed constant names qualify; invalid/new/dynamic selections must fail " +
             $"(classified {report.Classifications.Count}/26, missing {report.MissingCount}/2, unresolved {report.UnresolvedCount}/21; " +
             $"revoked: {string.Join(", ", adapter.InvalidContracts)}; unresolved: " +
-            string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")");
+            string.Join(" | ", report.Findings.Where(finding => finding.Code != AuditReport.Missing).Select(finding => finding.Owner + " " + finding.Message)) + ")" + " (" + report.Describe() + ")");
         Require(report.Findings.Where(item => item.Code == AuditReport.Missing).Select(item => item.Resource)
             .Order(StringComparer.Ordinal).SequenceEqual(["Missing.Anchor", "Missing.Label"]),
             "a compiler-resolved uninstalled name must remain a concrete missing identity");
         Require(report.Consumers.Count == 49, $"classifications must retain every inventoried call (consumers {report.Consumers.Count}/49; unbound: " +
-            string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")");
+            string.Join(" | ", report.Findings.Where(finding => finding.Message.Contains("could not be bound", StringComparison.Ordinal)).Select(finding => finding.Message)) + ")" + " (" + report.Describe() + ")");
 
         InvocationExpressionSyntax hudCall = calls.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().First();
 
@@ -142,7 +142,7 @@ internal static class ClosedPresentationContractChecks
         var mutationReport = new AuditReport();
         ConsumerAudit.Inspect(hudCall, mutatedCompilation.GetSemanticModel(calls), mutatedExports, mutationReport, mutated);
         Require(mutationReport.UnresolvedCount == 1 && mutationReport.Classifications.Count == 0,
-            "an unreviewed use of the mutable definition array must invalidate closure");
+            "an unreviewed use of the mutable definition array must invalidate closure" + " (" + mutationReport.Describe() + ")");
     }
 
     /// <summary>Reports the exact closed-provider contract predicate that failed.</summary>

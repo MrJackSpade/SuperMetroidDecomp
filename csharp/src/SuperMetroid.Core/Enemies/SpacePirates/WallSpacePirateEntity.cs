@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.SpacePirates;
 internal sealed class WallSpacePirateEntity(WallSpacePirateBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes
 {
-    /// <summary>The occupant's WallSpacePirateEnemyState, held by its physical slot.</summary>
-    internal WallSpacePirateEnemyState? State
-    {
-        get => Slot.SpeciesState<WallSpacePirateEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => WallSpacePirateBehavior.RunWallSpacePirateInitializationAi;
 

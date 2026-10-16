@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's CrawlerEnemyState, held by its physical slot.</summary>
-    internal CrawlerEnemyState? State
-    {
-        get => Slot.SpeciesState<CrawlerEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
     {

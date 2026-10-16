@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Native PLM pointer interpretation; no cartridge-read capability.</summary>
 internal static class RoomPlmMemoryLayout

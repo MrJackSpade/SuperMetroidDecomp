@@ -20,8 +20,9 @@ internal static class VramDmaArtworkChecks
         using var paletteStream = File.OpenRead(Path.Combine((Path.GetDirectoryName(Path.GetFullPath(mapDirectory)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(mapDirectory)).")),
             "gameplay-palettes", GameplayBasePaletteFormat.ArtworkFileName));
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var runtime = new SuperMetroidRuntime(memory, HostGameplayOverrides.None, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream))
-            { Artwork = { MapPresentation = maps, GrappleArtwork = Grapple(1) } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(memory, HostGameplayOverrides.None, initialPaletteArt: GameplayBasePaletteCatalog.Load(paletteStream));
+        runtime.Artwork.MapPresentation = maps;
+        runtime.Artwork.GrappleArtwork = Grapple(1);
         var pairs = new List<(int Source, int Count, VramAssetId Asset)>
         {
             (HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount, VramAssetId.StandardHudTiles),

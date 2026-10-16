@@ -89,7 +89,9 @@ internal static class ConsumerAudit
             if (call.Expression is MemberAccessExpressionSyntax access &&
                 semantic.GetTypeInfo(access.Expression).Type is { } receiver && IsResourceType(receiver))
                 report.Gap(ResourceDomains.Consumer, receiver.ToDisplayString(), source,
-                    "Resource lookup could not be bound semantically: " + call.Expression);
+                    "Resource lookup could not be bound semantically: " + call.Expression + " (" + string.Join(" | ",
+                        semantic.GetDiagnostics(call.Span).Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                            .Select(diagnostic => diagnostic.GetMessage())) + ")");
             return;
         }
         // Draw(), Segment(), Fragment(), LoadTo() and Color() also consume resources.
@@ -102,6 +104,12 @@ internal static class ConsumerAudit
         if (!IsResourceType(method.ContainingType)) return;
         string owner = method.ContainingType.Name + "." + method.Name;
         string arguments = string.Join(", ", call.ArgumentList.Arguments.Select(arg => arg.Expression.ToString()));
+        if (UnboundArguments(call, semantic) is { } unbound)
+        {
+            report.Consumers.Add(new(owner, source, "unresolved"));
+            report.Gap(Domain(method.ContainingType.Name, method.Name) ?? method.ContainingType.Name, owner, source, unbound);
+            return;
+        }
         string? domain = Domain(method.ContainingType.Name, method.Name);
         string? key = domain is null ? null : ConstantKey(domain, call, semantic);
         if (domain is null || key is null)
@@ -115,6 +123,18 @@ internal static class ConsumerAudit
         }
         report.Require(domain, owner, key, source, exports);
         report.Consumers.Add(new(owner, source,             exports.Contains(domain, key) ? "resolved" : "missing"));
+    }
+
+    /// <summary>
+    /// The compile errors inside a resource call's arguments, as a gap reason, or null when they bind. An argument that
+    /// names an inaccessible constant has no constant value, which would otherwise widen its selection to the whole domain.
+    /// </summary>
+    internal static string? UnboundArguments(InvocationExpressionSyntax call, SemanticModel semantic)
+    {
+        Diagnostic[] errors = [.. semantic.GetDiagnostics(call.ArgumentList.Span)
+            .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)];
+        return errors.Length == 0 ? null
+            : "Resource lookup arguments could not be bound: " + string.Join(" | ", errors.Select(error => error.GetMessage()));
     }
 
     /// <summary>Whether a source file belongs to the artwork layer: the shared Assets module or a domain's Artwork module.</summary>
@@ -142,7 +162,7 @@ internal static class ConsumerAudit
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame") => ResourceDomains.EnemyProjectileProgram,
         ("EnemyProjectileSpritemapCatalog", "Get") => ResourceDomains.EnemyProjectileSprite,
         ("IPaletteFxColorSource" or "RoomPaletteFxPresentation", "TryReadColor") => ResourceDomains.PaletteFx,
-        ("ProjectileSpriteCatalog", "Draw") => ResourceDomains.SamusProjectile,
+        ("ProjectileSpriteCatalog", "Frame") => ResourceDomains.SamusProjectile,
         _ => null,
     };
 

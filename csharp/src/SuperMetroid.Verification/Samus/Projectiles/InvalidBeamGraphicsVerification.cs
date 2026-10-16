@@ -27,7 +27,7 @@ internal static class InvalidBeamGraphicsVerification
             "plain high-level address reads do not acquire an invented open-bus value");
         AssertSequenceEqual(ChainsawBeamGraphicsDefinitions.InstructionBytes.ToArray(),
             Enumerable.Range(0, ChainsawBeamGraphicsDefinitions.InstructionBytes.Length)
-                .Select(offset => bus.ReadCartridgeByte(ChainsawBeamGraphicsDefinitions.InstructionAddress + offset)),
+                .Select(offset => bus.ReadCartridgeByte(ChainsawBeamGraphicsDefinitionsConstants.InstructionAddress + offset)),
             "bounded instruction data matches the original executable bytes");
         using var scratch = new TestScratchDirectory("projectile-artwork");
         string installedDirectory = scratch.Root;

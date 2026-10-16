@@ -148,8 +148,8 @@ internal static class EnemyProjectileDefinitionCatalog
             0xCAA4,
             0x0000, 0x3000, 0x0000),
         RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion => new(
-            OldTourianEscapeShaftWallExplosionDefinitions.PreInstruction,
-            OldTourianEscapeShaftWallExplosionDefinitions.InitialInstructionList,
+            OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.PreInstruction,
+            OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.InitialInstructionList,
             0x0000, 0x3000, 0x0000),
         RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall => new(
             0xCAA3,

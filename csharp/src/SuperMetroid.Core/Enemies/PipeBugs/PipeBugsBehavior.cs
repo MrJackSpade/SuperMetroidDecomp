@@ -49,11 +49,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
-    /// <summary>Recognizes the two Brinstar variants that share bank-$B3 pipe-bug AI.</summary>
-    internal static bool IsBrinstarPipeBugDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.Zeb or
-            EnemyDefinitionId.Zebbo;
-
     /// <summary>Releases every initialized species state before a new room population loads.</summary>
     internal void ResetPipeBugRoomState() =>
         Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<PipeBugEnemyState>(null));

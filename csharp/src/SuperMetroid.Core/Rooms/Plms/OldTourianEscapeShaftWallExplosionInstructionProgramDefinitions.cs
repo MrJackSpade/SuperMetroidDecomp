@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// at $86:B443-$B46F. Its six small-explosion spritemap operands resolve through extracted
 /// presentation art.
 /// </summary>
-internal static class OldTourianEscapeShaftWallExplosionDefinitions
+internal static class OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions
 {
     /// <summary>$86:B4B0, the header's bare-RTS pre-instruction.</summary>
     internal const ushort PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86B4B0;

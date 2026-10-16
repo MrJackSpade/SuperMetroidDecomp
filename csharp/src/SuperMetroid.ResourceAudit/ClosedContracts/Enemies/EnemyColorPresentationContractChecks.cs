@@ -82,9 +82,9 @@ internal static class EnemyColorPresentationContractChecks
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, before);
             ConsumerAudit.Inspect(call, compilation.GetSemanticModel(calls), exports, report, adapter);
         }
-        Require(before.UnresolvedCount == 28, "twenty-eight calls must reproduce absent adapters first");
+        Require(before.UnresolvedCount == 28, "twenty-eight calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(report.Classifications.Count == 14 && report.UnresolvedCount == 14 && report.MissingCount == 0 &&
-            report.Consumers.Count == 28, "supported domains qualify but short arrays, zero-based baby fade and invalid constants still fail");
+            report.Consumers.Count == 28, "supported domains qualify but short arrays, zero-based baby fade and invalid constants still fail" + " (" + report.Describe() + ")");
         foreach (string selected in new[] { "FaceBlock", "DeadSidehopper", "RoomBackdrop", "Default" })
             Require(report.Findings.Any(item => item.Message.Contains("selected " + selected, StringComparison.Ordinal)),
                 "the " + selected + " selection must not borrow another resource's larger dimensions");

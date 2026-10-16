@@ -18,8 +18,10 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Runtime;
 
 /// <summary>Checks imported projectile OAM against native records, production draw owners, and installed edits.</summary>
 internal static class ProjectileCompositionsVerification
@@ -178,7 +180,8 @@ internal static class ProjectileCompositionsVerification
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,
         MapPresentationInstalledRoomAssets roomAssets, AreaMapPresentationCatalog maps)
     {
-        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(bus, new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: roomAssets.InitialPalettes);
+        runtime.Artwork.MapPresentation = maps;
         roomAssets.Bind(runtime);
         runtime.Artwork.ProjectileCompositions = stock;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>One WRAM byte at a fixed CPU address. Constructed only by domain memory views.</summary>
 [CpuBusAccess]

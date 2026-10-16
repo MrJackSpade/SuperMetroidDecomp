@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Crawlers;
 internal sealed class MultiviolaEntity(MultiviolaBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's MultiviolaEnemyState, held by its physical slot.</summary>
-    internal MultiviolaEnemyState? State
-    {
-        get => Slot.SpeciesState<MultiviolaEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MultiviolaBehavior.RunMultiviolaInitializationAi;
 

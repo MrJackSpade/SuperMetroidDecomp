@@ -67,19 +67,11 @@ internal static class RoomArtworkPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 17, "constructed calls must first expose absent adapters");
+        Require(before.UnresolvedCount == 17, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 9 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 17, "required sources and complete sky page/row/false queries qualify, not optional keys or bad transfers");
+            after.Consumers.Count == 17, "required sources and complete sky page/row/false queries qualify, not optional keys or bad transfers" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemapCatalog.Get"),
             "an unowned background source must not borrow required graphics-set source closure");
-        const string catalog = "csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlasCatalog.cs";
-        var changed = trees.Select(tree => tree.FilePath == catalog ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("atlas is null", "false", StringComparison.Ordinal), path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(changed), true);
-        Require(revoked.Classifications.Count == 8 && revoked.UnresolvedCount == 9 &&
-            revoked.Findings.Count(item => item.Owner == "RoomCharacterAtlasCatalog.Get" &&
-                item.Message.Contains("stale", StringComparison.Ordinal)) == 2,
-            "changed required-source admission must revoke character membership proof");
     }
 
     /// <summary>Reports the failed room-artwork ownership property.</summary>

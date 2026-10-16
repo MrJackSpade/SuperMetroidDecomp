@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// A bounded table of little-endian WRAM words at a fixed CPU address, stepping two bytes per
@@ -34,7 +34,7 @@ public readonly struct WramWords
         {
             if ((uint)index >= (uint)Count)
                 throw new ArgumentOutOfRangeException(nameof(index), index, $"WRAM table holds {Count} words.");
-            return WramWord.AtElement(bus, SnesAddressMath.AddWithinBank(address, index * 2));
+            return WramWordConstants.AtElement(bus, SnesAddressMath.AddWithinBank(address, index * 2));
         }
     }
 }

@@ -1,5 +1,30 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.Gunship;
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Menus;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
+using SuperMetroid.Core.Frontend.Title;
+using SuperMetroid.Core.Hud;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Saves;
+using SuperMetroid.Core.Samus.Death;
+using SuperMetroid.Core.Frontend.CeresCinematics;
+using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Runtime.Attract;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -38,5 +63,7 @@ internal static class SuperMetroidGameAccess
         /// Production UI code continues to consume the coarser public game state.
         /// </summary>
         internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.Session.doorTransition.Phase;
+        /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
+        public GameArtwork Artwork { get => self.Session.Artwork; }
     }
 }

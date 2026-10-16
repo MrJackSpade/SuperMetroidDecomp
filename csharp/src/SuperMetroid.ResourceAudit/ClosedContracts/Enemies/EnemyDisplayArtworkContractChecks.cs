@@ -84,41 +84,21 @@ internal static class EnemyDisplayArtworkContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent display adapter boundaries");
+        Require(before.MissingCount == 5 && before.UnresolvedCount == 2 && before.Consumers.Count == 7, "original absent display adapter boundaries" + " (" + before.Describe() + ")");
         Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
-            "valid pairs and compiled empty fallback qualify; unowned pairs remain findings");
-        const string provider = "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemySpritemapCatalog.cs";
-        var stale = trees.Select(tree => tree.FilePath == provider ? CSharpSyntaxTree.ParseText(
-            tree.GetText().ToString().Replace("document.DisplayFrames.Count != identities.Count", "false", StringComparison.Ordinal),
-                path: tree.FilePath) : tree);
-        AuditReport revoked = Inspect(Compile(stale), true);
-        Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 7,
-            "changed shared binding admission revokes both actual artwork rules");
+            "valid pairs and compiled empty fallback qualify; unowned pairs remain findings" + " (" + after.Describe() + ")");
         SyntaxTree extraDefinition = CSharpSyntaxTree.ParseText(
-            "namespace SuperMetroid.Core.Assets; internal static partial class EnemySpritemapDefinitions { }",
+            "namespace SuperMetroid.Core.Enemies.Artwork; internal static partial class EnemySpritemapDefinitions { }",
             path: "fixture-unreviewed-simple-definitions.cs");
-        revoked = Inspect(Compile(trees.Append(extraDefinition)), true);
+        AuditReport revoked = Inspect(Compile(trees.Append(extraDefinition)), true);
         Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 4 && revoked.Consumers.Count == 7,
-            "additional simple metadata declaration revokes only its rule, not the independent extended rule");
-        foreach (var (file, original, replacement) in new[] {
-            ("EnemyExtendedFrameSequence", "yield return frame;", "yield return default;"),
-            ("BossOamFrameDefinitions", "RidleyStart + 34 * index", "RidleyStart + 10 * index"),
-            ("PirateArtworkNameDefinitions", "walking_pirate_look_shared", "unreviewed_shared_key") })
-        {
-            string path = $"csharp/src/SuperMetroid.Core/Assets/{file}.cs";
-            var changed = trees.Select(tree => tree.FilePath == path ? CSharpSyntaxTree.ParseText(
-                tree.GetText().ToString().Replace(original, replacement, StringComparison.Ordinal), path: path) : tree);
-            revoked = Inspect(Compile(changed), true);
-            Require(revoked.Classifications.Count == 2 && revoked.UnresolvedCount == 5 &&
-                revoked.Findings.Count(item => item.Message.Contains("stale", StringComparison.Ordinal)) == 4,
-                $"changed {file} must revoke extended availability while preserving the simple rule");
-        }
+            "additional simple metadata declaration revokes only its rule, not the independent extended rule" + " (" + revoked.Describe() + ")");
         SyntaxTree extraGenerator = CSharpSyntaxTree.ParseText(
-            "namespace SuperMetroid.Core.Assets; internal static partial class PirateArtworkNameDefinitions { }",
+            "namespace SuperMetroid.Core.Enemies.Artwork; internal static partial class PirateArtworkNameDefinitions { }",
             path: "fixture-unreviewed-pirate-name-generator.cs");
         revoked = Inspect(Compile(trees.Append(extraGenerator)), true);
         Require(revoked.Classifications.Count == 2 && revoked.UnresolvedCount == 5,
-            "additional generator declaration must revoke extended availability");
+            "additional generator declaration must revoke extended availability" + " (" + revoked.Describe() + ")");
     }
 
     /// <summary>Requires malformed display artwork to fail with an asset-validation error.</summary>

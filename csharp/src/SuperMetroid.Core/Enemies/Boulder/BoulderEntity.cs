@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Boulder;
 internal sealed class BoulderEntity(BoulderBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's BoulderEnemyState, held by its physical slot.</summary>
-    internal BoulderEnemyState? State
-    {
-        get => Slot.SpeciesState<BoulderEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => BoulderBehavior.RunBoulderInitializationAi;
 

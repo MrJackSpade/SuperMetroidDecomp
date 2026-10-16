@@ -21,16 +21,6 @@ public readonly struct WramWord
         address = cell.Address;
     }
 
-    /// <summary>Creates an element view after the containing word table has checked its bounds.</summary>
-    private WramWord(ISnesMemoryBus bus, int address)
-    {
-        this.bus = bus;
-        this.address = address;
-    }
-
-    /// <summary>The word at an element address already bounds-checked by its table.</summary>
-    internal static WramWord AtElement(ISnesMemoryBus bus, int address) => new(bus, address);
-
     /// <summary>Reads the word: low byte first, then the bank-wrapped high byte.</summary>
     public ushort Read() =>
         bus.ReadWorkRamWordFixedBank(address);

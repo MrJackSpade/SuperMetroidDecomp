@@ -208,7 +208,8 @@ internal static class EnemyTileArtworkKraidVerification
         GameplayBasePaletteCatalog initial = GameplayBasePaletteCatalog.Load(new EnemyIdentityFixture().Json(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version, Colors(SnesCgram.ColorCount),
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
-        var runtime = new SuperMetroidRuntime(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial) { Artwork = { MapPresentation = stock } };
+        var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial);
+        runtime.Artwork.MapPresentation = stock;
         runtime.Enemies.TileArtwork = enemyArtwork;
         AssertTrue(ReferenceEquals(stock.HudTiles, runtime.Enemies.Presentation.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
@@ -220,7 +221,7 @@ internal static class EnemyTileArtworkKraidVerification
                     .SequenceEqual(stock.HudTiles.KraidRestoreQuarter(quarter).Span),
                 $"runtime resolves Kraid BG3 quarter {quarter} from installed HUD pixels");
         }
-        var restored = new SuperMetroidRuntime(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial);
+        var restored = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge(), HostGameplayOverrides.None, initialPaletteArt: initial);
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
              quarter++)
             restored.VramWrites.Enqueue(

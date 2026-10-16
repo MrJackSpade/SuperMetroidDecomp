@@ -101,7 +101,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as DeadSidehopperEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DeadSidehopperEntity, DeadSidehopperEnemyState>())];
 
         /// <summary>The loaded Dead Torizo's typed extended-WRAM state.</summary>
         internal DeadTorizoEnemyState? DeadTorizo => self.DeadTorizoBehavior._deadTorizo;
@@ -112,47 +112,47 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed state for every physical slot currently owned by a Skree.</summary>
         internal IReadOnlyList<SkreeEnemyState?> SkreeStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SkreeEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<SkreeEntity, SkreeEnemyState>())];
 
         /// <summary>Typed Spark state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<SparkEnemyState?> SparkStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SparkEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<SparkEntity, SparkEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by a Zoa.</summary>
         internal IReadOnlyList<ZoaEnemyState?> ZoaStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ZoaEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ZoaEntity, ZoaEnemyState>())];
 
         /// <summary>Typed state for both graphics and hitbox records in all physical slots.</summary>
         internal IReadOnlyList<HibashiEnemyState?> HibashiStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as HibashiEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<HibashiEntity, HibashiEnemyState>())];
 
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ElevatorEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ElevatorEntity, ElevatorEnemyState>())];
 
         /// <summary>Kago extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<KagoEnemyState?> KagoStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as KagoEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<KagoEntity, KagoEnemyState>())];
 
         /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<WaverEnemyState?> WaverStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WaverEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<WaverEntity, WaverEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by a crawler family.</summary>
         internal IReadOnlyList<CrawlerEnemyState?> CrawlerStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as CrawlerEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<CrawlerEntity, CrawlerEnemyState>())];
 
         /// <summary>Typed state for powered and deactivated Work Robots in all physical slots.</summary>
         internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WorkRobotEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<WorkRobotEntity, WorkRobotEnemyState>())];
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rio.</summary>
         internal IReadOnlyList<RioEnemyState?> RioStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as RioEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<RioEntity, RioEnemyState>())];
 
         /// <summary>Typed state for each live or previously allocated physical enemy slot.</summary>
         internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ZebetiteEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ZebetiteEntity, ZebetiteEnemyState>())];
 
         /// <summary>
         /// Per-physical-slot Shaktool state. A live retail group occupies seven consecutive
@@ -163,39 +163,39 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed state for every physical slot currently owned by a Mochtroid.</summary>
         internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MochtroidEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MochtroidEntity, MochtroidEnemyState>())];
 
         /// <summary>Typed state for each physical slot currently occupied by a Yard.</summary>
         internal IReadOnlyList<YardEnemyState?> YardStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as YardEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<YardEntity, YardEnemyState>())];
 
         /// <summary>Typed Metaree state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<MetareeEnemyState?> MetareeStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MetareeEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MetareeEntity, MetareeEnemyState>())];
 
         /// <summary>Typed state for every physical Owtch-capable enemy slot.</summary>
         internal IReadOnlyList<OwtchEnemyState?> OwtchStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as OwtchEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<OwtchEntity, OwtchEnemyState>())];
 
         /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
         internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as FuneNamiheEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FuneNamiheEntity, FuneNamiheEnemyState>())];
 
         /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
         internal IReadOnlyList<StokeEnemyState?> StokeStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as StokeEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<StokeEntity, StokeEnemyState>())];
 
         /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as FakeKraidEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FakeKraidEntity, FakeKraidEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
         internal IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as NorfairLavaJumpingEnemyEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<NorfairLavaJumpingEnemyEntity, NorfairLavaJumpingEnemyState>())];
 
         /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as FirefleaEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<FirefleaEntity, FirefleaEnemyState>())];
 
         /// <summary>All 32 physical bank-$B4 slots, including inactive ones.</summary>
         internal IReadOnlyList<RoomSpriteObjectSlot> RoomSpriteObjects => self.SpriteObjects.Slots;
@@ -205,11 +205,11 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>The Boyon state of each physical slot's occupant, or null where no initialized Boyon occupies it.</summary>
         internal IReadOnlyList<BoyonEnemyState?> BoyonStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BoyonEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<BoyonEntity, BoyonEnemyState>())];
 
         /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as EscapeEtecoonEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EscapeEtecoonEntity, EscapeEtecoonEnemyState>())];
 
         /// <summary>Each Ceres door slot's typed program cursor.</summary>
         internal IReadOnlyDictionary<int, AnimationProgramCursor<CeresDoorProgram>> CeresDoorPrograms =>
@@ -221,19 +221,19 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed state for each physical escape-Dachora slot.</summary>
         internal IReadOnlyList<EscapeDachoraEnemyState?> EscapeDachoraStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as EscapeDachoraEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EscapeDachoraEntity, EscapeDachoraEnemyState>())];
 
         /// <summary>Nuclear Waffle extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as NuclearWaffleEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<NuclearWaffleEntity, NuclearWaffleEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by the hopper family.</summary>
         internal IReadOnlyList<HopperEnemyState?> HopperStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as HoppersEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<HoppersEntity, HopperEnemyState>())];
 
         /// <summary>Typed face-block state in fixed physical enemy-slot order.</summary>
         internal IReadOnlyList<BlueBrinstarFaceBlockEnemyState?> BlueBrinstarFaceBlockStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BlueBrinstarFaceBlockEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<BlueBrinstarFaceBlockEntity, BlueBrinstarFaceBlockEnemyState>())];
 
         /// <summary>Frame-local drops requested by destroyed free-floating spores.</summary>
         internal IReadOnlyList<SporeSpawnDropRequest> SporeSpawnDropRequests =>
@@ -241,35 +241,35 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as DeadTourianEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DeadTourianEntity, DeadTourianCorpseEnemyState>())];
 
         /// <summary>Typed Atomic state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<AtomicEnemyState?> AtomicStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as AtomicEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<AtomicEntity, AtomicEnemyState>())];
 
         /// <summary>Typed state for every physical Cacatac-capable enemy slot.</summary>
         internal IReadOnlyList<CacatacEnemyState?> CacatacStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as CacatacEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<CacatacEntity, CacatacEnemyState>())];
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
         internal IReadOnlyList<RinkaEnemyState?> RinkaStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as RinkaEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<RinkaEntity, RinkaEnemyState>())];
 
         /// <summary>Walking Space Pirate extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WalkingSpacePirateEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>())];
 
         /// <summary>Wall Space Pirate extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WallSpacePirateEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<WallSpacePirateEntity, WallSpacePirateEnemyState>())];
 
         /// <summary>Magdollite extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MagdolliteEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MagdolliteEntity, MagdolliteEnemyState>())];
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MetroidEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MetroidEntity, MetroidEnemyState>())];
 
         /// <summary>Baby Metroid actor state during the Mother Brain encounter.</summary>
         internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior._shitroid;
@@ -279,37 +279,37 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed native state for every physical Etecoon slot.</summary>
         internal IReadOnlyList<EtecoonEnemyState?> EtecoonStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as EtecoonEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<EtecoonEntity, EtecoonEnemyState>())];
 
         /// <summary>Native slot offsets admitted to solid-enemy interaction.</summary>
         internal IReadOnlyList<ushort> InteractiveEnemyIndexes => self.ProcessingWindow._interactiveEnemyIndexes;
 
         /// <summary>Typed Alcoon state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<AlcoonEnemyState?> AlcoonStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as AlcoonEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<AlcoonEntity, AlcoonEnemyState>())];
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as DragonEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonEnemyState>())];
 
         /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
         internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader._graphicsSet;
 
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as PuyoEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<PuyoEntity, PuyoEnemyState>())];
 
         /// <summary>Typed Bull state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<BullEnemyState?> BullStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BullEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<BullEntity, BullEnemyState>())];
 
         /// <summary>Typed Skultera state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<SkulteraEnemyState?> SkulteraStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SkulteraEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<SkulteraEntity, SkulteraEnemyState>())];
 
         /// <summary>Typed state for every physical slot currently owned by Sbug/Sbug2.</summary>
         internal IReadOnlyList<SbugEnemyState?> SbugStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SbugEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<SbugEntity, SbugEnemyState>())];
 
         /// <summary>Typed state for every physical Pipe Bug enemy slot.</summary>
         internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates =>
@@ -321,7 +321,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<ChootEnemyState?> ChootStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ChootEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ChootEntity, ChootEnemyState>())];
 
         /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
         internal IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>
@@ -329,19 +329,19 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Typed native state for every loaded Yapping Maw slot.</summary>
         internal IReadOnlyList<YappingMawEnemyState?> YappingMawStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as YappingMawEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<YappingMawEntity, YappingMawEnemyState>())];
 
         /// <summary>Typed Oum state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<MaridiaLargeSnailEnemyState?> MaridiaLargeSnailStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MaridiaLargeSnailEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<MaridiaLargeSnailEntity, MaridiaLargeSnailEnemyState>())];
 
         /// <summary>Typed Beetom state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<BeetomEnemyState?> BeetomStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BeetomEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<BeetomEntity, BeetomEnemyState>())];
 
         /// <summary>Typed Tripper/Kamer state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<PlatformEnemyState?> PlatformStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as PlatformsEntity)?.State)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<PlatformsEntity, PlatformEnemyState>())];
 
         /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
         internal TorizoEnemyState? BombTorizo =>
@@ -349,7 +349,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>
-            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ShuttersEntity)?.GrowingShutterState)];
+            [.. self.SlotTable.Slots.Select(slot => slot.EntityState<ShuttersEntity, GrowingShutterEnemyState>())];
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
         internal IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>

@@ -38,6 +38,4 @@ internal interface IElevatorJourney
     /// <summary>Returns the journey to rest: status inactive and flags clear, as gameplay does at fixed points.</summary>
     void ResetStatus();
 
-    /// <summary>Sets the status word for a debugger; gameplay uses <see cref="ResetStatus"/>.</summary>
-    void SetElevatorStatusForDebugging(ushort status);
 }

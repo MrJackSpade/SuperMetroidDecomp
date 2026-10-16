@@ -7,13 +7,6 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <summary>The occupant's ElevatorEnemyState, held by its physical slot.</summary>
-    internal ElevatorEnemyState? State
-    {
-        get => Slot.SpeciesState<ElevatorEnemyState>();
-        set => Slot.SetSpeciesState(value);
-    }
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => species.RunElevatorInitializationAi;
 

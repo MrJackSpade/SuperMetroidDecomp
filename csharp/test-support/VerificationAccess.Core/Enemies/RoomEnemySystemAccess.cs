@@ -269,7 +269,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates => self.PuyoBehavior._puyoStates;
 
         /// <summary>Typed Bull state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<BullEnemyState?> BullStates => self.BullBehavior._bullStates;
+        internal IReadOnlyList<BullEnemyState?> BullStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BullEntity)?.State)];
 
         /// <summary>Typed Skultera state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<SkulteraEnemyState?> SkulteraStates => self.SkulteraBehavior._skulteraStates;

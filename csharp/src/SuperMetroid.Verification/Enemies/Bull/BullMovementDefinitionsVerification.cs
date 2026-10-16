@@ -17,6 +17,7 @@ internal static class BullMovementDefinitionsVerification
         var enemies = new RoomEnemySystem();
         Action<RoomEnemySlot> initialize = enemies.BullBehavior.InitializeBull;
         var slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         for (ushort interval = 0; interval < 13; interval++)
         for (ushort speed = 0; speed < 8; speed++)
         {

@@ -5,11 +5,10 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 public static class SpacetimeBeamCorruptionLayout
 {
     /// <summary>
-    /// Direct-page long pointer $00-$02 consumed by <c>LDA [$00],Y</c>. Gameplay uses direct
-    /// page zero, so these CPU-bus addresses are the low-WRAM mirror of <c>$7E:0000-$7E:0002</c>.
+    /// The direct-page long pointer <c>$00-$02</c> that <c>LDA [$00],Y</c> consumes: direct-page scratch the port does
+    /// not model. It has always read zero in the port, as the retail probe observed (<c>$00:0000</c>).
     /// </summary>
-    public static readonly CpuBusCell SourceLongPointer = CpuBusCell.WramBytes(nameof(SourceLongPointer), 0x000000, 3,
-        "24-bit long pointer (u8[3] little-endian)");
+    public const int SourceLongPointerValue = 0x000000;
 
     /// <summary>
     /// $7E:C1C0, the sprite-palette-six destination embedded in the interrupted

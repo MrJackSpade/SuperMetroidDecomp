@@ -364,18 +364,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCorruptionLayout",
-      "name": "SourceLongPointer",
-      "region": "WorkRam",
-      "address": "$00:0000",
-      "byteCount": 3,
-      "encoding": "24-bit long pointer (u8[3] little-endian)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Projectiles/SpacetimeBeamCorruptionMemory.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCorruptionLayout",
       "name": "SpritePaletteSix",
       "region": "WorkRam",
       "address": "$7E:C1C0",

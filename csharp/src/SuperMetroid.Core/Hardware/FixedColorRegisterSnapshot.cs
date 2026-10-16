@@ -18,8 +18,4 @@ public readonly record struct FixedColorRegisterSnapshot(byte Red, byte Green, b
 
     /// <summary>The five-bit intensity of <see cref="Blue"/>.</summary>
     public byte BlueIntensity => (byte)(Blue & 31);
-
-    /// <summary>Copies the shared WRAM COLDATA shadows.</summary>
-    public static FixedColorRegisterSnapshot Capture(FixedColorMemory memory) =>
-        new(memory.Red, memory.Green, memory.Blue);
 }

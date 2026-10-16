@@ -2,8 +2,7 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 
 /// <summary>
 /// Compiled fixed-color shade definitions for the Fireflea room effect. The flashing
-/// phase and enemy-death darkness level remain mutable WRAM state in
-/// <see cref="FirefleaRoomFx"/>.
+/// phase and enemy-death darkness level are mutable state in <see cref="FirefleaFxState"/>.
 /// </summary>
 internal static class FirefleaFxDefinitions
 {

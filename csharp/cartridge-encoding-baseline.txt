@@ -547,7 +547,7 @@ csharp/src/SuperMetroid.Verification/Enemies/FallingSparks/FallingSparkLaunchDef
 csharp/src/SuperMetroid.Verification/Enemies/FallingSparks/FallingSparkLaunchDefinitionsVerification.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Enemies/FamilyTrigonometryVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaEyeVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaFxVerification.cs	SME6340	36
+csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaFxVerification.cs	SME6340	31
 csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaFxVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaMovementDefinitionsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Enemies/Fireflea/FirefleaMovementDefinitionsVerification.cs	SME6345	1
@@ -899,7 +899,7 @@ csharp/src/SuperMetroid.Verification/Hardware/Bgr555DomainVerification.cs	SME634
 csharp/src/SuperMetroid.Verification/Hardware/ColorWindowSnapshotTestsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6340	55
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	82
+csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	78
 csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	25
@@ -922,7 +922,7 @@ csharp/src/SuperMetroid.Verification/Hardware/TypedWordsVerification.cs	SME6340	
 csharp/src/SuperMetroid.Verification/Hardware/WordReadsVerification.cs	SME6340	93
 csharp/src/SuperMetroid.Verification/Hardware/WordSamplesVerification.cs	SME6340	18
 csharp/src/SuperMetroid.Verification/Hardware/WordSamplesVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs	SME6340	24
+csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs	SME6340	23
 csharp/src/SuperMetroid.Verification/Hardware/WramHelperBoundaryVerification.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Harness/AssertionsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Harness/EvidencedSoundAcknowledgements.cs	SME6340	2

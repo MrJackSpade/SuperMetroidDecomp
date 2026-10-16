@@ -220,7 +220,7 @@ internal sealed class AcceptedFrameBoundary
     {
         SamusPowerBombExplosionState explosion = _bombProjectiles.PowerBombExplosion;
         return new(
-            FixedColorRegisterSnapshot.Capture(new FixedColorMemory(RuntimeMemory.RequireBus(_addressSpace))),
+            _roomLayer3Fx.FixedColors.Snapshot(),
             new FixedColorRegisterSnapshot(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue),
             new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
             _enemies.DisplaySources.MotherBrain?.RainbowBeamHdma.Color);

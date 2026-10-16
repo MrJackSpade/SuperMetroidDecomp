@@ -19,23 +19,7 @@ internal static class WramHelperBoundaryVerification
 
         Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler(memory));
         Suite(nameof(VerifyWramProjectileInheritance), () => VerifyWramProjectileInheritance(memory));
-        FirefleaRoomFx.Initialize(memory);
-        ushort[] shades = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
-        var fixedColor = new FixedColorMemory(memory);
-        var fireflea = new FirefleaFxMemory(memory);
-        for (int frame = 1; frame <= 144; frame++)
-        {
-            FirefleaRoomFx.Step(memory, frozen: false, darkness: 0);
-            AssertEqual((byte)(shades[frame / 6 % shades.Length] | 0x20),
-                fixedColor.Red, "Fireflea native six-frame shade cadence");
-        }
-        ushort retainedTimer = fireflea.Timer;
-        FirefleaRoomFx.Step(memory, frozen: true, darkness: 2);
-        AssertEqual(retainedTimer, fireflea.Timer,
-            "frozen Fireflea leaves the live WRAM timer unchanged");
-        AssertEqual((ushort)2, fireflea.Darkness,
-            "frozen Fireflea still publishes the enemy-owned darkness counter");
-        Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling, 50 projectile-inheritance records and Fireflea cadence pass without a cartridge.");
+        Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling and 50 projectile-inheritance records pass without a cartridge.");
     }
 
     /// <summary>Checks word wrapping, system-bank mirrors, and rejection of non-WRAM addresses.</summary>

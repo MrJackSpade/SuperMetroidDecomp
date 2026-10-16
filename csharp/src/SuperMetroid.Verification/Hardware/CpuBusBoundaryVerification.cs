@@ -229,11 +229,6 @@ internal static class CpuBusBoundaryVerification
         AssertEqual((ushort)0x1234, new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Read(), "loaded-item count is a $7E:D91A word");
         AssertEqual((byte)8, bus.ReadWorkRamByte(SaveMirrorWorkRamAddresses.Events.Address + 7), "event bitset lands at $7E:D820");
 
-        var fireflea = new FirefleaFxMemory(bus);
-        fireflea.Timer = 0x0102;
-        AssertEqual((ushort)0x0102, fireflea.Timer, "Fireflea timer round-trips");
-        AssertEqual((byte)0x02, bus.ReadWorkRamByte(0x7e1778), "Fireflea timer is the $7E:1778 word through its mirror");
-
         var scratch = new EnemyScratchMemory(bus);
         AssertThrows<InvalidDataException>(() => scratch.RotTable(0x8ffc, 2), "a rot table must lie inside the rotting heap");
         scratch.CorpseTiles.WriteWord(0x10, 0x4321);

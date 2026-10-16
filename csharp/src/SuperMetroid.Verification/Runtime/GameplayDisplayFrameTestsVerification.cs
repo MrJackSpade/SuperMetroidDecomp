@@ -163,7 +163,7 @@ internal static class GameplayDisplayFrameTestsVerification
     {
         // Fireflea darkness: FX selector and the shared COLDATA shadows.
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
-        var fixedColor = new FixedColorMemory(runtime.MemoryBus);
+        FixedColorState fixedColor = runtime.RoomLayer3Fx.FixedColors;
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         fixedColor.Red = 32 + 9; fixedColor.Green = 64 + 9; fixedColor.Blue = 128 + 9;
         MarkMainLoopWrite(runtime);

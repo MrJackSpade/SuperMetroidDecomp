@@ -23,6 +23,12 @@ public sealed class RoomLayer3FxState
     /// <summary>Tracks frame selection for the liquid, rain, fog, and spore tile animations.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
+    /// <summary>The Fireflea FX state. It is session-lived like the cartridge's WRAM, so a room load does not reset it.</summary>
+    public FirefleaFxState Fireflea { get; } = new();
+
+    /// <summary>The shared COLDATA shadows. They are session-lived, so they keep the last writer's values across rooms.</summary>
+    public FixedColorState FixedColors { get; } = new();
+
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
     [field: NonSerialized]
     public RoomFxAnimatedTileAtlas? AnimatedTileArtwork { get; set; }
@@ -196,7 +202,7 @@ public sealed class RoomLayer3FxState
         ApplyPaletteBlend(cgram, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
-            FirefleaRoomFx.Initialize(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."));
+            Fireflea.Initialize();
         if (!IsRenderable)
             return;
 
@@ -308,8 +314,7 @@ public sealed class RoomLayer3FxState
         if (Type == RoomFxType.Fireflea)
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
-            FirefleaRoomFx.Step(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."),
-                frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
+            Fireflea.Step(FixedColors, frame.TimeIsFrozen, frame.FirefleaDarknessLevel);
             return;
         }
         if (!IsRenderable || frame.TimeIsFrozen)

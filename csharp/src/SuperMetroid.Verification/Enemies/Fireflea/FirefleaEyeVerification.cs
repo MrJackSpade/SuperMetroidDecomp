@@ -27,6 +27,8 @@ internal static class FirefleaEyeVerification
         AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
+        // The display reads the state the NMI latches (#1307); latch the loaded room's darkness once, as its first frame would.
+        runtime.NmiHandler.RunNmi(0, true);
         var oam = new OamBuffer();
         oam.BeginFrame();
         runtime.Enemies.Drawing.DrawLayers(oam, new(cameraX, cameraY), 0, 7);

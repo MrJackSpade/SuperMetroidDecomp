@@ -116,43 +116,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Rooms.Backgrounds.LibraryBackgroundWorkRamAddresses",
-      "name": "TilemapStaging",
-      "region": "WorkRam",
-      "address": "$7E:4000",
-      "byteCount": 4096,
-      "encoding": "BG tilemap words (u8[] little-endian)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/Backgrounds/LibraryBackgroundMemory.cs",
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayWorkRamAddresses.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Abilities.XrayWorkRamAddresses",
-      "name": "RevealTilemap",
-      "region": "WorkRam",
-      "address": "$7E:4000",
-      "byteCount": 4096,
-      "encoding": "BG2 tilemap words (u16[] little-endian)",
-      "aliasOf": "LibraryBackgroundWorkRamAddresses.TilemapStaging",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayMemory.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Abilities.XrayWorkRamAddresses",
-      "name": "SavedBg1",
-      "region": "WorkRam",
-      "address": "$7E:6000",
-      "byteCount": 4096,
-      "encoding": "BG1 tilemap words (u16[] little-endian)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayMemory.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCorruptionLayout",
       "name": "SpritePaletteSix",
       "region": "WorkRam",

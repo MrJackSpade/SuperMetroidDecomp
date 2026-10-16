@@ -113,7 +113,7 @@ internal static class RoomSkyTilemapsVerification
             expectedVram.LoadBytes(compiled.Destination * 2,
                 ReadRetailSkyBytes(bus, compiled.SourceAddress, compiled.ByteCount));
             var compiledVram = new SnesVram();
-            LibraryBackgroundLoader.Execute(NewSkyPageReadGuard(bus, blockLandingList: true), compiledVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), compiled.DoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });
+            LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), compiledVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), compiled.DoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });
             AssertTrue(expectedVram.ImageEquals(compiledVram),
                 $"Landing Site door {index} uploads the exact stock sky page without visual/list ROM reads");
         }
@@ -123,7 +123,7 @@ internal static class RoomSkyTilemapsVerification
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeDoorVram,
             unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress),
             LandingSiteRomData.LandingCutsceneDoorPointer);
-        LibraryBackgroundLoader.Execute(NewSkyPageReadGuard(bus, blockLandingList: true), installedDoorVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), LandingSiteRomData.LandingCutsceneDoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });
+        LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), installedDoorVram, unchecked((ushort)LandingSiteRomData.LibraryBackgroundListAddress), LandingSiteRomData.LandingCutsceneDoorPointer, new LibraryBackgroundArtwork { SkyArt = stock });
         AssertTrue(nativeDoorVram.ImageEquals(installedDoorVram),
             "Landing Site door-selected sky upload uses installed pages without ROM visual reads");
 

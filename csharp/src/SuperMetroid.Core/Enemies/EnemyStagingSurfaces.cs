@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// sand reuse. Each meaning is a view of the same buffer, so a write through one is visible through the others, as on
 /// the cartridge. The session's enemy binding owns one instance.
 /// </summary>
-public sealed class EnemyStagingSurfaces
+public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
 {
     /// <summary>Group A, <c>$7E:2000-$2FFF</c>.</summary>
     internal readonly VramStagingBuffer _bg2 = new(EnemyStagingDefinitions.Bg2ByteCount);
@@ -74,16 +74,22 @@ public sealed class EnemyStagingSurfaces
         vram.ExecuteQueuedAssetWrite(buffer.Bytes.Slice(offset, byteCount), encodedDestination);
     }
 
-    /// <summary>Maps a native bank-$7E source span to the surface and offset that hold it.</summary>
-    private (VramStagingBuffer Buffer, int Offset) Resolve(int sourceAddress, int byteCount)
+    /// <inheritdoc/>
+    public bool TryResolve(int nativeAddress, int byteCount, out VramStagingBuffer buffer, out int offset)
     {
-        int bg2Offset = sourceAddress - EnemyStagingDefinitions.Bg2NativeAddress;
-        if (bg2Offset >= 0 && bg2Offset + byteCount <= _bg2.Length)
-            return (_bg2, bg2Offset);
-        int heapOffset = sourceAddress - EnemyStagingDefinitions.RottingHeapNativeAddress;
-        if (heapOffset >= 0 && heapOffset + byteCount <= _rottingHeap.Length)
-            return (_rottingHeap, heapOffset);
-        throw new InvalidDataException(
-            $"Enemy VRAM transfer ${sourceAddress:X6}+{byteCount} lies outside the enemy staging surfaces.");
+        offset = nativeAddress - EnemyStagingDefinitions.Bg2NativeAddress;
+        buffer = _bg2;
+        if (offset >= 0 && offset + byteCount <= _bg2.Length)
+            return true;
+        offset = nativeAddress - EnemyStagingDefinitions.RottingHeapNativeAddress;
+        buffer = _rottingHeap;
+        return offset >= 0 && offset + byteCount <= _rottingHeap.Length;
     }
+
+    /// <summary>Maps a native bank-$7E source span to the surface and offset that hold it.</summary>
+    private (VramStagingBuffer Buffer, int Offset) Resolve(int sourceAddress, int byteCount) =>
+        TryResolve(sourceAddress, byteCount, out VramStagingBuffer buffer, out int offset)
+            ? (buffer, offset)
+            : throw new InvalidDataException(
+                $"Enemy VRAM transfer ${sourceAddress:X6}+{byteCount} lies outside the enemy staging surfaces.");
 }

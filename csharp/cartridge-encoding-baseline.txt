@@ -899,7 +899,7 @@ csharp/src/SuperMetroid.Verification/Hardware/Bgr555DomainVerification.cs	SME634
 csharp/src/SuperMetroid.Verification/Hardware/ColorWindowSnapshotTestsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6340	55
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	78
+csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	76
 csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	25
@@ -1101,7 +1101,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Plms/StationAnimationProgramDefinitio
 csharp/src/SuperMetroid.Verification/Rooms/Plms/StationVisualsVerification.cs	SME6340	26
 csharp/src/SuperMetroid.Verification/Rooms/Plms/StationVisualsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Rooms/RoomAssetRomDataVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Rooms/RoomBackgroundLibraryParityVerification.cs	SME6340	13
+csharp/src/SuperMetroid.Verification/Rooms/RoomBackgroundLibraryParityVerification.cs	SME6340	10
 csharp/src/SuperMetroid.Verification/Rooms/RoomCallbackDefinitionsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Rooms/RoomCharacterInstallationVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Rooms/RoomDefinitionIntegrationVerification.cs	SME6341	1

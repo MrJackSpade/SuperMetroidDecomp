@@ -21,7 +21,6 @@ internal static class CpuBusBoundaryVerification
     {
         IReadOnlyList<CpuBusCatalogEntry> entries = CpuBusCatalogInventory.Enumerate(CpuBusCatalogInventory.ProductionAssemblies);
         Suite(nameof(VerifyCpuBusCatalogIdentities), () => VerifyCpuBusCatalogIdentities(entries));
-        Suite(nameof(VerifyCpuBusAliasRoundTrips), () => VerifyCpuBusAliasRoundTrips(entries));
         Suite(nameof(VerifyCpuBusInventoryCurrent), () => VerifyCpuBusInventoryCurrent(entries));
         Suite(nameof(VerifyWramWordBankWrap), VerifyWramWordBankWrap);
         Suite(nameof(VerifyCpuBusTableBounds), VerifyCpuBusTableBounds);
@@ -44,55 +43,6 @@ internal static class CpuBusBoundaryVerification
         IReadOnlyList<string> violations = CpuBusCatalogInventory.Violations(entries);
         AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
     }
-
-    /// <summary>Each alias pair shares its overlapping bytes: a write through either cell reads back through the other.</summary>
-    [CpuBusBoundary("exact bus test: alias coherence on the real address space")]
-    private static void VerifyCpuBusAliasRoundTrips(IReadOnlyList<CpuBusCatalogEntry> entries)
-    {
-        int pairs = 0;
-        foreach (CpuBusCatalogEntry entry in entries)
-        {
-            if (entry.Cell.AliasOf is not { } target)
-                continue;
-            AssertTrue(CpuBusCatalogInventory.Overlaps(entry.Cell, target),
-                $"{entry.Reference} shares bytes with the cell it aliases");
-            if (entry.Cell.Region == CpuBusRegion.Cartridge)
-                continue;
-            RoundTrip(entry.Cell, target, seed: 0x5a, $"{entry.Reference} -> alias target");
-            RoundTrip(target, entry.Cell, seed: 0xa5, $"alias target -> {entry.Reference}");
-            pairs++;
-        }
-        AssertTrue(pairs > 0, "at least one mutable alias pair is round-tripped");
-
-        static void RoundTrip(CpuBusCell writer, CpuBusCell reader, byte seed, string context)
-        {
-            var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            int writerStart = CpuBusCatalogInventory.PhysicalStart(writer);
-            int readerStart = CpuBusCatalogInventory.PhysicalStart(reader);
-            int first = Math.Max(writerStart, readerStart);
-            int end = Math.Min(writerStart + writer.ByteCount, readerStart + reader.ByteCount);
-            for (int physical = first; physical < end; physical++)
-                WriteCellByte(bus, writer, physical - writerStart, (byte)(seed ^ physical * 37));
-            for (int physical = first; physical < end; physical++)
-                AssertEqual((byte)(seed ^ physical * 37), ReadCellByte(bus, reader, physical - readerStart),
-                    $"{context} byte {physical - readerStart}");
-        }
-    }
-
-    /// <summary>Writes an alias-overlap byte through the SRAM or WRAM view declared by its catalog cell.</summary>
-    [CpuBusBoundary("exact bus test: byte access through a cell's own primitive")]
-    private static void WriteCellByte(ISnesMemoryBus bus, CpuBusCell cell, int index, byte value)
-    {
-        if (cell.Region == CpuBusRegion.SaveRam)
-            new SramBytes(bus, cell).Write(index, value);
-        else
-            new WramBytes(bus, cell).Write(index, value);
-    }
-
-    /// <summary>Reads an alias-overlap byte through the SRAM or WRAM view declared by its catalog cell.</summary>
-    [CpuBusBoundary("exact bus test: byte access through a cell's own primitive")]
-    private static byte ReadCellByte(ISnesMemoryBus bus, CpuBusCell cell, int index) =>
-        cell.Region == CpuBusRegion.SaveRam ? new SramBytes(bus, cell).Read(index) : new WramBytes(bus, cell).Read(index);
 
     /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>
     [CpuBusBoundary("exact bus test: inventory matches the catalogs")]

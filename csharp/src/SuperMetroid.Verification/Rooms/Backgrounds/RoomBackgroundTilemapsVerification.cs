@@ -54,7 +54,7 @@ internal static class RoomBackgroundTilemapsVerification
         var nativeVram = new SnesVram();
         var selectedVram = new SnesVram();
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, nativeVram, ceresList, activeDoorPointer: 0);
-        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource), selectedVram, ceresList, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = catalog });
+        LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), selectedVram, ceresList, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = catalog });
         AssertTrue(nativeVram.ImageEquals(selectedVram),
             "Ceres library BG executes installed tilemap with exact VRAM parity and no source reread");
 
@@ -72,7 +72,7 @@ internal static class RoomBackgroundTilemapsVerification
             "editing one background tile reference changes only its native BG word");
         compiled[ceresSource] = modified;
         var editedVram = new SnesVram();
-        LibraryBackgroundLoader.Execute(NewBackgroundTilemapReadGuard(bus, ceresSource), editedVram, ceresList, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemapCatalog(compiled) });
+        LibraryBackgroundLoader.Execute(LibraryBackgroundStagingFixtures.Fresh(), editedVram, ceresList, activeDoorPointer: 0, artwork: new LibraryBackgroundArtwork { TilemapArt = new RoomBackgroundTilemapCatalog(compiled) });
         AssertTrue(nativeVram.ReadWord(0x4800) != editedVram.ReadWord(0x4800) &&
             nativeVram.ReadWord(0x4801) == editedVram.ReadWord(0x4801),
             "edited JSON changes the first displayed Ceres BG tile and not its neighbor");
@@ -83,15 +83,6 @@ internal static class RoomBackgroundTilemapsVerification
             "background tilemap rejects an invalid palette selector");
         Console.WriteLine($"  Room background tilemaps: {files.Count} compressed retail sources " +
             "roundtrip byte-exactly; a tile-reference edit changes only its BG word.");
-    }
-
-    /// <summary>Blocks the selected compressed source while the installed background executes.</summary>
-    private static MutableCartridgeReadGuard NewBackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address == blockedSource,
-            address => $"Installed room background reread source ${address:X6}.");
-        return guard;
     }
 
     /// <summary>Runs the room background extraction and edited-tile check.</summary>

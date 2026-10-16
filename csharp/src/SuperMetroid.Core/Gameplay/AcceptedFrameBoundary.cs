@@ -232,7 +232,7 @@ internal sealed class AcceptedFrameBoundary
     /// </summary>
     private ImmutableArray<ushort>? CaptureXrayRevealTilemap() =>
         _player.Samus?.Xray.IsActive == true
-            ? ImmutableArray.Create(new XrayMemory(RuntimeMemory.RequireBus(_addressSpace)).RevealTilemap.ToArray())
+            ? ImmutableArray.Create(_xray.RevealTilemap.ToArray())
             : null;
 
     /// <summary>

@@ -53,6 +53,9 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Enemies.</summary>
     public required RoomEnemySystem Enemies { get; init; }
 
+    /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
+    public required Bg2TilemapStaging Bg2TilemapStaging { get; init; }
+
     /// <summary>Enemy room effects.</summary>
     public required EnemyRoomEffects EnemyRoomEffects { get; init; }
 

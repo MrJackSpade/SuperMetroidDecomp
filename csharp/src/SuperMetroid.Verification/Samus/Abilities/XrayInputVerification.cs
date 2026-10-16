@@ -93,7 +93,7 @@ internal static class XrayInputVerification
         AssertTrue(reveal.RevealBlocks, "ordinary X-ray room selects terrain revelation");
         AssertEqual((byte)0x73, (byte)reveal.ColorMath, "native reveal-room CGADSUB");
         AssertEqual(XrayRoomDisplayRules.ActiveBackdrop, captured.Memory.Cgram[0], "setup backdrop reaches the packet");
-        var frozenMap = XraySetupMemory.ReadReveal(bus);
+        var frozenMap = XraySetupMemory.ReadReveal(runtime.Xray);
         for (int i = 0; i < frozenMap.Length; i++)
         {
             int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;

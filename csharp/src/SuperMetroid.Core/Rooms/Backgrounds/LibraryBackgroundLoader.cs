@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Rooms.Backgrounds;
 
 /// <summary>
-/// Executes bank-$82's room-state library-background command list into WRAM and VRAM.
+/// Executes bank-$82's room-state library-background command list into the tilemap staging and VRAM.
 /// </summary>
 /// <remarks>
 /// A room with an odd/fixed layer-2 scroll mode does not stream BG2 from level data. Its
@@ -15,9 +15,9 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 public static class LibraryBackgroundLoader
 {
     /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
-    public static LibraryBackgroundExecutionResult Execute(ISnesAddressSpace bus, SnesVram vram, ushort listPointer, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
+    public static LibraryBackgroundExecutionResult Execute(LibraryBackgroundStaging staging, SnesVram vram, ushort listPointer, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
     {
-        Ensure.NotNull(bus);
+        Ensure.NotNull(staging);
         Ensure.NotNull(vram);
         if (unchecked((short)listPointer) >= 0)
         {
@@ -28,7 +28,7 @@ public static class LibraryBackgroundLoader
 
         if (LibraryBackgroundProgramDefinitions.TryGet(listPointer,
                 out LibraryBackgroundProgram? program))
-            return ExecuteProgram(bus, vram, program, activeDoorPointer, artwork);
+            return ExecuteProgram(staging, vram, program, activeDoorPointer, artwork);
 
         // All retail high-bank lists are compiled. Once the host has bound every
         // direct-transfer catalog, a missing list is a definition error rather
@@ -38,9 +38,9 @@ public static class LibraryBackgroundLoader
     }
 
     /// <summary>Executes an already-defined program; constructed fixtures never require a runtime byte decoder.</summary>
-    public static LibraryBackgroundExecutionResult ExecuteProgram(ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundProgram program, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
+    public static LibraryBackgroundExecutionResult ExecuteProgram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundProgram program, ushort activeDoorPointer, LibraryBackgroundArtwork artwork)
     {
-        Ensure.NotNull(bus);
+        Ensure.NotNull(staging);
         Ensure.NotNull(vram);
         Ensure.NotNull(program);
         ushort? bg3CharacterBaseWord = null;
@@ -49,29 +49,29 @@ public static class LibraryBackgroundLoader
             switch (instruction.Command)
             {
                 case LibraryBackgroundCommand.TransferToVram:
-                    TransferToVram(bus, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                    TransferToVram(staging, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
-                    DecompressToWorkRam(bus, instruction.SourceAddress,
+                    DecompressToWorkRam(staging, instruction.SourceAddress,
                         instruction.Destination, artwork.TilemapArt);
                     break;
                 case LibraryBackgroundCommand.ClearFxTilemap:
-                    FillAndTransfer(bus, vram, RoomAssetRomData.LibraryBackground.ClearFx);
+                    FillAndTransfer(staging, vram, RoomAssetRomData.LibraryBackground.ClearFx);
                     break;
                 case LibraryBackgroundCommand.TransferToVramForKraid:
-                    TransferToVram(bus, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                    TransferToVram(staging, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     bg3CharacterBaseWord =
                         RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
-                    ClearBg2(bus, vram, includeKraidPage: false);
+                    ClearBg2(staging, vram, includeKraidPage: false);
                     break;
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    ClearBg2(bus, vram, includeKraidPage: true);
+                    ClearBg2(staging, vram, includeKraidPage: true);
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.DoorPointer == activeDoorPointer)
-                        TransferToVram(bus, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                        TransferToVram(staging, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 default:
                     throw new InvalidDataException(
@@ -86,7 +86,7 @@ bg3CharacterBaseWord);
 
     /// <summary>Routes a native DMA command to live memory or its installed art catalog, preserving its VRAM word destination.</summary>
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
-    private static void TransferToVram(ISnesAddressSpace bus, SnesVram vram, LibraryBackgroundTransfer transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
+    private static void TransferToVram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundTransfer transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
     {
         if (transfer.ByteCount == 0)
         {
@@ -97,8 +97,8 @@ bg3CharacterBaseWord);
         // Command 2 configures the same $2118/$2119 consecutive-word DMA represented by
         // memory or installed-art transfers. Its destination is a VRAM word, not a byte offset.
         SnesDmaSourceKind sourceKind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(transfer.SourceAddress));
-        if (sourceKind is SnesDmaSourceKind.WorkRam or SnesDmaSourceKind.SaveRam)
-            vram.ExecuteQueuedMemoryWrite(RequireWorkMemory(bus), transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord);
+        if (sourceKind is SnesDmaSourceKind.WorkRam)
+            staging.LoadNativeTransfer(vram, transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord);
         else if (characterArt is not null &&
             transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
         {
@@ -134,63 +134,48 @@ bg3CharacterBaseWord);
     }
 
     /// <summary>Copies an installed decompressed tilemap into the command's WRAM staging destination.</summary>
-    private static void DecompressToWorkRam(ISnesAddressSpace bus, int sourceAddress,
+    private static void DecompressToWorkRam(LibraryBackgroundStaging staging, int sourceAddress,
         ushort destination, RoomBackgroundTilemapCatalog? tilemapArt)
     {
         byte[] decompressed = (tilemapArt ?? throw new InvalidOperationException(
             "Library-background decompression requires installed tilemaps."))
             .Get(sourceAddress).Transfer.ToArray();
-        new LibraryBackgroundMemory(RequireWorkMemory(bus)).WriteDecompressed(destination, decompressed, sourceAddress);
+        staging.Tilemap.WriteDecompressed(destination, decompressed, sourceAddress);
     }
 
     /// <summary>Fills both BG2 staging pages and queues the native DMA, including Kraid's extra page when requested.</summary>
     [PpuLayoutBoundary("codec: Clear_BG2_Tilemap native fill-and-DMA")]
-    private static void ClearBg2(ISnesAddressSpace bus, SnesVram vram, bool includeKraidPage)
+    private static void ClearBg2(LibraryBackgroundStaging staging, SnesVram vram, bool includeKraidPage)
     {
         // Clear_BG2_Tilemap fills both $800-byte WRAM pages with tile $0338, then performs
         // one $1000-byte DMA. Kraid repeats that same buffer at VRAM $4000 as well.
         RoomAssetRomData.TilemapTransfer transfer = RoomAssetRomData.LibraryBackground.ClearBg2;
-        FillWords(bus, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
+        FillWords(staging, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
         if (includeKraidPage)
         {
-            vram.ExecuteQueuedMemoryWrite(
-                RequireWorkMemory(bus),
-                transfer.WorkRamSourceAddress,
-                transfer.ByteCount,
+            staging.LoadNativeTransfer(vram, transfer.WorkRamSourceAddress, transfer.ByteCount,
                 RoomAssetRomData.LibraryBackground.KraidBg2VramDestinationWord);
         }
-        vram.ExecuteQueuedMemoryWrite(
-            RequireWorkMemory(bus),
-            transfer.WorkRamSourceAddress,
-            transfer.ByteCount,
-            transfer.VramDestinationWord);
+        staging.LoadNativeTransfer(vram, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestinationWord);
     }
 
     /// <summary>Applies one named native fill-and-DMA definition without unpacked literals.</summary>
     [PpuLayoutBoundary("codec: native library-background fill-and-DMA definition")]
     private static void FillAndTransfer(
-        ISnesAddressSpace bus,
+        LibraryBackgroundStaging staging,
         SnesVram vram,
         RoomAssetRomData.TilemapTransfer transfer)
     {
-        FillWords(bus, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
-        vram.ExecuteQueuedMemoryWrite(
-            RequireWorkMemory(bus),
-            transfer.WorkRamSourceAddress,
-            transfer.ByteCount,
-            transfer.VramDestinationWord);
+        FillWords(staging, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
+        staging.LoadNativeTransfer(vram, transfer.WorkRamSourceAddress, transfer.ByteCount, transfer.VramDestinationWord);
     }
-
-    /// <summary>Requires a mutable memory bus for background staging reads and writes.</summary>
-    private static ISnesMemoryBus RequireWorkMemory(ISnesAddressSpace bus) =>
-        SnesMemoryBusRequirement.Require(bus, "Library-background staging transfers require live WRAM.");
 
     /// <summary>Fills the selected WRAM staging range with repeated native tilemap words.</summary>
     private static void FillWords(
-        ISnesAddressSpace bus,
+        LibraryBackgroundStaging staging,
         ushort destination,
         int byteCount,
         ushort value) =>
-        new LibraryBackgroundMemory(RequireWorkMemory(bus)).FillWords(destination, byteCount, value);
+        staging.Tilemap.FillWords(destination, byteCount, value);
 
 }

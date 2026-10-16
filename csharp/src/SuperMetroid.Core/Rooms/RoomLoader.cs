@@ -57,6 +57,8 @@ internal sealed class RoomLoader
     private readonly DoorTransitionRunner _doorTransition;
     /// <summary>Creates and initializes the destination room's enemy slots.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
+    private readonly Bg2TilemapStaging _bg2TilemapStaging;
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
     /// <summary>Installs escape-specific room behavior when entering the relevant room.</summary>
@@ -122,6 +124,7 @@ internal sealed class RoomLoader
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
         _enemies = dependencies.Enemies;
+        _bg2TilemapStaging = dependencies.Bg2TilemapStaging;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeEffects = dependencies.EscapeEffects;
         _gameTime = dependencies.GameTime;
@@ -985,7 +988,7 @@ internal sealed class RoomLoader
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
         if (unchecked((short)room.State.BackgroundDataPointer) < 0)
         {
-            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(_addressSpace, _vram, room.State.BackgroundDataPointer, door.Pointer, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, room.State.BackgroundDataPointer, door.Pointer, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
             if (backgroundResult.Bg3CharacterBaseWord is ushort bg3CharacterBaseWord)
                 _display.GameplayHudCharacterBaseWord = bg3CharacterBaseWord;
         }

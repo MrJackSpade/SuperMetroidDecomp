@@ -17,7 +17,7 @@ other caller works with typed, domain-named members.
 
 `[CpuBusAccess]` marks the raw API: `ISnesAddressSpace`, `ISnesMutableMemory`, `ISnesMemoryBus`,
 `ISnesCpuPeripheralSource`, `IImportCartridgeSource`, `SnesWorkRam`,
-`SnesIndirectLongDataRead`, `SnesLiveDataRead`, `CpuBusCell` and the cell primitives `WramByte`,
+`CpuBusCell` and the cell primitives `WramByte`,
 `WramWord`, `WramBytes`, `WramWords`, `SramBytes`. Import-time raw decoders shared by several
 codecs (`CartridgePaletteImporter`, `CartridgeBankWindow`) are themselves `[CpuBusAccess]`
 primitives, not boundaries: each importer that calls them is the codec boundary. The address space exposes no raw WRAM/SRAM

@@ -65,13 +65,12 @@ internal static class RoomSkyTilemapsVerification
             new ScrollingSkyState().ProcessFrame((ushort)cameraY, false, queued, callback);
             foreach (VramWriteEntry transfer in queued.Entries)
             {
-                // Ocean's wrapped top-of-room pointer deliberately selects the
-                // low-half bank-$8A WRAM mirror, not an editable ROM sky page.
-                // That transfer must remain live bus data at NMI time.
-                if ((SnesAddressMath.OffsetInBank(transfer.SourceAddress)) < SnesBusLayout.WorkRamMirrorEnd)
+                // Ocean's wrapped top-of-room pointer selects live WRAM the port does not
+                // keep there; those rows behind the HUD upload blank (#1318).
+                if (transfer.ZeroFill)
                 {
                     AssertTrue(callback == RoomMainCallback.ScrollingSkyOcean && cameraY < 16,
-                        $"only ocean's wrapped top row may stream live WRAM (${transfer.SourceAddress:X6})");
+                        $"only ocean's wrapped top row uploads blank (camera Y=${cameraY:X4})");
                     continue;
                 }
                 AssertTrue(stock.TryResolve(transfer.SourceAddress, transfer.SizeInBytes,
@@ -164,18 +163,21 @@ internal static class RoomSkyTilemapsVerification
                 RoomMainCallback.ScrollingSkyOcean);
             VramWriteEntry wrappedRow = nativeOceanRows.Entries[0];
             if (cameraY == 0)
-                MarkWrappedSkyRowWram(bus, wrappedRow);
+                MarkWrappedSkyRowWram(bus);
             var nativeOceanVram = new SnesVram();
             var installedOceanVram = new SnesVram();
             ImportedVramOracle.Drain(nativeOceanRows, nativeOceanVram, bus);
             installedOceanRows.DrainTo(installedOceanVram, ReferenceMutableMemory.From(guard),
                 new SkyPageProvider(stock));
             AssertTrue(nativeOceanVram.ImageEquals(installedOceanVram),
-                $"ocean camera Y=${cameraY:X4} uses installed sky rows and live wrapped WRAM with exact native NMI output");
+                $"ocean camera Y=${cameraY:X4} uses installed sky rows and a blank wrapped top row");
             if (cameraY == 0)
-                AssertEqual((byte)0x5a,
+            {
+                AssertTrue(wrappedRow.ZeroFill, "ocean wrapped top row is queued blank");
+                AssertEqual((byte)0,
                     installedOceanVram.Bytes[(wrappedRow.EncodedVramDestination & 0x7fff) * 2],
-                    "ocean top row DMA reads live WRAM mirror instead of a compiled sky page");
+                    "ocean wrapped top row ignores the WRAM its native pointer names");
+            }
         }
 
         var editedQueue = new VramWriteQueue();
@@ -199,13 +201,17 @@ internal static class RoomSkyTilemapsVerification
                 nativeRowVram.ReadWord(firstRow.EncodedVramDestination),
             "editing a sky page changes the visible queued row at its native destination");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
-            "per-frame NMI transfers use installed art and native wrapped WRAM, and an edit reaches the queued row.");
+            "per-frame NMI transfers use installed art, ocean's wrapped top row is blank, and an edit reaches the queued row.");
     }
 
-    /// <summary>Marks the bank-$7E byte an ocean sky row's wrapped NMI source reads, so its live WRAM is observable.</summary>
-    [CpuBusBoundary("exact bus test: seeds the live WRAM byte a wrapped ocean sky-row transfer reads")]
-    private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus, VramWriteEntry wrappedRow) =>
-        bus.WriteByte(0x7e0000 | (SnesAddressMath.OffsetInBank(wrappedRow.SourceAddress)), 0x5a);
+    /// <summary>
+    /// Marks the bank-$7E byte the native ocean wrapped top row (camera Y 0) DMAs from, so a transfer that still read it
+    /// would be observable.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: seeds the live WRAM byte the native wrapped ocean sky-row pointer names")]
+    private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus) =>
+        bus.WriteByte(0x7e0000 | unchecked((ushort)(ScrollingSkyChunkDefinitions.OceanWrappedTop +
+            SnesLittleEndian.LowByte(unchecked((ushort)(0 - RoomFxRomData.ScrollingSky.UpperRowCameraOffset))) * 8)), 0x5a);
 
     /// <summary>Reads original bank-relative sky page bytes for the independent VRAM comparison.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]

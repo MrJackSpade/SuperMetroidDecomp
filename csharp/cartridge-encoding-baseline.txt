@@ -979,7 +979,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/LookupSkyChunkPointersVer
 csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/LookupSkySectionsVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/OceanSkyVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/RoomBackgroundTilemapsVerification.cs	SME6340	5
-csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/RoomSkyTilemapsVerification.cs	SME6340	16
+csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/RoomSkyTilemapsVerification.cs	SME6340	15
 csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/RoomSkyTilemapsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Rooms/Doors/BlueDoorPlmDrawDefinitionsVerification.cs	SME6340	19
 csharp/src/SuperMetroid.Verification/Rooms/Doors/ColoredDoorPlmDrawDefinitionsVerification.cs	SME6340	33
@@ -1263,7 +1263,7 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/ChargeFlareDefinitionsVer
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ChargeFlarePlacementVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ChargeFlareProductionVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/CompiledProjectileMathVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamGraphicsVerification.cs	SME6340	35
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamGraphicsVerification.cs	SME6340	26
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamGraphicsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamSelectionVerification.cs	SME6340	35
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/InvalidBeamSelectionVerification.cs	SME6342	1

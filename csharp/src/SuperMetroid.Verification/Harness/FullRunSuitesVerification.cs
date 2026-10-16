@@ -62,7 +62,6 @@ using static SuperMetroid.Verification.Rooms.Plms.ContactCrumbleProgramsVerifica
 using static SuperMetroid.Verification.Audio.ContactDamageSoundVerification;
 using static SuperMetroid.Verification.Frontend.Recording.ControllerInputRecordingVerification;
 using static SuperMetroid.Verification.Hardware.CpuBusBoundaryVerification;
-using static SuperMetroid.Verification.Hardware.CpuOperandOpenBusVerification;
 using static SuperMetroid.Verification.Samus.Movement.CrampedAerialLandingVerification;
 using static SuperMetroid.Verification.Rooms.Plms.CrateriaMainstreetEscapePassageVerification;
 using static SuperMetroid.Verification.Bosses.Crocomire.CrocomireArenaPlmsVerification;
@@ -436,7 +435,6 @@ internal static class FullRunSuitesVerification
     [
         new(nameof(VerifyRuntimeAddressSpaceHasNoCartridgeApi), () => VerifyRuntimeAddressSpaceHasNoCartridgeApi()),
         new(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts()),
-        new(nameof(VerifyCpuOperandOpenBus), () => VerifyCpuOperandOpenBus()),
         new(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary()),
         new(nameof(VerifyCanonicalWordReads), () => VerifyCanonicalWordReads()),
         new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),

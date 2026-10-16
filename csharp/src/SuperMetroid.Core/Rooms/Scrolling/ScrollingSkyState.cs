@@ -121,7 +121,10 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             RoomFxRomData.ScrollingSky.UpperRowCameraOffset));
         int upperChunk = SnesLittleEndian.HighByte(upperPosition);
         int upperByteOffset = (SnesLittleEndian.LowByte(upperPosition)) * 8;
-        int upperSource = RoomFxRomData.Banks.Tilemaps |
+        // Ocean index 255 reads the wrapper's TimeIsFrozenFlag address ($0A78) as its DMA source: live WRAM the port
+        // does not keep there. The rows lie behind the HUD, so they upload blank (owner decision on #1318).
+        bool upperBlank = pointerTable == ScrollingSkyChunkTable.Ocean && upperChunk == byte.MaxValue;
+        int upperSource = upperBlank ? 0 : RoomFxRomData.Banks.Tilemaps |
             unchecked((ushort)(ScrollingSkyChunkDefinitions.Get(
                 pointerTable, upperChunk) + upperByteOffset));
 
@@ -142,11 +145,20 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             layer1YPosition + RoomFxRomData.ScrollingSky.LowerRowCameraOffset)) &
             RoomFxRomData.ScrollingSky.TilemapPositionMask);
 
-        writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, RoomFxVram.ScrollingSkyDma(upperRow));
-        writes.Enqueue(
-            RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            upperSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
-            RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        if (upperBlank)
+        {
+            writes.EnqueueZeroFill(RoomFxRomData.ScrollingSky.TilemapRowByteCount, RoomFxVram.ScrollingSkyDma(upperRow));
+            writes.EnqueueZeroFill(RoomFxRomData.ScrollingSky.TilemapRowByteCount,
+                RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        }
+        else
+        {
+            writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, upperSource, RoomFxVram.ScrollingSkyDma(upperRow));
+            writes.Enqueue(
+                RoomFxRomData.ScrollingSky.TilemapRowByteCount,
+                upperSource + RoomFxRomData.ScrollingSky.TilemapRowByteCount,
+                RoomFxVram.ScrollingSkyDma(upperRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
+        }
         writes.Enqueue(RoomFxRomData.ScrollingSky.TilemapRowByteCount, lowerSource, RoomFxVram.ScrollingSkyDma(lowerRow));
         writes.Enqueue(
             RoomFxRomData.ScrollingSky.TilemapRowByteCount,

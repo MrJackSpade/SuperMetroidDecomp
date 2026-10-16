@@ -15,4 +15,7 @@ public readonly record struct VramWriteEntry(
 {
     /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
     public VramAssetId AssetId { get; init; }
+
+    /// <summary>Whether the transfer writes zero bytes instead of reading a source.</summary>
+    public bool ZeroFill { get; init; }
 }

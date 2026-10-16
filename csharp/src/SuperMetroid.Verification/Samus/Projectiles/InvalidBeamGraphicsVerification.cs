@@ -22,27 +22,14 @@ internal static class InvalidBeamGraphicsVerification
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual(0x9090, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7ffe, 0),
-            "both expansion bytes retain the fetched pointer bank");
-        AssertEqual(0x0890, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7fff, 0,
-                ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress),
-            "expansion-to-ROM boundary preserves the low bus byte and reads high ROM byte");
-        AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x2100, 0),
-            "untranslated PPU register remains a loud failure");
+        AssertEqual((ushort)0x0890, ChainsawBeamGraphicsDefinitions.PaletteWord(0),
+            "Chainsaw color zero is the open-bus pointer bank followed by Samus_Animate's first byte");
         AssertThrows<InvalidOperationException>(() => CpuBusRegionRead.Read(bus, 0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
         AssertSequenceEqual(ChainsawBeamGraphicsDefinitions.InstructionBytes.ToArray(),
             Enumerable.Range(0, ChainsawBeamGraphicsDefinitions.InstructionBytes.Length)
                 .Select(offset => bus.ReadCartridgeByte(ChainsawBeamGraphicsDefinitions.InstructionAddress + offset)),
             "bounded instruction data matches the original executable bytes");
-        AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x801e, 0,
-                ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress),
-            "definition window cannot admit adjacent, uncompiled cartridge bytes");
-        AssertSequenceEqual(
-            Enumerable.Range(0, 16).Select(color => SnesIndirectLongDataRead.ReadWord(bus, ChainsawBeamGraphicsDefinitions.OpenBusByte, ChainsawBeamGraphicsDefinitions.PalettePointer,
-                (ushort)(color * 2), ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress)),
-            Enumerable.Range(0, 16).Select(ChainsawBeamGraphicsDefinitions.PaletteWord),
-            "the Chainsaw palette constant equals the glitched pointer's open-bus and instruction-byte reads");
         using var scratch = new TestScratchDirectory("projectile-artwork");
         string installedDirectory = scratch.Root;
         SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);

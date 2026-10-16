@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -8,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Polyp;
 
 /// <summary>The Polyp species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PolypBehavior : IEnemySpecies
+internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.LavaRocks];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PolypEntity(this, slot, common);
+
     /// <summary>Provides the shared room RNG and enemy state used by all Polyp actors.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates rock projectile slots when a Polyp launches.</summary>
@@ -27,10 +35,6 @@ internal sealed class PolypBehavior : IEnemySpecies
     /// <summary>Each Polyp initializer resets the shared enemy random seed to $0011.</summary>
     private const ushort PolypRandomSeed = 17;
 
-    /// <summary>Slot-indexed function and cooldown state for the active room's Polyp actors.</summary>
-    internal readonly PolypEnemyState?[] _polypStates =
-        new PolypEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
     internal void InitializePolyp(RoomEnemySlot slot)
     {
@@ -38,7 +42,8 @@ internal sealed class PolypBehavior : IEnemySpecies
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        _polypStates[slot.SlotIndex] = new PolypEnemyState(slot)
+        (slot.Entity as PolypEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Polyp.")).State = new PolypEnemyState(slot)
         {
             Program = AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
             Function = PolypEnemyFunction.WaitingForSamus,
@@ -119,8 +124,8 @@ internal sealed class PolypBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a main-AI dispatch before its slot has received Polyp initialization.</summary>
-    private PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
-        _polypStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
+        (slot.Entity as PolypEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Polyp state.");
 
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
@@ -133,37 +138,29 @@ internal sealed class PolypBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.PolypRock);
     }
 
-    /// <summary>Runs Polyp's stationary pose as a typed program (#641).</summary>
-    internal void RegisterPolypTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequirePolypState(slot);
-            AnimationProgramCursor<PolypProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, PolypAnimations.Programs, ref cursor, PolypFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Associates the lava-rock enemy definition with Polyp slot initialization.</summary>
-    internal void RegisterPolypInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Polyp's typed animation.</summary>
+    internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Polyp, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializePolyp(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequirePolypState(slot);
+        AnimationProgramCursor<PolypProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, PolypAnimations.Programs, ref cursor, PolypFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Dispatches lava-rock enemy frames to the slot's current Polyp function.</summary>
-    internal void RegisterPolypMainAi(EnemyAiTable table)
+    /// <summary>Ports Polyp's initialization AI.</summary>
+    internal void RunPolypInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Polyp, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPolypMain(slot, RequirePolypState(slot), frame.Samus);
-        });
+        InitializePolyp(slot);
     }
+
+    /// <summary>Ports Polyp's main AI.</summary>
+    internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunPolypMain(slot, RequirePolypState(slot), frame.Samus);
+    }
+
     /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>
     private const ushort PolypRockPreInstruction =
         (ushort)EnemyProjectilePreInstruction.PolypRock;
@@ -297,7 +294,6 @@ internal sealed class PolypBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_polypStates);
     }
 
     /// <inheritdoc/>

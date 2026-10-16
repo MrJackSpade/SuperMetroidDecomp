@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -10,8 +11,13 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Metaree;
 
 /// <summary>The Metaree species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MetareeBehavior : IEnemySpecies
+internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Metaree];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MetareeEntity(this, slot, common);
 
     /// <summary>Creates the debris burst during burrow and death reactions.</summary>
     private readonly EnemyProjectileEngine _projectiles;
@@ -57,14 +63,11 @@ internal sealed class MetareeBehavior : IEnemySpecies
     /// <summary>Burrow countdown value that spawns the particle burst.</summary>
     private const ushort MetareeParticleFrameNtsc = 8;
 
-    /// <summary>AI phase and animation-list state indexed by native enemy slot.</summary>
-    internal readonly MetareeEnemyState?[] _metareeStates =
-        new MetareeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and instruction-change state.</summary>
-    internal void InitializeMetaree(RoomEnemySlot slot)
+    internal static void InitializeMetaree(RoomEnemySlot slot)
     {
-        _metareeStates[slot.SlotIndex] = new MetareeEnemyState(slot)
+        (slot.Entity as MetareeEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Metaree.")).State = new MetareeEnemyState(slot)
         {
             BurrowTimer = NativeCountdown.Start(0),
             Function = MetareeEnemyFunction.Idling,
@@ -76,7 +79,7 @@ internal sealed class MetareeBehavior : IEnemySpecies
 
         // The initializer starts the idle animation directly rather than going through the change detector,
         // because both requested and installed indexes intentionally start at zero.
-        (_metareeStates[slot.SlotIndex] ?? throw new InvalidOperationException("The Metaree state was not stored.")).Program =
+        ((slot.Entity as MetareeEntity)?.State ?? throw new InvalidOperationException("The Metaree state was not stored.")).Program =
             AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.MetareeIdling);
     }
 
@@ -239,43 +242,33 @@ internal sealed class MetareeBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects main AI or private instruction dispatch before slot state has been initialized.</summary>
-    private MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>
-        _metareeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>
+        (slot.Entity as MetareeEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Metaree state.");
 
-    /// <summary>Binds Metaree initialization only to the Metaree enemy-definition ID.</summary>
-    internal void RegisterMetareeInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Metaree's initialization AI.</summary>
+    internal static void RunMetareeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Metaree, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMetaree(slot);
-        });
+        InitializeMetaree(slot);
     }
 
-    /// <summary>Binds the phase dispatcher to Metaree's native main-AI routine.</summary>
-    internal void RegisterMetareeMainAi(EnemyAiTable table)
+    /// <summary>Ports Metaree's main AI.</summary>
+    internal void RunMetareeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Metaree, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMetareeMain(slot, RequireMetareeState(slot), frame.Samus, frame.Level);
-        });
+        RunMetareeMain(slot, RequireMetareeState(slot), frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs Metaree's animations as typed programs (#641).</summary>
-    internal void RegisterMetareeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Metaree, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMetareeState(slot);
-            AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyMetareeCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Metaree's typed animation.</summary>
+    internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMetareeState(slot);
+        AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.Spritemap,
+                (cue, _) => ApplyMetareeCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Last library-two Metaree dive ($5B) or floor-impact ($5C) sound this enemy pass, using the Max6 queue entry; cleared before the next pass.</summary>
     public ushort? LastMetareeSoundEffect { get; private set; }
@@ -284,7 +277,6 @@ internal sealed class MetareeBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMetareeSoundEffect = null;
-        Array.Clear(_metareeStates);
     }
 
     /// <inheritdoc/>

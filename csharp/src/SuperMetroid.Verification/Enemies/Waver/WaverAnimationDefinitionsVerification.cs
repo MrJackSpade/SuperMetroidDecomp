@@ -57,6 +57,7 @@ internal static class WaverAnimationDefinitionsVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(guarded);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.Parameter1 = parameter;
             WaverBehavior.InitializeWaver(slot);
             var expected = (WaverAnimationSelector)parameter;

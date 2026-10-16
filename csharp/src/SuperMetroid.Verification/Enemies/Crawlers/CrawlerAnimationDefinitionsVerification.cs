@@ -59,6 +59,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(NewCrawlerAnimationReadGuard(rom));
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             slot.CurrentInstruction = orientation;
             if (family == CrawlerAnimationFamily.Viola)
             {
@@ -69,11 +70,11 @@ internal static class CrawlerAnimationDefinitionsVerification
             slot.Parameter1 = 0;
             if (family == CrawlerAnimationFamily.HZoomer)
             {
-                new Action<RoomEnemySlot>(enemies.CrawlersBehavior.InitializeHZoomer)(slot);
+                new Action<RoomEnemySlot>(CrawlersBehavior.InitializeHZoomer)(slot);
             }
             else
             {
-                new Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>(enemies.CrawlersBehavior.InitializeCrawler)(
+                new Action<RoomEnemySlot, CrawlerAnimationFamily, ushort?>(CrawlersBehavior.InitializeCrawler)(
                         slot, family, speciesOffset);
             }
 

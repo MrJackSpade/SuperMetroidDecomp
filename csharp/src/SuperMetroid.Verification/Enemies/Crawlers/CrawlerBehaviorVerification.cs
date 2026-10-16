@@ -42,9 +42,9 @@ internal static class CrawlerBehaviorVerification
             if (family == CrawlerAnimationFamily.Viola)
                 slot.Properties = (ushort)orientation;
             if (family == CrawlerAnimationFamily.HZoomer)
-                enemies.CrawlersBehavior.InitializeHZoomer(slot);
+                CrawlersBehavior.InitializeHZoomer(slot);
             else
-                enemies.CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
+                CrawlersBehavior.InitializeCrawler(slot, family, speciesOffset);
             CrawlerEnemyState state = enemies.CrawlerStates[0] ?? throw new InvalidOperationException("The crawler has no state.");
             CrawlerProgram program = CrawlerAnimationDefinitions.InitialProgram(family, orientation);
             string context = $"{family} {orientation}";

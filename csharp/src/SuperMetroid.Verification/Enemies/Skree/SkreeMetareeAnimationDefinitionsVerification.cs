@@ -90,7 +90,7 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        enemies.MetareeBehavior.InitializeMetaree(slot);
+        MetareeBehavior.InitializeMetaree(slot);
         MetareeEnemyState state = (enemies.MetareeStates[0] ?? throw new InvalidOperationException("Verification requires enemies.MetareeStates[0]."));
         var samus = new SamusState
         {

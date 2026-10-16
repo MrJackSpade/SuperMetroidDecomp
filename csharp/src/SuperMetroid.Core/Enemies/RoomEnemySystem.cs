@@ -689,7 +689,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior]);
+        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
@@ -1179,7 +1179,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CeresRidleyBehavior.RegisterCeresRidleyInitializationAi(table);
         CeresSteamBehavior.RegisterCeresSteamInitializationAi(table);
         ChozoStatueBehavior.RegisterChozoStatueInitializationAi(table);
-        CrawlersBehavior.RegisterCrawlersInitializationAi(table);
         CrocomireBehavior.RegisterCrocomireInitializationAi(table);
         DachoraBehavior.RegisterDachoraInitializationAi(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperInitializationAi(table);
@@ -1193,14 +1192,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EvirBehavior.RegisterEvirInitializationAi(table);
         FakeKraidBehavior.RegisterFakeKraidInitializationAi(table);
         FuneNamiheBehavior.RegisterFuneNamiheInitializationAi(table);
-        HoppersBehavior.RegisterHoppersInitializationAi(table);
         KiHunterBehavior.RegisterKiHunterInitializationAi(table);
         KraidBehavior.RegisterKraidInitializationAi(table);
         LowerNorfairRioBehavior.RegisterLowerNorfairRioInitializationAi(table);
         MagdolliteBehavior.RegisterMagdolliteInitializationAi(table);
         MamaTurtleBehavior.RegisterMamaTurtleInitializationAi(table);
         MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailInitializationAi(table);
-        MetareeBehavior.RegisterMetareeInitializationAi(table);
         MetroidBehavior.RegisterMetroidInitializationAi(table);
         MorphBallEyeBehavior.RegisterMorphBallEyeInitializationAi(table);
         MotherBrainBehavior.RegisterMotherBrainInitializationAi(table);
@@ -1210,7 +1207,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         PhantoonBehavior.RegisterPhantoonInitializationAi(table);
         PipeBugsBehavior.RegisterPipeBugsInitializationAi(table);
         PlatformsBehavior.RegisterPlatformsInitializationAi(table);
-        PolypBehavior.RegisterPolypInitializationAi(table);
         PowampBehavior.RegisterPowampInitializationAi(table);
         RidleyBehavior.RegisterRidleyInitializationAi(table);
         RinkaBehavior.RegisterRinkaInitializationAi(table);
@@ -1246,7 +1242,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CeresRidleyBehavior.RegisterCeresRidleyMainAi(table);
         CeresSteamBehavior.RegisterCeresSteamMainAi(table);
         ChozoStatueBehavior.RegisterChozoStatueMainAi(table);
-        CrawlersBehavior.RegisterCrawlersMainAi(table);
         CrocomireBehavior.RegisterCrocomireMainAi(table);
         DachoraBehavior.RegisterDachoraMainAi(table);
         DeadSidehopperBehavior.RegisterDeadSidehopperMainAi(table);
@@ -1260,14 +1255,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EvirBehavior.RegisterEvirMainAi(table);
         FakeKraidBehavior.RegisterFakeKraidMainAi(table);
         FuneNamiheBehavior.RegisterFuneNamiheMainAi(table);
-        HoppersBehavior.RegisterHoppersMainAi(table);
         KiHunterBehavior.RegisterKiHunterMainAi(table);
         KraidBehavior.RegisterKraidMainAi(table);
         LowerNorfairRioBehavior.RegisterLowerNorfairRioMainAi(table);
         MagdolliteBehavior.RegisterMagdolliteMainAi(table);
         MamaTurtleBehavior.RegisterMamaTurtleMainAi(table);
         MaridiaLargeSnailBehavior.RegisterMaridiaLargeSnailMainAi(table);
-        MetareeBehavior.RegisterMetareeMainAi(table);
         MetroidBehavior.RegisterMetroidMainAi(table);
         MorphBallEyeBehavior.RegisterMorphBallEyeMainAi(table);
         MotherBrainBehavior.RegisterMotherBrainMainAi(table);
@@ -1277,7 +1270,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         PhantoonBehavior.RegisterPhantoonMainAi(table);
         PipeBugsBehavior.RegisterPipeBugsMainAi(table);
         PlatformsBehavior.RegisterPlatformsMainAi(table);
-        PolypBehavior.RegisterPolypMainAi(table);
         PowampBehavior.RegisterPowampMainAi(table);
         RidleyBehavior.RegisterRidleyMainAi(table);
         RinkaBehavior.RegisterRinkaMainAi(table);
@@ -1335,10 +1327,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         FuneNamiheBehavior.RegisterFuneNamiheTypedAnimations(table);
         EvirBehavior.RegisterEvirTypedAnimations(table);
         YardBehavior.RegisterYardTypedAnimations(table);
-        HoppersBehavior.RegisterHopperTypedAnimations(table);
         MetroidBehavior.RegisterMetroidTypedAnimations(table);
-        CrawlersBehavior.RegisterCrawlerTypedAnimations(table);
-        MetareeBehavior.RegisterMetareeTypedAnimations(table);
         PlatformsBehavior.RegisterPlatformTypedAnimations(table);
         KiHunterBehavior.RegisterKiHunterTypedAnimations(table);
         FakeKraidBehavior.RegisterFakeKraidTypedAnimations(table);
@@ -1369,7 +1358,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadTourianBehavior.RegisterDeadTourianTypedAnimations(table);
         ElevatorBehavior.RegisterElevatorTypedAnimations(table);
         ShuttersBehavior.RegisterShuttersTypedAnimations(table);
-        PolypBehavior.RegisterPolypTypedAnimations(table);
         BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
 }
 

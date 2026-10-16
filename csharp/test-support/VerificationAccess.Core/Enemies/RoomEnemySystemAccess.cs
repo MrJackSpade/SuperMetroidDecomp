@@ -137,7 +137,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WaverEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by a crawler family.</summary>
-        internal IReadOnlyList<CrawlerEnemyState?> CrawlerStates => self.CrawlersBehavior._crawlerStates;
+        internal IReadOnlyList<CrawlerEnemyState?> CrawlerStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as CrawlerEntity)?.State)];
 
         /// <summary>Typed state for powered and deactivated Work Robots in all physical slots.</summary>
         internal IReadOnlyList<WorkRobotEnemyState?> WorkRobotStates => self.WorkRobotBehavior._workRobotStates;
@@ -163,7 +164,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<YardEnemyState?> YardStates => self.YardBehavior._yardStates;
 
         /// <summary>Typed Metaree state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<MetareeEnemyState?> MetareeStates => self.MetareeBehavior._metareeStates;
+        internal IReadOnlyList<MetareeEnemyState?> MetareeStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MetareeEntity)?.State)];
 
         /// <summary>Typed state for every physical Owtch-capable enemy slot.</summary>
         internal IReadOnlyList<OwtchEnemyState?> OwtchStates =>
@@ -218,7 +220,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as NuclearWaffleEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by the hopper family.</summary>
-        internal IReadOnlyList<HopperEnemyState?> HopperStates => self.HoppersBehavior._hopperStates;
+        internal IReadOnlyList<HopperEnemyState?> HopperStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as HoppersEntity)?.State)];
 
         /// <summary>Typed face-block state in fixed physical enemy-slot order.</summary>
         internal IReadOnlyList<BlueBrinstarFaceBlockEnemyState?> BlueBrinstarFaceBlockStates =>

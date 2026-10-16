@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Hoppers.Artwork;
@@ -8,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Hoppers;
 
 /// <summary>The Hoppers species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class HoppersBehavior : IEnemySpecies
+internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dessgeega, EnemyDefinitionId.DessgeegaLarge, EnemyDefinitionId.Sidehopper, EnemyDefinitionId.SidehopperLarge, EnemyDefinitionId.SidehopperTourian];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new HoppersEntity(this, slot, common);
+
     /// <summary>Supplies the shared RNG seed consumed during Hopper initialization.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves vertical and horizontal collisions in both floor and ceiling hops.</summary>
@@ -51,10 +58,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
     private const ushort MaximumHopperYSpeedTableIndex = 64;
 
-    /// <summary>Per-slot hop phase, direction and animation state cleared at room load.</summary>
-    internal readonly HopperEnemyState?[] _hopperStates =
-        new HopperEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Recognizes the Sidehopper and Dessgeega variants served by this shared bank-$A3 AI.</summary>
     internal static bool IsHopperDefinition(EnemyDefinitionId definitionPointer) => definitionPointer is
         EnemyDefinitionId.Sidehopper or
@@ -87,7 +90,8 @@ internal sealed class HoppersBehavior : IEnemySpecies
             UpsideDown = slot.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
-        _hopperStates[slot.SlotIndex] = state;
+        (slot.Entity as HoppersEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Hoppers.")).State = state;
 
         SetHopperProgram(slot, state, ReadHopperProgram(
             state, state.UpsideDown, jumping: false));
@@ -350,42 +354,33 @@ internal sealed class HoppersBehavior : IEnemySpecies
     }
 
     /// <summary>Requires initialized per-slot hop state before dispatching AI or private animation commands.</summary>
-    private HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
-        _hopperStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
+        (slot.Entity as HoppersEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Hopper state.");
 
-    /// <summary>Routes bank-$A3 initialization to the five Sidehopper and Dessgeega identities.</summary>
-    internal void RegisterHoppersInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Hoppers's initialization AI.</summary>
+    internal void RunHoppersInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Hopper, slot => IsHopperDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeHopper(slot);
-        });
+        InitializeHopper(slot);
     }
 
-    /// <summary>Routes the shared hop state machine through the enemy AI table.</summary>
-    internal void RegisterHoppersMainAi(EnemyAiTable table)
+    /// <summary>Ports Hoppers's main AI.</summary>
+    internal void RunHoppersMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Hopper, slot => IsHopperDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunHopperMain(slot, frame.Samus, frame.Level);
-        });
+        RunHopperMain(slot, frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Sidehoppers' and Dessgeegas' animations as typed programs (#641).</summary>
-    internal void RegisterHopperTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsHopperDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            HopperEnemyState state = RequireHopperState(slot);
-            AnimationProgramCursor<HopperProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.Spritemap,
-                (cue, _) => ApplyHopperCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Hoppers's typed animation.</summary>
+    internal void AdvanceHoppersTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        HopperEnemyState state = RequireHopperState(slot);
+        AnimationProgramCursor<HopperProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.Spritemap,
+            (cue, _) => ApplyHopperCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Last library-two sound operand emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
     public ushort? LastHopperSoundEffect { get; private set; }
@@ -394,7 +389,6 @@ internal sealed class HoppersBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastHopperSoundEffect = null;
-        Array.Clear(_hopperStates);
     }
 
     /// <inheritdoc/>

@@ -68,7 +68,7 @@ internal static class SkreeMetareeBehaviorVerification
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (metaree)
         {
-            enemies.MetareeBehavior.InitializeMetaree(slot);
+            MetareeBehavior.InitializeMetaree(slot);
             MetareeEnemyState state = enemies.MetareeStates[0] ?? throw new InvalidOperationException("Metaree has no state.");
             return (enemies, slot, () => state.Program, program => Restart(slot, () => state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(program)), () => state.AttackReady);
         }

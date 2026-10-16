@@ -11,24 +11,15 @@ public sealed class DragonEnemyState
 {
     /// <summary>Enemy slot whose ordinary variables hold Dragon's current function and counters.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Extended per-slot animation list requests.</summary>
-    private readonly ushort[] _requestedInstructionLists;
-    /// <summary>Extended per-slot list indices already installed in the interpreter.</summary>
-    private readonly ushort[] _installedInstructionLists;
-    /// <summary>Extended per-slot completion flags written by Dragon animation instructions.</summary>
-    private readonly ushort[] _animationFinishedFlags;
+    /// <summary>The slot's Dragon extension words, kept for the room across occupants.</summary>
+    private readonly DragonExtensionWords _words;
 
     /// <summary>Binds the ordinary enemy slot to its three extended animation-word arrays.</summary>
     internal DragonEnemyState(
-        RoomEnemySlot slot,
-        ushort[] requestedInstructionLists,
-        ushort[] installedInstructionLists,
-        ushort[] animationFinishedFlags)
+        RoomEnemySlot slot, DragonExtensionWords words)
     {
         _slot = slot;
-        _requestedInstructionLists = requestedInstructionLists;
-        _installedInstructionLists = installedInstructionLists;
-        _animationFinishedFlags = animationFinishedFlags;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -68,21 +59,21 @@ public sealed class DragonEnemyState
     /// <summary>Extended enemy word $7E:7800,x: index into the six-entry list table.</summary>
     public DragonAnimationSelector RequestedInstructionListIndex
     {
-        get => (DragonAnimationSelector)_requestedInstructionLists[_slot.SlotIndex];
-        internal set => _requestedInstructionLists[_slot.SlotIndex] = (ushort)value;
+        get => (DragonAnimationSelector)_words.RequestedInstructionList;
+        internal set => _words.RequestedInstructionList = (ushort)value;
     }
 
     /// <summary>Extended enemy word $7E:7802,x: list index already installed in the slot.</summary>
     public DragonAnimationSelector InstalledInstructionListIndex
     {
-        get => (DragonAnimationSelector)_installedInstructionLists[_slot.SlotIndex];
-        internal set => _installedInstructionLists[_slot.SlotIndex] = (ushort)value;
+        get => (DragonAnimationSelector)_words.InstalledInstructionList;
+        internal set => _words.InstalledInstructionList = (ushort)value;
     }
 
     /// <summary>Extended enemy word $7E:7804,x, set by instruction opcode $A2:E5FB.</summary>
     public bool AnimationFinished
     {
-        get => _animationFinishedFlags[_slot.SlotIndex] != 0;
-        internal set => _animationFinishedFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0;
+        get => _words.AnimationFinishedFlag != 0;
+        internal set => _words.AnimationFinishedFlag = value ? (ushort)1 : (ushort)0;
     }
 }

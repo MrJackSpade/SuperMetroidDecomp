@@ -16,32 +16,14 @@ public sealed class PlatformEnemyState
 {
     /// <summary>Enemy slot whose variable words carry target height and velocity data.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Shared per-slot horizontal and rider-selected vertical dispatcher indexes.</summary>
-    private readonly PlatformMovementFunctions[] _movementFunctions;
-    /// <summary>Shared word reused for pre-move X and then pre-move Y within an update.</summary>
-    private readonly ushort[] _previousPositions;
-    /// <summary>Per-slot flags that suppress reinstalling moving artwork.</summary>
-    private readonly ushort[] _verticallyMovingFlags;
-    /// <summary>Per-slot flags that suppress reinstalling stationary artwork.</summary>
-    private readonly ushort[] _verticallyStillFlags;
-    /// <summary>Per-slot upper limits for quadratic vertical acceleration.</summary>
-    private readonly ushort[] _maximumYSpeedTableIndexes;
-    /// <summary>Previous rider-selected phase, used when vertical motion changes.</summary>
-    private readonly ushort[] _previousYMovementFunctions;
-    /// <summary>Native all-ones Kamer marker or zero for Tripper.</summary>
-    private readonly ushort[] _suspensorPlatformFlags;
+    /// <summary>The slot's Platforms extension words, kept for the room across occupants.</summary>
+    private readonly PlatformsExtensionWords _words;
 
     /// <summary>Binds one actor to its entries in the shared platform WRAM-style arrays.</summary>
-    internal PlatformEnemyState(RoomEnemySlot slot, PlatformSharedTables tables)
+    internal PlatformEnemyState(RoomEnemySlot slot, PlatformsExtensionWords words)
     {
         _slot = slot;
-        _movementFunctions = tables.MovementFunctions;
-        _previousPositions = tables.PreviousPositions;
-        _verticallyMovingFlags = tables.VerticallyMovingFlags;
-        _verticallyStillFlags = tables.VerticallyStillFlags;
-        _maximumYSpeedTableIndexes = tables.MaximumYSpeedTableIndexes;
-        _previousYMovementFunctions = tables.PreviousYMovementFunctions;
-        _suspensorPlatformFlags = tables.SuspensorPlatformFlags;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -92,50 +74,50 @@ public sealed class PlatformEnemyState
     /// <summary>Current rider-selected vertical dispatcher index, native <c>Platform.YMovementFunctionIndex</c> at <c>$7E:7800,x</c>; recomputed each actor update before horizontal then vertical motion.</summary>
     public PlatformVerticalMovement YMovement
     {
-        get => _movementFunctions[_slot.SlotIndex].Vertical;
-        internal set => _movementFunctions[_slot.SlotIndex] = _movementFunctions[_slot.SlotIndex] with { Vertical = value };
+        get => _words.MovementFunction.Vertical;
+        internal set => _words.MovementFunction = _words.MovementFunction with { Vertical = value };
     }
 
     /// <summary>Pre-horizontal X, then pre-vertical Y, exactly as described above.</summary>
     public ushort PreviousPosition
     {
-        get => _previousPositions[_slot.SlotIndex];
-        internal set => _previousPositions[_slot.SlotIndex] = value;
+        get => _words.PreviousPosition;
+        internal set => _words.PreviousPosition = value;
     }
 
     /// <summary>Current horizontal dispatcher index, native <c>Platform.XMovementFunctionIndex</c> at <c>$7E:7804,x</c>; initialized from population parameter 1 and changed by wall collisions or animation commands.</summary>
     public PlatformHorizontalMovement XMovement
     {
-        get => _movementFunctions[_slot.SlotIndex].Horizontal;
-        internal set => _movementFunctions[_slot.SlotIndex] = _movementFunctions[_slot.SlotIndex] with { Horizontal = value };
+        get => _words.MovementFunction.Horizontal;
+        internal set => _words.MovementFunction = _words.MovementFunction with { Horizontal = value };
     }
 
     /// <summary>Nonzero after moving art has been installed for the current phase.</summary>
     public bool VerticallyMovingArtInstalled
     {
-        get => _verticallyMovingFlags[_slot.SlotIndex] != 0;
-        internal set => _verticallyMovingFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0;
+        get => _words.VerticallyMovingFlag != 0;
+        internal set => _words.VerticallyMovingFlag = value ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>Nonzero after vertically-still art has been installed.</summary>
     public bool VerticallyStillArtInstalled
     {
-        get => _verticallyStillFlags[_slot.SlotIndex] != 0;
-        internal set => _verticallyStillFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0;
+        get => _words.VerticallyStillFlag != 0;
+        internal set => _words.VerticallyStillFlag = value ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>Parameter-two high byte, used as an inclusive acceleration clamp.</summary>
     public ushort MaximumYSpeedTableIndex
     {
-        get => _maximumYSpeedTableIndexes[_slot.SlotIndex];
-        internal set => _maximumYSpeedTableIndexes[_slot.SlotIndex] = value;
+        get => _words.MaximumYSpeedTableIndex;
+        internal set => _words.MaximumYSpeedTableIndex = value;
     }
 
     /// <summary>Prior frame's rider-selected vertical dispatcher index.</summary>
     public PlatformVerticalMovement PreviousYMovement
     {
-        get => (PlatformVerticalMovement)_previousYMovementFunctions[_slot.SlotIndex];
-        internal set => _previousYMovementFunctions[_slot.SlotIndex] = (ushort)value;
+        get => (PlatformVerticalMovement)_words.PreviousYMovementFunction;
+        internal set => _words.PreviousYMovementFunction = (ushort)value;
     }
 
     /// <summary>
@@ -144,8 +126,8 @@ public sealed class PlatformEnemyState
     /// </summary>
     public bool IsSuspensorPlatform
     {
-        get => unchecked((short)_suspensorPlatformFlags[_slot.SlotIndex]) < 0;
-        internal set => _suspensorPlatformFlags[_slot.SlotIndex] =
+        get => unchecked((short)_words.SuspensorPlatformFlag) < 0;
+        internal set => _words.SuspensorPlatformFlag =
             value ? ushort.MaxValue : (ushort)0;
     }
 

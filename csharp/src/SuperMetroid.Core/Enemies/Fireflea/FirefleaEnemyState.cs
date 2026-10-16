@@ -12,24 +12,15 @@ public sealed class FirefleaEnemyState
 {
     /// <summary>Common 64-byte enemy record holding variables A through F.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot extra-WRAM upper Y extents for vertical oscillation.</summary>
-    private readonly ushort[] _minimumYPositions;
-    /// <summary>Per-slot extra-WRAM lower Y extents for vertical oscillation.</summary>
-    private readonly ushort[] _maximumYPositions;
-    /// <summary>Per-slot native byte offsets into the angular speed table.</summary>
-    private readonly ushort[] _speedTableIndexes;
+    /// <summary>The slot's Fireflea extension words, kept for the room across occupants.</summary>
+    private readonly FirefleaExtensionWords _words;
 
     /// <summary>Binds a physical enemy record to its three parallel extra-WRAM state arrays.</summary>
     internal FirefleaEnemyState(
-        RoomEnemySlot slot,
-        ushort[] minimumYPositions,
-        ushort[] maximumYPositions,
-        ushort[] speedTableIndexes)
+        RoomEnemySlot slot, FirefleaExtensionWords words)
     {
         _slot = slot;
-        _minimumYPositions = minimumYPositions;
-        _maximumYPositions = maximumYPositions;
-        _speedTableIndexes = speedTableIndexes;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -79,22 +70,22 @@ public sealed class FirefleaEnemyState
     /// <summary>Per-slot extra-WRAM upper extent, initialized to Y minus radius in wrapped room pixels for vertical motion; crossing below it reverses speed after movement.</summary>
     public ushort MinimumYPosition
     {
-        get => _minimumYPositions[_slot.SlotIndex];
-        internal set => _minimumYPositions[_slot.SlotIndex] = value;
+        get => _words.MinimumYPosition;
+        internal set => _words.MinimumYPosition = value;
     }
 
     /// <summary>Per-slot extra-WRAM lower extent, initialized to Y plus radius in wrapped room pixels for vertical motion; reaching or passing it reverses speed without clamping.</summary>
     public ushort MaximumYPosition
     {
-        get => _maximumYPositions[_slot.SlotIndex];
-        internal set => _maximumYPositions[_slot.SlotIndex] = value;
+        get => _words.MaximumYPosition;
+        internal set => _words.MaximumYPosition = value;
     }
 
     /// <summary>Native byte offset into the linear speed table, not a host array index.</summary>
     public ushort SpeedTableIndex
     {
-        get => _speedTableIndexes[_slot.SlotIndex];
-        internal set => _speedTableIndexes[_slot.SlotIndex] = value;
+        get => _words.SpeedTableIndex;
+        internal set => _words.SpeedTableIndex = value;
     }
 
     /// <summary>Native init0/parameter-one bit $0002 selects circular motion; otherwise the actor moves vertically between its saved extrema.</summary>

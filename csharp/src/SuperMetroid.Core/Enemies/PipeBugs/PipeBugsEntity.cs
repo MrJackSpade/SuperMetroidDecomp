@@ -10,9 +10,9 @@ internal sealed class PipeBugsEntity(PipeBugsBehavior species, RoomEnemySlot slo
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
     {
-        EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo => species.RunZebInitializationAi,
-        EnemyDefinitionId.Gamet => species.RunGametInitializationAi,
-        EnemyDefinitionId.Geega => species.RunGeegaInitializationAi,
+        EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo => PipeBugsBehavior.RunZebInitializationAi,
+        EnemyDefinitionId.Gamet => PipeBugsBehavior.RunGametInitializationAi,
+        EnemyDefinitionId.Geega => PipeBugsBehavior.RunGeegaInitializationAi,
         _ => throw new InvalidOperationException($"PipeBugs entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -20,5 +20,5 @@ internal sealed class PipeBugsEntity(PipeBugsBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => species.RunPipeBugsMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvancePipeBugsTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => PipeBugsBehavior.AdvancePipeBugsTypedAnimation;
 }

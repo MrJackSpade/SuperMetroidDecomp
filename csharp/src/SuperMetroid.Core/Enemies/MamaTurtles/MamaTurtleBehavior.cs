@@ -105,25 +105,19 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
 
-    /// <summary>Maps enemy slots to Mama Turtle's shell, hover, and ascent state.</summary>
-    internal readonly MamaTurtleEnemyState?[] _mamaTurtleStates =
-        new MamaTurtleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Maps following enemy slots to their baby crawl, carry, and spinning state.</summary>
-    internal readonly BabyTurtleEnemyState?[] _babyTurtleStates =
-        new BabyTurtleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound requested by this family during the enemy frame.</summary>
     public ushort? LastMamaTurtleSoundEffect { get; private set; }
 
     /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
-    private void InitializeMamaTurtle(RoomEnemySlot slot)
+    private static void InitializeMamaTurtle(RoomEnemySlot slot)
     {
         var state = new MamaTurtleEnemyState(slot)
         {
             Function = MamaTurtleAiFunction.Initial,
             AsleepFlag = NativeCountdown.Start(1),
         };
-        _mamaTurtleStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState<MamaTurtleEnemyState>(state);
 
         // The population already supplies $A800, but the initializer explicitly ORs $2000.
         // Spell that write out because instruction processing is essential to leaving shell.
@@ -136,7 +130,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Baby Turtle initialization AI <c>$A2:8D9D</c>.</summary>
-    private void InitializeBabyTurtle(RoomEnemySlot slot)
+    private static void InitializeBabyTurtle(RoomEnemySlot slot)
     {
         var state = new BabyTurtleEnemyState(slot)
         {
@@ -145,7 +139,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(unchecked((short)slot.Parameter1), 0),
         };
-        _babyTurtleStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState<BabyTurtleEnemyState>(state);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -482,7 +476,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // The original cap comparison accidentally omits X and reads slot-zero's extension.
         // The retail parent is slot zero, but retaining the explicit source documents the
         // behavior for debugger-created populations as well.
-        MamaTurtleEnemyState comparisonState = _mamaTurtleStates[0] ?? state;
+        MamaTurtleEnemyState comparisonState = _slotTable._slots[0].SpeciesState<MamaTurtleEnemyState>() ?? state;
         if (unchecked((short)(comparisonState.Velocity.Y.WholeWord - MamaTurtleMaximumFallingSpeed)) < 0)
         {
             // The $2000 fraction step carries into the whole word; both are one 16.16 add.
@@ -826,13 +820,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Requires initialized parent state for a Mama Turtle slot.</summary>
-    private MamaTurtleEnemyState RequireMamaTurtleState(RoomEnemySlot slot) =>
-        _mamaTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static MamaTurtleEnemyState RequireMamaTurtleState(RoomEnemySlot slot) =>
+        slot.SpeciesState<MamaTurtleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Mama Turtle state.");
 
     /// <summary>Requires initialized child state for a Baby Turtle slot.</summary>
-    private BabyTurtleEnemyState RequireBabyTurtleState(RoomEnemySlot slot) =>
-        _babyTurtleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static BabyTurtleEnemyState RequireBabyTurtleState(RoomEnemySlot slot) =>
+        slot.SpeciesState<BabyTurtleEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Baby Turtle state.");
 
     /// <summary>Selects the left or right crawl list from the child's signed X velocity.</summary>
@@ -878,13 +872,13 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports MamaTurtle's initialization AI.</summary>
-    internal void RunMamaTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunMamaTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeMamaTurtle(slot);
     }
 
     /// <summary>Ports BabyTurtle's initialization AI.</summary>
-    internal void RunBabyTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunBabyTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeBabyTurtle(slot);
     }
@@ -956,8 +950,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMamaTurtleSoundEffect = null;
-        Array.Clear(_mamaTurtleStates);
-        Array.Clear(_babyTurtleStates);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<MamaTurtleEnemyState>(null);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<BabyTurtleEnemyState>(null);
     }
 
     /// <inheritdoc/>

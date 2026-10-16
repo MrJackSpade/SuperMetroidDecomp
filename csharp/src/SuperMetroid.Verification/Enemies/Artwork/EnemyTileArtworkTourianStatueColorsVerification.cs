@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
                 $"Tourian statue entry parameter {parameter} preserves full native CGRAM");
             AssertEqual(ReadReferenceWord(0xaad810 + parameter),
                 NativeEnemyProgramOracle.EntryOf(TourianEntranceStatueNativeListAddresses.Entries,
-                    (installed.TourianEntranceStatueBehavior._statuePrograms[0] ?? throw new InvalidOperationException("The statue has no animation.")).Program),
+                    (installed.TourianEntranceStatueBehavior._extensions[0].Program ?? throw new InvalidOperationException("The statue has no animation.")).Program),
                 $"Tourian statue entry parameter {parameter} keeps instruction selection");
             AssertEqual(parameter == 0 ? 3 : 0,
                 installed.Projectiles.EnemyProjectiles.Count(x => x.IsActive),

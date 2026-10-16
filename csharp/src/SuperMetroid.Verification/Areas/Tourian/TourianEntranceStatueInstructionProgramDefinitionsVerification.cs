@@ -45,7 +45,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
-                enemies.TourianEntranceStatueBehavior._statuePrograms[slot.SlotIndex],
+                enemies.TourianEntranceStatueBehavior._extensions[slot.SlotIndex].Program,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);

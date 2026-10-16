@@ -67,20 +67,12 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Final quadratic speed-table index used in falling phases.</summary>
     private const ushort BeetomMaximumYSpeedIndex = 64;
 
-    /// <summary>Per-slot speed indices for the short hop's target height.</summary>
-    internal readonly ushort[] _beetomInitialShortLeapYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot speed indices for the long hop's target height.</summary>
-    internal readonly ushort[] _beetomInitialLongLeapYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot speed indices for the lunge arc.</summary>
-    internal readonly ushort[] _beetomInitialLungeYSpeedIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native rising/falling phase flags for active Beetom arcs.</summary>
-    internal readonly ushort[] _beetomFallingFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native flags indicating which Beetoms currently drain Samus.</summary>
-    internal readonly ushort[] _beetomAttachedToSamusFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot travel directions, also used for post-drain throws.</summary>
-    internal readonly ushort[] _beetomDirections = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot offset captured when Beetom first attaches to Samus.</summary>
-    internal readonly Offset16<RoomPixels>[] _beetomInitialAttachmentOffsets = new Offset16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Beetom occupants for the current room.</summary>
+    private readonly BeetomExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static BeetomExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new BeetomExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Beetom</c> at $A8:B776.</summary>
     internal void InitializeBeetom(RoomEnemySlot slot, SamusState? samus, SnesButton controllerInput)
@@ -88,7 +80,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
-        var state = new BeetomEnemyState(slot, new BeetomSharedTables { InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
+        var state = new BeetomEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         state.FunctionTimer = NativeCountdown.Start(0);
@@ -647,13 +639,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_beetomInitialShortLeapYSpeedIndexes);
-        Array.Clear(_beetomInitialLongLeapYSpeedIndexes);
-        Array.Clear(_beetomInitialLungeYSpeedIndexes);
-        Array.Clear(_beetomFallingFlags);
-        Array.Clear(_beetomAttachedToSamusFlags);
-        Array.Clear(_beetomDirections);
-        Array.Clear(_beetomInitialAttachmentOffsets);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new BeetomExtensionWords();
     }
 
     /// <inheritdoc/>

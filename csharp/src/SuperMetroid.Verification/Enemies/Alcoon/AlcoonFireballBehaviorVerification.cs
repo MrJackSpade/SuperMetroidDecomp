@@ -30,7 +30,7 @@ internal static class AlcoonFireballBehaviorVerification
         source.Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         source.VramTilesIndex = 512;
         source.PaletteIndex = 3072;
-        var state = new AlcoonEnemyState(source, new ushort[32], new ushort[32], new ushort[32], new ushort[32], new ushort[32]);
+        var state = new AlcoonEnemyState(source, new AlcoonExtensionWords());
         source.SetSpeciesState(state);
         foreach (short direction in new short[] { -2, 2 })
         {

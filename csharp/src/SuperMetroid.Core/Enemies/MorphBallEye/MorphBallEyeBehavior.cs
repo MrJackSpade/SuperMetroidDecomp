@@ -39,12 +39,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Native word countdown for both opening and closing eye transitions.</summary>
     private const ushort EyeTransitionDuration = 32;
 
-    /// <summary>Body and mount phase state indexed by native enemy slot.</summary>
-    internal readonly MorphBallEyeEnemyState?[] _morphBallEyeStates =
-        new MorphBallEyeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Typed native state for every loaded mount/body record.</summary>
-    public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates => _morphBallEyeStates;
+    public IReadOnlyList<MorphBallEyeEnemyState?> MorphBallEyeStates =>
+        [.. _slotTable._slots.Select(slot => slot.SpeciesState<MorphBallEyeEnemyState>())];
 
     /// <summary>The room-global bank-$88 beam object spawned by an eye body.</summary>
     public MorphBallEyeBeamState MorphBallEyeBeam { get; } = new();
@@ -56,7 +54,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMorphBallEye(RoomEnemySlot slot)
     {
         var state = new MorphBallEyeEnemyState(slot);
-        _morphBallEyeStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState<MorphBallEyeEnemyState>(state);
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
@@ -339,12 +337,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Rejects AI or beam processing before the eye slot's native state exists.</summary>
-    private MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
-        _morphBallEyeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
+        slot.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException(
             $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");
 
     /// <summary>Advances MorphBallEye's typed animation.</summary>
-    internal void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
@@ -370,7 +368,8 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMorphBallEyeSoundEffect = null;
-        Array.Clear(_morphBallEyeStates);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<MorphBallEyeEnemyState>(null);
         MorphBallEyeBeam.Reset();
     }
 

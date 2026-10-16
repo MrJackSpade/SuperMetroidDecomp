@@ -55,9 +55,12 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         TourianEntranceStatueVerticalOffset = 0;
     }
 
-    /// <summary>Each statue record's typed animation (#641), indexed by enemy slot; every one deletes its record at once.</summary>
-    internal readonly AnimationProgramCursor<TourianEntranceStatueProgram>?[] _statuePrograms =
-        new AnimationProgramCursor<TourianEntranceStatueProgram>?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across TourianEntranceStatue occupants for the current room.</summary>
+    internal readonly TourianEntranceStatueExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static TourianEntranceStatueExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new TourianEntranceStatueExtensionWords())];
 
     /// <summary>Installs one of three animations and lets only the first statue record spawn the fixed decorative actors.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
@@ -72,7 +75,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         statue.PaletteIndex = 0;
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
-        _statuePrograms[statue.SlotIndex] = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
+        _extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
             TourianEntranceStatueAnimationDefinitions.InitialProgram(statue.Parameter1));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
@@ -147,10 +150,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _statuePrograms[slot.SlotIndex] ??
+        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _extensions[slot.SlotIndex].Program ??
             throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
         EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.Spritemap);
-        _statuePrograms[slot.SlotIndex] = cursor;
+        _extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Ports TourianEntranceStatue's initialization AI.</summary>
@@ -162,7 +165,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_statuePrograms);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new TourianEntranceStatueExtensionWords();
         ResetTourianEntranceStatueRoomState();
     }
 

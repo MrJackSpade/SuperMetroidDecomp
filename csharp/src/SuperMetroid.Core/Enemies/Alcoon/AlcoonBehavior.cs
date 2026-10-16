@@ -71,16 +71,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
-    /// <summary>Whole halves of per-slot vertical acceleration for native WRAM compatibility.</summary>
-    internal readonly ushort[] _alcoonYAccelerations = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Fractional halves of per-slot vertical acceleration.</summary>
-    internal readonly ushort[] _alcoonYSubaccelerations = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Spawn X coordinates used to decide when Alcoon hides again.</summary>
-    internal readonly ushort[] _alcoonSpawnXPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Predicted floor Y coordinates used for the activation-height check.</summary>
-    internal readonly ushort[] _alcoonLandingYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Walking steps remaining before Alcoon may fire at Samus.</summary>
-    internal readonly ushort[] _alcoonStepCounters = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Alcoon occupants for the current room.</summary>
+    private readonly AlcoonExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static AlcoonExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new AlcoonExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
@@ -91,13 +87,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Alcoon initialization requires the room's collision layer to simulate its landing.");
         }
 
-        var state = new AlcoonEnemyState(
-            slot,
-            _alcoonYAccelerations,
-            _alcoonYSubaccelerations,
-            _alcoonSpawnXPositions,
-            _alcoonLandingYPositions,
-            _alcoonStepCounters);
+        var state = new AlcoonEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         state.StepCounter = NativeCountdown.Start(0);
@@ -523,11 +513,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastAlcoonSoundEffect = null;
-        Array.Clear(_alcoonYAccelerations);
-        Array.Clear(_alcoonYSubaccelerations);
-        Array.Clear(_alcoonSpawnXPositions);
-        Array.Clear(_alcoonLandingYPositions);
-        Array.Clear(_alcoonStepCounters);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new AlcoonExtensionWords();
     }
 
     /// <inheritdoc/>

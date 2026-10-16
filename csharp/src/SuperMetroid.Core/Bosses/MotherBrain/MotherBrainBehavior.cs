@@ -93,9 +93,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards the prior room's shared body/head state before enemy initialization.</summary>
     internal void ResetMotherBrainRoomState() => _motherBrainEncounter.MotherBrain = null;
 
-    /// <summary>Where each falling tube's program resumes (#641), by enemy slot.</summary>
-    internal readonly AnimationProgramCursor<MotherBrainTubePiece>[] FallingTubeCursors =
-        new AnimationProgramCursor<MotherBrainTubePiece>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across MotherBrain occupants and rooms.</summary>
+    internal readonly MotherBrainExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static MotherBrainExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new MotherBrainExtensionWords())];
 
     /// <summary>
     /// Runs a falling tube's program where the enemy instruction interpreter would: its pose shows on the update the
@@ -111,12 +114,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        AnimationProgramCursor<MotherBrainTubePiece> cursor = FallingTubeCursors[tube.SlotIndex];
+        AnimationProgramCursor<MotherBrainTubePiece> cursor = _extensions[tube.SlotIndex].FallingTubeCursor;
         NativeCountdown counter = tube.Timer;
         AnimationProgramAdvance<MotherBrainTubeFrame> advance = MotherBrainTubeAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
         tube.Timer = counter;
-        FallingTubeCursors[tube.SlotIndex] = cursor;
+        _extensions[tube.SlotIndex].FallingTubeCursor = cursor;
         switch (advance.Kind)
         {
             case AnimationProgramAdvanceKind.Show:
@@ -2256,7 +2259,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int tubeIndex = tube.Parameter1 / 2;
         (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
-        FallingTubeCursors[tube.SlotIndex] = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
+        _extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
         tube.Radius = new(xRadius, yRadius);
         tube.VariableA = (ushort)(tubeIndex == (int)MotherBrainTubePiece.Main
             ? MotherBrainTubeFunction.MainTube_WaitingToFall

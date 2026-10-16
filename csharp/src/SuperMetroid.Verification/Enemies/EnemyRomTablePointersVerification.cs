@@ -127,7 +127,7 @@ internal static class EnemyRomTablePointersVerification
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),
-                system.TourianEntranceStatueBehavior._statuePrograms[slot.SlotIndex],
+                system.TourianEntranceStatueBehavior._extensions[slot.SlotIndex].Program,
                 $"Tourian statue production initializer {parameter} avoids selector ROM");
         }
 

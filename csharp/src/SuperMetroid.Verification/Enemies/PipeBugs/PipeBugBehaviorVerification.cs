@@ -62,13 +62,13 @@ internal static class PipeBugBehaviorVerification
         switch (definition)
         {
             case EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo:
-                enemies.PipeBugsBehavior.InitializeBrinstarPipeBug(slot);
+                PipeBugsBehavior.InitializeBrinstarPipeBug(slot);
                 break;
             case EnemyDefinitionId.Gamet:
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
+                PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 break;
             default:
-                enemies.PipeBugsBehavior.InitializeYellowPipeBug(slot);
+                PipeBugsBehavior.InitializeYellowPipeBug(slot);
                 break;
         }
         return enemies.PipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException("The Pipe Bug initializer left no state.");

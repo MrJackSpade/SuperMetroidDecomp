@@ -16,13 +16,13 @@ internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reacti
 
     /// <summary>The common no-op initialization when <paramref name="slot"/>'s header names it; otherwise null.</summary>
     internal static EnemyInitializationAiHandler? FindInitialization(RoomEnemySlot slot) =>
-        NoOpRoutine(slot.Definition.Bank, slot.Definition.InitializationAiPointer) is EnemyCommonNoOpRoutine.BankA2
+        NoOpRoutine(slot.Definition.Bank, slot.Definition.InitializationAiPointer) is not EnemyCommonNoOpRoutine.None
             ? NoOpInitialization
             : null;
 
     /// <summary>The common no-op main AI when <paramref name="slot"/>'s header names one; otherwise null.</summary>
     internal static EnemyMainAiHandler? FindMain(RoomEnemySlot slot) =>
-        NoOpRoutine(slot.Definition.Bank, slot.Definition.MainAiPointer) is EnemyCommonNoOpRoutine.BankA2 or EnemyCommonNoOpRoutine.BankA3
+        NoOpRoutine(slot.Definition.Bank, slot.Definition.MainAiPointer) is not EnemyCommonNoOpRoutine.None
             ? NoOpMain
             : null;
 

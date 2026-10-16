@@ -19,27 +19,17 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Samus must be within 80 horizontal pixels for a waiting Choot to arm its jump timer.</summary>
     private const ushort ChootActivationDistance = 80;
 
-    /// <summary>Population positions restored after the final falling-path loop.</summary>
-    internal readonly Position16<RoomPixels>[] _chootSpawnPositions = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Calculated apex positions where each slot begins its falling pattern.</summary>
-    internal readonly Position16<RoomPixels>[] _chootInitialFallingPositions = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Current origin advanced by the pattern's Y distance after each terminator.</summary>
-    internal readonly Position16<RoomPixels>[] _chootFallingOrigins = new Position16<RoomPixels>[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Ascent speed-table cursor restored for each subsequent activation.</summary>
-    internal readonly ushort[] _chootInitialYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Parameter-two delay remaining before each armed Choot jumps.</summary>
-    internal readonly ushort[] _chootJumpDelayTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Choot occupants for the current room.</summary>
+    private readonly ChootExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static ChootExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new ChootExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Choot</c> at <c>$A2:DF76</c>, selecting a falling pattern and calculating ascent speed from native parameters.</summary>
     internal void InitializeChoot(RoomEnemySlot slot)
     {
-        var state = new ChootEnemyState(
-            slot,
-            _chootSpawnPositions,
-            _chootInitialFallingPositions,
-            _chootFallingOrigins,
-            _chootInitialYSpeedTableIndexes,
-            _chootJumpDelayTimers);
+        var state = new ChootEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         SetChootProgram(slot, state, ChootProgram.Idle);
@@ -256,11 +246,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Clears every room-slot movement array before a new enemy population loads.</summary>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_chootSpawnPositions);
-        Array.Clear(_chootInitialFallingPositions);
-        Array.Clear(_chootFallingOrigins);
-        Array.Clear(_chootInitialYSpeedTableIndexes);
-        Array.Clear(_chootJumpDelayTimers);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new ChootExtensionWords();
     }
 
     /// <summary>Choot has no shared per-frame work beyond its registered slot AI.</summary>

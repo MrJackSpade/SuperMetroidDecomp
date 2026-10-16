@@ -65,9 +65,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         }
     }
 
-    /// <summary>Each dead Sidehopper slot's typed animation (#641), started before its corpse state exists.</summary>
-    internal readonly AnimationProgramCursor<DeadTourianProgram>[] _deadSidehopperPrograms =
-        new AnimationProgramCursor<DeadTourianProgram>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across DeadSidehopper occupants for the current room.</summary>
+    internal readonly DeadSidehopperExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static DeadSidehopperExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DeadSidehopperExtensionWords())];
 
     /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;
@@ -77,7 +80,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Discards prior room corpse state and its queued tile transfers.</summary>
     internal void ResetDeadSidehopperRoomState()
     {
-        Array.Clear(_deadSidehopperPrograms);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new DeadSidehopperExtensionWords();
         _deadMonsters.Clear();
         _deadSidehopperLevel = null;
         _deadSidehopperCameraX = 0;
@@ -556,14 +560,14 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>Starts a new dead Sidehopper animation, resetting both instruction clocks before its first step runs.</summary>
     internal void SetDeadSidehopperProgram(RoomEnemySlot slot, DeadTourianProgram program) =>
-        StartDeadTourianProgram(slot, _deadSidehopperPrograms, program);
+        _extensions[slot.SlotIndex].Program = StartDeadTourianProgram(slot, program);
 
-    /// <summary>Starts <paramref name="program"/> in <paramref name="slot"/>'s entry of <paramref name="programs"/> and resets both instruction clocks.</summary>
-    internal static void StartDeadTourianProgram(RoomEnemySlot slot, AnimationProgramCursor<DeadTourianProgram>[] programs, DeadTourianProgram program)
+    /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns <paramref name="program"/>'s starting cursor.</summary>
+    internal static AnimationProgramCursor<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
     {
-        programs[slot.SlotIndex] = AnimationProgramCursor<DeadTourianProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
+        return AnimationProgramCursor<DeadTourianProgram>.Start(program);
     }
 
     /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
@@ -614,10 +618,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<DeadTourianProgram> cursor = _deadSidehopperPrograms[slot.SlotIndex];
+        AnimationProgramCursor<DeadTourianProgram> cursor = _extensions[slot.SlotIndex].Program;
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Spritemap,
             (cue, _) => ApplyDeadSidehopperCue(slot, cue));
-        _deadSidehopperPrograms[slot.SlotIndex] = cursor;
+        _extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>

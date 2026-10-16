@@ -9,20 +9,15 @@ public sealed class RipperVariantEnemyState
 {
     /// <summary>Native enemy variables C, D, and E for the current Ripper slot.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot exclusive left patrol thresholds used by GRipper.</summary>
-    private readonly ushort[] _minimumXPositions;
-    /// <summary>Per-slot inclusive right patrol thresholds used by GRipper.</summary>
-    private readonly ushort[] _maximumXPositions;
+    /// <summary>The slot's Ripper extension words, kept for the room across occupants.</summary>
+    private readonly RipperExtensionWords _words;
 
     /// <summary>Binds a Ripper slot and the GRipper patrol-bound storage shared by the enemy system.</summary>
     internal RipperVariantEnemyState(
-        RoomEnemySlot slot,
-        ushort[] minimumXPositions,
-        ushort[] maximumXPositions)
+        RoomEnemySlot slot, RipperExtensionWords words)
     {
         _slot = slot;
-        _minimumXPositions = minimumXPositions;
-        _maximumXPositions = maximumXPositions;
+        _words = words;
     }
 
     /// <summary>Common variable C: low/fractional word of signed 16.16 X velocity.</summary>
@@ -49,14 +44,14 @@ public sealed class RipperVariantEnemyState
     /// <summary>GRipper extra word $00: exclusive left patrol reversal threshold.</summary>
     public ushort MinimumXPosition
     {
-        get => _minimumXPositions[_slot.SlotIndex];
-        internal set => _minimumXPositions[_slot.SlotIndex] = value;
+        get => _words.MinimumXPosition;
+        internal set => _words.MinimumXPosition = value;
     }
 
     /// <summary>GRipper extra word $01: inclusive right patrol reversal threshold.</summary>
     public ushort MaximumXPosition
     {
-        get => _maximumXPositions[_slot.SlotIndex];
-        internal set => _maximumXPositions[_slot.SlotIndex] = value;
+        get => _words.MaximumXPosition;
+        internal set => _words.MaximumXPosition = value;
     }
 }

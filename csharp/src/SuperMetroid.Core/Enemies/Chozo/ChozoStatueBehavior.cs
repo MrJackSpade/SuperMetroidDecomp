@@ -48,9 +48,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomFx = roomFx;
     }
 
-    /// <summary>Per-slot statue phase and carry-motion state cleared on room load.</summary>
-    internal readonly ChozoStatueState?[] _chozoStatueStates =
-        new ChozoStatueState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Pending hardcoded and footstep PLM requests consumed by the shared allocator.</summary>
     internal readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
 
@@ -83,7 +80,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
     {
         Ensure.NotNull(services);
-        Array.Clear(_chozoStatueStates);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<ChozoStatueState>(null);
         _chozoStatuePlmRequests.Clear();
         LastChozoStatueSoundEffect = null;
         ChozoStatueSamusControlsEnabled = true;
@@ -128,7 +126,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             PreInstruction = ChozoStatuePreInstruction.Idle,
         };
-        _chozoStatueStates[statue.SlotIndex] = state;
+        statue.SetSpeciesState<ChozoStatueState>(state);
 
         // The native initializer writes enemy_data[0].layer regardless of cur_enemy_index.
         // Every retail population places this singleton in slot zero, but preserve the alias
@@ -417,8 +415,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             IsHardcoded: true));
 
     /// <summary>Requires initialized bank-$AA state before statue AI dispatch.</summary>
-    private ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
-        _chozoStatueStates[statue.SlotIndex] ?? throw new InvalidOperationException(
+    private static ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
+        statue.SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException(
             $"Chozo statue slot {statue.SlotIndex} has no initialized bank-$AA state.");
 
     /// <summary>Requires the live Samus actor for cutscene carry movement.</summary>

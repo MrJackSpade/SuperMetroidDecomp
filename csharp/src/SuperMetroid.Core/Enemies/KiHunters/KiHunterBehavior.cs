@@ -76,9 +76,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Horizontal Samus range admitted by the grounded acid attack.</summary>
     private const ushort KiHunterGroundAttackDistance = 96;
 
-    /// <summary>Per-physical-slot body and wing state for this room's Ki-Hunters.</summary>
-    internal readonly KiHunterEnemyState?[] _kiHunterStates =
-        new KiHunterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
     public ushort? LastKiHunterSoundEffect { get; private set; }
@@ -94,12 +91,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Discards per-slot typed state and prior sound publication on room load.</summary>
     internal void ResetKiHunterRoomState()
     {
-        Array.Clear(_kiHunterStates);
+        foreach (RoomEnemySlot cleared in _slotTable._slots)
+            cleared.SetSpeciesState<KiHunterEnemyState>(null);
         LastKiHunterSoundEffect = null;
     }
 
     /// <summary>Ports body initializer <c>$A8:F188</c>.</summary>
-    internal void InitializeKiHunter(RoomEnemySlot body)
+    internal static void InitializeKiHunter(RoomEnemySlot body)
     {
         KiHunterEnemyState state = CreateKiHunterState(body);
 
@@ -754,7 +752,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // typed state has established this slot as a body, a cleared definition word is
         // therefore valid until the callback finishes; revalidating only the mutable header
         // converts the ordinary fatal-shot path into a host exception.
-        bool initializedBody = _kiHunterStates[body.SlotIndex] is { IsWing: false };
+        bool initializedBody = body.SpeciesState<KiHunterEnemyState>() is { IsWing: false };
         if ((!IsKiHunterBodyDefinition(body.EnemyDefinitionPointer) && !initializedBody) ||
             body.SlotIndex >= RoomEnemySystem.MaximumEnemyCount - 1)
         {
@@ -779,7 +777,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // subsequently reused. The latter is intentional: the 65C816 routine would alias and
         // mutate that replacement record too rather than performing a type check.
         if (wings.EnemyDefinitionPointer != expected &&
-            _kiHunterStates[wings.SlotIndex] is null)
+            wings.SpeciesState<KiHunterEnemyState>() is null)
         {
             throw new InvalidDataException(
                 $"Ki-Hunter body slot {body.SlotIndex} is followed by ${(int)wings.EnemyDefinitionPointer:X4}, " +
@@ -799,16 +797,16 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs typed body or wing state at the physical enemy-slot index.</summary>
-    private KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
+    private static KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState(slot);
-        _kiHunterStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState<KiHunterEnemyState>(state);
         return state;
     }
 
     /// <summary>Rejects access to a body or wing record before its initializer ran.</summary>
-    private KiHunterEnemyState RequireKiHunterState(RoomEnemySlot slot) =>
-        _kiHunterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static KiHunterEnemyState RequireKiHunterState(RoomEnemySlot slot) =>
+        slot.SpeciesState<KiHunterEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Ki-Hunter state.");
 
     /// <summary>Restarts a body or wing animation from its first step.</summary>
@@ -893,7 +891,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports KihunterGreen's initialization AI.</summary>
-    internal void RunKihunterGreenInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunKihunterGreenInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeKiHunter(slot);
     }

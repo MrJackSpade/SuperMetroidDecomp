@@ -50,27 +50,17 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Per-slot radius used to turn the sine phase into vertical bob distance.</summary>
-    internal readonly ushort[] _skulteraRadii = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot instruction flag consumed by main AI on the frame after a turn animation sleeps.</summary>
-    internal readonly ushort[] _skulteraTurnFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot angle step, negated when a completed turn reverses the swim wave.</summary>
-    internal readonly ushort[] _skulteraAngleDeltas = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Previous sine Y offset used to move by the difference between adjacent phases.</summary>
-    internal readonly ushort[] _skulteraPreviousYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Current sine Y offset retained after successful movement or vertical collision.</summary>
-    internal readonly ushort[] _skulteraCurrentYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Skultera occupants for the current room.</summary>
+    private readonly SkulteraExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static SkulteraExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new SkulteraExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Skultera</c> at <c>$A3:90B5</c>.</summary>
     internal void InitializeSkultera(RoomEnemySlot slot)
     {
-        var state = new SkulteraEnemyState(
-            slot,
-            _skulteraRadii,
-            _skulteraTurnFinishedFlags,
-            _skulteraAngleDeltas,
-            _skulteraPreviousYOffsets,
-            _skulteraCurrentYOffsets);
+        var state = new SkulteraEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         // Parameter one's high byte selects initial facing: zero means right, any nonzero
@@ -245,11 +235,8 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_skulteraRadii);
-        Array.Clear(_skulteraTurnFinishedFlags);
-        Array.Clear(_skulteraAngleDeltas);
-        Array.Clear(_skulteraPreviousYOffsets);
-        Array.Clear(_skulteraCurrentYOffsets);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new SkulteraExtensionWords();
     }
 
     /// <inheritdoc/>

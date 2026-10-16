@@ -1316,7 +1316,7 @@ internal static class LookupStream2Verification
                 var slot = enemies.SlotTable.Slots[member];
                 slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.Parameter2 = 64;
-                enemies.PipeBugsBehavior.InitializeNorfairPipeBug(slot);
+                PipeBugsBehavior.InitializeNorfairPipeBug(slot);
                 slot.InstructionTimer = NativeCountdown.FromRaw((ushort)(member + 4));
                 slot.Timer = NativeCountdown.FromRaw((ushort)(member + 8));
             }

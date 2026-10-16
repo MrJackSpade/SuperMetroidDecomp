@@ -11,28 +11,15 @@ public sealed class KzanEnemyState
 {
     /// <summary>Top-half enemy slot containing the native A-F state words.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot extension words for the top wait's reload value.</summary>
-    private readonly ushort[] _fallWaitTimerResetValues;
-    /// <summary>Per-slot previous Y coordinates used for rider displacement.</summary>
-    private readonly ushort[] _previousYPositions;
-    /// <summary>Per-slot offsets into the accelerating fall-speed table.</summary>
-    private readonly ushort[] _fallingYSpeedTableIndexes;
-    /// <summary>Per-slot post-landing waits before upward travel.</summary>
-    private readonly ushort[] _riseWaitTimers;
+    /// <summary>The slot's Kzan extension words, kept for the room across occupants.</summary>
+    private readonly KzanExtensionWords _words;
 
     /// <summary>Projects a Kzan top slot and its bank-$7E extension arrays into typed state.</summary>
     internal KzanEnemyState(
-        RoomEnemySlot slot,
-        ushort[] fallWaitTimerResetValues,
-        ushort[] previousYPositions,
-        ushort[] fallingYSpeedTableIndexes,
-        ushort[] riseWaitTimers)
+        RoomEnemySlot slot, KzanExtensionWords words)
     {
         _slot = slot;
-        _fallWaitTimerResetValues = fallWaitTimerResetValues;
-        _previousYPositions = previousYPositions;
-        _fallingYSpeedTableIndexes = fallingYSpeedTableIndexes;
-        _riseWaitTimers = riseWaitTimers;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -83,15 +70,15 @@ public sealed class KzanEnemyState
     /// <summary>Reload value for the top wait, copied from population parameter 2's low byte into the owning slot's native <c>$7E:7800,x</c> extension word.</summary>
     public ushort FallWaitTimerResetValue
     {
-        get => _fallWaitTimerResetValues[_slot.SlotIndex];
-        internal set => _fallWaitTimerResetValues[_slot.SlotIndex] = value;
+        get => _words.FallWaitTimerResetValue;
+        internal set => _words.FallWaitTimerResetValue = value;
     }
 
     /// <summary>Whole room-pixel Y coordinate saved before a falling or rising update, backed by <c>$7E:7802,x</c>; the accepted whole-pixel movement determines rider displacement.</summary>
     public ushort PreviousYPosition
     {
-        get => _previousYPositions[_slot.SlotIndex];
-        internal set => _previousYPositions[_slot.SlotIndex] = value;
+        get => _words.PreviousYPosition;
+        internal set => _words.PreviousYPosition = value;
     }
 
     /// <summary>
@@ -102,14 +89,14 @@ public sealed class KzanEnemyState
     /// </summary>
     public ushort FallingYSpeedTableIndex
     {
-        get => _fallingYSpeedTableIndexes[_slot.SlotIndex];
-        internal set => _fallingYSpeedTableIndexes[_slot.SlotIndex] = value;
+        get => _words.FallingYSpeedTableIndex;
+        internal set => _words.FallingYSpeedTableIndex = value;
     }
 
     /// <summary>Post-landing wait in actor updates, backed by <c>$7E:7806,x</c>; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
     public NativeCountdown RiseWaitTimer
     {
-        get => NativeCountdown.FromRaw(_riseWaitTimers[_slot.SlotIndex]);
-        internal set => _riseWaitTimers[_slot.SlotIndex] = value.RawValue;
+        get => NativeCountdown.FromRaw(_words.RiseWaitTimer);
+        internal set => _words.RiseWaitTimer = value.RawValue;
     }
 }

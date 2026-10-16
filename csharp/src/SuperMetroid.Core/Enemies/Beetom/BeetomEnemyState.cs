@@ -12,32 +12,14 @@ public sealed class BeetomEnemyState
 {
     /// <summary>The owning enemy slot that stores Beetom's common native variables.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot starting quadratic-table indices for short hops.</summary>
-    private readonly ushort[] _initialShortLeapYSpeedIndexes;
-    /// <summary>Per-slot starting quadratic-table indices for long hops.</summary>
-    private readonly ushort[] _initialLongLeapYSpeedIndexes;
-    /// <summary>Per-slot starting quadratic-table indices for lunges toward Samus.</summary>
-    private readonly ushort[] _initialLungeYSpeedIndexes;
-    /// <summary>Per-slot flags selecting the falling half of an airborne arc.</summary>
-    private readonly ushort[] _fallingFlags;
-    /// <summary>Per-slot latches that prevent attachment from being initialized twice.</summary>
-    private readonly ushort[] _attachedFlags;
-    /// <summary>Per-slot native direction words used by movement and art selection.</summary>
-    private readonly ushort[] _directions;
-    /// <summary>Per-slot Samus-relative offsets captured on initial attachment.</summary>
-    private readonly Offset16<RoomPixels>[] _initialAttachmentOffsets;
+    /// <summary>The slot's Beetom extension words, kept for the room across occupants.</summary>
+    private readonly BeetomExtensionWords _words;
 
     /// <summary>Binds the native common words in a slot to the matching shared extra-WRAM arrays.</summary>
-    internal BeetomEnemyState(RoomEnemySlot slot, BeetomSharedTables tables)
+    internal BeetomEnemyState(RoomEnemySlot slot, BeetomExtensionWords words)
     {
         _slot = slot;
-        _initialShortLeapYSpeedIndexes = tables.InitialShortLeapYSpeedIndexes;
-        _initialLongLeapYSpeedIndexes = tables.InitialLongLeapYSpeedIndexes;
-        _initialLungeYSpeedIndexes = tables.InitialLungeYSpeedIndexes;
-        _fallingFlags = tables.FallingFlags;
-        _attachedFlags = tables.AttachedFlags;
-        _directions = tables.Directions;
-        _initialAttachmentOffsets = tables.InitialAttachmentOffsets;
+        _words = words;
     }
 
     /// <summary>Native variable B: quadratic-speed record index, converted to a byte offset by multiplying by eight; falling increases it up to $40.</summary>
@@ -58,17 +40,17 @@ public sealed class BeetomEnemyState
     /// <summary>Where the typed animation (#641) resumes. Setup installs it in place of the native $7E:7800,x list pointer, which nothing reads back; installation also resets the common instruction timer and loop counter.</summary>
     internal AnimationProgramCursor<BeetomProgram> Program { get; set; }
     /// <summary>Native $7E:7804,x short-hop starting record index, calculated using unaligned quadratic-table words until the $3000 height accumulator target is reached in steps of four.</summary>
-    public ushort InitialShortLeapYSpeedIndex { get => _initialShortLeapYSpeedIndexes[_slot.SlotIndex]; internal set => _initialShortLeapYSpeedIndexes[_slot.SlotIndex] = value; }
+    public ushort InitialShortLeapYSpeedIndex { get => _words.InitialShortLeapYSpeedIndex; internal set => _words.InitialShortLeapYSpeedIndex = value; }
     /// <summary>Native $7E:7806,x long-hop starting record index, calculated using unaligned quadratic-table words until the $4000 height accumulator target is reached in steps of five.</summary>
-    public ushort InitialLongLeapYSpeedIndex { get => _initialLongLeapYSpeedIndexes[_slot.SlotIndex]; internal set => _initialLongLeapYSpeedIndexes[_slot.SlotIndex] = value; }
+    public ushort InitialLongLeapYSpeedIndex { get => _words.InitialLongLeapYSpeedIndex; internal set => _words.InitialLongLeapYSpeedIndex = value; }
     /// <summary>Native $7E:7808,x lunge starting record index, calculated using unaligned quadratic-table words until the $3000 height accumulator target is reached in steps of three.</summary>
-    public ushort InitialLungeYSpeedIndex { get => _initialLungeYSpeedIndexes[_slot.SlotIndex]; internal set => _initialLungeYSpeedIndexes[_slot.SlotIndex] = value; }
+    public ushort InitialLungeYSpeedIndex { get => _words.InitialLungeYSpeedIndex; internal set => _words.InitialLungeYSpeedIndex = value; }
     /// <summary>Native $7E:780A,x arc phase: false uses the rising speed-table half; signed index underflow switches to the falling half at index zero.</summary>
-    public bool Falling { get => _fallingFlags[_slot.SlotIndex] != 0; internal set => _fallingFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0; }
+    public bool Falling { get => _words.FallingFlag != 0; internal set => _words.FallingFlag = value ? (ushort)1 : (ushort)0; }
     /// <summary>Native $7E:7810,x attachment latch set on first touch and cleared after escape or the common-shot callback; it prevents repeated attachment setup.</summary>
-    public bool AttachedToSamus { get => _attachedFlags[_slot.SlotIndex] != 0; internal set => _attachedFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0; }
+    public bool AttachedToSamus { get => _words.AttachedFlag != 0; internal set => _words.AttachedFlag = value ? (ushort)1 : (ushort)0; }
     /// <summary>Native $7E:7812,x direction word: zero left-facing, one right-facing; collision toggles it, while the flung state moves opposite this facing.</summary>
-    public ushort Direction { get => _directions[_slot.SlotIndex]; internal set => _directions[_slot.SlotIndex] = value; }
+    public ushort Direction { get => _words.Direction; internal set => _words.Direction = value; }
     /// <summary>Native $7E:780C,x/$780E,x signed room-pixel Samus-minus-Beetom offset captured on initial attachment; retained although following snaps X directly to Samus and uses Samus Y minus four.</summary>
-    public Offset16<RoomPixels> InitialAttachmentOffset { get => _initialAttachmentOffsets[_slot.SlotIndex]; internal set => _initialAttachmentOffsets[_slot.SlotIndex] = value; }
+    public Offset16<RoomPixels> InitialAttachmentOffset { get => _words.InitialAttachmentOffset; internal set => _words.InitialAttachmentOffset = value; }
 }

@@ -67,7 +67,15 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
 
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-                slot.Bind(definitionPointer, slot.Definition);
+                try
+                {
+                    slot.Bind(definitionPointer, slot.Definition);
+                }
+                catch (InvalidDataException exception) when (IsUnportedSpecies(exception, definitionPointer))
+                {
+                    // The registry refuses a room-placed header whose species AI no code ports.
+                    continue;
+                }
                 slot.Bind(slot.EnemyDefinitionPointer, definition);
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
@@ -170,6 +178,10 @@ internal static class EnemyInstructionOwnerCoverageVerification
             $"Enemy ${(int)definitionPointer:X4} initialization AI $",
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
+
+    /// <summary>Whether binding <paramref name="definitionPointer"/> failed because its species AI is not ported.</summary>
+    private static bool IsUnportedSpecies(InvalidDataException exception, EnemyDefinitionId definitionPointer) =>
+        exception.Message.EndsWith($" holds {definitionPointer}, whose species AI is not ported.", StringComparison.Ordinal);
 
     /// <summary>Extracts distinct bank-$A0 enemy headers named in the pinned symbol inventory.</summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()

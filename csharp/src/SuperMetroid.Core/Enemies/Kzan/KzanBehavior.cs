@@ -33,24 +33,17 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last speed-table offset permitted during falling acceleration.</summary>
     private const ushort KzanMaximumFallingSpeedTableOffset = 512;
 
-    /// <summary>Per-slot countdown reset copied from init1's low byte.</summary>
-    internal readonly ushort[] _kzanFallWaitTimerResetValues = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Whole Y before each rise/fall step, used to carry Samus by the accepted delta.</summary>
-    internal readonly ushort[] _kzanPreviousYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot index into the linear enemy speed table, capped at its final NTSC entry.</summary>
-    internal readonly ushort[] _kzanFallingYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot hold between landing and rising.</summary>
-    internal readonly ushort[] _kzanRiseWaitTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Kzan occupants for the current room.</summary>
+    private readonly KzanExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static KzanExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new KzanExtensionWords())];
 
     /// <summary>Initializes the top's idle list, wrapped speed-table index, fall distance, and low-byte wait timer from its two parameters.</summary>
     internal void InitializeKzanTop(RoomEnemySlot slot)
     {
-        var state = new KzanEnemyState(
-            slot,
-            _kzanFallWaitTimerResetValues,
-            _kzanPreviousYPositions,
-            _kzanFallingYSpeedTableIndexes,
-            _kzanRiseWaitTimers);
+        var state = new KzanEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         state.Program = AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle);
@@ -313,10 +306,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastKzanSoundEffect = null;
-        Array.Clear(_kzanFallWaitTimerResetValues);
-        Array.Clear(_kzanPreviousYPositions);
-        Array.Clear(_kzanFallingYSpeedTableIndexes);
-        Array.Clear(_kzanRiseWaitTimers);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new KzanExtensionWords();
     }
 
     /// <inheritdoc/>

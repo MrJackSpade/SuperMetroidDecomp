@@ -31,24 +31,17 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = roomStatus;
     }
 
-    /// <summary>Lower vertical travel bounds indexed by native enemy slot.</summary>
-    private readonly ushort[] _firefleaMinimumYPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Upper vertical travel bounds indexed by native enemy slot.</summary>
-    private readonly ushort[] _firefleaMaximumYPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Current signed speed-table entries, toggled when a vertical bound is crossed.</summary>
-    private readonly ushort[] _firefleaSpeedTableIndexes =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Fireflea occupants and rooms.</summary>
+    private readonly FirefleaExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static FirefleaExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new FirefleaExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Fireflea</c> at <c>$A3:8D2D</c>, decoding motion parameters and the retail initial-circle angle bug.</summary>
     internal void InitializeFireflea(RoomEnemySlot slot)
     {
-        var state = new FirefleaEnemyState(
-            slot,
-            _firefleaMinimumYPositions,
-            _firefleaMaximumYPositions,
-            _firefleaSpeedTableIndexes);
+        var state = new FirefleaEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
         state.Program = AnimationProgramCursor<FirefleaProgram>.Start(FirefleaProgram.Loop);
 

@@ -38,12 +38,10 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy slots.</summary>
     private const int ShaktoolSegmentCount = 7;
 
-    /// <summary>Initialized segment extensions indexed by physical enemy slot.</summary>
-    internal readonly ShaktoolSegmentState?[] _shaktoolSegments =
-        new ShaktoolSegmentState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Discards all segment extensions when the room population changes.</summary>
-    internal void ResetShaktoolRoomState() => Array.Clear(_shaktoolSegments);
+    internal void ResetShaktoolRoomState() =>
+        Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<ShaktoolSegmentState>(null));
 
     /// <summary>The whole table step half a turn from <paramref name="angle"/>, its fraction cleared.</summary>
     private static ushort OppositeOrbitStep(ushort angle) =>
@@ -61,7 +59,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         int segmentIndex = slot.Parameter2 >> 1;
         ShaktoolSegmentDefinition definition = ShaktoolSegmentDefinitions.ForIndex(segmentIndex);
         var state = new ShaktoolSegmentState(slot);
-        _shaktoolSegments[slot.SlotIndex] = state;
+        slot.SetSpeciesState<ShaktoolSegmentState>(state);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -323,7 +321,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Swaps two segment orbit angles after rotating each by half a turn.</summary>
-    private void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
+    private static void SwapMirroredShaktoolAngles(RoomEnemySlot left, RoomEnemySlot right)
     {
         ShaktoolSegmentState leftState = RequireShaktoolState(left);
         ShaktoolSegmentState rightState = RequireShaktoolState(right);
@@ -391,7 +389,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             // Group helpers also run during the remainder of the lethal frame.
             // The initialized view survives common-slot clearing and continues to
             // expose its native words; a cleared header is not a missing record.
-            if (_shaktoolSegments[segment.SlotIndex] is null)
+            if (segment.SpeciesState<ShaktoolSegmentState>() is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at slot {ownerSlotIndex} is missing segment {index}.");
@@ -413,8 +411,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Requires an initialized extension for the given physical segment slot.</summary>
-    private ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
-        _shaktoolSegments[slot.SlotIndex] is { } state
+    private static ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
+        slot.SpeciesState<ShaktoolSegmentState>() is { } state
             ? state
             : throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} has no initialized Shaktool state.");

@@ -261,7 +261,7 @@ internal static class CoreAccess
             enemies.ChozoStatueBehavior._chozoStatuePlmRequests;
         /// <summary>Per-slot Chozo statue states, including unused physical enemy slots.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
-            enemies.ChozoStatueBehavior._chozoStatueStates;
+            [.. enemies.SlotTable.Slots.Select(slot => slot.SpeciesState<ChozoStatueState>())];
         /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
             [.. enemies.SlotTable.Slots.Select(slot => (slot.Entity as NinjaSpacePirateEntity)?.State)];

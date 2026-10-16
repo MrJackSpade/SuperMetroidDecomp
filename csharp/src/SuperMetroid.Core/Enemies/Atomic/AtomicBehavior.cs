@@ -16,24 +16,17 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(this, slot, common);
 
-    /// <summary>Positive 16.16 speed fractions indexed by physical enemy slot.</summary>
-    internal readonly ushort[] _atomicSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Positive 16.16 speed whole words indexed by physical enemy slot.</summary>
-    internal readonly ushort[] _atomicSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native negative-speed fractions retained separately to preserve subpixel arithmetic.</summary>
-    internal readonly ushort[] _atomicNegativeSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Native negative-speed whole words retained separately from positive speed.</summary>
-    internal readonly ushort[] _atomicNegativeSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Atomic occupants for the current room.</summary>
+    private readonly AtomicExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static AtomicExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new AtomicExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
     internal void InitializeAtomic(RoomEnemySlot slot)
     {
-        var state = new AtomicEnemyState(
-            slot,
-            _atomicSpeedFractions,
-            _atomicSpeedWholes,
-            _atomicNegativeSpeedFractions,
-            _atomicNegativeSpeedWholes);
+        var state = new AtomicEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -168,10 +161,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_atomicSpeedFractions);
-        Array.Clear(_atomicSpeedWholes);
-        Array.Clear(_atomicNegativeSpeedFractions);
-        Array.Clear(_atomicNegativeSpeedWholes);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new AtomicExtensionWords();
     }
 
     /// <inheritdoc/>

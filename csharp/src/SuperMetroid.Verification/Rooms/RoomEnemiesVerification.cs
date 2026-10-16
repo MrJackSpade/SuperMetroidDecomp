@@ -540,7 +540,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         return;
     }
     AssertEqual(AnimationProgramCursor<RipperProgram>.Start(RipperProgram.RipperMovingRight),
-        enemies.RipperBehavior._ripperPrograms[ripper.SlotIndex], "Ripper init right animation");
+        enemies.RipperBehavior._extensions[ripper.SlotIndex].Program, "Ripper init right animation");
     AssertEqual(1, ripper.VariableD, "Ripper init signed whole X velocity");
     AssertEqual(0, ripper.VariableC, "Ripper init X subvelocity");
 

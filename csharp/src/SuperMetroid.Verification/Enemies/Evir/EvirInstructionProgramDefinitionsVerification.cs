@@ -33,7 +33,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         {
             var enemies = NewEvirInstructionSystem(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.Evir, loop);
+            PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EvirAnimations.Programs, loop)),
                 $"Evir {loop} loop");
@@ -42,7 +42,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         {
             var enemies = NewEvirInstructionSystem(rom);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-            EvirEnemyState state = PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
+            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "normal Evir projectile shows its flight pose");
@@ -56,15 +56,14 @@ internal static class EvirInstructionProgramDefinitionsVerification
             // The regeneration cues read Evir.instList-$80,X: the body record two slots before the projectile, as the
             // retail population lays them out.
             RoomEnemySlot slot = enemies.SlotTable.Slots[2];
-            EvirEnemyState state = PrepareEvirInstructionSlot(enemies, slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileRegenerating);
+            EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileRegenerating);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
             state.FacingDirection = 1;
             state.MovingFlag = 1;
             state.RegenerationFlag = 1;
             state.Function = EvirAiFunction.ProjectileRegenerating;
-            var states = (EvirEnemyState?[])enemies.EvirBehavior._evirStates;
-            states[0] = new EvirEnemyState(enemies.SlotTable.Slots[0]) { InstalledProgram = EvirProgram.BodyFacingLeft };
+            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState(enemies.SlotTable.Slots[0]) { InstalledProgram = EvirProgram.BodyFacingLeft });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int call = 0; call < 10; call++)
             {
@@ -98,7 +97,6 @@ internal static class EvirInstructionProgramDefinitionsVerification
 
     /// <summary>Seeds an Evir body or projectile slot with its bank-$A8 definition and starting program.</summary>
     internal static EvirEnemyState PrepareEvirInstructionSlot(
-        RoomEnemySystem enemies,
         RoomEnemySlot slot,
         EnemyDefinitionId definition,
         EvirProgram program)
@@ -112,7 +110,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             InstalledProgram = program,
             Program = AnimationProgramCursor<EvirProgram>.Start(program),
         };
-        ((EvirEnemyState?[])enemies.EvirBehavior._evirStates)[slot.SlotIndex] = state;
+        slot.SetSpeciesState(state);
         return state;
     }
 

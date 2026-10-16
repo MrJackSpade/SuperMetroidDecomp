@@ -21,7 +21,6 @@ internal static class EvirDeathFrameVerification
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var states = (EvirEnemyState?[])enemies.EvirBehavior._evirStates;
         Action<RoomEnemySlot, SamusState?> initialize = enemies.EvirBehavior.InitializeEvir;
         Action<RoomEnemySlot> initializeProjectile = enemies.EvirBehavior.InitializeEvirProjectile;
         for (int index = 6; index <= 8; index++)
@@ -41,7 +40,7 @@ internal static class EvirDeathFrameVerification
         var body = enemies.SlotTable.Slots[6];
         var arms = enemies.SlotTable.Slots[7];
         var projectile = enemies.SlotTable.Slots[8];
-        AssertEqual((ushort)1, (states[6] ?? throw new InvalidOperationException("Verification requires states[6].")).FacingDirection, "live Evir initially faces right");
+        AssertEqual((ushort)1, (enemies.SlotTable.Slots[6].SpeciesState<EvirEnemyState>() ?? throw new InvalidOperationException("Verification requires slot 6's Evir state.")).FacingDirection, "live Evir initially faces right");
         // Contact kills the body after the real scheduler has selected all three slots.
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.

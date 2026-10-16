@@ -49,9 +49,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>First quadratic-speed index for the yellow bug's vertical arc.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
-    /// <summary>Per-slot Zeb, Zebbo, Gamet, and Geega state cleared on room load.</summary>
-    internal readonly PipeBugEnemyState?[] _pipeBugStates =
-        new PipeBugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Recognizes the two Brinstar variants that share bank-$B3 pipe-bug AI.</summary>
     internal static bool IsBrinstarPipeBugDefinition(EnemyDefinitionId definition) =>
@@ -59,10 +56,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyDefinitionId.Zebbo;
 
     /// <summary>Releases every initialized species state before a new room population loads.</summary>
-    internal void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
+    internal void ResetPipeBugRoomState() =>
+        Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<PipeBugEnemyState>(null));
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
-    internal void InitializeBrinstarPipeBug(RoomEnemySlot slot)
+    internal static void InitializeBrinstarPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
@@ -77,7 +75,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>NorfairPipeBug_Init</c> at $B3:8B61.</summary>
-    internal void InitializeNorfairPipeBug(RoomEnemySlot slot)
+    internal static void InitializeNorfairPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
@@ -91,7 +89,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>BrinstarYellowPipeBug_Init</c> at $B3:8F4C.</summary>
-    internal void InitializeYellowPipeBug(RoomEnemySlot slot)
+    internal static void InitializeYellowPipeBug(RoomEnemySlot slot)
     {
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
@@ -460,7 +458,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int index = 0; index < formation.Length; index++)
         {
             RoomEnemySlot member = _slotTable._slots[leader.SlotIndex + index];
-            PipeBugEnemyState? state = _pipeBugStates[member.SlotIndex];
+            PipeBugEnemyState? state = member.SpeciesState<PipeBugEnemyState>();
             if (state?.DefinitionAtInitialization != EnemyDefinitionId.Gamet)
             {
                 throw new InvalidDataException(
@@ -686,16 +684,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Creates species state at the enemy's physical slot before its first AI pass.</summary>
-    private PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
+    private static PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
-        _pipeBugStates[slot.SlotIndex] = state;
+        slot.SetSpeciesState<PipeBugEnemyState>(state);
         return state;
     }
 
     /// <summary>Finds initialized state for a callback and rejects an unrelated or uninitialized slot.</summary>
-    private PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
-        _pipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
+        slot.SpeciesState<PipeBugEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
 
     /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
@@ -714,7 +712,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances PipeBugs's typed animation.</summary>
-    internal void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
@@ -725,19 +723,19 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Zeb's initialization AI.</summary>
-    internal void RunZebInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunZebInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeBrinstarPipeBug(slot);
     }
 
     /// <summary>Ports Gamet's initialization AI.</summary>
-    internal void RunGametInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunGametInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeNorfairPipeBug(slot);
     }
 
     /// <summary>Ports Geega's initialization AI.</summary>
-    internal void RunGeegaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal static void RunGeegaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
         InitializeYellowPipeBug(slot);
     }

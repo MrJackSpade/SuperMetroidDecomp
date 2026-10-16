@@ -11,32 +11,15 @@ public sealed class SkulteraEnemyState
 {
     /// <summary>Physical enemy record that owns the six common variable words.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot extra-WRAM vertical sine radius words.</summary>
-    private readonly ushort[] _radii;
-    /// <summary>Per-slot turn-completion latches set by the animation callback.</summary>
-    private readonly ushort[] _turnFinishedFlags;
-    /// <summary>Per-slot signed angle increments negated at each turn.</summary>
-    private readonly ushort[] _angleDeltas;
-    /// <summary>Prior successful movement's sine offsets, retained for delta calculation.</summary>
-    private readonly ushort[] _previousYOffsets;
-    /// <summary>Current sine offsets used by vertical movement and collision.</summary>
-    private readonly ushort[] _currentYOffsets;
+    /// <summary>The slot's Skultera extension words, kept for the room across occupants.</summary>
+    private readonly SkulteraExtensionWords _words;
 
     /// <summary>Projects the common slot and shared extra-WRAM arrays at the slot's native index.</summary>
     internal SkulteraEnemyState(
-        RoomEnemySlot slot,
-        ushort[] radii,
-        ushort[] turnFinishedFlags,
-        ushort[] angleDeltas,
-        ushort[] previousYOffsets,
-        ushort[] currentYOffsets)
+        RoomEnemySlot slot, SkulteraExtensionWords words)
     {
         _slot = slot;
-        _radii = radii;
-        _turnFinishedFlags = turnFinishedFlags;
-        _angleDeltas = angleDeltas;
-        _previousYOffsets = previousYOffsets;
-        _currentYOffsets = currentYOffsets;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -87,15 +70,15 @@ public sealed class SkulteraEnemyState
     /// <summary>Low byte of population parameter two: vertical oscillation radius.</summary>
     public ushort Radius
     {
-        get => _radii[_slot.SlotIndex];
-        internal set => _radii[_slot.SlotIndex] = value;
+        get => _words.Radius;
+        internal set => _words.Radius = value;
     }
 
     /// <summary>Published by animation command <c>$A3:90AA</c> after a complete turn.</summary>
     public bool TurnFinished
     {
-        get => _turnFinishedFlags[_slot.SlotIndex] != 0;
-        internal set => _turnFinishedFlags[_slot.SlotIndex] = value ? (ushort)1 : (ushort)0;
+        get => _words.TurnFinishedFlag != 0;
+        internal set => _words.TurnFinishedFlag = value ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>
@@ -104,22 +87,22 @@ public sealed class SkulteraEnemyState
     /// </summary>
     public short AngleDelta
     {
-        get => unchecked((short)_angleDeltas[_slot.SlotIndex]);
-        internal set => _angleDeltas[_slot.SlotIndex] = unchecked((ushort)value);
+        get => unchecked((short)_words.AngleDelta);
+        internal set => _words.AngleDelta = unchecked((ushort)value);
     }
 
     /// <summary>Sine result retained from the preceding successful movement attempt.</summary>
     public short PreviousYOffset
     {
-        get => unchecked((short)_previousYOffsets[_slot.SlotIndex]);
-        internal set => _previousYOffsets[_slot.SlotIndex] = unchecked((ushort)value);
+        get => unchecked((short)_words.PreviousYOffset);
+        internal set => _words.PreviousYOffset = unchecked((ushort)value);
     }
 
     /// <summary>Current sine result at extra WRAM <c>$7E:7808,x</c>.</summary>
     public short CurrentYOffset
     {
-        get => unchecked((short)_currentYOffsets[_slot.SlotIndex]);
-        internal set => _currentYOffsets[_slot.SlotIndex] = unchecked((ushort)value);
+        get => unchecked((short)_words.CurrentYOffset);
+        internal set => _words.CurrentYOffset = unchecked((ushort)value);
     }
 
     /// <summary>Complete signed 16.16 rightward displacement selected at initialization.</summary>

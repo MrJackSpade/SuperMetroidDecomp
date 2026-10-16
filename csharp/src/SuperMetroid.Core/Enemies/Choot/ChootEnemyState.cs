@@ -11,32 +11,15 @@ public sealed class ChootEnemyState
 {
     /// <summary>Common enemy slot holding Choot's native-width variable words.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Per-slot whole-pixel room positions restored after a falling cycle.</summary>
-    private readonly Position16<RoomPixels>[] _spawnPositions;
-    /// <summary>Per-slot apex positions calculated from each Choot's jump height.</summary>
-    private readonly Position16<RoomPixels>[] _initialFallingPositions;
-    /// <summary>Per-slot base positions to which falling-pattern offsets are added.</summary>
-    private readonly Position16<RoomPixels>[] _fallingOrigins;
-    /// <summary>Per-slot ascent cursors restored when the jump cycle finishes.</summary>
-    private readonly ushort[] _initialYSpeedTableIndexes;
-    /// <summary>Per-slot delays that underflow before the next jump begins.</summary>
-    private readonly ushort[] _jumpDelayTimers;
+    /// <summary>The slot's Choot extension words, kept for the room across occupants.</summary>
+    private readonly ChootExtensionWords _words;
 
     /// <summary>Binds the common slot and the per-enemy WRAM arrays without copying their state.</summary>
     internal ChootEnemyState(
-        RoomEnemySlot slot,
-        Position16<RoomPixels>[] spawnPositions,
-        Position16<RoomPixels>[] initialFallingPositions,
-        Position16<RoomPixels>[] fallingOrigins,
-        ushort[] initialYSpeedTableIndexes,
-        ushort[] jumpDelayTimers)
+        RoomEnemySlot slot, ChootExtensionWords words)
     {
         _slot = slot;
-        _spawnPositions = spawnPositions;
-        _initialFallingPositions = initialFallingPositions;
-        _fallingOrigins = fallingOrigins;
-        _initialYSpeedTableIndexes = initialYSpeedTableIndexes;
-        _jumpDelayTimers = jumpDelayTimers;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -90,29 +73,29 @@ public sealed class ChootEnemyState
     /// <summary>Native <c>spawnXPosition</c>/<c>spawnYPosition</c> at <c>$7E:7800</c>/<c>$7E:7802 + enemy index</c>: the initial room position in whole pixels, restored after the last falling-pattern loop.</summary>
     public Position16<RoomPixels> SpawnPosition
     {
-        get => _spawnPositions[_slot.SlotIndex];
-        internal set => _spawnPositions[_slot.SlotIndex] = value;
+        get => _words.SpawnPosition;
+        internal set => _words.SpawnPosition = value;
     }
 
     /// <summary>Native <c>initialFallingXPosition</c>/<c>initialFallingYPosition</c> at <c>$7E:7804</c>/<c>$7E:7806 + enemy index</c>: spawn X and the wrapped whole-pixel spawn Y minus the computed jump height, installed as the position and falling origin at the apex transition.</summary>
     public Position16<RoomPixels> InitialFallingPosition
     {
-        get => _initialFallingPositions[_slot.SlotIndex];
-        internal set => _initialFallingPositions[_slot.SlotIndex] = value;
+        get => _words.InitialFallingPosition;
+        internal set => _words.InitialFallingPosition = value;
     }
 
     /// <summary>Native <c>fallingXOrigin</c>/<c>fallingYOrigin</c> at <c>$7E:7808</c>/<c>$7E:780A + enemy index</c>: the whole-pixel base added to each signed falling-pattern offset; initialized at the apex, and its Y advanced by <see cref="FallingPatternYDistance"/> at every stream terminator.</summary>
     public Position16<RoomPixels> FallingOrigin
     {
-        get => _fallingOrigins[_slot.SlotIndex];
-        internal set => _fallingOrigins[_slot.SlotIndex] = value;
+        get => _words.FallingOrigin;
+        internal set => _words.FallingOrigin = value;
     }
 
     /// <summary>Native <c>initialYSpeedTableIndex</c> at <c>$7E:780C + enemy index</c>: the saved encoded ascent cursor calculated from the population's loop count and pattern height; copied back to <see cref="YSpeedTableIndex"/> when the jump cycle finishes.</summary>
     public ushort InitialYSpeedTableIndex
     {
-        get => _initialYSpeedTableIndexes[_slot.SlotIndex];
-        internal set => _initialYSpeedTableIndexes[_slot.SlotIndex] = value;
+        get => _words.InitialYSpeedTableIndex;
+        internal set => _words.InitialYSpeedTableIndex = value;
     }
 
     /// <summary>
@@ -121,7 +104,7 @@ public sealed class ChootEnemyState
     /// </summary>
     public NativeCountdown JumpDelayTimer
     {
-        get => NativeCountdown.FromRaw(_jumpDelayTimers[_slot.SlotIndex]);
-        internal set => _jumpDelayTimers[_slot.SlotIndex] = value.RawValue;
+        get => NativeCountdown.FromRaw(_words.JumpDelayTimer);
+        internal set => _words.JumpDelayTimer = value.RawValue;
     }
 }

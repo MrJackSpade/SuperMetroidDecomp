@@ -31,7 +31,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                 : EnemyDefinitionId.Zeb, initializedSlot.Definition);
             initializedSlot.Parameter1 = strong ? (ushort)1 : (ushort)0;
             initializedSlot.Position = initializedSlot.Position.WithWhole(new(0x0100, 0x0080));
-            initializedEnemies.PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
+            PipeBugsBehavior.InitializeBrinstarPipeBug(initializedSlot);
             AssertEqual(AnimationProgramCursor<PipeBugProgram>.Start(PipeBugDefinitions.BrinstarProgram(
                     strong,
                     PipeBugAnimationSelector.None)),

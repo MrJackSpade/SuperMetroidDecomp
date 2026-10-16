@@ -45,20 +45,12 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>Native horizontal and vertical dispatch indices retained for each enemy slot.</summary>
-    internal readonly PlatformMovementFunctions[] _platformMovementFunctions = new PlatformMovementFunctions[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Pre-move whole position used to carry Samus by the platform's accepted displacement.</summary>
-    internal readonly ushort[] _platformPreviousPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Tracks whether a moving vertical animation has been installed for each slot.</summary>
-    internal readonly ushort[] _platformVerticallyMovingFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Tracks whether a stationary vertical animation has been installed for each slot.</summary>
-    internal readonly ushort[] _platformVerticallyStillFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Quadratic-speed table caps selected by the platform variant.</summary>
-    internal readonly ushort[] _platformMaximumYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Previous vertical dispatcher words used when rise and sink states change.</summary>
-    internal readonly ushort[] _platformPreviousYMovementFunctions = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot selector for the suspensor platform animation family.</summary>
-    internal readonly ushort[] _platformSuspensorPlatformFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Platforms occupants for the current room.</summary>
+    private readonly PlatformsExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static PlatformsExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new PlatformsExtensionWords())];
 
     /// <summary>Recognizes the two enemy definitions sharing bank-$A3 platform movement.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
@@ -68,7 +60,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
-        var state = new PlatformEnemyState(slot, new PlatformSharedTables { MovementFunctions = _platformMovementFunctions, PreviousPositions = _platformPreviousPositions, VerticallyMovingFlags = _platformVerticallyMovingFlags, VerticallyStillFlags = _platformVerticallyStillFlags, MaximumYSpeedTableIndexes = _platformMaximumYSpeedTableIndexes, PreviousYMovementFunctions = _platformPreviousYMovementFunctions, SuspensorPlatformFlags = _platformSuspensorPlatformFlags });
+        var state = new PlatformEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
 
         state.IsSuspensorPlatform = isKamer;
@@ -409,13 +401,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_platformMovementFunctions);
-        Array.Clear(_platformPreviousPositions);
-        Array.Clear(_platformVerticallyMovingFlags);
-        Array.Clear(_platformVerticallyStillFlags);
-        Array.Clear(_platformMaximumYSpeedTableIndexes);
-        Array.Clear(_platformPreviousYMovementFunctions);
-        Array.Clear(_platformSuspensorPlatformFlags);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new PlatformsExtensionWords();
     }
 
     /// <inheritdoc/>

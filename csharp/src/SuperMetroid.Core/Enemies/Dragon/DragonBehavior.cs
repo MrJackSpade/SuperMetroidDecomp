@@ -58,19 +58,18 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pause beneath the platform before the next rise attempt.</summary>
     private const ushort DragonWaitBeforeRiseFrames = 128;
 
-    /// <summary>Per-slot animation lists requested by Dragon AI before the instruction owner installs them.</summary>
-    private readonly ushort[] _dragonRequestedInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot animation lists currently installed in the common enemy interpreter.</summary>
-    private readonly ushort[] _dragonInstalledInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot callback flags signaling completion of Dragon's attack animation.</summary>
-    private readonly ushort[] _dragonAnimationFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Dragon occupants for the current room.</summary>
+    private readonly DragonExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static DragonExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DragonExtensionWords())];
 
     /// <summary>Clears per-slot animation requests, completion flags and species state on room load.</summary>
     internal void ResetDragonRoomState()
     {
-        Array.Clear(_dragonRequestedInstructionLists);
-        Array.Clear(_dragonInstalledInstructionLists);
-        Array.Clear(_dragonAnimationFinishedFlags);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new DragonExtensionWords();
     }
 
     /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
@@ -319,11 +318,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Attaches one Dragon slot to the shared native animation-word arrays.</summary>
     private DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
-        var state = new DragonEnemyState(
-            slot,
-            _dragonRequestedInstructionLists,
-            _dragonInstalledInstructionLists,
-            _dragonAnimationFinishedFlags);
+        var state = new DragonEnemyState(slot, _extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state);
         return state;
     }

@@ -92,7 +92,8 @@ internal static class RoomEnemySystemAccess
         internal BotwoonEnemyState? Botwoon => self.BotwoonBehavior._botwoonState;
 
         /// <summary>Per-slot Evir states, indexed by enemy slot.</summary>
-        internal IReadOnlyList<EvirEnemyState?> EvirStates => self.EvirBehavior._evirStates;
+        internal IReadOnlyList<EvirEnemyState?> EvirStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<EvirEnemyState>())];
 
         /// <summary>Special drops a dying Metroid has requested this frame.</summary>
         internal IReadOnlyList<MetroidDropRequest> MetroidDropRequests =>
@@ -157,7 +158,8 @@ internal static class RoomEnemySystemAccess
         /// Per-physical-slot Shaktool state. A live retail group occupies seven consecutive
         /// non-null entries; every other room slot remains null.
         /// </summary>
-        internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments => self.ShaktoolBehavior._shaktoolSegments;
+        internal IReadOnlyList<ShaktoolSegmentState?> ShaktoolSegments =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<ShaktoolSegmentState>())];
 
         /// <summary>Typed state for every physical slot currently owned by a Mochtroid.</summary>
         internal IReadOnlyList<MochtroidEnemyState?> MochtroidStates =>
@@ -310,10 +312,12 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as SbugEntity)?.State)];
 
         /// <summary>Typed state for every physical Pipe Bug enemy slot.</summary>
-        internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates => self.PipeBugsBehavior._pipeBugStates;
+        internal IReadOnlyList<PipeBugEnemyState?> PipeBugStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<PipeBugEnemyState>())];
 
         /// <summary>Typed Ki-Hunter state for every body and wing physical enemy slot.</summary>
-        internal IReadOnlyList<KiHunterEnemyState?> KiHunterStates => self.KiHunterBehavior._kiHunterStates;
+        internal IReadOnlyList<KiHunterEnemyState?> KiHunterStates =>
+            [.. self.SlotTable.Slots.Select(slot => slot.SpeciesState<KiHunterEnemyState>())];
 
         /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<ChootEnemyState?> ChootStates =>

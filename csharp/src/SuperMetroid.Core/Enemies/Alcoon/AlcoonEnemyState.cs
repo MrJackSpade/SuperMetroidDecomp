@@ -11,32 +11,15 @@ public sealed class AlcoonEnemyState
 {
     /// <summary>Common enemy-slot words that hold Alcoon's function and motion state.</summary>
     private readonly RoomEnemySlot _slot;
-    /// <summary>Whole vertical acceleration words indexed by native enemy slot.</summary>
-    private readonly ushort[] _yAccelerations;
-    /// <summary>Fractional vertical acceleration words indexed by native enemy slot.</summary>
-    private readonly ushort[] _ySubaccelerations;
-    /// <summary>Original whole X positions used to bound Alcoon's walking distance.</summary>
-    private readonly ushort[] _spawnXPositions;
-    /// <summary>Floor Y positions found during Alcoon's initialization jump.</summary>
-    private readonly ushort[] _landingYPositions;
-    /// <summary>Walking cycles remaining until the next fire volley.</summary>
-    private readonly ushort[] _stepCounters;
+    /// <summary>The slot's Alcoon extension words, kept for the room across occupants.</summary>
+    private readonly AlcoonExtensionWords _words;
 
     /// <summary>Maps one enemy slot onto its parallel extra-WRAM arrays without copying their values.</summary>
     internal AlcoonEnemyState(
-        RoomEnemySlot slot,
-        ushort[] yAccelerations,
-        ushort[] ySubaccelerations,
-        ushort[] spawnXPositions,
-        ushort[] landingYPositions,
-        ushort[] stepCounters)
+        RoomEnemySlot slot, AlcoonExtensionWords words)
     {
         _slot = slot;
-        _yAccelerations = yAccelerations;
-        _ySubaccelerations = ySubaccelerations;
-        _spawnXPositions = spawnXPositions;
-        _landingYPositions = landingYPositions;
-        _stepCounters = stepCounters;
+        _words = words;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
@@ -89,10 +72,10 @@ public sealed class AlcoonEnemyState
     /// </summary>
     public Position16<RoomPixels> SpawnPosition
     {
-        get => new(_spawnXPositions[_slot.SlotIndex], _slot.VariableF);
+        get => new(_words.SpawnXPosition, _slot.VariableF);
         internal set
         {
-            _spawnXPositions[_slot.SlotIndex] = value.X;
+            _words.SpawnXPosition = value.X;
             _slot.VariableF = value.Y;
         }
     }
@@ -100,28 +83,28 @@ public sealed class AlcoonEnemyState
     /// <summary>Whole-pixel component of the vertical velocity increment per acceleration step, paired with <see cref="YSubacceleration"/>; jump setup writes zero. Native $7E:7800,x.</summary>
     public ushort YAcceleration
     {
-        get => _yAccelerations[_slot.SlotIndex];
-        internal set => _yAccelerations[_slot.SlotIndex] = value;
+        get => _words.YAcceleration;
+        internal set => _words.YAcceleration = value;
     }
 
     /// <summary>Fractional vertical velocity increment in 1/65536 pixel per motion-step squared; jump setup writes $8000, adding half a pixel per step to downward velocity. Native $7E:7802,x.</summary>
     public ushort YSubacceleration
     {
-        get => _ySubaccelerations[_slot.SlotIndex];
-        internal set => _ySubaccelerations[_slot.SlotIndex] = value;
+        get => _words.YSubacceleration;
+        internal set => _words.YSubacceleration = value;
     }
 
     /// <summary>Floor-aligned center Y discovered by the complete initialization jump.</summary>
     public ushort LandingYPosition
     {
-        get => _landingYPositions[_slot.SlotIndex];
-        internal set => _landingYPositions[_slot.SlotIndex] = value;
+        get => _words.LandingYPosition;
+        internal set => _words.LandingYPosition = value;
     }
 
     /// <summary>Number of four-step walking cycles remaining before another fire volley.</summary>
     public NativeCountdown StepCounter
     {
-        get => NativeCountdown.FromRaw(_stepCounters[_slot.SlotIndex]);
-        internal set => _stepCounters[_slot.SlotIndex] = value.RawValue;
+        get => NativeCountdown.FromRaw(_words.StepCounter);
+        internal set => _words.StepCounter = value.RawValue;
     }
 }

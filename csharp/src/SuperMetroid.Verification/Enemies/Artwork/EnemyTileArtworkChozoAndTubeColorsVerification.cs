@@ -117,7 +117,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             if (expectedProgram is not null)
             {
                 AssertEqual(AnimationProgramCursor<ChozoStatueProgram>.Start(expectedProgram.Value),
-                    (enemies.ChozoStatueBehavior._chozoStatueStates[statue.SlotIndex]
+                    (statue.SpeciesState<ChozoStatueState>()
                         ?? throw new InvalidOperationException($"{name} has no statue state.")).Program,
                     $"{name} keeps native animation selection");
                 AssertTrue(enemies.ChozoStatuePlmRequests.Count != 0,

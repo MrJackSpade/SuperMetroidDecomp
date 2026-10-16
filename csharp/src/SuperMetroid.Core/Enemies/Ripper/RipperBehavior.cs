@@ -26,27 +26,19 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         _terrain = terrain;
     }
 
-    /// <summary>GRipper's population-defined left patrol endpoint, indexed by enemy slot.</summary>
-    private readonly ushort[] _ripperVariantMinimumXPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>GRipper's population-defined right patrol endpoint, indexed by enemy slot.</summary>
-    private readonly ushort[] _ripperVariantMaximumXPositions =
-        new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot speed and patrol state for GRipper and Ripper II.</summary>
-    private readonly RipperVariantEnemyState?[] _ripperVariantStates =
-        new RipperVariantEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across Ripper occupants for the current room.</summary>
+    internal readonly RipperExtensionWords[] _extensions = NewExtensions();
 
-    /// <summary>Each Ripper-family slot's typed flying loop (#641), indexed by enemy slot.</summary>
-    internal readonly AnimationProgramCursor<RipperProgram>[] _ripperPrograms =
-        new AnimationProgramCursor<RipperProgram>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static RipperExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
+
 
     /// <summary>Clears variant patrol endpoints, AI state and loops before loading another room.</summary>
     internal void ResetRipperVariantRoomState()
     {
-        Array.Clear(_ripperVariantMinimumXPositions);
-        Array.Clear(_ripperVariantMaximumXPositions);
-        Array.Clear(_ripperVariantStates);
-        Array.Clear(_ripperPrograms);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new RipperExtensionWords();
     }
 
     /// <summary>Ports <c>InitAI_GRipper</c> at $A2:E1D3.</summary>
@@ -139,7 +131,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative pair and left-facing list. Unlike a reversal, initialization keeps the
         // population's instruction timer.
         bool movingRight = slot.Parameter2 != 0;
-        _ripperPrograms[slot.SlotIndex] = AnimationProgramCursor<RipperProgram>.Start(
+        _extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(
             movingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
 
         // Each logical speed occupies eight bytes in the common table:
@@ -193,11 +185,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds a variant slot to its per-room patrol arrays and retains its AI state.</summary>
     private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
     {
-        var state = new RipperVariantEnemyState(
-            slot,
-            _ripperVariantMinimumXPositions,
-            _ripperVariantMaximumXPositions);
-        _ripperVariantStates[slot.SlotIndex] = state;
+        var state = new RipperVariantEnemyState(slot, _extensions[slot.SlotIndex]);
+        slot.SetSpeciesState<RipperVariantEnemyState>(state);
         return state;
     }
 
@@ -225,7 +214,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs a flying loop from its first step on the next enemy frame.</summary>
     private void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
-        _ripperPrograms[slot.SlotIndex] = AnimationProgramCursor<RipperProgram>.Start(program);
+        _extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }
@@ -235,14 +224,14 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<RipperProgram> cursor = _ripperPrograms[slot.SlotIndex];
+        AnimationProgramCursor<RipperProgram> cursor = _extensions[slot.SlotIndex].Program;
         EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.Spritemap);
-        _ripperPrograms[slot.SlotIndex] = cursor;
+        _extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Requires variant initialization before dispatching GRipper or Ripper II main AI.</summary>
-    private RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
-        _ripperVariantStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static RipperVariantEnemyState RequireRipperVariantState(RoomEnemySlot slot) =>
+        slot.SpeciesState<RipperVariantEnemyState>() ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>

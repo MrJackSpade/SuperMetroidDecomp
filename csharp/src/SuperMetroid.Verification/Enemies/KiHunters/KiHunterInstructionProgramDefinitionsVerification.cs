@@ -133,7 +133,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         {
             var enemies = new RoomEnemySystem();
             enemies.BindFixtureBus(rom);
-            Action<RoomEnemySlot> initializeBody = enemies.KiHunterBehavior.InitializeKiHunter;
+            Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];

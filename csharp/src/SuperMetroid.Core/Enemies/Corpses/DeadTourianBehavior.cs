@@ -38,14 +38,18 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles = projectiles;
     }
 
-    /// <summary>Each dead Zoomer, Ripper or Skree slot's typed corpse pose (#641).</summary>
-    internal readonly AnimationProgramCursor<DeadTourianProgram>[] _deadTourianCorpsePrograms =
-        new AnimationProgramCursor<DeadTourianProgram>[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>The words each physical slot keeps across DeadTourian occupants for the current room.</summary>
+    internal readonly DeadTourianExtensionWords[] _extensions = NewExtensions();
+
+    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
+    private static DeadTourianExtensionWords[] NewExtensions() =>
+        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DeadTourianExtensionWords())];
 
     /// <summary>Discards all corpse program state before loading another room.</summary>
     internal void ResetDeadTourianCorpseRoomState()
     {
-        Array.Clear(_deadTourianCorpsePrograms);
+        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
+            _extensions[slotIndex] = new DeadTourianExtensionWords();
     }
 
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
@@ -118,7 +122,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.VariableA = profile.WaitFunction;
-        DeadSidehopperBehavior.StartDeadTourianProgram(slot, _deadTourianCorpsePrograms, definition.InitialProgram);
+        _extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(
             _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
@@ -315,10 +319,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        AnimationProgramCursor<DeadTourianProgram> cursor = _deadTourianCorpsePrograms[slot.SlotIndex];
+        AnimationProgramCursor<DeadTourianProgram> cursor = _extensions[slot.SlotIndex].Program;
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Spritemap,
             (cue, _) => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
-        _deadTourianCorpsePrograms[slot.SlotIndex] = cursor;
+        _extensions[slot.SlotIndex].Program = cursor;
     }
 
     /// <summary>Ports DeadTourian's initialization AI.</summary>

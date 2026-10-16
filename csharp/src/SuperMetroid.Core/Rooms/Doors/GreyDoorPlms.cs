@@ -7,8 +7,15 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Grey door PLMs: condition identification (boss, mini-boss, Torizo, statue, event), flash and opening.</summary>
-internal sealed class GreyDoorPlms
+internal sealed class GreyDoorPlms : IPlmFamilySource
 {
+    /// <summary>Registers the GreyDoor family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Room progression and statue state used to evaluate resident-door unlock conditions.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Draws closed-grey and converted-blue tiles into the room level and background streamer.</summary>

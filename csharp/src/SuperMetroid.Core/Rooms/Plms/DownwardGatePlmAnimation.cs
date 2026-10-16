@@ -20,7 +20,7 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
         DownwardGatePlmProgramDefinitions.ProgramAfterSleep(program);
 
     /// <inheritdoc/>
-    private protected override DownwardGateProgram? Publish(DownwardGateCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override DownwardGateProgram? Publish(DownwardGateCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {

@@ -10,8 +10,16 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>In-world collectible PLMs: item and tank setup, pickup, fanfare and the dynamic collectible graphics slots.</summary>
-internal sealed class CollectiblePlms
+internal sealed class CollectiblePlms : IPlmFamilySource
 {
+    /// <summary>Registers the Collectible family's step.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.Collectible, (slot, context) =>
+            TryStepCollectible(context.Bus, context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+    }
+
     /// <summary>Supplies Samus, persistence, and room-FX owners at pickup time.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>

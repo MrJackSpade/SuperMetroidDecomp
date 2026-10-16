@@ -33,7 +33,7 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
     };
 
     /// <inheritdoc/>
-    private protected override GreyDoorProgram? Publish(GreyDoorCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override GreyDoorProgram? Publish(GreyDoorCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {
@@ -73,6 +73,6 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
     }
 
     /// <summary>Queues a library-3 door sound under the door sounds' cap.</summary>
-    private static void QueueDoorSound(PlmAnimationContext context, byte sound) =>
+    private static void QueueDoorSound(PlmStepContext context, byte sound) =>
         context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, sound), BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
 }

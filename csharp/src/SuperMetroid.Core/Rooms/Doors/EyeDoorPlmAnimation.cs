@@ -24,7 +24,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
         EyeDoorPlmDrawDefinitions.DrawList(Orientation, Component, frame);
 
     /// <inheritdoc/>
-    private protected override EyeDoorPlmProgram? Publish(EyeDoorPlmCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override EyeDoorPlmProgram? Publish(EyeDoorPlmCue cue, PlmSlot slot, PlmStepContext context)
     {
         EyeDoorPlms eyes = context.Plms.EyeDoors;
         DoorPlms doors = context.Plms.DoorPlms;

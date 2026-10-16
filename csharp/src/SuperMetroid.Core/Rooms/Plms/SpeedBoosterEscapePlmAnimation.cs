@@ -20,7 +20,7 @@ internal sealed class SpeedBoosterEscapePlmAnimation()
         throw new InvalidOperationException($"The lavaquake program never draws; got {frame}.");
 
     /// <inheritdoc/>
-    private protected override SpeedBoosterEscapeProgram? Publish(SpeedBoosterEscapePreInstruction cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override SpeedBoosterEscapeProgram? Publish(SpeedBoosterEscapePreInstruction cue, PlmSlot slot, PlmStepContext context)
     {
         slot.PreInstruction = (ushort)cue;
         return null;

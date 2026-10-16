@@ -8,8 +8,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Doors;
 
 /// <summary>Coloured and blue door PLMs: their setup, shot reactions, opening and the door-closing spawn after a transition.</summary>
-internal sealed class DoorPlms
+internal sealed class DoorPlms : IPlmFamilySource
 {
+    /// <summary>Registers the ColoredDoor family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.ColoredDoor, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Supplies the room's door-bit persistence owner.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Draws closed and flashing door caps into level data and the background streamer.</summary>

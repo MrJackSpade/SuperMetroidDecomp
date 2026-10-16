@@ -16,7 +16,7 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
     private protected override ushort DrawList(NoobTubeDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override NoobTubeProgram? Publish(NoobTubeCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override NoobTubeProgram? Publish(NoobTubeCue cue, PlmSlot slot, PlmStepContext context)
     {
         NoobTubePlms tube = context.Plms.NoobTube;
         switch (cue)

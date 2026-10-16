@@ -150,7 +150,13 @@ public sealed class RoomPlmSystem
         PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { Bindings = Bindings, BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionPlms(Bindings, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
+        foreach (IPlmFamilySource source in (IPlmFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectiblePlms, DoorPlms, GreyDoors, Gates, EyeDoors, DraygonCannons])
+            source.RegisterPlmFamilies(_families);
+        _families.RequireEveryFamily();
     }
+
+    /// <summary>Each PLM family's step, run before a family slot's shared pass.</summary>
+    private readonly PlmFamilyTable _families = new();
 
     /// <summary>Door-object instruction owner bound to this room's allocation and draw state.</summary>
     internal DoorPlms DoorPlms { get; }
@@ -198,27 +204,16 @@ public sealed class RoomPlmSystem
         CollectiblePlms.BeginCollectibleFrame();
         BombTorizoHand.BeginBombTorizoHandFrame();
 
+        var context = new PlmStepContext(this, bus, level, streamer, view, frame);
         for (int slotIndex = SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = SlotTable._slots[slotIndex];
             if (!slot.Active)
                 continue;
 
-            if (ScrollPlms.TryStepScrollPlm(level, frame.Scrolls, slot))
+            // A family that consumes the pass skips the pre-instruction, the shared timer and the interpreter.
+            if (slot.Family is { } family && _families.Step(slot, family, context) == PlmStepOutcome.Consumed)
                 continue;
-
-            if (WreckedShipTreadmillPlms.TryStepWreckedShipTreadmill(level, streamer, slot))
-                continue;
-
-            if (Stations.TryStepStation(bus, level, streamer, slot, view))
-            {
-                continue;
-            }
-
-            if (CollectiblePlms.TryStepCollectible(bus, level, streamer, slot, view))
-            {
-                continue;
-            }
 
             DoorPlms.RunColoredDoorPreInstruction(slot);
             GreyDoors.RunGreyDoorPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
@@ -243,7 +238,7 @@ public sealed class RoomPlmSystem
                 continue;
 
             if (slot.Animation is { } animation)
-                animation.Advance(slot, new PlmAnimationContext(this, bus, level, streamer, view, frame));
+                animation.Advance(slot, context);
             else
                 ExecuteInstructionStream(bus, level, streamer, slot, view, frame.CollectedItems);
         }

@@ -17,7 +17,7 @@ internal sealed class WreckedShipAtticPlmAnimation()
         throw new InvalidOperationException($"The attic program never draws; got {frame}.");
 
     /// <inheritdoc/>
-    private protected override WreckedShipAtticProgram? Publish(WreckedShipAtticCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override WreckedShipAtticProgram? Publish(WreckedShipAtticCue cue, PlmSlot slot, PlmStepContext context)
     {
         if (cue != WreckedShipAtticCue.InstallInertPreInstruction)
             throw new InvalidOperationException($"Undefined {nameof(WreckedShipAtticCue)} {cue}.");

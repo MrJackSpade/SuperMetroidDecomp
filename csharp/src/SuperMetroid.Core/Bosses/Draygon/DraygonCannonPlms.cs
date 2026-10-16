@@ -5,8 +5,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Bosses.Draygon;
 
 /// <summary>Draygon's wall-turret PLMs: header identification and the cannon state Draygon's grab fight drives.</summary>
-internal sealed class DraygonCannonPlms
+internal sealed class DraygonCannonPlms : IPlmFamilySource
 {
+    /// <summary>Registers the DraygonCannon family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Enemy control-word writer notified when a cannon is destroyed.</summary>
     private readonly PlmRoomBindings _bindings;
 

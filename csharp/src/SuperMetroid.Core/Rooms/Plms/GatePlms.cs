@@ -7,8 +7,15 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Gate PLMs: the shot-switched vertical gates and the downward gate with its sounds and projectile requests.</summary>
-internal sealed class GatePlms
+internal sealed class GatePlms : IPlmFamilySource
 {
+    /// <summary>Registers the DownwardGate family, which has no step of its own: its slots take the shared path.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
+    }
+
     /// <summary>Current room and Samus state used by gate-column proximity checks.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Fixed PLM pool used for temporary shot triggers and resident gates.</summary>

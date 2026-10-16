@@ -7,14 +7,17 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>What a typed PLM program reaches during one handler pass: the PLM owners, the room and the frame's inputs.</summary>
+/// <summary>
+/// What one PLM handler pass reaches: the PLM owners, the room and the frame's inputs. Family steps, pre-instructions and
+/// typed programs all run against it.
+/// </summary>
 /// <param name="Plms">The room's PLM owners.</param>
 /// <param name="Bus">The address space the draw dispatcher reads installed or fixture draws through.</param>
 /// <param name="Level">The room's level data, which draws and terrain commands change.</param>
 /// <param name="Streamer">The background tilemap streamer that publishes changed blocks.</param>
 /// <param name="View">The BG1 view the tile writes reflect.</param>
 /// <param name="Frame">What the handler reads from the rest of the frame.</param>
-internal readonly record struct PlmAnimationContext(
+internal readonly record struct PlmStepContext(
     RoomPlmSystem Plms, ISnesAddressSpace Bus, RoomLevelData Level, BackgroundTilemapStreamer Streamer, PlmView View, PlmFrameInputs Frame)
 {
     /// <summary>Draws the bank-$84 draw list <paramref name="drawList"/> at the slot's block, as a timed draw does.</summary>

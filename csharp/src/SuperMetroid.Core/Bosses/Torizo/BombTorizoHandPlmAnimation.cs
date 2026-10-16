@@ -20,7 +20,7 @@ internal sealed class BombTorizoHandPlmAnimation()
         BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(program);
 
     /// <inheritdoc/>
-    private protected override BombTorizoHandProgram? Publish(BombTorizoHandCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override BombTorizoHandProgram? Publish(BombTorizoHandCue cue, PlmSlot slot, PlmStepContext context)
     {
         BombTorizoHandPlms hand = context.Plms.BombTorizoHand;
         switch (cue.Kind)

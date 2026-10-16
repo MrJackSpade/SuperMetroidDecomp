@@ -16,7 +16,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
     private protected override ushort DrawList(DraygonCannonDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override DraygonCannonProgram? Publish(DraygonCannonCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override DraygonCannonProgram? Publish(DraygonCannonCue cue, PlmSlot slot, PlmStepContext context)
     {
         bool right = DraygonCannonPlmProgramDefinitions.FacesRight(Cursor.Program);
         switch (cue)

@@ -17,7 +17,7 @@ internal sealed class SporeSpawnCeilingPlmAnimation(SporeSpawnCeilingProgram pro
     private protected override ushort DrawList(SporeSpawnCeilingDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override SporeSpawnCeilingProgram? Publish(SporeSpawnCeilingCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override SporeSpawnCeilingProgram? Publish(SporeSpawnCeilingCue cue, PlmSlot slot, PlmStepContext context)
     {
         if (cue != SporeSpawnCeilingCue.QueueCrumbleSound)
             throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCeilingCue)} {cue}.");

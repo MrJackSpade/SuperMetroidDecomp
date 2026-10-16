@@ -16,6 +16,6 @@ internal sealed class MotherBrainFakeDeathPlmAnimation(MotherBrainFakeDeathProgr
     private protected override ushort DrawList(MotherBrainFakeDeathDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override MotherBrainFakeDeathProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmAnimationContext context) =>
+    private protected override MotherBrainFakeDeathProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmStepContext context) =>
         throw new InvalidOperationException($"Mother Brain's fake-death programs publish no cues; got {cue}.");
 }

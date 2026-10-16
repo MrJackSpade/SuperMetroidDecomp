@@ -16,7 +16,7 @@ internal sealed class KraidRoomPlmAnimation(KraidRoomProgram program)
     private protected override ushort DrawList(KraidRoomDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override KraidRoomProgram? Publish(KraidRoomCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override KraidRoomProgram? Publish(KraidRoomCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {

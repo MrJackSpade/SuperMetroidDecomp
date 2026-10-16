@@ -18,7 +18,7 @@ internal sealed class BotwoonWallPlmAnimation(BotwoonWallProgram program)
     private protected override ushort DrawList(BotwoonWallDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override BotwoonWallProgram? Publish(BotwoonWallCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override BotwoonWallProgram? Publish(BotwoonWallCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {

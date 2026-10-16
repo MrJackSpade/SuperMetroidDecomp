@@ -6,8 +6,16 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>Wrecked Ship treadmill and Maridia elevatube PLMs: the conveyor rows they write and step.</summary>
-internal sealed class WreckedShipTreadmillPlms
+internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
 {
+    /// <summary>Registers the WreckedShipTreadmill family's step.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.WreckedShipTreadmill, static (slot, context) =>
+            TryStepWreckedShipTreadmill(context.Level, context.Streamer, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+    }
+
     /// <summary>Native PLM slot pool used for treadmill and elevatube allocation.</summary>
     private readonly PlmSlotTable _slotTable;
 

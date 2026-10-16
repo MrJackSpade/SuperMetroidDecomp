@@ -29,7 +29,7 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
     };
 
     /// <inheritdoc/>
-    private protected override BlueDoorProgram? Publish(BlueDoorCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override BlueDoorProgram? Publish(BlueDoorCue cue, PlmSlot slot, PlmStepContext context)
     {
         switch (cue)
         {

@@ -16,6 +16,6 @@ internal sealed class CrocomireArenaPlmAnimation(CrocomireArenaProgram program)
     private protected override ushort DrawList(CrocomireArenaDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override CrocomireArenaProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmAnimationContext context) =>
+    private protected override CrocomireArenaProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmStepContext context) =>
         throw new InvalidOperationException($"Crocomire's arena programs publish no cues; got {cue}.");
 }

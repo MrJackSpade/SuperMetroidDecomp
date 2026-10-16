@@ -9,8 +9,16 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Save, refill, map and recharge station PLMs: activation, lockout, collision notification and their draws.</summary>
-internal sealed class StationPlms
+internal sealed class StationPlms : IPlmFamilySource
 {
+    /// <summary>Registers the Station family's step.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.Station, (slot, context) =>
+            TryStepStation(context.Bus, context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+    }
+
     /// <summary>Provides the live Samus and persistent area state used by station activation.</summary>
     private readonly PlmRoomBindings _bindings;
     /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>

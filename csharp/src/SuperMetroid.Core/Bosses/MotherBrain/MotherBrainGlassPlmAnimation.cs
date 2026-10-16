@@ -16,7 +16,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
     private protected override ushort DrawList(MotherBrainGlassDraw frame) => (ushort)frame;
 
     /// <inheritdoc/>
-    private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmStepContext context)
     {
         MotherBrainGlassPlms glass = context.Plms.MotherBrainGlass;
         switch (cue.Kind)

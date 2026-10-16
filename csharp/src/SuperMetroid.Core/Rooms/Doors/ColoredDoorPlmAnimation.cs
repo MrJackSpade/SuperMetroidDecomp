@@ -35,7 +35,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     };
 
     /// <inheritdoc/>
-    private protected override ColoredDoorProgram? Publish(ColoredDoorCue cue, PlmSlot slot, PlmAnimationContext context)
+    private protected override ColoredDoorProgram? Publish(ColoredDoorCue cue, PlmSlot slot, PlmStepContext context)
     {
         DoorPlms doors = context.Plms.DoorPlms;
         switch (cue)
@@ -70,6 +70,6 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     }
 
     /// <summary>Queues a library-3 door sound under the door sounds' cap.</summary>
-    private static void QueueDoorSound(PlmAnimationContext context, byte sound) =>
+    private static void QueueDoorSound(PlmStepContext context, byte sound) =>
         context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, sound), BlueDoorPlmProgramDefinitions.SoundMaximumQueued);
 }

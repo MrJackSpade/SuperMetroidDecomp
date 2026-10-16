@@ -4,8 +4,16 @@ using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>Scroll PLMs: setup, stepping and the scroll-cell mutation they apply when Samus touches them.</summary>
-internal sealed class ScrollPlms
+internal sealed class ScrollPlms : IPlmFamilySource
 {
+    /// <summary>Registers the Scroll family's step.</summary>
+    public void RegisterPlmFamilies(PlmFamilyTable table)
+    {
+        Ensure.NotNull(table);
+        table.Register(PlmFamily.Scroll, static (slot, context) =>
+            TryStepScrollPlm(context.Level, context.Frame.Scrolls, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+    }
+
     /// <summary>Native-order PLM slots searched for resident scroll triggers.</summary>
     private readonly PlmSlotTable _slotTable;
 

@@ -223,7 +223,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.ExtensionWhole = 0;
         state.ExtensionFraction = 0;
-        state.QuadraticSpeedByteOffset = 0;
+        state.QuadraticSpeedRecord = 0;
+        state.QuadraticSpeedNegative = false;
         state.SegmentRadius = unchecked((ushort)(state.DistanceToSamus >> 1));
         state.CurlAngle = unchecked((byte)(64 - state.AimAngle));
         state.MirroredBend = unchecked((short)(state.CurlAngle - 128)) < 0
@@ -236,10 +237,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
                 128,
                 unchecked((ushort)(state.SegmentRadius >> 1)))));
 
-        ushort directionByteOffset = unchecked((ushort)(
-            2 * (unchecked((byte)(state.AimAngle + 16)) >> 5)));
-        state.DirectionTableByteOffset = directionByteOffset;
-        int direction = directionByteOffset / 2;
+        int direction = unchecked((byte)(state.AimAngle + 16)) >> 5;
+        state.DirectionIndex = direction;
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawAnimationDefinitions.AttackForDirection(direction));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -299,9 +298,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.ExtensionWhole = YappingMawMaximumCurl;
                 state.ExtensionFraction = 0;
-                // $A8:A4F2 adds four after the ordinary eight-byte speed-table advance.
-                state.QuadraticSpeedByteOffset = unchecked((ushort)(
-                    state.QuadraticSpeedByteOffset + 4));
+                // $A8:A4F2 adds four bytes after the ordinary eight-byte record advance: the same record's
+                // negative half, or the next record's positive half from a negative one.
+                if (state.QuadraticSpeedNegative)
+                    state.QuadraticSpeedRecord++;
+                state.QuadraticSpeedNegative = !state.QuadraticSpeedNegative;
             }
 
             if (state.HasGrabbedSamus)
@@ -319,22 +320,22 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         bool skipHeldPlacement = false;
         if (slot.Parameter2 != 0)
         {
-            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionTableByteOffset switch
+            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionIndex switch
             {
-                4 => YappingMawProgram.CooldownUpRight,
-                12 => YappingMawProgram.CooldownUpLeft,
+                2 => YappingMawProgram.CooldownUpRight,
+                6 => YappingMawProgram.CooldownUpLeft,
                 _ => YappingMawProgram.CooldownUp,
             });
         }
         else
         {
-            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionTableByteOffset switch
+            state.Program = AnimationProgramCursor<YappingMawProgram>.Start(state.DirectionIndex switch
             {
-                4 => YappingMawProgram.CooldownDownRight,
-                12 => YappingMawProgram.CooldownDownLeft,
+                2 => YappingMawProgram.CooldownDownRight,
+                6 => YappingMawProgram.CooldownDownLeft,
                 _ => YappingMawProgram.CooldownDown,
             });
-            skipHeldPlacement = state.DirectionTableByteOffset is not (4 or 12);
+            skipHeldPlacement = state.DirectionIndex is not (2 or 6);
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -355,12 +356,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
         uint position = new SnesFixedPosition(state.ExtensionWhole, state.ExtensionFraction).RawValue;
-        uint velocity = unchecked((uint)EnemyQuadraticSpeedDefinitions.ReadDisplacement(state.QuadraticSpeedByteOffset));
+        uint velocity = unchecked((uint)EnemyMath.ReadQuadraticEnemySpeed(
+            checked((ushort)state.QuadraticSpeedRecord), state.QuadraticSpeedNegative));
         uint next = unchecked(position + velocity);
         state.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)next));
         state.ExtensionFraction = unchecked((ushort)next);
-        state.QuadraticSpeedByteOffset = unchecked((ushort)(
-            state.QuadraticSpeedByteOffset + 8));
+        state.QuadraticSpeedRecord++;
     }
 
     /// <summary>Ports $A8:A68A, including DEC-underflow expiration on frame 65.</summary>

@@ -81,19 +81,24 @@ internal static class EnemyQuadraticSpeedsVerification
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);
         var maw = new YappingMawEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
+        int mawAdditions = 0;
         foreach (uint start in new uint[] { 0, 0x0080ff37, 0xffffff37 })
-        for (int offset = 0; offset <= 756; offset++)
+        for (int record = 0; record < EnemyQuadraticSpeedDefinitions.RecordCount; record++)
+        foreach (bool negative in new[] { false, true })
         {
+            int offset = record * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0);
             maw.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)start));
             maw.ExtensionFraction = unchecked((ushort)start);
-            maw.QuadraticSpeedByteOffset = (ushort)offset;
+            maw.QuadraticSpeedRecord = record;
+            maw.QuadraticSpeedNegative = negative;
+            mawAdditions++;
             uint expected = unchecked(start + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))));
             addMaw(maw);
             AssertEqual(expected, new SnesFixedPosition(maw.ExtensionWhole, maw.ExtensionFraction).RawValue, "Yapping Maw real split-word integration");
-            AssertEqual(offset + 8, maw.QuadraticSpeedByteOffset, "Yapping Maw byte offset advance");
+            AssertEqual((record + 1, negative), (maw.QuadraticSpeedRecord, maw.QuadraticSpeedNegative), "Yapping Maw record advance");
         }
         Console.WriteLine("Compiled quadratic speeds: all 759 word windows and 757 displacement windows match the authored NTSC bytes, including odd offsets and native discontinuities.");
         Console.WriteLine("Projectile quadratic mirror: all 759 word windows and 570 real Polyp integrations match, including scratch writes and subpixel carry/wrap, without a loaded bus.");
-        Console.WriteLine($"Quadratic production paths: {initialIndexCases} hop inputs per Beetom/Hopper, 48640 KiHunter angle inputs, and 2271 Yapping Maw additions match cartridge bytes without a loaded bus.");
+        Console.WriteLine($"Quadratic production paths: {initialIndexCases} hop inputs per Beetom/Hopper, 48640 KiHunter angle inputs, and {mawAdditions} Yapping Maw additions match cartridge bytes without a loaded bus.");
     }
 }

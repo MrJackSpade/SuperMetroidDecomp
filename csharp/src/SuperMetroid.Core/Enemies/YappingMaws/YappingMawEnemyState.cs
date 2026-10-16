@@ -66,8 +66,11 @@ public sealed class YappingMawEnemyState
     /// <summary>Native variable C's low half of the signed 16.16 curl-angle accumulator, in 1/65536-angle-unit increments; cleared at setup and at the +128 turn-around clamp.</summary>
     public ushort ExtensionFraction { get; internal set; }
 
-    /// <summary>Native D byte offset into CommonEnemySpeeds_QuadraticallyIncreasing.</summary>
-    public ushort QuadraticSpeedByteOffset { get; internal set; }
+    /// <summary>Record index into CommonEnemySpeeds_QuadraticallyIncreasing (native D holds the byte offset).</summary>
+    public int QuadraticSpeedRecord { get; internal set; }
+
+    /// <summary>Whether the negative half of the record is read (native D's extra +4 at the turn-around clamp).</summary>
+    public bool QuadraticSpeedNegative { get; internal set; }
 
     /// <summary>Native E: 64-frame hold after the tongue fully retracts.</summary>
     public NativeCountdown RetractedDelayTimer { get; internal set; }
@@ -81,8 +84,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Signed whole room-pixel offset from the moving mouth to captive Samus, selected by aiming/animation opcodes (Y at native $7E:8026).</summary>
     public Offset16<RoomPixels> HeldSamusOffset { get; internal set; }
 
-    /// <summary>Even byte offset zero through fourteen selecting one of eight facing lists.</summary>
-    public ushort DirectionTableByteOffset { get; internal set; }
+    /// <summary>Direction 0-7 selecting one of eight facing lists (native byte offset twice this).</summary>
+    public int DirectionIndex { get; internal set; }
 
     /// <summary>
     /// Native variable 35. Main AI decrements it unconditionally; touch may grab only while

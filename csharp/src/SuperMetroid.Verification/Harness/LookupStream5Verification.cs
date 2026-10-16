@@ -1213,7 +1213,7 @@ internal static class LookupStream5Verification
             state.AimAngle = angle;
             begin(slot, state);
             int direction = unchecked((byte)(angle + 16)) >> 5;
-            AssertEqual((ushort)(direction * 2), state.DirectionTableByteOffset,
+            AssertEqual(direction, state.DirectionIndex,
                 "Actual angle quantization/wrap retained");
             Check(direction, "Actual begin-extension held offset");
         }

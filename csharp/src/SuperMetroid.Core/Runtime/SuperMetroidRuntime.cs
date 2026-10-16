@@ -385,7 +385,7 @@ public sealed class SuperMetroidRuntime
     /// <summary>Runs one accepted NMI and publishes an empty finalized OAM frame without advancing gameplay owners.</summary>
     public void RunBlankGameplayFrame(SnesButton controllerInput)
     {
-        NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        NmiHandler.RunNmi(controllerInput);
         Sprites.BeginFrame();
         Sprites.FinalizeFrame();
         RoomLoader.PublishDoorScrollingIrqNmiRequest();
@@ -438,7 +438,7 @@ public sealed class SuperMetroidRuntime
         if (MessageBox.IsActive)
             return StepMessageBoxFrame(controller1Input, frameRequest.Policy, infiniteAmmoGuard);
         Projectiles.ImpactAudio.BeginImpactAudioFrame(cinematicActive: false);
-        NmiHandler.RunNmi(controller1Input, mainLoopRequestedNmi: true);
+        NmiHandler.RunNmi(controller1Input);
         frameRequest.AfterAcceptedNmi();
         GameplayWindows.PrepareGameplayWindowRegisters();
 

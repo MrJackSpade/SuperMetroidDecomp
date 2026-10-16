@@ -41,7 +41,7 @@ internal static class HiddenSoakTests
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
             ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0);
             Step(0);
             if (paused) Step(SnesButton.Start);
             for (int warmup = 0; warmup < 120; warmup++) Step(0);

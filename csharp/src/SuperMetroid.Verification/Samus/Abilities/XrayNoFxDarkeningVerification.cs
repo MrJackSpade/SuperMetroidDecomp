@@ -43,7 +43,7 @@ internal static class XrayNoFxDarkeningVerification
         AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
         samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.NmiHandler.RunNmi(0);
         var tile = new byte[32];
         for (int row = 0; row < 8; row++) tile[row * 2] = 255;
         runtime.Vram.LoadBytes(0x3fe * 32, tile);
@@ -68,7 +68,7 @@ internal static class XrayNoFxDarkeningVerification
             "transparent BG3 preserves native fixed-color fallback without halving");
         runtime.RoomLayer3Fx.Type = RoomFxType.Fireflea;
         // The X-ray blending branch the FX selects reaches the PPU at the accepted NMI (#1307).
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.NmiHandler.RunNmi(0);
         var fireflea = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         var firefleaMath = (GameplayColorMathRenderLayer)fireflea.Layers[0];
         AssertTrue(!firefleaMath.AddSubscreen && firefleaMath.Subscreen is null,

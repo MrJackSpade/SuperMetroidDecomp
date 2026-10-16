@@ -91,12 +91,11 @@ public sealed class GameplayWindowRegisterCache
     }
 
     /// <summary>
-    /// Accepted branch of $80:9583 uploads $80:91EE's cached values. Lag NMIs
-    /// neither upload them nor refresh gameplay_TM. No main-loop reset happens here.
+    /// The accepted NMI ($80:9583) uploads $80:91EE's cached values and refreshes gameplay_TM. No main-loop reset
+    /// happens here.
     /// </summary>
-    public void LatchNmi(bool mainLoopRequestedNmi)
+    public void LatchNmi()
     {
-        if (!mainLoopRequestedNmi) return;
         Write(GameplayWindowRegisterLayout.GameplayMainScreen, Read(GameplayWindowRegisterLayout.MainScreen));
         Displayed = new(new(
             Read(GameplayWindowRegisterLayout.Window12Selection),

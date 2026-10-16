@@ -35,10 +35,7 @@ internal static class WindowRegisterCacheVerification
         state.WriteWord(0x60, 0x1234);
         state.WriteWord(0x68, 0xABCD);
         state.WriteByte(0x6C, 0x91);
-        state.LatchNmi(false);
-        AssertEqual(default(GameplayWindowRegisterSnapshot), state.Displayed, "lag before first upload");
-        AssertEqual((byte)0xAA, state.ReadByte(0x6A), "lag preserves gameplay_TM");
-        state.LatchNmi(true);
+        state.LatchNmi();
         var first = state.Displayed;
         AssertEqual(new SnesWindowRegisters(0x34, 0x12, 0, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xCD),
             first.Windows, "all uploaded window bytes");
@@ -52,10 +49,9 @@ internal static class WindowRegisterCacheVerification
         AssertEqual((byte)0, state.ReadByte(GameplayWindowRegisterAddresses.SubscreenWindow),
             "TSW is cached independently");
         state.InitializeWindowAndScreenSelection();
-        state.LatchNmi(false);
-        AssertEqual(first, state.Displayed, "later cached writes and lag cannot mutate displayed frame");
+        AssertEqual(first, state.Displayed, "later cached writes cannot mutate displayed frame");
         AssertEqual((byte)0xAB, state.ReadByte(0x6A), "initialization does not overwrite gameplay_TM");
-        state.LatchNmi(true);
+        state.LatchNmi();
         AssertEqual((byte)19, state.Displayed.MainScreen, "next accepted NMI publishes new TM");
         AssertEqual((byte)0xCD, state.Displayed.Windows.ObjectColorLogic, "logic survives next initialization");
         AssertThrows<ArgumentOutOfRangeException>(() => state.WriteWord(0x6D, 0xFFFF), "reject cross-owner word");

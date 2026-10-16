@@ -345,7 +345,7 @@ internal static partial class SwapchainTests
         foreach (var game in new[] { legacy, captured, headless })
         {
             game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
+            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0);
         }
         nint window = CreateWindowExW(0, "STATIC", "Hidden slow-consumer test", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());

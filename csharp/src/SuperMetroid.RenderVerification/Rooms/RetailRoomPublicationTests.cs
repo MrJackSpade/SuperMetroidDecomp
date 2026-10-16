@@ -35,12 +35,12 @@ internal static class RetailRoomPublicationTests
         {
             var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             // Room-local setup, explicitly not an incoming door/elevator transition.
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0);
             switch (fx)
             {
                 case PublishedFx.Unchecked:

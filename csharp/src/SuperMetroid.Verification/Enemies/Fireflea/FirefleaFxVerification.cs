@@ -128,7 +128,7 @@ internal static class FirefleaFxVerification
         byte shade = new FixedColorMemory(bus).RedIntensity;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The blend selector and COLDATA shadows reach the PPU at the accepted NMI (#1307).
-        runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        runtime.NmiHandler.RunNmi(0);
         var ordinaryDarkness = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(ordinaryDarkness.Layers[0] is GameplayColorMathRenderLayer,
             "normal Fireflea display retains source identity for darkness subtraction");

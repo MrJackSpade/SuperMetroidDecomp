@@ -31,7 +31,7 @@ internal static class CeresRidleyWallVerification
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(168);
         runtime.StepFrame(0);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         AssertEqual(40, body.Position.X.Whole, "Ceres lunge clips at native left bound");
         AssertEqual(33, runtime.Enemies.Earthquake.EarthquakeType, "Ceres left impact requests native quake type");
         AssertEqual(11, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "first draw consumes one of twelve quake frames");
@@ -49,12 +49,12 @@ internal static class CeresRidleyWallVerification
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0);
             AssertEqual(remaining, runtime.Enemies.Earthquake.EarthquakeTimer.RawValue, "impact timer consumes exactly twelve frames");
             AssertTrue(runtime.Display.DisplayedGameplayPpu.RoomShake != default, "each impact frame reaches the display");
         }
         runtime.StepFrame(0);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         AssertTrue(runtime.Display.DisplayedGameplayPpu.RoomShake == default, "impact shake ends after twelve displayed frames");
         Console.WriteLine("Ceres Ridley: real lunge collision requests and publishes native room shake.");
     }

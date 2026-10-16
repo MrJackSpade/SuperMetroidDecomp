@@ -57,7 +57,7 @@ internal static class RetailDeathCaptureTests
         foreach (var game in new[] { legacy, captured })
         {
             game.GameplayRuntimeForVerification.LoadCartridgeRoomForDebug(SlowConsumerFixture.AlphaPowerBombRoom, new Position16<RoomPixels>(0, 0));
-            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0, true);
+            game.GameplayRuntimeForVerification.NmiHandler.RunNmi(0);
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.Health = 0;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;
             game.GameplayRuntimeForVerification.Player.IntroducedSamus.ReserveEnergy = reserveRecovery ? ReserveCaptureFixtureDefinitions.Capacity : (ushort)0;

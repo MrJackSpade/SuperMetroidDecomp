@@ -475,7 +475,7 @@ internal static void VerifySavedGameLoadAppearance()
         slot.HudItem,
         slot.ReserveEnergy,
         slot.ReserveMode));
-    runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+    runtime.NmiHandler.RunNmi(0);
     runtime.RoomLoader.InitializeSavedGame(slot);
 
     AssertTrue(runtime.SamusLoadAppearanceActive,

@@ -82,7 +82,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 {
                     // Native is suspended in WaitForNMI here: no actor, animation, or
                     // script advances during the ninety-frame final-image hold.
-                    session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, true);
+                    session.GameplayRuntime.NmiHandler.RunNmi(controllerInput);
                     if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
                         FinishAttractPlayback(cancelled: true);
                     else if (--session.demoHoldFramesRemaining == 0)

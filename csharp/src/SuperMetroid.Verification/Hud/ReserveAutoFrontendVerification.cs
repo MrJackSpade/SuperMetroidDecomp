@@ -97,7 +97,7 @@ internal static class ReserveAutoFrontendVerification
         // automatic recovery freezes movement. Inspect presentation, not just HP.
         runtime.Hud.UpdateGameplayCounters(bus, samus);
         runtime.Hud.QueueUpload(bus, runtime.VramWrites);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         var digitImages = new Dictionary<int, Rgba32[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;
         lockedAnimationFrame = samus.AnimationFrame;

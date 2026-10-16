@@ -86,7 +86,7 @@ internal static class BossMapMarkersVerification
                     "existing-save menu restores exact boss-marker pixels with its slot-owned progression");
                 var runtime = CreateRetailRuntimeFixture(restored);
                 runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-                runtime.NmiHandler.RunNmi(0, true);
+                runtime.NmiHandler.RunNmi(0);
                 runtime.RoomLoader.InitializeStartingCeresRoom();
                 runtime.RoomLoader.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Player.IntroducedSamus, runtime.System);

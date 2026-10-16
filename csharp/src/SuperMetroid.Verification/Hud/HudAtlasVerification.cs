@@ -40,11 +40,8 @@ internal static class HudAtlasVerification
         fixtureAssets.Bind(native);
         fixtureAssets.Bind(installed);
         Initialize(native); Initialize(installed);
-        byte[] beforeNmi = installed.Vram.Bytes.ToArray();
-        installed.NmiHandler.RunNmi(0, mainLoopRequestedNmi: false);
-        AssertTrue(beforeNmi.SequenceEqual(installed.Vram.Bytes), "lag NMI does not publish installed HUD artwork");
-        native.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
-        installed.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        native.NmiHandler.RunNmi(0);
+        installed.NmiHandler.RunNmi(0);
         AssertTrue(native.Vram.ImageEquals(installed.Vram), "accepted NMI matches all VRAM bytes with HUD artwork ROM blocked");
         Rgba32[] baseline = Render(native);
         AssertTrue(baseline.SequenceEqual(Render(installed)), "stock installed HUD/minimap renders identical pixels");
@@ -70,9 +67,7 @@ internal static class HudAtlasVerification
         byte[] previousDisplay = displayed.Vram.Bytes.ToArray();
         displayed.Artwork.MapPresentation = edited;
         AssertTrue(previousDisplay.SequenceEqual(displayed.Vram.Bytes), "catalog binding does not publish outside NMI");
-        displayed.NmiHandler.RunNmi(0, false);
-        AssertTrue(previousDisplay.SequenceEqual(displayed.Vram.Bytes), "lag NMI retains already displayed HUD");
-        displayed.NmiHandler.RunNmi(0, true);
+        displayed.NmiHandler.RunNmi(0);
         AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]
             .SequenceEqual(displayed.Vram.Bytes.Slice(characterStart, HudTileAtlasFormat.CharacterByteCount)),
             "accepted NMI refreshes already displayed HUD from newly bound PNG");
@@ -91,7 +86,7 @@ internal static class HudAtlasVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(snapshot);
         fixtureAssets.Bind(restored);
         restored.Artwork.MapPresentation = edited;
-        restored.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+        restored.NmiHandler.RunNmi(0);
         AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span.SequenceEqual(
             restored.Vram.Bytes.Slice(GameplayVramLayout.HudCharacterWord * 2, HudTileAtlasFormat.TransferByteCount)),
             "restored pending HUD upload uses newly bound PNG, not captured old pixels");
@@ -108,7 +103,7 @@ internal static class HudAtlasVerification
         Initialize(alreadyQueued);
         alreadyQueued.Artwork.MapPresentation = edited;
         AssertTrue(alreadyQueued.VramWrites.Entries.Any(entry => entry.AssetId == VramAssetId.StandardHudTiles), "binding retains the pending installed HUD upload");
-        alreadyQueued.NmiHandler.RunNmi(0, true);
+        alreadyQueued.NmiHandler.RunNmi(0);
         AssertTrue(Render(alreadyQueued).SequenceEqual(modified), "pending HUD upload follows current installed artwork after rebind");
         File.WriteAllText(replacement, "broken HUD PNG");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "broken HUD override has no silent fallback");

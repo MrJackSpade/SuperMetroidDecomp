@@ -81,7 +81,7 @@ internal static class CollectibleMessageTimingVerification
         AssertTrue(runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex] != visible, "return executes pickup empty draw");
         AssertTrue(!beforeHud.SequenceEqual(HudWords()), "return rebuilds HUD for acquired energy");
         AssertEqual((ushort)199, samus.MaxHealth, "return grants no duplicate energy");
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         AssertTrue(!beforeTile.SequenceEqual(TileWords()), "post-message NMI displays empty pickup tile");
         for (int i = 0; i < runtime.Hud.Tiles.Length; i++)
             if (i % 32 < 26)

@@ -22,13 +22,13 @@ internal static class MinimapBlinkAudit
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath));
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(128);
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(128);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         var images = new Dictionary<bool, string>();
         for (int tick = 0; tick < 40; tick++)
         {

@@ -219,7 +219,7 @@ internal sealed class DoorTransitionRunner
     public void RunDoorSoundWaitPrologue(SnesButton controllerInput)
     {
         _plms.Sounds.BindPowerBombAudio(_bombProjectiles.PowerBombExplosion);
-        _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        _nmiHandler.RunNmi(controllerInput);
         AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
     }
 

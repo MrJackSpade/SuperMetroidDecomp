@@ -906,7 +906,7 @@ csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	S
 csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	25
 csharp/src/SuperMetroid.Verification/Hardware/EyeWindowSnapshotTestsVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Hardware/GenericSpriteArtworkVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6340	291
+csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6340	286
 csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6342	8
 csharp/src/SuperMetroid.Verification/Hardware/HighlightTilePixelsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Hardware/HighlightTilePixelsVerification.cs	SME6342	1
@@ -971,7 +971,7 @@ csharp/src/SuperMetroid.Verification/Rendering/RenderPacketCodecTestsVerificatio
 csharp/src/SuperMetroid.Verification/Rendering/RenderingAndRoomsVerification.cs	SME6340	483
 csharp/src/SuperMetroid.Verification/Rendering/RenderingAndRoomsVerification.cs	SME6342	11
 csharp/src/SuperMetroid.Verification/Rendering/WindowPixelsVerification.cs	SME6340	4
-csharp/src/SuperMetroid.Verification/Rendering/WindowRegisterCacheVerification.cs	SME6340	50
+csharp/src/SuperMetroid.Verification/Rendering/WindowRegisterCacheVerification.cs	SME6340	48
 csharp/src/SuperMetroid.Verification/Rendering/WindowRegisterCacheVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/LibraryBackgroundVerification.cs	SME6340	47
 csharp/src/SuperMetroid.Verification/Rooms/Backgrounds/LibraryBackgroundVerification.cs	SME6342	1

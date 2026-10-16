@@ -82,7 +82,7 @@ internal static class MetroidBombPlacementVerification
         // former submerged fixture or a hand-positioned already-exploding bomb.
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room.Pointer, new Position16<RoomPixels>(0, 0));

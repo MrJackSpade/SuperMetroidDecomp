@@ -86,7 +86,7 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null)
             throw new InvalidOperationException("Fatal Samus drawing requires an active room.");
 
-        _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        _nmiHandler.RunNmi(controllerInput);
         _sprites.BeginFrame();
         _player.Samus.Presentation.Draw(
             _addressSpace,
@@ -106,7 +106,7 @@ internal sealed class DeathSequenceRunner
         if (_player.Samus is null || _room.Camera is null || !_player.Samus.DeathSequence.IsActive)
             throw new InvalidOperationException("The bank-$9B death sequence is not active.");
 
-        _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        _nmiHandler.RunNmi(controllerInput);
         _sprites.BeginFrame();
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _addressSpace,

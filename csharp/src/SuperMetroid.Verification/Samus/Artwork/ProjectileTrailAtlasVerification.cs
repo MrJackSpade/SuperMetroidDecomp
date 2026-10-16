@@ -71,15 +71,15 @@ internal static class ProjectileTrailAtlasVerification
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         byte[] before = runtime.Vram.Bytes.ToArray();
         runtime.Artwork.TrailArtwork = catalog;
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         AssertTrue(before.SequenceEqual(runtime.Vram.Bytes), "Trail rebind is a page binding, not a VRAM write");
         Check(runtime);
         // Room initialization reloads the standard OBJ sheet; the bound trail characters stay on the page.
         runtime.RoomLoader.InitializeStartingCeresRoom();
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         Check(runtime);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         using var saved = new MemoryStream();
@@ -89,7 +89,7 @@ internal static class ProjectileTrailAtlasVerification
         AssertTrue(restored.Artwork.TrailArtwork is null, "State does not embed selected trail PNGs");
         BindRetailRuntimeFixture(restored);
         restored.Artwork.TrailArtwork = catalog;
-        restored.NmiHandler.RunNmi(0, true);
+        restored.NmiHandler.RunNmi(0);
         Check(restored);
         void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {

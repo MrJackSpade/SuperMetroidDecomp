@@ -94,7 +94,7 @@ public sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.FadeOutSourcePalette:
-                runtime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.NmiHandler.RunNmi(controllerInput);
                 // A palette step returns to MainGameLoop. Hardware stalls while it
                 // executes are not additional dispatches, but this step is one.
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
@@ -255,7 +255,7 @@ public sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.HandleTransition:
-                runtime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.NmiHandler.RunNmi(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 // `$82:E6A2` applies the narrow-door X/Y nudges only after the opening IRQ
                 // and music queue are both complete. The atomic loader computed that exact
@@ -269,7 +269,7 @@ public sealed class DoorTransitionState
 
             case DoorTransitionPhase.BuildDestinationOam:
             case DoorTransitionPhase.FadeInDestinationPalette:
-                runtime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.NmiHandler.RunNmi(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
                 // E737 runs the animated-tile objects, then enemy/draw owners, on every
                 // fade step, without Samus's movement/animation handler or the camera streamer.

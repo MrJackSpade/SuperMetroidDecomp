@@ -120,49 +120,34 @@ internal sealed class NmiHandler
 
     /// <summary>
     /// Counts NMIs the cartridge accepts while its main loop is stalled in a hardware wait
-    /// ($80:95E7-$95F4): each clears the lag counter and advances <c>$05B5/$05B6</c>.
+    /// ($80:95E7-$95F4): each advances <c>$05B5/$05B6</c>.
     /// </summary>
     internal void AcceptHardwareWaitNmis(int count)
     {
         Ensure.AtLeastZero(count);
         if (count == 0)
             return;
-        _nmi.NmiLagCounter = 0;
         _nmi.NmiFrameCounter8 = unchecked((byte)(_nmi.NmiFrameCounter8 + count));
         _nmi.NmiFrameCounter = unchecked((ushort)(_nmi.NmiFrameCounter + count));
     }
 
-    /// <summary>Runs the NMI handler portion currently translated from <c>$80:9583</c>.</summary>
+    /// <summary>
+    /// Runs the accepted NMI portion currently translated from <c>$80:9583</c>: publication, the controller latch, then
+    /// the frame counters. The port has no lagged NMIs; hardware lag is eliminated.
+    /// </summary>
     /// <param name="controller1Input">Host-provided raw SNES controller word.</param>
-    /// <param name="mainLoopRequestedNmi">
-    /// Equivalent of WRAM's NMI request flag. False models a lag NMI: it skips transfers,
-    /// input, and accepted-frame counters but still advances the all-NMI counter.
-    /// </param>
-    public void RunNmi(SnesButton controller1Input, bool mainLoopRequestedNmi)
+    public void RunNmi(SnesButton controller1Input)
     {
-        if (mainLoopRequestedNmi)
-        {
-            PublishAcceptedNmiTransfers();
-            // Bank-$90/$91 action checks use the seven configurable WRAM masks. Canonicalizing
-            // here preserves one shared rising-edge latch and prevents different movement
-            // subsystems from interpreting a remap on different frames. Code that tests fixed
-            // bits of $8B/$8F instead (the pause menu's L/R and A) reads the physical latch.
-            _physicalController1.Latch(controller1Input);
-            _controller1.Latch(_options.ControllerBindings.Normalize(controller1Input));
+        PublishAcceptedNmiTransfers();
+        // Bank-$90/$91 action checks use the seven configurable WRAM masks. Canonicalizing
+        // here preserves one shared rising-edge latch and prevents different movement
+        // subsystems from interpreting a remap on different frames. Code that tests fixed
+        // bits of $8B/$8F instead (the pause menu's L/R and A) reads the physical latch.
+        _physicalController1.Latch(controller1Input);
+        _controller1.Latch(_options.ControllerBindings.Normalize(controller1Input));
 
-            _nmi.NmiLagCounter = 0;
-            _nmi.NmiFrameCounter8 = unchecked((byte)(_nmi.NmiFrameCounter8 + 1));
-            _nmi.NmiFrameCounter = unchecked((ushort)(_nmi.NmiFrameCounter + 1));
-        }
-        else
-        {
-            _nmi.NmiLagCounter = unchecked((ushort)(_nmi.NmiLagCounter + 1));
-            if (_nmi.NmiLagCounter >= _nmi.MaximumNmiLag)
-                _nmi.MaximumNmiLag = _nmi.NmiLagCounter;
-        }
-
-        // $80:95F9 lies after the accepted/lagged branches rejoin, so it always advances.
-        _nmi.NmiCounterIncludingLag = unchecked((ushort)(_nmi.NmiCounterIncludingLag + 1));
+        _nmi.NmiFrameCounter8 = unchecked((byte)(_nmi.NmiFrameCounter8 + 1));
+        _nmi.NmiFrameCounter = unchecked((ushort)(_nmi.NmiFrameCounter + 1));
     }
 
     /// <summary>
@@ -182,7 +167,7 @@ internal sealed class NmiHandler
         // $211B..$2120. Retain both displayed values so software rendering sees one
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
-        _gameplayWindows.Cache.LatchNmi(mainLoopRequestedNmi: true);
+        _gameplayWindows.Cache.LatchNmi();
         var bg2Window = _enemies.DisplaySources.Draygon is { } boss
             ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, _backgroundScroll.Layer1Position,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))

@@ -35,7 +35,7 @@ internal static class WaterfallRoomsVerification
                 throw new InvalidDataException($"Reported waterfall room {room:X4} lost configuration $16.");
             runtime.GameplayWindows.PrepareGameplayWindowRegisters();
             runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
-            runtime.NmiHandler.RunNmi(0, mainLoopRequestedNmi: true);
+            runtime.NmiHandler.RunNmi(0);
             var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
             AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");
             AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");

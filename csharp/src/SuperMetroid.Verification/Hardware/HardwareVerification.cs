@@ -546,18 +546,6 @@ internal static void VerifyFrameRuntime()
     AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
         "following accepted NMI publishes the changed Mode 7 matrix");
 
-    // A lag NMI must not sample the changed input or advance accepted-frame state.
-    var laggedMode7 = new SamusMode7Transform(0x00d0, 0x0030, 0xffd0, new Position16<RoomPixels>(0x0080, 0x03f0));
-    runtime.Display.ActiveSamusMode7Transform = laggedMode7;
-    runtime.NmiHandler.RunNmi(SnesButton.A, mainLoopRequestedNmi: false);
-    AssertEqual(SnesButton.Start, runtime.Controller1.Current, "lag NMI skips controller read");
-    AssertEqual(2, runtime.Nmi.NmiFrameCounter, "lag NMI skips accepted frame counter");
-    AssertEqual(1, runtime.Nmi.NmiLagCounter, "lag NMI increments consecutive lag");
-    AssertEqual(1, runtime.Nmi.MaximumNmiLag, "lag NMI records maximum lag");
-    AssertEqual(3, runtime.Nmi.NmiCounterIncludingLag, "all-NMI counter includes lag");
-    AssertEqual(secondMode7, runtime.Display.DisplayedSamusMode7Transform,
-        "lag NMI leaves displayed Mode 7 registers untouched");
-
     // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.
     // They must not make the frontend consume the preceding enemy/PLM audio publication
     // again, or a door waiting for unread SFX entries can refill its own queue forever.

@@ -125,7 +125,7 @@ internal static class PpuLayoutBoundaryVerification
             new((slot + seed) & Bgr555.MaxChannel, (slot * 3 + seed) & Bgr555.MaxChannel, (slot * 7 + seed) & Bgr555.MaxChannel);
     }
 
-    /// <summary>gameplay_TM is TM's IRQ copy: an accepted NMI publishes TM into it, a lag NMI does not.</summary>
+    /// <summary>gameplay_TM is TM's IRQ copy: an accepted NMI publishes TM into it.</summary>
     [PpuLayoutBoundary("exact hardware test: register shadow alias coherence")]
     private static void RegisterRoundTrip(PpuLayoutCell alias, PpuLayoutCell register, string context)
     {
@@ -133,12 +133,8 @@ internal static class PpuLayoutBoundaryVerification
             $"{context} is the one register alias with a modeled coherence rule");
         var cache = new GameplayWindowRegisterCache();
         cache.MainScreen = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
-        cache.LatchNmi(mainLoopRequestedNmi: true);
+        cache.LatchNmi();
         AssertEqual((byte)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), cache.Read(alias), $"{context}: accepted NMI copies TM");
-        cache.MainScreen = SnesMainScreenLayers.Bg2;
-        cache.LatchNmi(mainLoopRequestedNmi: false);
-        AssertEqual((byte)(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj), cache.Read(alias), $"{context}: lag NMI keeps the copy");
-        AssertEqual((byte)SnesMainScreenLayers.Bg2, cache.Read(register), $"{context}: TM keeps the main-loop value");
     }
 
     /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>

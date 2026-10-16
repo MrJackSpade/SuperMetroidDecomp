@@ -210,7 +210,7 @@ internal static class PauseMenuVerification
         var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
         resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
         resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
-        resumeRuntime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        resumeRuntime.NmiHandler.RunNmi(controller1Input: 0);
         // The newly equipped Wave characters are bound on the projectile page (#1342), not uploaded.
         ReadOnlySpan<byte> wavePage = (resumeRuntime.Artwork.ProjectileObjects
             ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(samus.EquippedBeams).Characters

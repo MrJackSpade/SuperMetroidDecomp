@@ -61,7 +61,7 @@ internal static class RetailEndingHandoffTests
             top.Properties = top.Properties.With(EnemyProperties.ProcessOffScreen);
             runtime.Player.IntroducedSamus.InputLocked = true;
             runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(EndingHandoffFixtureDefinitions.TakeoffBoundaryY);
-            runtime.NmiHandler.RunNmi(0, true);
+            runtime.NmiHandler.RunNmi(0);
         }
         bool sawFade = false;
         int endingFrames = 0, frames = 0;

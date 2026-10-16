@@ -55,10 +55,10 @@ internal static class Mode7GameplaySnapshotTestsVerification
         // Retail room assets with explicitly constructed getaway registers exercise
         // the runtime producer, without pretending this is a controller-driven battle.
         var runtime = CreateRetailRuntimeFixture(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0, true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.NmiHandler.RunNmi(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).Mode7Active = true;
         getaway.Mode7MatrixA = 240; getaway.Mode7MatrixB = 33;
@@ -66,7 +66,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         getaway.Mode7Center = new Position16<Mode7Pixels>(128, 120);
         getaway.Mode7Offset = new Offset16<Mode7Pixels>(7, 19);
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
-        runtime.NmiHandler.RunNmi(0, true);
+        runtime.NmiHandler.RunNmi(0);
         Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = RoundTripRenderPacket(new(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");

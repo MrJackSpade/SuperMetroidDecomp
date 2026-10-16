@@ -11,8 +11,14 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Yard;
 
 /// <summary>The Yard species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class YardEnemyBehavior : IEnemySpecies
+internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Yard];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new YardEntity(this, slot, common);
+
     /// <summary>Provides active room context for Yard initialization and main AI.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Runs native surface probes and movement while Yard crawls or falls.</summary>
@@ -70,13 +76,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         }
     }
 
-
-    /// <summary>Species state indexed by the shared enemy slot and reset at room load.</summary>
-    internal readonly YardEnemyState?[] _yardStates =
-        new YardEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
-    internal void InitializeYard(RoomEnemySlot slot)
+    internal static void InitializeYard(RoomEnemySlot slot)
     {
         ushort direction = slot.CurrentInstruction;
         if (direction >= 8)
@@ -97,7 +98,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
             Behavior = YardBehavior.NormalCrawling,
             IdleCrawlingSpeedIndex = slot.Parameter1,
         };
-        _yardStates[slot.SlotIndex] = state;
+        (slot.Entity as YardEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Yard.")).State = state;
 
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -637,42 +639,33 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
         unchecked((int)((SnesSixteenSixteen.FromWhole((uint)whole)) | fraction));
 
     /// <summary>Finds the state paired with a live Yard slot and rejects an uninitialized callback.</summary>
-    private YardEnemyState RequireYardState(RoomEnemySlot slot) =>
-        _yardStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static YardEnemyState RequireYardState(RoomEnemySlot slot) =>
+        (slot.Entity as YardEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");
 
-    /// <summary>Registers Yard's bank-$A3 initialization callback for Yard definitions.</summary>
-    internal void RegisterYardInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Yard's initialization AI.</summary>
+    internal static void RunYardInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Yard, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeYard(slot);
-        });
+        InitializeYard(slot);
     }
 
-    /// <summary>Registers Yard's main AI for each enemy frame that selects its definition.</summary>
-    internal void RegisterYardMainAi(EnemyAiTable table)
+    /// <summary>Ports Yard's main AI.</summary>
+    internal void RunYardMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Yard, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunYardMain(slot, frame.Samus, frame.Level);
-        });
+        RunYardMain(slot, frame.Samus, frame.Level);
     }
 
-    /// <summary>Runs the Yard's animations as typed programs (#641); its repeat cue resumes at the previous pose.</summary>
-    internal void RegisterYardTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireYardState(slot);
-            AnimationProgramCursor<YardProgram> cursor = state.Program;
-            EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Spritemap,
-                    (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
-            state.Program = cursor;
-        });
+    /// <summary>Advances Yard's typed animation.</summary>
+    internal void AdvanceYardTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireYardState(slot);
+        AnimationProgramCursor<YardProgram> cursor = state.Program;
+        EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.Spritemap,
+                (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
+        state.Program = cursor;
+    }
 
     /// <summary>Routes Yard shots through its custom launch branch before common vulnerability damage.</summary>
     internal void RegisterYardShotReactions(EnemyAiTable table)
@@ -711,7 +704,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastYardSoundEffect = null;
-        Array.Clear(_yardStates);
     }
 
     /// <inheritdoc/>

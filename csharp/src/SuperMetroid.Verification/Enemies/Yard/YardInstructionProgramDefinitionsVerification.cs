@@ -28,7 +28,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     internal static void VerifyYardInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         RoomEnemySystem enemies = CreateYardInstructionSystem(rom, out RoomEnemySlot yard);
-        YardEnemyState state = enemies.YardBehavior._yardStates[0] ?? throw new InvalidOperationException("The Yard has no state.");
+        YardEnemyState state = (enemies.SlotTable.Slots[0].Entity as YardEntity)?.State ?? throw new InvalidOperationException("The Yard has no state.");
         foreach (YardProgram program in Enum.GetValues<YardProgram>())
         {
             state.Program = AnimationProgramCursor<YardProgram>.Start(program);
@@ -76,8 +76,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);
         yard.Bind(yard.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
         var state = new YardEnemyState(yard) { Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.CrawlingUpsideUpMovingLeft) };
-        var states = (YardEnemyState?[])enemies.YardBehavior._yardStates;
-        states[0] = state;
+        (yard.Entity as YardEntity ?? throw new InvalidOperationException("The fixture slot is not bound to a Yard.")).State = state;
         return enemies;
     }
 

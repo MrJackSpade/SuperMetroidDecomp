@@ -49,13 +49,16 @@ internal static class EnemyLinearSpeedsVerification
             var expected = (right, rightFraction, left, leftFraction);
             slot.Parameter1 = 0;
             slot.Parameter2 = SnesLittleEndian.Word(0, unchecked((byte)index));
+            slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
             cacatac(slot);
             var c = enemies.CacatacStates[0];
             AssertEqual(expected, ((c ?? throw new InvalidOperationException("Verification requires c.")).RightVelocity, c.RightSubvelocity, c.LeftVelocity, c.LeftSubvelocity), "Cacatac native speed setup");
             slot.Parameter2 = (ushort)index;
+            slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0];
             AssertEqual(expected, ((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity, o.RightSubvelocity, o.LeftVelocity, o.LeftSubvelocity), "Owtch native speed setup");
+            slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             stoke(slot);
             var s = enemies.StokeStates[0];
             AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity, s.RightSubvelocity, s.LeftVelocity, s.LeftSubvelocity), "Stoke native speed setup");

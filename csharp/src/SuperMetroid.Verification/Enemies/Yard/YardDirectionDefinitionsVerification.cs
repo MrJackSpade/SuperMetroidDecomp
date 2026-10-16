@@ -77,7 +77,8 @@ internal static class YardDirectionDefinitionsVerification
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
             slot.Properties = 0x4000;
-            enemies.YardBehavior.InitializeYard(slot);
+            slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
+            YardEnemyBehavior.InitializeYard(slot);
 
             YardEnemyState state = enemies.YardStates[0] ??
                 throw new InvalidDataException("Yard initializer produced no typed state.");
@@ -112,7 +113,8 @@ internal static class YardDirectionDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.Parameter1 = 0;
-            enemies.YardBehavior.InitializeYard(slot);
+            slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
+            YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
             ushort facing = (state ?? throw new InvalidOperationException("Verification requires state.")).AirborneFacingDirection;
             YardAirborneInstructionDefinition expected =

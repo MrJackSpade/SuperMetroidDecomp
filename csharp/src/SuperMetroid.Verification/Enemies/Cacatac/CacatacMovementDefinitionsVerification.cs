@@ -22,6 +22,7 @@ internal static class CacatacMovementDefinitionsVerification
         enemies.BindFixtureBus(NewCacatacDistanceReadGuard(new TestAddressSpace()));
         Action<RoomEnemySlot> initialize = CacatacBehavior.InitializeCacatac;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
 
         foreach (ushort spawnX in new ushort[] { 0, 0x100, ushort.MaxValue })
         {

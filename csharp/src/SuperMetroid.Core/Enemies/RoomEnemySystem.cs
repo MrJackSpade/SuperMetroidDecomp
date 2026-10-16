@@ -689,7 +689,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior]);
+        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
@@ -1206,7 +1206,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         NorfairRioBehavior.RegisterNorfairRioInitializationAi(table);
         PhantoonBehavior.RegisterPhantoonInitializationAi(table);
         PipeBugsBehavior.RegisterPipeBugsInitializationAi(table);
-        PlatformsBehavior.RegisterPlatformsInitializationAi(table);
         PowampBehavior.RegisterPowampInitializationAi(table);
         RidleyBehavior.RegisterRidleyInitializationAi(table);
         RinkaBehavior.RegisterRinkaInitializationAi(table);
@@ -1219,7 +1218,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         WallSpacePirateBehavior.RegisterWallSpacePirateInitializationAi(table);
         WorkRobotBehavior.RegisterWorkRobotInitializationAi(table);
         YappingMawBehavior.RegisterYappingMawInitializationAi(table);
-        YardBehavior.RegisterYardInitializationAi(table);
         ZebetiteBehavior.RegisterZebetiteInitializationAi(table);
 
         GunshipBehavior.RegisterGunshipTopInitializationAi(table);
@@ -1269,7 +1267,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         NorfairRioBehavior.RegisterNorfairRioMainAi(table);
         PhantoonBehavior.RegisterPhantoonMainAi(table);
         PipeBugsBehavior.RegisterPipeBugsMainAi(table);
-        PlatformsBehavior.RegisterPlatformsMainAi(table);
         PowampBehavior.RegisterPowampMainAi(table);
         RidleyBehavior.RegisterRidleyMainAi(table);
         RinkaBehavior.RegisterRinkaMainAi(table);
@@ -1281,7 +1278,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         WallSpacePirateBehavior.RegisterWallSpacePirateMainAi(table);
         WorkRobotBehavior.RegisterWorkRobotMainAi(table);
         YappingMawBehavior.RegisterYappingMawMainAi(table);
-        YardBehavior.RegisterYardMainAi(table);
         ZebetiteBehavior.RegisterZebetiteMainAi(table);
         ZebetiteBehavior.RegisterZebetiteTypedAnimations(table);
         table.RegisterMain(EnemyAiRoutine.RTL_A3804C, null, (slot, frame, nmiFrameCounter8) =>
@@ -1326,9 +1322,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         YappingMawBehavior.RegisterYappingMawTypedAnimations(table);
         FuneNamiheBehavior.RegisterFuneNamiheTypedAnimations(table);
         EvirBehavior.RegisterEvirTypedAnimations(table);
-        YardBehavior.RegisterYardTypedAnimations(table);
         MetroidBehavior.RegisterMetroidTypedAnimations(table);
-        PlatformsBehavior.RegisterPlatformTypedAnimations(table);
         KiHunterBehavior.RegisterKiHunterTypedAnimations(table);
         FakeKraidBehavior.RegisterFakeKraidTypedAnimations(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateTypedAnimations(table);

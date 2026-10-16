@@ -161,7 +161,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MochtroidEntity)?.State)];
 
         /// <summary>Typed state for each physical slot currently occupied by a Yard.</summary>
-        internal IReadOnlyList<YardEnemyState?> YardStates => self.YardBehavior._yardStates;
+        internal IReadOnlyList<YardEnemyState?> YardStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as YardEntity)?.State)];
 
         /// <summary>Typed Metaree state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<MetareeEnemyState?> MetareeStates =>
@@ -324,7 +325,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BeetomEntity)?.State)];
 
         /// <summary>Typed Tripper/Kamer state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<PlatformEnemyState?> PlatformStates => self.PlatformsBehavior._platformStates;
+        internal IReadOnlyList<PlatformEnemyState?> PlatformStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as PlatformsEntity)?.State)];
 
         /// <summary>Bomb Torizo's state while definition $EEFF owns slot zero.</summary>
         internal TorizoEnemyState? BombTorizo =>

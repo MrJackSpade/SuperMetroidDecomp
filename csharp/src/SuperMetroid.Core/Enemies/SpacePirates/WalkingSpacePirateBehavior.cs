@@ -518,11 +518,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastSpacePirateSoundEffect = null;

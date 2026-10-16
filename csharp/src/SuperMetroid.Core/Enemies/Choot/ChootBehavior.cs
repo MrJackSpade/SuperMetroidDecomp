@@ -249,9 +249,4 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
             _extensions[slotIndex] = new ChootExtensionWords();
     }
-
-    /// <summary>Choot has no shared per-frame work beyond its registered slot AI.</summary>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

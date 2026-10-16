@@ -187,14 +187,4 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunFlyMain(slot, frame.Samus);
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

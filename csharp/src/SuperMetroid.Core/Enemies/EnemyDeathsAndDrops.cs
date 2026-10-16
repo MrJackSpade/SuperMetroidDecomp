@@ -53,9 +53,6 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
     public ushort? LastEnemyPickupSoundEffect { get; internal set; }
 
-    /// <summary>Last pickup kind applied to Samus this frame, useful while stepping AI.</summary>
-    public EnemyPickupKind? LastCollectedEnemyPickup { get; internal set; }
-
     /// <summary>
     /// Last library-two request made by the shared death/pickup instruction lists this
     /// frame. Values nine, $24, and $0B are authored directly in bank $86.
@@ -494,7 +491,6 @@ internal sealed class EnemyDeathsAndDrops
                     $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");
         }
 
-        LastCollectedEnemyPickup = kind;
         MakeEnemyPickupDormant(projectile);
     }
 

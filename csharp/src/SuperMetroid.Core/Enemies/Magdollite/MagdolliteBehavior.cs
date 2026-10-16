@@ -58,7 +58,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetMagdolliteRoomState()
     {
         LastMagdolliteSoundEffect = null;
-        LastMagdolliteLavaDropRequest = null;
         _magdollitePaletteAnimationInstalled = false;
         _magdollitePaletteAnimationTimer = NativeCountdown.Start(0);
         _magdollitePaletteAnimationIndex = 0;
@@ -69,7 +68,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResetMagdolliteFrameEvents()
     {
         LastMagdolliteSoundEffect = null;
-        LastMagdolliteLavaDropRequest = null;
     }
 
     /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
@@ -823,9 +821,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Negative 8.8 value that the leftward routine reads from the projectile's Y velocity field.</summary>
     private const ushort MagdolliteLavaUpwardSpeed = unchecked((ushort)-768);
 
-    /// <summary>Last drop request produced by a destroyed lava projectile this frame.</summary>
-    public MagdolliteLavaDropRequest? LastMagdolliteLavaDropRequest { get; private set; }
-
     /// <summary>Ports <c>EprojInit_NorfairLavaMan</c> at $86:E000.</summary>
     internal void SpawnMagdolliteLava(RoomEnemySlot source, ushort directionParameter)
     {
@@ -874,7 +869,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports shot-list instruction $86:DFEA.</summary>
     internal void RequestMagdolliteLavaDrop(RoomEnemyProjectileSlot projectile)
     {
-        LastMagdolliteLavaDropRequest = new MagdolliteLavaDropRequest();
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             projectile.Position.Whole,
             EnemyDefinitionId.Magdollite);

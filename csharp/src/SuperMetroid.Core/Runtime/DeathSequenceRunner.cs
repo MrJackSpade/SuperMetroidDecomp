@@ -88,7 +88,7 @@ internal sealed class DeathSequenceRunner
 
         _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         _sprites.BeginFrame();
-        _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
+        _player.Samus.Presentation.Draw(
             _addressSpace,
             _sprites,
             _room.Camera.PixelPosition,
@@ -108,7 +108,6 @@ internal sealed class DeathSequenceRunner
 
         _nmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         _sprites.BeginFrame();
-        _actorDrawing.LastSamusBodyDrawn = false;
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
             _addressSpace,
             _player.Samus,
@@ -116,7 +115,7 @@ internal sealed class DeathSequenceRunner
             _artwork.SamusBodyArt?.DeathPalettes);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
-            _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
+            _player.Samus.Presentation.Draw(
                 _addressSpace,
                 _sprites,
                 _room.Camera.PixelPosition,

@@ -72,7 +72,7 @@ internal static class ProjectileCooldownsVerification
                 // Actual shared cooldown owner advances before humanoid fire dispatch.
                 shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, SnesButton.X, frame == 0 ? SnesButton.X : (ushort)0);
                 projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
-                if (projectiles.LastFiredProjectileSnapshot is not null) frames.Add(frame);
+                if (projectiles.LastFrameResult.QueuedSoundEffect is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;
             AssertTrue(frames.SequenceEqual(new[] { 0, firstDelay, firstDelay + 25, firstDelay + 50 }),

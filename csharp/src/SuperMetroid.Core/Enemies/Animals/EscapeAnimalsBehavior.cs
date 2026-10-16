@@ -270,14 +270,4 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void AdvanceEscapeAnimalTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
         AdvanceEscapeAnimal(slot, context.Samus);
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
-
 }

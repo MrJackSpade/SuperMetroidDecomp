@@ -442,14 +442,4 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     {
         RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), frame.Samus);
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

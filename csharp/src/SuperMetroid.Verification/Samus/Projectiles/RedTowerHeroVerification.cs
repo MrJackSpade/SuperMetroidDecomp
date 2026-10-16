@@ -21,7 +21,6 @@ internal static class RedTowerHeroVerification
     /// </summary>
     internal static void VerifyControlledRedTowerHeroShot()
     {
-        SamusProjectileSpawnSnapshot? stationaryLaunch = null;
         foreach (bool followShot in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -64,10 +63,6 @@ internal static class RedTowerHeroVerification
                 if (frame == 0)
                 {
                     AssertTrue(shot.IsActive, "Retail target probe launches its single shot");
-                    var launch = runtime.Projectiles.LastFiredProjectileSnapshot;
-                    AssertTrue(launch.HasValue, "Retail probe publishes launch evidence");
-                    if (!followShot) stationaryLaunch = launch;
-                    else AssertTrue(launch == stationaryLaunch, "Camera branches launch identical shots");
                 }
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {

@@ -33,7 +33,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RipperExtensionWords[] NewExtensions() =>
         [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new RipperExtensionWords())];
 
-
     /// <summary>Clears variant patrol endpoints, AI state and loops before loading another room.</summary>
     internal void ResetRipperVariantRoomState()
     {
@@ -294,10 +293,5 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetRipperVariantRoomState();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

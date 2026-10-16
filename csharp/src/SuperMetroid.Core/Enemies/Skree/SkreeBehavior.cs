@@ -204,16 +204,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
-
     // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the
     // common death animation releases the enemy slot.
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>

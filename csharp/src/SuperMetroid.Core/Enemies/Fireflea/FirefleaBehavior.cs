@@ -219,14 +219,4 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FirefleaTouch,
             context => ResolveFirefleaTouch(context.Slot, context.Samus));
     }
-
-    /// <summary>Discards slot-indexed motion state before a new room population initializes.</summary>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <summary>Fireflea has no species-wide frame action beyond each slot's registered main AI.</summary>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

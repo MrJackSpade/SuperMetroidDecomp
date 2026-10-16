@@ -69,7 +69,7 @@ internal static class BeamCallbackTablesVerification
                 }
             }
             projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? (ushort)0 : SnesButton.X, ControllerNewInput = charged ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
-            AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+            AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the
             // lowest live slot after the release frame.

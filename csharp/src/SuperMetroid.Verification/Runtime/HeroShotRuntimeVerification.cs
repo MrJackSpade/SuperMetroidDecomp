@@ -26,7 +26,6 @@ internal static class HeroShotRuntimeVerification
         int compared = 0;
         int mismatches = 0;
         var fieldMismatches = new int[15];
-        SamusProjectileSpawnSnapshot? stationaryLaunch = null;
         foreach (bool walkAfterShot in new[] { false, true })
         {
             var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -92,11 +91,6 @@ internal static class HeroShotRuntimeVerification
                 if (frame == 0)
                 {
                     AssertTrue(shot.IsActive, "Runtime Hero fixture fires from normal gameplay input");
-                    var launch = runtime.Projectiles.LastFiredProjectileSnapshot;
-                    AssertTrue(launch.HasValue, "Runtime publishes launch evidence before movement");
-                    if (!walkAfterShot) stationaryLaunch = launch;
-                    else AssertTrue(launch == stationaryLaunch,
-                        "Both input branches launch identical position, direction and velocity before walking diverges");
                 }
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {

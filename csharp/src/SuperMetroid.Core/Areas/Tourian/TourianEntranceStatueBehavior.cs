@@ -170,16 +170,10 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         ResetTourianEntranceStatueRoomState();
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
-
     /// <summary>Ports TourianEntranceStatue's main AI.</summary>
     internal static void RunTourianEntranceStatueMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
     {
         // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
         // three enemy records animate exclusively through their ROM lists.
     }
-
 }

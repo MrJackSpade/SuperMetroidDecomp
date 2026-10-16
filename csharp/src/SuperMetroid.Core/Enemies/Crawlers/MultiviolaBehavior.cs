@@ -162,14 +162,4 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunMultiviolaMain(slot, RequireMultiviolaState(slot), frame.Level);
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

@@ -231,8 +231,6 @@ internal sealed class DoorTransitionRunner
     internal void DrawDoorTransitionActors(bool runEnemyProjectiles)
     {
         _sprites.BeginFrame();
-        _actorDrawing.LastSamusBodyDrawn = false;
-        _actorDrawing.LastGrappleFlareDrawn = false;
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
         _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(_bombProjectiles.PowerBombExplosion);
@@ -244,7 +242,7 @@ internal sealed class DoorTransitionRunner
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (_enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
-            _actorDrawing.LastSamusBodyDrawn = _player.Samus.Presentation.Draw(_addressSpace, _sprites,
+            _player.Samus.Presentation.Draw(_addressSpace, _sprites,
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
         _sprites.FinalizeFrame();
     }

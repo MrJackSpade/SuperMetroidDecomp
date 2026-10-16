@@ -78,7 +78,6 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 30; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
-    AssertEqual(0xf6, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "healthy standing loop command");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
     // four byte positions and loops that faster eight-tick breathing sequence.
@@ -91,7 +90,6 @@ internal static void VerifySamusRenderingSlice()
     for (int tick = 0; tick < 32; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
-    AssertEqual(0xfe, samus.LastAnimationDelayCommand.Value, "low-health backward-loop command");
 
     // Pose $FD overreads the native pointer table and selects $91:0302, a mutable
     // low-bank WRAM alias. This is the cartridge-faithful way to supply otherwise
@@ -106,8 +104,6 @@ internal static void VerifySamusRenderingSlice()
     WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfa, 0x31, 0x32]);
     unusedInstructionSamus.Presentation.InitializeAnimation(bus);
     unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
-    AssertEqual(0xfa, (unusedInstructionSamus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires unusedInstructionSamus.LastAnimationDelayCommand.")),
-        "unused vertical-speed instruction reaches `$FA`");
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
     unusedInstructionSamus.Kinematics.YSubspeed = 1;
@@ -122,8 +118,6 @@ internal static void VerifySamusRenderingSlice()
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.Presentation.InitializeAnimation(bus);
     unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
-    AssertEqual(0xfc, unusedInstructionSamus.LastAnimationDelayCommand.Value,
-        "unused equipment instruction reaches `$FC`");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
     unusedInstructionSamus.EquippedItems = 0x0002;

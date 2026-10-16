@@ -459,14 +459,4 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunPuyoMain(slot, RequirePuyoState(slot), frame.Samus, frame.Level);
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

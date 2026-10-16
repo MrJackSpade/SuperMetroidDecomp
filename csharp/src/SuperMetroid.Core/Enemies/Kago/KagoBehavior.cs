@@ -221,9 +221,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
     public ushort? LastKagoBugSoundEffect { get; private set; }
 
-    /// <summary>Last Kago bug enemy-drop request produced during this enemy frame.</summary>
-    public KagoBugDropRequest? LastKagoBugDropRequest { get; private set; }
-
     /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
     {
@@ -393,7 +390,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports shot-list drop instruction <c>$86:D1CE</c>.</summary>
     internal void RequestKagoBugDrop(RoomEnemyProjectileSlot projectile)
     {
-        LastKagoBugDropRequest = new KagoBugDropRequest();
         _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
             projectile.Position.Whole,
             EnemyDefinitionId.Kago);
@@ -407,14 +403,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastKagoBugSoundEffect = null;
-        LastKagoBugDropRequest = null;
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastKagoBugSoundEffect = null;
-        LastKagoBugDropRequest = null;
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

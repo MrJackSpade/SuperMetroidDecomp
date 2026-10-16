@@ -24,8 +24,8 @@ internal static class SamusShinesparkStateAccess
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            self.StepReleasedCrashEcho((SamusState)(samus), layer1, self._firstReleasedCrashEcho);
-            self.StepReleasedCrashEcho((SamusState)(samus), layer1, self._secondReleasedCrashEcho);
+            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self._firstReleasedCrashEcho);
+            SamusShinesparkState.StepReleasedCrashEcho(samus, layer1, self._secondReleasedCrashEcho);
         }
     }
 }

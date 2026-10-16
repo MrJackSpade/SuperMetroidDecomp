@@ -195,12 +195,6 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ShinesparkReleasedEcho SecondReleasedCrashEcho => _secondReleasedCrashEcho.Snapshot;
 
-    /// <summary>
-    /// Most recent viewport deletion, retained only as a debugger witness after native slot
-    /// storage has been zeroed. It does not participate in movement or drawing.
-    /// </summary>
-    public ShinesparkReleasedEchoClear? LastReleasedCrashEchoClear { get; private set; }
-
     /// <summary>Fixed slot-three echo storage whose position aliases crash angular words.</summary>
     internal readonly ReleasedEchoSlot _firstReleasedCrashEcho = new();
     /// <summary>Fixed slot-four echo storage drawn before the slot-three copy.</summary>
@@ -230,7 +224,6 @@ public sealed class SamusShinesparkState
         _secondReleasedCrashEcho.Clear();
         FirstCrashEchoAngle = SecondCrashEchoAngle = SnesAngle.Zero;
         CrashSubphase = CrashRadius = 0;
-        LastReleasedCrashEchoClear = null;
     }
 
     /// <summary>
@@ -648,7 +641,6 @@ false);
         // or above. The runtime supplies the ordinary projectile count, not bomb count.
         // Capacity failure does not clear existing echo words or slots. In particular,
         // retaining slot three's Y also retains the next crash's angular-travel seed.
-        LastReleasedCrashEchoClear = null;
         if (unchecked((short)(projectileCounter - 5)) < 0)
         {
             if (unchecked((short)(projectileCounter - 4)) < 0)
@@ -711,7 +703,7 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Expands an echo around live Samus position and clears its drawing words when either viewport axis rejects it.</summary>
-    internal bool StepReleasedCrashEcho(
+    internal static bool StepReleasedCrashEcho(
         SamusState samus,
         Position16<RoomPixels> layer1,
         ReleasedEchoSlot slot,
@@ -734,7 +726,6 @@ false,             CrashSequenceFinished: true);
         short screenX = unchecked((short)(slot.Position.X - layer1.X));
         if (screenX is < 0 or >= 256)
         {
-            LastReleasedCrashEchoClear = new();
             slot.Clear();
             return false;
         }
@@ -743,7 +734,6 @@ false,             CrashSequenceFinished: true);
         short screenY = unchecked((short)(slot.Position.Y - layer1.Y));
         if (screenY is < 0 or >= 256)
         {
-            LastReleasedCrashEchoClear = new();
             slot.Clear();
             return false;
         }

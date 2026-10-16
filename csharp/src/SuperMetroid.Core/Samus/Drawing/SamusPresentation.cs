@@ -99,7 +99,6 @@ internal sealed class SamusPresentation
         }
 
         _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameBuffer + initialDelay)));
-        _samus.LastAnimationDelayCommand = null;
         _samus.PendingTransitionalPose = null;
     }
 
@@ -146,7 +145,6 @@ internal sealed class SamusPresentation
         _samus.AnimationDelayListAddress = ResolveAnimationDelayList();
         _samus.AnimationFrame = frame;
         _samus.AnimationFrameTimer = NativeCountdown.FromRaw(timer);
-        _samus.LastAnimationDelayCommand = null;
         _samus.PendingTransitionalPose = null;
     }
 
@@ -247,8 +245,6 @@ internal sealed class SamusPresentation
         byte delayOrCommand = ReadAnimationByte(bus, _samus.AnimationFrame);
         if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))
         {
-            _samus.LastAnimationDelayCommand = null;
-
             // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
             // with the pointer stored at `$91:B5D1` whenever momentum flag `$0B3C` is set.
             // Notice that this branch does NOT test the Dash button: releasing B retains
@@ -286,7 +282,6 @@ internal sealed class SamusPresentation
                 {
                     _samus.AnimationFrame = stagedFrame;
                     _samus.AnimationFrameTimer = NativeCountdown.FromRaw(stagedTimer);
-                    _samus.LastAnimationDelayCommand = delayOrCommand;
                     return;
                 }
 
@@ -296,14 +291,12 @@ internal sealed class SamusPresentation
             else
             {
                 _samus.AnimationFrame = 0;
-                _samus.LastAnimationDelayCommand = delayOrCommand;
                 _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(
                     _samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0))));
                 return;
             }
         }
 
-        _samus.LastAnimationDelayCommand = delayOrCommand;
         switch (delayOrCommand & 15)
         {
             case 0:

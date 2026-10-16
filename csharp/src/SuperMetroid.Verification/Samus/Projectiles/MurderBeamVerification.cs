@@ -232,7 +232,7 @@ internal static class MurderBeamVerification
 
         shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, SnesButton.X, SnesButton.X);
         projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
-        AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+        AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "auto-cancel setup fires one Missile");
         AssertEqual((ushort)0, samus.SelectedHudItem,
             "successful Missile auto-cancels back to beams");

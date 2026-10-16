@@ -217,7 +217,7 @@ internal sealed class GameplayActorDrawing
         {
             if (_player.LastDeathSequenceStep is { DrawPose: true })
             {
-                LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
+                _player.Samus.Presentation.Draw(
                     _addressSpace,
                     _sprites,
                     _room.Camera.PixelPosition,
@@ -251,7 +251,7 @@ internal sealed class GameplayActorDrawing
                     // Omitting the live counter intentionally selects `Draw`'s default
                     // even value. Native `$90:EB86` calls `$90:85D2`, below `$85E2`'s
                     // ordinary invincibility test, so this path cannot flicker twice.
-                    LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
+                    _player.Samus.Presentation.Draw(
                         _addressSpace,
                         _sprites,
                         _room.Camera.PixelPosition,
@@ -267,7 +267,7 @@ internal sealed class GameplayActorDrawing
                 // paths, ordinary departing speed echoes, and grapple graphics. It
                 // draws the live body first, then crash slot one before slot zero on
                 // odd NMIs. The shared projectile/trail tail below still follows.
-                LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
+                _player.Samus.Presentation.Draw(
                     _addressSpace,
                     _sprites,
                     _room.Camera.PixelPosition,
@@ -291,7 +291,7 @@ internal sealed class GameplayActorDrawing
                     // Active `$90:EB86` begins with `$9B:C036`. Firing also refreshes
                     // its hand origins here from Samus's post-movement position. This
                     // flare is a different animation owner from the charge flare below.
-                    LastGrappleFlareDrawn = SamusGrappleMovement.DrawFlareBeforeSamus(
+                    SamusGrappleMovement.DrawFlareBeforeSamus(
                         _addressSpace,
                         _player.Samus,
                         _sprites,
@@ -347,7 +347,7 @@ internal sealed class GameplayActorDrawing
                         _room.Camera.PixelPosition,
                         _nmi.NmiFrameCounter);
                 }
-                LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
+                _player.Samus.Presentation.Draw(
                     _addressSpace,
                     _sprites,
                     _room.Camera.PixelPosition,
@@ -488,16 +488,6 @@ internal sealed class GameplayActorDrawing
 
 
 
-    /// <summary>
-    /// Whether the current main-loop frame actually appended Samus's body spritemaps.
-    /// This differs from merely reaching the drawing phase: invincibility and the elevator
-    /// display handler can intentionally suppress the body on odd accepted NMI frames.
-    /// </summary>
-    public bool LastSamusBodyDrawn { get; internal set; }
 
 
-
-
-    /// <summary>Whether grapple's bank-$93 flare passed its unsigned screen-Y gate.</summary>
-    public bool LastGrappleFlareDrawn { get; internal set; }
 }

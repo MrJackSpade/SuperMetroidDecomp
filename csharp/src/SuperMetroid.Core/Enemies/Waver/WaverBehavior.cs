@@ -174,14 +174,4 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
                 (cue, _) => ApplyWaverCue(state, cue));
         state.Program = cursor;
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

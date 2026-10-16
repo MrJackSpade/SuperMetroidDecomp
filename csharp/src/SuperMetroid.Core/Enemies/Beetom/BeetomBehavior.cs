@@ -642,9 +642,4 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
             _extensions[slotIndex] = new BeetomExtensionWords();
     }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

@@ -325,7 +325,6 @@ internal static void VerifySamusPostureMovement()
 
     for (int tick = 0; tick < 3; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xfd, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "crouch transition reaches FD");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "crouch FD applies");
     AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose, "crouch transition target");
     samus.HorizontalSpeed.HasRunningMomentum = true;

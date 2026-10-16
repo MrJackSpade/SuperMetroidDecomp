@@ -145,7 +145,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((uint)frameIndex >= 22)
             throw new ArgumentOutOfRangeException(nameof(frameIndex));
 
-        LastHibashiActivityFrameIndex = frameIndex;
         HibashiEnemyState state = RequireHibashiState(graphics);
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
@@ -207,24 +206,5 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.Spritemap,
                 (cue, _) => ApplyHibashiCue(slot, cue));
         state.Program = cursor;
-    }
-
-    /// <summary>
-    /// Zero-based index of the bank-$A6 fire-geyser shape command executed this frame.
-    /// This mirrors an instruction-dispatch event rather than inventing persistent enemy
-    /// state; <see langword="null"/> means no shape command ran during the current frame.
-    /// </summary>
-    public int? LastHibashiActivityFrameIndex { get; private set; }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-        LastHibashiActivityFrameIndex = null;
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-        LastHibashiActivityFrameIndex = null;
     }
 }

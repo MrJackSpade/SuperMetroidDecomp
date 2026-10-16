@@ -76,7 +76,7 @@ internal static class EnemyAnimationIsolationVerification
                 edited.Torizo ?? throw new InvalidOperationException("Verification requires the edited Torizo state."), $"Golden Torizo attack frame {frame}");
             nativeFrames.Add(stock.Actor.SpritemapPointer);
             heights.Add(stock.Actor.Position.Y.Whole);
-            if (stock.Enemies.BombTorizoBehavior.LastBombTorizoSoundEffect is not null) shotFrames.Add(frame);
+            if (stock.Enemies.Audio.SoundRequests.Count > 0) shotFrames.Add(frame);
             CompareTorizoHitWindows(stock, edited, frame, ref hitSamples, ref missSamples);
             var before = stock.Draw(); var after = edited.Draw();
             AssertEditedAnimationDraw(edited, after, frame);

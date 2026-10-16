@@ -556,8 +556,6 @@ public sealed class SuperMetroidRuntime
         // game state, then finalizes unused entries afterward. Samus is emitted before the
         // escape timer so lower OAM indices retain their normal overlap precedence.
         Sprites.BeginFrame();
-        ActorDrawing.LastSamusBodyDrawn = false;
-        ActorDrawing.LastGrappleFlareDrawn = false;
 
         EnemyPhase.PrepareEnemyFrame();
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise

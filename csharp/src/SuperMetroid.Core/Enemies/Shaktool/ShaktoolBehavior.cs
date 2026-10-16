@@ -38,7 +38,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Head, five middle segments, and tail occupy consecutive enemy slots.</summary>
     private const int ShaktoolSegmentCount = 7;
 
-
     /// <summary>Discards all segment extensions when the room population changes.</summary>
     internal void ResetShaktoolRoomState() =>
         Array.ForEach(_slotTable._slots, cleared => cleared.SetSpeciesState<ShaktoolSegmentState>(null));
@@ -606,10 +605,5 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         ResetShaktoolRoomState();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

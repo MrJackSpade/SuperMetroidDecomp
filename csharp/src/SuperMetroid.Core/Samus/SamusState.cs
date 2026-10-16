@@ -448,12 +448,6 @@ public sealed class SamusState
     public int AnimationDelayListAddress { get; internal set; }
 
     /// <summary>
-    /// Most recent high-bit delay command, or null when the last advance selected a plain
-    /// delay. This is a host-only debugger watch rather than original WRAM.
-    /// </summary>
-    public byte? LastAnimationDelayCommand { get; internal set; }
-
-    /// <summary>
     /// Operand published by animation command $F8 through the native “super-special
     /// prospective pose” seam. Null means the animation has not requested that transition.
     /// </summary>

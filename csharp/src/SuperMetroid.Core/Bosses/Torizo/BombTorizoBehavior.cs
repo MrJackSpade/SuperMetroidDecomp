@@ -133,9 +133,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     public TorizoEnemyState? GoldenTorizo =>
         _torizoState is { IsGolden: true } ? _torizoState : null;
 
-    /// <summary>Last library-two sound requested by the current Torizo frame.</summary>
-    public SoundEffectId? LastBombTorizoSoundEffect { get; private set; }
-
     /// <summary>Last delayed music request emitted by awakening/death bytecode.</summary>
     public BombTorizoMusicRequest? LastBombTorizoMusicRequest { get; private set; }
 
@@ -144,7 +141,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _torizoState = null;
         _torizoOrbDropRequests.Clear();
-        LastBombTorizoSoundEffect = null;
         LastBombTorizoMusicRequest = null;
     }
 
@@ -295,7 +291,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         RoomLevelData? level)
     {
-        LastBombTorizoSoundEffect = null;
         switch (state.Function)
         {
             case TorizoFunction.Idle:
@@ -657,10 +652,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Clears <paramref name="flags"/>.</summary>
     private static void ClearBehavior(RoomEnemySlot torizo, TorizoBehaviorFlags flags) => torizo.Parameter2 = (ushort)((TorizoBehaviorFlags)torizo.Parameter2 & ~flags);
 
-    /// <summary>Queues <paramref name="sound"/> through the shared enemy queue and records it as this frame's Torizo sound.</summary>
+    /// <summary>Queues <paramref name="sound"/> through the shared enemy queue.</summary>
     private void PlayTorizoSound(SoundEffectId sound)
     {
-        LastBombTorizoSoundEffect = sound;
         _audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
@@ -2199,7 +2193,6 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastBombTorizoSoundEffect = null;
         LastBombTorizoMusicRequest = null;
     }
 

@@ -1312,7 +1312,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeathsAndDrops._samusForEnemyDrops = samus;
         PrePhantoonRoomBehavior._enemyProjectileBackgroundScroll = backgroundScroll;
         DeathsAndDrops.LastEnemyPickupSoundEffect = null;
-        DeathsAndDrops.LastCollectedEnemyPickup = null;
         DeathsAndDrops.LastEnemyDeathSoundEffectLibrary2 = null;
         Projectiles.RunPass(level, samus, camera, nmiFrameCounter8, samusBombs, nmiFrameCounter);
     }

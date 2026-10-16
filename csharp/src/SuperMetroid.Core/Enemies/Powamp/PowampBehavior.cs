@@ -657,14 +657,4 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // instruction pass carry that out later in this same frame.
         spike.StartAnimation(new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

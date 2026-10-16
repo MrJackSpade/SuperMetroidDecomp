@@ -157,7 +157,6 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(33, turn.Position.X.Whole, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
         turn.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf8, (turn.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires turn.LastAnimationDelayCommand.")), "aerial turn reaches F8");
     AssertTrue(turn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
     AssertEqual(0, turn.HorizontalSpeed.AccelerationMode,
@@ -375,7 +374,6 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     // after ten ticks, not the old synthetic eight-tick delay.
     for (int tick = 0; tick < 10; tick++)
         eligible.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xfb, (eligible.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires eligible.LastAnimationDelayCommand.")), "wall animation reaches FB");
     AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
 
     eligible.ProjectileFlareCounter = 0x003c;

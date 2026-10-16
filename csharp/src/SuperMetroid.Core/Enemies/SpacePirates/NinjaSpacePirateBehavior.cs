@@ -704,15 +704,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         state.Program = cursor;
     }
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
     internal static void RegisterGoldNinjaPirateBombReactions(EnemySharedReactions table)

@@ -297,15 +297,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             context => ResolveMochtroidTouch(context.Slot, RequireMochtroidState(context.Slot), context.Samus));
     }
 
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 
     /// <summary>Registers the Mochtroid-specific shot callback when its definition selects one.</summary>
     internal static void RegisterMochtroidShotReactions(EnemySharedReactions table)

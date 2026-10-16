@@ -193,14 +193,4 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             (cue, _) => ApplySparkCue(slot, cue));
         state.Program = cursor;
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

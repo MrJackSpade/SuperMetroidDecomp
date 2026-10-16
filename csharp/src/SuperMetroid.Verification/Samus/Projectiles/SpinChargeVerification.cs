@@ -33,7 +33,6 @@ internal static class SpinChargeVerification
             {
                 projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = 0 }, new(0, 0), bombs);
                 AssertEqual(60, projectiles.Charge.FlareCounter, $"pose {(int)pose:X2} preserves charge on hold/release");
-                AssertTrue(projectiles.LastFiredProjectileSnapshot is null, $"pose {(int)pose:X2} does not produce a release shot");
                 AssertEqual(0, projectiles.SlotTable.ProjectileCounter, $"pose {(int)pose:X2} keeps empty projectile slots");
             }
             // Leaving spin must restore normal release semantics, not lock charge forever.

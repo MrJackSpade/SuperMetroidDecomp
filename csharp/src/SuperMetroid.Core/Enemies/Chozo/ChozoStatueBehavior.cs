@@ -464,9 +464,4 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ResetChozoStatueRoomState(request.Services);
     }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

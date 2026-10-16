@@ -164,9 +164,4 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
             _extensions[slotIndex] = new AtomicExtensionWords();
     }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

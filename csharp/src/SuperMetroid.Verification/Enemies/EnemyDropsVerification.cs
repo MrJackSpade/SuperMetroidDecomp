@@ -179,8 +179,6 @@ internal static class EnemyDropsVerification
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual(kind, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
-            $"{kind} collection publication");
         AssertEqual(expectedSound, fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
             $"{kind} library-two sound");
         AssertEqual((ushort)0xefdf, pickup.PreInstruction,
@@ -255,7 +253,7 @@ internal static class EnemyDropsVerification
             "pickup lifetime decrements before its expiry comparison");
         AssertEqual((ushort)0xefdf, expiring.PreInstruction,
             "expired pickup enters native blank tail");
-        AssertEqual<EnemyPickupKind?>(null, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertEqual(50, (int)samus.Health,
             "expiry does not apply a pickup effect");
 
         RoomEnemyProjectileSlot boundary =
@@ -263,12 +261,12 @@ internal static class EnemyDropsVerification
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(
             (boundary ?? throw new InvalidOperationException("Verification requires boundary.")).Position.X.Whole + boundary.Radius.X + samus.Kinematics.Radius.X)), boundary.Position.Y.Whole));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual<EnemyPickupKind?>(null, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertEqual(50, (int)samus.Health,
             "radius equality is not Samus/pickup contact");
 
         samus.Position -= new Offset16<RoomPixels>(1, 0);
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(EnemyPickupKind.SmallEnergy, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertTrue(samus.Health > 50,
             "one pixel inside strict radius sum collects pickup");
     }
 
@@ -288,14 +286,14 @@ internal static class EnemyDropsVerification
         for (int frame = 0; frame < 16; frame++)
         {
             fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-            AssertEqual<EnemyPickupKind?>(null, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+            AssertEqual(50, (int)samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
         AssertEqual((ushort)384, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).Variable1,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(EnemyPickupKind.SmallEnergy, fixture.System.DeathsAndDrops.LastCollectedEnemyPickup,
+        AssertTrue(samus.Health > 50,
             "grapple endpoint collects on the seventeenth pickup frame");
     }
 

@@ -171,7 +171,9 @@ internal static class GrappleFlarePresentationVerification
         var game = new SuperMetroidGame(bus);
         game.Session.runtime = runtime;
         byte[] original = Draw(runtime);
-        AssertTrue(runtime.ActorDrawing.LastGrappleFlareDrawn, "Real actor fixture reaches Grapple flare path");
+        samus.Grapple.FlareCounter = 0;
+        AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real actor fixture reaches Grapple flare path");
+        samus.Grapple.FlareCounter = 2;
         game.BindArtwork(game.Artwork with
         {
             ChargeFlareCompositions = stock,

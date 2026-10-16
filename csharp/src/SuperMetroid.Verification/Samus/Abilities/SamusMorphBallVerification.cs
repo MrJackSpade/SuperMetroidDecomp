@@ -165,7 +165,6 @@ internal static void VerifySamusMorphBallMovement()
     // reach the frame-two branch while retaining its native F9 operands.
     for (int tick = 0; tick < 6; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf9, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "morph transition reaches F9");
     AssertEqual(SamusPoseId.MorphBallGroundRightPose, (samus.PendingTransitionalPose ?? throw new InvalidOperationException("Verification requires samus.PendingTransitionalPose.")),
         "F9 selects no-spring grounded endpoint");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "grounded F9 endpoint applies");

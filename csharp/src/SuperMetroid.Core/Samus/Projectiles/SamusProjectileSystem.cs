@@ -105,12 +105,6 @@ public sealed class SamusProjectileSystem
     public SamusProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Newly allocated projectile before its first pre-instruction, or null when this frame
-    /// did not fire. This deliberately survives same-frame collision/window deletion.
-    /// </summary>
-    public SamusProjectileSpawnSnapshot? LastFiredProjectileSnapshot { get; private set; }
-
-    /// <summary>
     /// Executes the palette half of <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D for the equipped beam: sixteen
     /// words into sprite palette six, CGRAM colors $E0-$EF. Its characters are not copied: the projectile OBJ
     /// pages bind the equipped beam's characters (<see cref="SuperMetroid.Core.Samus.Artwork.ProjectileObjectPages"/>).
@@ -395,10 +389,6 @@ public sealed class SamusProjectileSystem
         bool projectileDeleted = false;
         bool persistentMemoryCorrupted = false;
         List<SamusSoundRequest>? comboSounds = null;
-
-        LastFiredProjectileSnapshot = firedSlot is { } newSlot
-            ? new SamusProjectileSpawnSnapshot()
-            : null;
 
         // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
         // Bombs were handled by the companion class first; preserve the ordinary half's
@@ -771,7 +761,6 @@ public sealed class SamusProjectileSystem
         Earthquakes.EarthquakeType = 0;
         Earthquakes.EarthquakeTimer = 0;
         LastFrameResult = default;
-        LastFiredProjectileSnapshot = null;
     }
 
 }

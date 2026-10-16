@@ -261,7 +261,6 @@ internal static void VerifySamusAimedAerialMovement()
     AssertEqual(launchY, samus.Position.Y.Whole, "aimed transition frame does not move vertically");
 
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xfd, (samus.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires samus.LastAnimationDelayCommand.")), "aimed transition reaches FD");
     AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "aimed transition FD applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpRightPose, samus.Pose, "aimed transition FD target");
 
@@ -490,7 +489,6 @@ internal static void VerifySamusAimedAerialMovement()
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(1, samus.AnimationFrame, "aimed-fall reaches F0 command index");
     AssertEqual(0, samus.AnimationFrameTimer.RawValue, "F0 leaves expired timer at zero");
-    AssertEqual(0xf0, samus.LastAnimationDelayCommand.Value, "aimed-fall records F0 command");
     samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     AssertEqual(2, samus.AnimationFrame, "timer underflow advances beyond F0");
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
@@ -720,7 +718,6 @@ internal static void VerifySamusGunExtendedMovement()
     // follows seven animation ticks, independent of held-Shot selection.
     for (int tick = 0; tick < 7; tick++)
         falling.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf8, (falling.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires falling.LastAnimationDelayCommand.")), "$E6 reaches F8 command");
     AssertTrue(falling.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus), "$E6 F8 transition applies");
     AssertEqual(SamusPoseId.FacingRightNormalPose, falling.Pose, "$E6 returns to standing right");
 

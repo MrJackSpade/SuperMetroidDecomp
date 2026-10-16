@@ -81,7 +81,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
     internal static void ResetCrawlerVelocitiesFromProperties(RoomEnemySlot slot)
     {
-
         if (slot.Parameter1 != CrawlerSpeedDefinitions.PreserveVelocity)
         {
             if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
@@ -577,15 +576,5 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.Spritemap,
                 (cue, _) => ApplyCrawlerCue(state, cue));
         state.Program = cursor;
-    }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

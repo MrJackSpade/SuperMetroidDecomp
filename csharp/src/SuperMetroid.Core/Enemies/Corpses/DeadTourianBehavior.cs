@@ -299,11 +299,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         ResetDeadTourianCorpseRoomState();
     }
 
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
-
     /// <summary>Routes bomb hits through the shared shot callback, which begins decomposition.</summary>
     internal static void RegisterDeadTourianBombReactions(EnemySharedReactions table)
     {

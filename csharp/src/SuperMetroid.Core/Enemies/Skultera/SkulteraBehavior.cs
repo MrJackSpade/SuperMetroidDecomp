@@ -238,9 +238,4 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
             _extensions[slotIndex] = new SkulteraExtensionWords();
     }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

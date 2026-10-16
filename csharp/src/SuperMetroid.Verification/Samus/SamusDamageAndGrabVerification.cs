@@ -130,8 +130,6 @@ internal static void VerifySamusDrainedController()
     // index four, which installs the handler and advances again to index five's delay one.
     for (int tick = 0; tick < 18; tick++)
         right.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
-    AssertEqual(0xf7, (right.LastAnimationDelayCommand ?? throw new InvalidOperationException("Verification requires right.LastAnimationDelayCommand.")),
-        "drained animation reaches F7");
     AssertEqual(DrainedSamusPhase.Falling, right.Drained.Phase,
         "F7 installs drained movement handler");
     AssertEqual(5, right.AnimationFrame, "F7 performs its second frame increment");

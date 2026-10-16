@@ -487,14 +487,4 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunSbugMain(slot, frame.Samus, frame.Level);
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

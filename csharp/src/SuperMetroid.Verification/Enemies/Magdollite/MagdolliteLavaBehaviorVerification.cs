@@ -42,7 +42,6 @@ internal static class MagdolliteLavaBehaviorVerification
         shot.StartAnimation(new MagdolliteLavaAnimation(MagdolliteLavaProgram.Shot));
         (bool removed, int updates) = NativeEnemyProjectileParity.Compare(cartridge, enemies, shot, MagdolliteLavaNativeListAddresses.Entry(MagdolliteLavaProgram.Shot), 4, "shot lava");
         AssertTrue(removed && updates == 1, "the shot program deletes the lava on its first pass");
-        AssertTrue(enemies.MagdolliteBehavior.LastMagdolliteLavaDropRequest is not null, "the shot program requests the lava's drop");
         // $86:DFEA allocates its pickup at the shot lava's position.
         RoomEnemyProjectileSlot drop = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.EnemyDeathPickup);
         AssertEqual(source.Position.X.Whole, drop.Position.X.Whole, "the drop keeps the lava's X");

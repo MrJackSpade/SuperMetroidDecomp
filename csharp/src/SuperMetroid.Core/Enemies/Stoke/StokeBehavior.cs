@@ -291,14 +291,4 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         // Stoke's $DBB6 helper is another byte-for-byte clone of Cacatac's $DAC2 cull.
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
-
-    /// <inheritdoc/>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

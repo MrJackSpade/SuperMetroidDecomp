@@ -200,14 +200,4 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         AdvanceZoaAnimation(slot);
     }
-
-    /// <summary>Discards state tied to enemy slots before a new room population is initialized.</summary>
-    public void ResetForRoomLoad(IRoomEnemyLoad request)
-    {
-    }
-
-    /// <summary>Zoa has no species-wide frame work; each slot advances through its registered main AI.</summary>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
-    }
 }

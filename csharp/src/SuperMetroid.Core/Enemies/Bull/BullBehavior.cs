@@ -16,7 +16,6 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BullEntity(this, slot, common);
 
-
     /// <summary>Each Bull acceleration or deceleration tick changes the 8.8 rate by $0018.</summary>
     private const ushort BullAccelerationDelta = 24;
     /// <summary>Bulls wait sixteen enemy frames before retargeting Samus.</summary>
@@ -282,10 +281,5 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int slot = 0; slot < _extensions.Length; slot++)
             _extensions[slot] = new BullExtensionWords();
-    }
-
-    /// <inheritdoc/>
-    public void BeginEnemyFrame(RoomEnemyFrame frame)
-    {
     }
 }

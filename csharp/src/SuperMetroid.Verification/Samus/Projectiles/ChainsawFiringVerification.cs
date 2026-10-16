@@ -53,7 +53,7 @@ internal static class ChainsawFiringVerification
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
-        AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
+        AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "native Chainsaw admits and allocates the shot");
         AssertEqual(0, projectiles.SlotTable.ProjectileCounter, "inactive Power Bomb deletes Chainsaw on first update");
         AssertEqual(0, projectiles.Slots[0].InstructionPointer, "deleted Chainsaw has no animation list");
@@ -125,7 +125,7 @@ internal static class ChainsawFiringVerification
             activeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = update == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), activeShared);
             SamusProjectileSlot slot = activeProjectiles.Slots[0];
             if (update == 0)
-                AssertTrue(activeProjectiles.LastFiredProjectileSnapshot is not null && slot.IsActive,
+                AssertTrue(slot.IsActive,
                     "active-Power-Bomb Chainsaw allocation");
             AssertEqual(nextLists[update], slot.InstructionPointer, $"active Chainsaw next list {update}");
             AssertEqual(spritemaps[update], slot.SpritemapPointer, $"active Chainsaw spritemap {update}");

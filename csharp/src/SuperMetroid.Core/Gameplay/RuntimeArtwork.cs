@@ -19,6 +19,25 @@ namespace SuperMetroid.Core.Gameplay;
 /// </summary>
 internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource
 {
+    /// <summary>The installed HUD atlas <see cref="HudCharacters"/> was built from, so a rebind rebuilds it.</summary>
+    [NonSerialized] private HudTileAtlas? hudCharactersSource;
+    /// <summary>The installed two-bpp BG3 characters (HUD, minimap and message glyphs) as background artwork; null until bound.</summary>
+    [field: NonSerialized]
+    internal BgArtwork? HudCharacters
+    {
+        get
+        {
+            if (MapPresentation?.HudTiles is not { } atlas)
+                return null;
+            if (!ReferenceEquals(atlas, hudCharactersSource))
+            {
+                field = new BgArtwork(new BgArtworkId(BgArtworkKind.HudCharacters), 2, atlas.Transfer.Span);
+                hudCharactersSource = atlas;
+            }
+            return field;
+        }
+    }
+
     /// <summary>Resolves a legacy native-source DMA record from currently installed artwork.</summary>
     bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
         TryResolveInstalledArtwork(sourceAddress, byteCount, out data);

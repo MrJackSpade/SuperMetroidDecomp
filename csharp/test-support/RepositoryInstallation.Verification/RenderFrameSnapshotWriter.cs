@@ -180,6 +180,25 @@ internal static class RenderFrameSnapshotWriter
         }
     }
 
+    /// <summary>Writes a background layer: source, artwork, grid, origin and scanline band.</summary>
+    private static void WriteBgLayer(PacketWriter writer, BgLayer layer)
+    {
+        writer.Write((int)layer.Source.Kind); writer.Write(layer.Source.Instance);
+        writer.Write((int)layer.Artwork.Id.Kind); writer.Write(layer.Artwork.Id.Variant);
+        writer.Write((byte)layer.Artwork.BitsPerPixel);
+        writer.Write(layer.Artwork.Characters.Length);
+        writer.Write(layer.Artwork.Characters);
+        writer.Write(layer.Size.X);
+        WriteCount(writer, layer.Cells.Length);
+        foreach (BgCell cell in layer.Cells)
+        {
+            writer.Write(checked((ushort)cell.Character)); writer.Write(cell.Palette); writer.Write(cell.Priority);
+            writer.Write((ushort)cell.Flip);
+        }
+        writer.Write(layer.Origin.X); writer.Write(layer.Origin.Y);
+        writer.Write(checked((ushort)layer.FirstScanline)); writer.Write(checked((ushort)layer.EndScanline));
+    }
+
     /// <summary>Writes an operation count after enforcing the format's maximum.</summary>
     private static void WriteCount(PacketWriter writer, int count)
     {
@@ -283,8 +302,8 @@ internal static class RenderFrameSnapshotWriter
                 break;
             case MessageBoxRenderLayer message:
                 writer.Write((byte)RenderPacketLayerKind.MessageBox);
-                writer.Write((byte)message.RowCount); writer.Write((byte)message.RadiusPixels);
-                foreach (ushort tile in message.Tilemap) writer.Write(tile);
+                writer.Write((byte)message.RadiusPixels);
+                WriteBgLayer(writer, message.Text);
                 break;
             case ScanlineColorAddRenderLayer windows:
                 writer.Write((byte)RenderPacketLayerKind.ScanlineColorAdd);

@@ -64,7 +64,7 @@ internal static class ColorWindowSmokeTests
             ushort[] tiles = Enumerable.Range(0, rows * 32).Select(_ => (ushort)random.Next(65536)).ToArray();
             var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(32, 32), null),
-                    new MessageBoxRenderLayer(tiles, radius) }, 3, 13));
+                    GameplayMessageBoxRendererConstants.Layer(tiles, radius, memory.Vram) }, 3, 13));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
         }

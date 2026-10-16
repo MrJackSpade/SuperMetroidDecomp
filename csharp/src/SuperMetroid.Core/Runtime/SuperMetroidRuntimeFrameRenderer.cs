@@ -184,7 +184,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         // message is active. Its scanline-window result belongs above every room-specific
         // compositor and haze path, so one shared overlay covers ordinary and Mode-7 rooms.
         if (live.MessageBox is { } message)
-            GameplayMessageBoxRenderer.Composite(pixels, message, vram, cgram);
+            GameplayMessageBoxRenderer.Composite(pixels, message, cgram);
 
         // The suit transformation begins only after its bank-$85 message has completely
         // closed. Its bank-$88 window then overlays every ordinary/Mode-7 room through the

@@ -43,10 +43,6 @@ public static class GameplayMessageRomData
         public const int SaveSelectionYesSourceWord = 32;
         /// <summary>Source word index of the selected-NO row.</summary>
         public const int SaveSelectionNoSourceWord = 64;
-        /// <summary>VRAM word base of the message-box BG3 character graphics.</summary>
-        public const ushort CharacterBaseWord = 0x4000;
-        /// <summary>Mask removing the native VRAM increment-mode bit from a destination word.</summary>
-        public const int VramWordMask = 0x7fff;
         /// <summary>Vertical screen coordinate around which the message window expands.</summary>
         public const int WindowCenterY = 124;
     }

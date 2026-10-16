@@ -91,7 +91,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     SoftwareBgColorMathRenderer.Composite(output, memory.Vram, memory.Cgram, bgMath);
                     break;
                 case MessageBoxRenderLayer message:
-                    GameplayMessageBoxRenderer.Composite(output, message, memory.Vram, memory.Cgram);
+                    GameplayMessageBoxRenderer.Composite(output, message, memory.Cgram);
                     break;
                 case ScanlineColorAddRenderLayer colorWindows:
                     SoftwareScanlineColorRenderer.Composite(output, colorWindows);

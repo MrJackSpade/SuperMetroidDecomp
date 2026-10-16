@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–30
+# Portable display fixtures (.smframe), versions 1–31
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 30, reader supports 1 through 30 |
+| Version | UInt16; writer emits 31, reader supports 1 through 31 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -54,6 +54,26 @@ the current model's treatment of unused large sprites.
 Versions 11 through 29 add the layer kinds and fields named by the feature-version
 constants in `RenderPacketFormat`; each reader branch is gated on its constant.
 
+### Background layers (version 31)
+
+Version 31 carries the message overlay's text as an owned background layer, so it reads no VRAM. A background
+layer is encoded as:
+
+| Field | Encoding |
+| --- | --- |
+| Source | Int32 kind (0: message box), Int32 instance |
+| Artwork identity | Int32 kind (0: HUD characters), Int32 variant |
+| Bits per pixel | Byte, 2 or 4 |
+| Artwork | Int32 byte count, then whole planar characters (16 or 32 bytes each) |
+| Width | UInt16 cells per row |
+| Cells | Int32 count (whole rows), then per cell: UInt16 character, Byte palette row 0–7, Boolean priority, UInt16 flip bits ($4000 horizontal, $8000 vertical) |
+| Origin | UInt16 X, UInt16 Y of the top-left cell, signed 16-bit screen pixels |
+| Scanline band | UInt16 first, UInt16 end (exclusive) |
+
+A cell's color is its palette row times 4 (2 bpp) or 16 (4 bpp) plus the character's nonzero color index. A cell
+naming a character past the artwork is rejected. Readers of versions 7–30 build the text layer from the packet's
+VRAM: the 1024 2-bpp characters from word $4000.
+
 ### Sprite draws (version 30)
 
 Version 30 appends the frame's whole-frame sprite draws to every memory image,
@@ -87,7 +107,8 @@ Every record begins with a byte discriminator:
 | 7: 2-bpp viewport (version 4+) | UInt16 tilemap word, character word, vertical scroll; boolean transparent color zero; byte priority selector |
 | 8: ordinary gameplay base (version 5+) | Register block and optional HDMA tables described below |
 | 9: scanline color add (version 6+) | Exactly 224 rows, each five bytes: left, right, red, green, blue |
-| 10: message overlay (version 7+) | Byte row count (3–6), byte radius (0–24), then row count times 32 UInt16 tile words |
+| 10: message overlay (version 31+) | Byte radius (0–24), then the text as a background layer (see Background layers) |
+| 10: message overlay (versions 7–30) | Byte row count (3–6), byte radius (0–24), then row count times 32 UInt16 tile words naming BG3 characters at VRAM word $4000 |
 | 11: BG color math (version 8+) | UInt16 tilemap/character words; Int32 map height in tiles and first scanline; byte equation; 224 pairs of UInt16 X/Y scroll registers |
 | 12: Mode-7 gameplay bands (version 9+) | Mode-7 registers, HUD registers, optional Mode-1 floor band, as below |
 | 13: BG subscreen add (version 10+) | UInt16 tilemap/character words; boolean coverage-present; optional kind-3 BG4 descriptor |

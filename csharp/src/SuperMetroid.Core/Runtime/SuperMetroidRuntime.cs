@@ -1151,7 +1151,7 @@ public sealed class SuperMetroidRuntime
             CeresHazeRenderSnapshot.Capture(CeresHaze),
             Artwork.MapPresentation?.RoomFxPaletteBlends,
             PowerBombRenderSnapshot.Capture(BombProjectiles.PowerBombExplosion),
-            GameplayMessageBoxRenderer.Capture(MessageBox),
+            GameplayMessageBoxRenderer.Capture(MessageBox, Artwork.HudCharacters),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
             SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep, _addressSpace),
             TourianStatues.Enabled);

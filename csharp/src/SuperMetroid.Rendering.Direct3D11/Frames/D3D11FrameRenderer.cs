@@ -52,6 +52,10 @@ public sealed class D3D11FrameRenderer : IDisposable
     private readonly ID3D11ShaderResourceView memoryView;
     /// <summary>The scene's whole-frame sprite draws, bound at register t1.</summary>
     private readonly D3D11SpriteDrawBuffer spriteDraws;
+    /// <summary>The scene's published background layers, bound at register t2.</summary>
+    private readonly D3D11BgLayerBuffer bgLayers;
+    /// <summary>Each packed background layer's shader index, for the dispatch that draws it.</summary>
+    private readonly Dictionary<SuperMetroid.Core.Assets.BgLayer, int> bgLayerIndices = new(ReferenceEqualityComparer.Instance);
     /// <summary>Per-pixel resolved OBJ winner shared across priority passes.</summary>
     private readonly ID3D11Texture2D resolvedObjects;
     /// <summary>Compute write view for resolved OBJ winners.</summary>
@@ -105,6 +109,7 @@ public sealed class D3D11FrameRenderer : IDisposable
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
             memoryView = Own(owner.Device.CreateShaderResourceView(memoryBuffer));
             spriteDraws = Own(new D3D11SpriteDrawBuffer(owner.Device));
+            bgLayers = Own(new D3D11BgLayerBuffer(owner.Device));
             resolvedObjects = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
                 SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
             objectView = Own(owner.Device.CreateUnorderedAccessView(resolvedObjects));
@@ -308,22 +313,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.Dispatch(32, 28, 1);
     }
 
-    /// <summary>Uploads centered message tile rows and the expanding window's scanline bounds.</summary>
+    /// <summary>Draws the message text layer from t2 with bank $85's two temporary palette colors.</summary>
     private unsafe void DispatchMessage(MessageBoxRenderLayer layer)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Message;
-        data[1] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RowCount * 4);
-        data[2] = GameplayMessageRomData.Layout.CharacterBaseWord;
-        data[3] = (uint)layer.RowCount;
+        data[1] = (uint)bgLayerIndices[layer.Text];
         data[10] = GameplayMessageRomData.Palette.TemporaryLightColor.ToWord();
         data[11] = GameplayMessageRomData.Palette.TemporaryDarkColor.ToWord();
         data[12] = GameplayMessageRomData.Palette.TemporaryLightIndex;
         data[13] = GameplayMessageRomData.Palette.TemporaryDarkIndex;
-        data[25] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RadiusPixels);
-        data[26] = (uint)(GameplayMessageRomData.Layout.WindowCenterY + layer.RadiusPixels);
-        for (int i = 0; i < layer.Tilemap.Length; i++)
-            data[D3D11ShaderLayout.ScanlineParametersWordOffset + i * 4] = layer.Tilemap[i];
+        data[25] = 0;
+        data[26] = SnesPpuLayout.ScreenHeightPixels;
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
@@ -468,10 +469,18 @@ public sealed class D3D11FrameRenderer : IDisposable
         fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
         spriteDraws.Pack(scene.Memory.SpriteDraws.AsSpan());
         fixed (uint* source = spriteDraws.Upload) UploadBuffer(spriteDraws.Buffer, (nint)source, spriteDraws.Upload.Length * sizeof(uint));
+        var sceneBgLayers = new List<SuperMetroid.Core.Assets.BgLayer>();
+        bgLayerIndices.Clear();
+        foreach (RenderLayer layer in scene.Layers)
+            if (layer is MessageBoxRenderLayer message && bgLayerIndices.TryAdd(message.Text, sceneBgLayers.Count))
+                sceneBgLayers.Add(message.Text);
+        bgLayers.Pack(sceneBgLayers);
+        fixed (uint* source = bgLayers.Upload) UploadBuffer(bgLayers.Buffer, (nint)source, bgLayers.Upload.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetShaderResource(1, spriteDraws.View);
+        owner.Context.CSSetShaderResource(2, bgLayers.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop, new D3D11TileDispatch());
@@ -643,6 +652,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
         owner.Context.CSSetShaderResource(1, spriteDraws.View);
+        owner.Context.CSSetShaderResource(2, bgLayers.View);
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.CSSetUnorderedAccessView(1, objectView);
     }

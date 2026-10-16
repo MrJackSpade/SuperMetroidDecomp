@@ -157,8 +157,8 @@ public sealed class RidleyEnemyState
     public bool Mode7Active { get; internal set; }
     /// <summary>Gets whether the Ceres getaway table reached its terminator and released the active transform.</summary>
     public bool Mode7Finished { get; internal set; }
-    /// <summary>Gets the even byte offset into Ceres's getaway motion table, advanced by two each update.</summary>
-    public ushort Mode7TableByteIndex { get; internal set; }
+    /// <summary>Gets the frame index into Ceres's getaway motion table, advanced by one each update (native byte offset twice this).</summary>
+    public int Mode7TableIndex { get; internal set; }
     /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
     public SnesAngle Mode7Angle { get; internal set; }
     /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>

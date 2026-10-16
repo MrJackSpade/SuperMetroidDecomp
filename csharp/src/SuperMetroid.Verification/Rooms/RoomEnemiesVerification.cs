@@ -1202,11 +1202,11 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.CeresRidleyBehavior.RunCeresRidleyGetawayRoomMain(samus, 0);
     }
     ushort expectedX = 0xff80, expectedY = 0x20;
-    for (ushort curveOffset = 0; curveOffset < 224; curveOffset += 2)
+    for (int curveIndex = 0; curveIndex < 112; curveIndex++)
     {
-        if (curveOffset != 0)
+        if (curveIndex != 0)
             GetawayFrame();
-        var curve = CeresRidleyGetawayDefinitions.FromByteIndex(curveOffset);
+        var curve = CeresRidleyGetawayDefinitions.FromIndex(curveIndex);
         expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
         expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
         AssertEqual(curve.Zoom, state.Mode7Zoom, "Ceres real getaway zoom publication");

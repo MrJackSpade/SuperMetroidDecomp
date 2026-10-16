@@ -79,16 +79,16 @@ internal static class CeresRidleyMode7ColorsVerification
         enemies.Presentation._cgram = cgram;
         Action<ushort> select = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;
         var visited = new HashSet<int>();
-        for (ushort byteIndex = 0; byteIndex < 224; byteIndex += 2)
+        for (int index = 0; index < 112; index++)
         {
-            CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromByteIndex(byteIndex);
+            CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromIndex(index);
             int row = SnesLittleEndian.HighByte(frame.Zoom);
             visited.Add(row);
             select(frame.Zoom);
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
                 AssertEqual(edited.CeresRidleyMode7Colors.Resolve(row, color),
                     cgram.Colors[CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color],
-                    $"Ceres Mode-7 frame {byteIndex / 2}, row {row}, color {color}");
+                    $"Ceres Mode-7 frame {index}, row {row}, color {color}");
         }
         AssertEqual(CeresRidleyPaletteRomData.Mode7ZoomRowCount, visited.Count,
             "native getaway selects every extracted zoom row");

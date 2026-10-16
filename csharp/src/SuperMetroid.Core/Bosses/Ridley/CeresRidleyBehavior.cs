@@ -1473,7 +1473,7 @@ internal sealed class CeresRidleyBehavior
     {
         state.Mode7Active = true;
         state.Mode7Finished = false;
-        state.Mode7TableByteIndex = 0;
+        state.Mode7TableIndex = 0;
         state.Mode7Angle = SnesAngle.FromRaw(1);
         state.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
         state.Mode7Zoom = 2048;
@@ -1513,21 +1513,21 @@ internal sealed class CeresRidleyBehavior
         SamusState? samus,
         ushort nmiFrameCounter)
     {
-        ushort tableByteIndex = state.Mode7TableByteIndex;
-        state.Mode7TableByteIndex = unchecked((ushort)(tableByteIndex + 2));
+        int tableIndex = state.Mode7TableIndex;
+        state.Mode7TableIndex = tableIndex + 1;
 
         // HandleCeresRidleyGetawayCutscene queues the departure sound on the first table
         // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
-        // byte index preserves the same one-shot behavior after saves/replays and pauses.
-        if (tableByteIndex == 0)
+        // table index preserves the same one-shot behavior after saves/replays and pauses.
+        if (tableIndex == 0)
             _audio.QueueEnemySound(SoundEffectLibrary2Sounds.CeresRidleyGetaway, maximumQueued: 6);
 
-        // At byte index $D0, `$90:E119` replaces Samus's movement/hack handlers so the
+        // At frame $68 (byte index $D0), `$90:E119` replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her from the following frame onward.
-        if (tableByteIndex == 208 && samus is not null)
+        if (tableIndex == 104 && samus is not null)
             samus.CeresRidleyEjection.Request(samus);
 
-        var frame = CeresRidleyGetawayDefinitions.FromByteIndex(tableByteIndex);
+        var frame = CeresRidleyGetawayDefinitions.FromIndex(tableIndex);
         ushort zoom = frame.Zoom;
         if (zoom == CeresRidleyGetawayDefinitions.Finished)
         {

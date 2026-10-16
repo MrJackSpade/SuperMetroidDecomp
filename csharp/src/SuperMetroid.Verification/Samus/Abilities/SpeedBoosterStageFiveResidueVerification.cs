@@ -47,7 +47,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         enemies.Presentation._cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Room.Mode7QueueResidue = residue;
-        var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
+        var state = new RidleyEnemyState { Mode7TableIndex = 1 };
 
         // The first NMI advances both: capsule phase one, then wing frame one.
         enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway(state, null, 0);

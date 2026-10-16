@@ -7,11 +7,10 @@ public static class CeresRidleyGetawayDefinitions
     public const ushort Finished = 0xffff;
 
     /// <summary>Preserves the serialized native byte index, including its terminal entry.</summary>
-    public static CeresRidleyGetawayFrame FromByteIndex(ushort byteIndex)
+    public static CeresRidleyGetawayFrame FromIndex(int frame)
     {
-        if ((byteIndex & 1) != 0 || byteIndex > 224)
-            throw new InvalidDataException($"Ceres Ridley getaway byte index ${byteIndex:X4} is outside its authored even entries.");
-        int frame = byteIndex >> 1;
+        if (frame is < 0 or > 112)
+            throw new InvalidDataException($"Ceres Ridley getaway frame {frame} is outside its authored entries.");
         if (frame == 112)
             return new(Finished, Offset16<Mode7Pixels>.Zero);
         int zoom = frame switch

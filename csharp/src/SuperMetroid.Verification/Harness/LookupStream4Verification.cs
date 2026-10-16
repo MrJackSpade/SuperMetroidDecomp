@@ -1304,7 +1304,7 @@ internal static class LookupStream4Verification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Room.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, ushort> tick = enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway;
-        var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
+        var state = new RidleyEnemyState { Mode7TableIndex = 1 };
         byte[] untouched = new byte[SnesVram.ByteCount];
         Array.Fill(untouched, (byte)0x5a);
         int expectedPhase = 0;

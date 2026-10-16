@@ -132,7 +132,7 @@ internal sealed class EnemyInstructionInterpreter
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
         if (_motherBrainEncounter.MotherBrain is not null)
         {
-            WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+            StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int index = 0; index < words.Length; index++)
                 bg2[destinationWord + index] = words[index];
         }

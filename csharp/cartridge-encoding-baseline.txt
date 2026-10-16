@@ -521,7 +521,7 @@ csharp/src/SuperMetroid.Verification/Enemies/EnemyDefinitionsVerification.cs	SME
 csharp/src/SuperMetroid.Verification/Enemies/EnemyDropChanceDefinitionsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyDropsVerification.cs	SME6340	41
 csharp/src/SuperMetroid.Verification/Enemies/EnemyDropsVerification.cs	SME6342	3
-csharp/src/SuperMetroid.Verification/Enemies/EnemyEffectIsolationVerification.cs	SME6340	7
+csharp/src/SuperMetroid.Verification/Enemies/EnemyEffectIsolationVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Enemies/EnemyEffectResourcesVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Enemies/EnemyEffectsFixtureVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Enemies/EnemyFireballLaunchDefinitionsVerification.cs	SME6340	7

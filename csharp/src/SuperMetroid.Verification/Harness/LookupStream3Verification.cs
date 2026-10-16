@@ -1437,9 +1437,8 @@ internal static class LookupStream3Verification
         for (ushort y = 0; y < 48; y++)
         foreach (bool move in new[] { false, true })
         {
-            var actual = new TestAddressSpace();
-            WorkRamByteTable actualTiles = new EnemyScratchMemory(actual).MotherBrainCorpseTiles;
-            WorkRamByteTable expectedTiles = new EnemyScratchMemory(new TestAddressSpace()).MotherBrainCorpseTiles;
+            StagingByteView actualTiles = new EnemyStagingSurfaces().MotherBrainCorpseTiles;
+            StagingByteView expectedTiles = new EnemyStagingSurfaces().MotherBrainCorpseTiles;
             for (int offset = 0; offset < 0x600; offset++)
             {
                 byte value = (byte)(offset * 37 + 11);

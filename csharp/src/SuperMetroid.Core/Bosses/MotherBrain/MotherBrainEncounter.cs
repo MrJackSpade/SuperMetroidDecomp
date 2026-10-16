@@ -120,9 +120,8 @@ internal sealed class MotherBrainEncounter
             throw new InvalidDataException(
                 $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
         }
-        // The live $7E:9000 corpse buffer reaches VRAM through the ordinary mode-1 DMA.
-        _presentation.Vram.ExecuteQueuedMemoryWrite(
-            SnesMemoryBusRequirement.Require(_room.LoadedBus, "Mother Brain's mutable sprite transfer requires WRAM."),
+        // The mutable $7E:9000 corpse buffer reaches VRAM through the ordinary mode-1 DMA.
+        _room.Staging.LoadNativeTransfer(_presentation.Vram,
             unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination);
     }
 

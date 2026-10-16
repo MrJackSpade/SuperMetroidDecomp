@@ -150,7 +150,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Prepare the future body image without replacing the visible pipe background.
         // The phase-two transition owns the first transfer from staging into VRAM.
-        WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+        StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < MotherBrainBg2Definitions.ClearWordCount; index++)
             bg2[index] = MotherBrainBg2Definitions.BlankTile;
 
@@ -209,7 +209,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The cartridge seeds the complete future corpse effect during room load, not when
         // Mother Brain dies. Keeping this eager call preserves the exact WRAM state visible
         // throughout every earlier phase and prevents the death sequence from inventing it.
-        state.CorpseRotting.Initialize(_room.LoadedBus, _room.MotherBrainCorpseArtwork);
+        state.CorpseRotting.Initialize(_room.Staging, _room.MotherBrainCorpseArtwork);
 
         head.Health = 3000;
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
@@ -1634,7 +1634,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Body.Properties = sequence.BodyProperties;
             var words = new ushort[MotherBrainDeathRomData.Bg2LastByte / 2 + 1];
             Array.Fill(words, MotherBrainDeathRomData.EmptyBodyTile);
-            WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+            StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
                 bg2[i] = words[i];
             new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words);
@@ -2415,7 +2415,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native transition now requests the prepared enemy image, replacing the
         // room's pipe background before the articulated body becomes visible.
         var words = new ushort[state.EnemyBg2TilemapSize / 2];
-        WorkRamWordTable bg2 = _room.Scratch.EnemyBg2Tilemap;
+        StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
         for (int index = 0; index < words.Length; index++)
             words[index] = bg2[index];
         new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words);
@@ -4026,7 +4026,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(_room.MotherBrainCorpseArtwork);
+        var sequence = new MotherBrainRainbowBeamAttackSequence(_room.MotherBrainCorpseArtwork, _room.Staging);
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         // Word $0FF2 keeps the fake-death ascent dust's last value; the death explosions
         // start from it. Word $0FF0 then holds a bank-$A9 sub-function pointer, always

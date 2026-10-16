@@ -65,7 +65,7 @@ internal static class MotherBrainTankBackgroundVerification
             "The later crouched body upload contains exactly its authored BG2 words");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
-        ushort ReadStaged(int index) => new EnemyScratchMemory(bus).EnemyBg2Tilemap[index];
+        ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index];
     }
 
     /// <summary>Runs the ascent mask capture using the initialized Mother Brain room.</summary>

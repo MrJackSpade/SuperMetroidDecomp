@@ -229,7 +229,7 @@ internal static class CpuBusBoundaryVerification
         AssertEqual((ushort)0x1234, new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Read(), "loaded-item count is a $7E:D91A word");
         AssertEqual((byte)8, bus.ReadWorkRamByte(SaveMirrorWorkRamAddresses.Events.Address + 7), "event bitset lands at $7E:D820");
 
-        var scratch = new EnemyScratchMemory(bus);
+        var scratch = new EnemyStagingSurfaces();
         AssertThrows<InvalidDataException>(() => scratch.RotTable(0x8ffc, 2), "a rot table must lie inside the rotting heap");
         scratch.CorpseTiles.WriteWord(0x10, 0x4321);
         AssertEqual((ushort)0x4321, scratch.EnemyBg2Tilemap[8], "corpse tiles and the enemy BG2 image share $7E:2000");

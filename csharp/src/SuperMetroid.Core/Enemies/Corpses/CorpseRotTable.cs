@@ -10,12 +10,12 @@ public readonly struct CorpseRotTable
     public const int EntryByteCount = 4;
 
     /// <summary>Byte-addressed view of the shared corpse-rotting heap.</summary>
-    private readonly WorkRamByteTable bytes;
+    private readonly StagingByteView bytes;
     /// <summary>Start of this enemy's rot entries within the heap view.</summary>
     private readonly int firstByte;
 
     /// <summary>Creates a nonempty table view at the caller's validated heap offset.</summary>
-    internal CorpseRotTable(WorkRamByteTable bytes, int firstByte, ushort entryCount)
+    internal CorpseRotTable(StagingByteView bytes, int firstByte, ushort entryCount)
     {
         if (entryCount == 0)
             throw new ArgumentOutOfRangeException(nameof(entryCount));

@@ -95,7 +95,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The cutscene shares the same $7E:2000 scratch surface as corpse-rotting code.
         // Initialization clears every byte, descending by words in the original routine.
-        _room.Scratch.ShitroidScratch.Fill(0);
+        _room.Staging.ShitroidScratch.Fill(0);
 
         // `$2000` is the scheduler's instruction-processing bit; `$1000` blocks plasma
         // from piercing the actor. The upstream C symbol calls `$2000` DisableSamusColl,

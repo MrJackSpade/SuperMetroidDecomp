@@ -49,12 +49,8 @@ internal sealed class EnemyRoomBinding
         Artwork?.MotherBrainCorpse ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
-    /// <summary>The room's live WRAM, required for enemy staging.</summary>
-    internal ISnesMemoryBus MemoryBus =>
-        SnesMemoryBusRequirement.Require(LoadedBus, "Enemy staging requires live WRAM.");
-
-    /// <summary>The enemy staging surfaces in live WRAM.</summary>
-    internal EnemyScratchMemory Scratch => new(MemoryBus);
+    /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
+    internal EnemyStagingSurfaces Staging { get; } = new();
 
     /// <summary>The bound address space; enemy work requires a loaded room population.</summary>
     internal ISnesAddressSpace LoadedBus =>

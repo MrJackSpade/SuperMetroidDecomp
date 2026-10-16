@@ -18,4 +18,13 @@ public readonly record struct VramWriteEntry(
 
     /// <summary>Whether the transfer writes zero bytes instead of reading a source.</summary>
     public bool ZeroFill { get; init; }
+
+    /// <summary>
+    /// The owned buffer the transfer reads when the queue drains, in place of the WRAM its native
+    /// <see cref="SourceAddress"/> names; null for bus, asset and zero-fill transfers.
+    /// </summary>
+    public VramStagingBuffer? Staging { get; init; }
+
+    /// <summary>The first byte of <see cref="Staging"/> the transfer reads.</summary>
+    public int StagingOffset { get; init; }
 }

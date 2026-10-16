@@ -17,7 +17,7 @@ internal static class WramHelperBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         VerifyWramWordMapping(memory);
 
-        Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler(memory));
+        Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler());
         Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection and corpse scheduling pass without a cartridge.");
     }
 
@@ -37,10 +37,10 @@ internal static class WramHelperBoundaryVerification
                 "WRAM helper rejects cartridge, SRAM and peripheral sources");
     }
 
-    /// <summary>Checks staggered corpse-row callbacks and sentinel writes in live WRAM.</summary>
-    private static void VerifyWramCorpseScheduler(SuperMetroidAddressSpace memory)
+    /// <summary>Checks staggered corpse-row callbacks and sentinel writes in the rotting heap.</summary>
+    private static void VerifyWramCorpseScheduler()
     {
-        CorpseRotTable table = new EnemyScratchMemory(memory).RotTable(0x9000, 3);
+        CorpseRotTable table = new EnemyStagingSurfaces().RotTable(0x9000, 3);
         CorpseRottingTableProcessor.Initialize(table);
         for (int index = 0; index < 3; index++)
             AssertEqual(new CorpseRottingTableEntry((short)(2 - index), (ushort)(2 * index)),

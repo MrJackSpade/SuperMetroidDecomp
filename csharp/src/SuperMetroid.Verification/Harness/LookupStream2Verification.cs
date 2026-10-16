@@ -937,7 +937,6 @@ internal static class LookupStream2Verification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
-        WorkRamByteTable corpseTiles = new EnemyScratchMemory(rom).CorpseTiles;
         var expected = new byte[0x1000];
         for (int row = 0; row < 12; row++)
         {
@@ -1023,6 +1022,7 @@ internal static class LookupStream2Verification
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureBus(rom);
+        StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
         corpseTiles.Fill(0);
         new Action(enemies.DeadTorizoBehavior.InitializeDeadTorizoGraphics)();
         Compare(expected, "Actual Dead Torizo installed-art crop");

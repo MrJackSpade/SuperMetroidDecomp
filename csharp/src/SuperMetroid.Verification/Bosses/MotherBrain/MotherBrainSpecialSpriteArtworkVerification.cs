@@ -33,10 +33,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var source = new TestAddressSpace();
-        WorkRamByteTable corpseTiles = new EnemyScratchMemory(source).MotherBrainCorpseTiles;
-        corpseTiles[0] = 0x5a;
         SeedMotherBrainCorpseCartridgeSentinel(source);
         var enemies = new RoomEnemySystem();
+        StagingByteView corpseTiles = enemies.Room.Staging.MotherBrainCorpseTiles;
+        corpseTiles[0] = 0x5a;
         var vram = new SnesVram();
         enemies.BindFixtureBus(new MutableCartridgeReadGuard(source));
         enemies.Presentation._vram = vram;
@@ -44,7 +44,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
             MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
-            "Mother Brain corpse tile transfer reads mutable WRAM");
+            "Mother Brain corpse tile transfer reads the mutable corpse staging");
         // #549 removed the cartridge fallback: an unbound cartridge source is refused.
         AssertThrows<InvalidDataException>(() => enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7001)),
             "Mother Brain refuses a cartridge-source transfer with no installed artwork binding");
@@ -270,12 +270,12 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             new MotherBrainSpriteTileTransferRequest(0, 1, 0xa0c000, 0x7000),
             "uncatalogued cartridge source does not fall back to ROM");
 
-        WorkRamByteTable corpseTiles = new EnemyScratchMemory(bus).MotherBrainCorpseTiles;
+        StagingByteView corpseTiles = enemies.Room.Staging.MotherBrainCorpseTiles;
         corpseTiles[0] = 0x5a;
         enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
                 MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
-            "installed Mother Brain still copies mutable corpse WRAM to VRAM");
+            "installed Mother Brain still copies the mutable corpse staging to VRAM");
     }
 
     /// <summary>Reads source bytes from retail data for independent VRAM transfer comparison.</summary>

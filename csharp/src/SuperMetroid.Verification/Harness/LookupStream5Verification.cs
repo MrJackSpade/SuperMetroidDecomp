@@ -1363,9 +1363,9 @@ internal static class LookupStream5Verification
         {
             bool alternate = variant != 0;
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            WorkRamByteTable corpseTiles = new EnemyScratchMemory(memory).CorpseTiles;
             var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
             enemies.BindFixtureBus(memory);
+            StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
             Action<ushort> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopperGraphics;
             byte[] expected = new byte[0x800];
             for (int row = 0; row < 5; row++)

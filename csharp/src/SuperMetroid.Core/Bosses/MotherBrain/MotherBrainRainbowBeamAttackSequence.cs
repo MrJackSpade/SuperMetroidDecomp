@@ -40,9 +40,20 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>Optional room artwork used to emit corpse tile transfers in installed rooms.</summary>
     private readonly RoomCharacterAtlas? _corpseArtwork;
 
-    /// <summary>Standalone cartridge fixtures omit artwork; installed rooms bind the PNG.</summary>
-    public MotherBrainRainbowBeamAttackSequence(RoomCharacterAtlas? corpseArtwork = null) =>
+    /// <summary>Standalone cartridge fixtures omit artwork and staging; installed rooms bind both.</summary>
+    public MotherBrainRainbowBeamAttackSequence(RoomCharacterAtlas? corpseArtwork = null,
+        EnemyStagingSurfaces? corpseStaging = null)
+    {
         _corpseArtwork = corpseArtwork;
+        BoundCorpseStaging = corpseStaging;
+    }
+
+    /// <summary>The room's enemy staging surfaces, which the corpse rotting rewrites; bound with the artwork.</summary>
+    private EnemyStagingSurfaces? BoundCorpseStaging { get; }
+
+    /// <summary>The bound staging surfaces; corpse rotting requires them.</summary>
+    private EnemyStagingSurfaces CorpseStaging => BoundCorpseStaging ?? throw new InvalidDataException(
+        "Mother Brain corpse rotting requires the room's enemy staging surfaces.");
 
     /// <summary>
     /// Body enemy-slot animation state. The caller advances its enemy-instruction stage
@@ -320,8 +331,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// Executes the corpse-table and graphics-buffer half of head initialization
     /// <c>$A9:8705-$870B</c>. A real encounter calls this once when the brain enemy spawns.
     /// </summary>
-    public void InitializeCorpseRotting(ISnesAddressSpace bus) =>
-        _corpseRotting.Initialize(bus, _corpseArtwork ?? throw new InvalidDataException(
+    public void InitializeCorpseRotting() =>
+        _corpseRotting.Initialize(CorpseStaging, _corpseArtwork ?? throw new InvalidDataException(
             "Mother Brain corpse rotting requires installed tile artwork."));
 
     /// <summary>
@@ -2027,10 +2038,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // start at a late phase. Nothing touches this private table/buffer in between,
                 // so the delayed call is state-equivalent while preventing a fake host setup.
                 if (!_corpseRotting.IsInitialized)
-                    InitializeCorpseRotting(bus);
+                    InitializeCorpseRotting();
 
                 MotherBrainCorpseRottingStepResult corpseRotting = _corpseRotting.Step(
-                    bus,
+                    CorpseStaging,
                     BrainPosition,
                     frame.RandomNumberSeed,
                     frame.MainEnemyExecutionCounter);

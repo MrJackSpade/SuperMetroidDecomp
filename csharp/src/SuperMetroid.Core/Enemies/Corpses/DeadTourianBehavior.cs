@@ -124,7 +124,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.VariableA = profile.WaitFunction;
         _extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(
-            _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
+            _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
     }
 
@@ -189,7 +189,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _room.Scratch.RotTable(state.TablePointer, state.EntryCount),
+            _room.Staging.RotTable(state.TablePointer, state.EntryCount),
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, move),
@@ -203,7 +203,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant,
         ReadOnlySpan<byte> installedTiles)
     {
-        WorkRamByteTable tiles = _room.Scratch.CorpseTiles;
+        StagingByteView tiles = _room.Staging.CorpseTiles;
         foreach (DeadTourianCorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)

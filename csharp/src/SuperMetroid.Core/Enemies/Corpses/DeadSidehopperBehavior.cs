@@ -168,7 +168,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         slot.SetSpeciesState(state);
 
         CorpseRottingTableProcessor.Initialize(
-            _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
+            _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadSidehopperGraphics(graphicsVariant);
         return state;
     }
@@ -457,7 +457,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _room.Scratch.RotTable(state.TablePointer, state.EntryCount),
+            _room.Staging.RotTable(state.TablePointer, state.EntryCount),
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, move),
@@ -474,7 +474,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         if (installedTiles.IsEmpty)
             throw new InvalidDataException("Dead sidehopper requires installed corpse artwork.");
 
-        WorkRamByteTable tiles = _room.Scratch.CorpseTiles;
+        StagingByteView tiles = _room.Staging.CorpseTiles;
         for (int row = 0; row < 5; row++)
         {
             var copy = DeadMonsterRottingDefinitions.SidehopperInitialCopy(graphicsVariant, row);
@@ -549,10 +549,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             return;
         foreach (VramWriteEntry transfer in _deadMonsters.VramTransfers)
         {
-            queue.Enqueue(
-                transfer.SizeInBytes,
-                transfer.SourceAddress,
-                VramDmaDestination.FromNative(transfer.EncodedVramDestination));
+            _room.Staging.EnqueueNativeTransfer(queue, transfer);
         }
     }
 

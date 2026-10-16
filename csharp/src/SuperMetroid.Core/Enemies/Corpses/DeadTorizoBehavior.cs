@@ -68,7 +68,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Dead Torizo requires native slot zero, not slot {slot.SlotIndex}.");
         }
 
-        _room.Scratch.CorpseTiles.Fill(0);
+        _room.Staging.CorpseTiles.Fill(0);
 
         slot.VariableA = (ushort)DeadTorizoFunction.Wait;
         slot.Properties = slot.Properties.With(
@@ -89,7 +89,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         };
 
         CorpseRottingTableProcessor.Initialize(
-            _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
+            _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadTorizoGraphics();
     }
 
@@ -158,7 +158,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         MoveBankA9EnemyWithVelocity(slot);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _room.Scratch.RotTable(state.TablePointer, state.EntryCount),
+            _room.Staging.RotTable(state.TablePointer, state.EntryCount),
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
@@ -240,7 +240,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
         if (installedTiles.IsEmpty)
             throw new InvalidDataException("Dead Torizo requires installed corpse artwork.");
-        WorkRamByteTable tiles = _room.Scratch.CorpseTiles;
+        StagingByteView tiles = _room.Staging.CorpseTiles;
         for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
         {
             DeadTorizoGraphicsCopy copy = DeadTorizoGeometryDefinitions.InitialCopy(row);
@@ -324,7 +324,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Eighteen tile rows are sixteen bytes apart in both the source sheet and the WRAM
         // heap surface. Only the first 16-bit bitplane word of each row is replaced.
-        WorkRamByteTable sand = _room.Scratch.DeadTorizoSand;
+        StagingByteView sand = _room.Staging.DeadTorizoSand;
         for (int row = 0; row < 18; row++)
         {
             int tileOffset = sourceOffset + row * 16;
@@ -368,10 +368,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         foreach (VramWriteEntry transfer in _deadTorizoFrameVramTransfers)
         {
-            queue.Enqueue(
-                transfer.SizeInBytes,
-                transfer.SourceAddress,
-                VramDmaDestination.FromNative(transfer.EncodedVramDestination));
+            _room.Staging.EnqueueNativeTransfer(queue, transfer);
         }
     }
 
@@ -399,11 +396,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Reads a little-endian corpse scratch word at a table-relative word offset.</summary>
     private ushort ReadWorkWord(int wordOffset) =>
-        _room.Scratch.CorpseTiles.ReadWord(wordOffset * 2);
+        _room.Staging.CorpseTiles.ReadWord(wordOffset * 2);
 
     /// <summary>Writes one corpse scratch word at a table-relative word offset.</summary>
     private void WriteWorkWord(int wordOffset, ushort value) =>
-        _room.Scratch.CorpseTiles.WriteWord(wordOffset * 2, value);
+        _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
 
     /// <summary>Applies the cartridge's unsigned-word two's-complement absolute operation.</summary>
     private static ushort NativeAbsolute(ushort value) =>

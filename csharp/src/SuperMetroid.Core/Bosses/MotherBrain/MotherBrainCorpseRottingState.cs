@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// This is deliberately a translation of the graphics algorithm, not a replacement fade.
 /// The retail routine treats every visible pixel row as a four-byte table entry, delays the
 /// rows by different amounts, and physically moves SNES 4bpp bitplane rows through a WRAM
-/// staging buffer. Six ordinary VRAM queue records then upload that changing buffer.
-/// Keeping the native WRAM addresses makes the result observable by the normal DMA path and
-/// by a debugger in exactly the same representation used by the cartridge.
+/// staging buffer. Six VRAM transfers then upload that changing buffer. The heap keeps the
+/// cartridge's byte layout, so the result is observable in exactly the representation the
+/// cartridge uses.
 /// </remarks>
 public sealed class MotherBrainCorpseRottingState
 {
-    /// <summary>One rot entry per visible pixel row of the table at <see cref="EnemyScratchWorkRam.MotherBrainRotTable"/>.</summary>
+    /// <summary>One rot entry per visible pixel row of the table at <see cref="EnemyStagingSurfaces.MotherBrainRotTable"/>.</summary>
     public const int EntryCount = 48;
 
     /// <summary>True after the head initialization equivalent at <c>$A9:8705</c>.</summary>
@@ -33,19 +33,16 @@ public sealed class MotherBrainCorpseRottingState
     public uint FinishedEntryCount { get; private set; }
 
     /// <summary>
-    /// Builds the native rot table and extracts the working corpse frame into WRAM.
+    /// Builds the native rot table and extracts the working corpse frame into the rotting heap.
     /// The initial pixels come exclusively from the installed, editable PNG.
     /// </summary>
-    public void Initialize(ISnesAddressSpace bus, RoomCharacterAtlas artwork)
+    public void Initialize(EnemyStagingSurfaces scratch, RoomCharacterAtlas artwork)
     {
-        Ensure.NotNull(bus);
+        Ensure.NotNull(scratch);
         Ensure.NotNull(artwork);
         ReadOnlySpan<byte> installedTiles = artwork.Transfer.Span;
         if (installedTiles.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
             throw new InvalidDataException("Installed Mother Brain corpse PNG has the wrong tile count.");
-
-        var scratch = new EnemyScratchMemory(
-            SnesMemoryBusRequirement.Require(bus, "Mother Brain corpse rotting requires live WRAM."));
 
         // `$DC40` starts at height-1 and writes four bytes per entry. Y decreases from the
         // corpse's bottom row to its top while the delay grows by two calls per entry.
@@ -53,7 +50,7 @@ public sealed class MotherBrainCorpseRottingState
 
         // MVN copies A+1 bytes. The lengths below already include that 65816 convention,
         // so a host loop uses `< Length` without adding another byte.
-        WorkRamByteTable tiles = scratch.MotherBrainCorpseTiles;
+        StagingByteView tiles = scratch.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
             for (int byteIndex = 0; byteIndex < MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row); byteIndex++)
@@ -71,12 +68,12 @@ public sealed class MotherBrainCorpseRottingState
 
     /// <summary>Runs one exact call of <c>ProcessCorpseRotting</c> for Mother Brain.</summary>
     public MotherBrainCorpseRottingStepResult Step(
-        ISnesAddressSpace bus,
+        EnemyStagingSurfaces scratch,
         Position16<RoomPixels> brainPosition,
         ushort randomNumberSeed,
         ushort mainEnemyExecutionCounter)
     {
-        Ensure.NotNull(bus);
+        Ensure.NotNull(scratch);
         if (!IsInitialized)
         {
             throw new InvalidOperationException(
@@ -85,9 +82,7 @@ public sealed class MotherBrainCorpseRottingState
 
         ProcessCallCount++;
         var dustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
-        var scratch = new EnemyScratchMemory(
-            SnesMemoryBusRequirement.Require(bus, "Mother Brain corpse rotting requires live WRAM."));
-        WorkRamByteTable tiles = scratch.MotherBrainCorpseTiles;
+        StagingByteView tiles = scratch.MotherBrainCorpseTiles;
 
         bool stillRotting = CorpseRottingTableProcessor.Step(
             scratch.MotherBrainRotTable,
@@ -128,7 +123,7 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>Copies both 4bpp plane words to the next visible pixel row in
     /// each eligible corpse column, optionally clearing the source afterward.
     /// Rows six and seven continue in the next tile row using native offsets.</summary>
-    internal static void CopyOrMovePixelRow(WorkRamByteTable tiles, ushort yOffset, bool move)
+    internal static void CopyOrMovePixelRow(StagingByteView tiles, ushort yOffset, bool move)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index
         // by two because each 4bpp bitplane row stores a 16-bit planes-0/1 word.

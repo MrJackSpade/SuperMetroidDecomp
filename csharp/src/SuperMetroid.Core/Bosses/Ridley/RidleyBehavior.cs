@@ -1135,55 +1135,38 @@ internal sealed class RidleyBehavior : IEnemySpecies
             .ApplyHealth(_presentation.Cgram, row);
     }
 
-    /// <summary>Registers room-load setup for Ridley's body and breakup explosion actors.</summary>
-    internal void RegisterRidleyInitializationAi(EnemyAiTable table)
-    {
+    /// <summary>Ports Lower Norfair Ridley's initialization AI.</summary>
+    internal void RunRidleyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+        InitializeNorfairRidley(slot);
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ridley, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNorfairRidley(slot);
-        });
+    /// <summary>Ports the breakup explosion actor's initialization AI.</summary>
+    internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+        InitializeNorfairRidleyExplosion(
+            slot,
+            _slotTable._slots[0],
+            _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
+                "A Ridley breakup actor has no shared Ridley owner."));
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_RidleyExplosion, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNorfairRidleyExplosion(
-                slot,
-                _slotTable._slots[0],
-                _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
-                    "A Ridley breakup actor has no shared Ridley owner."));
-        });
-    }
+    /// <summary>Ports Lower Norfair Ridley's main AI.</summary>
+    internal void RunRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) =>
+        RunNorfairRidleyMain(
+            slot,
+            frame.Samus,
+            frame.ControllerInput,
+            frame.Level,
+            frame.SamusProjectiles,
+            frame.SharedProjectiles,
+            frame.Camera);
 
-    /// <summary>Registers body and breakup actor main routines with the enemy dispatcher.</summary>
-    internal void RegisterRidleyMainAi(EnemyAiTable table)
-    {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Ridley, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunNorfairRidleyMain(
-                slot,
-                frame.Samus,
-                frame.ControllerInput,
-                frame.Level,
-                frame.SamusProjectiles,
-                frame.SharedProjectiles,
-                frame.Camera);
-        });
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_RidleyExplosion, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunNorfairRidleyExplosionMain(slot);
-        });
-    }
+    /// <summary>Ports the breakup explosion actor's main AI.</summary>
+    internal void RunRidleyExplosionMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1) => RunNorfairRidleyExplosionMain(slot);
 
     /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their bank-$A6 lists (#641).</summary>
-    internal void RegisterRidleyTypedAnimations(EnemyAiTable table)
-    {
-        table.AddTypedAnimation(slot => IsRidleyDefinition(slot.EnemyDefinitionPointer),
-            (slot, context) => AdvanceRidleyBodyAnimation(slot, context.Samus));
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion,
-            (slot, context) => AdvanceRidleyBreakupAnimation(slot));
-    }
+    internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        AdvanceRidleyBodyAnimation(slot, context.Samus);
+
+    /// <summary>Runs the breakup explosion actor's typed program.</summary>
+    internal void AdvanceRidleyBreakupTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) => AdvanceRidleyBreakupAnimation(slot);
     /// <summary>
     /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c> at $A6:BD2C, run before the function on
     /// every main and even hurt frame. It reads $0CEE, which is set as soon as a power bomb is
@@ -1705,4 +1688,48 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.SharedProjectiles ?? throw new InvalidOperationException(
                 "Ridley's power-bomb check ($A6:BD2C) requires the shared projectile owner."),
             frame.Camera));
+
+    /// <summary>The callback of the first Ridley hitbox the probe overlaps, or null outside its compiled frames.</summary>
+    internal static bool? FindRidleyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(RidleyBehavior.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
+            enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
+            (RidleyCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
+            probe.ArtworkInstalled)))
+            return null;
+
+        // The OAM component offsets in an installed composition are editable.
+        // Contact and shot collision instead use the eleven fixed cartridge
+        // body frames and their engine-owned hitbox lists.
+        foreach (RidleyCollisionComponent component in
+                 RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
+            foreach (RidleyCollisionHitbox hitbox in
+                     RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
+
+    /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
+    internal static void RegisterRidleyPowerBombReactions(EnemyAiTable table) =>
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
+                                                               EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RidleyPowerBomb)
+        {
+            ExemptFromGenericDeath = true,
+        });
 }

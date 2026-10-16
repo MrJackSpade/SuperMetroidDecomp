@@ -57,6 +57,9 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     }
 
     /// <inheritdoc/>
+    public bool OwnsSamusTouch => false;
+
+    /// <inheritdoc/>
     public void ResolveAfterSamusContact(SamusState samus)
     {
     }

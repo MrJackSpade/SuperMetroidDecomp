@@ -124,7 +124,7 @@ internal sealed class EnemyCollision
             // solved tail tip. EnemyMain dispatches its body at this same pre-AI seam;
             // tail processing checks the tip later. Do not flatten either to the header's
             // dummy 8x8 radius here. An actor with no translated touch reaction is skipped.
-            if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
+            if (slot.Entity is IEnemyContactHooks { OwnsSamusTouch: true } ||
                 slot.Properties.HasAny(EnemyProperties.Deleted) ||
                 (slot.Entity as IEnemyTouchReaction)?.FindTouch() is not { } touch)
             {
@@ -208,7 +208,7 @@ internal sealed class EnemyCollision
             // engine's explicit empty spritemap sentinel $804D and property $0400. Keeping
             // these meanings separate mirrors the bank-$A0 list/collision machinery. An actor
             // with no translated shot reaction is skipped.
-            if (enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ||
+            if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots() ||
                 CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(enemy.SpritemapPointer) ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(
@@ -219,9 +219,6 @@ internal sealed class EnemyCollision
                 continue;
             }
 
-            // An occupant may refuse shots before common shot AI (the powered work robot before Phantoon's defeat).
-            if (enemy.Entity is IEnemyShotAdmission admission && !admission.AdmitsShots())
-                continue;
 
             if (reaction.SkipsEnemy?.Invoke(enemy) == true)
                 continue;
@@ -928,36 +925,6 @@ internal sealed class EnemyCollision
         // A species with engine-owned geometry answers for its own frames; null means none covers this frame.
         if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxCallback(target, out callback) is { } owned)
             return owned;
-
-        if (RidleyBehavior.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
-            enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
-            (RidleyCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
-             _room.Artwork is not null))
-        {
-            // The OAM component offsets in an installed composition are editable.
-            // Contact and shot collision instead use the eleven fixed cartridge
-            // body frames and their engine-owned hitbox lists.
-            foreach (RidleyCollisionComponent component in
-                     RidleyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (RidleyCollisionHitbox hitbox in
-                         RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
 
         throw new InvalidDataException(
             $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} extended collision frame " +

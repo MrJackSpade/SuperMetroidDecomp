@@ -10,6 +10,9 @@ internal interface IEnemyContactHooks : IEnemyEntity
     /// <param name="frame">The enemy frame.</param>
     void ResolveBeforeOrdinaryHits(ISnesAddressSpace bus, RoomEnemyFrame frame);
 
+    /// <summary>Whether the occupant resolves its own Samus touch, so the ordinary touch pass skips it.</summary>
+    bool OwnsSamusTouch { get; }
+
     /// <summary>Runs after the ordinary Samus contact pass.</summary>
     /// <param name="samus">Samus.</param>
     void ResolveAfterSamusContact(SamusState samus);

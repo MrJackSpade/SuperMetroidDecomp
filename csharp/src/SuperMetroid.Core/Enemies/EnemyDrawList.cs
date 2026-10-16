@@ -108,13 +108,10 @@ internal sealed class EnemyDrawList
                     slot.ShakeTimer = slot.ShakeTimer.Decrement().Remaining;
                 }
                 ushort drawPaletteIndex = SelectCommonEnemyDrawPalette(slot);
-                if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer))
-                {
-                    // Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the
-                    // common WriteEnemyOams pass emits the extended body. Appending these
-                    // here preserves both that OAM order and the enemy's normal layer queue.
-                    _ceresRidleyBehavior.DrawRidleySupplementalSprites(oam, slot, camera);
-                }
+                // An occupant may draw supplemental sprites before the common writer emits its body (Ridley's tail
+                // and wings), preserving both that OAM order and the enemy's normal layer queue.
+                if (slot.Entity is IEnemyDrawHooks drawHooks)
+                    drawHooks.DrawBeforeBody(oam, camera);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = slot.SpritemapPointer, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = slot.VramTilesIndex });
@@ -180,8 +177,8 @@ internal sealed class EnemyDrawList
     /// </remarks>
     private ushort SelectCommonEnemyDrawPalette(RoomEnemySlot slot)
     {
-        if (RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) && _ridleyEncounter.Ridley is not null)
-            return _ridleyEncounter.Ridley.CommonDrawPaletteIndex;
+        if (slot.Entity is IEnemyDrawHooks drawHooks && drawHooks.CommonDrawPaletteIndex() is { } owned)
+            return owned;
 
         if (!slot.FlashTimer.IsZero && (_frameContext._randomEnemyCounter & 2) != 0)
             return 0;

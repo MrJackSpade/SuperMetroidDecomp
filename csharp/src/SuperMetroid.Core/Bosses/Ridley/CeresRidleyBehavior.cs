@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
@@ -1095,25 +1097,13 @@ internal sealed class CeresRidleyBehavior
             c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
     }
 
-    /// <summary>Binds the Ceres enemy header to the bank-$A6 Ridley initializer.</summary>
-    internal void RegisterCeresRidleyInitializationAi(EnemyAiTable table)
-    {
+    /// <summary>Ports Ceres Ridley's initialization AI (the bank-$A6 Ridley initializer for the Ceres header).</summary>
+    internal void RunCeresRidleyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+        InitializeCeresRidley(slot);
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Ridley, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCeresRidley(slot);
-        });
-    }
-
-    /// <summary>Binds Ceres Ridley's main dispatcher to the enemy AI table.</summary>
-    internal void RegisterCeresRidleyMainAi(EnemyAiTable table)
-    {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_RidleyCeres, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
-        });
-    }
+    /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
+    internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) =>
+        RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
 
     /// <summary>Native wing frame deltas selected from Ridley's movement speed.</summary>
     private static readonly ushort[] CeresRidleyWingAnimationDeltas =

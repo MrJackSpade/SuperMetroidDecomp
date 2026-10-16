@@ -20,7 +20,7 @@ internal static class OwnedReflectionAnalyzerTests
     {
         const string reflection = OwnedReflectionAnalyzer.ReflectionId;
 
-        // SME6370: any lookup through typeof(owned) or owned.GetType(), public or not.
+        // SME6373: any lookup through typeof(owned) or owned.GetType(), public or not.
         Expect("static class T { static object? R() => typeof(C).GetField(\"x\", BindingFlags.Instance | BindingFlags.NonPublic); }",
             reflection, 1, "C.GetField");
         Expect("static class T { static object? R() => typeof(C).GetProperty(\"P\"); }", reflection, 1, "C.GetProperty");

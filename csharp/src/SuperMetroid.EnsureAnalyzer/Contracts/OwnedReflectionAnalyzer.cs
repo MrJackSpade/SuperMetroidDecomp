@@ -20,7 +20,7 @@ namespace SuperMetroid.EnsureAnalyzer.Contracts;
 public sealed class OwnedReflectionAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>A reflective member lookup, constructor bypass or string type lookup that reaches owned or non-public state.</summary>
-    public const string ReflectionId = "SME6370";
+    public const string ReflectionId = "SME6373";
 
     /// <summary>An <c>[UnsafeAccessor]</c> declaration that reaches into an owned type.</summary>
     public const string UnsafeAccessorId = "SME6371";

@@ -65,7 +65,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor EnumNumericFormatRule = new(
         EnumNumericFormatId,
         "Enum interpolated with a numeric format string",
-        "'{0}' is a {1} formatted as '{2}'; enums accept only G, D, X and F, so this throws FormatException. Format the underlying value instead",
+        "'{0}' is a {1} formatted as '{2}'; enums accept only G, D, X and F, so this throws FormatException. Format the underlying value instead.",
         "Correctness",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
@@ -275,7 +275,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         if (candidates.IsEmpty)
             return;
         var uses = new Dictionary<IParameterSymbol, List<ITypeSymbol?>>(SymbolEqualityComparer.Default);
-        var gate = new Lock();
+        var gate = new object();
         context.RegisterOperationAction(operationContext =>
         {
             var reference = (IParameterReferenceOperation)operationContext.Operation;
@@ -312,7 +312,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static void AnalyzeMaskedComparisons(OperationBlockStartAnalysisContext context)
     {
         var tests = new Dictionary<ILocalSymbol, HashSet<object?>>(SymbolEqualityComparer.Default);
-        var gate = new Lock();
+        var gate = new object();
         context.RegisterOperationAction(operationContext =>
         {
             var binary = (IBinaryOperation)operationContext.Operation;
@@ -409,7 +409,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private sealed class CompilationDomainFlow
     {
         /// <summary>Serializes evidence collected by concurrent operation callbacks.</summary>
-        private readonly Lock _gate = new();
+        private readonly object _gate = new();
         /// <summary>Groups named-constant comparisons by storage symbol and declaring catalog.</summary>
         private readonly Dictionary<(ISymbol Subject, INamedTypeSymbol Catalog), (HashSet<string> Names, Location First)> _comparisons =
             new(new SubjectCatalogComparer());
@@ -578,7 +578,11 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         {
             if (Subject(operation) is { } symbol && IsIntegral(operation.Type))
                 lock (_gate)
-                    _domainUses.TryAdd(symbol, how);
+                {
+                    // The first use wins (netstandard2.0 has no Dictionary.TryAdd).
+                    if (!_domainUses.ContainsKey(symbol))
+                        _domainUses.Add(symbol, how);
+                }
         }
 
         /// <summary>Reconciles compilation-wide evidence and reports catalog comparisons, literal domains, and primitive interludes.</summary>

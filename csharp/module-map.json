@@ -26,7 +26,8 @@
     { "path": "csharp/src/SuperMetroid.ReachabilityAudit", "namespace": "SuperMetroid.ReachabilityAudit", "role": "tooling", "references": [], "support": ["WindowsConsole"] },
     { "path": "csharp/src/SuperMetroid.ResourceAudit", "namespace": "SuperMetroid.ResourceAudit", "role": "tooling", "references": ["SuperMetroid.Core", "SuperMetroid.Tooling", "SuperMetroid.AssetExtraction"] },
 
-    { "path": "csharp/src/SuperMetroid.EnsureAnalyzer", "namespace": "SuperMetroid.EnsureAnalyzer", "role": "analyzer", "references": [] },
+    { "path": "csharp/src/SuperMetroid.EnsureAnalyzer", "namespace": "SuperMetroid.EnsureAnalyzer", "role": "analyzer", "references": [],
+      "mirrors": { "Polyfills": "System" } },
     { "path": "csharp/src/SuperMetroid.EnsureAnalyzer.CodeFixes", "namespace": "SuperMetroid.EnsureAnalyzer.CodeFixes", "role": "analyzer", "references": ["SuperMetroid.EnsureAnalyzer"] },
 
     { "path": "csharp/src/SuperMetroid.Verification", "namespace": "SuperMetroid.Verification", "role": "verification", "references": ["SuperMetroid.Diagnostics", "SuperMetroid.Core", "SuperMetroid.Tooling", "SuperMetroid.AssetExtraction"],

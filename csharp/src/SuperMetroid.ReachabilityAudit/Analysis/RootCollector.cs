@@ -32,6 +32,12 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     {
         if (compilation.GetEntryPoint(CancellationToken.None) is { } entry)
             AddRoot(EntryPointKey(entry, project.Name), production);
+        // The compiler references an owned IsExternalInit polyfill through every init accessor's modreq; no source names it.
+        if (compilation.GetTypeByMetadataName("System.Runtime.CompilerServices.IsExternalInit") is { } isExternalInit &&
+            SymbolEqualityComparer.Default.Equals(isExternalInit.ContainingAssembly, compilation.Assembly) &&
+            identity.Key(isExternalInit) is { } isExternalInitKey &&
+            AllTypes(compilation.Assembly.GlobalNamespace).Any(type => type.GetMembers().OfType<IMethodSymbol>().Any(method => method.IsInitOnly)))
+            AddRoot(isExternalInitKey, production);
         foreach (var type in AllTypes(compilation.Assembly.GlobalNamespace))
         {
             if (identity.Key(type) is not { } typeKey)

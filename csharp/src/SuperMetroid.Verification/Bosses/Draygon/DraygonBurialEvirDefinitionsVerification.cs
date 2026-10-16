@@ -21,7 +21,6 @@ internal static class DraygonBurialEvirDefinitionsVerification
         const int positionTable = 0xa5a1c7;
         const int angleTable = 0xa5a1df;
         const int spriteSlotCount = 32;
-        BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int entry = 0; entry < 6; entry++)
         {

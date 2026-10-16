@@ -130,7 +130,6 @@ internal static class SaveSchemaTranslationVerification
         var ending = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
         ending.BindPaletteFxColors(SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         ending.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
         ending.phaseTimer = 1;
         frontend.Session.endingCredits = ending;

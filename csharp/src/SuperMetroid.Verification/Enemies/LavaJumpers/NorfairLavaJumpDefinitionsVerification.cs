@@ -15,7 +15,6 @@ internal static class NorfairLavaJumpDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jump definitions")]
     internal static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort selector = 0; selector < 4; selector++)
         {

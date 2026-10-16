@@ -27,7 +27,6 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Suite(nameof(WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations), () => WalkingSpacePirateAnimationsVerification.VerifyWalkingSpacePirateAnimations(rom));
         Suite(nameof(VerifyProgram), () => VerifyProgram(
             WalkingSpacePirateProgram.WalkingLeft,

@@ -103,7 +103,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for complete Draygon intro trajectory")]
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);

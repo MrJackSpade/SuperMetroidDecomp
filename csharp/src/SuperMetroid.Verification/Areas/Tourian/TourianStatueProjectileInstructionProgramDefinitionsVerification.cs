@@ -28,7 +28,6 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
     internal static void VerifyTourianStatueProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < TourianStatueProjectileInstructionProgramDefinitions.MechanicsWordCount;
              index++)

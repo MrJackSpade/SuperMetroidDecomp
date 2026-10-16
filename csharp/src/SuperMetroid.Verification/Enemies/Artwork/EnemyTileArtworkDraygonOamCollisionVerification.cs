@@ -27,7 +27,6 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         var sporePointers = SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification.BodySpritemaps();
 
         var enemies = new RoomEnemySystem();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);

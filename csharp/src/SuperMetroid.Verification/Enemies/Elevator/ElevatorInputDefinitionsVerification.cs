@@ -26,7 +26,6 @@ internal static class ElevatorInputDefinitionsVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc")))));
         var bodyArtwork = SuperMetroid.AssetExtraction.Samus.SamusBodyArtworkFiles.Load(artworkDirectory.Root, null);
         const int inputTable = 0xa394e2;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort direction = 0; direction < 2; direction++)
         {

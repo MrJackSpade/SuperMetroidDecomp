@@ -13,20 +13,6 @@
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
-  <!-- #641/#223: every maintained project (production, verification and tooling) carries the cartridge-encoding
-       ratchet baseline, which activates SME6340-SME6345. The analyzers and the audit that writes the baseline
-       compile the detector's own sources and are not ratcheted: the audit must build before a baseline exists. -->
-  <ItemGroup Condition="!$(MSBuildProjectName.StartsWith('SuperMetroid.EnsureAnalyzer')) and '$(MSBuildProjectName)' != 'SuperMetroid.CartridgeEncodingAudit'">
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)cartridge-encoding-baseline.txt" />
-  </ItemGroup>
-  <!-- #1312: production Core carries the species-identity ratchet baseline, which activates SME6392-SME6393. -->
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SuperMetroid.Core'">
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)species-identity-baseline.txt" />
-  </ItemGroup>
-  <!-- #1320: production Core carries the CPU-bus declaration ratchet baseline, which activates SME6292-SME6293. -->
-  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SuperMetroid.Core'">
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)cpu-bus-declaration-baseline.txt" />
-  </ItemGroup>
   <!-- #626: every analyzed project carries the module map, which activates SME6402-SME6405 (namespace/path agreement,
        registered modules, Core layering and verification domains). The analyzer projects are checked by EnsureVerification. -->
   <ItemGroup Condition="!$(MSBuildProjectName.StartsWith('SuperMetroid.EnsureAnalyzer')) and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">

@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using SuperMetroid.EnsureAnalyzer.Modules;
-using SuperMetroid.EnsureVerification.CartridgeEncoding;
 using SuperMetroid.EnsureVerification.Harness;
 
 namespace SuperMetroid.EnsureVerification.Modules;
@@ -120,7 +119,7 @@ internal static class ModuleMapAnalyzerTests
     private static ImmutableArray<Diagnostic> Run(Compilation compilation, DiagnosticAnalyzer analyzer, bool withMap)
     {
         ImmutableArray<AdditionalText> additional = withMap
-            ? [new CartridgeEncodingAnalyzerTests.MemoryAdditionalText(Root + "/csharp/" + ModuleMap.FileName, Map)]
+            ? [new MemoryAdditionalText(Root + "/csharp/" + ModuleMap.FileName, Map)]
             : [];
         return compilation.WithAnalyzers([analyzer], new AnalyzerOptions(additional))
             .GetAnalyzerDiagnosticsAsync().GetAwaiter().GetResult();

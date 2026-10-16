@@ -16,7 +16,6 @@ internal static class CacatacMovementDefinitionsVerification
     internal static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int distanceTable = 0xa29f36;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

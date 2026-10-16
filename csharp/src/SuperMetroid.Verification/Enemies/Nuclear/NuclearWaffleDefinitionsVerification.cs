@@ -21,7 +21,6 @@ internal static class NuclearWaffleDefinitionsVerification
         const int endpointTable = 0xa695f6;
         const int spacingTable = 0xa695fe;
         const int thresholdTable = 0xa69606;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (byte direction = 0; direction < 2; direction++)
         {

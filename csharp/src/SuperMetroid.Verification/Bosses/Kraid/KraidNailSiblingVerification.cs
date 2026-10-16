@@ -62,7 +62,6 @@ internal static class KraidNailSiblingVerification
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidNailSiblingRomByte(rom, a), KraidNailSiblingRomByte(rom, a + 1)));
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.KraidBehavior.Kraid = state;
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.Kraid, enemies.SlotTable.Slots[0].Definition);

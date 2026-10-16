@@ -18,7 +18,6 @@ internal static class BabyMetroidHeadTargetVerification
     /// </summary>
     internal static void VerifyBabyMetroidHeadTarget()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

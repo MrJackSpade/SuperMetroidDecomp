@@ -21,7 +21,6 @@ internal static class UnpauseElevatorFlagsVerification
     internal static void VerifyUnpauseElevatorFlags()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();

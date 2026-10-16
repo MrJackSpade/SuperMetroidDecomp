@@ -94,9 +94,6 @@ checked by `SuperMetroid.EnsureVerification`.
 **SME6401** requires the file to be named after that type: `Type.cs`, or `Type.Purpose.cs` for a deliberate partial
 part. Files declaring no type (entry-point statements, assembly attributes) are not named by the rule.
 
-Because a file now identifies one type, the production magic-number audit keys each reviewed finding on its declaring
-type rather than its path, so moving or renaming a file keeps the finding's reviewed identity.
-
 ## Core source layout
 
 Core is organized by gameplay domain first and then by cohesive feature (#626). Each directory is a module whose

@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>Native addresses and sizes of the cartridge's two enemy staging surfaces in bank-$7E WRAM.</summary>
-[SnesEncodingOwner]
 internal static class EnemyStagingDefinitions
 {
     /// <summary><c>$7E:2000</c> <c>EnemyBG2Tilemap</c>, the start of group A.</summary>

@@ -47,7 +47,6 @@ internal static class EnemyEffectResourcesVerification
     /// <summary>Checks every dead Tourian corpse variant with absent artwork and unchanged enemy state.</summary>
     private static void VerifyDeadTourianMissingArtwork()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach ((EnemyDefinitionId definition, int variants) in new[] { (EnemyDefinitionId.CorpseZoomer, 3),
             (EnemyDefinitionId.CorpseRipper, 2), (EnemyDefinitionId.CorpseSkree, 3) })
         for (int variant = 0; variant < variants; variant++)

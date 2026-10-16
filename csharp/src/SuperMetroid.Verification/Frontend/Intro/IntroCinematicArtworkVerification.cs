@@ -256,7 +256,6 @@ internal static class IntroCinematicArtworkVerification
                     File.ReadAllBytes(dividerStockPath),
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                 ?? throw new InvalidDataException("Extracted opening divider is empty.");
-            const BindingFlags dividerSetupFlags = BindingFlags.Instance | BindingFlags.NonPublic;
             var nativeDividerState = CreateRetailIntroFixture();
             var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
             foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
@@ -426,7 +425,6 @@ internal static class IntroCinematicArtworkVerification
                     $"edited {name} reaches exactly its production BG page transfer");
                 if (page == 0)
                 {
-                    const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
                     var stockScene = CreateRetailIntroFixture(characterArtwork: stock);
                     var editedScene = CreateRetailIntroFixture(characterArtwork: edited);
                     foreach (IntroCinematicState scene in new[] { stockScene, editedScene })
@@ -497,7 +495,6 @@ internal static class IntroCinematicArtworkVerification
                 AssertTrue(restoredEarly.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"restored first narration/portrait state receives edited {name}");
 
-                const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
                 var restoredLate = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredLate.SetupFirstIllustratedPage();
                 byte[] lateBefore = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
@@ -745,7 +742,6 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeState = CreateRetailIntroFixture();
         var installedState = CreateRetailIntroFixture(characterArtwork: stock);
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         nativeState.SetupFirstIllustratedPage();
         installedState.SetupFirstIllustratedPage();
         ((nativeState.objects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
@@ -783,7 +779,6 @@ internal static class IntroCinematicArtworkVerification
         byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var state = CreateRetailIntroFixture(characterArtwork: stock);
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         state.SetupFirstIllustratedPage();
         state.SetupMotherBrainFlashback();
         AssertTrue(state.MotherBrainLevelData is not null &&
@@ -860,7 +855,6 @@ internal static class IntroCinematicArtworkVerification
                 $"intro Mother Brain palette edit preserves part {part} screen position");
 
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
@@ -943,7 +937,6 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed intro explosion actors never reread the twelve native compositions");
 
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })

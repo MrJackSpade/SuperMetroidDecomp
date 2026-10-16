@@ -95,6 +95,26 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   failures must catch them inside the test harness rather than leaking them from the
   process.
 
+## Analyzer findings are addressed, never grandfathered
+
+- Analyzers exist to find bad code so it gets resolved. Every build error and every
+  analyzer finding must be ADDRESSED: fix the code, or put a justification on that one
+  site stating why it cannot be fixed or why it is a false positive that does not violate
+  the spirit of the rule (for example `SuppressMessage` with a real `Justification`, a
+  same-line `#pragma warning disable` reason, or the rule's own boundary attribute with
+  its reason).
+- NEVER grandfather existing code. Do not create or extend any mechanism that excuses
+  findings in bulk: per-file allowed counts, baseline files, "may only shrink" lists,
+  accepted-fingerprint files, allow-lists kept as hooks, tools that regenerate allowances,
+  assembly- or namespace-wide suppressions, placeholder justifications such as
+  `<Pending>`, or severity downgrades (`NoWarn`, `WarningsNotAsErrors`, lowering a rule
+  below error) to keep a build green.
+- A new or tightened rule ships at full severity. If it fires on existing code, those
+  sites are fixed or individually justified as part of the same work; the rule does not
+  ship with exemptions for them.
+- If addressing every finding is genuinely too large for the current change, stop and
+  ask the user. Never resolve that tension by excusing the findings.
+
 ## Recorded-movie acceptance scope
 
 - For requested SMV/movie parity, replay the entire supplied recording through
@@ -267,9 +287,6 @@ constraint, not a side concern.
 - `tools/verify-all.ps1` is not a commit gate, a batch gate or a per-ticket gate. Run it
   only when the user asks. The script refuses a second start within 120 minutes of the
   previous one; a refused start is the rule working, not an obstacle to route around.
-- Do not run `CartridgeEncodingAudit --write` as a separate pre-commit step. It recompiles
-  the solution only to rewrite baseline files. Use it when a build or CI actually requires
-  a rewritten baseline, not as routine.
 - Do not invent pre-commit or per-batch checks of your own (for example a private "slice"
   or audit script run before every commit). Writing a new script is fine. Making it a
   recurring step is the user's decision.

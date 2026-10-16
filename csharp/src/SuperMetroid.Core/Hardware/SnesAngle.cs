@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Hardware;
 /// Keeping the fractional low byte allows grapple and neck motion to retain native 8.8
 /// angular precision while byte-angle callers share the same domain and named turns.
 /// </summary>
-[SnesEncodingOwner]
 public readonly record struct SnesAngle : IComparable<SnesAngle>
 {
     /// <summary>Number of high-byte sine-table units in one complete turn.</summary>

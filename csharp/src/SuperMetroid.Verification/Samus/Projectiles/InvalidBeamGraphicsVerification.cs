@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Assets;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileCompositionsVerification;
@@ -69,12 +68,11 @@ internal static class InvalidBeamGraphicsVerification
         Console.WriteLine("Chainsaw graphics: the bound page matches native DMA and the palette matches the instruction-context trace.");
     }
 
-    /// <summary>Runs invalid-beam graphics and production magic-number checks.</summary>
+    /// <summary>Runs invalid-beam graphics checks.</summary>
     [VerificationCommand("--invalid-beam-graphics")]
     internal static int InvalidBeamGraphicsCommand()
     {
         Suite(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

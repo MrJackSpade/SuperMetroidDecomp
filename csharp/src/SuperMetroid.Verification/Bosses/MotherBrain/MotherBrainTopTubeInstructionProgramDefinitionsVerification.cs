@@ -27,7 +27,6 @@ internal static class MotherBrainTopTubeInstructionProgramDefinitionsVerificatio
     internal static void VerifyMotherBrainTopTubeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
              index < MotherBrainTopTubeInstructionProgramDefinitionsTooling.MechanicsWordCount;
              index++)

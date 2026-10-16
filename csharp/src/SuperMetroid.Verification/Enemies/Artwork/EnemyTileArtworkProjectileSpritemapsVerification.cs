@@ -995,7 +995,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawBurst(EnemyTileArtworkCatalog artwork, ushort program,
             ISnesAddressSpace source)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
@@ -1030,7 +1029,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             // Typed programs (#641) present their frames by key; the rest still run their native lists.
             if (TypedProgramKinds.Contains(kind) || EnemyProjectileTypedStarts.Initial(kind) is not null)
                 return DrawPresentedFrame(artwork, operand, source, kind);
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
@@ -1067,7 +1065,6 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog artwork,
             ISnesAddressSpace source)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];

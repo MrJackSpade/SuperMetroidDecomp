@@ -141,7 +141,6 @@ internal static class MotherBrainCorpseArtworkVerification
     private static SnesVram TransferMotherBrainCorpsePages(
         EnemyTileArtworkCatalog artwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

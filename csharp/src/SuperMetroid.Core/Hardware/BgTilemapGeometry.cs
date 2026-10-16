@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Hardware;
 /// block stored row by row; screens are ordered left to right, then top to bottom.
 /// </summary>
 [PpuLayoutAccess]
-[SnesEncodingOwner]
 public readonly record struct BgTilemapGeometry
 {
     /// <summary>Validates a tilemap of 32 or 64 characters on each axis.</summary>

@@ -25,7 +25,6 @@ internal static class UnpauseReserveBlackoutVerification
     internal static void VerifyUnpauseReserveBlackout()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         (SuperMetroidGame Game, SuperMetroidRuntime Runtime) Create()
         {
             SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);

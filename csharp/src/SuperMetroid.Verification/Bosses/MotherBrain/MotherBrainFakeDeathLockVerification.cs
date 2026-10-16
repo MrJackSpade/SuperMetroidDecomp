@@ -32,7 +32,6 @@ internal static class MotherBrainFakeDeathLockVerification
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
         state.FunctionTimer = NativeCountdown.Start(0);
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
         AssertTrue(samus.InputLocked && samus.ScriptLocks.StationaryScriptControlLocked,
             "the descent locks Samus with command zero's stationary handlers");

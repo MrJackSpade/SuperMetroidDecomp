@@ -76,7 +76,7 @@ internal static class MiscDustProjectileBehaviorVerification
         NativeEnemyProjectileListGuard.Forbidding(rom, MiscDustProjectileNativeListAddresses.Extent, "misc dust")
             .AlsoForbidding(SuperMetroid.Verification.Bosses.MotherBrain.MotherBrainEffectNativeListAddresses.Extent, "Mother Brain effect");
 
-    /// <summary>A room enemy system on <paramref name="bus"/> whose random reads and draws return zero.</summary>
+    /// <summary>A room enemy system whose random reads and draws return zero.</summary>
     internal static RoomEnemySystem CreateRoomEnemySystem()
     {
         var enemies = new RoomEnemySystem();

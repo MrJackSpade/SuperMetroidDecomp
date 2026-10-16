@@ -42,7 +42,6 @@ internal static class DraygonTurretCadenceVerification
 
         // #1269: both goop instructions pass A=2 to $86:8027, which stores it as the speed
         // parameter. A prior turret spawn (speed 3) must not change the goop's velocity.
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         (ushort X, ushort XSub, ushort Y, ushort YSub, ushort Angle) SpawnGoop()
         {
             runtime.System.SetRandomNumber(0x1234);

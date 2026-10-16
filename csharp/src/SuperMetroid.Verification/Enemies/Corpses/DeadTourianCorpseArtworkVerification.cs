@@ -186,7 +186,6 @@ internal static class DeadTourianCorpseArtworkVerification
     private static EnemyStagingSurfaces InitializeDeadSidehopperArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork, ushort parameter)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -201,7 +200,6 @@ internal static class DeadTourianCorpseArtworkVerification
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork,
         EnemyDefinitionId definition, int variant)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

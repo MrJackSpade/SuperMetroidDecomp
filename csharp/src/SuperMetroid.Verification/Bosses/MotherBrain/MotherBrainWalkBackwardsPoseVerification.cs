@@ -12,7 +12,6 @@ internal static class MotherBrainWalkBackwardsPoseVerification
     /// </summary>
     internal static void VerifyMotherBrainWalkBackwardsPose()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         MotherBrainRainbowBeamAttackSequence Walking(ushort x, MotherBrainBodyPose pose)
         {

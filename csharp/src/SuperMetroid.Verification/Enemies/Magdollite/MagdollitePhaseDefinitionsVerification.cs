@@ -18,7 +18,6 @@ internal static class MagdollitePhaseDefinitionsVerification
         const int thresholdTable = 0xa8af55;
         const int instructionTable = 0xa8af67;
         const int overlayOffsetTable = 0xa8af79;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (int phaseIndex = 0; phaseIndex < 9; phaseIndex++)
         {

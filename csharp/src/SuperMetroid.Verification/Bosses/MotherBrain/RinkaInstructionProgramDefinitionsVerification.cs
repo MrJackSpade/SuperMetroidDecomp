@@ -57,7 +57,6 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         RinkaProgram program,
         bool special)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);

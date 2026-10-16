@@ -17,7 +17,6 @@ internal static class MotherBrainGlassShardDefinitionsVerification
     {
         Suite(nameof(VerifyGlassShardXPlacement), () => VerifyGlassShardXPlacement(rom));
         Suite(nameof(VerifyGlassShardYPlacement), () => VerifyGlassShardYPlacement(rom));
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewMotherBrainGlassShardReadGuard(rom);
 
         Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));

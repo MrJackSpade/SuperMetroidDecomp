@@ -30,7 +30,6 @@ internal static class TorizoInstructionVramArtworkVerification
         AssertTrue(stock.TorizoInstructionVram is not null,
             "installed Torizo instruction tile pages exist");
         var installedEnemies = new RoomEnemySystem { TileArtwork = stock };
-        const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         installedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedVram = new SnesVram();
         installedEnemies.Presentation._vram = installedVram;

@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Hardware;
 /// The native 8.8 layout as raw arithmetic (#223): whole units in the high byte and 1/256ths in the low byte, as
 /// 8.8 velocities, speeds and displacements keep them. The <c>int</c> overloads keep two's-complement sign.
 /// </summary>
-[SnesEncodingOwner]
 public static class SnesEightEight
 {
     /// <summary>Eight low bits represent one unit's fractional portion in a native 8.8 word.</summary>

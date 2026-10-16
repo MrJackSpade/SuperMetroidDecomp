@@ -17,7 +17,6 @@ internal static class DraygonEscapeDragVerification
     /// </summary>
     internal static void VerifyDraygonEscapeDrag()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

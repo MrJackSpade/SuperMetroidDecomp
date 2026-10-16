@@ -164,7 +164,6 @@ internal static class DeadTorizoArtworkVerification
         var installedBus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         var nativeTransfers = new List<VramWriteEntry>();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         Action<DeadTorizoEnemyState> buildInstalled =
@@ -236,7 +235,6 @@ internal static class DeadTorizoArtworkVerification
     private static RoomEnemySystem InitializeDeadTorizoArtwork(
         SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -247,7 +245,6 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>Invokes the live corpse behavior's sand-line copy for comparison with the independent oracle.</summary>
     private static void CopyDeadTorizoSandLine(RoomEnemySystem enemies, ushort line)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         new Action<ushort>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
     }
 
@@ -256,7 +253,6 @@ internal static class DeadTorizoArtworkVerification
         EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
         Position16<RoomPixels> camera)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();

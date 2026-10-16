@@ -14,7 +14,7 @@ internal static class SpcPortDefinitions
     internal const int DspCyclesPerDriverTick = 64;
 
     /// <summary>Added to the sound-effect timer accumulator per driver tick; its carry is a poll, every eighth tick.</summary>
-    internal const byte SoundEffectTimerStep = 0x20; // magic-number-audit: allow(AudioId) - SPC timer scale, not a sequence ID
+    internal const byte SoundEffectTimerStep = 0x20; // SPC timer scale, not a sequence ID
 
     /// <summary>The library-1 port value the driver publishes while it waits for an upload.</summary>
     internal const byte UploadReadyLibraryOnePort = 0xbb;

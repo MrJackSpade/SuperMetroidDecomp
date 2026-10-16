@@ -26,7 +26,6 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
     internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         Suite(nameof(VerifyFakeKraidProjectileMechanicsMapping), () => VerifyFakeKraidProjectileMechanicsMapping(rom));
         Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
 

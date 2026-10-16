@@ -181,7 +181,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire melting graphics production")]
     private static void VerifyCrocomireMeltingGraphicsProduction(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var artwork = InstalledFixtures.EnemyTiles;
         foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
         {
@@ -247,7 +246,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     internal static void VerifyCrocomireMeltingProductionSequence(
         SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var death = new CrocomireDeathState
         {
@@ -300,7 +298,6 @@ internal static class CrocomireMeltingDefinitionsVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static byte[] VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkCatalog artwork, CrocomireMeltingPass pass)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
@@ -340,7 +337,6 @@ internal static class CrocomireMeltingDefinitionsVerification
         CrocomireMeltingTilemapAddress source, CrocomireBodyProgram bodyProgram, bool compareRom = true)
     {
         int sourceAddress = (int)source;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
         var death = new CrocomireDeathState();

@@ -156,7 +156,6 @@ internal static class GrappleFlarePresentationVerification
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: roomAssets.InitialPalettes) { Artwork = { MapPresentation = maps } };
         roomAssets.Bind(runtime);
         runtime.Artwork.GrappleArtwork = grappleArtwork;

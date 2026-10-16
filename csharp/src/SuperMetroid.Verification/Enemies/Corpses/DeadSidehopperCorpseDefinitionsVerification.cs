@@ -75,7 +75,6 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         ushort graphicsVariant,
         DeadSidehopperCorpseDefinition expected)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;

@@ -157,7 +157,6 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
         enemies.Presentation._cgram = cgram;
@@ -297,7 +296,6 @@ internal static class LookupStream2Verification
         AssertTrue(expected.SequenceEqual(ProjectileSpriteDefinitions.NativePointers), "Projectile identity enumeration preserves native order");
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         var selected = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var frames = (System.Collections.IDictionary)selected.frames;
         int calculatedCompositions = 0;
         foreach (SpriteComposition composition in frames.Values)
@@ -506,7 +504,6 @@ internal static class LookupStream2Verification
         byte[] json = PauseBackdropExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseBackdropDocument>(json, ArtworkJson.Options);
         var stock = PauseBackdropPresentation.Load(new MemoryStream(json));
-        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         var areaResiduals = stock.areas;
         var buttonResiduals = stock.buttons;
         foreach (AreaId area in Enum.GetValues<AreaId>())
@@ -1020,7 +1017,6 @@ internal static class LookupStream2Verification
                     }))),
             }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         StagingByteView corpseTiles = enemies.Room.Staging.CorpseTiles;
         corpseTiles.Fill(0);
@@ -1076,7 +1072,6 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
         Action<RoomEnemySlot> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
         Action<RoomEnemySlot, YardEnemyState, ushort> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
@@ -1223,7 +1218,6 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
@@ -1300,7 +1294,6 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug formation")]
     internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int member = 0; member < 5; member++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb38c65 + member * 7)), PipeBugDefinitions.NorfairStaggerTarget(member),
@@ -1527,7 +1520,6 @@ internal static class LookupStream2Verification
             ChozoAndTubeColorCatalog.Load(new MemoryStream(ChozoAndTubeColorCatalog.Write(document), writable: false));
         var stock = Load(original);
         Check(stock, original);
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertEqual(8, (stock.tubeColorSeeds).Length,
             "tube stores only its eight authored seed colors");
         foreach (var (statue, edits) in new[] { ("wreckedShipEdits", stock.wreckedShipEdits), ("lowerNorfairEdits", stock.lowerNorfairEdits) })
@@ -1751,7 +1743,6 @@ internal static class LookupStream2Verification
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(source, ArtworkJson.Options);
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(source));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.digits is null, "Stock digits discard stored lookup");
         AssertTrue(stock.arrowOffsets is null, "Stock arrow discards stored offsets");
         Check(stock, document);
@@ -1804,7 +1795,6 @@ internal static class LookupStream2Verification
     /// <summary>Checks ghost appearance timing/visibility and four Norfair palette-FX cycles.</summary>
     internal static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
-        const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
@@ -1979,7 +1969,6 @@ internal static class LookupStream2Verification
             DeathArm = ReadSource(KraidPaletteSource.DeathArm),
         };
         var stock = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(document)));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         object health = stock.health;
         object secondary = stock.secondary;
         AssertTrue(ReferenceEquals(health, secondary), "Identical Kraid secondary colors share calculated primary source");
@@ -2054,7 +2043,6 @@ internal static class LookupStream2Verification
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var remaining = (System.Collections.IDictionary)stock.sprites;
         AssertEqual(0, remaining.Count, "All805 stock selector operands calculate; independent selection policies remain required");
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)

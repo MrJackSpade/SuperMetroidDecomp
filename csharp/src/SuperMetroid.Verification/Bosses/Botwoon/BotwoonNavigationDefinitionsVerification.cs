@@ -62,7 +62,6 @@ internal static class BotwoonNavigationDefinitionsVerification
         Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
         Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
         Suite(nameof(VerifyBotwoonPathDestinationMapping), () => VerifyBotwoonPathDestinationMapping(rom));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         Action<RoomEnemySlot, BotwoonEnemyState> run = BotwoonBehavior.RunBotwoonMovement;
         for (int offset = 0; offset < 256; offset += 8)
         {
@@ -124,8 +123,6 @@ internal static class BotwoonNavigationDefinitionsVerification
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
-            BindingFlags.NonPublic;
 
         var holes = new BotwoonHoleDefinition[4];
         for (ushort byteOffset = 0; byteOffset <= 24; byteOffset += 8)

@@ -93,7 +93,6 @@ internal static class CeresRidleyColorsVerification
             TileArtwork = fixtureAssets.EnemyTiles,
         };
         var cgram = new SnesCgram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

@@ -4,7 +4,6 @@ namespace SuperMetroid.Core.Hardware;
 /// Result of one native 65C816 word decrement. The flags describe the wrapped result, not
 /// the pre-decrement value, matching the processor's DEC/BEQ/BMI/BPL branch sequence.
 /// </summary>
-[SnesEncodingOwner]
 public readonly record struct NativeWordCounterStep(ushort Value)
 {
     /// <summary>

@@ -16,7 +16,6 @@ internal static class DeadTorizoCollisionVerification
     /// <summary>Exercises contact, shot, Power Bomb, and delayed solid-contact triggers through real collision paths.</summary>
     internal static int VerifyDeadTorizoCollision()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {

@@ -35,7 +35,6 @@ internal static class UnpauseStationLockReleaseVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.Session.runtime = runtime;
         game.Session.pauseMenu = pause;
         game.GameState = SuperMetroidGameState.PausedB;

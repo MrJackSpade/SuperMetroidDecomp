@@ -84,7 +84,6 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         WorkRobotPaletteCycle edited = WorkRobotPaletteCycle.Load(
             new MemoryStream(WorkRobotPaletteCycle.Write(visual), writable: false));
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guard = NewWorkRobotPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem

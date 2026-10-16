@@ -15,7 +15,6 @@ internal static class FirefleaMovementDefinitionsVerification
     internal static void VerifyFirefleaMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const ushort radiusTable = 0x8d1d;
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

@@ -18,7 +18,6 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     /// <summary>Checks that every typed tongue frame has installed art, with all cartridge reads denied.</summary>
     internal static void VerifyInstalledCrocomireTongueVisualSelectors(EnemyTileArtworkCatalog stock)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var denied = NewCrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -89,7 +88,6 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         Suite(nameof(VerifyCrocomireTongueFramePositions), () => VerifyCrocomireTongueFramePositions(rom));
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));
         var denied = NewCrocomireTongueNoReadBus();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
         compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);

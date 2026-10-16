@@ -18,7 +18,6 @@ internal static class BabyMetroidDeathCryVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Baby Metroid death-cry palette frames")]
     internal static int VerifyBabyMetroidDeathCry()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         var installation = RepositoryInstallation.Installation;

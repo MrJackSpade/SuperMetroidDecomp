@@ -9,7 +9,6 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// fraction byte low. The driver scales one value by another with <c>MUL YA</c> and keeps the product's high byte:
 /// a multiplication by a fraction of 256.
 /// </summary>
-[SnesEncodingOwner]
 internal static class SpcFixedPoint
 {
     /// <summary>Fraction bits below the whole byte.</summary>

@@ -30,7 +30,6 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             () => CrocomireBridgeFragmentDefinitions.XPosition(22),
             "Crocomire bridge-fragment offset past table");
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var death = new CrocomireDeathState();
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);

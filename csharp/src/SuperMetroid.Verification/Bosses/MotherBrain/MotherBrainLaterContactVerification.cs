@@ -17,7 +17,6 @@ internal static class MotherBrainLaterContactVerification
     /// <summary>Checks body and neck knockback, side immunity, post-dispatch position, and beam or missile duds.</summary>
     internal static int VerifyMotherBrainLaterContact()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

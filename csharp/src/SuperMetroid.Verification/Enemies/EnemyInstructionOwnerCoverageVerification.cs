@@ -38,8 +38,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
             ReadRetailEnemyPopulationRecords(rom);
         EnemyDefinitionId[] definitions = ReadNamedRetailEnemyDefinitions();
 
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.Instance |
-            BindingFlags.NonPublic;
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();

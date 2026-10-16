@@ -124,7 +124,6 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         static (RoomEnemySystem Enemies, SnesCgram Cgram) Create(
             ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
             enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -154,7 +153,6 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
 
         static void Cycle(RoomEnemySystem enemies)
         {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             enemies.ZebetiteBehavior.CycleZebetitePalette(enemies.SlotTable.Slots[0]);
         }
     }

@@ -29,7 +29,6 @@ internal static class EnemyProjectileDefinitionsVerification
     /// <summary>Walks 123 native records, then checks initialization, Samus touch, and projectile shot handoffs.</summary>
     internal static void VerifyEnemyProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         RoomEnemyProjectileKind[] kinds = Enum.GetValues<RoomEnemyProjectileKind>()
             .Where(kind => kind != RoomEnemyProjectileKind.None)
             .Distinct()

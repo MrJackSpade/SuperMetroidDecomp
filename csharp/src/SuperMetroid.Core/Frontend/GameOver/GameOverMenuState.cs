@@ -41,7 +41,7 @@ public sealed class GameOverMenuState
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
     /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
     /// <param name="mapPresentation">Required installed presentation bundle, despite the compatibility default of null.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="audio"/> is null.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="audio"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No installed presentation bundle is supplied.</exception>
     /// <param name="continueLoadsCeresArrival">
     /// True when <c>SRAMMirror_LoadingGameState</c> is <c>$1F</c>: <c>$81:915D</c> then answers Yes by

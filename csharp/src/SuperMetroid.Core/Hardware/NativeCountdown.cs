@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Hardware;
 /// <item>Saturating: <c>LDA</c>, <c>BEQ</c>, <c>DEC</c>. Use <see cref="DecrementToZero"/>; it never wraps.</item>
 /// </list>
 /// </summary>
-[SnesEncodingOwner]
 public readonly record struct NativeCountdown
 {
     /// <summary>Stores <paramref name="rawValue"/> exactly; callers use <see cref="Start"/> or <see cref="FromRaw"/>.</summary>

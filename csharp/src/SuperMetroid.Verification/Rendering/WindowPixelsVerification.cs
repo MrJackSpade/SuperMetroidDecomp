@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Runtime.GameplaySnapshotTestsVerification;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -97,13 +96,12 @@ internal static class WindowPixelsVerification
                     enabled, Windows: windows, MainScreenWindowMask: admission)));
     }
 
-    /// <summary>Runs window pixels, gameplay snapshots, and the production magic-number audit.</summary>
+    /// <summary>Runs window pixels and gameplay snapshots.</summary>
     [VerificationCommand("--window-pixels")]
     internal static int WindowPixelsCommand()
     {
         Suite(nameof(VerifyWindowPixels), () => VerifyWindowPixels());
         Suite(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

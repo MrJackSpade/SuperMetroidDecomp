@@ -2,7 +2,6 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>Named conversions between room pixels and the room's block and screen grids.</summary>
-[SnesEncodingOwner]
 public static class RoomGridConversions
 {
     /// <summary>Blocks per room screen on each axis.</summary>

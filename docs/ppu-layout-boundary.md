@@ -47,7 +47,7 @@ boundary on a local function or lambda has no effect.
 
 ## Catalogs, aliases and views in practice
 
-- Catalog files end in `Layout.cs` (the production magic-number audit's definition suffix) and
+- Catalog files end in `Layout.cs` and
   declare `public static readonly PpuLayoutCell` fields whose `Name` is the member name.
 - `PpuMemoryLayout` holds the physical containers: all VRAM, all CGRAM, the background and OBJ
   palette banks and their sixteen 16-colour rows, and the OAM tables. Every screen reuses VRAM,

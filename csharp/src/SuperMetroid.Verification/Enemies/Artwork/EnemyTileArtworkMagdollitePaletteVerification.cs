@@ -72,7 +72,6 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         var cgram = new SnesCgram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;

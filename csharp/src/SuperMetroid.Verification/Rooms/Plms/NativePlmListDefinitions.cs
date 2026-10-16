@@ -112,7 +112,7 @@ internal static class NativePlmListDefinitions
     }
 
     /// <summary>
-    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet"/> makes: a
+    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{ValueTuple{TProgram, ushort}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/> makes: a
     /// typed cursor's step stands where the native instruction pointer would, for comparisons with native traces.
     /// </summary>
     internal static IReadOnlyDictionary<(TProgram Program, int Position), ushort> StepAddresses<TProgram, TFrame, TCue>(

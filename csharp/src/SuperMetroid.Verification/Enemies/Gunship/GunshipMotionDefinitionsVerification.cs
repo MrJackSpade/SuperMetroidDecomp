@@ -20,7 +20,6 @@ internal static class GunshipMotionDefinitionsVerification
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverDeltaSelection), () => VerifyGunshipHoverDeltaSelection(rom));
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         for (ushort frame = 0; frame < 17; frame++)
         {

@@ -44,7 +44,6 @@ internal static class RidleyMovementTargetsVerification
         var hover = Table(EnemyRomTablePointers.Ridley.HoverMovementDivisorIndexWords, RidleyMovementTargets.HoverDivisorIndexes, 4);
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem();
-        const BindingFlags instance = BindingFlags.NonPublic | BindingFlags.Instance;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = RidleyBehavior.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = RidleyBehavior.ReadRidleyHealthMovementDivisorIndex;

@@ -22,7 +22,6 @@ internal static class MotherBrainGlassSuperMissileVerification
     /// </summary>
     internal static void VerifyMotherBrainGlassSuperMissile()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

@@ -16,7 +16,6 @@ internal static class BombTorizoDroolSineVerification
     /// <summary>Checks both facing modes and native velocity table indexes for every drool random value.</summary>
     internal static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Action<RoomEnemySystem, RoomEnemySlot> spawn =
             (enemies, torizo) => enemies.BombTorizoBehavior.SpawnBombTorizoLowHealthDrool(torizo);
 
@@ -69,7 +68,6 @@ internal static class BombTorizoDroolSineVerification
         int expectedIndex,
         string scenario)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue);

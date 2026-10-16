@@ -164,7 +164,6 @@ internal static class EnemySpritemapArtworkVerification
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertTrue(stock.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
         AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount,
@@ -3086,7 +3085,6 @@ internal static class EnemySpritemapArtworkVerification
         EnemyTileArtworkCatalog art, ushort pointer,
         Position16<RoomPixels> world)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();
@@ -3099,7 +3097,6 @@ internal static class EnemySpritemapArtworkVerification
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         RoomSpriteObjectKind kind)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =

@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Samus;
 /// Queries over Samus's equipment and beam flags, and their one conversion to the native WRAM/SRAM word (#1323).
 /// The enums keep <see cref="ushort"/> as their underlying type, so unnamed bits stay representable.
 /// </summary>
-[SnesEncodingOwner]
 public static class SamusEquipmentFlagExtensions
 {
     /// <summary>Tests whether an item set contains at least one requested equipment bit.</summary>

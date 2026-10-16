@@ -24,7 +24,6 @@ internal static class MainGameLoopCarryVerification
         saveRam.SetGameCompleted(true);
         AssertTrue(saveRam.DetermineBootMainLoopCarry(), "the full marker leaves the final comparison's carry set");
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (bool carry in new[] { true, false })
         {
             var state = new RoomLayer3FxState();

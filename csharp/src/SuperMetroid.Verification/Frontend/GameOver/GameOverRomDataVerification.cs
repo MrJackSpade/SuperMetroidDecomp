@@ -28,8 +28,6 @@ internal static class GameOverRomDataVerification
             Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
         var menu = new GameOverMenuState(audio, RetailPresentationFixture());
-        const System.Reflection.BindingFlags flags =
-            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         // The Baby stream advances only in indexes one and three onward. A separate menu walks
         // index zero and its NMI continuation, takes index one's first Baby tick, and then
         // enters the fade so every later update ticks the Baby; the music wait and index

@@ -37,7 +37,6 @@ internal static class RidleyAttackChoicesVerification
             AssertEqual(native[row, choice], Table(row, choice), "Every native Ridley action pointer");
         }
 
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var actual = new RoomEnemySystem();
         var reference = new RoomEnemySystem();
         actual.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

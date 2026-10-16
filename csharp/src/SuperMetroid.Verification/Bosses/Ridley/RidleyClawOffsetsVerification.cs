@@ -29,7 +29,6 @@ internal static class RidleyClawOffsetsVerification
         {
             AssertEqual(y[Math.Min(word >> 1, 8)], RidleyClawOffsets.ReadY((ushort)word), "Existing foot-index read window preserved");
         }
-        const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState> carry = RidleyBehavior.UpdateNorfairRidleyGrabbedSamus;
         Func<RoomEnemySlot, RidleyEnemyState, SamusState, Extent16<RoomPixels>, bool> overlaps = RidleyBehavior.RidleyClawOverlapsSamus;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];

@@ -21,7 +21,6 @@ internal static class ChozoGrabAnimationVerification
     /// <summary>Checks frozen ball animation during capture, movement and release, and blast state when armed.</summary>
     internal static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
-        const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());

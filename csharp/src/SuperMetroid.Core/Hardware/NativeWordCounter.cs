@@ -1,7 +1,6 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Shared operations for cartridge-owned wrapping and saturating word counters.</summary>
-[SnesEncodingOwner]
 public static class NativeWordCounter
 {
     /// <summary>Executes one wrapping 16-bit DEC and exposes its resulting N/Z flags.</summary>

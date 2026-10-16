@@ -195,7 +195,6 @@ internal static class LookupStream3Verification
             native[index] = ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + 2 * index);
         IntroFinalLineTilemap stock = Load(native);
         AssertTrue(native.SequenceEqual(stock.Words.Span), "all128 native intro divider cells");
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.suppliedWords is null,
             "native divider retains no generated lookup");
         for (int changed = 0; changed < native.Length; changed++)
@@ -234,7 +233,6 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for options borders")]
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
@@ -305,7 +303,6 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select borders")]
     internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         Dictionary<string, SpriteComposition> Load(FileSelectPresentationDocument document)
         {
@@ -399,7 +396,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertEqual(64, (stock.independentTiles).Length,
             "stream 3 Grapple retains only eight independent binary coverage patterns");
         foreach (object? cache in new object?[] { stock.firstPoint, stock.secondPoint, stock.thirdPoint, stock.fourthPoint, stock.verticalSegments })
@@ -427,7 +423,6 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for narration layout")]
     internal static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         int nativeCharacters = 0;
         foreach (var source in IntroNarrationDefinitions.Pages)
         {
@@ -504,7 +499,6 @@ internal static class LookupStream3Verification
     /// <summary>Checks menu compositions against native OAM parts and preserves edited geometry and order.</summary>
     internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => presentation.sprites;
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
@@ -638,7 +632,6 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select patches")]
     internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
@@ -1532,7 +1525,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        var targetFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var selectedSidehopper = stock.sidehopper;
         AssertEqual(0, selectedSidehopper.independentOrSupplied.Length,
             "stream 3 complete standalone Sidehopper target keeps no stock color array");
@@ -1686,7 +1678,6 @@ internal static class LookupStream3Verification
             AssertEqual((ushort)0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         CheckBeam(stock);
-        const System.Reflection.BindingFlags beamFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var beamColors = stock.beamCycle;
         AssertTrue(beamColors.supplied is null,
             "stream 3 beam wheel retains no stock lookup row");
@@ -1741,7 +1732,6 @@ internal static class LookupStream3Verification
             }
         }
         CheckRevival(stock);
-        const System.Reflection.BindingFlags privateFields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var revivalFade = stock.fromGrey;
         var revivalOverrides = revivalFade.suppliedOverrides;
         AssertEqual(0, revivalOverrides.Count, "revival calculates all words with one reviewed tissue-shade hold");
@@ -2023,7 +2013,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.explodedDoor is null,
             "stream 3 exploded-door stock paint keeps no stored word array");
         for (int color = 0; color < door.Length; color++)
@@ -2504,7 +2493,6 @@ internal static class LookupStream3Verification
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
         var node = RequiredJson.Parse(json);
-        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         AssertTrue(stock.phaseTwoRearLeg is null,
             "stream 3 phase-two rear uses approved calculated health basis without stored rows");
         var phaseTwo = new SnesCgram();
@@ -2585,7 +2573,6 @@ internal static class LookupStream3Verification
         }
         var stock = Load();
         Check(stock);
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         foreach (var palette in new[] { stock.faceBlock, stock.deadSidehopper, stock.torizoBody, stock.torizoBelly })
         {
             AssertTrue(palette.supplied is null,
@@ -2738,7 +2725,6 @@ internal static class LookupStream3Verification
         byte[] json = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.Extract(rom);
         var document = RequiredJson.Parse(json);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
-        const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var attack = stock.phaseTwoAttack;
         AssertTrue(attack.supplied is null,
             "stock attack palette calculates every color without a stored row");
@@ -3080,7 +3066,6 @@ internal static class LookupStream3Verification
     {
         byte[] imported = SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
-        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));

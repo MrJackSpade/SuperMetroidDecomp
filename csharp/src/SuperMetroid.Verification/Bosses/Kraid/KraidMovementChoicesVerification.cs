@@ -83,7 +83,6 @@ internal static class KraidMovementChoicesVerification
         body.Bind(EnemyDefinitionId.Kraid, body.Definition);
         var foot = enemies.SlotTable.Slots[5];
         var part = new KraidPartState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.KraidBehavior.Kraid = state;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ushort rng = 0;

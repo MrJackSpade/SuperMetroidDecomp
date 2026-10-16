@@ -17,7 +17,6 @@ internal static class FrozenMetroidShellVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static int VerifyFrozenMetroidShell()
     {
-        const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];

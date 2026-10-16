@@ -15,7 +15,6 @@ internal static class MotherBrainTubeHdmaDeletionVerification
     /// <summary>Confirms $A9:8C0C/$8C0F clear acid-scroll channels zero through three so $88:B44A stops byte-swapping the RNG after landing.</summary>
     internal static void VerifyMotherBrainTubeHdmaDeletion()
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);

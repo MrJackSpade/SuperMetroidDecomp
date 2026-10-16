@@ -22,9 +22,7 @@ internal static class SpeedPaletteOverrunVerification
         var cart = CartridgeImportSource.Require(rom);
         var colors = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(SamusFullBodyCycleColorExtractor.Extract(rom)));
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        string tracePath = Path.Combine(SuperMetroid.SourceAudit.ProductionMagicNumberAudit.FindRepositoryRoot(),
-            "csharp", "test-fixtures", "issue-1254-speed-palette", "native.csv");
-        string[] nativeTrace = File.ReadAllLines(tracePath);
+        string[] nativeTrace = File.ReadAllLines("csharp/test-fixtures/issue-1254-speed-palette/native.csv");
         AssertEqual(3, nativeTrace.Length, "bounded native CPU palette trace contains both overrun cases");
         AssertEqual("phase,nextPhase,timer,colors", nativeTrace[0], "native trace schema");
         int traceRow = 1;

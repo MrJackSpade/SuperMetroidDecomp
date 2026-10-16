@@ -16,7 +16,6 @@ internal static class RoomSpriteObjectDefinitionsVerification
     /// <summary>Runs every native object identity until deletion, sleep, or loop while guarding compiled reads.</summary>
     internal static void VerifyRoomSpriteObjectDefinitions(SuperMetroidAddressSpace rom)
     {
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewRoomSpriteObjectDefinitionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =

@@ -102,7 +102,6 @@ internal static class IntroRinkaSpriteArtworkVerification
                     .SequenceEqual(editedOam.LowTable.Slice(part * 4, 2)),
                 $"intro Rinka palette edit preserves native part {part} X/Y");
 
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var stockState = CreateRetailIntroFixture(characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })

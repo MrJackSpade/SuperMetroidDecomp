@@ -65,7 +65,6 @@ internal static class EndingShootingStarsTests
                 Require(stars.Stars[index].Equals(restored.Stars[index]), "Debugger restore preserves star motion and animation");
         }
 
-        const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
         var scene = new EndingCreditsState(new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });

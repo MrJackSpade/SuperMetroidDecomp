@@ -19,7 +19,6 @@ internal static class CeresSteamDefinitionsVerification
     {
         const int instructionTable = 0xa6eff5;
         const int functionTable = 0xa6f001;
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var guarded = NewCeresSteamDefinitionReadGuard(rom);
         for (int index = 0; index < 6; index++)

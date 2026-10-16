@@ -30,7 +30,6 @@ internal static class KraidGrowthCommandCursorVerification
                     new Dictionary<ushort, KraidHeadTilemapAtlas> { [0x9dc8] = head }, referenceArt.RoomBackgroundTiles) }),
         };
         var state = new KraidEnemyState();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = new SnesVram();
         enemies.KraidBehavior.Kraid = state;

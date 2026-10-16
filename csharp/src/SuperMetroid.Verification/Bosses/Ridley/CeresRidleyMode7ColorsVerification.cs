@@ -75,7 +75,6 @@ internal static class CeresRidleyMode7ColorsVerification
         var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem { Presentation = { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors } };
         var cgram = new SnesCgram();
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         Action<ushort> select = enemies.CeresRidleyBehavior.UpdateCeresRidleyMode7Palette;

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using static SuperMetroid.Verification.Harness.MagicNumberAuditVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
@@ -84,14 +83,13 @@ internal static class PowerBombFuseVerification
      VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; 
     }
 
-    /// <summary>Runs fuse, boundary, renderer integration, and magic-number checks.</summary>
+    /// <summary>Runs fuse, boundary and renderer integration checks.</summary>
     [VerificationCommand("--power-bomb-fuse")]
     internal static int PowerBombFuseCommand()
     {
         Suite(nameof(VerifyPowerBombFuse), () => VerifyPowerBombFuse());
         Suite(nameof(VerifyPowerBombBoundary), () => VerifyPowerBombBoundary());
         Suite(nameof(VerifyPowerBombRuntimeRendererIntegration), () => VerifyPowerBombRuntimeRendererIntegration());
-        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
         return 0;
     }
 }

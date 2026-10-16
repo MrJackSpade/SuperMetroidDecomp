@@ -36,7 +36,6 @@ internal static class BabyMetroidWallClearTimingVerification
             level.SetForegroundEntry(row * level.Size.X + WallColumn,
                 RoomLevelWord.Create(0x00ff, 0, RoomCollisionType.SolidBlock).Raw);
 
-        const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var shitroid = (ShitroidEnemyState)(runtime.Enemies.ShitroidBehavior._shitroid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.ShitroidBehavior._shitroid."));
         (shitroid ?? throw new InvalidOperationException("Verification requires shitroid.")).Function = ShitroidAiFunction.RiseAfterFeeding;
         shitroid.StateTimer = NativeCountdown.Start(0);

@@ -684,10 +684,10 @@ internal static class SamusAnimationDelayDefinitions
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)
             return SamusAnimationDelayPrograms.ByteAt(SnesAddressMath.OffsetInBank(address));
-        // Invalid pose bytes $FD-$FF select $0302 through the native table overread.
-        // Bank $91's lower half aliases mutable WRAM and must not be compiled.
+        // Invalid pose bytes $FD-$FF select $0302 through the native table overread, which
+        // lands in the Mode 7 transfer queue's residue.
         if (address < 0x918000)
-            return new SamusOverreadMemory(bus).AnimationListByte((ushort)address);
+            return SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueue.ReadResidueByte(bus, (ushort)address);
         throw new InvalidDataException(
             $"Samus animation delay byte ${address:X6} is outside the compiled pose streams.");
     }

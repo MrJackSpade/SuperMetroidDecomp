@@ -221,7 +221,7 @@ internal static class RunningCadenceVerification
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
             address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ SnesLittleEndian.HighByte(unchecked((ushort)address)))) : ReadSourceByte(address);
         /// <summary>Exposes the mutable delay alias and otherwise forwards WRAM reads.</summary>
-        public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
+        public byte ReadWorkRamByte(int address) => address == 0x7e0303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
         /// <summary>Forwards SRAM reads to the underlying mutable address space.</summary>
         public byte ReadSaveRamByte(int address) => SourceMemory.ReadSaveRamByte(address);
         /// <summary>Forwards writes without changing the constructed read behavior.</summary>

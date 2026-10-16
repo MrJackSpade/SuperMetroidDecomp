@@ -1023,9 +1023,9 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
 /// Installs a delay stream at <c>$91:0302</c>, the mutable low-bank WRAM alias that pose
 /// <c>$FD</c>'s overread of the bank-$91 delay pointer table selects.
 /// </summary>
-[CpuBusBoundary("exact bus test: low-bank WRAM alias $91:0302 reached by pose $FD's delay-pointer overread")]
+[CpuBusBoundary("exact bus test: Mode 7 transfer queue byte $7E:0302 reached by pose $FD's delay-pointer overread")]
 static void WriteUnusedPoseDelayInstruction(TestAddressSpace bus, ReadOnlySpan<byte> stream) =>
-    bus.WriteBytes(0x910302, stream);
+    bus.WriteBytes(0x7e0302, stream);
 
 /// <summary>
 /// Gives every spritemap index the body-half matrix uses one visible OBJ, and seeds the

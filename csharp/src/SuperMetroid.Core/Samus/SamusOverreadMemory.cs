@@ -19,13 +19,6 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
         bus as ISnesMutableMemory ?? throw new InvalidOperationException($"{reader} requires WRAM access.");
 
     /// <summary>
-    /// A pose animation-list byte at bank-$91 low-half <paramref name="offset"/> (the delay-table
-    /// overread of invalid poses, or running-cadence stage five's <c>$91:0303</c>).
-    /// </summary>
-    internal byte AnimationListByte(ushort offset) =>
-        WorkRam("Samus's mutable bank-$91 animation-list alias").ReadWorkRamByte(SamusMovementRomData.Banks.Pose | offset);
-
-    /// <summary>
     /// Atmospheric effect type two's sprite attributes for <paramref name="frame"/>: its native
     /// list pointer is zero, so bank $90 indexes the live WRAM mirror.
     /// </summary>

@@ -77,10 +77,10 @@ internal static class SamusRunningCadenceDefinitions
             return value;
 
         // Stage five points at `$91:0303`. This is a genuine cartridge bug: the selected
-        // delay comes from the mutable low half of bank $91, not immutable cadence data.
+        // delay comes from the Mode 7 transfer queue's residue (#1338), not cadence data.
         SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
         if (sourceAddress.Bank == 0x91 && !sourceAddress.IsUpperLoRomWindow)
-            return new SamusOverreadMemory(bus).AnimationListByte(sourceAddress.Offset);
+            return SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueue.ReadResidueByte(bus, sourceAddress.Offset);
 
         throw new InvalidDataException(
             $"Samus running-cadence byte {sourceAddress} is not compiled cadence data " +

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -96,7 +97,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
                 // fixture inputs, not authored animation/gameplay tuning.
                 Actor.Parameter1 = (3 << 8) | 2;
                 Actor.Parameter2 = Actor.Position.Y.Whole;
-                new Action<RoomEnemySlot>(Enemies.BoyonBehavior.InitializeBoyon)(Actor);
+                new Action<RoomEnemySlot>(BoyonBehavior.InitializeBoyon)(Actor);
             }
         }
 

@@ -6,61 +6,20 @@ namespace SuperMetroid.Core.Enemies;
 /// Species replace it one at a time; it is deleted with the table.
 /// </summary>
 /// <param name="slot">The slot the enemy occupies.</param>
-/// <param name="dispatch">The enemy system whose handler table answers.</param>
-internal sealed class TableBackedEnemyEntity(RoomEnemySlot slot, IEnemyDispatch dispatch)
-    : IEnemyInitialization, IEnemyMainAi, IEnemyHurtAi, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction,
-        IEnemyBombReaction, IEnemyPowerBombReaction, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+/// <param name="common">The shared participation, whose table also still holds the unconverted species' handlers.</param>
+internal sealed class TableBackedEnemyEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
-    /// <inheritdoc/>
-    public EnemyCapabilities Capabilities { get; } = EnemyCapabilityCatalog.For(slot.EnemyDefinitionPointer);
-
-    /// <inheritdoc/>
-    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
-        EnemyCapabilityCatalog.OwnsPrivateShotCallback(Slot, callback, callbackPointer);
-
-    /// <summary>The slot the enemy occupies; the table's predicates read its live state.</summary>
-    private RoomEnemySlot Slot { get; } = slot;
-
-    /// <summary>The handler table; resolved at use because the system builds it lazily.</summary>
-    private EnemyAiTable Ai => dispatch.Ai;
-
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() =>
         EnemyAiTable.Routine(Slot.Definition.Bank, Slot.Definition.InitializationAiPointer) is { } routine &&
-        Ai.TryGetInitialization(routine, Slot, out EnemyInitializationAiHandler? handler) ? handler : null;
+        Common.Ai.TryGetInitialization(routine, Slot, out EnemyInitializationAiHandler? handler) ? handler : null;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() =>
         EnemyAiTable.Routine(Slot.Definition.Bank, Slot.Definition.MainAiPointer) is { } routine &&
-        Ai.TryGetMain(routine, Slot, out EnemyMainAiHandler? handler) ? handler : null;
+        Common.Ai.TryGetMain(routine, Slot, out EnemyMainAiHandler? handler) ? handler : null;
 
     /// <inheritdoc/>
-    public EnemyHurtAiHandler? FindHurt() => Ai.FindHurt(Slot);
-
-    /// <inheritdoc/>
-    public EnemyFrozenPreemption? FindFrozenPreemption() => Ai.FindFrozenPreemption(Slot);
-
-    /// <inheritdoc/>
-    public IReadOnlyList<Action<RoomEnemySlot>> FrozenHandlers() => Ai.FrozenHandlers(Slot);
-
-    /// <inheritdoc/>
-    public EnemyTouchHandler? FindTouch() => Ai.FindTouch(Slot);
-
-    /// <inheritdoc/>
-    public EnemyShotReaction? FindShot() => Ai.FindShot(Slot);
-
-    /// <inheritdoc/>
-    public Action<EnemyBombContext>? FindBombSpecial(EnemyBombContext context) => Ai.FindBombSpecial(context);
-
-    /// <inheritdoc/>
-    public Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) => Ai.FindBombSpecialAfterNoOp(context);
-
-    /// <inheritdoc/>
-    public EnemyBombReaction? FindBombCommon(EnemyBombContext context) => Ai.FindBombCommon(context);
-
-    /// <inheritdoc/>
-    public EnemyPowerBombReaction? FindPowerBomb() => Ai.FindPowerBomb(Slot);
-
-    /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Ai.FindTypedAnimation(Slot);
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Common.Ai.FindTypedAnimation(Slot);
 }

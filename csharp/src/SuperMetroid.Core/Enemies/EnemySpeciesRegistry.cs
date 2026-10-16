@@ -10,16 +10,16 @@ internal sealed class EnemySpeciesRegistry
     /// <summary>The factory of every converted definition.</summary>
     private readonly Dictionary<EnemyDefinitionId, IEnemyEntityFactory> _factories = [];
 
-    /// <summary>The enemy system whose handler table answers for unconverted species.</summary>
-    private readonly IEnemyDispatch _dispatch;
+    /// <summary>The shared participation every entity composes.</summary>
+    private readonly EnemyCommonParticipation _common;
 
     /// <summary>Indexes <paramref name="factories"/> by definition, rejecting a definition owned twice.</summary>
-    /// <param name="dispatch">The enemy system whose handler table answers for unconverted species.</param>
+    /// <param name="dispatch">The enemy system whose handler table answers the shared participation.</param>
     /// <param name="factories">The converted species' factories.</param>
     /// <exception cref="InvalidOperationException">Two factories own one definition.</exception>
     internal EnemySpeciesRegistry(IEnemyDispatch dispatch, IEnumerable<IEnemyEntityFactory> factories)
     {
-        _dispatch = Ensure.NotNull(dispatch);
+        _common = new EnemyCommonParticipation(Ensure.NotNull(dispatch));
         foreach (IEnemyEntityFactory factory in Ensure.NotNull(factories))
         foreach (EnemyDefinitionId definition in factory.Definitions)
         {
@@ -35,7 +35,7 @@ internal sealed class EnemySpeciesRegistry
     {
         Ensure.NotNull(slot);
         return _factories.TryGetValue(slot.EnemyDefinitionPointer, out IEnemyEntityFactory? factory)
-            ? factory.Create(slot)
-            : new TableBackedEnemyEntity(slot, _dispatch);
+            ? factory.Create(slot, _common)
+            : new TableBackedEnemyEntity(slot, _common);
     }
 }

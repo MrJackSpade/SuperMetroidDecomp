@@ -8,8 +8,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>The Boyon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class BoyonBehavior : IEnemySpecies
+internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Boyon];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BoyonEntity(this, slot, common);
+
     /// <summary>Carries out one cue of Boyon's animations.</summary>
     private BoyonProgram? ApplyBoyonCue(RoomEnemySlot slot, BoyonEnemyState state, BoyonCue cue)
     {
@@ -34,15 +40,11 @@ internal sealed class BoyonBehavior : IEnemySpecies
     }
 
 
-    /// <summary>Per-slot bounce state cleared whenever a new room loads.</summary>
-    internal readonly BoyonEnemyState?[] _boyonStates =
-        new BoyonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Last library-two bounce sound requested during the current enemy frame.</summary>
     public ushort? LastBoyonSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
-    internal void InitializeBoyon(RoomEnemySlot slot)
+    internal static void InitializeBoyon(RoomEnemySlot slot)
     {
         int multiplierIndex = SnesLittleEndian.LowByte(slot.Parameter1);
         int jumpHeightIndex = SnesLittleEndian.HighByte(slot.Parameter1);
@@ -72,7 +74,8 @@ internal sealed class BoyonBehavior : IEnemySpecies
             IdleDisabled = false,
             BounceSpeedCalculated = false,
         };
-        _boyonStates[slot.SlotIndex] = state;
+        (slot.Entity as BoyonEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Boyon.")).State = state;
         SetBoyonProgram(slot, state, BoyonProgram.Idle);
     }
 
@@ -216,8 +219,8 @@ internal sealed class BoyonBehavior : IEnemySpecies
     }
 
     /// <summary>Returns the initialized state paired with this physical enemy slot.</summary>
-    private BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
-        _boyonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
+        (slot.Entity as BoyonEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boyon state.");
 
     /// <summary>Instruction <c>$A2:88C6</c>: permit the arc and request sound $0E.</summary>
@@ -227,45 +230,23 @@ internal sealed class BoyonBehavior : IEnemySpecies
         LastBoyonSoundEffect = EnemySoundEffectDefinitions.BoyonBounceSound;
     }
 
-    /// <summary>Registers Boyon's guarded native initialization routine.</summary>
-    internal void RegisterBoyonInitializationAi(EnemyAiTable table)
-    {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Boyon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBoyon(slot);
-        });
-    }
-
-    /// <summary>Registers Boyon's guarded per-frame bounce routine.</summary>
-    internal void RegisterBoyonMainAi(EnemyAiTable table)
-    {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Boyon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBoyonMain(slot, RequireBoyonState(slot), frame.Samus);
-        });
-    }
-
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
-    internal void RegisterBoyonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireBoyonState(slot);
-            AnimationProgramCursor<BoyonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyBoyonCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireBoyonState(slot);
+        AnimationProgramCursor<BoyonProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.Spritemap,
+                (cue, _) => ApplyBoyonCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastBoyonSoundEffect = null;
-        Array.Clear(_boyonStates);
     }
 
     /// <inheritdoc/>

@@ -8,5 +8,6 @@ internal interface IEnemyEntityFactory
 
     /// <summary>Creates the entity for a newly installed occupant of <paramref name="slot"/>.</summary>
     /// <param name="slot">The slot, already holding the new identity.</param>
-    IEnemyEntity Create(RoomEnemySlot slot);
+    /// <param name="common">The shared participation the entity composes.</param>
+    IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common);
 }

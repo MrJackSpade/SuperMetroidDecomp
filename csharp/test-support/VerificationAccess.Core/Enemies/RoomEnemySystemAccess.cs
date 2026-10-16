@@ -182,8 +182,9 @@ internal static class RoomEnemySystemAccess
         /// <summary>The live Spore Spawn extension, or null outside its room.</summary>
         internal SporeSpawnEnemyState? SporeSpawn => self.SporeSpawnBehavior._sporeSpawn;
 
-        /// <summary>Typed state for all 32 physical Boyon-capable enemy slots.</summary>
-        internal IReadOnlyList<BoyonEnemyState?> BoyonStates => self.BoyonBehavior._boyonStates;
+        /// <summary>The Boyon state of each physical slot's occupant, or null where no initialized Boyon occupies it.</summary>
+        internal IReadOnlyList<BoyonEnemyState?> BoyonStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as BoyonEntity)?.State)];
 
         /// <summary>Typed state for each physical escape-Etecoon slot.</summary>
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>

@@ -15,8 +15,9 @@ internal static class BoyonSpeedDefinitionsVerification
     internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        Action<RoomEnemySlot> initialize = enemies.BoyonBehavior.InitializeBoyon;
+        Action<RoomEnemySlot> initialize = BoyonBehavior.InitializeBoyon;
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];
+        actor.Bind(EnemyDefinitionId.Boyon, actor.Definition);
         for (int height = 0; height < 9; height++)
         {
             for (int multiplier = 0; multiplier < 8; multiplier++)

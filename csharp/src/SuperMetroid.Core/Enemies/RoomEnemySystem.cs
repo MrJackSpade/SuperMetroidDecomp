@@ -689,7 +689,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, []);
+        Species = new EnemySpeciesRegistry(this, [BoyonBehavior]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
@@ -1179,7 +1179,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BombTorizoBehavior.RegisterBombTorizoInitializationAi(table);
         BotwoonBehavior.RegisterBotwoonInitializationAi(table);
         BoulderBehavior.RegisterBoulderInitializationAi(table);
-        BoyonBehavior.RegisterBoyonInitializationAi(table);
         BullBehavior.RegisterBullInitializationAi(table);
         CacatacBehavior.RegisterCacatacInitializationAi(table);
         CeresDoorBehavior.RegisterCeresDoorInitializationAi(table);
@@ -1274,7 +1273,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BombTorizoBehavior.RegisterBombTorizoMainAi(table);
         BotwoonBehavior.RegisterBotwoonMainAi(table);
         BoulderBehavior.RegisterBoulderMainAi(table);
-        BoyonBehavior.RegisterBoyonMainAi(table);
         BullBehavior.RegisterBullMainAi(table);
         CacatacBehavior.RegisterCacatacMainAi(table);
         CeresDoorBehavior.RegisterCeresDoorMainAi(table);
@@ -1375,7 +1373,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     private void RegisterTypedAnimations(EnemyAiTable table)
     {
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneTypedAnimations(table);
-        BoyonBehavior.RegisterBoyonTypedAnimations(table);
         StokeBehavior.RegisterStokeTypedAnimations(table);
         MamaTurtleBehavior.RegisterMamaTurtleTypedAnimations(table);
         DragonBehavior.RegisterDragonTypedAnimations(table);

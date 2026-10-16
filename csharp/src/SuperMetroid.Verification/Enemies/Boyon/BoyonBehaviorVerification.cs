@@ -52,7 +52,7 @@ internal static class BoyonBehaviorVerification
         // Parameter two is the horizontal trigger range Samus must be within to start a bounce.
         slot.Parameter2 = 64;
         slot.Position = slot.Position.WithWhole(new(256, 512));
-        enemies.BoyonBehavior.InitializeBoyon(slot);
+        BoyonBehavior.InitializeBoyon(slot);
         return (enemies, slot, enemies.BoyonStates[0] ?? throw new InvalidOperationException("Boyon has no state."));
     }
 

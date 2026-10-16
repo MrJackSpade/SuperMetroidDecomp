@@ -81,19 +81,7 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException(
                     $"Extracted audio stream '{path}' has SHA-256 {actualHash}, expected {entry.Sha256}.");
             }
-            if (bytes.Length != entry.ByteLength)
-            {
-                throw new InvalidDataException(
-                    $"Extracted audio stream '{path}' holds {bytes.Length} bytes, expected {entry.ByteLength}.");
-            }
-            AudioUploadAssetDefinition upload = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress);
-            if (entry.Name != upload.Name || entry.DataIndex != upload.DataIndex)
-            {
-                throw new InvalidDataException(
-                    $"Audio upload ${entry.SnesAddress:X6} identity '{entry.Name}'/${entry.DataIndex:X2} " +
-                    $"does not match '{upload.Name}'/${upload.DataIndex:X2}.");
-            }
-            AudioBank uploadBank = upload.Bank;
+            AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).Bank;
             if (!loaded.TryAdd(uploadBank, bytes))
                 throw new InvalidDataException($"Audio manifest repeats SNES upload address ${entry.SnesAddress:X6}.");
         }

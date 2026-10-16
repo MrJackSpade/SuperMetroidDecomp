@@ -5,5 +5,4 @@ public sealed record AudioSampleMetadata(
     byte Source,
     ushort StartAddress,
     ushort LoopAddress,
-    int BlockCount,
     string SampleId);

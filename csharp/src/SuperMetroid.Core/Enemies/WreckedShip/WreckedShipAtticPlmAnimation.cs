@@ -21,7 +21,7 @@ internal sealed class WreckedShipAtticPlmAnimation()
     {
         if (cue != WreckedShipAtticCue.InstallInertPreInstruction)
             throw new InvalidOperationException($"Undefined {nameof(WreckedShipAtticCue)} {cue}.");
-        slot.PreInstruction = WreckedShipAtticPlmRomData.NoOpCallback;
+        slot.PreInstruction = WreckedShipAtticPreInstructions.NoOpCallback;
         return null;
     }
 }

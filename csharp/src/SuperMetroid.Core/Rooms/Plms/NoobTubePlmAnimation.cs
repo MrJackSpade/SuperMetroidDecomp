@@ -27,16 +27,16 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
                 SetLink(NoobTubeProgram.WaitForInput);
                 break;
             case NoobTubeCue.ArmPowerBombWake:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb;
+                slot.PreInstruction = NoobTubePreInstructions.WakeOnPowerBomb;
                 break;
             case NoobTubeCue.LinkBreak:
                 SetLink(NoobTubeProgram.Break);
                 break;
             case NoobTubeCue.ArmInputWake:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput;
+                slot.PreInstruction = NoobTubePreInstructions.WakeOnAcceptedInput;
                 break;
             case NoobTubeCue.ClearPreInstruction:
-                slot.PreInstruction = (ushort)NoobTubePlmPreInstruction.Inactive;
+                slot.PreInstruction = NoobTubePreInstructions.Inactive;
                 break;
             case NoobTubeCue.LockSamus:
                 tube.SetSamusLocked(true);

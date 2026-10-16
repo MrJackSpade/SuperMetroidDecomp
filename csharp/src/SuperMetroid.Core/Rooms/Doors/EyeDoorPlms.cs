@@ -89,22 +89,19 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     }
 
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
-    internal void RunEyeDoorPreInstruction(PlmSlot slot)
+    internal void RunEyeDoorPreInstruction(PlmSlot slot, EyeDoorPreInstruction preInstruction)
     {
-        if (slot.Family is not EyeDoorPlmState eyeDoor || slot.PreInstruction == 0)
-            return;
-
+        EyeDoorPlmState eyeDoor = slot.Family as EyeDoorPlmState
+            ?? throw new InvalidOperationException("An eye door's wake ran without its component state.");
         Bank80SystemState system = _bindings.System ??
             throw new InvalidOperationException("A live eye door has no persistence owner.");
-        EyeDoorPreInstruction preInstruction =
-            ClosedNativeWords.Decode<EyeDoorPreInstruction>(slot.PreInstruction, "eye-door PLM pre-instruction");
         switch (preInstruction)
         {
             case EyeDoorPreInstruction.WakeWhenDoorBitSet:
                 if (unchecked((short)slot.RoomArgument) >= 0 &&
                     system.HasOpenedDoorBit(slot.RoomArgument))
                 {
-                    slot.PreInstruction = 0;
+                    slot.PreInstruction = PlmPreInstructions.Inert;
                     slot.WakeAtLink();
                 }
                 return;

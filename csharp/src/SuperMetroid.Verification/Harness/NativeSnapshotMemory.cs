@@ -258,8 +258,6 @@ internal static class NativeSnapshotMemory
     /// <summary>$0A56: Samus BombJumpDirection native movement state.</summary>
     public const int BombJumpDirection = 0x0a56;
 
-    /// <summary>$84:84E6: RTS installed as the default PLM pre-instruction.</summary>
-    public const ushort PlmDefaultPreInstruction = 0x84e6;
     /// <summary>$84:BE4B: grey-door condition pre-instruction dispatch table.</summary>
     public const int GreyDoorConditionTable = 0x84be4b;
     /// <summary>Bank $84 contains PLM programs and callback identities.</summary>

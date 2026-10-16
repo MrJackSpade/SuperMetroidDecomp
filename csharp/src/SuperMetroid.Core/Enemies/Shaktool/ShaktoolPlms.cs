@@ -45,7 +45,6 @@ internal sealed class ShaktoolPlms
     internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
         ushort powerBombExplosionStatus)
     {
-        if (slot.PreInstruction != ShaktoolRoomPlmRomData.PreInstruction) return;
         if (scrolls is null || _bindings.Samus?.Current is not { } samus || _bindings.Events is null)
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         // The cartridge tests the entire status word, not just its active high bit.

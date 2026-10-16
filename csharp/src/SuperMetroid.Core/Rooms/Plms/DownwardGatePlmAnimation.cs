@@ -28,10 +28,10 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
                 slot.LoopTimer = 0;
                 break;
             case DownwardGateCue.ArmWakeIfTriggered:
-                slot.PreInstruction = (ushort)DownwardGatePreInstruction.WakeIfTriggered;
+                slot.PreInstruction = DownwardGatePreInstructions.WakeIfTriggered;
                 break;
             case DownwardGateCue.ArmWakeIfTriggeredOrSamusBelow:
-                slot.PreInstruction = (ushort)DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow;
+                slot.PreInstruction = DownwardGatePreInstructions.WakeIfTriggeredOrSamusBelow;
                 break;
             case DownwardGateCue.SpawnMovingGate:
                 context.Plms.Gates.SpawnMovingGateProjectile(slot);

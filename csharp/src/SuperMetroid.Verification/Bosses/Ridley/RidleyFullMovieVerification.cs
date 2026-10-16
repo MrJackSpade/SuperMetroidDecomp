@@ -1378,7 +1378,7 @@ internal static class RidleyFullMovieVerification
                     Check($"PLM {slotIndex} header", active ? (ushort)slot.HeaderPointer : (ushort)0, NativeSnapshotMemory.PlmHeaders + offset);
                     if (!active || W(NativeSnapshotMemory.PlmHeaders + offset) == 0) continue;
                     ushort instruction = slot.InstructionPointer;
-                    ushort preInstruction = slot.PreInstruction == 0 ? NativeSnapshotMemory.PlmDefaultPreInstruction : slot.PreInstruction;
+                    ushort preInstruction = slot.PreInstruction;
                     var greyDoor = runtime.Plms.GreyDoorSnapshots.FirstOrDefault(door => door.Header == slot.HeaderPointer && door.BlockIndex == slot.BlockIndex);
                     AssertTrue(greyDoor.Header != PlmHeaderId.None,
                         $"Movie PLM {(int)slot.HeaderPointer:X4} needs a family-variable coverage mapping");

@@ -186,16 +186,10 @@ internal sealed class GatePlms : IPlmFamilySource
     }
 
     /// <summary>Wakes a resident gate when shot or when Samus occupies the column for the appropriate pre-instruction.</summary>
-    internal void RunDownwardGatePreInstruction(PlmSlot slot)
+    internal void RunDownwardGatePreInstruction(PlmSlot slot, DownwardGatePreInstruction preInstruction)
     {
-        if (slot.Family is not DownwardGatePlmState)
-            return;
-
-        DownwardGatePreInstruction preInstruction = ClosedNativeWords.Decode<DownwardGatePreInstruction>(
-            slot.PreInstruction, "downward gate pre-instruction");
         bool wake = preInstruction switch
         {
-            DownwardGatePreInstruction.None or DownwardGatePreInstruction.Inert => false,
             DownwardGatePreInstruction.WakeIfTriggered => slot.LoopTimer != 0,
             DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow =>
                 slot.LoopTimer != 0 || IsSamusInsideDownwardGateColumn(slot),
@@ -206,7 +200,7 @@ internal sealed class GatePlms : IPlmFamilySource
             return;
 
         slot.WakePastSleep();
-        slot.PreInstruction = (ushort)DownwardGatePreInstruction.Inert;
+        slot.PreInstruction = DownwardGatePreInstructions.Inert;
     }
 
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>

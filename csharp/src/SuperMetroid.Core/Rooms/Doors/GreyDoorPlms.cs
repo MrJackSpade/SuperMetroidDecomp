@@ -39,16 +39,10 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// (setting Zebes awake for the enemy quota), and otherwise plays the dud sound for a shot; once activated, any
     /// shot wakes the cap at its hit. Each consumes the hit word.
     /// </summary>
-    internal void RunGreyDoorPreInstruction(PlmSlot slot, ushort enemyDeaths, byte enemyDeathQuota)
+    internal void RunGreyDoorPreInstruction(PlmSlot slot, GreyDoorPreInstruction preInstruction, ushort enemyDeaths, byte enemyDeathQuota)
     {
-        if (slot.Family is not GreyDoorPlmState)
-            return;
-        GreyDoorPreInstruction preInstruction = ClosedNativeWords.Decode<GreyDoorPreInstruction>(
-            slot.PreInstruction, "grey-door pre-instruction");
         switch (preInstruction)
         {
-            case GreyDoorPreInstruction.None:
-                return;
             case GreyDoorPreInstruction.WakeWhenShot:
                 if (slot.LoopTimer == 0)
                     return;

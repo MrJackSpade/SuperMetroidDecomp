@@ -562,7 +562,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(39, loaded.NativeSlotIndex,
             "Wrecked Ship attic actor receives the native highest free slot");
         AssertTrue(loaded.Animation is WreckedShipAtticPlmAnimation, "Wrecked Ship attic actor starts its typed program");
-        AssertEqual(0, loaded.PreInstruction,
+        AssertEqual(PlmPreInstructionDefinitions.SpawnDefault, loaded.PreInstruction,
             "Wrecked Ship attic callback is not installed before its first handler pass");
 
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -578,13 +578,10 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(0x9123, level.GetCollisionBlock(new(blockX, blockY)).LevelWord,
             "inert attic callback leaves authored terrain unchanged");
 
-        // A saved/corrupt live state can still supply an unsupported callback even
-        // though the compiled retail list cannot. Inject that state after install so
-        // the family dispatcher remains loudly exhaustive without reopening ROM reads.
-        plms.SlotTable._slots[39].PreInstruction = 0x9876;
+        // No slot can hold an untranslated pre-instruction: a list's $84:86C1 operand is rejected where it is decoded.
         AssertThrows<InvalidDataException>(
-            () => plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
-            "unknown Wrecked Ship attic pre-instruction fails loudly");
+            () => PlmPreInstructions.FromListOperand(0x9876),
+            "an untranslated list-installed pre-instruction fails loudly at decode");
     }
 
     /// <summary>

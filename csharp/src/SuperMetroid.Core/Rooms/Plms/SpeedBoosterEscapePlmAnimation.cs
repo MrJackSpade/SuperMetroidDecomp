@@ -22,7 +22,7 @@ internal sealed class SpeedBoosterEscapePlmAnimation()
     /// <inheritdoc/>
     private protected override SpeedBoosterEscapeProgram? Publish(SpeedBoosterEscapePreInstruction cue, PlmSlot slot, PlmStepContext context)
     {
-        slot.PreInstruction = (ushort)cue;
+        slot.PreInstruction = SpeedBoosterEscapePreInstructions.Of(cue);
         return null;
     }
 }

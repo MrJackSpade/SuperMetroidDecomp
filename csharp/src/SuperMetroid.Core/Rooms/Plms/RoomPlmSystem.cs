@@ -215,21 +215,8 @@ public sealed class RoomPlmSystem
             if (slot.Family is { } family && _families.Step(slot, family, context) == PlmStepOutcome.Consumed)
                 continue;
 
-            DoorPlms.RunColoredDoorPreInstruction(slot);
-            GreyDoors.RunGreyDoorPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
-            Tourian.RunMetroidsClearedPreInstruction(slot, frame.EnemyDeaths, frame.EnemyDeathQuota);
-            Shaktool.RunShaktoolRoomPreInstruction(slot, frame.Scrolls, frame.PowerBombExplosionStatus);
-            SamusEater.RunSamusEaterPreInstruction(slot);
-            SpeedBoosterEscape.RunSpeedBoosterEscapePreInstruction(slot);
-            Tourian.RunOldTourianEscapeShaftWallPreInstruction(slot);
-            WreckedShipAtticPlms.RunWreckedShipAtticPreInstruction(slot);
-            BombTorizoHand.RunBombTorizoHandPreInstruction(slot);
-            ChozoStatuePlms.RunChozoStatuePreInstruction(level, slot);
-            MotherBrainGlassPlms.RunMotherBrainGlassPreInstruction(slot);
-            NoobTube.RunNoobTubePreInstruction(slot, frame.ControllerNewInput);
-            Gates.RunDownwardGatePreInstruction(slot);
-            EyeDoors.RunEyeDoorPreInstruction(slot);
-            DraygonCannonPlms.RunDraygonCannonPreInstruction(slot);
+            // Native JSR ($1CD7,x): the slot's one pre-instruction. A routine it installs runs from the next pass.
+            slot.PreInstruction.Run(slot, context);
             if (!slot.Active)
                 continue;
 
@@ -279,16 +266,15 @@ public sealed class RoomPlmSystem
                     // The operand is the bank-$84 pre-instruction run before this slot's
                     // timer on subsequent handler passes. Both glass and Bomb Torizo's
                     // sleeping hand use this exact four-byte form.
-                    slot.PreInstruction = ReadProgramWord(
+                    slot.PreInstruction = PlmPreInstructions.FromListOperand(ReadProgramWord(
                         bus,
-                        unchecked((ushort)(slot.InstructionPointer + 2)));
+                        unchecked((ushort)(slot.InstructionPointer + 2))));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                     continue;
 
                 case RoomPlmInstruction.ClearPreInstruction:
-                    // $84:86CA installs the shared RTS callback. Zero is the C# semantic
-                    // representation of that inert routine for non-family-specific slots.
-                    slot.PreInstruction = 0;
+                    // $84:86CA installs the shared RTS callback.
+                    slot.PreInstruction = PlmPreInstructions.Inert;
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 

@@ -21,7 +21,7 @@ internal sealed class SamusEaterPlmAnimation(SamusEaterProgram program)
         switch (cue)
         {
             case SamusEaterCue.HoldSamus:
-                slot.PreInstruction = SamusEaterPlmRomData.HoldPreInstruction;
+                slot.PreInstruction = SamusEaterPreInstructions.Hold;
                 break;
             case SamusEaterCue.QueueChewSound:
                 context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, SamusEaterPlmRomData.ChewSound),
@@ -34,7 +34,7 @@ internal sealed class SamusEaterPlmAnimation(SamusEaterProgram program)
                 context.Plms.SamusEater.ReleaseSamus();
                 break;
             case SamusEaterCue.ClearPreInstruction:
-                slot.PreInstruction = 0;
+                slot.PreInstruction = PlmPreInstructions.Inert;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusEaterCue)} {cue}.");

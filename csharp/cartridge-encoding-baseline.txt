@@ -20,7 +20,6 @@ csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainPaletteWorkRam.cs	SME
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainRoomPaletteProgramDefinitions.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Bosses/MotherBrain/RinkaBehavior.cs	SME6340	25
 csharp/src/SuperMetroid.Core/Bosses/Ridley/RidleyClawOffsets.cs	SME6342	1
-csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPlms.cs	SME6341	1
 csharp/src/SuperMetroid.Core/Enemies/EnemyDeathsAndDrops.cs	SME6349	1
 csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipBehavior.cs	SME6349	3
 csharp/src/SuperMetroid.Core/Enemies/Kago/KagoBehavior.cs	SME6349	1
@@ -947,7 +946,7 @@ csharp/src/SuperMetroid.Verification/Harness/LookupStream4Verification.cs	SME634
 csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs	SME6340	128
 csharp/src/SuperMetroid.Verification/Harness/LookupStream5Verification.cs	SME6342	6
 csharp/src/SuperMetroid.Verification/Harness/MovieDesyncMemory.cs	SME6340	40
-csharp/src/SuperMetroid.Verification/Harness/NativeSnapshotMemory.cs	SME6340	303
+csharp/src/SuperMetroid.Verification/Harness/NativeSnapshotMemory.cs	SME6340	302
 csharp/src/SuperMetroid.Verification/Harness/OperationContractsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Harness/Program.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Harness/ReplayMovie.cs	SME6340	9

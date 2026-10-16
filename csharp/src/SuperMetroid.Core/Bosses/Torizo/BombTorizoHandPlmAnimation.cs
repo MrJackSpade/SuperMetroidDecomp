@@ -26,7 +26,7 @@ internal sealed class BombTorizoHandPlmAnimation()
         switch (cue.Kind)
         {
             case BombTorizoHandCueKind.ArmBombWake:
-                slot.PreInstruction = BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction;
+                slot.PreInstruction = BombTorizoHandPreInstructions.WakeIfSamusHasBombs;
                 break;
             case BombTorizoHandCueKind.CopyDebrisTiles:
                 hand.CopyDebrisTiles();

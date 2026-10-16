@@ -36,8 +36,8 @@ internal sealed class PlmSlot
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
     public NativeCountdown InstructionTimer { get; set; }
-    /// <summary>Native bank-$84 pre-instruction pointer run before the timer/list pass.</summary>
-    public ushort PreInstruction { get; set; }
+    /// <summary>The pre-instruction run before the timer/list pass (native bank-$84 pointer <c>$1CD7,x</c>).</summary>
+    internal IPlmPreInstruction PreInstruction { get; set; } = PlmPreInstructions.Inert;
     /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
     public ushort RoomArgument { get; set; }
     /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
@@ -64,7 +64,7 @@ internal sealed class PlmSlot
         RestoreLevelWord = 0;
         InstructionPointer = 0;
         InstructionTimer = NativeCountdown.Start(0);
-        PreInstruction = 0;
+        PreInstruction = PlmPreInstructions.Inert;
         RoomArgument = 0;
         LoopTimer = 0;
         LinkInstruction = 0;

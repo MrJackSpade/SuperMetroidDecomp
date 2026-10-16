@@ -255,7 +255,7 @@ internal sealed class BossRoomMutationPlms
             slot.BlockIndex = level.GetBlockIndex(block);
             slot.RestoreLevelWord = 0;
             slot.LoopTimer = 0;
-            slot.PreInstruction = 0;
+            slot.PreInstruction = PlmPreInstructions.Inert;
             slot.RoomArgument = 0;
             PlmProgramStart.Delete.StartOn(slot);
             slot.InstructionTimer = NativeCountdown.Start(1);

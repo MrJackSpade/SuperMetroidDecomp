@@ -158,13 +158,11 @@ internal sealed class DoorPlms : IPlmFamilySource
     /// The coloured cap's shot wake (<c>$84:BD26</c>, <c>$BD50</c>, <c>$BD88</c>): a hit by the colour's projectile wakes
     /// the cap at its hit program; any other hit queues the dud sound. Either way the hit word is consumed.
     /// </summary>
-    internal void RunColoredDoorPreInstruction(PlmSlot slot)
+    internal void RunColoredDoorWake(PlmSlot slot, ColoredDoorPreInstruction preInstruction)
     {
-        if (slot.Family is not ColoredDoorPlmState door)
-            return;
-        ColoredDoorPreInstruction preInstruction = ClosedNativeWords.Decode<ColoredDoorPreInstruction>(
-            slot.PreInstruction, "coloured-door pre-instruction");
-        if (preInstruction == ColoredDoorPreInstruction.None || slot.LoopTimer == 0)
+        ColoredDoorPlmState door = slot.Family as ColoredDoorPlmState
+            ?? throw new InvalidOperationException("A coloured cap's wake ran without its door state.");
+        if (slot.LoopTimer == 0)
             return;
         SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
         bool accepted = preInstruction switch
@@ -217,7 +215,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             system.SetOpenedDoorBit(slot.RoomArgument);
             slot.RoomArgument = (ushort)(NonPersistentArgumentBit | system.GetOpenedDoorWordRaw(slot.RoomArgument >> 3));
         }
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
 
     /// <summary><c>$84:8A91</c>: counts a hit on a coloured cap; true when it opens the door.</summary>
@@ -332,7 +330,7 @@ internal sealed class DoorPlms : IPlmFamilySource
             slot.RestoreLevelWord = 0;
             slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
             slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.PreInstruction = 0;
+            slot.PreInstruction = PlmPreInstructions.Inert;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
             slot.Family = null;

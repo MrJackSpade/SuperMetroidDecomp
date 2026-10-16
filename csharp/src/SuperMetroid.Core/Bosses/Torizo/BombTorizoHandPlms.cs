@@ -85,14 +85,6 @@ internal sealed class BombTorizoHandPlms
     /// </summary>
     internal void RunBombTorizoHandPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand || slot.PreInstruction == 0)
-            return;
-        if (slot.PreInstruction != BombTorizoHandPlmProgramDefinitions.WakeIfSamusHasBombsPreInstruction)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo hand has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
-        }
-
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException(
                 "A live Bomb Torizo hand PLM has no active Samus inventory owner.");
@@ -102,7 +94,7 @@ internal sealed class BombTorizoHandPlms
         // The sleeping opcode leaves Y pointing at itself. D33B adds two to skip that word,
         // restores the instruction timer to one, and replaces its pre-instruction with RTS.
         slot.WakePastSleep();
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
     /// <summary><c>$84:87E5</c>: copies the Chozo debris tiles to VRAM before the hand crumbles.</summary>
     internal void CopyDebrisTiles() =>
@@ -135,6 +127,6 @@ internal sealed class BombTorizoHandPlms
         if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
             return;
         slot.HeaderPointer = 0;
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
 }

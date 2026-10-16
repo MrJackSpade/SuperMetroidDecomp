@@ -26,7 +26,7 @@ internal sealed class TourianPlms
     /// </summary>
     internal static void SetupMetroidsClearedSlot(PlmSlot slot)
     {
-        slot.PreInstruction = MetroidsClearedPlmRomData.ResolvePreInstruction(slot.RoomArgument);
+        slot.PreInstruction = TourianPreInstructions.MetroidsClearedFor(slot.RoomArgument);
         slot.StartAnimation(new RoomPlmSharedAnimation(RoomPlmSharedProgram.Sleep));
     }
 
@@ -36,31 +36,13 @@ internal sealed class TourianPlms
     /// handlers compare the complete enemy-death word with the room's required-kill byte and
     /// repeatedly mark their idempotent event once the quota is reached.
     /// </summary>
-    internal void RunMetroidsClearedPreInstruction(
-        PlmSlot slot,
-        ushort enemyDeaths,
-        byte enemyDeathQuota)
+    internal void RunMetroidsClearedObserver(EventNumber eventNumber, ushort enemyDeaths, byte enemyDeathQuota)
     {
-        if (slot.HeaderPointer != PlmHeaderId.SetMetroidsClearedStatesWhenRequired)
-            return;
-
-        ushort expectedPreInstruction =
-            MetroidsClearedPlmRomData.ResolvePreInstruction(slot.RoomArgument);
-        if (slot.PreInstruction != expectedPreInstruction)
-        {
-            throw new InvalidDataException(
-                $"Metroids-cleared PLM argument ${slot.RoomArgument:X4} selected " +
-                $"pre-instruction $84:{slot.PreInstruction:X4}, expected " +
-                $"$84:{expectedPreInstruction:X4}.");
-        }
-
-        EventNumber? eventNumber = MetroidsClearedPlmRomData.ResolveEvent(slot.RoomArgument);
-        if (eventNumber is null || enemyDeaths < enemyDeathQuota)
+        if (enemyDeaths < enemyDeathQuota)
             return;
 
         (_bindings.Events ?? throw new InvalidOperationException(
-            "Metroids-cleared PLM reached its kill quota without a room event writer.")).Set(
-                eventNumber.Value);
+            "Metroids-cleared PLM reached its kill quota without a room event writer.")).Set(eventNumber);
     }
 
     /// <summary>
@@ -99,16 +81,8 @@ internal sealed class TourianPlms
     /// Samus is not strictly below and right of the target it returns carry set and nothing
     /// happens.
     /// </summary>
-    internal void RunOldTourianEscapeShaftWallPreInstruction(PlmSlot slot)
+    internal void RunOldTourianEscapeShaftWallWait(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.OldTourianEscapeShaftFakeWall || slot.PreInstruction == 0)
-            return;
-        if (slot.PreInstruction != OldTourianEscapeShaftWallPlmDefinitions.WaitForSamusPreInstruction)
-        {
-            throw new InvalidDataException(
-                $"Old Tourian escape-shaft wall installed unknown pre-instruction $84:{slot.PreInstruction:X4}.");
-        }
-
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException("Old Tourian escape-shaft wall has no live Samus owner.");
         if (OldTourianEscapeShaftWallPlmDefinitions.WakeTargetX >= samus.Position.X.Whole ||

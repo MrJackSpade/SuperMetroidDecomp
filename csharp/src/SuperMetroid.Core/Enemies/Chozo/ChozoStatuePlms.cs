@@ -168,7 +168,6 @@ internal sealed class ChozoStatuePlms
     /// <summary>Restores the Lower Norfair hand collision block once its trigger location becomes air.</summary>
     internal static void RunChozoStatuePreInstruction(RoomLevelData level, PlmSlot slot)
     {
-        if (slot.PreInstruction != ChozoStatuePlmRomData.WaitForLowerNorfairHand) return;
         int index = level.GetBlockIndex(new(ChozoStatuePlmRomData.LowerNorfairTriggerX, ChozoStatuePlmRomData.LowerNorfairTriggerY));
         if (level.GetCollisionBlockByIndex(index).LevelWord != ChozoStatuePlmRomData.BlankAirLevelWord) return;
         WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,

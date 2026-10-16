@@ -101,7 +101,7 @@ internal static class RoomPlmSystemAccess
                     ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
                     (entry.door).HitCounter,
                     entry.slot.Animation,
-                    entry.slot.PreInstruction)),
+                    entry.slot.PreInstruction.NativeRoutine)),
         ];
 
         /// <summary>
@@ -116,7 +116,7 @@ internal static class RoomPlmSystemAccess
             {
                 if (slot.BlockIndex != blockIndex || slot.Family is not (ColoredDoorPlmState or GreyDoorPlmState))
                     continue;
-                if (slot.PreInstruction == 0)
+                if (slot.PreInstruction == PlmPreInstructions.Inert)
                     return false;
                 return self.ProjectileTriggers.TryNotifyResidentProjectileHit(blockIndex, projectileType);
             }
@@ -255,7 +255,7 @@ internal static class RoomPlmSystemAccess
                 BlockIndex: slot.BlockIndex,
                 RoomArgument: slot.RoomArgument,
                 InstructionPointer: slot.InstructionPointer,
-                PreInstruction: slot.PreInstruction,
+                PreInstruction: slot.PreInstruction.NativeRoutine,
                 InstructionTimer: slot.InstructionTimer.RawValue,
                 LinkInstruction: slot.LinkInstruction,
                 LoopTimer: slot.LoopTimer,

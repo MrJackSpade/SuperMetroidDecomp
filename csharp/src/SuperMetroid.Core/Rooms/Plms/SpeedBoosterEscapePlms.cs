@@ -36,11 +36,8 @@ internal sealed class SpeedBoosterEscapePlms
     }
 
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
-    internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot)
+    internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot, SpeedBoosterEscapePreInstruction preInstruction)
     {
-        if (slot.HeaderPointer != PlmHeaderId.SpeedBoosterEscape)
-            return;
-
         RoomLayer3FxState fx = _bindings.RoomFx
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM lost its room-FX owner.");
@@ -48,14 +45,8 @@ internal sealed class SpeedBoosterEscapePlms
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM has no live Samus owner.");
 
-        SpeedBoosterEscapePreInstruction preInstruction =
-            ClosedNativeWords.Decode<SpeedBoosterEscapePreInstruction>(
-                slot.PreInstruction, "Speed Booster escape pre-instruction");
         switch (preInstruction)
         {
-            case SpeedBoosterEscapePreInstruction.None:
-                return;
-
             case SpeedBoosterEscapePreInstruction.WaitForSpeedBooster:
                 RunWaitForSpeedBooster(slot, samus, fx);
                 return;

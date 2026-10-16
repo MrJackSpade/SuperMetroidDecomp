@@ -26,7 +26,6 @@ internal sealed class MotherBrainGlassPlms
         _sounds = sounds;
     }
     /// <summary>Only pre-instruction accepted from the installed Mother Brain glass header.</summary>
-    private const ushort MotherBrainGlassPreInstruction = MotherBrainGlassPlmProgramDefinitions.HitPreInstruction;
     /// <summary>Four shard spawns emitted by the most recent shatter instruction.</summary>
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
@@ -109,16 +108,6 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Counts missile or super-missile block hits through the installed glass pre-instruction.</summary>
     internal static void RunMotherBrainGlassPreInstruction(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass || slot.PreInstruction == 0)
-            return;
-        if (slot.PreInstruction != MotherBrainGlassPreInstruction)
-        {
-            // Header `$D5F6` installs exactly `$D4BF`; a different live word indicates
-            // corrupted PLM state or an incorrectly reused slot, not another glass route.
-            throw new InvalidDataException(
-                $"Mother Brain glass has invalid pre-instruction $84:{slot.PreInstruction:X4}.");
-        }
-
         SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
         if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
@@ -180,6 +169,6 @@ internal sealed class MotherBrainGlassPlms
         // Deleted physical slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.
         slot.HeaderPointer = 0;
-        slot.PreInstruction = 0;
+        slot.PreInstruction = PlmPreInstructions.Inert;
     }
 }

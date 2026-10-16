@@ -51,7 +51,6 @@ internal sealed class SamusEaterPlms
     /// <summary>Repositions held Samus after normal movement and ORs in the native invincibility bit.</summary>
     internal void RunSamusEaterPreInstruction(PlmSlot slot)
     {
-        if (slot.PreInstruction != SamusEaterPlmRomData.HoldPreInstruction) return;
         var samus = RequirePlantSamus();
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal

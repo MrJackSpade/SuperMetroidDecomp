@@ -110,7 +110,7 @@ public static class GitHubErrorReporterSmokeTest
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
         var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         string before = game.CaptureGameplayFailureContext();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);
         string after = game.CaptureGameplayFailureContext();

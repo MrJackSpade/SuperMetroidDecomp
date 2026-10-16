@@ -52,8 +52,8 @@ internal static class ReserveAutoFrontendVerification
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
         var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
-        var recovery = game.reserveRecovery;
+        game.Session.runtime = runtime;
+        var recovery = game.Session.reserveRecovery;
         // Enter through actual state-eight routing, not by calling recovery.Begin:
         // the zero-health gameplay frame must publish recovery without consuming
         // the first reserve point early or letting Start replace it with pause.
@@ -89,7 +89,7 @@ internal static class ReserveAutoFrontendVerification
             "completion unfreezes the gameplay projectile pass on the same frame");
         AssertTrue(runtime.Player.LastGroundedSamusMovement is not null,
             "native $82:DC18 unfreezes BEFORE the completion frame gameplay/movement pass");
-        var audio = game.audio;
+        var audio = game.Session.audio;
         samus.HealthWarning.Update(99, audio);
         samus.Health = 0; samus.ReserveEnergy = 33;
         // Seed the display at the pre-transfer health. Each subsequent gameplay

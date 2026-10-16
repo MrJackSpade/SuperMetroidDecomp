@@ -43907,6 +43907,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.AttractGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/AttractGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.CapturedFrontendFrame",
       "kind": "record struct",
       "scope": "product",
@@ -45215,6 +45228,45 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.CinematicGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/CinematicGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.DeathGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/DeathGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.DoorGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/DoorGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.CreditsInstruction",
@@ -48706,6 +48758,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.FrontendSession",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/FrontendSession.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.GameArtwork",
       "kind": "record",
       "scope": "product",
@@ -49232,6 +49297,71 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.GamePhase",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/GamePhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.GamePhaseAudio",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/GamePhaseAudio.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.GamePhaseTable",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/GamePhaseTable.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.GameplayGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/GameplayGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.IGamePhase",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/IGamePhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpritePoseDefinitions",
@@ -52325,6 +52455,32 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.LoadingGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/LoadingGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.MainLoopRandomCall",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/MainLoopRandomCall.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Map.Artwork.AreaMapPresentationCatalog",
       "kind": "class",
       "scope": "product",
@@ -53376,6 +53532,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.MenuGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/MenuGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Menus.Artwork.MenuAtlasCellDefinitions",
@@ -55499,6 +55668,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Frontend.PauseGamePhases",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/PauseGamePhases.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Frontend.Recording.ControllerInputRecording",
       "kind": "record",
       "scope": "product",
@@ -55587,11 +55769,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/SuperMetroidGame.cs"
       ],
       "partial": "none",
-      "disposition": "frontend-dispatcher",
-      "flags": [
-        "large"
-      ],
-      "review": "reviewed"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Frontend.SuperMetroidGameAccess",
@@ -56301,6 +56479,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.UnreachableGamePhase",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/UnreachableGamePhase.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Fx.AnimatedTileInstruction",

@@ -43,24 +43,24 @@ internal static class CoreAccess
     extension(SuperMetroidGame game)
     {
         /// <summary>Reads the gameplay runtime currently owned by the frontend state machine.</summary>
-        internal SuperMetroidRuntime? RuntimeForVerification => game.runtime;
+        internal SuperMetroidRuntime? RuntimeForVerification => game.Session.runtime;
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
-        internal SuperMetroidRuntime GameplayRuntimeForVerification => game.GameplayRuntime;
+        internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
         /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
-        internal int AttractDemoHoldFramesRemaining => game.demoHoldFramesRemaining;
+        internal int AttractDemoHoldFramesRemaining => game.Session.demoHoldFramesRemaining;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
-        internal CartridgeAudioState AudioForVerification => game.audio;
+        internal CartridgeAudioState AudioForVerification => game.Session.audio;
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
-        internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.audioSession.Acknowledgements;
+        internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.Session.audioSession.Acknowledgements;
         /// <summary>The most recent update's ordered semantic audio events.</summary>
-        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.lastAudioEvents;
+        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.lastAudioEvents;
         /// <summary>Reads the menu NMI frame counter used by frontend animation timing.</summary>
-        internal ushort MenuNmiFrameCounterForVerification => game.menuNmi.FrameCounter;
+        internal ushort MenuNmiFrameCounterForVerification => game.Session.menuNmi.FrameCounter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
-            game.ceresDestruction;
+            game.Session.ceresDestruction;
 
         /// <summary>
         /// Applies the controller read of a native NMI accepted during the door music-wait APU

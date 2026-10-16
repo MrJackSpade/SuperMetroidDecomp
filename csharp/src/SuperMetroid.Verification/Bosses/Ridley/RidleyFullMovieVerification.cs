@@ -302,7 +302,7 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
         foreach (var state in new[] { SuperMetroidGameState.Pausing, SuperMetroidGameState.PausedA,
@@ -703,10 +703,10 @@ internal static class RidleyFullMovieVerification
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
-        var menu = game.pauseMenu;
+        var menu = game.Session.pauseMenu;
         var menuPalette = ((PauseMenuState)(menu ?? throw new InvalidOperationException("Verification requires menu."))).cgram;
         Bgr555[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
@@ -720,7 +720,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
         Bgr555[] animated = menuPalette.Colors.ToArray();
         game.GameState = SuperMetroidGameState.UnpausingA;
-        game.BeginPauseFade((byte)15);
+        game.Session.BeginPauseFade((byte)15);
         fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.UnpausingA && fadeFrames++ < 32)
         {
@@ -763,8 +763,8 @@ internal static class RidleyFullMovieVerification
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
         AssertEqual((ushort)0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
@@ -1252,7 +1252,7 @@ internal static class RidleyFullMovieVerification
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
-                object menu = game.pauseMenu ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
+                object menu = game.Session.pauseMenu ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
                 comparedPalette = ((PauseMenuState)menu).cgram;
             }
             if (!deferLoadingOwners)

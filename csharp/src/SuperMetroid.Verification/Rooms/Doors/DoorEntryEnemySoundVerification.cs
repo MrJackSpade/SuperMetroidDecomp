@@ -49,8 +49,8 @@ internal static class DoorEntryEnemySoundVerification
         body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         var level = runtime.Room.LoadedLevelData;
         bool selected = false;
         for (int y = 0; y < level.Size.Y && !selected; y++)

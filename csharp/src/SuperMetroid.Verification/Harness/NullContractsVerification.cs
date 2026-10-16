@@ -65,7 +65,7 @@ internal static class NullContractsVerification
         var enemies = new RoomEnemySystem();
         AssertThrows<InvalidOperationException>(() => _ = enemies.Presentation.Cgram, "enemy palettes require bound CGRAM");
         var game = new SuperMetroidGame(SuperMetroidAddressSpace.CreateWithoutCartridge());
-        AssertThrows<InvalidOperationException>(() => _ = game.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");
+        AssertThrows<InvalidOperationException>(() => _ = game.Session.GameplayRuntime, "the frontend has no gameplay runtime before a game loads");
         Console.WriteLine("#623 null contracts: JSON, node, reflection and lifecycle wrappers return present values and fail with context when absent.");
     }
 

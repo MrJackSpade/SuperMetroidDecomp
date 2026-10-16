@@ -29,115 +29,115 @@ using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The menu phases: reset, title, file select, options, file-select map and game over.</summary>
-/// <param name="game">The SuperMetroidGame whose shared state these members use.</param>
-internal sealed class MenuGamePhases(SuperMetroidGame game)
+/// <param name="session">The frontend session these phases run against.</param>
+internal sealed class MenuGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Reset"/>.</summary>
     internal void DispatchReset()
     {
-        game.demoSet = 0;
-        game.demoScene = 0;
-        game.demoLoadFramesRemaining = -1;
+        session.demoSet = 0;
+        session.demoScene = 0;
+        session.demoLoadFramesRemaining = -1;
         // `Vector_RESET_Async` ultimately stores state one and initializes
         // `cinematic_function` to `CinematicFunctionOpening` at $8B:9B68.
-        game.audio.Reset();
+        session.audio.Reset();
         // CommonBootSection clears bank $7E on a soft reset, discarding every gameplay
         // owner. The reseeded RNG and NMI counters already live in the menu owners.
-        game.runtime = null;
-        game.title = new TitleSequenceState(
-            game.bus,
-            game.audio,
-            game.Artwork.MapPresentation?.TitleGradient,
-            game.Artwork.MapPresentation?.TitlePalette,
-            game.Artwork.MapPresentation?.TitleGraphics);
-        game.lastAudioRuntimeGameplayPublication = null;
-        game.lastAudioRoomStatePointer = null;
-        game.fileSelect = null;
-        game.fileSelectMap = null;
-        game.gameOver = null;
-        game.spacetimeIntroRestartSlot = null;
-        game.GameState = SuperMetroidGameState.OpeningCinematic;
-        game.display.PublishMenu(game.title);
+        session.runtime = null;
+        session.title = new TitleSequenceState(
+            session.bus,
+            session.audio,
+            session.Artwork.MapPresentation?.TitleGradient,
+            session.Artwork.MapPresentation?.TitlePalette,
+            session.Artwork.MapPresentation?.TitleGraphics);
+        session.lastAudioRuntimeGameplayPublication = null;
+        session.lastAudioRoomStatePointer = null;
+        session.fileSelect = null;
+        session.fileSelectMap = null;
+        session.gameOver = null;
+        session.spacetimeIntroRestartSlot = null;
+        session.GameState = SuperMetroidGameState.OpeningCinematic;
+        session.display.PublishMenu(session.title);
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.OpeningCinematic"/>.</summary>
     internal void DispatchOpeningCinematic(SnesButton controllerInput)
     {
-        game.ActiveTitle.Step(controllerInput);
-        game.display.PublishMenu(game.ActiveTitle);
-        if (game.ActiveTitle.FileSelectRequested)
+        session.ActiveTitle.Step(controllerInput);
+        session.display.PublishMenu(session.ActiveTitle);
+        if (session.ActiveTitle.FileSelectRequested)
         {
             // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
-            game.fileSelect = new FileSelectMenuState(game.bus, game.audio, game.Artwork.MapPresentation);
-            game.GameState = SuperMetroidGameState.FileSelectMenus;
-            game.display.PublishMenu(game.fileSelect);
+            session.fileSelect = new FileSelectMenuState(session.bus, session.audio, session.Artwork.MapPresentation);
+            session.GameState = SuperMetroidGameState.FileSelectMenus;
+            session.display.PublishMenu(session.fileSelect);
         }
-        else if (game.ActiveTitle.DemoRequested)
+        else if (session.ActiveTitle.DemoRequested)
         {
-            game.demoScene = 0;
-            game.demoLoadFramesRemaining = -1;
-            game.GameState = SuperMetroidGameState.TransitionToDemoA;
-            game.display.PublishBlack();
+            session.demoScene = 0;
+            session.demoLoadFramesRemaining = -1;
+            session.GameState = SuperMetroidGameState.TransitionToDemoA;
+            session.display.PublishBlack();
         }
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.FileSelectMenus"/>.</summary>
     internal void DispatchFileSelectMenus(SnesButton controllerInput)
     {
-        game.ActiveFileSelect.Step(controllerInput);
-        if (game.ActiveFileSelect.SaveRamChangedThisFrame)
-            game.RaiseSaveRamChanged();
-        game.display.PublishMenu(game.ActiveFileSelect);
-        if (game.ActiveFileSelect.TitleRequested)
+        session.ActiveFileSelect.Step(controllerInput);
+        if (session.ActiveFileSelect.SaveRamChangedThisFrame)
+            session.RaiseSaveRamChanged();
+        session.display.PublishMenu(session.ActiveFileSelect);
+        if (session.ActiveFileSelect.TitleRequested)
         {
             // The assembly calls SoftReset from menu index 33. Re-entering state
             // zero makes all frontend-owned state disposable and deterministic.
-            game.GameState = SuperMetroidGameState.Reset;
+            session.GameState = SuperMetroidGameState.Reset;
         }
-        else if (game.ActiveFileSelect.NewGameRequested)
+        else if (session.ActiveFileSelect.NewGameRequested)
         {
-            game.selectedSaveSlot = game.ActiveFileSelect.SelectedSaveSlot;
-            game.loadingExistingSave = game.ActiveFileSelect.SelectedSlotContainsSave;
-            game.saveRam.SelectSlot(game.selectedSaveSlot);
-            game.RaiseSaveRamChanged();
+            session.selectedSaveSlot = session.ActiveFileSelect.SelectedSaveSlot;
+            session.loadingExistingSave = session.ActiveFileSelect.SelectedSlotContainsSave;
+            session.saveRam.SelectSlot(session.selectedSaveSlot);
+            session.RaiseSaveRamChanged();
             // Existing slots restore the same seven controller words and two
             // special-settings words that SaveToSram copied from live WRAM. A new
             // slot begins with NewSaveFile's literal defaults.
-            SuperMetroidSaveSlot? optionSlot = game.loadingExistingSave
-                ? game.saveRam.ReadSlot(game.selectedSaveSlot)
+            SuperMetroidSaveSlot? optionSlot = session.loadingExistingSave
+                ? session.saveRam.ReadSlot(session.selectedSaveSlot)
                 : null;
-            game.options = new GameOptionsMenuState(
-                game.bus,
-                game.audio,
+            session.options = new GameOptionsMenuState(
+                session.bus,
+                session.audio,
                 optionSlot?.ControllerBindings,
                 optionSlot?.IconCancelEnabled ?? false,
                 optionSlot?.MoonwalkEnabled ?? false,
                 japaneseText: optionSlot?.JapaneseText ?? false,
-                mapPresentation: game.Artwork.MapPresentation)
+                mapPresentation: session.Artwork.MapPresentation)
             {
                 LoadingGameState = optionSlot?.StartupRoute ?? SaveLoadingGameState.OpeningCinematic,
             };
-            game.GameState = SuperMetroidGameState.GameOptionsMenu;
-            game.display.PublishMenu(game.options);
+            session.GameState = SuperMetroidGameState.GameOptionsMenu;
+            session.display.PublishMenu(session.options);
         }
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOptionsMenu"/>.</summary>
     internal void DispatchGameOptionsMenu(SnesButton controllerInput)
     {
-        game.ActiveOptions.Step(controllerInput);
-        game.display.PublishMenu(game.ActiveOptions);
-        if (game.ActiveOptions.FileSelectRequested)
+        session.ActiveOptions.Step(controllerInput);
+        session.display.PublishMenu(session.ActiveOptions);
+        if (session.ActiveOptions.FileSelectRequested)
         {
-            game.fileSelect = new FileSelectMenuState(game.bus, game.audio, game.Artwork.MapPresentation);
-            game.GameState = SuperMetroidGameState.FileSelectMenus;
-            game.display.PublishMenu(game.fileSelect);
+            session.fileSelect = new FileSelectMenuState(session.bus, session.audio, session.Artwork.MapPresentation);
+            session.GameState = SuperMetroidGameState.FileSelectMenus;
+            session.display.PublishMenu(session.fileSelect);
         }
-        else if (game.ActiveOptions.IntroRequested)
+        else if (session.ActiveOptions.IntroRequested)
         {
-            if (game.loadingExistingSave)
+            if (session.loadingExistingSave)
             {
-                SuperMetroidSaveSlot selectedSlot = game.saveRam.ReadSlot(game.selectedSaveSlot)
+                SuperMetroidSaveSlot selectedSlot = session.saveRam.ReadSlot(session.selectedSaveSlot)
                     ?? throw new InvalidDataException(
                         "The selected save became invalid before startup dispatch.");
                 if (selectedSlot.StartupRoute ==
@@ -147,18 +147,18 @@ internal sealed class MenuGamePhases(SuperMetroidGame game)
                     // to the intro while the already-loaded Samus inventory remains
                     // live. Retain that inventory for Ceres setup, but do not restore
                     // the corrupted progression planes into the fresh run.
-                    game.spacetimeIntroRestartSlot = selectedSlot;
-                    if (game.ConfiguredOptions.SkipOpeningCinematic)
+                    session.spacetimeIntroRestartSlot = selectedSlot;
+                    if (session.ConfiguredOptions.SkipOpeningCinematic)
                     {
-                        game.intro = null;
-                        game.GameState = SuperMetroidGameState.SetUpNewGame;
-                        game.display.PublishBlack();
+                        session.intro = null;
+                        session.GameState = SuperMetroidGameState.SetUpNewGame;
+                        session.display.PublishBlack();
                     }
                     else
                     {
-                        game.intro = CreateIntroCinematic(game.ActiveOptions.JapaneseText);
-                        game.GameState = SuperMetroidGameState.IntroCinematic;
-                        game.display.PublishIntro(game.intro);
+                        session.intro = CreateIntroCinematic(session.ActiveOptions.JapaneseText);
+                        session.GameState = SuperMetroidGameState.IntroCinematic;
+                        session.display.PublishIntro(session.intro);
                     }
                 }
                 else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
@@ -168,31 +168,31 @@ internal sealed class MenuGamePhases(SuperMetroidGame game)
                 else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
                 {
                     // The saved $1F word selects loading directly, without a map.
-                    game.GameState = SuperMetroidGameState.SetUpNewGame;
-                    game.display.PublishBlack();
+                    session.GameState = SuperMetroidGameState.SetUpNewGame;
+                    session.display.PublishBlack();
                 }
                 else
                 {
-                    game.fileSelectMap = null;
-                    game.GameState = SuperMetroidGameState.FileSelectMap;
-                    game.display.PublishBlack();
+                    session.fileSelectMap = null;
+                    session.GameState = SuperMetroidGameState.FileSelectMap;
+                    session.display.PublishBlack();
                 }
             }
-            else if (game.ConfiguredOptions.SkipOpeningCinematic)
+            else if (session.ConfiguredOptions.SkipOpeningCinematic)
             {
                 // This is the same dispatcher boundary reached by `$8B:C100` after
                 // the SPACE COLONY fade. Do not fake Start presses or build a host-
                 // authored Ceres room: the following frame will execute the ordinary
                 // new-game loader, elevator arrival, and movement-unlock sequence.
-                game.intro = null;
-                game.GameState = SuperMetroidGameState.SetUpNewGame;
-                game.display.PublishBlack();
+                session.intro = null;
+                session.GameState = SuperMetroidGameState.SetUpNewGame;
+                session.display.PublishBlack();
             }
             else
             {
-                game.intro = CreateIntroCinematic(game.ActiveOptions.JapaneseText);
-                game.GameState = SuperMetroidGameState.IntroCinematic;
-                game.display.PublishIntro(game.intro);
+                session.intro = CreateIntroCinematic(session.ActiveOptions.JapaneseText);
+                session.GameState = SuperMetroidGameState.IntroCinematic;
+                session.display.PublishIntro(session.intro);
             }
         }
     }
@@ -200,43 +200,43 @@ internal sealed class MenuGamePhases(SuperMetroidGame game)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOverMenu"/>.</summary>
     internal void DispatchGameOverMenu(SnesButton controllerInput)
     {
-        game.gameOver ??= new GameOverMenuState(game.bus, game.audio, game.Artwork.MapPresentation,
-            continueLoadsCeresArrival: game.saveRam.ReadSlot(game.selectedSaveSlot)?.StartupRoute ==
+        session.gameOver ??= new GameOverMenuState(session.bus, session.audio, session.Artwork.MapPresentation,
+            continueLoadsCeresArrival: session.saveRam.ReadSlot(session.selectedSaveSlot)?.StartupRoute ==
                 SaveLoadingGameState.CeresElevatorArrival);
-        game.gameOver.Step(controllerInput);
-        game.display.PublishMenu(game.gameOver);
-        if (game.gameOver.CeresArrivalRequested)
+        session.gameOver.Step(controllerInput);
+        session.display.PublishMenu(session.gameOver);
+        if (session.gameOver.CeresArrivalRequested)
         {
             // $81:9171 publishes state $1F and reloads the slot in the same dispatch;
             // the Ceres loader runs on the next update. Bank $7E's gameplay owners are
             // rebuilt from SRAM, so only the live RNG word survives.
-            game.gameOver = null;
-            game.loadingExistingSave = true;
-            game.ReleaseRuntimePreservingRandom();
-            game.GameState = SuperMetroidGameState.SetUpNewGame;
+            session.gameOver = null;
+            session.loadingExistingSave = true;
+            session.ReleaseRuntimePreservingRandom();
+            session.GameState = SuperMetroidGameState.SetUpNewGame;
         }
-        else if (game.gameOver.ContinueRequested)
+        else if (session.gameOver.ContinueRequested)
         {
             // Native menu index six publishes state $05 after the fully black
             // frame. Keep that dispatcher boundary separate from SRAM reload.
-            game.gameOver = null;
-            game.GameState = SuperMetroidGameState.FileSelectMap;
-            game.display.PublishBlack();
+            session.gameOver = null;
+            session.GameState = SuperMetroidGameState.FileSelectMap;
+            session.display.PublishBlack();
         }
-        else if (game.gameOver.TitleRequested)
+        else if (session.gameOver.TitleRequested)
         {
             // GameOverMenu_7 invokes SoftReset only after its fade reaches black.
-            game.gameOver = null;
-            game.GameState = SuperMetroidGameState.Reset;
-            game.display.PublishBlack();
+            session.gameOver = null;
+            session.GameState = SuperMetroidGameState.Reset;
+            session.display.PublishBlack();
         }
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.FileSelectMap"/>.</summary>
     internal void DispatchFileSelectMap(SnesButton controllerInput)
     {
-        game.loadingExistingSave = true;
-        SuperMetroidSaveSlot mapSlot = game.saveRam.ReadSlot(game.selectedSaveSlot)
+        session.loadingExistingSave = true;
+        SuperMetroidSaveSlot mapSlot = session.saveRam.ReadSlot(session.selectedSaveSlot)
             ?? throw new InvalidDataException("The selected save became invalid before map selection.");
         if (mapSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
         {
@@ -245,50 +245,50 @@ internal sealed class MenuGamePhases(SuperMetroidGame game)
         }
         if (mapSlot.Area != (ushort)AreaId.Ceres)
         {
-            if (game.fileSelectMap is { LoadRequested: true })
+            if (session.fileSelectMap is { LoadRequested: true })
             {
                 // $81:AF8C forced blank and waited for this NMI inside the previous map
                 // dispatch; returning, it raises the dispatcher to state six. The map runs no more.
-                game.fileSelectMap = null;
-                game.stateSixLoadingRoute = SaveLoadingGameState.MainGame;
-                game.GameState = SuperMetroidGameState.LoadingGameData;
-                game.display.PublishBlack();
+                session.fileSelectMap = null;
+                session.stateSixLoadingRoute = SaveLoadingGameState.MainGame;
+                session.GameState = SuperMetroidGameState.LoadingGameData;
+                session.display.PublishBlack();
                 return;
             }
-            if (game.fileSelectMap is null)
+            if (session.fileSelectMap is null)
             {
                 // Menu construction consumes only save/map data. A dead runtime
                 // must not keep publishing gameplay audio during map selection.
-                game.ReleaseRuntimePreservingRandom();
-                game.fileSelectMap = new FileSelectMapMenuState(game.bus, game.audio, mapSlot, controllerInput, game.Artwork.MapPresentation);
+                session.ReleaseRuntimePreservingRandom();
+                session.fileSelectMap = new FileSelectMapMenuState(session.bus, session.audio, mapSlot, controllerInput, session.Artwork.MapPresentation);
             }
-            else game.fileSelectMap.Step(controllerInput);
-            game.display.PublishFileMap(game.fileSelectMap);
-            if (game.fileSelectMap.OptionsRequested)
+            else session.fileSelectMap.Step(controllerInput);
+            session.display.PublishFileMap(session.fileSelectMap);
+            if (session.fileSelectMap.OptionsRequested)
             {
-                game.options = new GameOptionsMenuState(game.bus, game.audio, mapSlot.ControllerBindings,
+                session.options = new GameOptionsMenuState(session.bus, session.audio, mapSlot.ControllerBindings,
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
                     japaneseText: mapSlot.JapaneseText,
-                    mapPresentation: game.Artwork.MapPresentation);
-                game.fileSelectMap = null;
-                game.GameState = SuperMetroidGameState.GameOptionsMenu;
-                game.display.PublishMenu(game.options);
+                    mapPresentation: session.Artwork.MapPresentation);
+                session.fileSelectMap = null;
+                session.GameState = SuperMetroidGameState.GameOptionsMenu;
+                session.display.PublishMenu(session.options);
                 return;
             }
             // A latched load request waits for the next NMI before state six (see above).
             return;
         }
         // Ceres has no world-map entry; preserve its checkpoint arrival path.
-        bool continueUsesCeresArrival = game.SetupSelectedGame();
+        bool continueUsesCeresArrival = session.SetupSelectedGame();
         if (continueUsesCeresArrival)
         {
-            game.BeginGameplayFadeIn(leadsToCeresArrival: true);
-            game.display.PublishBlack();
+            session.BeginGameplayFadeIn(leadsToCeresArrival: true);
+            session.display.PublishBlack();
         }
         else
         {
-            game.BeginGameplayFadeIn(leadsToCeresArrival: false);
-            game.display.PublishBlack();
+            session.BeginGameplayFadeIn(leadsToCeresArrival: false);
+            session.display.PublishBlack();
         }
     }
 
@@ -299,34 +299,34 @@ internal sealed class MenuGamePhases(SuperMetroidGame game)
     /// </summary>
     private void StartSavedCeresDestruction(SuperMetroidSaveSlot slot)
     {
-        game.CreateGameplayRuntime();
-        game.runtime.RoomLoader.RestoreSavedPlayerState(slot, game.ConfiguredOptions.ResetBossesOnLoad);
+        session.CreateGameplayRuntime();
+        session.runtime.RoomLoader.RestoreSavedPlayerState(slot, session.ConfiguredOptions.ResetBossesOnLoad);
         // Unlike an ongoing escape, a file-select resume has a fresh gameplay
         // owner. Construct its ordinary HUD now so the cinematic's later room
         // handoff retains initialized HUD state and standard graphics transfers.
-        game.InitializeSelectedGameHud(slot);
-        game.runtime.NmiHandler.PublishForcedBlankTransfers();
-        game.ApplySelectedGameOptions();
-        game.ceresDestruction = new CeresDestructionCinematicState(
-            game.bus, game.audio, game.Artwork.MapPresentation?.PowerBombFixedColors,
-            game.Artwork.IntroCinematicArt, game.Artwork.MapPresentation?.RoomPaletteFx);
-        game.GameState = SuperMetroidGameState.CeresGoesBoom;
-        game.display.PublishBlack();
+        session.InitializeSelectedGameHud(slot);
+        session.runtime.NmiHandler.PublishForcedBlankTransfers();
+        session.ApplySelectedGameOptions();
+        session.ceresDestruction = new CeresDestructionCinematicState(
+            session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
+            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);
+        session.GameState = SuperMetroidGameState.CeresGoesBoom;
+        session.display.PublishBlack();
     }
 
     /// <summary>Starts the opening cinematic in the text language the options menu selected.</summary>
     private IntroCinematicState CreateIntroCinematic(bool japaneseText)
     {
         var cinematic = new IntroCinematicState(
-            game.bus, game.audio, game.Artwork.MapPresentation?.IntroFont, game.Artwork.IntroCinematicArt,
-            game.Artwork.BeamArtwork, game.Artwork.SamusBodyArt, japaneseText)
+            session.bus, session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
+            session.Artwork.BeamArtwork, session.Artwork.SamusBodyArt, japaneseText)
         {
-            ProjectileCompositions = game.Artwork.ProjectileCompositions,
-            ProjectileFrameBindings = game.Artwork.ProjectileFrameBindings,
-            TrailArtwork = game.Artwork.TrailArtwork,
-            NarrationPresentation = game.Artwork.MapPresentation?.IntroNarration,
+            ProjectileCompositions = session.Artwork.ProjectileCompositions,
+            ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
+            TrailArtwork = session.Artwork.TrailArtwork,
+            NarrationPresentation = session.Artwork.MapPresentation?.IntroNarration,
         };
-        cinematic.BindSamusHurtColors(game.Artwork.MapPresentation?.SamusHurtColors);
+        cinematic.BindSamusHurtColors(session.Artwork.MapPresentation?.SamusHurtColors);
         return cinematic;
     }
 }

@@ -39,8 +39,8 @@ internal static class PauseReserveHudVerification
         var game = new SuperMetroidGame(bus);
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued
         // DMA and presentation below are real production calls, not a fake refill.
-        game.runtime = runtime;
-        game.pauseMenu = pause;
+        game.Session.runtime = runtime;
+        game.Session.pauseMenu = pause;
         game.GameState = SuperMetroidGameState.PausedB;
         var displayed = pause.vram;
         ushort originalAuto = displayed.ReadWord(HudState.VramDestination + 8);

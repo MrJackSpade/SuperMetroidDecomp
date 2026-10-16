@@ -37,8 +37,8 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.Presentation.InitializeAnimation(bus);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c);
 
         var level = runtime.Room.LoadedLevelData;

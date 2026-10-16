@@ -41,8 +41,8 @@ internal static class DoorEntryRoomFxSoundVerification
         var runtime = LoadRisingTide(entry);
         var samus = runtime.Player.IntroducedSamus;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door)

@@ -170,7 +170,7 @@ internal static class ChargeFlarePlacementVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = CreateRetailGameFixture(bus);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
@@ -206,7 +206,7 @@ internal static class ChargeFlarePlacementVerification
         AssertTrue(without.WrittenBytes().SequenceEqual(with.WrittenBytes()), "Flare catalog does not enter frontend/runtime saved graphs");
         with.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlarePlacement is null, "Restored flare catalog requires host rebind");
         BindRetailRuntimeFixture(restoredRuntime);
         game.BindArtwork(game.Artwork with

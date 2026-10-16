@@ -35,7 +35,7 @@ internal static class GrappleTileBindingVerification
         samus.Grapple.RopeLength = 32;
         samus.Grapple.Anchor = new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 32));
         var game = CreateRetailGameFixture(bus);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
         AssertBoundTo(runtime, stock, "Actual actor pass binds the installed grapple tiles");
 
@@ -46,7 +46,7 @@ internal static class GrappleTileBindingVerification
         game.BindArtwork(game.Artwork with { GrappleArtwork = stock });
         using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.GrappleArtwork is null, "Restored state requires current host Grapple artwork");
         BindRetailRuntimeFixture(restoredRuntime);
         restored.BindArtwork(restored.Artwork with { GrappleArtwork = edited });

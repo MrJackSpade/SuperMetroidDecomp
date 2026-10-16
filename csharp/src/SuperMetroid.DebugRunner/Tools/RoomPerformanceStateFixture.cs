@@ -24,8 +24,8 @@ internal static class RoomPerformanceStateFixture
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        data.Game.SetupSelectedGame();
-        var runtime = data.Game.GameplayRuntime;
+        data.Game.Session.SetupSelectedGame();
+        var runtime = data.Game.Session.GameplayRuntime;
         bool surface = scene == "surface";
         ushort camera = surface ? (ushort)1024 : (ushort)0;
         if (scene == "map")

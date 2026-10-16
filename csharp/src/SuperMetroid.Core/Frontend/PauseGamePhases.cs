@@ -29,8 +29,8 @@ using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The pause-menu phases: loading pause assets, the pause screens and unpausing.</summary>
-/// <param name="game">The SuperMetroidGame whose shared state these members use.</param>
-internal sealed class PauseGamePhases(SuperMetroidGame game)
+/// <param name="session">The frontend session these phases run against.</param>
+internal sealed class PauseGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.Pausing"/>.</summary>
     internal void DispatchPausing(SnesButton controllerInput)
@@ -38,73 +38,73 @@ internal sealed class PauseGamePhases(SuperMetroidGame game)
         // `$82:8CEF` owns the force-blank setup frame: pause tiles, base maps,
         // palette, inventory labels, and PPU bases are installed before state $0E.
         // Keep accepting NMI so the controller's previous sample remains truthful.
-        game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
         // The pause hook returns directly into `$82:8D16`, which sends the three
         // cartridge stop sequences before any pause graphics are initialized.
         // Letting gameplay SFX continue under frozen gameplay causes stale echo,
         // charge, beam, or environmental voices to pulse throughout the menu.
-        game.audio.QueueCancelSoundEffects();
-        CartridgeRoomHeader pauseRoom = game.GameplayRuntime.Room.ActiveRoom ??
+        session.audio.QueueCancelSoundEffects();
+        CartridgeRoomHeader pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active cartridge room header.");
-        game.pauseMenu = new PauseMenuState(game.bus, new PauseMenuEntry { Samus = game.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
-                "Pause setup requires a live Samus state."), System = game.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = game.audio, GameplayVram = game.GameplayRuntime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation });
-        game.BeginPauseFade(0);
-        game.display.PublishMenu(game.pauseMenu);
-        game.ApplyDisplayBrightness(game.pauseBrightness);
-        game.GameState = SuperMetroidGameState.PausedA;
+        session.pauseMenu = new PauseMenuState(session.bus, new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
+                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayVram = session.GameplayRuntime.Vram, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation });
+        session.BeginPauseFade(0);
+        session.display.PublishMenu(session.pauseMenu);
+        session.ApplyDisplayBrightness(session.pauseBrightness);
+        session.GameState = SuperMetroidGameState.PausedA;
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedA"/>.</summary>
     internal void DispatchPausedA(SnesButton controllerInput)
     {
-        game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        game.pauseBrightness = game.screenFade.Advance(game.pauseBrightness, brightening: true);
-        game.ActivePauseMenu.AdvanceAnimations(game.GameplayRuntime.Nmi.NmiFrameCounter8, advancePalette: false);
-        game.display.PublishMenu(game.ActivePauseMenu);
-        game.ApplyDisplayBrightness(game.pauseBrightness);
-        if (game.pauseBrightness == PauseFadeTiming.FullyLit)
-            game.GameState = SuperMetroidGameState.PausedB;
+        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: true);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Nmi.NmiFrameCounter8, advancePalette: false);
+        session.display.PublishMenu(session.ActivePauseMenu);
+        session.ApplyDisplayBrightness(session.pauseBrightness);
+        if (session.pauseBrightness == PauseFadeTiming.FullyLit)
+            session.GameState = SuperMetroidGameState.PausedB;
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.PausedB"/>.</summary>
     internal void DispatchPausedB(SnesButton controllerInput)
     {
-        game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        game.ActivePauseMenu.SynchronizeAcceptedHud(game.GameplayRuntime.Vram);
-        game.GameplayRuntime.UpdatePauseHeldInput();
-        ushort previousReserveMode = game.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
-        bool unpauseRequested = game.ActivePauseMenu.Step(
-            game.GameplayRuntime.System.TimedHeldInput,
-            game.GameplayRuntime.PhysicalController1.NewlyPressed,
-            game.GameplayRuntime.PhysicalController1.Current,
-            game.GameplayRuntime.Nmi.NmiFrameCounter8);
+        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
+        session.GameplayRuntime.UpdatePauseHeldInput();
+        ushort previousReserveMode = session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
+        bool unpauseRequested = session.ActivePauseMenu.Step(
+            session.GameplayRuntime.System.TimedHeldInput,
+            session.GameplayRuntime.PhysicalController1.NewlyPressed,
+            session.GameplayRuntime.PhysicalController1.Current,
+            session.GameplayRuntime.Nmi.NmiFrameCounter8);
         // State $0F runs the HUD writer after pause input. Its DMA is visible
         // at the next accepted NMI, including the first unpause fade frame.
         if (previousReserveMode == PauseReserveLabelRomData.AutoMode &&
-            game.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
-            game.GameplayRuntime.Hud.ClearAutoReserveIndicator();
-        game.GameplayRuntime.Hud.UpdateGameplayCounters(game.bus, game.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
-        game.GameplayRuntime.Hud.QueueUpload(game.bus, game.GameplayRuntime.VramWrites);
-        game.display.PublishMenu(game.ActivePauseMenu);
+            session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
+            session.GameplayRuntime.Hud.ClearAutoReserveIndicator();
+        session.GameplayRuntime.Hud.UpdateGameplayCounters(session.bus, session.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
+        session.GameplayRuntime.Hud.QueueUpload(session.bus, session.GameplayRuntime.VramWrites);
+        session.display.PublishMenu(session.ActivePauseMenu);
         if (unpauseRequested)
         {
-            game.BeginPauseFade(PauseFadeTiming.FullyLit);
-            game.GameState = SuperMetroidGameState.UnpausingA;
+            session.BeginPauseFade(PauseFadeTiming.FullyLit);
+            session.GameState = SuperMetroidGameState.UnpausingA;
         }
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingA"/>.</summary>
     internal void DispatchUnpausingA(SnesButton controllerInput)
     {
-        game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        game.ActivePauseMenu.SynchronizeAcceptedHud(game.GameplayRuntime.Vram);
-        game.ActivePauseMenu.AdvanceAnimations(game.GameplayRuntime.Nmi.NmiFrameCounter8, fadingOut: true, advancePalette: false);
-        game.display.PublishMenu(game.ActivePauseMenu);
-        game.pauseBrightness = game.screenFade.Advance(game.pauseBrightness, brightening: false);
-        game.ApplyDisplayBrightness(game.pauseBrightness);
-        if (game.pauseBrightness == 0)
-            game.GameState = SuperMetroidGameState.UnpausingB;
+        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Nmi.NmiFrameCounter8, fadingOut: true, advancePalette: false);
+        session.display.PublishMenu(session.ActivePauseMenu);
+        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);
+        session.ApplyDisplayBrightness(session.pauseBrightness);
+        if (session.pauseBrightness == 0)
+            session.GameState = SuperMetroidGameState.UnpausingB;
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.UnpausingB"/>.</summary>
@@ -114,7 +114,7 @@ internal sealed class PauseGamePhases(SuperMetroidGame game)
         // hooks, HDMA, and animtiles under forced blank. Pause graphics live in a
         // separate PPU image here, so discarding it restores the untouched runtime
         // image without a host-authored reconstruction.
-        SamusState resumedSamus = game.GameplayRuntime.Player.Samus ??
+        SamusState resumedSamus = session.GameplayRuntime.Player.Samus ??
             throw new InvalidOperationException(
                 "Pause teardown requires live Samus equipment state.");
         // EquipmentScreenCategory_ButtonResponse mutates the live equipped word,
@@ -122,22 +122,22 @@ internal sealed class PauseGamePhases(SuperMetroidGame game)
         // `$11` reruns `$90:AC8D` before its accepted NMI; omitting that handoff
         // made the new damage/type word immediate while art stayed stale until the
         // next room load happened to invoke the same routine.
-        game.GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);
-        resumedSamus.ReconcilePauseBallEquipment(game.bus);
+        session.GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);
+        resumedSamus.ReconcilePauseBallEquipment(session.bus);
         // The native teardown also reconciles equipment-dependent momentum.
         // Keep the speed pair until the next gameplay frame, as the cartridge does.
         resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(
             (resumedSamus.EquippedItems & (ushort)SamusEquipmentFlags.SpeedBooster) != 0);
         // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
         // Equipment bits are live, but the restored gameplay palette is cached.
-        resumedSamus.Presentation.LoadSuitPalette(game.bus, game.GameplayRuntime.Cgram);
-        game.GameplayRuntime.Plms.Stations.ResumeMapStationsAfterUnpause();
+        resumedSamus.Presentation.LoadSuitPalette(session.bus, session.GameplayRuntime.Cgram);
+        session.GameplayRuntime.Plms.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.ScriptLocks.ReleaseRefillStationLockOnUnpause();
-        game.GameplayRuntime.Enemies.ElevatorBehavior.ClearElevatorFlagsOnGameplayResume();
-        game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        game.pauseMenu = null;
-        game.BeginPauseFade(0);
-        game.display.PublishBlack();
-        game.GameState = SuperMetroidGameState.Unpausing;
+        session.GameplayRuntime.Enemies.ElevatorBehavior.ClearElevatorFlagsOnGameplayResume();
+        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        session.pauseMenu = null;
+        session.BeginPauseFade(0);
+        session.display.PublishBlack();
+        session.GameState = SuperMetroidGameState.Unpausing;
     }
 }

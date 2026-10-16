@@ -49,7 +49,7 @@ internal static class DoorTransitionAutosaveVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            game.runtime = runtime;
+            game.Session.runtime = runtime;
             var assets = RepositoryInstallation.Installation.LoadAudioClips();
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
@@ -169,7 +169,7 @@ internal static class DoorTransitionAutosaveVerification
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
                     runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
-                    game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+                    game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
                     game.GameState = SuperMetroidGameState.HitDoorBlock;
                     return;
                 }

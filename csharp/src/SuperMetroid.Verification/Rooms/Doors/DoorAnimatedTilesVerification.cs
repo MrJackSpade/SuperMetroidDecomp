@@ -48,8 +48,8 @@ internal static class DoorAnimatedTilesVerification
 
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         int handlerFrames = 0;
         for (int frame = 0; frame < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; frame++)

@@ -70,7 +70,7 @@ internal sealed class LowPercentIntroReplayChecks
     /// <summary>Checks the port intro phase and Samus milestone after an intro update.</summary>
     internal IEnumerable<string> Compare(SuperMetroidGame game, int update)
     {
-        if (game.GameState != SuperMetroidGameState.IntroCinematic || game.intro is not { } intro)
+        if (game.GameState != SuperMetroidGameState.IntroCinematic || game.Session.intro is not { } intro)
             return [];
         string phase = intro.Phase.ToString();
         if (intro.ceresFlight is { } flight)

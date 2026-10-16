@@ -13,7 +13,7 @@ internal static class SuperMetroidGameAccess
         internal string? MapPresentationIdentity => self.Artwork.MapPresentation?.ContentIdentity;
 
         /// <summary>Random word retained by the frontend dispatcher.</summary>
-        internal ushort DispatcherRandomNumber => self.FrontendRandomOwner.RandomNumber;
+        internal ushort DispatcherRandomNumber => self.Session.FrontendRandomOwner.RandomNumber;
 
         /// <summary>
         /// Initialize the ordinary gameplay runtime for a friend verifier that
@@ -24,10 +24,10 @@ internal static class SuperMetroidGameAccess
         /// </summary>
         internal void InitializeDirectRoomVerification()
         {
-            if (self.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.Session.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException(
                     "Direct-room verification requires a fresh frontend.");
-            if (!((bool)(self.SetupSelectedGame())))
+            if (!((bool)(self.Session.SetupSelectedGame())))
                 throw new InvalidOperationException(
                     "New-game runtime setup did not select the Ceres arrival path.");
             self.GameState = SuperMetroidGameState.MainGameplay;
@@ -37,6 +37,6 @@ internal static class SuperMetroidGameAccess
         /// Exposes the cartridge coroutine phase only to the friend verification/debug hosts.
         /// Production UI code continues to consume the coarser public game state.
         /// </summary>
-        internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.doorTransition.Phase;
+        internal DoorTransitionPhase DoorTransitionPhaseForVerification => self.Session.doorTransition.Phase;
     }
 }

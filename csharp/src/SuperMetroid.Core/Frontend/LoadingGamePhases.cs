@@ -29,19 +29,19 @@ using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The game-loading phases: new-game setup, saved-game loading and the gameplay fade-in.</summary>
-/// <param name="game">The SuperMetroidGame whose shared state these members use.</param>
-internal sealed class LoadingGamePhases(SuperMetroidGame game)
+/// <param name="session">The frontend session these phases run against.</param>
+internal sealed class LoadingGamePhases(FrontendSession session)
 {
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.SetUpNewGame"/>.</summary>
     internal void DispatchSetUpNewGame(SnesButton controllerInput)
     {
-        if (game.ResumesGameLoadingWait)
+        if (session.ResumesGameLoadingWait)
         {
             StepGameLoadingWait(controllerInput);
             return;
         }
         // $82:8000 performs the whole load in one dispatch, then waits for NMIs.
-        bool usesCeresArrival = game.SetupSelectedGame();
+        bool usesCeresArrival = session.SetupSelectedGame();
         BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits, usesCeresArrival
             ? GameLoadingCompletion.CeresArrivalFadeIn
             : GameLoadingCompletion.MainGameplay);
@@ -50,18 +50,18 @@ internal sealed class LoadingGamePhases(SuperMetroidGame game)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingGameData"/>.</summary>
     internal void DispatchLoadingGameData(SnesButton controllerInput)
     {
-        if (game.ResumesGameLoadingWait)
+        if (session.ResumesGameLoadingWait)
         {
             StepGameLoadingWait(controllerInput);
             return;
         }
         // $82:801D branches on the save's loading state.
-        switch (game.stateSixLoadingRoute)
+        switch (session.stateSixLoadingRoute)
         {
             case SaveLoadingGameState.MainGame:
                 // A save continued from the file-select map: the ordinary branch loads the
                 // game in one dispatch, then waits for the same NMIs as state $1F.
-                if (game.SetupSelectedGame())
+                if (session.SetupSelectedGame())
                     throw new InvalidOperationException("A save continued from the area map cannot use the Ceres arrival.");
                 BeginGameLoadingWaits(GameLoadingDefinitions.OrdinaryLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
@@ -69,39 +69,39 @@ internal sealed class LoadingGamePhases(SuperMetroidGame game)
             case SaveLoadingGameState.CeresDestruction:
                 // The `$22` Zebes-landing branch, followed by its NMI waits. The dispatch's
                 // own accepted NMI counts in the gameplay owner kept from Ceres.
-                game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                game.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
+                session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                session.GameplayRuntime.RoomLoader.InitializePostCeresZebesRoom();
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
             default:
-                throw new InvalidOperationException($"State six has no loading branch for {game.stateSixLoadingRoute}.");
+                throw new InvalidOperationException($"State six has no loading branch for {session.stateSixLoadingRoute}.");
         }
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.MainGameplayFadeIn"/>.</summary>
     internal void DispatchMainGameplayFadeIn(SnesButton controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
-        game.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(game.GameplayRuntime) });
-        game.display.PublishGameplay(game.GameplayRuntime);
-        game.ApplyDisplayBrightness(game.postCeresFadeBrightness);
-        game.HandleGunshipLandingSave();
-        if (game.postCeresFadeCounter-- <= 0)
+        session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
+        session.display.PublishGameplay(session.GameplayRuntime);
+        session.ApplyDisplayBrightness(session.postCeresFadeBrightness);
+        session.HandleGunshipLandingSave();
+        if (session.postCeresFadeCounter-- <= 0)
         {
-            game.postCeresFadeCounter = 1;
-            game.postCeresFadeBrightness = (byte)Math.Min(
+            session.postCeresFadeCounter = 1;
+            session.postCeresFadeBrightness = (byte)Math.Min(
                 15,
-                game.postCeresFadeBrightness + 1);
-            if (game.postCeresFadeBrightness == 15)
+                session.postCeresFadeBrightness + 1);
+            if (session.postCeresFadeBrightness == 15)
             {
                 // $82:8106 always selects state seven, which then enters state
                 // eight; the Ceres arrival is ordinary gameplay with Samus locked.
-                game.GameState = SuperMetroidGameState.MainGameplay;
-                game.gameplayFadeLeadsToCeresArrival = false;
-                game.screenFade.Clear();
+                session.GameState = SuperMetroidGameState.MainGameplay;
+                session.gameplayFadeLeadsToCeresArrival = false;
+                session.screenFade.Clear();
                 // HandleFadingIn wrote $51 = $0F this frame; the level is published
                 // before it rises, so record the register directly.
-                game.pauseBrightness = PauseFadeTiming.FullyLit;
+                session.pauseBrightness = PauseFadeTiming.FullyLit;
             }
         }
     }
@@ -113,9 +113,9 @@ internal sealed class LoadingGamePhases(SuperMetroidGame game)
     private void BeginGameLoadingWaits(int waits, GameLoadingCompletion completion)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(waits);
-        game.gameLoadingWaitsRemaining = waits;
-        game.gameLoadingCompletion = completion;
-        game.display.PublishBlack();
+        session.gameLoadingWaitsRemaining = waits;
+        session.gameLoadingCompletion = completion;
+        session.display.PublishBlack();
     }
 
     /// <summary>
@@ -124,28 +124,28 @@ internal sealed class LoadingGamePhases(SuperMetroidGame game)
     /// </summary>
     private void StepGameLoadingWait(SnesButton controllerInput)
     {
-        game.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-        if (--game.gameLoadingWaitsRemaining != 0)
+        session.GameplayRuntime.NmiHandler.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+        if (--session.gameLoadingWaitsRemaining != 0)
         {
-            game.display.PublishBlack();
+            session.display.PublishBlack();
             return;
         }
-        switch (game.gameLoadingCompletion)
+        switch (session.gameLoadingCompletion)
         {
             case GameLoadingCompletion.CeresArrivalFadeIn:
-                game.BeginGameplayFadeIn(leadsToCeresArrival: true);
-                game.display.PublishBlack();
+                session.BeginGameplayFadeIn(leadsToCeresArrival: true);
+                session.display.PublishBlack();
                 break;
             case GameLoadingCompletion.GameplayFadeIn:
-                game.BeginGameplayFadeIn(leadsToCeresArrival: false);
-                game.display.PublishBlack();
+                session.BeginGameplayFadeIn(leadsToCeresArrival: false);
+                session.display.PublishBlack();
                 break;
             case GameLoadingCompletion.MainGameplay:
-                game.GameState = SuperMetroidGameState.MainGameplay;
-                game.display.PublishGameplay(game.GameplayRuntime);
+                session.GameState = SuperMetroidGameState.MainGameplay;
+                session.display.PublishGameplay(session.GameplayRuntime);
                 break;
             default:
-                throw new InvalidDataException($"Invalid game-loading completion {game.gameLoadingCompletion}.");
+                throw new InvalidDataException($"Invalid game-loading completion {session.gameLoadingCompletion}.");
         }
     }
 }

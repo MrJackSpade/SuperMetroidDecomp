@@ -88,7 +88,7 @@ internal static class ChargeFlareProductionVerification
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
         var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         byte[] baseline = Draw(runtime);
         game.BindArtwork(game.Artwork with
         {
@@ -113,7 +113,7 @@ internal static class ChargeFlareProductionVerification
         AssertTrue(unbound.SequenceEqual(System.Security.Cryptography.SHA256.HashData(bound)), "Charge-flare compositions are excluded from saved frontend/runtime graphs");
         using var stream = new MemoryStream(bound);
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         AssertTrue(restoredRuntime.Artwork.ChargeFlareCompositions is null, "Saved state does not retain old composition content");
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;

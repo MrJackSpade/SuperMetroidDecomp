@@ -27,8 +27,8 @@ internal static class GunshipEscapeTimerVerification
         var maps = InstalledFixtures.Maps;
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);

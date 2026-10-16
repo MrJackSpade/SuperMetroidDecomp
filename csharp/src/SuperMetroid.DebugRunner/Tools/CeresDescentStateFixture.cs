@@ -19,13 +19,13 @@ internal static class CeresDescentStateFixture
         Directory.CreateDirectory(root);
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
-        data.Game.SetupSelectedGame();
+        data.Game.Session.SetupSelectedGame();
         data.Game.GameState = SuperMetroidGameState.CeresGoesBoom;
         for (long frame = 1; frame <= 2500; frame++)
         {
             data.Record(0);
             var result = data.Game.StepCaptured(0, frame, data.Generation);
-            if (data.Game.ceresDestruction?.Phase != CeresDestructionPhase.FlyingTowardZebesA) continue;
+            if (data.Game.Session.ceresDestruction?.Phase != CeresDestructionPhase.FlyingTowardZebesA) continue;
             Console.WriteLine(data.SaveSlot(9));
             Console.WriteLine($"Ceres descent seed: {root}");
             return 0;

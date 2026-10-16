@@ -108,7 +108,7 @@ internal static class CeresEnginePaletteBindingVerification
         Console.WriteLine("#1150: stock engine flicker, edited-color state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
-            (owner.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
+            (owner.Session.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
             (owner.cgram).Colors.ToArray();

@@ -23,8 +23,8 @@ internal static class WaterfallRoomsVerification
         var bus=installation.OpenRuntimeAddressSpace();
         var game=new SuperMetroidGame(bus);
         InstalledFixtures.BindGame(game);
-        game.CreateGameplayRuntime(false);
-        var runtime=game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime=game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);

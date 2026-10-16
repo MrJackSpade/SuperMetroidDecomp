@@ -169,7 +169,7 @@ internal static class GrappleFlarePresentationVerification
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(100);
         var game = new SuperMetroidGame(bus);
-        game.runtime = runtime;
+        game.Session.runtime = runtime;
         byte[] original = Draw(runtime);
         AssertTrue(runtime.ActorDrawing.LastGrappleFlareDrawn, "Real actor fixture reaches Grapple flare path");
         game.BindArtwork(game.Artwork with
@@ -184,7 +184,7 @@ internal static class GrappleFlarePresentationVerification
         AssertTrue(!original.SequenceEqual(Draw(runtime)), "Real Grapple actor consumes current composition override");
         using var stream = new MemoryStream(SerializeGraph(game));
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(stream);
-        var restoredRuntime = restored.GameplayRuntime;
+        var restoredRuntime = restored.Session.GameplayRuntime;
         roomAssets.Bind(restoredRuntime);
         restoredRuntime.Artwork.MapPresentation = maps;
         restoredRuntime.Artwork.GrappleArtwork = grappleArtwork;

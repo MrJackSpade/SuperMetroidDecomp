@@ -22,7 +22,7 @@ internal static class SnapshotImportAuditVerification
         var movie = ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256);
         using var checkpoints = NativeMovieCheckpoints.OpenFullCapture(traceDirectory, movie.Bytes);
         var (replayed, memory, _) = ReplayConvertedMovie(movie, checkpoints, traceFromUpdate: null, update);
-        byte[] saveRam = ((SuperMetroidAddressSpace)replayed.bus).SaveRam.ToArray();
+        byte[] saveRam = ((SuperMetroidAddressSpace)replayed.Session.bus).SaveRam.ToArray();
         SuperMetroidGame imported = ImportNativeSnapshot(memory.ToWorkRam(), saveRam).Game;
         IReadOnlyList<string> differences = PortStateDiff.Compare(replayed, imported, "game",
             path => path.EndsWith(".bus", StringComparison.Ordinal));

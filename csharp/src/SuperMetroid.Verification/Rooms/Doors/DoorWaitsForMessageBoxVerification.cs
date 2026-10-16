@@ -37,8 +37,8 @@ internal static class DoorWaitsForMessageBoxVerification
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First(candidate => (candidate.DestinationRoomPointer & 0x8000) != 0);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         // The gameplay call's movement published the door; its PLM handler opened the notice.

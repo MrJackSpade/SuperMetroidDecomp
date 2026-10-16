@@ -151,7 +151,7 @@ internal static class SpacetimeBeamVerification
             "save retains corrupted door bytes");
 
         var restarted = new SamusState();
-        SuperMetroidGame.RestoreSpacetimeRestartInventory(restarted, saved);
+        FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
         AssertEqual((ushort)0x100e, restarted.EquippedBeams,
             "Ceres restart retains the SpaceTime equipment word");
         AssertEqual((ushort)0, restarted.Missiles,

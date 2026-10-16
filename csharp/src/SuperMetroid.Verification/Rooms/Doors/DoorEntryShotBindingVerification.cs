@@ -41,8 +41,8 @@ internal static class DoorEntryShotBindingVerification
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = true;
             var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-            game.runtime = runtime;
-            game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+            game.Session.runtime = runtime;
+            game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
             game.GameState = SuperMetroidGameState.MainGameplay;
 
             var level = runtime.Room.LoadedLevelData;

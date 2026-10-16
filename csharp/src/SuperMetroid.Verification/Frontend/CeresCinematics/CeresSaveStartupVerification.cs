@@ -59,8 +59,8 @@ internal static class CeresSaveStartupVerification
         });
         var options = new GameOptionsMenuState(bus, mapPresentation: maps);
         options.Phase = GameOptionsPhase.StartGame;
-        game.options = options;
-        game.loadingExistingSave = true;
+        game.Session.options = options;
+        game.Session.loadingExistingSave = true;
         SetState(game, SuperMetroidGameState.GameOptionsMenu);
         byte[] savedBefore = bus.SaveRam.ToArray();
         game.Step(0);
@@ -79,7 +79,7 @@ internal static class CeresSaveStartupVerification
 
         // A resumed cinematic constructs a fresh gameplay owner, unlike an ongoing
         // escape. Its first Landing Site draw must have the same initialized HUD.
-        var resumedScene = game.ceresDestruction;
+        var resumedScene = game.Session.ceresDestruction;
         (resumedScene ?? throw new InvalidOperationException("Verification requires resumedScene.")).Phase = CeresDestructionPhase.Finished;
         game.Step(0);
         game.Step(0);
@@ -122,8 +122,8 @@ internal static class CeresSaveStartupVerification
         });
         var reloadOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
         reloadOptions.Phase = GameOptionsPhase.StartGame;
-        reload.options = reloadOptions;
-        reload.loadingExistingSave = true;
+        reload.Session.options = reloadOptions;
+        reload.Session.loadingExistingSave = true;
         SetState(reload, SuperMetroidGameState.GameOptionsMenu);
         reload.Step(0);
         AssertEqual(SuperMetroidGameState.SetUpNewGame, reload.GameState,
@@ -151,8 +151,8 @@ internal static class CeresSaveStartupVerification
         });
         var probeOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
         probeOptions.Phase = GameOptionsPhase.StartGame;
-        gameOverProbe.options = probeOptions;
-        gameOverProbe.loadingExistingSave = true;
+        gameOverProbe.Session.options = probeOptions;
+        gameOverProbe.Session.loadingExistingSave = true;
         SetState(gameOverProbe, SuperMetroidGameState.GameOptionsMenu);
         gameOverProbe.Step(0);
         for (int wait = 0; wait < 256 && gameOverProbe.GameState == SuperMetroidGameState.SetUpNewGame; wait++)
@@ -162,8 +162,8 @@ internal static class CeresSaveStartupVerification
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.GameplayRuntimeForVerification.Room.LoadedCamera;
         deathCamera.Position = deathCamera.Position.WithFractionX(0xbfff).WithFractionY(0x9c00);
-        gameOverProbe.deathFadeBrightness = 1;
-        gameOverProbe.deathFadeCounter = 0;
+        gameOverProbe.Session.deathFadeBrightness = 1;
+        gameOverProbe.Session.deathFadeCounter = 0;
         SetState(gameOverProbe, SuperMetroidGameState.DeathFinalBlackOut);
         gameOverProbe.Step(0);
         AssertEqual(SuperMetroidGameState.GameOverMenu, gameOverProbe.GameState, "#1275 state $19 reaches the game-over menu");
@@ -171,9 +171,9 @@ internal static class CeresSaveStartupVerification
         for (int update = 0; update < 3; update++)
             gameOverProbe.Step(0);
         AssertEqual(unchecked((ushort)(nmiBeforeDeath + 4)),
-            gameOverProbe.menuNmi.FrameCounter,
+            gameOverProbe.Session.menuNmi.FrameCounter,
             "#1275 accepted NMIs keep counting through the game-over menu");
-        var probeMenu = gameOverProbe.gameOver;
+        var probeMenu = gameOverProbe.Session.gameOver;
         (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).Phase = GameOverMenuPhase.Main;
         probeMenu.ResumesAfterNmiWait = false;
         gameOverProbe.Step(0);
@@ -219,8 +219,8 @@ internal static class CeresSaveStartupVerification
         });
         var oldOptions = new GameOptionsMenuState(bus, mapPresentation: maps);
         oldOptions.Phase = GameOptionsPhase.StartGame;
-        unmodified.options = oldOptions;
-        unmodified.loadingExistingSave = true;
+        unmodified.Session.options = oldOptions;
+        unmodified.Session.loadingExistingSave = true;
         SetState(unmodified, SuperMetroidGameState.GameOptionsMenu);
         unmodified.Step(0);
         AssertEqual(SuperMetroidGameState.FileSelectMap, unmodified.GameState,

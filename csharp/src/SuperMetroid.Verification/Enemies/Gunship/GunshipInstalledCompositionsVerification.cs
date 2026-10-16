@@ -102,13 +102,13 @@ internal static class GunshipInstalledCompositionsVerification
         SetState(game, SuperMetroidGameState.SetUpNewGame);
         game.StepCaptured(0, ++sequence, 1);
         // Finish the new game's native loading waits; left pending, the Zebes landing load would resume them instead.
-        while (game.ResumesGameLoadingWait)
+        while (game.Session.ResumesGameLoadingWait)
             game.StepCaptured(0, ++sequence, 1);
         game.GameplayRuntimeForVerification.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
         game.GameplayRuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0, ++sequence, 1);
-        var scene = game.ceresDestruction;
+        var scene = game.Session.ceresDestruction;
         (scene ?? throw new InvalidOperationException("Verification requires scene.")).Phase = CeresDestructionPhase.Finished;
         game.StepCaptured(0, ++sequence, 1);
         game.StepCaptured(0, ++sequence, 1);
@@ -116,7 +116,7 @@ internal static class GunshipInstalledCompositionsVerification
             "#1154 fixture reaches the reported Landing Site through the existing loader");
         // The landing's native loading waits publish black; only the subsequent
         // gameplay fade owns the gunship OAM draw that failed in the player report.
-        while (game.ResumesGameLoadingWait) game.StepCaptured(0, ++sequence, 1);
+        while (game.Session.ResumesGameLoadingWait) game.StepCaptured(0, ++sequence, 1);
         AssertEqual(SuperMetroidGameState.MainGameplayFadeIn, game.GameState,
             "#1154 fixture reaches the reported first fade-in frame");
         game.StepCaptured(0, ++sequence, 1);

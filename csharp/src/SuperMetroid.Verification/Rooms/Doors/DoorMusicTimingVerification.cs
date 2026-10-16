@@ -51,10 +51,10 @@ internal static class DoorMusicTimingVerification
         runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
-        var audio = game.audio;
+        var audio = game.Session.audio;
         audio.AdvanceFrame(default);
         audio.QueueRoomMusic(9, 5);
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(default);

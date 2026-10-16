@@ -44,8 +44,8 @@ internal static class AttractCaptureTestsVerification
                 {
                     foreach (var game in new[] { legacy, captured })
                     {
-                        game.demoFramesRemaining = 16;
-                        game.demoScene = 6;
+                        game.Session.demoFramesRemaining = 16;
+                        game.Session.demoScene = 6;
                     }
                     bounded = true;
                 }

@@ -21,8 +21,8 @@ internal static class ReportedEyeStateFixture
         using var data = new AndroidSessionData(root, Path.GetFullPath("Super Metroid.smc"),
             Path.GetFullPath("standalone-assets/audio"));
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
-        data.Game.SetupSelectedGame();
-        var runtime = data.Game.GameplayRuntime;
+        data.Game.Session.SetupSelectedGame();
+        var runtime = data.Game.Session.GameplayRuntime;
         // Room identity is fixture data; normal room loading owns its population,
         // graphics, HDMA initialization, and camera-dependent render snapshots.
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BlueBrinstarEnergyTankRoom, new Position16<RoomPixels>(384, 512));

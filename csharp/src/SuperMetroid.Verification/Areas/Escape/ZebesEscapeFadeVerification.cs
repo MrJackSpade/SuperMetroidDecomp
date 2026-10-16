@@ -16,13 +16,13 @@ internal static class ZebesEscapeFadeVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.CreateGameplayRuntime(false);
-        var runtime = game.runtime;
+        game.Session.CreateGameplayRuntime(false);
+        var runtime = game.Session.runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
 
-        game.BeginZebesEscapeFade();
+        game.Session.BeginZebesEscapeFade();
         AssertEqual(SuperMetroidGameState.SamusEscapesFromZebes, game.GameState, "the takeoff publishes state $26");
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "state $26 keeps gameplay time running");
 

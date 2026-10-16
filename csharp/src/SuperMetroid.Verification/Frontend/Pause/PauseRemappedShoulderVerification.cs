@@ -34,7 +34,9 @@ internal static class PauseRemappedShoulderVerification
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.NmiHandler.RunNmi(0, true);
             var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
-            var game = new SuperMetroidGame(bus) { runtime = runtime, pauseMenu = pause, GameState = SuperMetroidGameState.PausedB };
+            var game = new SuperMetroidGame(bus) { GameState = SuperMetroidGameState.PausedB };
+            game.Session.runtime = runtime;
+            game.Session.pauseMenu = pause;
             long sequence = 0;
             for (int frame = 0; frame < 8 && !pause.IsPageTransitionActive; frame++)
                 game.StepCaptured(held, ++sequence, 1);

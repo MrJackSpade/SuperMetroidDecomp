@@ -233,14 +233,6 @@
       "reason": "Immutable installed artwork or catalog data grouped by domain; its members are data, not services."
     },
     {
-      "type": "SuperMetroid.Core.Frontend.SuperMetroidGame",
-      "flags": [
-        "large"
-      ],
-      "disposition": "frontend-dispatcher",
-      "reason": "The bank-$82 game-state dispatcher: each state hands work to a scene or the runtime; display, fade timing, NMI counters and artwork are separate owners."
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.ActiveRoomState",
       "flags": [
         "context-bag"

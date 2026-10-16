@@ -98,8 +98,8 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         runtime.Player.IntroducedSamus.InputLocked = true;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
         game.AudioForVerification.Reset();
         return game;
@@ -115,7 +115,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(game.bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, true);
+            level.ResolveDoorCollision(game.Session.bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, true);
             game.GameState = SuperMetroidGameState.HitDoorBlock;
             return;
         }

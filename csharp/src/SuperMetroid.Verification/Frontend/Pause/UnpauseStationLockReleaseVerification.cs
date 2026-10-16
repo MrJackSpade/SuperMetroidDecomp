@@ -36,8 +36,8 @@ internal static class UnpauseStationLockReleaseVerification
         EnterPauseEquipment(pause);
         var game = new SuperMetroidGame(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.pauseMenu = pause;
+        game.Session.runtime = runtime;
+        game.Session.pauseMenu = pause;
         game.GameState = SuperMetroidGameState.PausedB;
         long sequence = 0;
 

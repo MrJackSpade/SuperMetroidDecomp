@@ -34,8 +34,8 @@ internal static class DoorSoundsDuringPowerBombVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         runtime.Player.IntroducedSamus.InputLocked = true;
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
         game.Step(0);
 

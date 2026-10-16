@@ -170,7 +170,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             DebuggerObjectGraphSerializer.Serialize(graph, game);
             graph.Position = 0;
             var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(graph);
-            var restoredSaves = restored.saveRam;
+            var restoredSaves = restored.Session.saveRam;
             AssertThrows<InvalidOperationException>(() => restoredSaves.ReadSlot(0), "debugger graph omits installed map provider");
             restored.BindArtwork(restored.Artwork with
             {

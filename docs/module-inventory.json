@@ -187,7 +187,7 @@
     {
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
-      "files": 617,
+      "files": 632,
       "dependsOn": [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
@@ -31269,6 +31269,22 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/AttractGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Runtime"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Frontend/CapturedFrontendFrame.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
@@ -32114,6 +32130,69 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/CinematicGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Saves"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/DeathGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/DoorGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus"
       ]
     },
     {
@@ -34414,6 +34493,32 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/FrontendSession.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Saves"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Frontend/GameArtwork.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
@@ -34701,6 +34806,86 @@
       "layer": "Frontend",
       "assemblies": [
         "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/GamePhase.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Runtime"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/GamePhaseAudio.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/GamePhaseTable.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core",
+        "csharp/src/SuperMetroid.Core/Gameplay"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/GameplayGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Areas",
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Bosses",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Fx",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Hardware",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus",
+        "csharp/src/SuperMetroid.Core/Saves"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/IGamePhase.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Runtime"
       ]
     },
     {
@@ -36410,6 +36595,33 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/LoadingGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Saves"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/MainLoopRandomCall.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/AreaMapPresentationCatalog.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
@@ -37136,6 +37348,24 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/MenuGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Saves"
       ]
     },
     {
@@ -38392,6 +38622,27 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/PauseGamePhases.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Audio",
+        "csharp/src/SuperMetroid.Core/Enemies",
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Hud",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Progression",
+        "csharp/src/SuperMetroid.Core/Rooms",
+        "csharp/src/SuperMetroid.Core/Runtime",
+        "csharp/src/SuperMetroid.Core/Samus"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Core/Frontend/Recording/ControllerInputRecording.cs",
       "module": "csharp/src/SuperMetroid.Core/Frontend",
       "role": "production",
@@ -38463,9 +38714,7 @@
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Areas",
         "csharp/src/SuperMetroid.Core/Audio",
-        "csharp/src/SuperMetroid.Core/Bosses",
         "csharp/src/SuperMetroid.Core/Enemies",
-        "csharp/src/SuperMetroid.Core/Fx",
         "csharp/src/SuperMetroid.Core/Gameplay",
         "csharp/src/SuperMetroid.Core/Hardware",
         "csharp/src/SuperMetroid.Core/Hud",
@@ -38838,6 +39087,21 @@
       ],
       "dependsOn": [
         "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Core/Frontend/UnreachableGamePhase.cs",
+      "module": "csharp/src/SuperMetroid.Core/Frontend",
+      "role": "production",
+      "namespace": "SuperMetroid.Core.Frontend",
+      "layer": "Frontend",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Gameplay",
+        "csharp/src/SuperMetroid.Core/Input",
+        "csharp/src/SuperMetroid.Core/Runtime"
       ]
     },
     {
@@ -51386,6 +51650,9 @@
       "layer": "Simulation",
       "assemblies": [
         "SuperMetroid.Core"
+      ],
+      "dependsOn": [
+        "csharp/src/SuperMetroid.Core/Gameplay"
       ]
     },
     {

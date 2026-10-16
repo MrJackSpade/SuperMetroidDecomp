@@ -316,8 +316,8 @@ internal static class NativeSnapshotImportVerification
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.Controller1.Latch((SnesButton)W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, bus, W, memory);

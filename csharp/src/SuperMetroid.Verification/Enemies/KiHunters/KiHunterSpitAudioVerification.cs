@@ -54,10 +54,10 @@ internal static class KiHunterSpitAudioVerification
         body.InstructionTimer = NativeCountdown.Start(1);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        game.runtime = runtime;
-        game.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
+        game.Session.runtime = runtime;
+        game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.MainGameplay;
-        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(game.audio);
+        game.SoundAcknowledgements = new PortWriteEchoAcknowledgements(game.Session.audio);
         var spit = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4c);
         int requests = 0, starts = 0;
         void Step()

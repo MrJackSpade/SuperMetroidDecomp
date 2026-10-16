@@ -262,19 +262,19 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports GRipper's main AI.</summary>
-    internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGRipperMain(slot, RequireRipperVariantState(slot), frame.Level);
     }
 
     /// <summary>Ports Ripper2's main AI.</summary>
-    internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRipper2Main(slot, frame.Level);
     }
 
     /// <summary>Ports Ripper's main AI.</summary>
-    internal void RunRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRipperMain(slot, frame.Level);
     }

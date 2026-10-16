@@ -2347,13 +2347,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Crocomire's main AI.</summary>
-    internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunCrocomireMain(slot, frame.Samus, frame.Camera.X);
     }
 
     /// <summary>Ports CrocomireTongue's main AI.</summary>
-    internal static void RunCrocomireTongueMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    internal static void RunCrocomireTongueMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
     {
         // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
         // extended map position the component relative to Crocomire's body.

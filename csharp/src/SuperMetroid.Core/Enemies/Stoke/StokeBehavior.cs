@@ -232,7 +232,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Stoke's main AI.</summary>
-    internal void RunStokeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunStokeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunStokeMain(slot, RequireStokeState(slot), frame.Level);
     }

@@ -186,7 +186,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Skree's main AI.</summary>
-    internal void RunSkreeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunSkreeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunSkreeMain(slot, frame.Samus, frame.Level);
     }

@@ -831,13 +831,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports BombTorizo's main AI.</summary>
-    internal void RunBombTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBombTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBombTorizoMain(slot, RequireBombTorizoState(slot), frame.Samus, frame.Level);
     }
 
     /// <summary>Ports GoldenTorizo's main AI.</summary>
-    internal void RunGoldenTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunGoldenTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGoldenTorizoMain(
             slot,

@@ -599,7 +599,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Beetom's main AI.</summary>
-    internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBeetomMain(slot, RequireBeetomState(slot), frame.Samus, frame.Level, frame.ControllerInput);
     }

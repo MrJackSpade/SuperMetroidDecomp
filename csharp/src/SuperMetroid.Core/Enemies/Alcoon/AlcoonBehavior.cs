@@ -417,7 +417,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Alcoon's main AI.</summary>
-    internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunAlcoonMain(slot, RequireAlcoonState(slot), frame.Samus, frame.Level);
     }

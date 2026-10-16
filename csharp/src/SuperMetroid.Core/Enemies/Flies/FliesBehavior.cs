@@ -183,7 +183,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Flies's main AI.</summary>
-    internal void RunFliesMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunFliesMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunFlyMain(slot, frame.Samus);
     }

@@ -158,7 +158,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Waver's main AI.</summary>
-    internal void RunWaverMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunWaverMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWaverMain(slot, RequireWaverState(slot), frame.Level);
     }

@@ -682,7 +682,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Ports NinjaSpacePirate's main AI.</summary>
-    internal void RunNinjaSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunNinjaSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunNinjaSpacePirateMain(
             slot,

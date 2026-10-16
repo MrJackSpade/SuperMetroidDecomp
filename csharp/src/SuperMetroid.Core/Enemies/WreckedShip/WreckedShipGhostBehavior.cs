@@ -438,7 +438,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     }
 
     /// <summary>Ports WreckedShipGhost's main AI.</summary>
-    internal void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), frame.Samus);
     }

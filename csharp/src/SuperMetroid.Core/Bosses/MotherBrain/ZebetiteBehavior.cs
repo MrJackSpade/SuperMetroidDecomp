@@ -377,7 +377,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Zebetite's main AI.</summary>
-    internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunZebetiteMain(slot, RequireZebetiteState(slot));
     }

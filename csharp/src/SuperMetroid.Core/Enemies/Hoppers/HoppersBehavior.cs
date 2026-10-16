@@ -364,7 +364,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Hoppers's main AI.</summary>
-    internal void RunHoppersMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunHoppersMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunHopperMain(slot, frame.Samus, frame.Level);
     }

@@ -190,7 +190,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Zoa's main AI.</summary>
-    internal static void RunZoaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal static void RunZoaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunZoaMain(slot, RequireZoaState(slot), frame.Samus, frame.Camera);
     }

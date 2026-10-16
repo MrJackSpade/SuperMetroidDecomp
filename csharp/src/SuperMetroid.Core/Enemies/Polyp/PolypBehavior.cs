@@ -155,7 +155,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Polyp's main AI.</summary>
-    internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPolypMain(slot, RequirePolypState(slot), frame.Samus);
     }

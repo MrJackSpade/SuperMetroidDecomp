@@ -903,7 +903,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports KiHunter's main AI.</summary>
-    internal void RunKiHunterMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKiHunterMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKiHunterMain(slot, RequireKiHunterState(slot), frame.Samus, frame.Level);
     }

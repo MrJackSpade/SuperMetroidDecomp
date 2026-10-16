@@ -410,31 +410,31 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Kraid's main AI.</summary>
-    internal void RunKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKraidBodyMain(slot, frame.Samus, frame.Camera, frame.VramWriteQueue, frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <summary>Ports KraidArm's main AI.</summary>
-    internal void RunKraidArmMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKraidArmMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKraidArmMain(slot, frame.Camera.Y);
     }
 
     /// <summary>Ports KraidLintTop's main AI.</summary>
-    internal void RunKraidLintTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKraidLintTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKraidLintMain(slot, frame.Samus);
     }
 
     /// <summary>Ports KraidFoot's main AI.</summary>
-    internal void RunKraidFootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKraidFootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKraidFootMain(slot, frame.Camera.Y);
     }
 
     /// <summary>Ports KraidNail's main AI.</summary>
-    internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKraidNailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKraidNailMain(slot, frame.Level);
     }

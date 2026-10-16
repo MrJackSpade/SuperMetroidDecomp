@@ -779,7 +779,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Etecoon's main AI.</summary>
-    internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunEtecoonMain(slot, RequireEtecoonState(slot), frame.Samus, frame.Level);
     }

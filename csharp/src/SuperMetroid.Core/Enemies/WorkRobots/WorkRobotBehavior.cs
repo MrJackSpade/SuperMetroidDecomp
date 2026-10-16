@@ -400,7 +400,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports WorkRobot's main AI.</summary>
-    internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWorkRobotMain(slot, RequireWorkRobotState(slot), frame.Level);
     }
@@ -529,7 +529,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the unpowered robot's main AI, the native RTL at $A8:CC66.</summary>
-    internal static void RunUnpoweredWorkRobotMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    internal static void RunUnpoweredWorkRobotMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
     {
     }
 }

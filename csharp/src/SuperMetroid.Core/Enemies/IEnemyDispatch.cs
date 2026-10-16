@@ -21,7 +21,7 @@ internal interface IEnemyDispatch
         SnesButton controllerInput = SnesButton.None, ushort cameraX = 0);
 
     /// <summary>Runs the slot's main AI inside the supplied frame.</summary>
-    void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8);
+    void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame);
 
     /// <summary>Native indexes of the enemies admitted to interaction this frame, in processing order.</summary>
     IReadOnlyList<ushort> InteractiveEnemyIndexes { get; }

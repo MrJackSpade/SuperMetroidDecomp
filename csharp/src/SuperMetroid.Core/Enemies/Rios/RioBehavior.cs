@@ -278,7 +278,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Rio's main AI.</summary>
-    internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRioMain(
             slot,

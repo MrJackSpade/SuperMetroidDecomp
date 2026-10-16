@@ -711,7 +711,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports ShutterGrowing's main AI.</summary>
-    internal void RunShutterGrowingMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunShutterGrowingMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGrowingShutterMain(
             slot,
@@ -721,7 +721,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports ShutterShootable's main AI.</summary>
-    internal void RunShutterShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunShutterShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunVerticalShutterMain(
             slot,
@@ -731,7 +731,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports ShutterHorizShootable's main AI.</summary>
-    internal static void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal static void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunHorizontalShutterMain(
             slot,

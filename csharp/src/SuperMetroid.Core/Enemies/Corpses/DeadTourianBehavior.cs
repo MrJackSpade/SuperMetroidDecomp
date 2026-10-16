@@ -325,7 +325,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports DeadTourian's main AI.</summary>
-    internal void RunDeadTourianMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDeadTourianMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDeadTourianCorpseMain(slot, frame.Samus);
     }

@@ -247,7 +247,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     }
 
     /// <summary>Ports NorfairLavaJumpingEnemy's main AI.</summary>
-    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunNorfairLavaJumpingEnemyMain(
             slot,

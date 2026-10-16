@@ -215,7 +215,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Skultera's main AI.</summary>
-    internal void RunSkulteraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunSkulteraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunSkulteraMain(slot, RequireSkulteraState(slot), frame.Level);
     }

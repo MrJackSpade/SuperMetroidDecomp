@@ -897,7 +897,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Botwoon's main AI.</summary>
-    internal void RunBotwoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBotwoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBotwoonMain(slot, RequireBotwoonState(slot), frame.Samus);
     }

@@ -288,13 +288,13 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports KzanTop's main AI.</summary>
-    internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKzanTopMain(slot, RequireKzanState(slot), frame.Samus);
     }
 
     /// <summary>Ports KzanBottom's main AI.</summary>
-    internal void RunKzanBottomMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunKzanBottomMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunKzanBottomMain(slot);
     }

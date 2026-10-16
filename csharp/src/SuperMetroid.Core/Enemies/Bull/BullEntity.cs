@@ -46,6 +46,6 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
         species.InitializeBull(slot);
 
     /// <summary>Ports <c>MainAI_Bull</c>.</summary>
-    private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8) =>
+    private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         BullBehavior.RunBullMain(slot, BullBehavior.RequireBullState(slot), frame.Samus);
 }

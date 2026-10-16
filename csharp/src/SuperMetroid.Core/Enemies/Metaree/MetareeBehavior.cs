@@ -252,7 +252,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Metaree's main AI.</summary>
-    internal void RunMetareeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMetareeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMetareeMain(slot, RequireMetareeState(slot), frame.Samus, frame.Level);
     }

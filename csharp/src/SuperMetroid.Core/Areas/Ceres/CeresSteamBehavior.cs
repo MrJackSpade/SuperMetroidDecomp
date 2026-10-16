@@ -153,7 +153,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Ports CeresSteam's main AI.</summary>
-    internal static void RunCeresSteamMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal static void RunCeresSteamMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunCeresSteamMain(slot, frame.Mode7Transform);
     }

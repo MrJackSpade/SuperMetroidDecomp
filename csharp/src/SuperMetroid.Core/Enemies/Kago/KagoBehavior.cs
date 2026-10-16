@@ -195,7 +195,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Kago's main AI.</summary>
-    internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunKagoMain(RequireKagoState(slot));
     }

@@ -218,7 +218,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports FuneNamihe's main AI.</summary>
-    internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), frame.Samus);
     }

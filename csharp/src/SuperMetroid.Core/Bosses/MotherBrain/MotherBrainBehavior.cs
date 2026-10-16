@@ -1074,19 +1074,19 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports MotherBrainBody's main AI.</summary>
-    internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
     }
 
     /// <summary>Ports MotherBrainHead's main AI.</summary>
-    internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainHeadMain(slot, frame.Samus);
     }
 
     /// <summary>Ports MotherBrainTubes's main AI.</summary>
-    internal void RunMotherBrainTubesMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunMotherBrainTubesMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunMotherBrainFallingTubeMain(slot);
     }

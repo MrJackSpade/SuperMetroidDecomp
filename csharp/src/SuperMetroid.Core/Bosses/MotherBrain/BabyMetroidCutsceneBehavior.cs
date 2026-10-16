@@ -295,7 +295,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Ports BabyMetroidCutscene's main AI.</summary>
-    internal void RunBabyMetroidCutsceneMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBabyMetroidCutsceneMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);
     }

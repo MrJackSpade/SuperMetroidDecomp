@@ -606,7 +606,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Ports DeadSidehopper's main AI.</summary>
-    internal void RunDeadSidehopperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDeadSidehopperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDeadSidehopperMain(slot, frame.Samus, frame.Level, frame.Camera.X);
     }

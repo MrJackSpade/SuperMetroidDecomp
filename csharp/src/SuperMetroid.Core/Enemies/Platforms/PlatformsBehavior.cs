@@ -355,7 +355,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Platforms's main AI.</summary>
-    internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPlatformMain(slot, RequirePlatformState(slot), frame.Samus, frame.Level);
     }

@@ -284,7 +284,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Mochtroid's main AI.</summary>
-    internal void RunMochtroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMochtroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMochtroidMain(slot, frame.Samus, frame.Level);
     }

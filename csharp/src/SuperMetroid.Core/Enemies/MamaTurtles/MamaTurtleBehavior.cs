@@ -884,18 +884,18 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports MamaTurtle's main AI.</summary>
-    internal void RunMamaTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal void RunMamaTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMamaTurtleMain(
             slot,
             RequireMamaTurtleState(slot),
             frame.Samus,
             frame.Level,
-            nmiFrameCounter8);
+            frame.Clock.Counter8);
     }
 
     /// <summary>Ports BabyTurtle's main AI.</summary>
-    internal void RunBabyTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBabyTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), frame.Samus, frame.Level);
     }

@@ -582,14 +582,14 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Dachora's main AI.</summary>
-    internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDachoraMain(
             slot,
             RequireDachoraState(slot),
             frame.Samus,
             frame.Level,
-            nmiFrameCounter8);
+            frame.Clock.Counter8);
     }
 
     /// <inheritdoc/>

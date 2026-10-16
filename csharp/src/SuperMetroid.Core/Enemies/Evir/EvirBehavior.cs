@@ -536,13 +536,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Evir's main AI.</summary>
-    internal void RunEvirMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunEvirMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunEvirMain(slot, RequireEvirState(slot), frame.Samus);
     }
 
     /// <summary>Ports EvirProjectile's main AI.</summary>
-    internal void RunEvirProjectileMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunEvirProjectileMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunEvirProjectileMain(
             slot,

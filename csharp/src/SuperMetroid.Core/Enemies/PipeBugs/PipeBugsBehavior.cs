@@ -740,7 +740,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports PipeBugs's main AI.</summary>
-    internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPipeBugMain(
             slot,

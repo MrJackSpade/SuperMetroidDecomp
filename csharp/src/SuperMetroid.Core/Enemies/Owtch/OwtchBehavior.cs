@@ -255,7 +255,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Owtch's main AI.</summary>
-    internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunOwtchMain(slot, RequireOwtchState(slot));
     }

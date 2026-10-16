@@ -649,7 +649,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Yard's main AI.</summary>
-    internal void RunYardMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunYardMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunYardMain(slot, frame.Samus, frame.Level);
     }

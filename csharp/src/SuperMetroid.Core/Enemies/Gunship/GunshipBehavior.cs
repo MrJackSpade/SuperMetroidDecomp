@@ -654,7 +654,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Ports Gunship's main AI.</summary>
-    internal void RunGunshipMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunGunshipMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunGunshipTopMain(
             slot,

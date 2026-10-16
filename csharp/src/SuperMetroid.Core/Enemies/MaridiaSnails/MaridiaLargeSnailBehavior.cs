@@ -537,7 +537,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     }
 
     /// <summary>Ports MaridiaLargeSnail's main AI.</summary>
-    internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMaridiaLargeSnailMain(
             slot,

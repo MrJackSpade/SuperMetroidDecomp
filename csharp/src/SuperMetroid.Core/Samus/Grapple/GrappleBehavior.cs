@@ -77,7 +77,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
     /// Executes the common grapple AI selected by handler bit zero. Returning true tells the
     /// ordinary scheduler that this call replaced main AI for the current enemy frame.
     /// </summary>
-    internal bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal bool RunCommonGrappleAi(RoomEnemySlot enemy, IEnemyAiFrame frame)
     {
         if ((enemy.AiStates & EnemyAiStates.Grappled) == 0)
             return false;
@@ -126,7 +126,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 // This common wrapper is Powamp's crucial distinction: it invokes the
                 // enemy's normal main function while bit zero remains observable, then
                 // clears that bit after the actor has moved its grapple anchor.
-                _dispatch.RunMainAi(enemy, new GrappleWrappedAiFrame(frame), nmiFrameCounter8);
+                _dispatch.RunMainAi(enemy, new GrappleWrappedAiFrame(frame));
                 enemy.AiStates = EnemyAiStates.None;
                 return true;
 
@@ -170,5 +170,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
         public SamusBombProjectileSystem? SharedProjectiles => null;
         /// <summary>Unavailable VRAM queue in the common grapple wrapper.</summary>
         public VramWriteQueue? VramWriteQueue => null;
+
+        /// <inheritdoc/>
+        public FrameCounters Clock => frame.Clock;
     }
 }

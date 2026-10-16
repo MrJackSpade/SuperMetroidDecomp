@@ -339,7 +339,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports CeresDoor's main AI.</summary>
-    internal void RunCeresDoorMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunCeresDoorMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunCeresDoorMain(slot);
     }

@@ -455,7 +455,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Puyo's main AI.</summary>
-    internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPuyoMain(slot, RequirePuyoState(slot), frame.Samus, frame.Level);
     }

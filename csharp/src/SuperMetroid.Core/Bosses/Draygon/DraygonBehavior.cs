@@ -1096,7 +1096,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports DraygonBody's main AI.</summary>
-    internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDraygonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         // Bank $A5 times turrets and smoke from NMI_FrameCounter ($05B6), never
         // the separate 8-bit counter at $05B5; only its low bits are tested.
@@ -1104,13 +1104,13 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports DraygonEye's main AI.</summary>
-    internal void RunDraygonEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDraygonEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDraygonPartMain(slot, frame.Samus);
     }
 
     /// <summary>Ports DraygonTail's main AI.</summary>
-    internal void RunDraygonTailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDraygonTailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDraygonPartMain(slot, frame.Samus);
     }

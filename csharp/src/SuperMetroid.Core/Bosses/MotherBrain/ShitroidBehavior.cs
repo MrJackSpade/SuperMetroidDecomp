@@ -855,7 +855,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Shitroid's main AI.</summary>
-    internal void RunShitroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunShitroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunShitroidMain(slot, frame.Samus, frame.Camera, frame.SharedProjectiles);
     }

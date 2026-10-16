@@ -537,7 +537,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Shaktool's main AI.</summary>
-    internal void RunShaktoolMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunShaktoolMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunShaktoolMain(slot, RequireShaktoolState(slot), frame.Level);
     }

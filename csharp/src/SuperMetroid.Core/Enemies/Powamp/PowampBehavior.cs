@@ -543,7 +543,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Powamp's main AI.</summary>
-    internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPowampMain(slot, RequirePowampState(slot), frame.Level);
     }

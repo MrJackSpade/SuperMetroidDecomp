@@ -369,7 +369,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports NuclearWaffle's main AI.</summary>
-    internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
     }

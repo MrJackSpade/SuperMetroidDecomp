@@ -342,7 +342,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports NorfairRio's main AI.</summary>
-    internal void RunNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunNorfairRioMain(
             slot,

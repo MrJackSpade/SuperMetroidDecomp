@@ -392,7 +392,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports FakeKraid's main AI.</summary>
-    internal void RunFakeKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunFakeKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunFakeKraidMain(
             slot,

@@ -495,7 +495,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     }
 
     /// <summary>Ports WalkingSpacePirate's main AI.</summary>
-    internal void RunWalkingSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunWalkingSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWalkingSpacePirateMain(
             slot,

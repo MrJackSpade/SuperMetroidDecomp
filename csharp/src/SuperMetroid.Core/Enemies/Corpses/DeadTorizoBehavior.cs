@@ -448,7 +448,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports DeadTorizo's main AI.</summary>
-    internal void RunDeadTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDeadTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDeadTorizoMain(slot, frame.Samus);
     }

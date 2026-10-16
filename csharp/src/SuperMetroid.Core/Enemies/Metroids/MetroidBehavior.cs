@@ -494,7 +494,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Metroid's main AI.</summary>
-    internal void RunMetroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMetroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMetroidMain(slot, frame.Samus, frame.Level);
     }

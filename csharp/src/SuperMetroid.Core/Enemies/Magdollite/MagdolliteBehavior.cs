@@ -768,7 +768,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Magdollite's main AI.</summary>
-    internal void RunMagdolliteMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMagdolliteMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMagdolliteMain(slot, RequireMagdolliteState(slot), frame.Samus);
     }

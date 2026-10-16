@@ -331,7 +331,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Ports Elevator's main AI.</summary>
-    internal void RunElevatorMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunElevatorMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunElevatorMain(
             slot,

@@ -354,7 +354,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Dragon's main AI.</summary>
-    internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunDragonMain(slot, RequireDragonState(slot), frame.Samus);
     }

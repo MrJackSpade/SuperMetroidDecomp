@@ -186,7 +186,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Fireflea's main AI.</summary>
-    internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunFirefleaMain(slot, RequireFirefleaState(slot));
     }

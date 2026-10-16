@@ -311,7 +311,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Boulder's main AI.</summary>
-    internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBoulderMain(slot, RequireBoulderState(slot), frame.Samus, frame.Level);
     }

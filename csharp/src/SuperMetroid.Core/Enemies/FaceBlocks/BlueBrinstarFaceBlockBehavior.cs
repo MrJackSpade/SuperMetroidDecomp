@@ -225,7 +225,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Ports BlueBrinstarFaceBlock's main AI.</summary>
-    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunBlueBrinstarFaceBlockMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunBlueBrinstarFaceBlockMain(
             slot,

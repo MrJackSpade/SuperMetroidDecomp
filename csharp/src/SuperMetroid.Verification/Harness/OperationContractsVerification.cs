@@ -33,12 +33,12 @@ internal static class OperationContractsVerification
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags shared = BindingFlags.Static | BindingFlags.NonPublic;
 
-        // The enemy frame is the superset main AI's narrow frame describes.
-        AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(RoomEnemyFrame)), "the enemy frame satisfies main AI's frame");
+        // Main AI's narrow frame is the enemy frame plus the counters the pass resolved once.
+        AssertTrue(typeof(IEnemyAiFrame).IsAssignableFrom(typeof(ClockedEnemyAiFrame)), "the pass's clocked frame satisfies main AI's frame");
         AssertTrue(MetadataShape.Properties(typeof(IEnemyAiFrame), BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public).Select(property => property.Name).Order(StringComparer.Ordinal).SequenceEqual(
-            ["Camera", "ControllerInput", "Level", "Mode7Transform", "NewlyPressedControllerInput", "Samus", "SamusProjectiles",
+            ["Camera", "Clock", "ControllerInput", "Level", "Mode7Transform", "NewlyPressedControllerInput", "Samus", "SamusProjectiles",
              "SharedProjectiles", "VramWriteQueue"]),
-            "main AI's frame exposes only the nine values main AI reads");
+            "main AI's frame exposes only the ten values main AI reads");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(RoomEnemySystem), nameof(RoomEnemySystem.RunMainAi), shared)[1],
             "main AI accepts its narrow frame, not the enemy pass's whole frame");
         AssertEqual(typeof(IEnemyAiFrame), MetadataShape.ParameterTypes(typeof(GrappleBehavior), nameof(GrappleBehavior.RunCommonGrappleAi), instance)[1],
@@ -58,10 +58,12 @@ internal static class OperationContractsVerification
             SharedProjectiles = new SamusBombProjectileSystem(),
             VramWriteQueue = new VramWriteQueue(),
         };
-        var masked = new GrappleBehavior.GrappleWrappedAiFrame(frame);
+        var clock = new FrameCounters(3, 260);
+        var masked = new GrappleBehavior.GrappleWrappedAiFrame(new ClockedEnemyAiFrame(frame, clock));
         AssertTrue(masked.Camera == frame.Camera && ReferenceEquals(masked.Samus, samus) &&
             masked.NewlyPressedControllerInput == frame.NewlyPressedControllerInput && masked.ControllerInput == frame.ControllerInput &&
-            ReferenceEquals(masked.Level, frame.Level), "the grapple wrapper passes the enemy's camera, Samus, input and room");
+            ReferenceEquals(masked.Level, frame.Level) && masked.Clock == clock,
+            "the grapple wrapper passes the enemy's camera, Samus, input, room and clock");
         AssertTrue(masked.SamusProjectiles is null && masked.Mode7Transform is null && masked.SharedProjectiles is null &&
             masked.VramWriteQueue is null, "the grapple wrapper withholds projectiles, Mode 7, bombs and the VRAM queue");
 

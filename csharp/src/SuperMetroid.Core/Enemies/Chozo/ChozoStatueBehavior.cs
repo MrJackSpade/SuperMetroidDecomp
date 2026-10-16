@@ -442,7 +442,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports ChozoStatue's main AI.</summary>
-    internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunChozoStatueMain(slot, RequireChozoStatueState(slot));
     }

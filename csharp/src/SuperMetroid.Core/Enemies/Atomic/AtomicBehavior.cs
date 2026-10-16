@@ -153,7 +153,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Atomic's main AI.</summary>
-    internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
     }

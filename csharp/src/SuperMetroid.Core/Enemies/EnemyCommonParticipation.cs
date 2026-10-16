@@ -66,7 +66,7 @@ internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reacti
     }
 
     /// <summary>The shared main-AI no-op.</summary>
-    private static void NoOpMain(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    private static void NoOpMain(RoomEnemySlot _, IEnemyAiFrame _1)
     {
     }
 }

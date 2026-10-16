@@ -560,10 +560,10 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeHZoomer(slot);
 
     /// <summary>Ports the shared crawler main AI.</summary>
-    internal void RunCrawlerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) => RunCrawlerMain(slot, frame.Level);
+    internal void RunCrawlerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) => RunCrawlerMain(slot, frame.Level);
 
     /// <summary>Ports orange Zoomer's Samus-tracking main AI.</summary>
-    internal void RunHZoomerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) =>
+    internal void RunHZoomerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunHZoomerMain(slot, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>

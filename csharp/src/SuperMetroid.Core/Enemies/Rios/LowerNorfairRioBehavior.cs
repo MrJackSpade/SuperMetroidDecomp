@@ -332,7 +332,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Ports LowerNorfairRio's main AI.</summary>
-    internal void RunLowerNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunLowerNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunLowerNorfairRioMain(
             slot,

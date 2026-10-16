@@ -1106,7 +1106,7 @@ internal sealed class CeresRidleyBehavior
         InitializeCeresRidley(slot);
 
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
-    internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) =>
+    internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
 
     /// <summary>Native wing frame deltas selected from Ridley's movement speed.</summary>

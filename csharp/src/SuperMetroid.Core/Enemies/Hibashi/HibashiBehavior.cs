@@ -191,7 +191,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Hibashi's main AI.</summary>
-    internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunHibashiMain(slot, RequireHibashiState(slot));
     }

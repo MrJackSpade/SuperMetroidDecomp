@@ -1148,7 +1148,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 "A Ridley breakup actor has no shared Ridley owner."));
 
     /// <summary>Ports Lower Norfair Ridley's main AI.</summary>
-    internal void RunRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) =>
+    internal void RunRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunNorfairRidleyMain(
             slot,
             frame.Samus,
@@ -1159,7 +1159,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.Camera);
 
     /// <summary>Ports the breakup explosion actor's main AI.</summary>
-    internal void RunRidleyExplosionMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1) => RunNorfairRidleyExplosionMain(slot);
+    internal void RunRidleyExplosionMainAi(RoomEnemySlot slot, IEnemyAiFrame _) => RunNorfairRidleyExplosionMain(slot);
 
     /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their bank-$A6 lists (#641).</summary>
     internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>

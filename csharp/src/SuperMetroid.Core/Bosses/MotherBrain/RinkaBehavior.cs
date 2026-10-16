@@ -525,7 +525,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Rinka's main AI.</summary>
-    internal void RunRinkaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunRinkaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunRinkaMain(slot, RequireRinkaState(slot), frame.Samus);
     }

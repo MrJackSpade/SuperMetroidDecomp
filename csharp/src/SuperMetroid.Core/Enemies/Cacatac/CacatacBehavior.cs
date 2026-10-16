@@ -217,7 +217,7 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Cacatac's main AI.</summary>
-    internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunCacatacMain(slot, RequireCacatacState(slot));
     }

@@ -2276,20 +2276,20 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports PhantoonBody's main AI.</summary>
-    internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPhantoonMain(slot, frame.Samus, frame.Camera);
     }
 
     /// <summary>Ports PhantoonEye's main AI.</summary>
-    internal static void RunPhantoonEyeMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    internal static void RunPhantoonEyeMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
     {
         // Phantoon's eye is positioned by the body and animated by its own list;
         // the header main is the literal common RTL at the start of bank $A7.
     }
 
     /// <summary>Ports PhantoonTentacles's main AI.</summary>
-    internal static void RunPhantoonTentaclesMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    internal static void RunPhantoonTentaclesMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
     {
         // $A7:E011 is a literal RTL. These drawing parts animate entirely through
         // their independent bank-$A7 instruction lists after the shared body main.

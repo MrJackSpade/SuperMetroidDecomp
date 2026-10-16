@@ -175,7 +175,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Spark's main AI.</summary>
-    internal void RunSparkMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    internal void RunSparkMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunSparkMain(slot, RequireSparkState(slot));
     }

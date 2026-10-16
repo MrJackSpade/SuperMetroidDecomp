@@ -36,6 +36,6 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemySlot slot, Ene
         BoyonBehavior.InitializeBoyon(slot);
 
     /// <summary>Ports <c>MainAI_Boyon</c>.</summary>
-    private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8) =>
+    private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         BoyonBehavior.RunBoyonMain(slot, BoyonBehavior.RequireBoyonState(slot), frame.Samus);
 }

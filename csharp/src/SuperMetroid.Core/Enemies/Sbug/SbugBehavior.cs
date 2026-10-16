@@ -483,7 +483,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Sbug's main AI.</summary>
-    internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunSbugMain(slot, frame.Samus, frame.Level);
     }

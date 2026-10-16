@@ -158,7 +158,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Multiviola's main AI.</summary>
-    internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMultiviolaMain(slot, RequireMultiviolaState(slot), frame.Level);
     }

@@ -359,7 +359,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports MorphBallEye's main AI.</summary>
-    internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), frame.Samus);
     }

@@ -357,7 +357,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     }
 
     /// <summary>Ports WallSpacePirate's main AI.</summary>
-    internal static void RunWallSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal static void RunWallSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunWallSpacePirateMain(
             slot,

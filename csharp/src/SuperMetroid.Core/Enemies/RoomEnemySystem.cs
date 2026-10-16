@@ -846,8 +846,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.
-        byte enemyNmiFrameCounter8 = frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter);
         FrameContext._enemyFrameNmiFrameCounter = frame.NmiFrameCounter ?? FrameContext._randomEnemyCounter;
+        var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
+            frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext._randomEnemyCounter), FrameContext._enemyFrameNmiFrameCounter));
         FrameResults.Begin();
         BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)
@@ -894,7 +895,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             }
             if (!frame.TimeIsFrozen)
             {
-                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, frame, enemyNmiFrameCounter8);
+                bool ranActorAi = GrappleBehavior.RunCommonGrappleAi(slot, aiFrame);
                 // Hurt AI replaces main AI while the hurt bit is set; the first registered match runs.
                 // Native selects the lowest AI bit even when its handler is just
                 // RTL. Hurt therefore delays frozen AI until flash housekeeping
@@ -942,7 +943,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 }
                 else if (!ranActorAi)
                 {
-                    RunMainAi(slot, frame, enemyNmiFrameCounter8);
+                    RunMainAi(slot, aiFrame);
                     ranActorAi = true;
                 }
 
@@ -1076,19 +1077,19 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RunInitializationAi(slot, level, samus, controllerInput, cameraX);
 
     /// <summary>Routes a scheduled enemy update through its banked main AI handler.</summary>
-    void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8) =>
-        RunMainAi(slot, frame, nmiFrameCounter8);
+    void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
+        RunMainAi(slot, frame);
 
     /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
     IReadOnlyList<ushort> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow._interactiveEnemyIndexes;
 
     /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
-    internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
+    internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI " +
             $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer):X6} is not translated.");
-        handler(slot, frame, nmiFrameCounter8);
+        handler(slot, frame);
     }
 
     /// <summary>Ports <c>Handle_Room_Shaking</c> at $A0:8687-$8711: the earthquake's frame step, then the actor shake it selects.</summary>

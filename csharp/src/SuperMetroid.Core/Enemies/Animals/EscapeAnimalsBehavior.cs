@@ -258,11 +258,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         InitializeEscapeDachora(slot);
 
     /// <summary>Ports the escape Etecoon's main AI.</summary>
-    internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _) =>
+    internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunEscapeEtecoonMain(slot, RequireEscapeEtecoonState(slot), frame.Level);
 
     /// <summary>Ports the escape Dachora's main AI, the literal RTL at $B3:EB1A; its movement lives in its instruction program.</summary>
-    internal static void RunEscapeDachoraMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    internal static void RunEscapeDachoraMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
     {
     }
 

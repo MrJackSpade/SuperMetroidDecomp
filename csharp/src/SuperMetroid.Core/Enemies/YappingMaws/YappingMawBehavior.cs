@@ -621,7 +621,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports YappingMaw's main AI.</summary>
-    internal void RunYappingMawMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    internal void RunYappingMawMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunYappingMawMain(
             slot,

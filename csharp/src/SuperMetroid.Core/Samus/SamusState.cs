@@ -268,14 +268,14 @@ public sealed class SamusState
     /// Equipped beam bitfield at WRAM `$09A6`. Drained-controller function three replaces
     /// this with `$1009`, the exact charge/wave/plasma plus hyper-beam configuration.
     /// </summary>
-    public ushort EquippedBeams { get; set; }
+    public SamusBeamFlags EquippedBeams { get; set; }
 
     /// <summary>
     /// Collected-beam bitfield at WRAM <c>$09A8</c>. Unlike
     /// <see cref="EquippedBeams"/>, this retains beams disabled from the pause equipment
     /// screen and is therefore the authoritative ownership word saved to SRAM.
     /// </summary>
-    public ushort CollectedBeams { get; set; }
+    public SamusBeamFlags CollectedBeams { get; set; }
 
     /// <summary>
     /// WRAM <c>SamusProjectile_FlareCounter</c>. Values at least $003C mean the charge
@@ -314,14 +314,14 @@ public sealed class SamusState
     /// Ball, bit one ($0002) is Spring Ball, and bit twelve ($1000) is Bombs. Animation
     /// command $F9 and the Morph-Ball projectile handler read this word directly.
     /// </summary>
-    public ushort EquippedItems { get; set; }
+    public SamusEquipmentFlags EquippedItems { get; set; }
 
     /// <summary>
     /// Collected-item bitfield corresponding to WRAM <c>$09A4</c>. This normally contains
     /// every equipped item, but equipment-menu toggles can make the two words differ. Enemy
     /// logic such as the morph-ball eye tests ownership through this word specifically.
     /// </summary>
-    public ushort CollectedItems { get; set; }
+    public SamusEquipmentFlags CollectedItems { get; set; }
 
     /// <summary>
     /// WRAM <c>samus_special_super_palette_flags</c>. Ordinary Metroid command $12 writes

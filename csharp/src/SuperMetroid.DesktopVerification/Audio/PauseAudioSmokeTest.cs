@@ -166,8 +166,8 @@ public static class PauseAudioSmokeTest
         {
             Health = 99,
             MaxHealth = 99,
-            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
         };
         var saves = new SaveSlotStore(SaveMapPresentationFixture.Create(bus));
         saves.SaveSlot(

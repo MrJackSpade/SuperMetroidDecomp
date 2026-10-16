@@ -88,7 +88,7 @@ internal static class GModeGateGlitchVerification
                     level,
                     gate.BlockIndex,
                     DownwardGatePlmRomData.ClosedGateBts,
-                    SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Wave, charged: false),
+                    SamusProjectileTypeWord.CreateBeam(SamusBeamFlags.Wave, charged: false),
                     solidBlock: true),
                 "direct G-Mode fixture fills the native forty-slot PLM pool");
         }
@@ -97,7 +97,7 @@ internal static class GModeGateGlitchVerification
         EnterDirectGMode(samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.EquippedBeams = (ushort)SamusBeamFlags.Wave;
+        samus.EquippedBeams = SamusBeamFlags.Wave;
         samus.SelectedHudItem = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
@@ -488,7 +488,7 @@ internal static class GModeGateGlitchVerification
     private static void EnterDirectGMode(SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.EquippedItems = samus.EquippedItems.With(SamusEquipmentFlags.XrayScope);
+        samus.EquippedItems |= SamusEquipmentFlags.XrayScope;
         samus.Health = 0;
         samus.MaxHealth = 99;
         samus.ReserveEnergy = 4;

@@ -98,10 +98,11 @@ internal static void VerifySamusRenderingSlice()
     // Advance through the production death-animation entry point, which shares the
     // delay interpreter but does not require valid gameplay movement metadata for $FD.
     const SamusPoseId unusedInstructionPose = (SamusPoseId)0xfd;
-    var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose };
+    var unusedInstructionResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
+    var unusedInstructionSamus = new SamusState { Pose = unusedInstructionPose, Mode7QueueResidue = unusedInstructionResidue };
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
-    WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfa, 0x31, 0x32]);
+    WriteUnusedPoseDelayInstruction(unusedInstructionResidue, [0x01, 0xfa, 0x31, 0x32]);
     unusedInstructionSamus.Presentation.InitializeAnimation();
     unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
@@ -113,14 +114,14 @@ internal static void VerifySamusRenderingSlice()
         "$FA` nonzero Y subspeed selects second pose byte");
 
     // `$FC eeee gg aa` uses a little-endian equipment word and distinct pose bytes.
-    WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
+    WriteUnusedPoseDelayInstruction(unusedInstructionResidue, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
     unusedInstructionSamus.Kinematics.YSubspeed = 0;
     unusedInstructionSamus.EquippedItems = 0;
     unusedInstructionSamus.Presentation.InitializeAnimation();
     unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
-    unusedInstructionSamus.EquippedItems = 0x0002;
+    unusedInstructionSamus.EquippedItems = (SamusEquipmentFlags)0x0002;
     unusedInstructionSamus.Presentation.InitializeAnimation();
     unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.UnusedPose42, unusedInstructionSamus.PendingTransitionalPose,
@@ -244,7 +245,7 @@ internal static void VerifySamusRenderingSlice()
     AssertTrue(!chestCover.IsLarge, "forward chest-cover is one small OBJ");
 
     // `$9B` uses dedicated suited art and therefore must not inherit `$00`'s chest patch.
-    samus.EquippedItems = 0x0001;
+    samus.EquippedItems = (SamusEquipmentFlags)0x0001;
     samus.PoseMetadata.ApplyForwardFacingPoseSetup();
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     SpriteArtwork bodyBeforeSuited = samus.Presentation.TileTransfers.BodyArtwork;
@@ -738,7 +739,7 @@ internal static void VerifySamusHurtFlashPalette()
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        EquippedItems = 0x0021, // Both suit bits prove Gravity's native precedence.
+        EquippedItems = (SamusEquipmentFlags)0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
         Presentation = { SuitColors = SamusSuitColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus))) },
     };
@@ -808,7 +809,7 @@ internal static void VerifySamusHurtFlashPalette()
 
     // Cinematic call two suppresses impact audio and uses the dedicated intro palette in
     // place of equipment-selected colors. Odd call one remains the common hurt palette.
-    var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = 0x0020 };
+    var cinematic = new SamusState { HurtFlashCounter = 2, EquippedItems = (SamusEquipmentFlags)0x0020 };
     cinematic.LiquidPhysics.CinematicFunctionActive = true;
     SamusHurtFlashPalette.Update(
         cgram, cinematic, controllerInput: 0, presentationColors: hurtColors);
@@ -1019,12 +1020,11 @@ static void SeedPoseNineSamusData(TestAddressSpace bus)
 }
 
 /// <summary>
-/// Installs a delay stream at <c>$91:0302</c>, the mutable low-bank WRAM alias that pose
+/// Installs a delay stream at <c>$91:0302</c>, the Mode 7 transfer queue residue byte that pose
 /// <c>$FD</c>'s overread of the bank-$91 delay pointer table selects.
 /// </summary>
-[CpuBusBoundary("exact bus test: Mode 7 transfer queue byte $7E:0302 reached by pose $FD's delay-pointer overread")]
-static void WriteUnusedPoseDelayInstruction(TestAddressSpace bus, ReadOnlySpan<byte> stream) =>
-    bus.WriteBytes(0x7e0302, stream);
+static void WriteUnusedPoseDelayInstruction(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue residue, ReadOnlySpan<byte> stream) =>
+    stream.CopyTo(residue._bytes.AsSpan(0x7e0302 - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart));
 
 /// <summary>
 /// Gives every spritemap index the body-half matrix uses one visible OBJ, and seeds the

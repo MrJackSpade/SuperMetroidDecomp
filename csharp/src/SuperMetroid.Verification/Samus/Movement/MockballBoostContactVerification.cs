@@ -23,7 +23,7 @@ internal static class MockballBoostContactVerification
             var samus = new SamusState
             {
                 Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
-                EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
+                EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
             };
             var fixture = CreateEnemyDropFixture(samus, [1]);
             samus.PoseMetadata.RefreshCollisionRadii();

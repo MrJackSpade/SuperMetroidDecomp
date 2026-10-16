@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -141,10 +142,10 @@ internal sealed class EndingBackgroundTextState
                   + inventory.MaxMissiles / 5
                   + inventory.MaxSuperMissiles / 5
                   + inventory.MaxPowerBombs / 5;
-        count += BitOperations.PopCount((uint)(
-            inventory.CollectedItems & EndingCreditsRomData.Text.CollectibleItemMask));
-        count += BitOperations.PopCount((uint)(
-            inventory.CollectedBeams & EndingCreditsRomData.Text.CollectibleBeamMask));
+        count += BitOperations.PopCount(
+            (inventory.CollectedItems & EndingCreditsRomData.Text.CollectibleItemMask).ToNativeWord());
+        count += BitOperations.PopCount(
+            (inventory.CollectedBeams & EndingCreditsRomData.Text.CollectibleBeamMask).ToNativeWord());
         count = Math.Clamp(count, 0, 100);
 
         int hundreds = count / 100;

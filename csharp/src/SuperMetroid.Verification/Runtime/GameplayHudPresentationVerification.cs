@@ -50,13 +50,13 @@ internal static class GameplayHudPresentationVerification
         AssertTrue(topRowRuntime.Vram.Bytes.Slice(0xb000, GameplayHudDefinitions.TopRowByteCount)
             .SequenceEqual(presentation.TopRowTransfer.Span),
             "queued immutable HUD row uses installed visual data without source reads");
-        ushort equipment = (ushort)(SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam);
+        ushort equipment = ((SamusEquipmentFlags.XrayScope | SamusEquipmentFlags.GrappleBeam).ToNativeWord());
         var snapshot = new HudSnapshot(
             Health: 345, MaxHealth: 499,
             Missiles: 123, MaxMissiles: 230,
             SuperMissiles: 45, MaxSuperMissiles: 50,
             PowerBombs: 6, MaxPowerBombs: 10,
-            EquippedItems: equipment, SelectedItem: 2,
+            EquippedItems: (SamusEquipmentFlags)equipment, SelectedItem: 2,
             ReserveHealth: 50, ReserveMode: 1);
         var native = new HudState();
         var installed = new HudState();
@@ -77,7 +77,7 @@ internal static class GameplayHudPresentationVerification
             MaxSuperMissiles = 50,
             PowerBombs = 4,
             MaxPowerBombs = 10,
-            EquippedItems = equipment,
+            EquippedItems = (SamusEquipmentFlags)equipment,
             SelectedHudItem = 3,
             ReserveEnergy = 25,
             ReserveTankMode = 1,

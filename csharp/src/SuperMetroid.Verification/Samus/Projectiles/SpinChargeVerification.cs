@@ -22,7 +22,7 @@ internal static class SpinChargeVerification
                 ? SamusMovementType.SpinJumping : SamusMovementType.WallJumping;
             WritePoseDefinition(bus, (int)pose, [8, (byte)movement, 0, 2, 0, 0, 0, 0]);
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-                EquippedBeams = (ushort)SamusBeamFlags.Charge };
+                EquippedBeams = SamusBeamFlags.Charge };
             var projectiles = new SamusProjectileSystem { Animation = { FrameBindings = frames } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = frames };
             for (int frame = 0; frame < 60; frame++)

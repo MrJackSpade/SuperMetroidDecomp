@@ -30,7 +30,7 @@ internal static class PauseReserveHudVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Health = 20; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
-        samus.CollectedBeams = (ushort)SamusBeamFlags.Charge;
+        samus.CollectedBeams = SamusBeamFlags.Charge;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = 1 });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });

@@ -66,7 +66,7 @@ internal static class InstalledFixtures
     /// installed beam and trail characters over a blank standard OBJ page, for checks of draw geometry and bindings.
     /// </summary>
     internal static ProjectileDrawArtwork ProjectileArtwork(ProjectileSpriteCatalog? compositions = null, ushort equippedBeams = 0) =>
-        new(compositions ?? Projectiles.Catalog, projectilePages.Value, equippedBeams);
+        new(compositions ?? Projectiles.Catalog, projectilePages.Value, (SamusBeamFlags)equippedBeams);
 
     /// <summary>The installation's standard OBJ sheet, loaded once per process.</summary>
     internal static SuperMetroid.Core.Rooms.Artwork.RoomCharacterAtlas StandardObjects => standardObjects.Value;

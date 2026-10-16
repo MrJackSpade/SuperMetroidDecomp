@@ -17,7 +17,7 @@ internal static class PlasmaPenetrationVerification
             var shots = new SamusProjectileSystem();
             var slot = shots.Slots[0];
             ushort type = SamusProjectileTypeWord.CreateBeam(
-                (ushort)(combination | (ushort)SamusBeamFlags.Plasma), charged);
+                (SamusBeamFlags)combination | SamusBeamFlags.Plasma, charged);
             slot.Type = type;
             slot.Damage = 100;
             slot.Direction = (ushort)SamusProjectileDirection.Right;

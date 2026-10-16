@@ -53,9 +53,9 @@ internal sealed class TesterTools
         if (!GrantAllEquipmentEnabled || _player.Samus is null ||
             (!restoredInventory && ReferenceEquals(testerInventoryRecipient, _player.Samus))) return;
         testerInventoryRecipient = _player.Samus;
-        _player.Samus.CollectedItems = _player.Samus.EquippedItems = (ushort)TesterInventoryDefinitions.Equipment;
-        _player.Samus.CollectedBeams = (ushort)TesterInventoryDefinitions.Beams;
-        _player.Samus.EquippedBeams = (ushort)(TesterInventoryDefinitions.Beams & ~SamusBeamFlags.Spazer);
+        _player.Samus.CollectedItems = _player.Samus.EquippedItems = TesterInventoryDefinitions.Equipment;
+        _player.Samus.CollectedBeams = TesterInventoryDefinitions.Beams;
+        _player.Samus.EquippedBeams = TesterInventoryDefinitions.Beams & ~SamusBeamFlags.Spazer;
         _player.Samus.Health = _player.Samus.MaxHealth = TesterInventoryDefinitions.Energy;
         _player.Samus.ReserveEnergy = _player.Samus.MaxReserveEnergy = TesterInventoryDefinitions.Reserves;
         _player.Samus.ReserveTankMode = 1;

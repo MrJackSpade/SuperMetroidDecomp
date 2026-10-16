@@ -25,24 +25,23 @@ internal static void VerifyTypedNativeWords()
 {
     // Equipment helpers must mutate only the requested independent bits. Bit $0080 is not
     // named by the enum and deliberately survives both operations unchanged.
-    ushort equipment = 0x0080;
-    equipment = equipment.With(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs);
+    SamusEquipmentFlags equipment = (SamusEquipmentFlags)0x0080;
+    equipment |= SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs;
     AssertTrue(equipment.HasAll(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.Bombs),
         "typed equipment flags set independently");
-    equipment = equipment.Without(SamusEquipmentFlags.GravitySuit);
-    AssertEqual(0x1080, equipment, "equipment helper preserves unnamed bits");
+    equipment &= ~SamusEquipmentFlags.GravitySuit;
+    AssertEqual(0x1080, equipment.ToNativeWord(), "equipment flags preserve unnamed bits");
 
     // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
     // branches plus the native Gravity-over-Varia priority that motivated centralization.
-    AssertEqual(0, ((ushort)0).GetSuitPaletteTableOffset(),
+    AssertEqual(0, SamusEquipmentFlags.None.GetSuitPaletteTableOffset(),
         "Power Suit palette table offset");
-    AssertEqual(2, SamusEquipmentFlags.VariaSuit.ToNativeWord().GetSuitPaletteTableOffset(),
+    AssertEqual(2, SamusEquipmentFlags.VariaSuit.GetSuitPaletteTableOffset(),
         "Varia Suit palette table offset");
-    AssertEqual(4, SamusEquipmentFlags.GravitySuit.ToNativeWord().GetSuitPaletteTableOffset(),
+    AssertEqual(4, SamusEquipmentFlags.GravitySuit.GetSuitPaletteTableOffset(),
         "Gravity Suit palette table offset");
     AssertEqual(4,
         (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
-            .ToNativeWord()
             .GetSuitPaletteTableOffset(),
         "Gravity Suit palette table priority");
 

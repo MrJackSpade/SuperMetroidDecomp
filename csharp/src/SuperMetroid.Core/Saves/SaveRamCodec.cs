@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -80,10 +82,10 @@ public static class SaveRamCodec
         Ensure.LengthEqual(payload, SaveRamLayout.SlotByteCount);
         return new SuperMetroidSaveSlot(
             Slot: slot,
-            EquippedItems: ReadWord(payload, SaveRamLayout.EquippedItemsOffset),
-            CollectedItems: ReadWord(payload, SaveRamLayout.CollectedItemsOffset),
-            EquippedBeams: ReadWord(payload, SaveRamLayout.EquippedBeamsOffset),
-            CollectedBeams: ReadWord(payload, SaveRamLayout.CollectedBeamsOffset),
+            EquippedItems: (SamusEquipmentFlags)ReadWord(payload, SaveRamLayout.EquippedItemsOffset),
+            CollectedItems: (SamusEquipmentFlags)ReadWord(payload, SaveRamLayout.CollectedItemsOffset),
+            EquippedBeams: (SamusBeamFlags)ReadWord(payload, SaveRamLayout.EquippedBeamsOffset),
+            CollectedBeams: (SamusBeamFlags)ReadWord(payload, SaveRamLayout.CollectedBeamsOffset),
             ReserveMode: ReadWord(payload, SaveRamLayout.ReserveModeOffset),
             Health: ReadWord(payload, SaveRamLayout.HealthOffset),
             MaxHealth: ReadWord(payload, SaveRamLayout.MaxHealthOffset),
@@ -133,10 +135,10 @@ public static class SaveRamCodec
         Ensure.NotNull(snapshot);
         byte[] payload = new byte[SaveRamLayout.SlotByteCount];
 
-        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems);
-        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems);
-        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams);
-        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams);
+        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems.ToNativeWord());
+        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems.ToNativeWord());
+        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams.ToNativeWord());
+        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams.ToNativeWord());
 
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore

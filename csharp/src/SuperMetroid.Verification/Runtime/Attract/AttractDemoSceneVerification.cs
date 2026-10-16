@@ -14,6 +14,8 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Verification.Runtime.Attract;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks attract-scene setup records and compiled input scripts against native data and playback.</summary>
 internal static class AttractDemoSceneVerification
@@ -45,7 +47,7 @@ internal static class AttractDemoSceneVerification
             (ushort)SnesButton.Right);
         var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var expected = new AttractDemoScene(0x91f8, 0x8000, new(0x100, 0x200), new(-46, 0x40),
-            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
+            0x151, AttractDemoRoomSetup.NoOp, AttractDemoSamusSetup.StandingRight, (SamusEquipmentFlags)0x3105, 10, 5, 2, 399, (SamusBeamFlags)0x100f, (SamusBeamFlags)0x100b, 0x9000);
         if (SuperMetroid.TestSupport.VerificationImporters.AttractDemoSceneImporter.Read(bus, 0, 0) != expected)
             throw new InvalidDataException("Demo room/equipment/setup tables did not join at the same scene index.");
         if (expected.SamusPosition != new Position16<RoomPixels>(338, 576))

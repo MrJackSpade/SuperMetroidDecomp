@@ -32,8 +32,8 @@ internal static class BossResetOnLoadVerification
         {
             Area = 0, SaveStation = 1, Health = 77, MaxHealth = 199,
             Missiles = 12, MaxMissiles = 25,
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = SamusEquipmentFlags.MorphBall,
             BossBytes = Enumerable.Repeat((byte)0x07, Bank80SystemState.AreaCount).ToArray(),
             EventBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.EventByteCount).ToArray(),
             OpenedDoorBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.DoorBitByteCount).ToArray(),
@@ -72,8 +72,8 @@ internal static class BossResetOnLoadVerification
                 AssertEqual(snapshot.CollectedItemBytes[index], runtime.System.GetCollectedItemByteRaw(index), "pickups preserved");
             for (int index = 0; index < Bank80SystemState.RoomChozoBitByteCount; index++)
                 AssertEqual(snapshot.RoomChozoBytes[index], runtime.System.GetRoomChozoByteRaw(index), "Chozo orbs preserved");
-            AssertEqual(slot.CollectedItems, (ushort)runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
-            AssertEqual(slot.EquippedItems, (ushort)runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
+            AssertEqual(slot.CollectedItems, runtime.Player.IntroducedSamus.CollectedItems, "collected inventory preserved");
+            AssertEqual(slot.EquippedItems, runtime.Player.IntroducedSamus.EquippedItems, "equipment selection preserved");
             AssertEqual(slot.Health, runtime.Player.IntroducedSamus.Health, "health preserved");
             AssertEqual(slot.Missiles, runtime.Player.IntroducedSamus.Missiles, "ammo preserved");
             foreach (var (room, alive, defeated) in new (ushort, ushort, ushort)[]

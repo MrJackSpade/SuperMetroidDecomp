@@ -35,7 +35,7 @@ internal static class YappingMawGrappleReleaseVerification
         samus.Presentation.SetPoseAndAnimationFromScriptedController(samus.Pose, 24, 3, refreshRadius: false);
         samus.Grapple.Phase = GrapplePhase.ConnectedSwinging;
         samus.Grapple.CancelFromConnectedPose = false;
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
+        samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = 4;
         samus.InputLocked = true;
         // Stage the last two frames of the actual Maw's held delay. The report's

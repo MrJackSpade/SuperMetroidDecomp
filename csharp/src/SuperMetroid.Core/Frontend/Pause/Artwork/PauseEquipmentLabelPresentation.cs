@@ -45,8 +45,8 @@ public sealed class PauseEquipmentLabelPresentation
     }
 
     /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
-    public void ApplyInventory(Span<byte> tilemap, ushort collectedBeams, ushort equippedBeams,
-        ushort collectedItems, ushort equippedItems, bool hyperBeam)
+    public void ApplyInventory(Span<byte> tilemap, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags collectedBeams, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags collectedItems, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool hyperBeam)
     {
         ValidateTilemap(tilemap);
         if (hyperBeam)
@@ -66,18 +66,16 @@ public sealed class PauseEquipmentLabelPresentation
         {
             if (category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
-            ushort mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
-            ushort collected = category == PauseEquipmentCategory.Beams ? collectedBeams : collectedItems;
-            ushort equipped = category == PauseEquipmentCategory.Beams ? equippedBeams : equippedItems;
+            SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
             string key = PauseEquipmentLabelDefinitions.Key(category, item);
             CompiledLabel label = labels[key];
             Span<byte> destination = tilemap.Slice(label.DestinationByte, label.WordCount * sizeof(ushort));
-            if ((collected & mask) == 0)
+            if (!mask.IsSetIn(collectedBeams, collectedItems))
                 WriteBlank(destination);
             else
             {
                 label.CopyTo(destination);
-                if ((equipped & mask) == 0) Recolor(destination, DisabledPalette);
+                if (!mask.IsSetIn(equippedBeams, equippedItems)) Recolor(destination, DisabledPalette);
             }
         }
     }

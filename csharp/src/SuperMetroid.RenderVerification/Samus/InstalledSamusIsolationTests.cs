@@ -78,7 +78,7 @@ internal sealed class InstalledSamusIsolationTests
     /// <summary>Creates one source-selected pair in a constructed room with optional liquid or low ceiling.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private Pair Create(SamusPoseId pose = SamusPoseId.FacingRightNormalPose,
-        ushort equipment = 0, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
+        SamusEquipmentFlags equipment = SamusEquipmentFlags.None, SamusLiquidMedium medium = SamusLiquidMedium.Air, bool lowCeiling = false)
     {
         scenarios++;
         return new Pair(this, pose, equipment, medium, lowCeiling);
@@ -108,7 +108,7 @@ internal sealed class InstalledSamusIsolationTests
 
         /// <summary>Builds a cartridge-free Samus actor on the fixture floor with the selected visual catalog set.</summary>
         internal Actor(InstalledSamusIsolationTests tests, bool edited, SamusPoseId pose,
-            ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
+            SamusEquipmentFlags equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
             Body = edited ? tests.artwork.Edited : tests.artwork.Stock;
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
@@ -149,7 +149,7 @@ internal sealed class InstalledSamusIsolationTests
         internal Actor Edited { get; }
         /// <summary>Creates both actors from the same initial pose, equipment, medium, and room geometry.</summary>
         internal Pair(InstalledSamusIsolationTests tests, SamusPoseId pose,
-            ushort equipment, SamusLiquidMedium medium, bool lowCeiling)
+            SamusEquipmentFlags equipment, SamusLiquidMedium medium, bool lowCeiling)
         {
             this.tests = tests;
             Stock = new(tests, false, pose, equipment, medium, lowCeiling);
@@ -360,7 +360,7 @@ internal sealed class InstalledSamusIsolationTests
     private void CheckJump(SamusLiquidMedium medium, bool left, bool highJump)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
-            equipment: highJump ? (ushort)SamusEquipmentFlags.HiJumpBoots : (ushort)0, medium: medium);
+            equipment: highJump ? SamusEquipmentFlags.HiJumpBoots : SamusEquipmentFlags.None, medium: medium);
         string label = $"jump medium {medium}, left={left}, high={highJump}";
         ushort startY = pair.Stock.Samus.Position.Y.Whole, minimumY = startY;
         pair.Apply(label + " admission", actor => actor.Samus.PoseTransitions.ApplyOrdinaryJumpTransition(left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose));
@@ -388,7 +388,7 @@ internal sealed class InstalledSamusIsolationTests
     private void CheckPosture(SamusLiquidMedium medium, bool left)
     {
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
-            (ushort)SamusEquipmentFlags.MorphBall, medium);
+            SamusEquipmentFlags.MorphBall, medium);
         string label = $"posture medium {medium}, left={left}";
         Require(pair.Apply(label + " crouch", actor => actor.Samus.PoseTransitions.TryApplyPostureTransition(
             actor.Level, left ? SamusPoseId.CrouchingTransitionLeftPose : SamusPoseId.CrouchingTransitionRightPose, 0)),
@@ -451,8 +451,8 @@ internal sealed class InstalledSamusIsolationTests
             SamusPoseId.ShinesparkVerticalLeftPose, SamusPoseId.ShinesparkDiagonalRightPose,
             SamusPoseId.ShinesparkDiagonalLeftPose }) CheckShinespark(pose);
         foreach (SamusSuitPickupKind kind in Enum.GetValues<SamusSuitPickupKind>()) CheckSuitPickup(kind);
-        foreach (ushort suit in new[] { (ushort)0, (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)SamusEquipmentFlags.GravitySuit })
+        foreach (SamusEquipmentFlags suit in new[] { SamusEquipmentFlags.None, SamusEquipmentFlags.VariaSuit,
+            SamusEquipmentFlags.GravitySuit })
         foreach (SamusPoseId source in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.MorphBallGroundLeftPose,
             SamusPoseId.SpinJumpRightPose }) CheckDeath(source, suit);
         CheckReserve();
@@ -591,10 +591,10 @@ internal sealed class InstalledSamusIsolationTests
 
     /// <summary>Checks the full death lifetime, pose art, explosion draws and explosion artwork for a source pose and suit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private void CheckDeath(SamusPoseId source, ushort suit)
+    private void CheckDeath(SamusPoseId source, SamusEquipmentFlags suit)
     {
         Pair pair = Create(source, suit);
-        string context = $"death source {(int)source:X2}, suit {suit:X4}";
+        string context = $"death source {(int)source:X2}, suit {suit.ToNativeWord():X4}";
         pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Samus, new(0, 240)), draw: false);
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)

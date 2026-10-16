@@ -28,7 +28,7 @@ internal static class BoostFloorScrollVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.SpeedBooster;
+        samus.EquippedItems = SamusEquipmentFlags.SpeedBooster;
         samus.Position = samus.Position.WithWhole(new(1040, 171));
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();

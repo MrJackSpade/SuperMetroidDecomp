@@ -19,7 +19,7 @@ public readonly record struct PlmFrameInputs
     public required SnesButton ControllerNewInput { get; init; }
 
     /// <summary>Collected items.</summary>
-    public ushort CollectedItems { get; init; }
+    public SuperMetroid.Core.Samus.SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Power bomb explosion status.</summary>
     public ushort PowerBombExplosionStatus { get; init; }

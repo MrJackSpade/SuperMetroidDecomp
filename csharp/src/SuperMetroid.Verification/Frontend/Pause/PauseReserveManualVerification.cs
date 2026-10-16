@@ -21,7 +21,7 @@ internal static class PauseReserveManualVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = 1,
-            CollectedBeams = (ushort)SamusBeamFlags.Charge };
+            CollectedBeams = SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
@@ -63,7 +63,7 @@ internal static class PauseReserveManualVerification
         foreach (ushort startingHealth in new ushort[] { 20, 98 })
         {
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
-                MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
+                MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = SamusBeamFlags.Charge };
             var audio = new CartridgeAudioState();
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);

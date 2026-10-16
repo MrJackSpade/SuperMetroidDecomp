@@ -1,16 +1,17 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>Decoded debugger view of the player fields and checkpoint in one valid slot.</summary>
 public sealed record SuperMetroidSaveSlot(
     int Slot,
-    ushort EquippedItems,
-    ushort CollectedItems,
-    ushort EquippedBeams,
-    ushort CollectedBeams,
+    SamusEquipmentFlags EquippedItems,
+    SamusEquipmentFlags CollectedItems,
+    SamusBeamFlags EquippedBeams,
+    SamusBeamFlags CollectedBeams,
     ushort ReserveMode,
     ushort Health,
     ushort MaxHealth,

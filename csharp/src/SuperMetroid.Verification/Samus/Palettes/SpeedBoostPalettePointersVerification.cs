@@ -19,12 +19,12 @@ internal static class SpeedBoostPalettePointersVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(rom)));
-        ushort[] equipment =
+        SamusEquipmentFlags[] equipment =
         [
             0,
-            (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)SamusEquipmentFlags.GravitySuit,
-            (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+            SamusEquipmentFlags.VariaSuit,
+            SamusEquipmentFlags.GravitySuit,
+            (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
         ];
         ushort[] expectedPointers = [0x9b80, 0x9d80, 0x9f80, 0x9f80];
         for (int selection = 0; selection < equipment.Length; selection++)

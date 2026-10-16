@@ -24,7 +24,7 @@ internal static class PauseReserveLabelsVerification
         foreach (ushort mode in new ushort[] { 0, 1, 2 })
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = mode,
-                CollectedItems = (ushort)SamusEquipmentFlags.MorphBall };
+                CollectedItems = SamusEquipmentFlags.MorphBall };
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
             EnterPauseEquipment(pause);
             AssertEqual(1, pause.ScreenMode, "reserve label test reached equipment page");

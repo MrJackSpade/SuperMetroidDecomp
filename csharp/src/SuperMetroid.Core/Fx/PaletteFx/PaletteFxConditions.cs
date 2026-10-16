@@ -9,7 +9,7 @@ public sealed record PaletteFxConditions
     public required ushort SamusY { get; init; }
 
     /// <summary>Equipped items.</summary>
-    public required ushort EquippedItems { get; init; }
+    public required SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Enemy zero is dead.</summary>
     public required bool EnemyZeroIsDead { get; init; }

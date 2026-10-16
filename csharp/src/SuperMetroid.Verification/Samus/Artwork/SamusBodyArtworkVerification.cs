@@ -285,17 +285,17 @@ internal static class SamusBodyArtworkVerification
         {
             ushort equipment = suit switch
             {
-                1 => (ushort)SamusEquipmentFlags.VariaSuit,
-                2 => (ushort)SamusEquipmentFlags.GravitySuit,
+                1 => SamusEquipmentFlags.VariaSuit.ToNativeWord(),
+                2 => SamusEquipmentFlags.GravitySuit.ToNativeWord(),
                 _ => 0,
             };
             var nativeSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = (SamusEquipmentFlags)equipment,
             };
             var installedSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = (SamusEquipmentFlags)equipment,
             };
             nativeSamus.DeathSequence.Begin(nativeSamus, Position16<RoomPixels>.Zero);
             installedSamus.DeathSequence.Begin(installedSamus, Position16<RoomPixels>.Zero);

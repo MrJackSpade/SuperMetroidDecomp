@@ -1307,6 +1307,7 @@ internal static class LookupStream4Verification
         enemies.Presentation._vram = vram;
         enemies.Presentation._cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        enemies.Room.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
         Action<RidleyEnemyState, SamusState?, ushort> tick = enemies.CeresRidleyBehavior.TickCeresRidleyMode7Getaway;
         var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
         byte[] untouched = new byte[SnesVram.ByteCount];
@@ -1387,7 +1388,7 @@ internal static class LookupStream4Verification
             }
             if(edit is -1 or 0 or 131)
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(ushort)(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
                 for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.Tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
@@ -1752,7 +1753,7 @@ internal static class LookupStream4Verification
                 for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, Bgr555.FromWord((ushort)(index * 31)));
                 if (edit is -1 or 0 or 575)
                     SamusProjectileSystem.LoadBeamPalette(actual,
-                        (ushort)(selection | 0x1000), selected);
+                        (SamusBeamFlags)((ushort)(selection | 0x1000)), selected);
                 else selected.LoadTo(actual, SamusBeamCombinations.FromTableIndex(selection));
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
                 for (int index = 0; index < SnesCgram.ColorCount; index++)
@@ -3183,7 +3184,7 @@ internal static class LookupStream4Verification
             int first = ((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.Trails.Tiles
                 ?? throw new InvalidOperationException("The installation has no trail characters."));
-            ReadOnlySpan<byte> page = pages.For((ushort)selection).Characters;
+            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)selection)).Characters;
             AssertTrue(expected.SequenceEqual(page.Slice(first * SpriteArtwork.CharacterByteCount, expected.Length).ToArray()),
                 "The bound page shows the current calculated pixels at native destination6300 without cartridge reads");
             AssertEqual((byte)0, page[first * SpriteArtwork.CharacterByteCount - 1], "Beam characters leave the preceding character alone");

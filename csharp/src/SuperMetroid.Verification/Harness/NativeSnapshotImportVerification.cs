@@ -153,8 +153,8 @@ internal static class NativeSnapshotImportVerification
             NativeSnapshotMemory.SamusNormalInputHandler or NativeSnapshotMemory.SamusAutoJumpInputHandler,
             "initial movie input handler has a verified semantic mapping");
         samus.InputSnapshot.AutoJumpInputPending = W(NativeSnapshotMemory.SamusInputHandler) == NativeSnapshotMemory.SamusAutoJumpInputHandler;
-        samus.EquippedItems = W(NativeSnapshotMemory.Items);
-        samus.EquippedBeams = W(NativeSnapshotMemory.Beams);
+        samus.EquippedItems = (SamusEquipmentFlags)(W(NativeSnapshotMemory.Items));
+        samus.EquippedBeams = (SamusBeamFlags)(W(NativeSnapshotMemory.Beams));
         samus.Health = W(NativeSnapshotMemory.Health);
         samus.MaxHealth = W(NativeSnapshotMemory.MaxHealth);
         samus.InvincibilityTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
@@ -305,7 +305,7 @@ internal static class NativeSnapshotImportVerification
         if (runtime.Enemies.MotherBrainEncounter.MotherBrain is not null)
             ImportNativeMotherBrain(runtime, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), W);
         runtime.Clock.Import(memory[NativeSnapshotMemory.NmiCounterByte], W(NativeSnapshotMemory.NmiCounter));
-        samus.CollectedItems = W(NativeSnapshotMemory.CollectedItems); samus.CollectedBeams = W(NativeSnapshotMemory.CollectedBeams);
+        samus.CollectedItems = (SamusEquipmentFlags)(W(NativeSnapshotMemory.CollectedItems)); samus.CollectedBeams = (SamusBeamFlags)(W(NativeSnapshotMemory.CollectedBeams));
         samus.Missiles = W(NativeSnapshotMemory.Missiles); samus.MaxMissiles = W(NativeSnapshotMemory.MaxMissiles);
         samus.SuperMissiles = W(NativeSnapshotMemory.SuperMissiles); samus.MaxSuperMissiles = W(NativeSnapshotMemory.MaxSuperMissiles);
         samus.PowerBombs = W(NativeSnapshotMemory.PowerBombs); samus.MaxPowerBombs = W(NativeSnapshotMemory.MaxPowerBombs);

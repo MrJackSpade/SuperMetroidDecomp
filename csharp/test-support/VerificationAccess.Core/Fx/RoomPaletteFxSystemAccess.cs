@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Verification access to <see cref="RoomPaletteFxSystem"/> members production does not use.</summary>
 internal static class RoomPaletteFxSystemAccess
@@ -25,7 +26,7 @@ internal static class RoomPaletteFxSystemAccess
             AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            self.LoadRoomCore((ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (ushort)(equippedItems), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
+            self.LoadRoomCore((ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (SamusEquipmentFlags)((ushort)(equippedItems)), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
         }
     }
 }

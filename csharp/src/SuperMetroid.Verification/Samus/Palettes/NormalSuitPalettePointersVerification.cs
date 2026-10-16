@@ -20,12 +20,12 @@ internal static class NormalSuitPalettePointersVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(rom)));
-        ushort[] equipment =
+        SamusEquipmentFlags[] equipment =
         [
             0,
-            (ushort)SamusEquipmentFlags.VariaSuit,
-            (ushort)SamusEquipmentFlags.GravitySuit,
-            (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
+            SamusEquipmentFlags.VariaSuit,
+            SamusEquipmentFlags.GravitySuit,
+            (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit),
         ];
         ushort[] expectedPointers = [0x9400, 0x9520, 0x9800, 0x9800];
         for (int selection = 0; selection < equipment.Length; selection++)

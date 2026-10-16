@@ -31,7 +31,7 @@ internal static class CeilingWrapRoomVerification
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
-        samus.EquippedBeams = beams; samus.EquippedItems = 0;
+        samus.EquippedBeams = (SamusBeamFlags)beams; samus.EquippedItems = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(1109, 0));
@@ -59,7 +59,7 @@ internal static class CeilingWrapRoomVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.FrogSpeedway);
         var level = runtime.Room.LoadedLevelData;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1237, 139)),
-            PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = 5 };
+            PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose, EquippedBeams = (SamusBeamFlags)5 };
         samus.Kinematics.Radius = new(5, 21);
         var plms = runtime.Plms;
         var shots = CreateProjectileFixture();

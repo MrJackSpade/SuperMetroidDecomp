@@ -30,7 +30,7 @@ internal static class ItemCancelClearsChargeVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
-        samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
+        samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.PoseMetadata.RefreshCollisionRadii();

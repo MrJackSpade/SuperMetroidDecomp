@@ -869,7 +869,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(
                     projectile.SlotIndex,
                     body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                        (projectile.Type & (ushort)SamusBeamFlags.Plasma) == 0);
+                        !new SamusProjectileTypeWord(projectile.Type).HasAnyBeam(SamusBeamFlags.Plasma));
                 return 1;
             }
 
@@ -885,7 +885,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             // penetrating Plasma retains its type, direction, and instruction stream.
             projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(projectile.SlotIndex,
                 body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
-                (projectileType & (ushort)SamusBeamFlags.Plasma) == 0);
+                !new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma));
 
             ushort healthBefore = body.Health;
             // Phantoon calls common normal-shot damage, including its charged-beam
@@ -909,7 +909,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared native damage helper.
-                    if ((projectileType & (ushort)SamusBeamFlags.Plasma) != 0)
+                    if (new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma))
                         body.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
                     body.Health = damage >= body.Health
                         ? (ushort)0

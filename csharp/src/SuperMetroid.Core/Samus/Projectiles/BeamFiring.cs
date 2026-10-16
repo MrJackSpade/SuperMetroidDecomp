@@ -382,7 +382,7 @@ internal sealed class BeamFiring
         // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
         // reads charged table entry eight; `$90:BD21` then deliberately replaces its damage
         // with 1000 before the first instruction record executes.
-        slot.Type = SamusProjectileTypeWord.CreateBeam((ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
+        slot.Type = SamusProjectileTypeWord.CreateBeam((SamusBeamFlags.Charge | SamusBeamFlags.Plasma), charged: true);
         const SamusBeamCombination hyperBeamType = SamusBeamCombination.Plasma;
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType.TableIndex * 2);

@@ -51,7 +51,7 @@ internal sealed class BeamCombos
             for (int i = 3; i >= 0; i--)
             {
                 var slot = _slotTable._slots[i];
-                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits) | SamusComboRomData.ProjectileTag);
+                slot.Type = (ushort)((samus.EquippedBeams & SamusProjectileTypeWord.EquippedBeamBits).ToNativeWord() | SamusComboRomData.ProjectileTag);
                 slot.Direction = kind == SamusComboKind.Spazer ? (ushort)5 : (ushort)0;
                 slot.PreInstruction = kind switch
                 {

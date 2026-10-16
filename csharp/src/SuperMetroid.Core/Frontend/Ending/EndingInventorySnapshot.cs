@@ -7,5 +7,5 @@ internal readonly record struct EndingInventorySnapshot(
     ushort MaxMissiles,
     ushort MaxSuperMissiles,
     ushort MaxPowerBombs,
-    ushort CollectedItems,
-    ushort CollectedBeams);
+    SuperMetroid.Core.Samus.SamusEquipmentFlags CollectedItems,
+    SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeams);

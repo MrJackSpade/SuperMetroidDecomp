@@ -52,13 +52,13 @@ internal static class SamusHudSelectionVerification
 
         // Power Bombs are absent, so the next handler returns carry and the native loop
         // continues to the first equipped non-ammo item instead of stopping at index three.
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
+        samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
         AssertTrue(SelectionChanged(samus, select, select),
             "selector skips unavailable Power Bombs");
         AssertEqual(4, samus.SelectedHudItem,
             "Grapple occupies cartridge HUD index four");
 
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.XrayScope;
+        samus.EquippedItems |= SamusEquipmentFlags.XrayScope;
         AssertTrue(SelectionChanged(samus, select, select),
             "selector advances from Grapple to equipped X-ray");
         AssertEqual(5, samus.SelectedHudItem,

@@ -862,7 +862,7 @@ internal static class PaletteFxInstructionCodesVerification
             int table = 0x8d0000 | ReadVerificationWord(bus, operand);
             for (ushort phase = 0; phase < 16; phase++)
                 AssertEqual(ReadVerificationWord(bus, table + 2 * phase),
-                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems((ushort)equipment, phase),
+                    PaletteFxHeatInstructionListDefinitionsConstants.ResolveForEquippedItems((SamusEquipmentFlags)equipment, phase),
                     "All equipment words preserve native Gravity-before-Varia selection at every phase");
         }
     }

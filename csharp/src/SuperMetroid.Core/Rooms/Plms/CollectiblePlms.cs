@@ -609,7 +609,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case InWorldCollectibleKind.SpaceJump:
             case InWorldCollectibleKind.ScrewAttack:
             case InWorldCollectibleKind.MorphBall:
-                ushort equipmentMask = GetEquipmentMask(kind);
+                SamusEquipmentFlags equipmentMask = GetEquipmentMask(kind);
                 samus.EquippedItems |= equipmentMask;
                 samus.CollectedItems |= equipmentMask;
                 // Every Varia/Gravity presentation executes `$84:E29D` immediately before
@@ -623,16 +623,16 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case InWorldCollectibleKind.WaveBeam:
             case InWorldCollectibleKind.SpazerBeam:
             case InWorldCollectibleKind.PlasmaBeam:
-                ushort beamMask = GetBeamMask(kind);
+                SamusBeamFlags beamMask = GetBeamMask(kind);
                 samus.CollectedBeams |= beamMask;
                 samus.EquippedBeams |= beamMask;
 
                 // Spazer and Plasma are the only mutually exclusive beam pair: $84:88B0 shifts the
                 // collected beam onto its partner, so collecting either one unequips the other.
-                if ((beamMask & (ushort)SamusBeamFlags.Spazer) != 0)
-                    samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
-                if ((beamMask & (ushort)SamusBeamFlags.Plasma) != 0)
-                    samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
+                if ((beamMask & SamusBeamFlags.Spazer) != 0)
+                    samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
+                if ((beamMask & SamusBeamFlags.Plasma) != 0)
+                    samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
                 return;
             default:
                 throw new ArgumentOutOfRangeException(nameof(kind), kind, "Undefined collectible kind.");
@@ -640,30 +640,30 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Maps an equipment pickup to the native bit written in equipped and collected items.</summary>
-    private static ushort GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
+    private static SamusEquipmentFlags GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
-        InWorldCollectibleKind.Bombs => (ushort)SamusEquipmentFlags.Bombs,
-        InWorldCollectibleKind.HiJumpBoots => (ushort)SamusEquipmentFlags.HiJumpBoots,
-        InWorldCollectibleKind.SpeedBooster => (ushort)SamusEquipmentFlags.SpeedBooster,
-        InWorldCollectibleKind.SpringBall => (ushort)SamusEquipmentFlags.SpringBall,
-        InWorldCollectibleKind.VariaSuit => (ushort)SamusEquipmentFlags.VariaSuit,
-        InWorldCollectibleKind.GravitySuit => (ushort)SamusEquipmentFlags.GravitySuit,
-        InWorldCollectibleKind.XrayScope => (ushort)SamusEquipmentFlags.XrayScope,
-        InWorldCollectibleKind.GrappleBeam => (ushort)SamusEquipmentFlags.GrappleBeam,
-        InWorldCollectibleKind.SpaceJump => (ushort)SamusEquipmentFlags.SpaceJump,
-        InWorldCollectibleKind.ScrewAttack => (ushort)SamusEquipmentFlags.ScrewAttack,
-        InWorldCollectibleKind.MorphBall => (ushort)SamusEquipmentFlags.MorphBall,
+        InWorldCollectibleKind.Bombs => SamusEquipmentFlags.Bombs,
+        InWorldCollectibleKind.HiJumpBoots => SamusEquipmentFlags.HiJumpBoots,
+        InWorldCollectibleKind.SpeedBooster => SamusEquipmentFlags.SpeedBooster,
+        InWorldCollectibleKind.SpringBall => SamusEquipmentFlags.SpringBall,
+        InWorldCollectibleKind.VariaSuit => SamusEquipmentFlags.VariaSuit,
+        InWorldCollectibleKind.GravitySuit => SamusEquipmentFlags.GravitySuit,
+        InWorldCollectibleKind.XrayScope => SamusEquipmentFlags.XrayScope,
+        InWorldCollectibleKind.GrappleBeam => SamusEquipmentFlags.GrappleBeam,
+        InWorldCollectibleKind.SpaceJump => SamusEquipmentFlags.SpaceJump,
+        InWorldCollectibleKind.ScrewAttack => SamusEquipmentFlags.ScrewAttack,
+        InWorldCollectibleKind.MorphBall => SamusEquipmentFlags.MorphBall,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
     /// <summary>Maps a beam pickup to its native bit for collected and equipped beams.</summary>
-    private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch
+    private static SamusBeamFlags GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
-        InWorldCollectibleKind.ChargeBeam => (ushort)SamusBeamFlags.Charge,
-        InWorldCollectibleKind.IceBeam => (ushort)SamusBeamFlags.Ice,
-        InWorldCollectibleKind.WaveBeam => (ushort)SamusBeamFlags.Wave,
-        InWorldCollectibleKind.SpazerBeam => (ushort)SamusBeamFlags.Spazer,
-        InWorldCollectibleKind.PlasmaBeam => (ushort)SamusBeamFlags.Plasma,
+        InWorldCollectibleKind.ChargeBeam => SamusBeamFlags.Charge,
+        InWorldCollectibleKind.IceBeam => SamusBeamFlags.Ice,
+        InWorldCollectibleKind.WaveBeam => SamusBeamFlags.Wave,
+        InWorldCollectibleKind.SpazerBeam => SamusBeamFlags.Spazer,
+        InWorldCollectibleKind.PlasmaBeam => SamusBeamFlags.Plasma,
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 

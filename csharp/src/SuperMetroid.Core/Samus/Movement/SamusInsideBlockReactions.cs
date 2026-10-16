@@ -78,7 +78,7 @@ public static class SamusInsideBlockReactions
                     QuicksandSurfacePhysics physics =
                         QuicksandDefinitions.SurfacePhysics(
                             (samus.EquippedItems &
-                                (ushort)SamusEquipmentFlags.GravitySuit) != 0);
+                                SamusEquipmentFlags.GravitySuit) != 0);
                     // $84:B433 indexes a four-entry table with the direction's low two bits;
                     // its fourth entry repeats the grounded handler, but $0B36 only ever
                     // holds the three defined directions.

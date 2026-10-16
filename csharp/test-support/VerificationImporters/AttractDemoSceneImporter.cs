@@ -4,6 +4,8 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 
@@ -38,10 +40,10 @@ internal static class AttractDemoSceneImporter
             Room(AttractDemoRomDataRoomFields.Duration),
             ClosedNativeWords.Decode<AttractDemoRoomSetup>(Room(AttractDemoRomDataRoomFields.Setup), "demo room setup"),
             ClosedNativeWords.Decode<AttractDemoSamusSetup>(setup, "demo Samus setup"),
-            Equipment(AttractDemoRomDataEquipmentFields.Items), Equipment(AttractDemoRomDataEquipmentFields.Missiles),
+            (SamusEquipmentFlags)(Equipment(AttractDemoRomDataEquipmentFields.Items)), Equipment(AttractDemoRomDataEquipmentFields.Missiles),
             Equipment(AttractDemoRomDataEquipmentFields.SuperMissiles), Equipment(AttractDemoRomDataEquipmentFields.PowerBombs),
-            Equipment(AttractDemoRomDataEquipmentFields.Health), Equipment(AttractDemoRomDataEquipmentFields.CollectedBeams),
-            Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams), Equipment(AttractDemoRomDataEquipmentFields.InputObject));
+            Equipment(AttractDemoRomDataEquipmentFields.Health), (SamusBeamFlags)(Equipment(AttractDemoRomDataEquipmentFields.CollectedBeams)),
+            (SamusBeamFlags)(Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams)), Equipment(AttractDemoRomDataEquipmentFields.InputObject));
     }
 
     /// <summary>Bounds a fixed-stride scene record within its native cartridge data bank.</summary>

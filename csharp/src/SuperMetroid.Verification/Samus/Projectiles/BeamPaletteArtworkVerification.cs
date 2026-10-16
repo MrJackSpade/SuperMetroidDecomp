@@ -36,13 +36,13 @@ internal static class BeamPaletteArtworkVerification
             }
             var nativeQueue = new VramWriteQueue();
             LoadNativeBeamFixture(bus, null, expected, nativeQueue, selection);
-            SamusProjectileSystem.LoadBeamPalette(actual, selection, catalog);
+            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)selection, catalog);
             AssertTrue(new CgramPalettes(expected).ImageEquals(new CgramPalettes(actual)), "Extracted beam palette matches native full CGRAM including untouched neighbors");
             var document = RequiredJson.Parse(bytes);
             var red = document.Required("palettes").Required(BeamPaletteDefinitions.Key(SamusBeamCombinations.FromTableIndex(selection))).Required(3);
             red["red"] = red.Required("red").GetValue<int>() ^ 1;
             var edited = BeamPaletteCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
-            SamusProjectileSystem.LoadBeamPalette(actual, selection, edited);
+            SamusProjectileSystem.LoadBeamPalette(actual, (SamusBeamFlags)selection, edited);
             for (int i = 0; i < SnesCgram.ColorCount; i++)
                 AssertEqual((ushort)(expected.Colors[i].ToWord() ^ (i == SamusProjectileRomData.Palettes.BeamDestinationIndex + 3 ? 1 : 0)),
                     actual.Colors[i], "Palette edit changes exactly the selected color channel bit");

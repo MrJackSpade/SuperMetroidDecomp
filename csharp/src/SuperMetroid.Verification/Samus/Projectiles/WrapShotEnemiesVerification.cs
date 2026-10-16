@@ -55,7 +55,7 @@ internal static class WrapShotEnemiesVerification
             var level = CreateRoom(new(64, 128), words, new byte[words.Length]);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
-                EquippedBeams = (ushort)SamusBeamFlags.Wave };
+                EquippedBeams = SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             var plms = new RoomPlmSystem();

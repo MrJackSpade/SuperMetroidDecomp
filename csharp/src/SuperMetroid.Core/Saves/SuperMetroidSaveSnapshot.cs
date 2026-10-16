@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Saves;
 
@@ -30,16 +31,16 @@ public sealed record SuperMetroidSaveSnapshot
     public ushort LoadedItemCount { get; init; }
 
     /// <summary>Bit mask of collected items currently enabled on Samus.</summary>
-    public ushort EquippedItems { get; init; }
+    public SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Bit mask of item upgrades Samus has collected, including unequipped upgrades.</summary>
-    public ushort CollectedItems { get; init; }
+    public SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Bit mask of collected beam upgrades currently enabled on Samus.</summary>
-    public ushort EquippedBeams { get; init; }
+    public SamusBeamFlags EquippedBeams { get; init; }
 
     /// <summary>Bit mask of all beam upgrades Samus has collected.</summary>
-    public ushort CollectedBeams { get; init; }
+    public SamusBeamFlags CollectedBeams { get; init; }
 
     /// <summary>The native reserve-tank mode word; zero is unset, one is auto, and two is manual.</summary>
     public ushort ReserveMode { get; init; }

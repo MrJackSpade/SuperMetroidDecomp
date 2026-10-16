@@ -36,7 +36,7 @@ internal static class ShutterEmbeddingVerification
             var platform = runtime.Enemies.SlotTable.Slots[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
-            samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
+            samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));

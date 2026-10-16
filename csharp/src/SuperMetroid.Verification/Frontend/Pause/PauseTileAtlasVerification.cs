@@ -45,7 +45,7 @@ internal static class PauseTileAtlasVerification
         foreach (AreaId area in new[] { AreaId.Crateria, AreaId.Maridia, AreaId.Tourian })
         {
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area);
-            var samus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge };
+            var samus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
             var nativeSamus = new SamusState { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
             var native = new PauseMenuState(new PauseMenuEntry { Samus = nativeSamus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original });
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = original });

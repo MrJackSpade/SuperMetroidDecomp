@@ -98,7 +98,7 @@ internal sealed class SamusFramePhases
     /// State `$11` performs this restore under forced blank so the first resumed gameplay frame uses the newly
     /// equipped combination.
     /// </summary>
-    internal void UpdateGameplayBeamTilesAndPalette(ushort equippedBeams) =>
+    internal void UpdateGameplayBeamTilesAndPalette(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams) =>
         _artwork.UpdateBeamTilesAndPalette(_cgram, equippedBeams);
 
     /// <summary>

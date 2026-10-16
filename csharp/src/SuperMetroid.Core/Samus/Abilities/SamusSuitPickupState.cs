@@ -270,9 +270,9 @@ public sealed class SamusSuitPickupState
     /// <summary>Installs the equipment bit, suited front pose, and palette at the native third-stage handoff.</summary>
     private void RevealSuit(SamusState samus, SnesCgram cgram)
     {
-        ushort mask = Kind == SamusSuitPickupKind.Varia
-            ? (ushort)SamusEquipmentFlags.VariaSuit
-            : (ushort)SamusEquipmentFlags.GravitySuit;
+        SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia
+            ? SamusEquipmentFlags.VariaSuit
+            : SamusEquipmentFlags.GravitySuit;
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
         samus.Pose = SamusPoseId.ForwardFacingSuitedPose;

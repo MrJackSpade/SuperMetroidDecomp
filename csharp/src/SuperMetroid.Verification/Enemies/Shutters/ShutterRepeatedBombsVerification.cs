@@ -30,7 +30,7 @@ internal static class ShutterRepeatedBombsVerification
             var platform = runtime.Enemies.SlotTable.Slots[slotIndex];
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-            samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
+            samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));

@@ -465,7 +465,7 @@ false);
     /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(SnesCgram cgram, ushort equippedItems,
+    public bool UpdatePalette(SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null,
         SamusFullBodyCycleColorCatalog? cycleColors = null)
     {

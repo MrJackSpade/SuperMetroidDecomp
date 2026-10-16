@@ -43,13 +43,13 @@ internal static class GameSaveJsonVerification
             MaxReserveEnergy = 100,
             ReserveTankMode = 1,
             SelectedHudItem = 2,
-            CollectedItems = (ushort)(
+            CollectedItems = (SamusEquipmentFlags)((ushort)(
                 SamusEquipmentFlags.MorphBall |
                 SamusEquipmentFlags.Bombs |
-                SamusEquipmentFlags.VariaSuit),
-            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.VariaSuit),
-            CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Wave),
-            EquippedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Wave),
+                SamusEquipmentFlags.VariaSuit)),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.VariaSuit),
+            CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
+            EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
         };
         var system = new Bank80SystemState();
         system.SetEvent(EventNumber.ZebesAwake);

@@ -87,7 +87,7 @@ internal static class BombTorizoHandVerification
         AssertEqual(0, plms.BombTorizoHand.VramWriteRequests.Count,
             "sleeping hand performs no premature DMA");
 
-        samus.CollectedItems |= (ushort)SamusEquipmentFlags.Bombs;
+        samus.CollectedItems |= SamusEquipmentFlags.Bombs;
         plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }); // D33B skips sleep, starts 120-frame wait.
         AssertTrue(plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "Bombs wake starts authored delay without deleting hand");

@@ -24,7 +24,7 @@ internal static class GroundedBombSpreadVerification
         foreach (bool keepDown in hold == 192 ? new[] { false, true } : new[] { false })
         {
             var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
-                EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+                EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames };
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Kinematics.YAcceleration = 0;

@@ -24,7 +24,7 @@ internal static class QuicksandVerification
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
-            var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : (ushort)SamusEquipmentFlags.GravitySuit };
+            var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : SamusEquipmentFlags.GravitySuit };
             var body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
@@ -89,7 +89,7 @@ internal static class QuicksandVerification
             {
                 EquippedItems = suit == 0
                     ? (ushort)0
-                    : (ushort)SamusEquipmentFlags.GravitySuit,
+                    : SamusEquipmentFlags.GravitySuit,
             };
             SamusKinematicsState body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));

@@ -927,7 +927,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                     slot.FlashTimer = NativeCountdown.Start(0);
                     bool thaw = slot.FrozenTimer.IsZero ||
                         (frame.Samus is not null &&
-                            (frame.Samus.EquippedBeams & (ushort)SamusBeamFlags.Ice) == 0);
+                            (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == 0);
                     if (!thaw)
                         slot.FrozenTimer = slot.FrozenTimer.Decrement().Remaining;
                     else

@@ -35,7 +35,7 @@ internal static class PaletteFxHeatInstructionListDefinitionsConstants
     /// Applies the cartridge's Gravity-before-Varia equipment priority and returns the
     /// program selected for the published heat phase.
     /// </summary>
-    public static ushort ResolveForEquippedItems(ushort equippedItems, ushort phase)
+    public static ushort ResolveForEquippedItems(SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, ushort phase)
     {
         PaletteFxHeatSuit suit = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? PaletteFxHeatSuit.Gravity

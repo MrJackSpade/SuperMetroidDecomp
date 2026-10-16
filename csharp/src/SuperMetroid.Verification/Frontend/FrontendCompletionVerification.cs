@@ -16,6 +16,7 @@ using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks options, door opening, reserve recovery, and ending handoffs in the playable frontend.</summary>
 internal static class FrontendCompletionVerification
@@ -428,8 +429,8 @@ internal static void VerifyEndingCreditsState()
             MaxMissiles: 230,
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
-            CollectedItems: 0xf32f,
-            CollectedBeams: 0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
+            CollectedItems: (SamusEquipmentFlags)0xf32f,
+            CollectedBeams: (SamusBeamFlags)0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
     var percentageVram = new SnesVram();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step(percentageVram);

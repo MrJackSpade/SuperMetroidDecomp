@@ -693,20 +693,20 @@ internal static class RoomPaletteFxPresentationVerification
             ushort equipment = definition.Suit switch
             {
                 PaletteFxHeatSuit.Power => 0,
-                PaletteFxHeatSuit.Varia => (ushort)SamusEquipmentFlags.VariaSuit,
-                PaletteFxHeatSuit.Gravity => (ushort)SamusEquipmentFlags.GravitySuit,
+                PaletteFxHeatSuit.Varia => SamusEquipmentFlags.VariaSuit.ToNativeWord(),
+                PaletteFxHeatSuit.Gravity => SamusEquipmentFlags.GravitySuit.ToNativeWord(),
                 _ => throw new InvalidOperationException(),
             };
-            native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, equipment);
-            installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, equipment);
+            native.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
+            installed.SpawnDefinition(RoomPaletteFxDefinitions.SamusInHeat, (SamusEquipmentFlags)equipment);
             var nativeCgram = new SnesCgram();
             var installedCgram = new SnesCgram();
             int steps = 1 + Enumerable.Range(0, definition.Frames.Count)
                 .Sum(phase => PaletteFxHeatProgramDefinitionConstants.Duration(definition.Suit, phase));
             for (int step = 0; step <= steps; step++)
             {
-                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = (SamusEquipmentFlags)equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = (SamusEquipmentFlags)equipment, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"installed {definition.Suit} heat CGRAM matches native frame {step}");
             }

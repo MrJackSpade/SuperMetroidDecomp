@@ -97,7 +97,7 @@ internal static class RidleyFullMovieVerification
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
         state.TailFunctionIndex = RidleyTailFunction.None;
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
-        samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
+        samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = NativeCountdown.Start(0); samus.PoseMetadata.RefreshCollisionRadii();
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
         runtime.EnemyPhase.RunEnemyMainPhase(processingListPrepared: false, runtime.Room.Camera?.PreviousSamusPoint);
@@ -336,7 +336,7 @@ internal static class RidleyFullMovieVerification
             var samus = runtime.Player.IntroducedSamus;
             samus.InputLocked = false;
             samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(512, 400));
-            samus.EquippedItems = (ushort)(SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
+            samus.EquippedItems = (SamusEquipmentFlags.SpaceJump | SamusEquipmentFlags.ScrewAttack);
             samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
             samus.PoseHistory.PreviousPose = pose;
             ushort direction = samus.PoseMetadata.ReadPoseXDirection();
@@ -364,7 +364,7 @@ internal static class RidleyFullMovieVerification
             {
                 Pose = left ? SamusPoseId.FallingAimDownLeftPose : SamusPoseId.FallingAimDownRightPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 402)),
-                EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
+                EquippedItems = SamusEquipmentFlags.MorphBall,
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x97ff);
             samus.PoseMetadata.RefreshCollisionRadii();
@@ -461,7 +461,7 @@ internal static class RidleyFullMovieVerification
             runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, new EightEightVector<RoomPixels>(0x0e00, 0));
             AssertEqual(sample.Item2, runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
-            samus.Health = 700; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
+            samus.Health = 700; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
             samus.PoseMetadata.RefreshCollisionRadii();
             runtime.Enemies.Projectiles.ResolveEnemyProjectileSamusCollision(fireball, samus);
             AssertEqual((ushort)(700 - sample.Item2 / 4), samus.Health, "area damage passes through native Gravity reduction");
@@ -524,7 +524,7 @@ internal static class RidleyFullMovieVerification
         runtime.InitializeDebugGroundedSamus(79, 425, 16);
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
-        samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
+        samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallMovingLeftPose;
         samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(5, 3);
@@ -692,7 +692,7 @@ internal static class RidleyFullMovieVerification
         samus.Presentation.InitializeAnimation();
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Position = samus.Position.WithWhole(new(512, 400));
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
+        samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.SelectedHudItem = 1; samus.SuperMissiles = 5;
         samus.Presentation.LoadSuitPalette(runtime.Cgram);
         Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
@@ -817,7 +817,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual((byte)0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
-        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams);
+        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToNativeWord());
         for (int color = 0; color < 16; color++)
             AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
         AssertEqual((ushort)0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
@@ -1223,10 +1223,10 @@ internal static class RidleyFullMovieVerification
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex, NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", samus.HorizontalSpeed.AccelerationMode, NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", samus.MaxHealth, NativeSnapshotMemory.MaxHealth);
-            Check("Samus equipped items", samus.EquippedItems, NativeSnapshotMemory.Items);
-            Check("Samus collected items", samus.CollectedItems, NativeSnapshotMemory.CollectedItems);
-            Check("Samus equipped beams", samus.EquippedBeams, NativeSnapshotMemory.Beams);
-            Check("Samus collected beams", samus.CollectedBeams, NativeSnapshotMemory.CollectedBeams);
+            Check("Samus equipped items", samus.EquippedItems.ToNativeWord(), NativeSnapshotMemory.Items);
+            Check("Samus collected items", samus.CollectedItems.ToNativeWord(), NativeSnapshotMemory.CollectedItems);
+            Check("Samus equipped beams", samus.EquippedBeams.ToNativeWord(), NativeSnapshotMemory.Beams);
+            Check("Samus collected beams", samus.CollectedBeams.ToNativeWord(), NativeSnapshotMemory.CollectedBeams);
             Check("Samus missiles", samus.Missiles, NativeSnapshotMemory.Missiles);
             Check("Samus missile capacity", samus.MaxMissiles, NativeSnapshotMemory.MaxMissiles);
             Check("Samus super missiles", samus.SuperMissiles, NativeSnapshotMemory.SuperMissiles);

@@ -445,7 +445,7 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        SnesCgram cgram, ushort equippedItems,
+        SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);
@@ -479,7 +479,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
     private static void LoadNormalSuitPalette(
         SnesCgram cgram,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors)
     {
         SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);

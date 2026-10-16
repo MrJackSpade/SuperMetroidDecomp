@@ -42,7 +42,7 @@ internal static class InvalidBeamGraphicsVerification
         for (ushort beam = 0; beam < 12; beam++)
         {
             var ordinary = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(ordinary, beam, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(ordinary, (SamusBeamFlags)beam, artwork.Palettes);
             int table = SamusProjectileRomData.Beams.PalettePointers + beam * 2;
             int source = (int)new SnesAddress(0x90, SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, table), CpuBusRegionRead.Read(bus, table + 1)));
             for (int color = 0; color < 16; color++)
@@ -55,11 +55,11 @@ internal static class InvalidBeamGraphicsVerification
             0x8067, 0x1cad, 0xc90a, 0x004d, 0x19f0, 0x4ec9, 0xf000, 0xad14];
         {
             var cgram = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(cgram, 0x000d, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(cgram, (SamusBeamFlags)0x000d, artwork.Palettes);
             // The page Chainsaw's equipped word binds shows the bytes its native DMA reads.
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
                 InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
-            ReadOnlySpan<byte> page = pages.For(0x000d).Characters;
+            ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)0x000d).Characters;
             int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
             for (int offset = 0; offset < 256; offset++)
                 AssertEqual(CpuBusRegionRead.Read(bus, 0x9ac421 + offset), page[first + offset], $"Chainsaw native DMA byte {offset}");

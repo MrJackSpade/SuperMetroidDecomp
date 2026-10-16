@@ -385,10 +385,9 @@ internal sealed class PauseMenuState
         foreach (PauseEquipmentCategory categoryIndex in PauseEquipmentCategories.InventoryCategories)
         {
             PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Get(categoryIndex);
-            ushort collected = GetCollectedBits(categoryIndex);
             for (int item = 0; item < category.ItemCount; item++)
             {
-                if ((collected & ReadCategoryMask(category, item)) == 0)
+                if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
                     continue;
                 selectedCategory = categoryIndex;
                 selectedItem = item;
@@ -399,14 +398,6 @@ internal sealed class PauseMenuState
         selectedCategory = PauseEquipmentCategory.Reserves;
         selectedItem = 0;
     }
-
-    /// <summary>Reads collected beam or item bits from live Samus inventory.</summary>
-    private ushort GetCollectedBits(PauseEquipmentCategory category) =>
-        category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems;
-
-    /// <summary>Reads equipped beam or item bits from live Samus inventory.</summary>
-    private ushort GetEquippedBits(PauseEquipmentCategory category) =>
-        category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems;
 
     /// <summary>Rebuilds the equipment page from its template and current inventory state.</summary>
     private void RebuildEquipmentTilemap()
@@ -734,7 +725,7 @@ internal sealed class PauseMenuState
         new PauseVram(vram).Bg1Tilemap.Load(equipmentTilemap);
 
     /// <summary>Gets the inventory bit represented by an item in an equipment category.</summary>
-    private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
+    private static PauseEquipmentBit ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
@@ -759,32 +750,31 @@ internal sealed class PauseMenuState
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
         // upstream C's 'Fixed var bug' category guard: it is absent from retail ROM.
-        ushort previousBeams = samus.EquippedBeams;
+        SamusBeamFlags previousBeams = samus.EquippedBeams;
         var target = PauseEquipmentCategories.Get(selectedCategory);
-        ushort mask = ReadCategoryMask(target, selectedItem);
-        bool wasEquipped = (GetEquippedBits(selectedCategory) & mask) != 0;
-        if (selectedCategory == PauseEquipmentCategory.Beams)
-            samus.EquippedBeams ^= mask;
-        else
-            samus.EquippedItems ^= mask;
+        PauseEquipmentBit mask = ReadCategoryMask(target, selectedItem);
+        bool wasEquipped = mask.IsSetIn(samus.EquippedBeams, samus.EquippedItems);
+        // The bit belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
+        samus.EquippedBeams ^= mask.Beam;
+        samus.EquippedItems ^= mask.Item;
 
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
         UpdateEquipmentLabel(selectedCategory, selectedItem,
             PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
-            SamusBeamFlags added = (SamusBeamFlags)(samus.EquippedBeams & ~previousBeams);
+            SamusBeamFlags added = samus.EquippedBeams & ~previousBeams;
             if ((added & SamusBeamFlags.Spazer) != 0 &&
-                (samus.EquippedBeams & (ushort)SamusBeamFlags.Plasma) != 0)
+                (samus.EquippedBeams & SamusBeamFlags.Plasma) != 0)
             {
-                samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Plasma);
+                samus.EquippedBeams &= ~SamusBeamFlags.Plasma;
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
             else if ((added & SamusBeamFlags.Plasma) != 0 &&
-                (samus.EquippedBeams & (ushort)SamusBeamFlags.Spazer) != 0)
+                (samus.EquippedBeams & SamusBeamFlags.Spazer) != 0)
             {
-                samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Spazer);
+                samus.EquippedBeams &= ~SamusBeamFlags.Spazer;
                 UpdateEquipmentLabel(PauseEquipmentCategory.Beams, PauseEquipmentCategories.SpazerItem,
                     PauseEquipmentCategories.Get(PauseEquipmentCategory.Beams).LabelWordCount, true);
             }
@@ -816,7 +806,7 @@ internal sealed class PauseMenuState
         var category = PauseEquipmentCategories.Get(categoryIndex);
         for (int item = start; item >= 0 && item < category.ItemCount; item += step)
         {
-            if ((GetCollectedBits(categoryIndex) & ReadCategoryMask(category, item)) == 0)
+            if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
             {
                 // $82:B4B7 checks byte offset ten only AFTER an unsuccessful probe.
                 // Thus directly entering the final suit item can succeed, but scanning

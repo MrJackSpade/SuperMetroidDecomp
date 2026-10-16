@@ -36,8 +36,8 @@ internal static class SpringBallEquipmentJumpVerification
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             { level.SetForegroundEntry(block, 0); level.SetBehavior(block, 0); }
             var samus = runtime.Player.IntroducedSamus;
-            samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
-            samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
+            samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
+            samus.CollectedItems = (SamusEquipmentFlags)((ushort)(samus.EquippedItems | SamusEquipmentFlags.SpringBall));
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.CurrentYPosition + 96)));
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             samus.PoseMetadata.RefreshCollisionRadii();
@@ -74,8 +74,8 @@ internal static class SpringBallEquipmentJumpVerification
             {
                 ushort y = samus.Position.Y.Whole, speed = samus.Kinematics.YSpeed, sub = samus.Kinematics.YSubspeed;
                 SamusVerticalDirection direction = samus.Kinematics.YDirection;
-                if (equipped) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpringBall;
-                else samus.EquippedItems &= unchecked((ushort)~(ushort)SamusEquipmentFlags.SpringBall);
+                if (equipped) samus.EquippedItems |= SamusEquipmentFlags.SpringBall;
+                else samus.EquippedItems &= ~SamusEquipmentFlags.SpringBall;
                 // The equipment screen writes this live word. Exercise its real forced-blank
                 // teardown, where cartridge command $0C must reconcile the pose.
                 game.GameState = SuperMetroidGameState.UnpausingB;

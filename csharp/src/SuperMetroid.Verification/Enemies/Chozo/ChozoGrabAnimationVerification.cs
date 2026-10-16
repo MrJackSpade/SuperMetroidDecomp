@@ -35,7 +35,7 @@ internal static class ChozoGrabAnimationVerification
         runtime.LoadCartridgeRoomForDebug(0xc98e);
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-        samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
+        samus.CollectedItems = samus.EquippedItems = SamusEquipmentFlags.MorphBall;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         samus.CommitPoseHistory();

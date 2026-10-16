@@ -355,7 +355,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         {
             Pose = SamusPoseId.MovingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit.ToNativeWord() : (ushort)0,
+            EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit : 0,
         };
         ordinary.LiquidPhysics.FxYPosition = submerged ? (ushort)0 : ushort.MaxValue;
         ordinary.LiquidPhysics.CinematicFunctionActive = cinematic;
@@ -403,7 +403,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var spaceLaunch = new SamusState
     {
         Pose = SamusPoseId.MovingRightNormalPose,
-        EquippedItems = 0x0200,
+        EquippedItems = (SamusEquipmentFlags)0x0200,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
     };
     spaceLaunch.PoseTransitions.ApplyOrdinaryJumpTransition(SamusPoseId.SpinJumpRightPose);
@@ -419,7 +419,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var screwLaunch = new SamusState
     {
         Pose = SamusPoseId.MovingLeftNormalPose,
-        EquippedItems = 0x0208,
+        EquippedItems = (SamusEquipmentFlags)0x0208,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
     };
     screwLaunch.PoseTransitions.ApplyOrdinaryJumpTransition(SamusPoseId.SpinJumpLeftPose);
@@ -448,7 +448,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var spinFire = new SamusState
     {
         Pose = SamusPoseId.ScrewAttackRightPose,
-        EquippedItems = SamusEquipmentFlags.ScrewAttack.ToNativeWord(),
+        EquippedItems = SamusEquipmentFlags.ScrewAttack,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         Kinematics =
         {
@@ -490,7 +490,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     var wallFire = new SamusState
     {
         Pose = SamusPoseId.WallJumpRightPose,
-        EquippedItems = SamusEquipmentFlags.ScrewAttack.ToNativeWord(),
+        EquippedItems = SamusEquipmentFlags.ScrewAttack,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         Kinematics =
         {
@@ -561,7 +561,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
     static SamusState CreateFallingSpin(SamusPoseId pose, ushort items, ushort speed, ushort subspeed) => new()
     {
         Pose = pose,
-        EquippedItems = items,
+        EquippedItems = (SamusEquipmentFlags)items,
         Position = new(new(128, 0), new(128, 0)),
         Kinematics =
         {
@@ -700,12 +700,12 @@ empty, screwRepeat, SnesButton.A, 0, SnesButton.A);
         SuperMetroid.AssetExtraction.Samus.SamusFullBodyCycleColorExtractor.Extract(bus)));
     var palettes = new SamusHorizontalSpeedState();
     var cgram = new SnesCgram();
-    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = 0x0008 }, suitColors: suitColors, cycleColors: cycleColors),
+    AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 0x1b, EquippedItems = (SamusEquipmentFlags)0x0008 }, suitColors: suitColors, cycleColors: cycleColors),
         "ending Screw frame copies normal suit palette");
     AssertEqual(0x0111, cgram.Colors[192], "ending Screw frame normal palette");
     for (int frame = 0; frame < 6; frame++)
     {
-        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = 0x0008 }, suitColors: suitColors, cycleColors: cycleColors),
+        AssertTrue(palettes.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (SamusEquipmentFlags)0x0008 }, suitColors: suitColors, cycleColors: cycleColors),
             $"Screw palette frame {frame} copies");
         AssertEqual(unchecked((ushort)(0x1200 + Math.Min(frame, 6 - frame))), cgram.Colors[192],
             $"Screw palette frame {frame} ROM color");
@@ -788,7 +788,7 @@ internal static void VerifySamusLiquidPhysics()
         "negative general FX Y selects lava/acid surface");
     AssertTrue(sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate falls through negative FX Y to lava/acid surface");
-    sample.EquippedItems = SamusEquipmentFlags.GravitySuit.ToNativeWord();
+    sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "Gravity Suit bypasses liquid movement physics");
@@ -804,12 +804,12 @@ internal static void VerifySamusLiquidPhysics()
     AssertEqual(0xc000, sample.Kinematics.YSubspeed, "water normal-jump fraction");
     AssertEqual(0x0800, sample.Kinematics.YSubacceleration, "water gravity fraction");
 
-    sample.EquippedItems = 0x0100;
+    sample.EquippedItems = (SamusEquipmentFlags)0x0100;
     SamusAerialMovement.InitializeJump(sample);
     AssertEqual(2, sample.Kinematics.YSpeed, "water Hi-Jump whole speed");
     AssertEqual(0x8000, sample.Kinematics.YSubspeed, "water Hi-Jump fraction");
 
-    sample.EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots).ToNativeWord();
+    sample.EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots);
     SamusAerialMovement.InitializeJump(sample);
     AssertEqual(6, sample.Kinematics.YSpeed, "Gravity Suit forces air Hi-Jump entry");
     AssertEqual(0x1c00, sample.Kinematics.YSubacceleration,
@@ -867,13 +867,13 @@ internal static void VerifySamusLiquidPhysics()
     AssertEqual(3, sample.AnimationFrameBuffer, "continuous water animation delay");
     AssertEqual(SamusLiquidMedium.Water, sample.LiquidPhysics.LiquidPhysicsType,
         "continuous water animation remembers medium");
-    sample.EquippedItems = SamusEquipmentFlags.GravitySuit.ToNativeWord();
+    sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     sample.LiquidPhysics.PrepareAnimationFrame(sample);
     AssertEqual(0, sample.AnimationFrameBuffer, "Gravity Suit cancels submerged frame delay");
 
     // Lava's FX handler performs the retail speed-boost cancellation before checking
     // Gravity Suit; acid enters the shared delay/damage tail without touching momentum.
-    sample.EquippedItems = SamusEquipmentFlags.GravitySuit.ToNativeWord();
+    sample.EquippedItems = SamusEquipmentFlags.GravitySuit;
     sample.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: SnesButton.B,
@@ -987,7 +987,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounte
     var partialWaterSpaceJump = new SamusState
     {
         Pose = SamusPoseId.SpaceJumpRightPose,
-        EquippedItems = 0x0200,
+        EquippedItems = (SamusEquipmentFlags)0x0200,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         Kinematics =
         {
@@ -1015,7 +1015,7 @@ CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounte
     var fullySubmergedScrew = new SamusState
     {
         Pose = SamusPoseId.ScrewAttackRightPose,
-        EquippedItems = 0x0208,
+        EquippedItems = (SamusEquipmentFlags)0x0208,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         Kinematics =
         {

@@ -519,7 +519,7 @@ public sealed class SamusXrayState
     /// <summary>Runs `$91:DCB4-$DD30` and writes only visor color four until restoration.</summary>
     public bool UpdatePalette(
         SnesCgram cgram,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);

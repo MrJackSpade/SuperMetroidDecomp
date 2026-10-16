@@ -39,7 +39,7 @@ internal static class SuitPickupPeriodicDamageVerification
         samus.Health = 299;
         samus.SubunitHealth = 0;
         // `$84:88F3` equips the suit before the message box and the pickup routine.
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
+        samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
         samus.LiquidPhysics.PeriodicSubDamage = 0;
         samus.LiquidPhysics.PeriodicDamage = 0;
         runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);

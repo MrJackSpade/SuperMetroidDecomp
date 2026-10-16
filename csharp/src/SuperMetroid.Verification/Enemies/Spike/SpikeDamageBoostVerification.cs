@@ -34,7 +34,7 @@ internal static class SpikeDamageBoostVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Health = 99;
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
+        samus.EquippedItems = SamusEquipmentFlags.MorphBall;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();

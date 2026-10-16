@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -324,9 +326,9 @@ public static class EndingCreditsRomData
         /// <summary>Packed BG tilemap word for the lower half of the percentage sign, placed one tilemap row below its upper half.</summary>
         public const ushort PercentBottomTile = 0x387a;
         /// <summary>Collected-item bit mask $F32F whose set bits contribute one each to the ending item percentage; ammo and energy pickups are counted separately.</summary>
-        public const ushort CollectibleItemMask = 0xf32f;
+        public const SuperMetroid.Core.Samus.SamusEquipmentFlags CollectibleItemMask = (SamusEquipmentFlags)0xf32f;
         /// <summary>Collected-beam bit mask $100F whose set bits contribute one each to the ending item percentage.</summary>
-        public const ushort CollectibleBeamMask = 0x100f;
+        public const SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectibleBeamMask = (SamusBeamFlags)0x100f;
         /// <summary>$8B:F064 clear-time hours tens-digit origin X=156 screen pixels.</summary>
         public const ushort HoursTensX = 0x009c;
         /// <summary>Clear-time hours units-digit origin X=164 screen pixels.</summary>

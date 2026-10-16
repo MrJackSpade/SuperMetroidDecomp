@@ -10,6 +10,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Verification.Frontend.Intro;
+using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>
@@ -392,10 +393,10 @@ internal static class FullMovieReplayVerification
         Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, MovieDesyncMemory.SamusYFraction);
         Check("Samus health", samus.Health, MovieDesyncMemory.Health);
         Check("Samus max health", samus.MaxHealth, MovieDesyncMemory.MaxHealth);
-        Check("Equipped items", samus.EquippedItems, MovieDesyncMemory.EquippedItems);
-        Check("Collected items", samus.CollectedItems, MovieDesyncMemory.CollectedItems);
-        Check("Equipped beams", samus.EquippedBeams, MovieDesyncMemory.EquippedBeams);
-        Check("Collected beams", samus.CollectedBeams, MovieDesyncMemory.CollectedBeams);
+        Check("Equipped items", samus.EquippedItems.ToNativeWord(), MovieDesyncMemory.EquippedItems);
+        Check("Collected items", samus.CollectedItems.ToNativeWord(), MovieDesyncMemory.CollectedItems);
+        Check("Equipped beams", samus.EquippedBeams.ToNativeWord(), MovieDesyncMemory.EquippedBeams);
+        Check("Collected beams", samus.CollectedBeams.ToNativeWord(), MovieDesyncMemory.CollectedBeams);
         Check("Missiles", samus.Missiles, MovieDesyncMemory.Missiles);
         Check("Max missiles", samus.MaxMissiles, MovieDesyncMemory.MaxMissiles);
         Check("Super missiles", samus.SuperMissiles, MovieDesyncMemory.SuperMissiles);

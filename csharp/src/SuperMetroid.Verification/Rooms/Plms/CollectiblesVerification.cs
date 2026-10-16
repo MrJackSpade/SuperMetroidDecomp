@@ -171,7 +171,7 @@ internal static class CollectiblesVerification
         orb.Plms.Step(orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(orb.System.HasCollectedItemBit(91),
             "Chozo item persists its room argument bit");
-        AssertTrue((orb.Samus.CollectedItems & (ushort)SamusEquipmentFlags.MorphBall) != 0,
+        AssertTrue((orb.Samus.CollectedItems & SamusEquipmentFlags.MorphBall) != 0,
             "Chozo Morph Ball grants equipment");
 
         AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
@@ -383,22 +383,22 @@ internal static class CollectiblesVerification
                 return;
         }
 
-        ushort equipment = kind switch
+        SamusEquipmentFlags equipment = kind switch
         {
-            InWorldCollectibleKind.Bombs => (ushort)SamusEquipmentFlags.Bombs,
-            InWorldCollectibleKind.HiJumpBoots => (ushort)SamusEquipmentFlags.HiJumpBoots,
-            InWorldCollectibleKind.SpeedBooster => (ushort)SamusEquipmentFlags.SpeedBooster,
-            InWorldCollectibleKind.SpringBall => (ushort)SamusEquipmentFlags.SpringBall,
-            InWorldCollectibleKind.VariaSuit => (ushort)SamusEquipmentFlags.VariaSuit,
-            InWorldCollectibleKind.GravitySuit => (ushort)SamusEquipmentFlags.GravitySuit,
-            InWorldCollectibleKind.XrayScope => (ushort)SamusEquipmentFlags.XrayScope,
-            InWorldCollectibleKind.GrappleBeam => (ushort)SamusEquipmentFlags.GrappleBeam,
-            InWorldCollectibleKind.SpaceJump => (ushort)SamusEquipmentFlags.SpaceJump,
-            InWorldCollectibleKind.ScrewAttack => (ushort)SamusEquipmentFlags.ScrewAttack,
-            InWorldCollectibleKind.MorphBall => (ushort)SamusEquipmentFlags.MorphBall,
-            _ => 0,
+            InWorldCollectibleKind.Bombs => SamusEquipmentFlags.Bombs,
+            InWorldCollectibleKind.HiJumpBoots => SamusEquipmentFlags.HiJumpBoots,
+            InWorldCollectibleKind.SpeedBooster => SamusEquipmentFlags.SpeedBooster,
+            InWorldCollectibleKind.SpringBall => SamusEquipmentFlags.SpringBall,
+            InWorldCollectibleKind.VariaSuit => SamusEquipmentFlags.VariaSuit,
+            InWorldCollectibleKind.GravitySuit => SamusEquipmentFlags.GravitySuit,
+            InWorldCollectibleKind.XrayScope => SamusEquipmentFlags.XrayScope,
+            InWorldCollectibleKind.GrappleBeam => SamusEquipmentFlags.GrappleBeam,
+            InWorldCollectibleKind.SpaceJump => SamusEquipmentFlags.SpaceJump,
+            InWorldCollectibleKind.ScrewAttack => SamusEquipmentFlags.ScrewAttack,
+            InWorldCollectibleKind.MorphBall => SamusEquipmentFlags.MorphBall,
+            _ => SamusEquipmentFlags.None,
         };
-        if (equipment != 0)
+        if (equipment != SamusEquipmentFlags.None)
         {
             AssertTrue((samus.CollectedItems & equipment) != 0,
                 $"{kind} enters collected equipment word");
@@ -407,13 +407,13 @@ internal static class CollectiblesVerification
             return;
         }
 
-        ushort beam = kind switch
+        SamusBeamFlags beam = kind switch
         {
-            InWorldCollectibleKind.ChargeBeam => (ushort)SamusBeamFlags.Charge,
-            InWorldCollectibleKind.IceBeam => (ushort)SamusBeamFlags.Ice,
-            InWorldCollectibleKind.WaveBeam => (ushort)SamusBeamFlags.Wave,
-            InWorldCollectibleKind.SpazerBeam => (ushort)SamusBeamFlags.Spazer,
-            InWorldCollectibleKind.PlasmaBeam => (ushort)SamusBeamFlags.Plasma,
+            InWorldCollectibleKind.ChargeBeam => SamusBeamFlags.Charge,
+            InWorldCollectibleKind.IceBeam => SamusBeamFlags.Ice,
+            InWorldCollectibleKind.WaveBeam => SamusBeamFlags.Wave,
+            InWorldCollectibleKind.SpazerBeam => SamusBeamFlags.Spazer,
+            InWorldCollectibleKind.PlasmaBeam => SamusBeamFlags.Plasma,
             _ => throw new InvalidOperationException($"Missing effect assertion for {kind}."),
         };
         AssertTrue((samus.CollectedBeams & beam) != 0,
@@ -440,8 +440,8 @@ internal static class CollectiblesVerification
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
         var sourceSamus = new SamusState
         {
-            CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Ice),
-            EquippedBeams = (ushort)SamusBeamFlags.Ice,
+            CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice),
+            EquippedBeams = SamusBeamFlags.Ice,
         };
         var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(
@@ -671,8 +671,8 @@ internal static class CollectiblesVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(500, 600)),
             ProjectileFlareCounter = 60,
-            EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
-            CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
+            EquippedItems = SamusEquipmentFlags.VariaSuit,
+            CollectedItems = SamusEquipmentFlags.VariaSuit,
         };
         samus.Presentation.SuitColors = suitColors;
         SamusPresentation.LoadPowerSuitPalette(cgram, suitColors);
@@ -761,7 +761,7 @@ internal static class CollectiblesVerification
         VerifySuitPickupBeamSequence(beams, flashes);
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.GravitySuit;
+        samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
         samus.Presentation.LoadSuitPalette(cgram);
         AssertEqual((ushort)0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
@@ -852,9 +852,9 @@ internal static class CollectiblesVerification
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
         {
-            var samus = new SamusState { EquippedItems = otherSuit
+            var samus = new SamusState { EquippedItems = (SamusEquipmentFlags)(otherSuit
                 ? (ushort)(kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
-                : (ushort)0 };
+                : (ushort)0) };
             samus.Presentation.SuitColors = suitColors;
             var history = samus.PoseHistory;
             history.PreviousPose = SamusPoseId.SpinJumpRightPose;

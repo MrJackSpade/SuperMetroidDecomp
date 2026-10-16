@@ -189,7 +189,7 @@ public sealed class SamusDrainedState
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(SnesCgram cgram, ushort equippedItems,
+    public bool UpdatePalette(SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);
@@ -383,10 +383,10 @@ public sealed class SamusDrainedState
     public void EnableHyperBeam(SamusState samus)
     {
         Ensure.NotNull(samus);
-        samus.EquippedBeams = (
+        samus.EquippedBeams =
             SamusBeamFlags.Charge |
             SamusBeamFlags.Wave |
-            SamusBeamFlags.Plasma).ToNativeWord();
+            SamusBeamFlags.Plasma;
         samus.HyperBeam = 1 << 15;
         HyperBeamPaletteFx.Spawn();
     }

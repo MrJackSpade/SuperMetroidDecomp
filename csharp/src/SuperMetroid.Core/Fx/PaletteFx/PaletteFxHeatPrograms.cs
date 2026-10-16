@@ -96,7 +96,7 @@ public static class PaletteFxHeatPrograms
     }
 
     /// <summary>The suit whose heat palette <paramref name="equippedItems"/> selects: Gravity before Varia.</summary>
-    public static PaletteFxHeatSuit SuitFor(ushort equippedItems) =>
+    public static PaletteFxHeatSuit SuitFor(SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems) =>
         equippedItems.HasAny(SamusEquipmentFlags.GravitySuit) ? PaletteFxHeatSuit.Gravity
         : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? PaletteFxHeatSuit.Varia
         : PaletteFxHeatSuit.Power;

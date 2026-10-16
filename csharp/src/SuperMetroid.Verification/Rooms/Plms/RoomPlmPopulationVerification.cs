@@ -380,7 +380,7 @@ internal static class RoomPlmPopulationVerification
         var system = new Bank80SystemState();
         var samus = new SamusState
         {
-            CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord(),
+            CollectedItems = SamusEquipmentFlags.Bombs,
         };
         var plms = new RoomPlmSystem();
         AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
@@ -673,7 +673,7 @@ internal static class RoomPlmPopulationVerification
         var disabledSystem = new Bank80SystemState();
         var disabledSamus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
+            CollectedItems = SamusEquipmentFlags.SpeedBooster,
         };
         RoomLevelData disabledLevel = CreateLevel();
         RoomPlmSystem disabled = Load(
@@ -691,7 +691,7 @@ internal static class RoomPlmPopulationVerification
         var activeSystem = new Bank80SystemState();
         var activeSamus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
+            CollectedItems = SamusEquipmentFlags.SpeedBooster,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0ae1, 0)),
         };
         RoomLayer3FxState activeFx = CreateFx(0x0300, 0x0100, 0, 0);

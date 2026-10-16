@@ -25,10 +25,10 @@ internal static class SamusVerticalDefinitionsVerification
             bool high = (equipment & 1) != 0;
             bool gravity = (equipment & 2) != 0;
             bool boost = (equipment & 4) != 0;
-            samus.EquippedItems = (ushort)(
-                (high ? (ushort)SamusEquipmentFlags.HiJumpBoots : 0) |
-                (gravity ? (ushort)SamusEquipmentFlags.GravitySuit : 0) |
-                (boost ? (ushort)SamusEquipmentFlags.SpeedBooster : 0));
+            samus.EquippedItems = (SamusEquipmentFlags)((ushort)(
+                (high ? SamusEquipmentFlags.HiJumpBoots : 0) |
+                (gravity ? SamusEquipmentFlags.GravitySuit : 0) |
+                (boost ? SamusEquipmentFlags.SpeedBooster : 0)));
             samus.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             samus.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
             samus.LiquidPhysics.LiquidOptions = environment == 3 ? (ushort)4 : (ushort)0;

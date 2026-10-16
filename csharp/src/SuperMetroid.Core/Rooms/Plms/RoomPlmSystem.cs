@@ -233,7 +233,7 @@ public sealed class RoomPlmSystem
     }
 
     /// <summary>Dispatches bank-$84 controls until a timed draw pair is installed; rejects uncompiled or runaway chains.</summary>
-    private void ExecuteInstructionStream(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, ushort collectedItems)
+    private void ExecuteInstructionStream(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view, SuperMetroid.Core.Samus.SamusEquipmentFlags collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
         // reaches a positive timer/draw pair. The guard catches corrupt ROM/test data while

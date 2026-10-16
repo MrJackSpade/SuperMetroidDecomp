@@ -52,7 +52,7 @@ internal sealed class ChozoStatuePlms
         eligible &= wreckedShip
             ? (_bindings.System ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
                 .HasAnyBossBits(_bindings.Area, BossBits.AreaBoss)
-            : (samus.CollectedItems & (ushort)SamusEquipmentFlags.SpaceJump) != 0;
+            : (samus.CollectedItems & SamusEquipmentFlags.SpaceJump) != 0;
         for (int i = _slotTable._slots.Length - 1; i >= 0; i--)
         {
             PlmSlot reaction = _slotTable._slots[i];

@@ -119,12 +119,12 @@ internal static class PauseEquipmentBaseAssetsVerification
 
         static SamusState Samus() => new()
         {
-            CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Wave),
-            EquippedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Wave),
-            CollectedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit |
+            CollectedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Ice | SamusBeamFlags.Wave),
+            EquippedBeams = (SamusBeamFlags.Charge | SamusBeamFlags.Wave),
+            CollectedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit |
                 SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.HiJumpBoots |
                 SamusEquipmentFlags.SpeedBooster),
-            EquippedItems = (ushort)(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
+            EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
                 SamusEquipmentFlags.Bombs | SamusEquipmentFlags.HiJumpBoots),
             MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245, ReserveTankMode = 1,
         };

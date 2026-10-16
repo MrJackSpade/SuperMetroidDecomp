@@ -31,7 +31,7 @@ internal static class BeamSpeedRowsVerification
             // Mechanics now use compiled native rows, not editable presentation data.
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = combination };
+                EquippedBeams = (SamusBeamFlags)combination };
             var projectiles = CreateProjectileFixture();
             projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
             AssertTrue(projectiles.Slots[0].IsActive && projectiles.Slots.Skip(1).All(slot => !slot.IsActive),

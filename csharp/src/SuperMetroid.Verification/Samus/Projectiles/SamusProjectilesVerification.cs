@@ -109,7 +109,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSystem.LoadBeamPalette(beamCgram, equippedBeams: 0, beamPalettes);
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
         InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."))
-        .For((ushort)0).Characters;
+        .For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters;
     int beamFirstByte = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
     AssertEqual(0x5a, beamPage[beamFirstByte],
         "power beam characters begin at the page character of VRAM word $6300");
@@ -197,7 +197,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         {
             Pose = rightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            EquippedBeams = beamType,
+            EquippedBeams = (SamusBeamFlags)beamType,
         };
         var combinedBombs = CreateSyntheticBombs();
         var combinedProjectiles = CreateSyntheticProjectiles();
@@ -237,7 +237,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = 4,
+        EquippedBeams = (SamusBeamFlags)4,
     };
     var spazerFlickerBombs = CreateSyntheticBombs();
     var spazerFlickerProjectiles = CreateSyntheticProjectiles();
@@ -246,7 +246,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork(fixtureSprites)));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
         "even-slot Spazer draws while NMI bit one is clear");
-    ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork(fixtureSprites, spazerFlickerSamus.EquippedBeams);
+    ProjectileDrawArtwork spazerArtwork = InstalledFixtures.ProjectileArtwork(fixtureSprites, spazerFlickerSamus.EquippedBeams.ToNativeWord());
     SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, spazerArtwork)),
@@ -270,7 +270,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         {
             Pose = rightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            EquippedBeams = beamType,
+            EquippedBeams = (SamusBeamFlags)beamType,
         };
         var cadenceBombs = CreateSyntheticBombs();
         var cadenceProjectiles = CreateSyntheticProjectiles();
@@ -289,7 +289,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = 0x1000,
+        EquippedBeams = (SamusBeamFlags)0x1000,
     };
     BindSyntheticSamusRendering(bus, chargeSamus);
     chargeSamus.Presentation.ChargeColors = fixtureChargeColors;
@@ -344,7 +344,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = (ushort)SamusBeamFlags.Charge,
+        EquippedBeams = SamusBeamFlags.Charge,
     };
     var rejectedReleaseBombs = CreateSyntheticBombs();
     var rejectedReleaseProjectiles = CreateSyntheticProjectiles();
@@ -374,14 +374,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = 0x1000,
+        EquippedBeams = (SamusBeamFlags)0x1000,
     };
     BindSyntheticSamusRendering(bus, baselineMode7Samus);
     var rotatedMode7Samus = new SamusState
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = 0x1000,
+        EquippedBeams = (SamusBeamFlags)0x1000,
     };
     BindSyntheticSamusRendering(bus, rotatedMode7Samus);
     var baselineMode7Bombs = CreateSyntheticBombs();
@@ -431,7 +431,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         chargeSamus.HorizontalSpeed.ContactDamageIndex = pseudoScrew ? SamusContactDamageIndex.PseudoScrew : SamusContactDamageIndex.None;
         for (int suit = 0; suit < suitEquipment.Length; suit++)
         {
-            chargeSamus.EquippedItems = suitEquipment[suit];
+            chargeSamus.EquippedItems = (SamusEquipmentFlags)suitEquipment[suit];
             for (int palette = 0; palette < 6; palette++)
             {
                 // `$0B62` holds the byte offset of the palette this call installs.
@@ -503,7 +503,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     // colors 1-15 white; call four takes carry-set back to `$91:D717` and restores the
     // complete suit palette. Seed transparent color zero with a sentinel to catch a broad
     // sixteen-color white fill, and equip both suit bits to prove Gravity wins over Varia.
-    chargeSamus.EquippedItems = 0x0021;
+    chargeSamus.EquippedItems = (SamusEquipmentFlags)0x0021;
     var chargedGlowCgram = new SnesCgram();
     chargedGlowCgram.SetColor(192, Bgr555.FromWord(0x4321));
     for (int call = 0; call < 4; call++)
@@ -551,7 +551,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = 0x1000,
+        EquippedBeams = (SamusBeamFlags)0x1000,
     };
     var bridgeBombs = CreateSyntheticBombs();
     var bridgeProjectiles = CreateSyntheticProjectiles();
@@ -589,7 +589,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         {
             Pose = rightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-            EquippedBeams = unchecked((ushort)(0x1000 | beamType)),
+            EquippedBeams = unchecked((SamusBeamFlags)((ushort)(0x1000 | beamType))),
         };
         var combinedChargeBombs = CreateSyntheticBombs();
         var combinedChargeProjectiles = CreateSyntheticProjectiles();
@@ -634,7 +634,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
-        EquippedBeams = 0x1009,
+        EquippedBeams = (SamusBeamFlags)0x1009,
         HyperBeam = 0x8000,
     };
     BindSyntheticSamusRendering(bus, hyperSamus);
@@ -854,7 +854,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-        EquippedBeams = 1,
+        EquippedBeams = (SamusBeamFlags)1,
     };
     var waveWallBombs = CreateSyntheticBombs();
     var waveWallProjectiles = CreateSyntheticProjectiles();
@@ -971,7 +971,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-        EquippedBeams = 1,
+        EquippedBeams = (SamusBeamFlags)1,
     };
     var waveShotBombs = CreateSyntheticBombs();
     var waveShotProjectiles = CreateSyntheticProjectiles();

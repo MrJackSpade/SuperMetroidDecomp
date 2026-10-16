@@ -44,7 +44,7 @@ internal static class GoldenTorizoCodeVerification
             {
                 Health = 1500, MaxHealth = 1599, ReserveEnergy = 400, MaxReserveEnergy = 400,
                 Missiles = 200, MaxMissiles = 230, SuperMissiles = 40, MaxSuperMissiles = 50,
-                PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = 8, CollectedItems = 8,
+                PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = (SamusEquipmentFlags)8, CollectedItems = (SamusEquipmentFlags)8,
                 EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = 2, ReserveMissiles = 7,
             };
             ushort[] before = Snapshot(samus);
@@ -62,8 +62,8 @@ internal static class GoldenTorizoCodeVerification
         static ushort[] Snapshot(SamusState samus) =>
             [samus.Health, samus.MaxHealth, samus.ReserveEnergy, samus.MaxReserveEnergy,
              samus.Missiles, samus.MaxMissiles, samus.SuperMissiles, samus.MaxSuperMissiles,
-             samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, samus.CollectedItems,
-             samus.EquippedBeams, samus.CollectedBeams];
+             samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems.ToNativeWord(), samus.CollectedItems.ToNativeWord(),
+             samus.EquippedBeams.ToNativeWord(), samus.CollectedBeams.ToNativeWord()];
     }
 
     /// <summary>Reads a cartridge byte for the native code's input mask and inventory oracle.</summary>

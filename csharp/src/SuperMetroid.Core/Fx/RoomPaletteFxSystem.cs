@@ -63,7 +63,7 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     public void SpawnDefinition(
         ushort definition,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
         Spawn(definition, equippedItems, areaMiniBossDefeated);
@@ -82,13 +82,13 @@ public sealed class RoomPaletteFxSystem
         ushort fxPointer,
         ushort doorPointer,
         AreaId area,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
         LoadRoomCore(fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
 
     /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
     internal void LoadRoomCore(ushort fxPointer, ushort doorPointer,
-        AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
+        AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
         foreach (PaletteFxSlot slot in slots)
@@ -161,7 +161,7 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Allocates the highest free native slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
     private void Spawn(
         ushort definition,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
         // Spawn_PaletteFXObject searches byte offsets 14,12,...,0, which is slot order
@@ -223,7 +223,7 @@ public sealed class RoomPaletteFxSystem
         {
             throw new NotSupportedException(
                 $"Room palette-FX pre-instruction $8D:{slot.PreInstruction:X4} is not translated " +
-                $"for object $8D:{slot.Id:X4} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems:X4}).");
+                $"for object $8D:{slot.Id:X4} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems.ToNativeWord():X4}).");
         }
         switch (preInstruction)
         {
@@ -290,7 +290,7 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     private void RunHeatPreInstruction(
         PaletteFxSlot slot,
-        ushort equippedItems,
+        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusState? samus,
         ushort nmiFrameCounter)
     {

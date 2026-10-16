@@ -149,7 +149,7 @@ internal static class ScrollPlmsVerification
         var bombJump = new SamusState
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
-            EquippedItems = (ushort)SamusEquipmentFlags.Bombs,
+            EquippedItems = SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
         bombJump.PoseMetadata.RefreshCollisionRadii();

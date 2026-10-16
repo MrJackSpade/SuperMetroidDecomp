@@ -10,7 +10,7 @@ public readonly record struct HudSnapshot(
     ushort MaxSuperMissiles,
     ushort PowerBombs,
     ushort MaxPowerBombs,
-    ushort EquippedItems,
+    SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems,
     ushort SelectedItem,
     ushort ReserveHealth,
     ushort ReserveMode)

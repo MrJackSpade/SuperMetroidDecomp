@@ -34,8 +34,8 @@ internal static class RetailElevatorReturnTests
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
-        samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;
-        samus.EquippedItems |= (ushort)SamusEquipmentFlags.MorphBall;
+        samus.CollectedItems |= SamusEquipmentFlags.MorphBall;
+        samus.EquippedItems |= SamusEquipmentFlags.MorphBall;
         samus.MaxMissiles = samus.Missiles = 5;
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom);
         // This persistent native word is carried from the preceding downward ride.

@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks pause-menu beam selection and label rendering for simultaneous and adjacent inputs.</summary>
 internal static class InvalidBeamSelectionVerification
@@ -21,22 +22,22 @@ internal static class InvalidBeamSelectionVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
         {
-            var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,
-                EquippedBeams = 4, EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
+            var navigationSamus = new SamusState { CollectedItems = (SamusEquipmentFlags)ushort.MaxValue, CollectedBeams = (SamusBeamFlags)0x100f,
+                EquippedBeams = (SamusBeamFlags)4, EquippedItems = SamusEquipmentFlags.HiJumpBoots };
             var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
             for (int step = 0; step < boot; step++) navigation.Step(0, SnesButton.Down);
             AssertEqual(boot, navigation.SelectedItem, "each of the three Boots entries is reachable");
             navigation.Step(0, (SnesButton.Left | SnesButton.A));
-            AssertEqual(0x000c, navigationSamus.EquippedBeams, $"simultaneous selection from boot {boot}");
+            AssertEqual(0x000c, navigationSamus.EquippedBeams.ToNativeWord(), $"simultaneous selection from boot {boot}");
         }
         for (int scenario = 0; scenario < 3; scenario++)
         {
         // Entry selects the first beam ($82:AB47, #1266), so reach Boots with real input
         // before the tested press; this isolates the Boots-handler Left+A ordering.
-        var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
-            CollectedBeams = 0x100f, EquippedBeams = 4 };
+        var samus = new SamusState { CollectedItems = (SamusEquipmentFlags)0x3300, EquippedItems = (SamusEquipmentFlags)0x3300,
+            CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)4 };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
@@ -46,7 +47,7 @@ internal static class InvalidBeamSelectionVerification
         if (scenario == 1) pause.Step(0, SnesButton.A);
         AssertEqual(PauseEquipmentCategory.Beams, pause.SelectedCategory, "same-frame Left+A moves Boots to Beams");
         AssertEqual(4, pause.SelectedItem, "same-frame Left+A selects Plasma");
-        AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams,
+        AssertEqual(scenario == 0 ? 0x000c : scenario == 1 ? 0x0008 : 0x0004, samus.EquippedBeams.ToNativeWord(),
             "native beam bits distinguish simultaneous, adjacent and direction-only input");
         var after = pause.CaptureRenderSnapshot();
         byte[] expectedVram = after.Memory.Vram.ToArray();

@@ -35,7 +35,7 @@ internal static class GateJumpTraceVerification
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
             samus.Position = samus.Position.WithWhole(new(140, 379));
-            samus.EquippedItems = samus.EquippedBeams = 0;
+            samus.EquippedItems = 0; samus.EquippedBeams = 0;
             samus.SelectedHudItem = 1;
             samus.Missiles = samus.MaxMissiles = 10;
             samus.PoseMetadata.RefreshCollisionRadii();

@@ -32,7 +32,7 @@ internal static class GrappleSpinVerification
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.SelectedHudItem = 4;
-            samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
+            samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             runtime.StepFrame(SnesButton.X);
             Console.WriteLine($"Spin fire first frame: pose={(int)samus.Pose:X2}, grapple={samus.Grapple.Phase}");

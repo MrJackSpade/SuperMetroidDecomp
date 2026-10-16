@@ -99,8 +99,8 @@ internal static class PauseMenuVerification
         var presentation = CreateConstructedPausePresentation(bus);
         var samus = new SamusState
         {
-            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             MaxReserveEnergy = 100,
             ReserveEnergy = 47,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0300)),
@@ -183,7 +183,7 @@ internal static class PauseMenuVerification
         // Re-enter the equipment page with only Wave collected so the pause code itself
         // performs the mutation under test. The runtime handoff then consumes that same
         // Samus word and the accepted NMI must expose Wave art immediately.
-        samus.CollectedBeams = (ushort)SamusBeamFlags.Wave;
+        samus.CollectedBeams = SamusBeamFlags.Wave;
         samus.EquippedBeams = 0;
         var beamPause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram, MapPresentation = presentation });
         EnterPauseEquipment(beamPause);
@@ -191,7 +191,7 @@ internal static class PauseMenuVerification
             "Wave-only pause entry selects the reserve mode control while capacity exists");
         SelectPauseBeams(beamPause);
         beamPause.Step(0, SnesButton.A);
-        AssertEqual((ushort)SamusBeamFlags.Wave, samus.EquippedBeams,
+        AssertEqual(SamusBeamFlags.Wave, samus.EquippedBeams,
             "pause toggle immediately mutates live Wave equipment word");
 
         var resumeRuntime = CreateRetailRuntimeFixture(bus);

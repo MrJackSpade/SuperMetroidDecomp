@@ -54,16 +54,16 @@ internal static class SpacetimeBeamVerification
         // technique's actual player-accessible setup.
         var samus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = 0x100f,
-            EquippedBeams = 0x1006,
+            CollectedItems = SamusEquipmentFlags.HiJumpBoots,
+            EquippedItems = SamusEquipmentFlags.HiJumpBoots,
+            CollectedBeams = (SamusBeamFlags)0x100f,
+            EquippedBeams = (SamusBeamFlags)0x1006,
         };
         var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)0x100e, samus.EquippedBeams,
+        AssertEqual((ushort)0x100e, samus.EquippedBeams.ToNativeWord(),
             "same-frame Boots Left+A creates the SpaceTime beam word");
 
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
@@ -129,14 +129,14 @@ internal static class SpacetimeBeamVerification
             "retail frame-one progression hash");
         AssertEqual((ushort)0x0880, system.SavedLoadingGameState,
             "retail frame-one loading_game_state corruption");
-        AssertEqual((ushort)0x100e, samus.EquippedBeams,
+        AssertEqual((ushort)0x100e, samus.EquippedBeams.ToNativeWord(),
             "SpaceTime corruption does not rewrite live equipment");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Crateria, SaveStation = 7 }));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
-        AssertEqual((ushort)0x100e, saved.EquippedBeams,
+        AssertEqual((ushort)0x100e, saved.EquippedBeams.ToNativeWord(),
             "save retains invalid SpaceTime equipment");
         AssertEqual((ushort)0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
@@ -152,7 +152,7 @@ internal static class SpacetimeBeamVerification
 
         var restarted = new SamusState();
         FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
-        AssertEqual((ushort)0x100e, restarted.EquippedBeams,
+        AssertEqual((ushort)0x100e, restarted.EquippedBeams.ToNativeWord(),
             "Ceres restart retains the SpaceTime equipment word");
         AssertEqual((ushort)0, restarted.Missiles,
             "intro flashback removes current missiles");
@@ -234,10 +234,10 @@ internal static class SpacetimeBeamVerification
                 MaxSuperMissiles = 10,
                 PowerBombs = 3,
                 MaxPowerBombs = 5,
-                EquippedBeams = 0x100e,
-                CollectedBeams = 0x100f,
-                EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit,
-                CollectedItems = (ushort)SamusEquipmentFlags.GravitySuit,
+                EquippedBeams = (SamusBeamFlags)0x100e,
+                CollectedBeams = (SamusBeamFlags)0x100f,
+                EquippedItems = SamusEquipmentFlags.GravitySuit,
+                CollectedItems = SamusEquipmentFlags.GravitySuit,
                 LoadingGameState = SaveLoadingGameStates.OpeningCinematic,
             };
             Array.Fill(snapshot.EventBytes, byte.MaxValue);
@@ -296,7 +296,7 @@ internal static class SpacetimeBeamVerification
         SuperMetroidRuntime runtime = skippedGame.GameplayRuntimeForVerification;
         AssertEqual(AreaId.Ceres, runtime.Room.LoadedRoom.AreaIndex,
             "SpaceTime save restarts at Ceres");
-        AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams,
+        AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams.ToNativeWord(),
             "SpaceTime Ceres restart retains equipped beams");
         AssertEqual((ushort)0, runtime.Player.IntroducedSamus.MaxMissiles,
             "SpaceTime Ceres restart loses Missiles after the intro flashback");
@@ -333,7 +333,7 @@ internal static class SpacetimeBeamVerification
         // The page SpaceTime's equipped word binds shows the bytes its native DMA reads.
         var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, artwork,
             InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."));
-        ReadOnlySpan<byte> page = pages.For((ushort)0x100e).Characters;
+        ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)0x100e)).Characters;
         int first = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
         for (int i = 0; i < 256; i++) AssertEqual(nativeTiles[i], page[first + i], "SpaceTime native tile bytes");
         foreach (int seed in new[] { 5, 19 })
@@ -341,7 +341,7 @@ internal static class SpacetimeBeamVerification
             // The palette is a defined one (#1318), whatever the enemy-projectile WRAM it once aliased holds.
             for (int i = 0; i < 32; i++) bus.WriteByte(0x7e19ff + i, (byte)(i * 7 + seed));
             var cgram = new SnesCgram();
-            SamusProjectileSystem.LoadBeamPalette(cgram, 0x100e, artwork.Palettes);
+            SamusProjectileSystem.LoadBeamPalette(cgram, (SamusBeamFlags)0x100e, artwork.Palettes);
             for (int i = 0; i < 16; i++) AssertEqual(SpacetimeBeamGraphicsDefinitions.PaletteWord, cgram.Colors[0xe0 + i],
                 "SpaceTime colors are its defined palette");
         }

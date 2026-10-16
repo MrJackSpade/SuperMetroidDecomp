@@ -65,7 +65,7 @@ public static class StockAttractDemoScenes
     /// Preserve the exact staged word without assigning this bit an invented ability;
     /// this chosen copied metadata is part of the exact demonstration staging, not an additional named ability.
     /// </summary>
-    private const ushort ChosenShinesparkUnassignedItemBit = 1 << 4;
+    private const SamusEquipmentFlags ChosenShinesparkUnassignedItemBit = (SamusEquipmentFlags)(1 << 4);
     /// <summary>Returns a staged demonstration or its exact native end-of-set sentinel.</summary>
     public static AttractDemoScene? Get(int set, int scene)
     {
@@ -534,7 +534,7 @@ public static class StockAttractDemoScenes
     };
 
     /// <summary>$91:888D-89FC: chosen loadouts share actual item abilities, rather than repeating full equipment words. Stage membership and additional abilities remain selected performance inputs; the unassigned shinespark bit is preserved without inventing an ability.</summary>
-    private static ushort ItemsFor(Demonstration demonstration)
+    private static SamusEquipmentFlags ItemsFor(Demonstration demonstration)
     {
         const SamusEquipmentFlags mobility = SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
             SamusEquipmentFlags.HiJumpBoots | SamusEquipmentFlags.SpeedBooster;
@@ -544,20 +544,20 @@ public static class StockAttractDemoScenes
         const SamusEquipmentFlags bombAbilities = screwAttack | SamusEquipmentFlags.Bombs;
         return demonstration switch
         {
-            Demonstration.LandingSite => (ushort)SamusEquipmentFlags.None,
+            Demonstration.LandingSite => SamusEquipmentFlags.None,
             Demonstration.MissileDoor or Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or
-            Demonstration.FirefleaRoom or Demonstration.BrinstarDiagonalRoom => (ushort)SamusEquipmentFlags.MorphBall,
+            Demonstration.FirefleaRoom or Demonstration.BrinstarDiagonalRoom => SamusEquipmentFlags.MorphBall,
             Demonstration.SpeedBooster or Demonstration.IceBeam or Demonstration.RedBrinstarElevator or
-            Demonstration.TourianEntrance => (ushort)mobility,
-            Demonstration.GrappleBeam => (ushort)(mobility | SamusEquipmentFlags.GrappleBeam),
-            Demonstration.Dachora or Demonstration.PrePhantoonHall => (ushort)exploration,
-            Demonstration.LowerNorfairEntrance => (ushort)spaceJump,
-            Demonstration.ScrewAttack => (ushort)screwAttack,
-            Demonstration.DiagonalShinespark => (ushort)((ushort)(bombAbilities | SamusEquipmentFlags.SpringBall) |
-                ChosenShinesparkUnassignedItemBit),
-            Demonstration.EyeDoor or Demonstration.Kraid => (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
+            Demonstration.TourianEntrance => mobility,
+            Demonstration.GrappleBeam => mobility | SamusEquipmentFlags.GrappleBeam,
+            Demonstration.Dachora or Demonstration.PrePhantoonHall => exploration,
+            Demonstration.LowerNorfairEntrance => spaceJump,
+            Demonstration.ScrewAttack => screwAttack,
+            Demonstration.DiagonalShinespark => bombAbilities | SamusEquipmentFlags.SpringBall |
+                ChosenShinesparkUnassignedItemBit,
+            Demonstration.EyeDoor or Demonstration.Kraid => (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots),
             Demonstration.GauntletEntrance or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump or
-            Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => (ushort)bombAbilities,
+            Demonstration.SpecialBeamAttack or Demonstration.CrystalFlash => bombAbilities,
             _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
         };
     }
@@ -566,13 +566,13 @@ public static class StockAttractDemoScenes
     /// $91:8899-89F9 equipped-beam selections for each demonstration. These choose composable
     /// native beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
     /// </summary>
-    private static ushort EquippedBeamsFor(Demonstration demonstration) => demonstration switch
+    private static SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
     {
-        Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or Demonstration.CrystalFlash => (ushort)(SamusBeamFlags.Charge),
-        Demonstration.GrappleBeam or Demonstration.IceBeam => (ushort)(SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
-        Demonstration.TourianEntrance or Demonstration.SpecialBeamAttack => (ushort)(SamusBeamFlags.Plasma | SamusBeamFlags.Charge),
-        Demonstration.SpeedBooster or Demonstration.EyeDoor => (ushort)(SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
-        Demonstration.LandingSite or Demonstration.MissileDoor or Demonstration.FirefleaRoom or Demonstration.ScrewAttack or Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => (ushort)SamusBeamFlags.None,
+        Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or Demonstration.CrystalFlash => SamusBeamFlags.Charge,
+        Demonstration.GrappleBeam or Demonstration.IceBeam => (SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
+        Demonstration.TourianEntrance or Demonstration.SpecialBeamAttack => (SamusBeamFlags.Plasma | SamusBeamFlags.Charge),
+        Demonstration.SpeedBooster or Demonstration.EyeDoor => (SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
+        Demonstration.LandingSite or Demonstration.MissileDoor or Demonstration.FirefleaRoom or Demonstration.ScrewAttack or Demonstration.RedBrinstarElevator or Demonstration.Kraid or Demonstration.AdvancedGrappleBeam or Demonstration.InfiniteBombJump => SamusBeamFlags.None,
         _ => throw new ArgumentOutOfRangeException(nameof(demonstration)),
     };
 
@@ -580,9 +580,9 @@ public static class StockAttractDemoScenes
     /// $91:888D-89FC: collected beams equal equipped beams in22 scenes. The diagonal-shinespark
     /// scene at $91:895D collects all beam types but equips only Charge.
     /// </summary>
-    private static ushort CollectedBeamsFor(Demonstration demonstration) =>
+    private static SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeamsFor(Demonstration demonstration) =>
         demonstration == Demonstration.DiagonalShinespark
-            ? (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
+            ? (SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
             : EquippedBeamsFor(demonstration);
 
     /// <summary>$82:86A9-86B8 camera origins use whole256-pixel room screens.</summary>

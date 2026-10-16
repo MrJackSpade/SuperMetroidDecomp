@@ -36,7 +36,7 @@ internal static class WrapShotWidthsVerification
             var level = CreateRoom(new(checked((ushort)width), checked((ushort)height)), words, bts);
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
-                EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9) };
+                EquippedBeams = (SamusBeamFlags)((ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9)) };
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             var plms = new RoomPlmSystem();

@@ -46,7 +46,7 @@ internal static class BeamCallbackTablesVerification
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = unchecked((ushort)(beamType | (charged ? 0x1000 : 0))),
+                EquippedBeams = unchecked((SamusBeamFlags)((ushort)(beamType | (charged ? 0x1000 : 0)))),
             };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();

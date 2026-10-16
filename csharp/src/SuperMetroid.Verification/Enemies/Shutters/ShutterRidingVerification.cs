@@ -30,7 +30,7 @@ internal static class ShutterRidingVerification
             var state = runtime.Enemies.VerticalShutterStates[slot];
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.InputLocked = false;
-            samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
+            samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new(platform.Position.X.Whole, (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));

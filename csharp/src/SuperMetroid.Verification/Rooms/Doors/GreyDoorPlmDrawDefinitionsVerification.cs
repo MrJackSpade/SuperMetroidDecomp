@@ -219,7 +219,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             "Bomb Torizo closing list loops while Samus has no Bombs");
         for (int frame = 0; frame < 80 &&
              room.Plms.GreyDoorSnapshots.Single().Phase == GreyDoorPhase.Closing; frame++)
-            room.Plms.Step(room.Level, room.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord() });
+            room.Plms.Step(room.Level, room.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs });
         AssertEqual(GreyDoorPhase.Locked, room.Plms.GreyDoorSnapshots.Single().Phase,
             "collected Bombs let the special closing list rejoin its resident owner");
         room.System.SetBossBits(AreaId.Crateria, BossBits.AreaTorizo);

@@ -40,7 +40,7 @@ internal static class XrayInputVerification
         // embeds the torso in terrain and cannot validate a visible X-ray beam.
         // Use the open floor in the Scope chamber instead.
         samus.Position = samus.Position.WithWhole(new(128, 139));
-        samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
+        samus.EquippedItems = SamusEquipmentFlags.XrayScope;
         samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
         runtime.StepFrame(0);
         runtime.StepFrame(SnesButton.Select);

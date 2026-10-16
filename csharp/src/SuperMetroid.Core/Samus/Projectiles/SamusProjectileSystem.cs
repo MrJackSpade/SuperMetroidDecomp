@@ -111,7 +111,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     public static void LoadBeamPalette(
         SnesCgram cgram,
-        ushort equippedBeams,
+        SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         Ensure.NotNull(cgram);
@@ -122,7 +122,7 @@ public sealed class SamusProjectileSystem
     /// $90:AC8D/$90:ACCD index their tables by the equipped-beam word's low twelve bits; an
     /// index above $F (unknown bits 4-11 set) selects no beam combination.
     /// </summary>
-    private static SamusBeamCombination SelectedCombination(ushort equippedBeams) =>
+    private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams) =>
         new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
@@ -618,7 +618,7 @@ public sealed class SamusProjectileSystem
                 // wave, which use NMI bit zero. Keeping these branches separate is what
                 // prevents the wider beam art from disappearing on the wrong video field.
                 bool oddNativeSlot = (slotIndex & 1) != 0;
-                bool skip = (slot.Type & (ushort)(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)) != 0
+                bool skip = new SamusProjectileTypeWord(slot.Type).HasAnyBeam(SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
                     ? oddNativeSlot != ((nmiFrameCounter & 2) != 0)
                     : oddNativeSlot == ((nmiFrameCounter & 1) != 0);
                 if (skip)

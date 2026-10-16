@@ -168,9 +168,9 @@ public sealed class HudState
         // The cartridge's item routines patch those blank icon cells immediately; replay
         // the same guarded writers here before updating their counters. Each writer is
         // idempotent and preserves an already-installed icon and live minimap state.
-        if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.XrayScope) != 0)
+        if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != 0)
             AddTwoByTwoIcon(itemIndex: 4);
-        if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.GrappleBeam) != 0)
+        if ((samus.EquippedItems & SamusEquipmentFlags.GrappleBeam) != 0)
             AddTwoByTwoIcon(itemIndex: 3);
         if (samus.MaxMissiles != 0)
             AddMissileIcon();
@@ -367,9 +367,9 @@ public sealed class HudState
     private void ApplyCurrentPresentationState(SamusState samus)
     {
         if (presentation is null) return;
-        if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.XrayScope) != 0)
+        if ((samus.EquippedItems & SamusEquipmentFlags.XrayScope) != 0)
             presentation.TryApplyIcon(_tiles, 4);
-        if ((samus.EquippedItems & (ushort)SamusEquipmentFlags.GrappleBeam) != 0)
+        if ((samus.EquippedItems & SamusEquipmentFlags.GrappleBeam) != 0)
             presentation.TryApplyIcon(_tiles, 3);
         if (samus.MaxMissiles != 0) presentation.TryApplyIcon(_tiles, 0);
         if (samus.MaxSuperMissiles != 0) presentation.TryApplyIcon(_tiles, 1);

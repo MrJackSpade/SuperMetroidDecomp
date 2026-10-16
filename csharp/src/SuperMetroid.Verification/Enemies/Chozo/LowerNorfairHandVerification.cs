@@ -50,7 +50,7 @@ internal static class LowerNorfairHandVerification
         var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
-            samus.CollectedItems = hasSpaceJump ? (ushort)SamusEquipmentFlags.SpaceJump : (ushort)0;
+            samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : (ushort)0;
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
             samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
@@ -59,7 +59,7 @@ internal static class LowerNorfairHandVerification
             AssertTrue(!runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
                 "standing or missing Space Jump must not activate statue");
         }
-        samus.CollectedItems |= (ushort)SamusEquipmentFlags.SpaceJump;
+        samus.CollectedItems |= SamusEquipmentFlags.SpaceJump;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.Presentation.InitializeAnimation();
         samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));

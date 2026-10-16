@@ -33,16 +33,16 @@ internal static class ChainsawFiringVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         var samus = new SamusState
         {
-            CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
-            CollectedBeams = 0x100f,
-            EquippedBeams = (ushort)(SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
+            CollectedItems = SamusEquipmentFlags.HiJumpBoots,
+            EquippedItems = SamusEquipmentFlags.HiJumpBoots,
+            CollectedBeams = (SamusBeamFlags)0x100f,
+            EquippedBeams = (SamusBeamFlags.Wave | SamusBeamFlags.Spazer),
         };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (SnesButton.Left | SnesButton.A));
-        AssertEqual((ushort)0x000d, samus.EquippedBeams,
+        AssertEqual((ushort)0x000d, samus.EquippedBeams.ToNativeWord(),
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));
@@ -73,7 +73,7 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = 0x000d,
+            EquippedBeams = (SamusBeamFlags)0x000d,
             SelectedHudItem = 0,
         };
         AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
@@ -97,7 +97,7 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = 0x000d,
+            EquippedBeams = (SamusBeamFlags)0x000d,
             SelectedHudItem = 0,
         };
         var doorPlms = new RoomPlmSystem();
@@ -256,7 +256,7 @@ internal static class ChainsawFiringVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-            EquippedBeams = 0x100d,
+            EquippedBeams = (SamusBeamFlags)0x100d,
         };
         var chargedShared = CreateBombFixture();
         var chargedProjectiles = CreateProjectileFixture();

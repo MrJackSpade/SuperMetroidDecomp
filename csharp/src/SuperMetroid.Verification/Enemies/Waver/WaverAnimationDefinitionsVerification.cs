@@ -58,7 +58,7 @@ internal static class WaverAnimationDefinitionsVerification
             enemies.BindFixtureBus(guarded);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
-            enemies.WaverBehavior.InitializeWaver(slot);
+            WaverBehavior.InitializeWaver(slot);
             var expected = (WaverAnimationSelector)parameter;
             AssertEqual(expected, (enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].")).RequestedInstructionListIndex,
                 $"production Waver initial requested selector {parameter}");

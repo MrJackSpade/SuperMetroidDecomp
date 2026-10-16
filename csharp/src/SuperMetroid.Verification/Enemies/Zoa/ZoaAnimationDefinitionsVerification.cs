@@ -74,7 +74,7 @@ internal static class ZoaAnimationDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0080));
 
-        enemies.ZoaBehavior.InitializeZoa(slot);
+        ZoaBehavior.InitializeZoa(slot);
         ZoaEnemyState state = (enemies.ZoaStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ZoaStates[0]."));
 
         var samus = new SamusState

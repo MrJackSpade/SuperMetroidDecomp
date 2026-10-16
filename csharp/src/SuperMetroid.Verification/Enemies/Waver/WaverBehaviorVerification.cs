@@ -27,7 +27,7 @@ internal static class WaverBehaviorVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = WaverFrameToolingDefinitions.Bank });
-            enemies.WaverBehavior.InitializeWaver(slot);
+            WaverBehavior.InitializeWaver(slot);
             WaverEnemyState state = enemies.WaverStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WaverStates[0].");
             state.CurrentInstructionListIndex = selector == WaverAnimationSelector.None ? WaverAnimationSelector.FacingRight : WaverAnimationSelector.None;
             state.RequestedInstructionListIndex = selector;

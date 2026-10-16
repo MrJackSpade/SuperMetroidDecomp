@@ -689,7 +689,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior]);
+        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
@@ -1172,7 +1172,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         // Species register first; generic and cross-species registrations follow.
         AlcoonBehavior.RegisterAlcoonInitializationAi(table);
-        AtomicBehavior.RegisterAtomicInitializationAi(table);
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneInitializationAi(table);
         BeetomBehavior.RegisterBeetomInitializationAi(table);
         BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockInitializationAi(table);
@@ -1183,7 +1182,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CeresDoorBehavior.RegisterCeresDoorInitializationAi(table);
         CeresRidleyBehavior.RegisterCeresRidleyInitializationAi(table);
         CeresSteamBehavior.RegisterCeresSteamInitializationAi(table);
-        ChootBehavior.RegisterChootInitializationAi(table);
         ChozoStatueBehavior.RegisterChozoStatueInitializationAi(table);
         CrawlersBehavior.RegisterCrawlersInitializationAi(table);
         CrocomireBehavior.RegisterCrocomireInitializationAi(table);
@@ -1244,13 +1242,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         TourianEntranceStatueBehavior.RegisterTourianEntranceStatueInitializationAi(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateInitializationAi(table);
         WallSpacePirateBehavior.RegisterWallSpacePirateInitializationAi(table);
-        WaverBehavior.RegisterWaverInitializationAi(table);
         WorkRobotBehavior.RegisterWorkRobotInitializationAi(table);
         WreckedShipGhostBehavior.RegisterWreckedShipGhostInitializationAi(table);
         YappingMawBehavior.RegisterYappingMawInitializationAi(table);
         YardBehavior.RegisterYardInitializationAi(table);
         ZebetiteBehavior.RegisterZebetiteInitializationAi(table);
-        ZoaBehavior.RegisterZoaInitializationAi(table);
 
         GunshipBehavior.RegisterGunshipTopInitializationAi(table);
 
@@ -1265,7 +1261,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     {
         // Species register first; generic and cross-species registrations follow.
         AlcoonBehavior.RegisterAlcoonMainAi(table);
-        AtomicBehavior.RegisterAtomicMainAi(table);
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneMainAi(table);
         BeetomBehavior.RegisterBeetomMainAi(table);
         BlueBrinstarFaceBlockBehavior.RegisterBlueBrinstarFaceBlockMainAi(table);
@@ -1276,7 +1271,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         CeresDoorBehavior.RegisterCeresDoorMainAi(table);
         CeresRidleyBehavior.RegisterCeresRidleyMainAi(table);
         CeresSteamBehavior.RegisterCeresSteamMainAi(table);
-        ChootBehavior.RegisterChootMainAi(table);
         ChozoStatueBehavior.RegisterChozoStatueMainAi(table);
         CrawlersBehavior.RegisterCrawlersMainAi(table);
         CrocomireBehavior.RegisterCrocomireMainAi(table);
@@ -1336,14 +1330,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         StokeBehavior.RegisterStokeMainAi(table);
         WalkingSpacePirateBehavior.RegisterWalkingSpacePirateMainAi(table);
         WallSpacePirateBehavior.RegisterWallSpacePirateMainAi(table);
-        WaverBehavior.RegisterWaverMainAi(table);
         WorkRobotBehavior.RegisterWorkRobotMainAi(table);
         WreckedShipGhostBehavior.RegisterWreckedShipGhostMainAi(table);
         YappingMawBehavior.RegisterYappingMawMainAi(table);
         YardBehavior.RegisterYardMainAi(table);
         ZebetiteBehavior.RegisterZebetiteMainAi(table);
         ZebetiteBehavior.RegisterZebetiteTypedAnimations(table);
-        ZoaBehavior.RegisterZoaMainAi(table);
         table.RegisterMain(EnemyAiRoutine.RTL_A3804C, null, (slot, frame, nmiFrameCounter8) =>
         { });
 
@@ -1392,11 +1384,9 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         EvirBehavior.RegisterEvirTypedAnimations(table);
         YardBehavior.RegisterYardTypedAnimations(table);
         HoppersBehavior.RegisterHopperTypedAnimations(table);
-        ZoaBehavior.RegisterZoaTypedAnimations(table);
         MetroidBehavior.RegisterMetroidTypedAnimations(table);
         CrawlersBehavior.RegisterCrawlerTypedAnimations(table);
         SkreeBehavior.RegisterSkreeTypedAnimations(table);
-        WaverBehavior.RegisterWaverTypedAnimations(table);
         MetareeBehavior.RegisterMetareeTypedAnimations(table);
         SkulteraBehavior.RegisterSkulteraTypedAnimations(table);
         PlatformsBehavior.RegisterPlatformTypedAnimations(table);
@@ -1437,9 +1427,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadTourianBehavior.RegisterDeadTourianTypedAnimations(table);
         ElevatorBehavior.RegisterElevatorTypedAnimations(table);
         ShuttersBehavior.RegisterShuttersTypedAnimations(table);
-        ChootBehavior.RegisterChootTypedAnimations(table);
         BoulderBehavior.RegisterBoulderTypedAnimations(table);
-        AtomicBehavior.RegisterAtomicTypedAnimations(table);
         FirefleaBehavior.RegisterFirefleaTypedAnimations(table);
         WreckedShipGhostBehavior.RegisterWreckedShipGhostTypedAnimations(table);
         SbugBehavior.RegisterSbugTypedAnimations(table);

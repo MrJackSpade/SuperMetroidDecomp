@@ -56,6 +56,7 @@ internal static class ChootPatternDefinitionsVerification
                 enemies.BindFixtureBus(NewChootPatternReadGuard(rom));
                 var initialize = new Action<RoomEnemySlot>(enemies.ChootBehavior.InitializeChoot);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+                slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(0x3456, 0x789a));
                 slot.Parameter1 = (ushort)((patternIndex << 8) | loopCount);
                 initialize(slot);
@@ -78,6 +79,7 @@ internal static class ChootPatternDefinitionsVerification
             fallEnemies.BindFixtureBus(NewChootPatternReadGuard(rom));
             var initializeFall = new Action<RoomEnemySlot>(fallEnemies.ChootBehavior.InitializeChoot);
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
+            fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);
             fallSlot.Position = new(new(0x3456, 0x1111), new(0x789a, 0x2222));
             fallSlot.Parameter1 = (ushort)((patternIndex << 8) | 2);
             initializeFall(fallSlot);

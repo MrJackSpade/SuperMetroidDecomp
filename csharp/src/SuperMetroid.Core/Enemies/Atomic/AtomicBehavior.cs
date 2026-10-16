@@ -1,4 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.Core.Samus;
@@ -6,12 +8,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Atomic;
 
 /// <summary>The Atomic species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class AtomicBehavior : IEnemySpecies
+internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Atomic];
 
-    /// <summary>Per-slot typed views of Atomic's common and extended motion words.</summary>
-    internal readonly AtomicEnemyState?[] _atomicStates =
-        new AtomicEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(this, slot, common);
+
     /// <summary>Positive 16.16 speed fractions indexed by physical enemy slot.</summary>
     internal readonly ushort[] _atomicSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Positive 16.16 speed whole words indexed by physical enemy slot.</summary>
@@ -30,7 +34,8 @@ internal sealed class AtomicBehavior : IEnemySpecies
             _atomicSpeedWholes,
             _atomicNegativeSpeedFractions,
             _atomicNegativeSpeedWholes);
-        _atomicStates[slot.SlotIndex] = state;
+        (slot.Entity as AtomicEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Atomic.")).State = state;
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -134,46 +139,36 @@ internal sealed class AtomicBehavior : IEnemySpecies
     }
 
     /// <summary>Requires initialized Atomic state for a physical enemy slot before main AI runs.</summary>
-    private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
-        _atomicStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
+        (slot.Entity as AtomicEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
 
-    /// <summary>Runs Atomic's spinning animations as typed programs (#641).</summary>
-    internal void RegisterAtomicTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireAtomicState(slot);
-            AnimationProgramCursor<AtomicProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Registers the bank-$A8 Atomic initializer for its enemy definition.</summary>
-    internal void RegisterAtomicInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Atomic's typed animation.</summary>
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Atomic, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeAtomic(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireAtomicState(slot);
+        AnimationProgramCursor<AtomicProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Registers the bank-$A8 Atomic pursuit dispatcher for each enemy update.</summary>
-    internal void RegisterAtomicMainAi(EnemyAiTable table)
+    /// <summary>Ports Atomic's initialization AI.</summary>
+    internal void RunAtomicInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeAtomic(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Atomic, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Atomic, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
-        });
+    /// <summary>Ports Atomic's main AI.</summary>
+    internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
     }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_atomicStates);
         Array.Clear(_atomicSpeedFractions);
         Array.Clear(_atomicSpeedWholes);
         Array.Clear(_atomicNegativeSpeedFractions);

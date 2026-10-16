@@ -116,7 +116,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<SparkEnemyState?> SparkStates => self.SparkBehavior._sparkStates;
 
         /// <summary>Typed state for every physical slot currently owned by a Zoa.</summary>
-        internal IReadOnlyList<ZoaEnemyState?> ZoaStates => self.ZoaBehavior._zoaStates;
+        internal IReadOnlyList<ZoaEnemyState?> ZoaStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ZoaEntity)?.State)];
 
         /// <summary>Typed state for both graphics and hitbox records in all physical slots.</summary>
         internal IReadOnlyList<HibashiEnemyState?> HibashiStates => self.HibashiBehavior._hibashiStates;
@@ -128,7 +129,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<KagoEnemyState?> KagoStates => self.KagoBehavior._kagoStates;
 
         /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<WaverEnemyState?> WaverStates => self.WaverBehavior._waverStates;
+        internal IReadOnlyList<WaverEnemyState?> WaverStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WaverEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by a crawler family.</summary>
         internal IReadOnlyList<CrawlerEnemyState?> CrawlerStates => self.CrawlersBehavior._crawlerStates;
@@ -222,7 +224,8 @@ internal static class RoomEnemySystemAccess
             self.DeadTourianBehavior._deadTourianCorpseStates;
 
         /// <summary>Typed Atomic state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<AtomicEnemyState?> AtomicStates => self.AtomicBehavior._atomicStates;
+        internal IReadOnlyList<AtomicEnemyState?> AtomicStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as AtomicEntity)?.State)];
 
         /// <summary>Typed state for every physical Cacatac-capable enemy slot.</summary>
         internal IReadOnlyList<CacatacEnemyState?> CacatacStates => self.CacatacBehavior._cacatacStates;
@@ -285,7 +288,8 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<KiHunterEnemyState?> KiHunterStates => self.KiHunterBehavior._kiHunterStates;
 
         /// <summary>Typed Choot state for all 32 physical enemy slots.</summary>
-        internal IReadOnlyList<ChootEnemyState?> ChootStates => self.ChootBehavior._chootStates;
+        internal IReadOnlyList<ChootEnemyState?> ChootStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ChootEntity)?.State)];
 
         /// <summary>Pickup requests emitted by shot destroyable flames in this room load.</summary>
         internal IReadOnlyList<PhantoonFlameDropRequest> PhantoonFlameDropRequests =>

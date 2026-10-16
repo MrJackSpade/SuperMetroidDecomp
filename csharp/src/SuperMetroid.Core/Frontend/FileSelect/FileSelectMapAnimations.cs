@@ -14,14 +14,12 @@ public sealed class FileSelectMapAnimations
     [NonSerialized] private MapArrowPresentation? presentation;
 
     /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading cartridge animation data.</summary>
-    /// <param name="bus">Required address-space dependency passed to palette initialization; construction validates it but does not read animation bytes from it.</param>
     /// <param name="presentation">Required installed arrow definitions, retained as host content rather than serialized with the counters.</param>
     /// <exception cref="ArgumentNullException">The address space is null.</exception>
     /// <exception cref="InvalidOperationException">Installed arrow definitions are absent, including when the optional argument is omitted.</exception>
-    public FileSelectMapAnimations(ISnesAddressSpace bus, MapArrowPresentation? presentation = null)
+    public FileSelectMapAnimations(MapArrowPresentation? presentation = null)
     {
-        Ensure.NotNull(bus);
-        palette = new MapPaletteAnimation(bus);
+        palette = new MapPaletteAnimation();
         BindPresentation(presentation);
     }
 

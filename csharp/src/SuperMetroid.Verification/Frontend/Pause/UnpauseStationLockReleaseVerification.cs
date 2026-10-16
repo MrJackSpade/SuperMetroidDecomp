@@ -32,7 +32,7 @@ internal static class UnpauseStationLockReleaseVerification
         samus.InputLocked = false;
         samus.ScriptLocks.LockIntoRefillStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         var game = new SuperMetroidGame(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

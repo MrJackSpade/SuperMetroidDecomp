@@ -17,7 +17,7 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
     public bool RidleyPresent => encounter.Ridley is not null;
 
     /// <inheritdoc/>
-    public int ResolveCeresRidleyProjectileHits(ISnesAddressSpace bus, SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles) =>
+    public int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles) =>
         ceresRidley.ResolveCeresRidleyProjectileHits(projectiles, sharedProjectiles);
 
     /// <inheritdoc/>

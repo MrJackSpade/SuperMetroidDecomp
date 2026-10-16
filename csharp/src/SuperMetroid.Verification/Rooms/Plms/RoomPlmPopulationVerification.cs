@@ -1363,7 +1363,7 @@ internal static class RoomPlmPopulationVerification
 
         var message = new GameplayMessageBoxState();
         message.BindPresentation(null, notices: presentation);
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
+        message.Begin(GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)
@@ -1400,7 +1400,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(false, message.ConsumeConfirmationResult(),
             "save confirmation publishes selected no result after close");
 
-        message.Begin(bus, GameplayMessageIds.SaveConfirmation, 0);
+        message.Begin(GameplayMessageIds.SaveConfirmation, 0);
         for (int guard = 0;
              message.Phase != GameplayMessageBoxPhase.AwaitingInput && guard < 32;
              guard++)

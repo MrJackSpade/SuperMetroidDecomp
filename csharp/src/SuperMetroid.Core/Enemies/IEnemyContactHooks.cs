@@ -6,9 +6,8 @@ namespace SuperMetroid.Core.Enemies;
 internal interface IEnemyContactHooks : IEnemyEntity
 {
     /// <summary>Runs before the ordinary projectile, bomb and touch passes.</summary>
-    /// <param name="bus">The room's address space.</param>
     /// <param name="frame">The enemy frame.</param>
-    void ResolveBeforeOrdinaryHits(ISnesAddressSpace bus, RoomEnemyFrame frame);
+    void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame);
 
     /// <summary>Whether the occupant resolves its own Samus touch, so the ordinary touch pass skips it.</summary>
     bool OwnsSamusTouch { get; }

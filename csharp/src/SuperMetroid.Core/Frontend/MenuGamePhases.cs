@@ -258,7 +258,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 // Menu construction consumes only save/map data. A dead runtime
                 // must not keep publishing gameplay audio during map selection.
                 session.ReleaseRuntimePreservingRandom();
-                session.fileSelectMap = new FileSelectMapMenuState(session.bus, session.audio, mapSlot, controllerInput, session.Artwork.MapPresentation);
+                session.fileSelectMap = new FileSelectMapMenuState(session.audio, mapSlot, controllerInput, session.Artwork.MapPresentation);
             }
             else session.fileSelectMap.Step(controllerInput);
             session.display.PublishFileMap(session.fileSelectMap);

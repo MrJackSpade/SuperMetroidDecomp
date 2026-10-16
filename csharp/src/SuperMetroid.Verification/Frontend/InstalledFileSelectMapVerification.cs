@@ -13,8 +13,7 @@ using SuperMetroid.Verification.Harness;
 internal static class InstalledFileSelectMapVerification
 {
     /// <summary>Compares stock frames through entry, scroll, debugger restore, and exit handoffs with map ROM blocked.</summary>
-    internal static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
-        AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
+    internal static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
     {
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
@@ -22,8 +21,8 @@ internal static class InstalledFileSelectMapVerification
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
+        var control = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
+        var installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original);
 
         // One raster per side: the two captured renders are compared with each other.
         var nativeRaster = new Rgba32[256 * 224];
@@ -80,8 +79,8 @@ internal static class InstalledFileSelectMapVerification
             AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
             // Exercise the other exit from a fresh area view as well. The test
             // ends at the handoff; gameplay/options retain separate dependencies.
-            control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0, original);
-            installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
+            control = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original);
+            installed = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, original);
             for (int tick = 0; tick < 48; tick++) StepBoth(0);
             StepBoth(SnesButton.B);
             for (int tick = 0; tick < 32 && !installed.OptionsRequested; tick++) StepBoth(0);

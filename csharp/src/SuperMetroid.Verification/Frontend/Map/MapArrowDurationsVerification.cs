@@ -79,7 +79,7 @@ internal static class MapArrowDurationsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow duration ticks")]
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
-        var actual = new FileSelectMapAnimations(NewForbiddenMapBus(), presentation);
+        var actual = new FileSelectMapAnimations(presentation);
         var arrows = actual.arrows;
         int offset = 0, timer = 0;
         for (int tick = 0; tick < 90; tick++)

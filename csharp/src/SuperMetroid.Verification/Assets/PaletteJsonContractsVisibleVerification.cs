@@ -63,8 +63,8 @@ internal static class PaletteJsonContractsVisibleVerification
         JsonObject cycle = documents["map cycle"];
         var editedCycle = (JsonObject)cycle.DeepClone();
         InvertPaletteContractColors(editedCycle);
-        var stockMap = new MapPaletteAnimation(stockBus);
-        var editedMap = new MapPaletteAnimation(editedBus);
+        var stockMap = new MapPaletteAnimation();
+        var editedMap = new MapPaletteAnimation();
         stockMap.Bind(ReadPaletteContract(cycle, MapPaletteCycle.Load));
         editedMap.Bind(ReadPaletteContract(editedCycle, MapPaletteCycle.Load));
         for (int tick = 0; tick < 90; tick++)

@@ -59,7 +59,7 @@ internal static class SpacetimeBeamVerification
             CollectedBeams = 0x100f,
             EquippedBeams = 0x1006,
         };
-        var selection = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var selection = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(selection);
         SelectPauseBoots(selection);
         selection.Step(0, (SnesButton.Left | SnesButton.A));

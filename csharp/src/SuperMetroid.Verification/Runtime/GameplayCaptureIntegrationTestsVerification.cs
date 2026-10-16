@@ -53,7 +53,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame();
-        runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
+        runtime.MessageBox.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);

@@ -33,7 +33,7 @@ internal static class PauseRemappedShoulderVerification
             runtime.Options.ControllerBindings = ControllerBindings.Default with { AimUp = SnesButton.L, AimDown = SnesButton.R };
             SamusState samus = runtime.Player.IntroducedSamus;
             runtime.FrameBoundary.BeginAcceptedFrame(0);
-            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
             var game = new SuperMetroidGame(bus) { GameState = SuperMetroidGameState.PausedB };
             game.Session.runtime = runtime;
             game.Session.pauseMenu = pause;

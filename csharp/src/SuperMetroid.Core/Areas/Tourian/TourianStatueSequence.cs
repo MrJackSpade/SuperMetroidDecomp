@@ -18,8 +18,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public sealed class TourianStatueSequence
 {
-    /// <summary>Address space passed to palette FX spawning while statue tile mechanics remain compiled.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+
     /// <summary>Receives the black clear and installed grey-color palette writes from tile instructions.</summary>
     private readonly SnesCgram _cgram;
     /// <summary>Holds statue busy/released bits, effect spawning, vertical offset, and descent earthquake state.</summary>
@@ -46,7 +45,7 @@ public sealed class TourianStatueSequence
     /// <summary>Captures the room services needed to run the native tile and BG2 descent programs.</summary>
     internal TourianStatueSequence(TourianStatueSequenceDependencies dependencies)
     {
-        _addressSpace = dependencies.AddressSpace;
+
         _cgram = dependencies.Cgram;
         _enemies = dependencies.Enemies;
         _player = dependencies.Player;
@@ -147,7 +146,6 @@ public sealed class TourianStatueSequence
     {
         if (!Enabled) return;
         if (_tester.UnlockTourianEnabled) return;
-        var bus = _addressSpace;
         foreach (TileObject tile in objects)
         {
             if (tile.Pointer == 0 || !(tile.Timer = tile.Timer.Decrement().Remaining).IsZero) continue;

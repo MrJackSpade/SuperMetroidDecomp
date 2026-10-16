@@ -30,7 +30,7 @@ internal static class MapPaletteCycleVerification
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);
-        var arrows = new FileSelectMapAnimations(bus, original.Arrows);
+        var arrows = new FileSelectMapAnimations(original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = new OamBuffer();
         arrowOam.BeginFrame(); arrows.DrawArrows(arrowOam, original.Sprites);
@@ -38,9 +38,9 @@ internal static class MapPaletteCycleVerification
         AssertTrue(arrowOam.NextByteOffset > 0, "arrow palette test draws actual sprites");
         for (int offset = 0; offset < arrowOam.NextByteOffset; offset += 4)
             AssertEqual(SnesLittleEndian.HighByte(nativeArrowPalette), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
-        var native = new MapPaletteAnimation(bus);
+        var native = new MapPaletteAnimation();
         native.Bind(original.HighlightCycle);
-        var installed = new MapPaletteAnimation(NewForbiddenMapBus());
+        var installed = new MapPaletteAnimation();
         installed.Bind(original.HighlightCycle);
         AssertEqual(MapAnimationRomData.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
         var nativeColors = new SnesCgram();
@@ -69,8 +69,8 @@ internal static class MapPaletteCycleVerification
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
         var system = new Bank80SystemState();
-        var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
-        var nativePause = new PauseMenuState(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var pause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var nativePause = new PauseMenuState(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);
@@ -120,9 +120,8 @@ internal static class MapPaletteCycleVerification
         saved.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;
         saves.SaveSlot(0, saved);
         var slot = saves.ReadSlot(0);
-        var nativeMenu = new FileSelectMapMenuState(bus,
-            new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
-        var menu = new FileSelectMapMenuState(guard, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
+        var nativeMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, original);
+        var menu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, original);
         for (int tick = 0; tick < 48; tick++) { nativeMenu.Step(0); menu.Step(0); }
         nativeMenu.Step(SnesButton.Start);
         menu.Step(SnesButton.Start);

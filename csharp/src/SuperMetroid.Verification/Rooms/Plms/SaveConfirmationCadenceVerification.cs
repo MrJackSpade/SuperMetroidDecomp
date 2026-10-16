@@ -13,7 +13,7 @@ internal static class SaveConfirmationCadenceVerification
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var box = CreateGameplayMessageFixture();
-        box.Begin(retail, GameplayMessageId.GunshipSaveConfirmation, 0);
+        box.Begin(GameplayMessageId.GunshipSaveConfirmation, 0);
         int guard = 0;
         while (box.Phase != GameplayMessageBoxPhase.AwaitingInput)
         {

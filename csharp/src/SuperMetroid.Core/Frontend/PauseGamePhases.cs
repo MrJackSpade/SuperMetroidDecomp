@@ -47,7 +47,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         CartridgeRoomHeader pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active cartridge room header.");
-        session.pauseMenu = new PauseMenuState(session.bus, new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
+        session.pauseMenu = new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
                 "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayVram = session.GameplayRuntime.Vram, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation });
         session.BeginPauseFade(0);
         session.display.PublishMenu(session.pauseMenu);

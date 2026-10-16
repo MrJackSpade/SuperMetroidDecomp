@@ -25,8 +25,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// </remarks>
 internal sealed class PauseMenuState
 {
-    /// <summary>Address space supplying native menu pose and timing data.</summary>
-    private readonly ISnesAddressSpace bus;
+
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Advances the map highlight colors once per accepted menu update.</summary>
@@ -93,16 +92,16 @@ internal sealed class PauseMenuState
     internal ushort lastIndicatorSpritemapId;
 
     /// <summary>Creates the isolated pause PPU image and initial map/equipment state from live gameplay.</summary>
-    public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
+    public PauseMenuState(PauseMenuEntry entry)
     {
-        this.bus = Ensure.NotNull(bus);
+
         this.mapPresentation = entry.MapPresentation ?? throw new InvalidOperationException(
             "Pause menu requires installed map and equipment presentation assets.");
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
-        mapArrows = new FileSelectMapAnimations(bus, entry.MapPresentation.Arrows);
-        paletteAnimation = new MapPaletteAnimation(bus);
+        mapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
+        paletteAnimation = new MapPaletteAnimation();
         paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
         _ = AreaIds.ToIndex(entry.AreaIndex);
@@ -922,7 +921,7 @@ internal sealed class PauseMenuState
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
-        mapArrows ??= new FileSelectMapAnimations(bus, catalog.Arrows);
+        mapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
         mapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
         catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);

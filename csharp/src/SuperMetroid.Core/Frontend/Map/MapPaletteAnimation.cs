@@ -5,10 +5,6 @@ namespace SuperMetroid.Core.Frontend.Map;
 /// <summary>Shared $82:A92B palette animation used by pause and file-select maps.</summary>
 public sealed class MapPaletteAnimation
 {
-    /// <summary>Creates the map palette clock at frame zero with a one-update initial delay; installed cycle data must be supplied through <see cref="Bind"/> before the first palette update.</summary>
-    /// <param name="bus">Legacy compatibility argument, checked for null but neither retained nor used for cartridge reads.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="bus"/> is <see langword="null"/>.</exception>
-    public MapPaletteAnimation(ISnesAddressSpace bus) => Ensure.NotNull(bus);
     /// <summary>Updates remaining before the next palette frame is applied; starts with one update.</summary>
     internal byte timer = 1;
     /// <summary>Index of the most recently applied map palette frame.</summary>

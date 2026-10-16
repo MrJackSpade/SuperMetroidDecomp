@@ -481,7 +481,7 @@ internal static class CollectiblesVerification
         var bus = new TestAddressSpace();
         var message = CreatePermanentMessageFixture();
 
-        message.Begin(bus, GameplayMessageIds.EnergyTank, 0);
+        message.Begin(GameplayMessageIds.EnergyTank, 0);
         // $85:808D-$8096 spend eight lag frames before Open_MessageBox; the first ends the
         // dispatch that opened the box.
         AssertEqual(GameplayMessageBoxPhase.Preparing, message.Phase,
@@ -556,7 +556,7 @@ internal static class CollectiblesVerification
 
         // Message two is the first large box and patches its shoot-button placeholder.
         // Supplying B proves the glyph is selected from the binding word, not hard-coded X.
-        message.Begin(bus, GameplayMessageIds.MissileTank, 0, shootBinding: SnesButton.B);
+        message.Begin(GameplayMessageIds.MissileTank, 0, shootBinding: SnesButton.B);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(6, message.TilemapRowCount, "large item message has four content rows");
@@ -588,7 +588,7 @@ internal static class CollectiblesVerification
         // verifies the native variable-length copy instead of inferring height from the
         // border routine's name, and exercises that shape through the compositor too.
         message = CreatePermanentMessageFixture();
-        message.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
+        message.Begin(GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int preparingFrame = 0; preparingFrame < 7; preparingFrame++)
             message.Step(0);
         AssertEqual(5, message.TilemapRowCount,
@@ -633,12 +633,10 @@ internal static class CollectiblesVerification
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (File.Exists(romPath))
         {
-            var retailBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(File.ReadAllBytes(romPath));
             for (byte messageId = 1; messageId <= 26; messageId++)
             {
                 var retailMessage = CreateGameplayMessageFixture();
                 retailMessage.Begin(
-                    retailBus,
                     GameplayMessageIds.FromCartridge(messageId, "retail definition-table audit"),
                     controllerRead: 0);
                 AssertTrue(

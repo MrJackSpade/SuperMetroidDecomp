@@ -23,7 +23,7 @@ internal static class InvalidBeamSelectionVerification
         {
             var navigationSamus = new SamusState { CollectedItems = ushort.MaxValue, CollectedBeams = 0x100f,
                 EquippedBeams = 4, EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots };
-            var navigation = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = navigationSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+            var navigation = CreateRetailPauseFixture(new PauseMenuEntry { Samus = navigationSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
             EnterPauseEquipment(navigation);
             SelectPauseBoots(navigation);
             for (int step = 0; step < boot; step++) navigation.Step(0, SnesButton.Down);
@@ -37,7 +37,7 @@ internal static class InvalidBeamSelectionVerification
         // before the tested press; this isolates the Boots-handler Left+A ordering.
         var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
             CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         AssertEqual(0, pause.SelectedItem, "fixture starts on Hi-Jump Boots");

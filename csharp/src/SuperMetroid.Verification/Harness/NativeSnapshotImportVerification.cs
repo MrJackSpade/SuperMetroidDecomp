@@ -316,7 +316,7 @@ internal static class NativeSnapshotImportVerification
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
         if (game.GameState == SuperMetroidGameState.PausedB)
-            ImportNativePauseMenu(game, runtime, bus, W, memory);
+            ImportNativePauseMenu(game, runtime, W, memory);
         return (bus, runtime, samus, game);
     }
 

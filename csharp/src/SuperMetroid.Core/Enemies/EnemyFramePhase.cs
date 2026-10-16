@@ -52,8 +52,7 @@ internal sealed class EnemyFramePhase
     private readonly RoomLayer3FxState _roomLayer3Fx;
     /// <summary>Collects VRAM writes produced during the enemy pass.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Shared memory context for enemy operations and Samus presentation reloads.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+
 
     /// <summary>Binds gameplay owners that exchange state at the native EnemyMain frame boundary.</summary>
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
@@ -75,13 +74,12 @@ internal sealed class EnemyFramePhase
         _room = dependencies.Room;
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
+
     }
     /// <summary>Resolves Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.</summary>
     internal void ResolveUpdatedBeamHits()
     {
         _enemies.Ceres.ResolveCeresRidleyProjectileHits(
-            _addressSpace,
             _projectiles,
             _bombProjectiles);
     }

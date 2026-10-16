@@ -128,7 +128,7 @@ internal static class CrystalFlashCleanupVerification
             drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
             if (started >= 0)
             {
-                var visible = VerifyCrystalFlashVisualFrame(runtime, frame - started);
+                var visible = VerifyCrystalFlashVisualFrame(runtime, bus, frame - started);
                 if (visible.Body) visibleBodyFrames++;
                 if (visible.Window) visibleWindowFrames++;
                 AssertEqual(512, samus.Position.X.Whole, "Crystal Flash owns horizontal movement");

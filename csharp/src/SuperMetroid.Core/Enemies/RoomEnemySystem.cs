@@ -877,7 +877,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 // before selecting hurt/main AI. In particular, a retained Plasma
                 // hit must publish Phantoon's hurt clock before this frame ticks it.
                 if (slot.Entity is IEnemyContactHooks hooks)
-                    hooks.ResolveBeforeOrdinaryHits(Room.LoadedBus, frame);
+                    hooks.ResolveBeforeOrdinaryHits(frame);
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
                     Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
                         frame.Samus, nativeIndex);

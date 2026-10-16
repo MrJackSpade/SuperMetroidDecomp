@@ -55,7 +55,7 @@ internal sealed class RidleyEntity(
     public bool OwnsSamusTouch => IsBody;
 
     /// <inheritdoc/>
-    public void ResolveBeforeOrdinaryHits(ISnesAddressSpace bus, RoomEnemyFrame frame)
+    public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
     {
     }
 

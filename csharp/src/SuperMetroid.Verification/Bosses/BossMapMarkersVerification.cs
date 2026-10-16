@@ -35,7 +35,7 @@ internal static class BossMapMarkersVerification
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
-                var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
+                var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
                 pause.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                 var alive = pause.Render();
@@ -56,7 +56,7 @@ internal static class BossMapMarkersVerification
                 AssertTrue(changed > 0, $"area {area} boss bit {record} must visibly change on defeat");
                 // A newly opened pause page must observe the same live progression
                 // byte, not an icon cached before the boss died.
-                AssertTrue(dead.SequenceEqual(CenteredPause(bus, system).Render()),
+                AssertTrue(dead.SequenceEqual(CenteredPause(system).Render()),
                     "reopening pause preserves defeated marker pixels");
 
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
@@ -71,11 +71,11 @@ internal static class BossMapMarkersVerification
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
                 var restoredSystem = new Bank80SystemState();
                 slot.ApplyTo(new SamusState(), restoredSystem);
-                AssertTrue(dead.SequenceEqual(CenteredPause(restored, restoredSystem).Render()),
+                AssertTrue(dead.SequenceEqual(CenteredPause(restoredSystem).Render()),
                     "JSON/SRAM reload preserves the complete defeated pause image");
                 // The existing-save menu creates its own progression owner from the
                 // slot. Compare that actual constructor path with the live source.
-                var savedMenu = new FileSelectMapMenuState(restored, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
+                var savedMenu = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0,
                     RetailPresentationFixture());
                 var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(system, (AreaId)area, mapPresentation: RetailPresentationFixture());
@@ -94,13 +94,13 @@ internal static class BossMapMarkersVerification
                 for (int entry = 0; entry < 2; entry++)
                 {
                     runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-                    AssertTrue(dead.SequenceEqual(CenteredPause(restored, runtime.System).Render()),
+                    AssertTrue(dead.SequenceEqual(CenteredPause(runtime.System).Render()),
                         "ordinary room load/reload preserves defeated marker and acquired map");
                 }
 
-                PauseMenuState CenteredPause(ISnesAddressSpace addressSpace, Bank80SystemState state)
+                PauseMenuState CenteredPause(Bank80SystemState state)
                 {
-                    var reopened = CreateRetailPauseFixture(addressSpace, new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
+                    var reopened = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                     reopened.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112)));
                     return reopened;
                 }

@@ -49,7 +49,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     /// Phantoon's body resolves its projectile hits before the ordinary passes: a retained Plasma hit must publish its hurt
     /// clock before this frame ticks it.
     /// </summary>
-    public void ResolveBeforeOrdinaryHits(ISnesAddressSpace bus, RoomEnemyFrame frame)
+    public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
     {
         if (Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
             frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)

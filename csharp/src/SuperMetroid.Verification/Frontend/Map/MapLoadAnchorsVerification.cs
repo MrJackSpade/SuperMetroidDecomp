@@ -158,11 +158,10 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, catalog, catalog));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, catalog, catalog));
         SuperMetroidSaveSlot savedSlot = new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
-        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(bus,
-            new CartridgeAudioState(), savedSlot, 0),
+        AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(new CartridgeAudioState(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
@@ -189,8 +188,8 @@ internal static class MapLoadAnchorsVerification
             saves.SaveSlot(0, snapshot);
             byte[] before = ReadSram();
             var slot = saves.ReadSlot(0);
-            var native = new FileSelectMapMenuState(bus, new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog);
-            var compiled = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, catalog);
+            var native = new FileSelectMapMenuState(new CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, catalog);
+            var compiled = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, catalog);
             // Area-specific expanding-window durations differ. Compare every
             // native phase and stop on its actual endpoint, with a bounded guard.
             for (int tick = 0; tick < 256 && compiled.Phase != FileSelectMapNavigationPhase.Room; tick++)

@@ -28,7 +28,7 @@ internal static class GameplayMessageTitlesVerification
         {
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(stock);
-            installed.Begin(NewForbiddenGameplayMessageBus(), id, 0);
+            installed.Begin(id, 0);
             // The title's content row is the cartridge's one-row tilemap named by the
             // message definition table; read it directly as the independent reference.
             int definition = GameplayMessageRomData.Assets.DefinitionTable +
@@ -52,7 +52,7 @@ internal static class GameplayMessageTitlesVerification
 
         var active = new GameplayMessageBoxState();
         active.BindPresentation(stock);
-        active.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.EnergyTank, 0);
+        active.Begin(GameplayMessageId.EnergyTank, 0);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;

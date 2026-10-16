@@ -33,7 +33,7 @@ internal static class MessageSnapshotTestsVerification
             if (id == GameplayMessageId.None) continue;
             var state = CreateGameplayMessageFixture();
             AssertTrue(GameplayMessageBoxRendererConstants.Capture(state, vram) is null, "inactive message has no overlay");
-            state.Begin(bus, id, 0);
+            state.Begin(id, 0);
             int previousRadius = -1;
             bool previousYes = true;
             bool toggledSave = false, releasedSave = false;
@@ -73,7 +73,7 @@ internal static class MessageSnapshotTestsVerification
             }
             AssertTrue(!state.IsActive, $"message {id} completes reveal/close fixture");
             // Reuse the same live owner after closing, replacing its tilemap and radius.
-            state.Begin(bus, GameplayMessageIds.SaveCompleted, 0);
+            state.Begin(GameplayMessageIds.SaveCompleted, 0);
             AssertTrue(held is not null && heldPixels.SequenceEqual(RenderForComparison(held)),
                 "retained message survives closing and reuse of the source owner");
         }

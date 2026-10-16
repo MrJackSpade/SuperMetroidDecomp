@@ -39,8 +39,8 @@ internal static class PauseEquipmentLabelsVerification
         ];
         foreach (SamusState inventory in inventories)
         {
-            byte[] expected = EquipmentPage(new PauseMenuState(bus, new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
-            byte[] actual = EquipmentPage(new PauseMenuState(guard, new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
+            byte[] expected = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
+            byte[] actual = EquipmentPage(new PauseMenuState(new PauseMenuEntry { Samus = Clone(inventory), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original }));
             AssertTrue(expected.SequenceEqual(actual),
                 "installed equipment labels match native tilemap with label ROM sources forbidden");
         }
@@ -59,7 +59,7 @@ internal static class PauseEquipmentLabelsVerification
 
         var liveSamus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge,
             EquippedBeams = (ushort)SamusBeamFlags.Charge };
-        var live = new PauseMenuState(guard, new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var live = new PauseMenuState(new PauseMenuEntry { Samus = liveSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         byte[] before = EquipmentPage(live);
         live.BindMapPresentation(edited);
         byte[] after = live.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();
@@ -73,7 +73,7 @@ internal static class PauseEquipmentLabelsVerification
         // change. The first four Varia words must remain the contiguous source tail.
         var glitchSamus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300,
             CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var glitch = new PauseMenuState(guard, new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var glitch = new PauseMenuState(new PauseMenuEntry { Samus = glitchSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         EquipmentPage(glitch);
         SelectPauseBoots(glitch);
         glitch.Step(0, (SnesButton.Left | SnesButton.A));

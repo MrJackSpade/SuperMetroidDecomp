@@ -111,8 +111,8 @@ internal static class FileSelectRoomMapVerification
         snapshot.UsedSaveStationBytes[8] = 1;
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0);
-        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture());
-        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
+        var cancel = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), (slot ?? throw new InvalidOperationException("Verification requires slot.")), 0, RetailPresentationFixture());
+        var control = new FileSelectMapMenuState(new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0, RetailPresentationFixture());
         foreach (var menu in new[] { cancel, control })
         {
             for (int i = 0; i < 48; i++) menu.Step(0);
@@ -161,7 +161,7 @@ internal static class FileSelectRoomMapVerification
         using var arrowJson = new MemoryStream();
         MapArrowPresentation.Write(arrowJson, new() { Version = 1, Arrows = arrows });
         arrowJson.Position = 0;
-        var animations = new FileSelectMapAnimations(bus, MapArrowPresentation.Load(arrowJson));
+        var animations = new FileSelectMapAnimations(MapArrowPresentation.Load(arrowJson));
         var paletteFrames = Enumerable.Range(0, 2).Select(frame => new MapPaletteCycleFrame
         {
             DurationTicks = frame == 0 ? 3 : 2,

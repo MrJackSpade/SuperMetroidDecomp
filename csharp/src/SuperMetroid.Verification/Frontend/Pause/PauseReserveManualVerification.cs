@@ -22,7 +22,7 @@ internal static class PauseReserveManualVerification
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = 1,
             CollectedBeams = (ushort)SamusBeamFlags.Charge };
-        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
+        var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
         AssertEqual(PauseReserveTransferRomData.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
@@ -53,19 +53,19 @@ internal static class PauseReserveManualVerification
         AssertEqual(0, pause.SelectedItem, "exhaustion returns to mode item");
         pause.Step(0, SnesButton.A);
         AssertEqual(1, samus.ReserveTankMode, "A restores AUTO");
-        Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp(bus));
+        Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp());
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
 
     /// <summary>Checks refill sound cadence, health clamping, and debugger restoration of a pending delay.</summary>
-    private static void VerifyManualReserveSoundAndClamp(SuperMetroidAddressSpace bus)
+    private static void VerifyManualReserveSoundAndClamp()
     {
         foreach (ushort startingHealth in new ushort[] { 20, 98 })
         {
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
             var audio = new CartridgeAudioState();
-            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
+            var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);
             pause.Step(0, SnesButton.Up);
             pause.Step(0, SnesButton.Down);

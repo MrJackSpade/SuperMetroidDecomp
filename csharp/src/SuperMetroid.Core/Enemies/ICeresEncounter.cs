@@ -14,7 +14,7 @@ internal interface ICeresEncounter
     bool RidleyPresent { get; }
 
     /// <summary>Resolves Samus's projectiles against Ceres Ridley before EnemyMain; returns the hits.</summary>
-    int ResolveCeresRidleyProjectileHits(ISnesAddressSpace bus, SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles);
+    int ResolveCeresRidleyProjectileHits(SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles);
 
     /// <summary>Draws the Baby and door OBJ during EnemyMain, before the post-enemy hook is installed.</summary>
     void DrawCeresRidleyImmediateBabyAndDoor(OamBuffer oam, Position16<RoomPixels> camera);

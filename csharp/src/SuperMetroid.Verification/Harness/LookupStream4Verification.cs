@@ -1908,7 +1908,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(stock.Build(id)), "Derived notice export reproduces every native border/content word");
             var state = new GameplayMessageBoxState();
             state.BindPresentation(null, null, stock);
-            state.Begin(NewFrontendCartridgeReadGuard(rom), id, 0);
+            state.Begin(id, 0);
             if (GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
                 for (int column = 0; column < 32; column++) expected[128 + column] = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x8595c1 + column * 2));
             AssertTrue(expected.SequenceEqual(state.Tilemap), "Actual notice initial tilemap preserves native YES row and all content");
@@ -1929,7 +1929,7 @@ internal static class LookupStream4Verification
         var edited = GameplayMessageNoticePresentation.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(editedJson.ToJsonString())));
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
-        active.Begin(NewFrontendCartridgeReadGuard(rom), GameplayMessageId.MapDataAccessCompleted, 0);
+        active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         var phase = active.Phase; int radius = active.RadiusPixels;
         ushort[] original = active.Tilemap.ToArray();

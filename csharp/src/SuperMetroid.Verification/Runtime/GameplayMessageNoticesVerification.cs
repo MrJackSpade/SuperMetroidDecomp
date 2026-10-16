@@ -28,7 +28,7 @@ internal static class GameplayMessageNoticesVerification
         {
             var installed = new GameplayMessageBoxState();
             installed.BindPresentation(null, null, stock);
-            installed.Begin(NewForbiddenGameplayMessageBus(), id, 0);
+            installed.Begin(id, 0);
             comparedWords += installed.Tilemap.Length;
 
             if (!GameplayMessageNoticeDefinitions.IsSaveConfirmation(id))
@@ -36,6 +36,9 @@ internal static class GameplayMessageNoticesVerification
             while (installed.Phase != GameplayMessageBoxPhase.AwaitingInput)
                 installed.Step(0);
             ushort[] yesSelected = installed.Tilemap.ToArray();
+            // $85:84BA's two lag waits precede each ReadControllerInput; press on the read frame.
+            for (int lag = 0; lag < GameplayMessageRomData.Timing.SaveSelectionReadLagFrames; lag++)
+                installed.Step(0);
             installed.Step(SnesButton.Right);
             AssertTrue(!yesSelected.SequenceEqual(installed.Tilemap),
                 $"installed gameplay-message notice {id} redraws its NO-selection row without cartridge reads");
@@ -52,8 +55,7 @@ internal static class GameplayMessageNoticesVerification
 
         var active = new GameplayMessageBoxState();
         active.BindPresentation(null, null, stock);
-        active.Begin(NewForbiddenGameplayMessageBus(),
-            GameplayMessageId.MapDataAccessCompleted, 0);
+        active.Begin(GameplayMessageId.MapDataAccessCompleted, 0);
         active.Step(0);
         GameplayMessageBoxPhase phase = active.Phase;
         int radius = active.RadiusPixels;
@@ -104,7 +106,7 @@ internal static class GameplayMessageNoticesVerification
         var state = new GameplayMessageBoxState();
         state.BindPresentation(edited.GameplayMessageTitles, edited.GameplayMessagePanels,
             edited.GameplayMessageNotices);
-        state.Begin(NewForbiddenGameplayMessageBus(), GameplayMessageId.SaveConfirmation, 0);
+        state.Begin(GameplayMessageId.SaveConfirmation, 0);
         AssertTrue(!stockCatalog.GameplayMessageNotices.Build(GameplayMessageId.SaveConfirmation)
                 .SequenceEqual(state.Tilemap),
             "catalog override changes installed save-confirmation text");

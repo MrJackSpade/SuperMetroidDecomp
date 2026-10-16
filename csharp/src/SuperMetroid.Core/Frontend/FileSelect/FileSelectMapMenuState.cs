@@ -52,14 +52,13 @@ public sealed class FileSelectMapMenuState
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Initializes existing-save map entry from the saved Zebes area/station, exploration, boss, map-station, and used-station data without loading a gameplay room.</summary>
-    /// <param name="bus">Runtime address space shared by menu systems.</param>
     /// <param name="audio">Owner receiving menu confirmation, scroll, palette-loop, and transition sound requests.</param>
     /// <param name="slot">Selected save slot; its area must be one of the six Zebes identities and its station supplies the compiled load/scroll anchor.</param>
     /// <param name="initialHeldInput">Native controller-button word already held on entry, latched to prevent a held confirmation button becoming a fresh navigation press.</param>
     /// <param name="mapPresentation">Required installed map artwork/layout catalog, rebound separately after debugger restoration.</param>
     /// <exception cref="ArgumentOutOfRangeException">The save area is outside Zebes; Ceres bypasses this menu.</exception>
     /// <exception cref="InvalidOperationException">Map presentation assets are absent.</exception>
-    public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
+    public FileSelectMapMenuState(CartridgeAudioState audio,
         SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.audio = Ensure.NotNull(audio);
@@ -84,7 +83,7 @@ public sealed class FileSelectMapMenuState
         marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
-        animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
+        animations = new FileSelectMapAnimations(mapPresentation?.Arrows);
         animations.BindPalette(mapPresentation?.HighlightCycle);
         entry = new FileSelectMapEntry(mapPresentation?.Palettes ?? throw new InvalidOperationException(
             "File-select map requires installed map palettes."));

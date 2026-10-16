@@ -38,7 +38,7 @@ internal static class TourianStatueWaterVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 120));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.CommitPoseHistory();
         samus.InputLocked = false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));

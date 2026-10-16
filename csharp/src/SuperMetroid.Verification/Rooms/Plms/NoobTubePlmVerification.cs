@@ -95,7 +95,7 @@ internal static class NoobTubePlmVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
+        var grappleHit = SamusGrappleMovement.StepFiring(level, grappleSamus,
             SnesButton.X, plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "solid resident trigger cancels the grapple endpoint");

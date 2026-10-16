@@ -110,7 +110,7 @@ internal static class GreenHillGateGlitchVerification
             SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
 
         int openFrame = -1;
         for (int frame = 0; frame < 21; frame++)

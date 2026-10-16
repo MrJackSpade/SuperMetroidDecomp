@@ -33,7 +33,7 @@ internal static class BeamSpeedRowsVerification
             var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = combination };
             var projectiles = CreateProjectileFixture();
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
+            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
             AssertTrue(projectiles.Slots[0].IsActive && projectiles.Slots.Skip(1).All(slot => !slot.IsActive),
                 "speed-row fixture allocates projectile");
             var shot = projectiles.Slots[0];
@@ -86,7 +86,7 @@ internal static class BeamSpeedRowsVerification
             for (int frame = 0; frame < 6; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 0), bombs);
+                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 0), bombs);
                 if (frame == 0)
                 {
                     // Anchor the trajectory at the spawn origin: the fire-frame position less

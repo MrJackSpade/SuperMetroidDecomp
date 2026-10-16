@@ -268,7 +268,7 @@ internal sealed class RoomLoader
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
         // appearance handler before restoring ordinary input.
         _player.IntroducedSamus.Presentation.LoadSuitPalette(_cgram);
-        _player.IntroducedSamus.PoseMetadata.ApplyZebesStartPoseSetup(_addressSpace);
+        _player.IntroducedSamus.PoseMetadata.ApplyZebesStartPoseSetup();
         _player.IntroducedSamus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.IntroducedSamus.Presentation.PrimeGraphics();
@@ -299,6 +299,7 @@ internal sealed class RoomLoader
         Ensure.NotNull(slot);
         _player.Samus = new SamusState
         {
+            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
             Pose = SamusPoseId.FacingRightNormalPose,
             AnimationFrame = 0,
         };
@@ -331,7 +332,7 @@ internal sealed class RoomLoader
         // state the escape left behind; only the inventory below it survives. The player is
         // the same one, so a tester grant already applied to her is not repeated.
         // $91:E12F clears Pose; the port's constructor defaults to the right-facing pose.
-        var samus = new SamusState { Pose = 0, AnimationFrame = 0 };
+        var samus = new SamusState { Mode7QueueResidue = _enemies.Room.Mode7QueueResidue, Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
         if (ReferenceEquals(_tester.testerInventoryRecipient, carried))
@@ -381,7 +382,7 @@ internal sealed class RoomLoader
             GunshipLoadScenario.EscapingCeres);
         samus.Presentation.LoadSuitPalette(_cgram);
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(_addressSpace);
+        samus.Presentation.InitializeAnimation();
         samus.LiquidPhysics.RoomIdentity = room.Identity;
         samus.Presentation.PrimeGraphics();
         _player.PreviousMovementTypeForXray = samus.PoseMetadata.ReadMovementType();
@@ -732,7 +733,7 @@ internal sealed class RoomLoader
         if (_enemies.Elevator.ElevatorFlags != 0)
         {
             if ((short)_enemies.Elevator.ElevatorDirection >= 0)
-                _player.Samus.PoseMetadata.SetupForElevator(_addressSpace);
+                _player.Samus.PoseMetadata.SetupForElevator();
             else
                 _player.Samus.InputLocked = true;
         }
@@ -1222,6 +1223,7 @@ internal sealed class RoomLoader
 
         _player.Samus = new SamusState
         {
+            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
@@ -1241,7 +1243,7 @@ internal sealed class RoomLoader
         new NewGamePalettes(_cgram).ClearCeresElevatorConcealer();
 
         _player.Samus.PoseMetadata.RefreshCollisionRadii();
-        _player.Samus.Presentation.InitializeAnimation(_addressSpace);
+        _player.Samus.Presentation.InitializeAnimation();
         _player.Samus.LiquidPhysics.RoomIdentity = _room.ActiveRoom.Identity;
         _player.Samus.Presentation.PrimeGraphics();
         _player.PreviousMovementTypeForXray = _player.Samus.PoseMetadata.ReadMovementType();

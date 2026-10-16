@@ -51,7 +51,7 @@ internal static class GrappleGatesVerification
                 if (frame == 2)
                 {
                     SeedStationaryGrappleCollisionProbe(samus);
-                    var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
+                    var result = SamusGrappleMovement.StepFiring(level, samus, SnesButton.X, plms);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
                 StepDownwardGatePlm(plms, level, streamer);

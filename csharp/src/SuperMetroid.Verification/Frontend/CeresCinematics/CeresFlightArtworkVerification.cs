@@ -145,8 +145,7 @@ internal static class CeresFlightArtworkVerification
                 "restored Ceres fixture reaches the rear-view map handoff");
             // The desktop/Android restore path rebinds the parent cinematic, not
             // this nested flight directly. Exercise that real handoff here.
-            var parent = CreateRetailIntroFixture(guard,
-                characterArtwork: IntroCinematicArtworkFiles.Load(
+            var parent = CreateRetailIntroFixture(characterArtwork: IntroCinematicArtworkFiles.Load(
                     installation.IntroCinematicDirectory, null));
             parent.ceresFlight = restored;
             parent.BindCharacterArtwork(installation.LoadIntroCinematicArt());

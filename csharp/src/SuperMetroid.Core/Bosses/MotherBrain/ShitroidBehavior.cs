@@ -510,7 +510,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             SetShitroidProgram(slot, ShitroidProgram.FinishDraining);
             state.PaletteDelay = 10;
             samus.SpecialSuperPaletteFlags = 0;
-            samus.Drained.LetFall(_room.LoadedBus, samus);
+            samus.Drained.LetFall(samus);
             state.CryEnabled = 0;
             LastShitroidMusicRequest = new ShitroidMusicRequest(
                 MusicCommand.SelectTrack(7),

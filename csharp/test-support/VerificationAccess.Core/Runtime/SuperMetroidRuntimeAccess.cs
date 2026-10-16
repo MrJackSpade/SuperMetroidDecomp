@@ -156,7 +156,7 @@ internal static class SuperMetroidRuntimeAccess
 
             SamusPresentation.LoadPowerSuitPalette(self.Cgram, self.Artwork.MapPresentation?.SamusSuitColors);
             self.Player.Samus.PoseMetadata.RefreshCollisionRadii();
-            self.Player.Samus.Presentation.InitializeAnimation(self._addressSpace);
+            self.Player.Samus.Presentation.InitializeAnimation();
             if (self.Room.LandingSiteEntry is not null)
             {
                 // FootstepGraphics dispatches on the literal area and room-index bytes. Keep

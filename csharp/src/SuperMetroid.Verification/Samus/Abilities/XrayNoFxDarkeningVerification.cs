@@ -39,8 +39,8 @@ internal static class XrayNoFxDarkeningVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
         samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

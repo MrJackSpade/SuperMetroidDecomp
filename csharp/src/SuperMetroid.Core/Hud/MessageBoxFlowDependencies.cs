@@ -51,7 +51,4 @@ internal sealed record MessageBoxFlowDependencies
 
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
-
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

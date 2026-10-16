@@ -46,7 +46,7 @@ internal static class DraygonScrollingSpeedCapVerification
         enemies.BindFixtureBus(bus);
         enemies.ScrollCap._samusPreviousPositionCheckpoint = checkpoint;
         var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
-        samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
+        samus.DraygonGrabbed.Begin(samus, draygonFacingRight: true);
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
         state.Body.Position = state.Body.Position.WithWhole(body);
         state.FacingRight = true;

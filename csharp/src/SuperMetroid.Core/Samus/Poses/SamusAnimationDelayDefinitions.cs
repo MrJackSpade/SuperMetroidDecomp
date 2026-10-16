@@ -678,16 +678,16 @@ internal static class SamusAnimationDelayDefinitions
     }
 
     /// <summary>Read an immutable delay/command byte, retaining low-bank mutable aliases.</summary>
-    internal static byte ReadAnimationByte(ISnesAddressSpace bus, ushort listPointer, ushort byteIndex)
+    internal static byte ReadAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort listPointer, ushort byteIndex)
     {
-        Ensure.NotNull(bus);
         int address = 0x910000 | unchecked((ushort)(listPointer + byteIndex));
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)
             return SamusAnimationDelayPrograms.ByteAt(SnesAddressMath.OffsetInBank(address));
         // Invalid pose bytes $FD-$FF select $0302 through the native table overread, which
         // lands in the Mode 7 transfer queue's residue.
         if (address < 0x918000)
-            return SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueue.ReadResidueByte(bus, (ushort)address);
+            return (mode7Residue ?? throw new InvalidOperationException(
+                "An invalid pose's delay overread reads the Mode 7 queue residue; bind the session's to this Samus.")).ReadNative((ushort)address);
         throw new InvalidDataException(
             $"Samus animation delay byte ${address:X6} is outside the compiled pose streams.");
     }

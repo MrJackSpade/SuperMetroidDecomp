@@ -35,15 +35,15 @@ internal static class ReserveModeVerification
         AssertEqual(0, native[1][4], "native ordinary X-Ray cleanup deletes HDMA channel");
         AssertEqual(0, native[1][5], "native ordinary X-Ray cleanup resets phase");
 
-        SamusState ordinary = CreateXrayReserveFixture(bus, reserveEnergy: 0);
-        AdvanceXrayToFinish(bus, ordinary);
-        ordinary.Xray.StepBeam(bus, ordinary, controllerInput: 0);
+        SamusState ordinary = CreateXrayReserveFixture(reserveEnergy: 0);
+        AdvanceXrayToFinish(ordinary);
+        ordinary.Xray.StepBeam(ordinary, controllerInput: 0);
         AssertTrue(!ordinary.Xray.IsActive && !ordinary.Xray.IsReserveMode,
             "ordinary frozen X-Ray phase five performs cartridge cleanup");
         AssertTrue(ordinary.Xray.ConsumeDeactivationSoundRequest(),
             "ordinary X-Ray cleanup publishes its sound request");
 
-        SamusState reserve = CreateXrayReserveFixture(bus, reserveEnergy: 5);
+        SamusState reserve = CreateXrayReserveFixture(reserveEnergy: 5);
         var recovery = new SamusReserveAutoRecoveryState();
         recovery.Begin(reserve);
         AssertTrue(!reserve.Xray.OwnsSamusControl && reserve.Xray.TimeIsFrozen,
@@ -53,8 +53,8 @@ internal static class ReserveModeVerification
         AssertTrue(reserve.Xray.IsReserveMode && !reserve.ScriptLocks.StationaryScriptControlLocked,
             "reserve exhaustion restores normal control under the live X-Ray object");
 
-        AdvanceXrayToFinish(bus, reserve);
-        reserve.Xray.StepBeam(bus, reserve, controllerInput: 0);
+        AdvanceXrayToFinish(reserve);
+        reserve.Xray.StepBeam(reserve, controllerInput: 0);
         AssertTrue(reserve.Xray.IsActive && reserve.Xray.IsReserveMode,
             "cleared shared freeze strands X-Ray in phase five");
         AssertEqual(XrayBeamPhase.Finish, reserve.Xray.BeamPhase,
@@ -69,7 +69,6 @@ internal static class ReserveModeVerification
         reserve.Health = 5;
         reserve.Missiles = reserve.SuperMissiles = reserve.PowerBombs = 10;
         AssertTrue(reserve.CrystalFlash.TryBegin(
-                bus,
                 reserve,
                 (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X)),
             "Crystal Flash admits under Reserve Mode");
@@ -83,19 +82,19 @@ internal static class ReserveModeVerification
         // The non-CF route stores a shine by crouching after Reserve Mode is established.
         // Use the real posture transition so palette ownership changes at the native
         // `$91:F7B0` seam rather than by manipulating the Shinespark state directly.
-        SamusState knockbackVariant = CreateXrayReserveFixture(bus, reserveEnergy: 5);
+        SamusState knockbackVariant = CreateXrayReserveFixture(reserveEnergy: 5);
         var secondRecovery = new SamusReserveAutoRecoveryState();
         secondRecovery.Begin(knockbackVariant);
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterNmi(knockbackVariant, 0);
         knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
         knockbackVariant.PoseMetadata.RefreshCollisionRadii();
-        knockbackVariant.Presentation.InitializeAnimation(bus);
+        knockbackVariant.Presentation.InitializeAnimation();
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         AssertTrue(knockbackVariant.PoseTransitions.TryApplyPostureTransition(
-                bus,
+
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,
                 nmiFrameCounter: 0),
@@ -115,7 +114,6 @@ internal static class ReserveModeVerification
 
     /// <summary>Starts X-Ray with either ordinary health or exhausted health and available auto reserves.</summary>
     private static SamusState CreateXrayReserveFixture(
-        ISnesAddressSpace bus,
         ushort reserveEnergy)
     {
         var samus = new SamusState
@@ -130,19 +128,19 @@ internal static class ReserveModeVerification
             EquippedItems = (ushort)SamusEquipmentFlags.XrayScope,
         };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "X-Ray fixture activation");
         return samus;
     }
 
     /// <summary>Advances the live X-Ray object through setup and beam phases to its cleanup entry.</summary>
-    private static void AdvanceXrayToFinish(ISnesAddressSpace bus, SamusState samus)
+    private static void AdvanceXrayToFinish(SamusState samus)
     {
         while (samus.Xray.SetupStage != XraySetupStage.Complete)
-            samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+            samus.Xray.StepBeam(samus, controllerInput: 0);
         while (samus.Xray.BeamPhase != XrayBeamPhase.Finish)
-            samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+            samus.Xray.StepBeam(samus, controllerInput: 0);
     }
 
     /// <summary>Dispatches the Reserve Mode comparison using the recorded native trace.</summary>

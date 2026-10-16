@@ -316,9 +316,10 @@ internal sealed class MenuGamePhases(FrontendSession session)
     private IntroCinematicState CreateIntroCinematic(bool japaneseText)
     {
         var cinematic = new IntroCinematicState(
-            session.bus, session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
+session.audio, session.Artwork.MapPresentation?.IntroFont, session.Artwork.IntroCinematicArt,
             session.Artwork.BeamArtwork, session.Artwork.SamusBodyArt, japaneseText)
         {
+            Mode7QueueResidue = session.mode7QueueResidue,
             ProjectileCompositions = session.Artwork.ProjectileCompositions,
             ProjectileFrameBindings = session.Artwork.ProjectileFrameBindings,
             TrailArtwork = session.Artwork.TrailArtwork,

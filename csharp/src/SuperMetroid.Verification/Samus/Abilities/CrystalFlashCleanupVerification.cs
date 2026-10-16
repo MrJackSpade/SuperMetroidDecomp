@@ -64,7 +64,7 @@ internal static class CrystalFlashCleanupVerification
         samus.Position = samus.Position.WithWholeX(512);
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Position = samus.Position.WithWholeY((ushort)(511 - samus.Kinematics.Radius.Y));
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);
         ushort startingY = samus.Position.Y.Whole;
         runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);

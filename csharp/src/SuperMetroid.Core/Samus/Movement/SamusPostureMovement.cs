@@ -20,7 +20,7 @@ public static class SamusPostureMovement
     /// `$27/$28/$71-$74/$85/$86` crouch family.
     /// </summary>
     public static GroundedMovementResult StepCrouching(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
@@ -35,7 +35,7 @@ public static class SamusPostureMovement
         }
 
         GroundedMovementResult result = MoveWithZeroBaseSpeed(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -54,7 +54,7 @@ public static class SamusPostureMovement
     /// `$0F` at <c>$90:A61C</c>.
     /// </summary>
     public static GroundedMovementResult StepCrouchStandTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
@@ -70,12 +70,12 @@ public static class SamusPostureMovement
         // All four corresponding entries in $90:A659 are RTS. Unlike movement type five,
         // the wrapper does not clear stored base momentum after moving. That distinction is
         // retained even though ordinary stand/crouch input reaches this code at zero speed.
-        return MoveWithZeroBaseSpeed(bus, level, samus, nmiFrameCounter, plms);
+        return MoveWithZeroBaseSpeed(level, samus, nmiFrameCounter, plms);
     }
 
     /// <summary>Runs horizontal collision with zero base displacement, then the coupled downward grounding probe.</summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
@@ -92,7 +92,7 @@ public static class SamusPostureMovement
         // that momentum. The old exception at this seam prevented that native route.
         bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
@@ -101,7 +101,7 @@ public static class SamusPostureMovement
         // this matters for a Speed-Booster slide through `$35/$36`.
         int verticalDisplacement = SamusExtraDisplacement
             .CalculateNoSpeedVerticalDisplacement(samus.Kinematics, speed);
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = verticalDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
         return new GroundedMovementResult(horizontal, vertical);
     }
 

@@ -23,7 +23,7 @@ public static class SamusBlockCollision
     /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
     public static BlockMoveResult ProbeWallHorizontal(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusKinematicsState state,
         int signedDistance,
@@ -37,7 +37,7 @@ public static class SamusBlockCollision
         // but bank-$94 collision side effects are not observational: touching a scroll
         // trigger still wakes its bank-$84 owner. Pass that shared owner through rather
         // than treating an extension-resolved trigger as an orphan during wall-jump checks.
-        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, probe, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        BlockMoveResult result = MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, probe, new HorizontalBlockMove { Displacement = signedDistance, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         // Submerging sand writes these real motion words even through wall observation.
         state.YSpeed = probe.YSpeed;
         state.YSubspeed = probe.YSubspeed;
@@ -70,7 +70,7 @@ public static class SamusBlockCollision
     /// <param name="move">One horizontal block move: the displacement and which collision side effects it publishes (#633).</param>
     public static BlockMoveResult MoveHorizontal(SamusTerrain terrain, SamusKinematicsState state, HorizontalBlockMove move)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
@@ -385,7 +385,7 @@ public static class SamusBlockCollision
     /// </summary>
     public static BlockMoveResult MoveVertical(SamusTerrain terrain, SamusKinematicsState state, VerticalBlockMove move)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(state);
 
@@ -734,24 +734,23 @@ public static class SamusBlockCollision
     /// Unlike <c>$94:9763</c> it has no zero-distance exit, so a zero probe still tests the
     /// blocks under the current bottom boundary. It checks no solid enemies.
     /// </summary>
-    /// <param name="bus">Cartridge address space read by slope and block reactions.</param>
     /// <param name="level">The room's collision blocks.</param>
     /// <param name="state">A collision probe copy; its position receives the accepted distance.</param>
     /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the NMI frame counter's parity.</param>
     /// <param name="plms">The room's PLM owner for special and bombable blocks.</param>
     public static BlockMoveResult ProbeChangedPoseVertical(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusKinematicsState state,
         int displacement,
         bool scanLeftToRight,
         RoomPlmSystem? plms)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(state);
-        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
+        VerticalTerrainScan scan = ScanVerticalTerrain(new SamusTerrain { Level = level, Plms = plms }, state, new VerticalTerrainProbe { Displacement = displacement, ScanLeftToRight = scanLeftToRight, CanBreakBombBlocks = false, PublishDoorSideEffects = true, BlockReactionDirection = SamusCollisionDirection.NonDirectionalProbe });
         state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(scan.AcceptedDisplacement));
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }

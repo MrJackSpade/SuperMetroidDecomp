@@ -47,8 +47,8 @@ internal static class WrapShotRoomsVerification
             for (int frame = 0; frame < 40; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                runtime.BombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                runtime.Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
+                runtime.BombProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                runtime.Projectiles.StepFrame(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), runtime.BombProjectiles);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
                 runtime.Plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(cameraX, cameraY), Bg1XOffset = 0 });

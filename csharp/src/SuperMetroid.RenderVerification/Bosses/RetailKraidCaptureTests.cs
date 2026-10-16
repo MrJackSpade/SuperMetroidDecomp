@@ -32,7 +32,7 @@ internal static class RetailKraidCaptureTests
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
         var phases = new HashSet<ushort>();

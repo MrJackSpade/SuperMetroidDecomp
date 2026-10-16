@@ -133,8 +133,8 @@ internal static class CinematicSnapshotTestsVerification
         var capturedBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var legacyAudio = new CartridgeAudioState();
         var capturedAudio = new CartridgeAudioState();
-        var legacy = CreateRetailIntroFixture(legacyBus, legacyAudio);
-        var captured = CreateRetailIntroFixture(capturedBus, capturedAudio);
+        var legacy = CreateRetailIntroFixture(legacyAudio);
+        var captured = CreateRetailIntroFixture(capturedAudio);
         var phases = new HashSet<IntroCinematicPhase>();
         int samples = 0;
         for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)

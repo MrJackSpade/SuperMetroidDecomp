@@ -123,7 +123,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // made the new damage/type word immediate while art stayed stale until the
         // next room load happened to invoke the same routine.
         session.GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);
-        resumedSamus.ReconcilePauseBallEquipment(session.bus);
+        resumedSamus.ReconcilePauseBallEquipment();
         // The native teardown also reconciles equipment-dependent momentum.
         // Keep the speed pair until the next gameplay frame, as the cartridge does.
         resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(

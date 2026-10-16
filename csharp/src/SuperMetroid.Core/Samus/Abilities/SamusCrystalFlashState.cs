@@ -94,7 +94,6 @@ public sealed class SamusCrystalFlashState
     /// Applies every test and initialization write in <c>CrystalFlash</c> at
     /// <c>$90:D5A2</c>.
     /// </summary>
-    /// <param name="bus">Pose, movement-type, collision-radius, and animation definition source used when activation succeeds.</param>
     /// <param name="samus">Live actor whose admission state is checked and whose pose, handler ownership, shared timers, and hit state are updated on success.</param>
     /// <param name="controllerInput">Raw held-button word; ordinary admission requires exact equality to Down, L, R, and the Shot binding.</param>
     /// <param name="shotBinding">Raw controller mask for Shot, defaulting to X; non-controller bits are rejected.</param>
@@ -106,13 +105,11 @@ public sealed class SamusCrystalFlashState
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A controller word contains non-controller bits or the Crystal Flash pose no longer has native movement type $1B.</exception>
     public bool TryBegin(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput,
         SnesButton shotBinding = SnesButton.X,
         bool skipInputCheck = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // `$90:D5AD-$D5B9` uses CMP, not a bit test. This deliberately rejects any extra
@@ -144,7 +141,7 @@ public sealed class SamusCrystalFlashState
         samus.PoseMetadata.RefreshCollisionRadii();
         if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Successful HDMA-owned activation publishes history directly, before
         // installing its movement handler. Rejected activation must not shift it.
         samus.CommitPoseHistory();

@@ -8,7 +8,7 @@ using SuperMetroid.Verification.Harness;
 internal static class DrainedPoseHistoryVerification
 {
     /// <summary>Exercises both crouch facings and confirms Hyper Beam enablement preserves pose history.</summary>
-    internal static void VerifyDrainedPoseHistory(TestAddressSpace bus)
+    internal static void VerifyDrainedPoseHistory()
     {
         foreach (SamusPoseId source in new[] { SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
@@ -21,12 +21,12 @@ internal static class DrainedPoseHistoryVerification
             history.LastDifferentDirectionAndMovement = 0x0308;
             (string Name, Action Apply)[] commands =
             [
-                ("fall", () => samus.Drained.LetFall(bus, samus)),
+                ("fall", () => samus.Drained.LetFall(samus)),
                 ("stand", () => samus.Drained.PutStanding(samus)),
                 ("release standing", () => samus.Drained.Release(samus)),
                 ("crouch", () => samus.Drained.PutCrouchingOrFalling(samus)),
                 ("release crouching", () => samus.Drained.Release(samus)),
-                ("rainbow lock", () => samus.Drained.SetupForRainbowBeamAbleToStand(bus, samus)),
+                ("rainbow lock", () => samus.Drained.SetupForRainbowBeamAbleToStand(samus)),
             ];
             foreach (var command in commands)
             {

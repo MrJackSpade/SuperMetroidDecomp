@@ -105,8 +105,8 @@ internal static class RightFacingGateGlitchVerification
             for (int frame = 0; frame < 30; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
+                bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
                 if (gate.LoopTimer != 0)
                 {
@@ -193,7 +193,7 @@ internal static class RightFacingGateGlitchVerification
         samus.SelectedHudItem = 2;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.SlotTable.Slots.First(slot =>

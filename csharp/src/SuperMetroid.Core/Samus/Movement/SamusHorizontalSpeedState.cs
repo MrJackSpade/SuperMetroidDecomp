@@ -260,7 +260,7 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
-    /// <param name="bus">Address space used by animation-delay lookup, including native-compatible adjacent-data reads for invalid stage selections.</param>
+    /// <param name="mode7Residue">The session's Mode 7 transfer queue residue, which stage five's delay list aliases.</param>
     /// <param name="movementType">Current movement category; only running can consume this animation command.</param>
     /// <param name="controllerInput">Current held SNES button word; the native dash button must be held.</param>
     /// <param name="animationFrameBuffer">Native frame-delay adjustment added to the selected stage's first animation delay.</param>
@@ -273,7 +273,7 @@ public sealed class SamusHorizontalSpeedState
     /// standalone callers can omit it when no cartridge audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
-        ISnesAddressSpace bus,
+        SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
         SamusMovementType movementType,
         SnesButton controllerInput,
         ushort animationFrameBuffer,
@@ -281,7 +281,6 @@ public sealed class SamusHorizontalSpeedState
         out ushort animationFrameTimer,
         Func<ushort>? queueEchoSound = null)
     {
-        Ensure.NotNull(bus);
         animationFrameTimer = 0;
         const SnesButton dashButton = SnesButton.B;
         SnesButton heldButtons = controllerInput;
@@ -324,7 +323,7 @@ public sealed class SamusHorizontalSpeedState
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, 0)));
+            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, delayList, 0)));
         // Animation runs after movement. Native stage advancement changes cadence
         // and sound, not contact damage; the next movement epilogue publishes that.
         // Publishing here enables boost damage one frame before the cartridge.
@@ -332,12 +331,11 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>Reads one byte from the delay list selected by the counter's stage byte.</summary>
-    public byte ReadSpeedBoosterAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
+    public byte ReadSpeedBoosterAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort byteIndex)
     {
-        Ensure.NotNull(bus);
         byte stage = unchecked((byte)(SnesEightEight.WholeOf(SpeedBoostCounter)));
         ushort delayList = SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(stage);
-        return SamusRunningCadenceDefinitions.ReadAnimationByte(bus, delayList, byteIndex);
+        return SamusRunningCadenceDefinitions.ReadAnimationByte(mode7Residue, delayList, byteIndex);
     }
 
     /// <summary>

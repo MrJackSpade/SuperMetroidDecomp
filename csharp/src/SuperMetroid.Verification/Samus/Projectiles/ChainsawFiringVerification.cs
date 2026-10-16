@@ -49,7 +49,7 @@ internal static class ChainsawFiringVerification
         samus.SelectedHudItem = 0;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
 
         // A missing shot also leaves an empty slot, so checking deletion alone would
         // incorrectly pass the existing silent >=12 rejection in HandleBeamInput.
@@ -76,7 +76,7 @@ internal static class ChainsawFiringVerification
             EquippedBeams = 0x000d,
             SelectedHudItem = 0,
         };
-        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Bus = bus, Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
+        AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
         // Wave collision scans do not kill their owner, but they still run every touched
         // block's shot reaction before the B0AC callback deletes the no-Power-Bomb shot.
@@ -102,7 +102,7 @@ internal static class ChainsawFiringVerification
         };
         var doorPlms = new RoomPlmSystem();
         var doorProjectiles = CreateProjectileFixture();
-        doorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
+        doorProjectiles.StepFrame(new SamusTerrain { Level = doorLevel, Plms = doorPlms }, doorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture());
         AssertEqual(1, doorPlms.SlotTable.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
         AssertEqual(RoomCollisionType.SolidBlock,
             doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
@@ -122,7 +122,7 @@ internal static class ChainsawFiringVerification
         ushort[] inheritedY = [0x0034, 0x9027, 0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057];
         for (int update = 0; update < nextLists.Length; update++)
         {
-            activeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = update == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), activeShared);
+            activeProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = update == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), activeShared);
             SamusProjectileSlot slot = activeProjectiles.Slots[0];
             if (update == 0)
                 AssertTrue(slot.IsActive,
@@ -145,7 +145,7 @@ internal static class ChainsawFiringVerification
         var combatShared = CreateBombFixture();
         combatShared.PowerBombExplosion.Arm();
         var combatProjectiles = CreateProjectileFixture();
-        combatProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combatShared);
+        combatProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combatShared);
         var combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.SlotTable.Slots[0];
         target.Bind((EnemyDefinitionId)0x9000, target.Definition);
@@ -262,12 +262,12 @@ internal static class ChainsawFiringVerification
         var chargedProjectiles = CreateProjectileFixture();
         for (int frame = 0; frame < 60; frame++)
         {
-            chargedShared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, 0, 0);
-            chargedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargedShared);
+            chargedShared.StepFrame(new SamusTerrain { Level = level }, chargedSamus, 0, 0);
+            chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargedShared);
         }
-        chargedShared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, 0, 0);
+        chargedShared.StepFrame(new SamusTerrain { Level = level }, chargedSamus, 0, 0);
         NotSupportedException chargedFault = AssertThrows<NotSupportedException>(
-            () => chargedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargedShared),
+            () => chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargedShared),
             "charged Chainsaw reaches mutable low-WRAM execution");
         AssertTrue(chargedFault.Message.Contains("$90:0A0A", StringComparison.Ordinal) &&
             chargedFault.Message.Contains("$7E:0A0A", StringComparison.Ordinal),

@@ -36,8 +36,8 @@ internal static class GateBeamCollisionVerification
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         SnesButton input = SnesButton.X;
-        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-        shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
+        bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+        shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 224), bombs);
         var shot = shots.Slots[0];
         AssertEqual((ushort)0x8700, shot.Type, "Native beam impacts gate during producer collision");
         AssertEqual((ushort)113, shot.Position.X.Whole, "Native impact X, before any continuing flight");

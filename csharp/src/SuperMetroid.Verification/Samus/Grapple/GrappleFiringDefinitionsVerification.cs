@@ -27,7 +27,7 @@ internal static class GrappleFiringDefinitionsVerification
         Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(GrappleFiringDefinitionsRomByte(rom, address), GrappleFiringDefinitionsRomByte(rom, address + 1))));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
         var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
@@ -121,7 +121,7 @@ internal static class GrappleFiringDefinitionsVerification
                 AssertEqual(0x55aa, grapple.FlareOffset.X, "Presentation override is actually consumed");
             for (int frame = 1; frame <= 10; frame++)
             {
-                SamusGrappleMovement.StepFiring(bus, empty, samus, SnesButton.X);
+                SamusGrappleMovement.StepFiring(empty, samus, SnesButton.X);
                 int dx = Word(0x9bc0db + direction * 2) * 256 * frame;
                 int dy = Word(0x9bc0ef + direction * 2) * 256 * frame;
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
@@ -180,7 +180,7 @@ internal static class GrappleFiringDefinitionsVerification
             grapple.Anchor = grapple.Anchor.WithY(unchecked((ushort)(coordinate + 8)));
             grapple.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            connect(bus, samus, grapple, new(coordinate, coordinate), true, false);
+            connect(samus, grapple, new(coordinate, coordinate), true, false);
             if (grapple.Phase != GrapplePhase.ConnectedLocked) continue;
             locked++;
             AssertEqual(unchecked((ushort)(grapple.RopeStart.X - Word(0x9bc122 + direction * 2))), samus.Position.X.Whole, "Locked connection body X");

@@ -258,10 +258,10 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>DemoSetFunc_5/6 call the native windup initializer without a stored shine.</summary>
-    internal void BeginDemoLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
+    internal void BeginDemoLaunch(SamusState samus, SamusPoseId targetPose)
     {
         InitializeWindup(samus);
-        BeginDirectionalLaunch(bus, samus, targetPose);
+        BeginDirectionalLaunch(samus, targetPose);
     }
 
     /// <summary>Cancels beam charge and installs the native 30-frame spark windup, palette and boost state.</summary>
@@ -323,10 +323,9 @@ public sealed class SamusShinesparkState
     /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c> at
     /// <c>$91:F80F</c> for poses `$C9-$CE`.
     /// </summary>
-    public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose,
+    public void BeginDirectionalLaunch(SamusState samus, SamusPoseId targetPose,
         bool deferPoseChange = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         // `$91:FACA` installs the launch handler over whatever handler is current. A windup
         // whose handler normal movement replaced (a knockback ending in `$C7/$C8`) keeps its
@@ -349,18 +348,18 @@ public sealed class SamusShinesparkState
         samus.InputSnapshot.ShinesparkPoseInputLocked = true;
         samus.InputSnapshot.AutoJumpInputPending = false;
         if (!deferPoseChange)
-            ApplyDirectionalLaunchPose(bus, samus, targetPose);
+            ApplyDirectionalLaunchPose(samus, targetPose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
         LaunchSoundRequested = true;
         LaunchSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
 
     /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
-    internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, SamusPoseId pose)
+    internal static void ApplyDirectionalLaunchPose(SamusState samus, SamusPoseId pose)
     {
         samus.Pose = pose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
@@ -369,7 +368,7 @@ public sealed class SamusShinesparkState
     /// <param name="frame">What one shinespark step reads from the frame: clocks, projectiles, invincibility, timeout policy and the previous checkpoint (#633).</param>
     public ShinesparkMovementResult Step(SamusTerrain terrain, SamusState samus, ShinesparkFrame frame)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
@@ -386,7 +385,7 @@ public sealed class SamusShinesparkState
                 SamusPoseId verticalPose = samus.PoseMetadata.IsFacingLeft()
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
-                BeginDirectionalLaunch(terrain.Bus, samus, verticalPose, frame.DeferTimeoutPoseChange);
+                BeginDirectionalLaunch(samus, verticalPose, frame.DeferTimeoutPoseChange);
                 if (frame.DeferTimeoutPoseChange)
                     pendingLaunchPose = verticalPose;
             }
@@ -424,13 +423,13 @@ false);
         // Samus. Only a camera reads that word; fixtures without one pass no checkpoint.
         if (Phase is ShinesparkPhase.Horizontal or ShinesparkPhase.Diagonal)
         {
-            horizontal = MoveX(terrain.Bus, terrain.Level, samus, terrain.Plms);
+            horizontal = MoveX(terrain.Level, samus, terrain.Plms);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousX(samus, checkpoint);
         }
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
         {
-            vertical = MoveY(terrain.Bus, terrain.Level, samus, frame.NmiFrameCounter, terrain.Plms);
+            vertical = MoveY(terrain.Level, samus, frame.NmiFrameCounter, terrain.Plms);
             if (frame.PreviousCheckpoint is { } checkpoint)
                 CapPreviousY(samus, checkpoint);
         }
@@ -661,7 +660,7 @@ false,             CrashSequenceFinished: true);
     }
 
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
-    public static void ApplyCrashFinishPose(ISnesAddressSpace bus, SamusState samus)
+    public static void ApplyCrashFinishPose(SamusState samus)
     {
         // Transitional command two restores the normal input handler as well as beta. That
         // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
@@ -676,7 +675,7 @@ false,             CrashSequenceFinished: true);
         // aligns the standing body's bottom with the old crash body. Alpha alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -793,7 +792,7 @@ false,             CrashSequenceFinished: true);
 
     /// <summary>Accelerates horizontal spark speed up to fifteen pixels per frame and probes breakable room blocks.</summary>
     private BlockMoveResult MoveX(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         RoomPlmSystem? plms)
@@ -813,12 +812,12 @@ false,             CrashSequenceFinished: true);
         }
 
         var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(), samus, baseSpeed: 0);
-        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
+        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
     /// <summary>Accumulates upward spark acceleration while capping only the temporary collision displacement and probing solid enemies first.</summary>
     private BlockMoveResult MoveY(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
@@ -871,7 +870,7 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     /// <summary>

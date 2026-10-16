@@ -26,9 +26,9 @@ internal static class GrappleSoundsVerification
         AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 5), 1),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");
         samus.LiquidPhysics.BeginFrameSoundRequests();
-        SamusGrappleMovement.StepFiring(bus, air, samus, SnesButton.X);
+        SamusGrappleMovement.StepFiring(air, samus, SnesButton.X);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "extending does not restart grapple sound");
-        SamusGrappleMovement.StepFiring(bus, anchors, samus, SnesButton.X);
+        SamusGrappleMovement.StepFiring(anchors, samus, SnesButton.X);
         AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 6), 6),
             samus.LiquidPhysics.SoundRequests.Single(), "accepted connection replaces firing sound with attached sound");
         foreach (GrapplePhase phase in new[] { GrapplePhase.CancelPending, GrapplePhase.ReleaseFromSwing, GrapplePhase.Dropped })
@@ -38,9 +38,9 @@ internal static class GrappleSoundsVerification
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Grapple.Phase = phase;
             if (phase == GrapplePhase.CancelPending)
-                SamusGrappleMovement.CompleteFiringCancellation(bus, air, samus);
+                SamusGrappleMovement.CompleteFiringCancellation(air, samus);
             else
-                SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
+                SamusGrappleMovement.Step(new SamusTerrain { Level = air }, samus, 0, 0);
             AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 7), 15),
                 samus.LiquidPhysics.SoundRequests.Single(), $"{phase} emits native grapple stop command once");
         }

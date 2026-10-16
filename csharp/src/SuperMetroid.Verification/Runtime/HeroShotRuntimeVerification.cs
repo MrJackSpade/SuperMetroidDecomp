@@ -50,7 +50,7 @@ internal static class HeroShotRuntimeVerification
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(512, 490));
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
             for (int frame = -64; frame < 0; frame++)
             {
@@ -131,7 +131,7 @@ internal static class HeroShotRuntimeVerification
         var level = CreateRoom(new(16, 32), blocks, new byte[blocks.Length]);
         var samus = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 477)) };
         samus.PoseMetadata.RefreshCollisionRadii();
-        AssertTrue(samus.PoseTransitions.TryApplyAerialLanding(bus, level, false, 0, 0),
+        AssertTrue(samus.PoseTransitions.TryApplyAerialLanding(level, false, 0, 0),
             "Constructed landing reaches actual larger-pose collision correction");
         AssertEqual((ushort)475, samus.Position.Y.Whole, "Landing correction preserves the old bottom boundary");
         AssertEqual(19, samus.Kinematics.Radius.Y, "landing commit retains falling radius");
@@ -145,7 +145,7 @@ internal static class HeroShotRuntimeVerification
             "Checkpoint event is consumed once before normal scrolling replaces it");
         var unobstructed = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 400)) };
         unobstructed.PoseMetadata.RefreshCollisionRadii();
-        AssertTrue(unobstructed.PoseTransitions.TryApplyAerialLanding(bus, level, false, 0, 0),
+        AssertTrue(unobstructed.PoseTransitions.TryApplyAerialLanding(level, false, 0, 0),
             "Unobstructed pose expansion takes the no-correction branch");
         AssertEqual(previous, unobstructed.ApplyPreviousPositionWrites(previous),
             "No-collision pose expansion leaves the existing camera checkpoint untouched");

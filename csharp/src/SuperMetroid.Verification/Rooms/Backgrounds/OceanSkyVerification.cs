@@ -82,7 +82,7 @@ internal static class OceanSkyVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 128), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 128)));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);
         ushort upper = unchecked((ushort)((runtime.Room.LoadedCamera.PixelPosition.Y & 0x7F8) - 16));
         int sourcePointer = 0x88ADA6 + (SnesLittleEndian.HighByte(upper)) * 2;

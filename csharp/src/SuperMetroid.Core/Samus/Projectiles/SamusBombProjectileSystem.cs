@@ -85,12 +85,10 @@ public sealed class SamusBombProjectileSystem
     /// Scripted carries suppress alpha but do not stop the outer HDMA object pass.
     /// </summary>
     public void AdvancePowerBombHdma(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput,
         SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         // RunOneFrameOfGame invokes HdmaObjectHandler before GameState_8 reaches Samus's
         // frame handler. A power bomb spawned later by alpha consequently receives
@@ -107,7 +105,6 @@ public sealed class SamusBombProjectileSystem
                 samus.Position.X.Whole == PowerBombExplosion.Position.X &&
                 samus.Position.Y.Whole == PowerBombExplosion.Position.Y &&
                 samus.CrystalFlash.TryBegin(
-                    bus,
                     samus,
                     controllerInput,
                     SnesButton.X,
@@ -129,12 +126,12 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public BombProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput, bool deferSamusOverlap = false, bool advancePowerBombHdma = true)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
 
         if (advancePowerBombHdma)
-            AdvancePowerBombHdma(terrain.Bus, samus, controllerInput);
+            AdvancePowerBombHdma(samus, controllerInput);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.

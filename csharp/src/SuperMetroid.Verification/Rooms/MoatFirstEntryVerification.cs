@@ -56,7 +56,7 @@ internal static class MoatFirstEntryVerification
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             if (pauseBeforeEntry)
             {

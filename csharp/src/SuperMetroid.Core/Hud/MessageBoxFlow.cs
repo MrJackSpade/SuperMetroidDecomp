@@ -44,8 +44,6 @@ internal sealed class MessageBoxFlow
     private readonly SnesVram _vram;
     /// <summary>Queues HUD graphics when message completion runs outside a suspended frame.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Provides the active address space for station, collectible, and HUD completion.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
@@ -63,7 +61,6 @@ internal sealed class MessageBoxFlow
         _system = dependencies.System;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
     internal SamusSuitPickupKind? _pendingSuitPickup;
@@ -135,7 +132,7 @@ internal sealed class MessageBoxFlow
                 "A save-station message returned without active room level data.");
             if (_room.BackgroundStreamer is null || _room.Camera is null)
                 throw new InvalidOperationException("A save-station message returned without an active room.");
-            SaveStationConfirmationResult confirmation = _plms.Stations.ResolveSaveStationConfirmation(_addressSpace, saveStation, accepted.Value, level, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) });
+            SaveStationConfirmationResult confirmation = _plms.Stations.ResolveSaveStationConfirmation(saveStation, accepted.Value, level, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) });
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(_vram);
             if (confirmation.Saving)
@@ -183,7 +180,6 @@ internal sealed class MessageBoxFlow
             }
             _enemies.Elevator.ResetStatus();
             _suitPickup.Begin(
-                _addressSpace,
                 _player.Samus,
                 _room.Camera.PixelPosition,
                 pendingSuit,

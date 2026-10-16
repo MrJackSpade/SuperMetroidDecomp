@@ -78,20 +78,20 @@ public sealed class SamusDrainedState
     /// Ports Samus command five at <c>$90:F38E</c>: install the able-to-stand timer handler,
     /// then enter the shared rainbow-beam setup at <c>$90:F394</c>.
     /// </summary>
-    public void SetupForRainbowBeamAbleToStand(ISnesAddressSpace bus, SamusState samus)
+    public void SetupForRainbowBeamAbleToStand(SamusState samus)
     {
         GetUpHandler = DrainedGetUpHandler.AbleToStand;
-        SetupForRainbowBeam(bus, samus);
+        SetupForRainbowBeam(samus);
     }
 
     /// <summary>
     /// Ports Samus command <c>$18</c> at <c>$90:F3C0</c>: install the failed-stand timer
     /// handler, then enter the same locked left-knockback pose as command five.
     /// </summary>
-    public void SetupForRainbowBeamUnableToStand(ISnesAddressSpace bus, SamusState samus)
+    public void SetupForRainbowBeamUnableToStand(SamusState samus)
     {
         GetUpHandler = DrainedGetUpHandler.UnableToStand;
-        SetupForRainbowBeam(bus, samus);
+        SetupForRainbowBeam(samus);
     }
 
     /// <summary>
@@ -232,9 +232,8 @@ public sealed class SamusDrainedState
     /// <summary>
     /// Ports controller function zero, “let drained Samus fall,” at <c>$91:E4F8</c>.
     /// </summary>
-    public void LetFall(ISnesAddressSpace bus, SamusState samus)
+    public void LetFall(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // Native computes 21-oldRadius and subtracts it from center Y before changing the
@@ -257,7 +256,7 @@ public sealed class SamusDrainedState
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
         // but movement remains the normal RTS type-$1B handler until command `$F7` appears.
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 2);
+        samus.Presentation.InitializeAnimation(initialFrame: 2);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
@@ -295,18 +294,18 @@ public sealed class SamusDrainedState
     /// <c>$90:94CB</c>, using the shared native Y-speed calculation and block collision.
     /// </summary>
     public DrainedSamusMovementResult StepFalling(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (Phase != DrainedSamusPhase.Falling)
             throw new InvalidOperationException("The drained falling movement handler is not installed.");
 
-        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Bus = bus, Level = level }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement);
+        BlockMoveResult vertical = SamusAerialMovement.StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement);
 
         // Generic Y movement has already applied gravity when it reports the collision.
         // Capture the exact magnitude before `$90:94E5-$94E8` erases it for on-floor art.
@@ -396,16 +395,15 @@ public sealed class SamusDrainedState
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
     /// <summary>Starts the shared left-knockback rainbow setup and locks Samus input.</summary>
-    internal void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
+    internal void SetupForRainbowBeam(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // Both commands unconditionally choose left-facing knockback pose `$54`, even when
         // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
         samus.Pose = SamusPoseId.KnockbackLeftPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Shared rainbow setup calls the native previous-pose helper before lock.
         samus.CommitPoseHistory();
         // Shared `$90:F394` installs the locked current/new state handlers after changing art.

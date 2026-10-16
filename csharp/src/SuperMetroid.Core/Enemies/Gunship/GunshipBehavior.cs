@@ -431,7 +431,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 samus.Position = samus.Position.WithWholeX(top.Position.X.Whole);
                 samus.WritePreviousXPosition(samus.Position.X.Whole);
             }
-            samus.PoseMetadata.ApplyForwardFacingPoseSetup(_room.LoadedBus);
+            samus.PoseMetadata.ApplyForwardFacingPoseSetup();
             samus.InputLocked = true;
             samus.Presentation.PrimeGraphics();
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));

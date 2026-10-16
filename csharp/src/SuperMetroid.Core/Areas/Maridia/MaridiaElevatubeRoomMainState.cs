@@ -74,7 +74,7 @@ public sealed class MaridiaElevatubeRoomMainState
     /// vertical collision dispatcher, then apply the cartridge's bounded acceleration.
     /// </summary>
     public BlockMoveResult? Step(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState? samus,
         ushort nmiFrameCounter,
@@ -83,7 +83,7 @@ public sealed class MaridiaElevatubeRoomMainState
     {
         if (!IsActive)
             return null;
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(scratch);
         Ensure.NotNull(level);
         Ensure.NotNull(plms);
@@ -99,7 +99,7 @@ public sealed class MaridiaElevatubeRoomMainState
         Position = SnesFixedPosition.WholeOf(unchecked((int)trackedPosition));
         scratch.Var1 = unchecked((ushort)trackedPosition);
 
-        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, activeSamus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });
+        BlockMoveResult movement = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, activeSamus.Kinematics, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, IncludeSolidEnemies = false });
 
         // The assembly performs an unsigned range test after biasing by $0E20. This is
         // precisely the inclusive signed range -$0E20..+$0E20; a candidate outside it is

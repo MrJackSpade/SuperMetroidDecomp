@@ -39,8 +39,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     private readonly RoomLoader _roomLoader;
     /// <summary>Seeds demo progression bits without reading or writing a player save.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Provides pose setup, palette initialization, and animation data during demo setup.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Retains the runtime owners used to initialize and advance attract scenes.</summary>
     internal AttractDemoDriver(AttractDemoDriverDependencies dependencies)
@@ -56,7 +54,6 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _room = dependencies.Room;
         _roomLoader = dependencies.RoomLoader;
         _system = dependencies.System;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>Reflects whether the current session is substituting an attract demo for gameplay.</summary>
     public bool IsAttractDemo => _attractSession.IsAttractDemo;
@@ -103,6 +100,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
 
         _player.Samus = new SamusState
         {
+            Mode7QueueResidue = _enemies.Room.Mode7QueueResidue,
             Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,
@@ -129,7 +127,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         ApplyAttractRoomSetup(scene.RoomSetupPointer);
         _player.Samus.Presentation.LoadSuitPalette(_cgram);
         _player.Samus.PoseMetadata.RefreshCollisionRadii();
-        _player.Samus.Presentation.InitializeAnimation(_addressSpace);
+        _player.Samus.Presentation.InitializeAnimation();
         _player.Samus.Presentation.PrimeGraphics();
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.GroundedSamusMovementEnabled = true;
@@ -143,7 +141,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         switch (pointer)
         {
             case AttractDemoSamusSetup.LandingSite:
-                samus.PoseMetadata.ApplyForwardFacingPoseSetup(_addressSpace);
+                samus.PoseMetadata.ApplyForwardFacingPoseSetup();
                 break;
             case AttractDemoSamusSetup.StandingRight:
                 samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -161,10 +159,10 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 samus.Pose = SamusPoseId.FallingLeftPose;
                 break;
             case AttractDemoSamusSetup.DiagonalShinespark:
-                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkDiagonalRightPose);
+                samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkDiagonalRightPose);
                 break;
             case AttractDemoSamusSetup.HorizontalShinespark:
-                samus.Shinespark.BeginDemoLaunch(_addressSpace, samus, SamusPoseId.ShinesparkHorizontalLeftPose);
+                samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {pointer}.");

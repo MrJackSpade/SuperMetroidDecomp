@@ -75,7 +75,7 @@ internal static class GenericSpriteArtworkVerification
         expected.FinalizeFrame();
         EqualOam(expected, title.oam, "title copyright owner parity");
 
-        var intro = new IntroCinematicState(memory, introFont: maps.IntroFont,
+        var intro = new IntroCinematicState(introFont: maps.IntroFont,
             characterArtwork: introArtwork, beamArtwork: projectiles.BeamTiles,
             samusBodyArtwork: body)
         {

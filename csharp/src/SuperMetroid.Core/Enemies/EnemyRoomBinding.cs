@@ -52,6 +52,9 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
     internal EnemyStagingSurfaces Staging { get; } = new();
 
+    /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
+    internal SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; set; }
+
     /// <summary>The bound address space; enemy work requires a loaded room population.</summary>
     internal ISnesAddressSpace LoadedBus =>
         Bus ?? throw new InvalidOperationException("A room enemy population must be loaded first.");

@@ -33,7 +33,7 @@ internal static class RetailSaveCaptureTests
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         samus.Position = samus.Position.WithWhole(new((ushort)(station.BlockIndex % level.Size.X * 16 + 13), (ushort)(station.BlockIndex / level.Size.X * 16 - samus.Kinematics.Radius.Y)));
         samus.InputLocked = false; samus.Presentation.PrimeGraphics();
         if (!runtime.Plms.Stations.TryNotifyStationCollision(station.BlockIndex, new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor),

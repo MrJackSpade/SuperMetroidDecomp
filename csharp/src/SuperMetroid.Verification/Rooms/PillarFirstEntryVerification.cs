@@ -50,7 +50,7 @@ internal static class PillarFirstEntryVerification
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         var transition = new DoorTransitionState();

@@ -39,7 +39,7 @@ internal static class IntroNarrationPresentationVerification
             nativeFont.AsSpan(0, IntroFontAtlasFormat.ByteCount)),
             "installed opening-font PNG compiles to exact native planar bytes");
         var installedIntro = CreateRetailIntroFixture(
-            NewIntroFontGuard(nativeBus), introFont: font);
+            introFont: font);
         AssertTrue(installedIntro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
             (IntroVramLayout.FontOne.Offset * 2),
             IntroFontAtlasFormat.ByteCount).SequenceEqual(font.Transfer.Span),

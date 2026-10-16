@@ -47,6 +47,9 @@ public sealed class IntroCinematicState
             sheets.CinematicObjectCharacters.Transfer.Span, ProjectileObjectPageDefinitions.IntroCinematicObjectsFirstCharacter);
         projectilePages = new ProjectileObjectPages(page, beams, trails);
     }
+    /// <summary>The session's Mode 7 transfer queue residue, bound into the flashback Samus.</summary>
+    public SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; init; }
+
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
@@ -148,8 +151,6 @@ public sealed class IntroCinematicState
     /// </summary>
     internal const ushort GameplayFlashbackBg1VerticalScroll = 8;
 
-    /// <summary>Supplies native cinematic, actor, and projectile data.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Owns queued cinematic music and sound effects when installed.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Retains intro graphics and tilemaps across narration and flashback scenes.</summary>
@@ -236,7 +237,6 @@ public sealed class IntroCinematicState
     private int timer = 8;
 
     /// <summary>Creates the opening cinematic and performs its initial native graphics and music setup.</summary>
-    /// <param name="bus">The cartridge address space used by cinematic actors and projectiles.</param>
     /// <param name="audio">Optional cartridge audio state that owns queued music and sound effects.</param>
     /// <param name="introFont">The installed opening-cinematic font atlas.</param>
     /// <param name="characterArtwork">The installed opening-cinematic BG and OBJ artwork.</param>
@@ -244,7 +244,7 @@ public sealed class IntroCinematicState
     /// <param name="samusBodyArtwork">Optional installed Samus body artwork used by gameplay flashbacks.</param>
     /// <param name="japaneseText">The options menu's Japanese text setting (native <c>AltText</c>).</param>
     public IntroCinematicState(
-        ISnesAddressSpace bus,
+
         CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null,
         IntroCinematicArtworkCatalog? characterArtwork = null,
@@ -252,8 +252,7 @@ public sealed class IntroCinematicState
         SamusBodyArtworkCatalog? samusBodyArtwork = null,
         bool japaneseText = false)
     {
-        Ensure.NotNull(bus);
-        this.bus = bus;
+
         subtitles = new IntroJapaneseSubtitles(japaneseText);
         this.audio = audio;
         this.introFont = introFont ?? throw new InvalidOperationException(
@@ -674,6 +673,7 @@ public sealed class IntroCinematicState
         // collision data and must never be expanded as a visual block map.
         flashbackSamus = new SamusState
         {
+            Mode7QueueResidue = Mode7QueueResidue,
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
             SelectedHudItem = 1,
@@ -685,7 +685,7 @@ public sealed class IntroCinematicState
         flashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
         flashbackSamus.Presentation.TileTransfers.BindArtwork(samusBodyArtwork);
         flashbackSamus.PoseMetadata.RefreshCollisionRadii();
-        flashbackSamus.Presentation.InitializeAnimation(bus);
+        flashbackSamus.Presentation.InitializeAnimation();
         flashbackSamus.CommitPoseHistory();
         flashbackSamus.Presentation.PrimeGraphics();
         // The native NMI consumes the freshly selected top/bottom definitions before the
@@ -793,7 +793,7 @@ public sealed class IntroCinematicState
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
         // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
-        babyDiscovery = new IntroBabyDiscoveryState(bus, audio, flashbackSamus
+        babyDiscovery = new IntroBabyDiscoveryState(audio, flashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."));
         babyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(vram);
 
@@ -1009,8 +1009,8 @@ public sealed class IntroCinematicState
         // HandleHUDSpecificBehaviorAndProjectiles calls the shared cooldown owner before
         // its ordinary-projectile half. Standing pose two cannot place bombs, but running
         // the real owner is still required for missile admission timing.
-        flashbackBombProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
-        flashbackProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
+        flashbackBombProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, FlashbackDemoInput.Held, FlashbackDemoInput.NewlyPressed);
+        flashbackProjectiles.StepFrame(new SamusTerrain { Level = FlashbackLevel }, FlashbackSamus, new ProjectileButtonInput { ControllerInput = FlashbackDemoInput.Held, ControllerNewInput = FlashbackDemoInput.NewlyPressed, ControllerPreviousNewInput = FlashbackDemoInput.PublishedPreviousNewlyPressed }, layer1: Position16<RoomPixels>.Zero, sharedProjectiles: flashbackBombProjectiles);
         if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio?.QueueSound(
@@ -1048,30 +1048,30 @@ public sealed class IntroCinematicState
         {
             // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter);
+            SamusKnockbackMovement.Step(level, samus, nmiFrameCounter);
         }
         else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-                bus, level, samus, nmiFrameCounter);
+level, samus, nmiFrameCounter);
         }
         else if (flashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
         {
             // The demo's later run/jump records use the same alpha/beta order as the
             // discovery scene. This coordinator already animates and commits its pose.
-            IntroSamusDemoMovement.StepGroundedLeft(bus, level, samus, demoInput,
+            IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
                 flashbackDemoInput.NewlyPressed, nmiFrameCounter);
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
-            fallingMovement = SamusAerialMovement.StepSpinJump(bus, level, samus,
+            fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
                 demoInput, nmiFrameCounter, flashbackDemoInput?.NewlyPressed ?? 0);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
-            fallingMovement = SamusAerialMovement.StepNormalJump(bus, level, samus,
+            fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
                 demoInput, nmiFrameCounter);
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
@@ -1080,7 +1080,7 @@ public sealed class IntroCinematicState
             // normal movement. The following frames therefore execute the ordinary type-6
             // fall until the cartridge collision layer reports the original laboratory floor.
             fallingMovement = SamusAerialMovement.StepFalling(
-                bus,
+
                 level,
                 samus,
                 demoInput,
@@ -1090,19 +1090,19 @@ public sealed class IntroCinematicState
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = nmiFrameCounter });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = nmiFrameCounter });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
-        bool animationTransitionApplied = samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus);
+        bool animationTransitionApplied = samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition();
         animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(samus);
         transitionAccepted |= animationTransitionApplied;
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), nmiFrameCounter);
+            samus.PoseTransitions.ApplyWalkedOffFloorTransition(level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), nmiFrameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1111,7 +1111,7 @@ public sealed class IntroCinematicState
         // next animation list all come from the same bank-$91 implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
         {
-            samus.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
+            samus.PoseTransitions.ApplyAerialLanding(wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 
@@ -1122,7 +1122,7 @@ public sealed class IntroCinematicState
             !samus.KnockbackTimer.IsZero &&
             samus.KnockbackDirection == 0)
         {
-            SamusKnockbackMovement.Start(bus, samus, demoInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer.RawValue });
+            SamusKnockbackMovement.Start(samus, demoInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer.RawValue });
             transitionAccepted = true;
         }
 
@@ -1157,7 +1157,7 @@ public sealed class IntroCinematicState
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
         FlashbackSamus.PoseMetadata.RefreshCollisionRadii();
         // $91:874B: a Samus already in pose two keeps her running animation.
-        FlashbackSamus.Presentation.SetAnimationFrameIfPoseChanged(bus);
+        FlashbackSamus.Presentation.SetAnimationFrameIfPoseChanged();
         FlashbackSamus.CommitPoseHistory();
         FlashbackDemoInput.Disable();
     }

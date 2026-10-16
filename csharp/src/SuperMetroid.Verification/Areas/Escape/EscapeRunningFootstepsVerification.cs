@@ -26,9 +26,9 @@ internal static class EscapeRunningFootstepsVerification
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
-            if (able) samus.Drained.SetupForRainbowBeamAbleToStand(bus, samus);
-            else samus.Drained.SetupForRainbowBeamUnableToStand(bus, samus);
+            samus.Presentation.InitializeAnimation();
+            if (able) samus.Drained.SetupForRainbowBeamAbleToStand(samus);
+            else samus.Drained.SetupForRainbowBeamUnableToStand(samus);
             samus.Drained.PutCrouchingOrFalling(samus);
             if (!able)
             {
@@ -39,7 +39,7 @@ internal static class EscapeRunningFootstepsVerification
             // Begin at the identified native timer-handoff phase, not a boss playthrough.
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             sequence.Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer;
-            var request = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
+            var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
             var runtime = new SuperMetroidRuntime(bus, HostGameplayOverrides.None, initialPaletteArt: BombTorizoHandFixturePalette());
@@ -56,14 +56,14 @@ internal static class EscapeRunningFootstepsVerification
             samus.Pose = pose;
             samus.InputLocked = false;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus, initialFrame: 8);
+            samus.Presentation.InitializeAnimation(initialFrame: 8);
             samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
             samus.LiquidPhysics.FxType = RoomFxType.Acid;
             samus.LiquidPhysics.LavaAcidYPosition = 0;
             samus.Drained.StepGetUpHandler(samus, (SnesButton.Up | SnesButton.A));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = (SnesButton.Up | SnesButton.A) });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = (SnesButton.Up | SnesButton.A) });
             AssertEqual(DrainedGetUpHandler.Inactive, samus.Drained.GetUpHandler,
                 "escape timer replaces the drained hack handler");
             AssertEqual((ushort)9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");

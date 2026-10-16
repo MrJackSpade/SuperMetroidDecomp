@@ -40,6 +40,17 @@ public readonly struct SaveMirrorMemory(ISnesMemoryBus bus)
     }
 
     /// <summary>
+    /// Writes one raw byte at CPU <paramref name="address"/>, which must lie in the progression mirror; SpaceTime's
+    /// malformed palette copy overwrites progression this way (#1318).
+    /// </summary>
+    internal void WriteProgressionByte(int address, byte value)
+    {
+        if (!Overlaps(address, address))
+            throw new ArgumentOutOfRangeException(nameof(address), address, $"${address:X6} lies outside the progression mirror.");
+        bus.WriteByte(address, value);
+    }
+
+    /// <summary>
     /// Whether a write to the CPU bytes <paramref name="first"/> through <paramref name="last"/>
     /// reaches any byte from the event bitset through the saved dispatcher word.
     /// </summary>

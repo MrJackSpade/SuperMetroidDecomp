@@ -23,7 +23,6 @@ internal static class SamusStateAccess
         /// existing focused tests readable while all input-table exits share one native handler.
         /// </summary>
         internal bool TryApplySpinToNormalJumpFireTransition(
-            ISnesAddressSpace bus,
             RoomLevelData level,
             SamusPoseId targetPose,
             ushort nmiFrameCounter,
@@ -36,7 +35,7 @@ internal static class SamusStateAccess
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
             }
             return self.PoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(
-                bus,
+
                 level,
                 targetPose,
                 nmiFrameCounter,

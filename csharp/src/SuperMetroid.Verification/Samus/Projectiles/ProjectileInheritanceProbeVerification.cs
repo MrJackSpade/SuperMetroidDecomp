@@ -132,24 +132,24 @@ internal static class ProjectileInheritanceProbeVerification
         samus.Kinematics.Radius = new(5, 5);
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         samus.ProjectileInheritance.ClearMovement();
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 0x00031234 });
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 0x00031234 });
         AssertEqual((short)0x0300, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
             "Live movement publishes right integer displacement");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = -0x00018000 });
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = -0x00018000 });
         AssertEqual(unchecked((short)0xfe00), samus.ProjectileInheritance.ReadVelocity(7, 0).X.SignedRawValue,
             "Negative movement preserves two's-complement integer half");
         AssertEqual((short)0x0380, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
             "Opposite direction fraction leaks into rightward velocity, not net displacement");
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 0x00020000 });
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 0x00020000 });
         AssertEqual((short)0x0280, samus.ProjectileInheritance.ReadVelocity(2, 0).X.SignedRawValue,
             "Second move overwrites one directional record instead of accumulating");
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         byte[] beforeProbe = records.Capture();
-        SamusBlockCollision.ProbeWallHorizontal(bus, level, samus.Kinematics, 1 << 16);
+        SamusBlockCollision.ProbeWallHorizontal(level, samus.Kinematics, 1 << 16);
         AssertTrue(beforeProbe.SequenceEqual(records.Capture()),
             "Wall observation cannot replace live movement inheritance");
         level.SetForegroundEntry(4 * 16 + 5, RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw);
-        var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 20 << 16 });
+        var clipped = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = 20 << 16 });
         AssertTrue(clipped.Collided, "Inheritance fixture actually reaches its solid wall");
         AssertEqual(SnesFixedPosition.WholeOf(clipped.AcceptedDisplacement),
             records.DistanceInteger(SamusCollisionDirection.Right),
@@ -189,7 +189,7 @@ internal static class ProjectileInheritanceProbeVerification
         samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame(SnesButton.Right);
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);

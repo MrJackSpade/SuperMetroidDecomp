@@ -153,9 +153,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         };
         var bombs = CreateSyntheticBombs();
         var projectiles = CreateSyntheticProjectiles();
-        bombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, 0, 0);
+        bombs.StepFrame(new SamusTerrain { Level = air }, samus, 0, 0);
         SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
-        SamusProjectileFrameResult result = projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), bombs);
+        SamusProjectileFrameResult result = projectiles.StepFrame(new SamusTerrain { Level = air }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), bombs);
 
         AssertEqual((int?)0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
@@ -201,9 +201,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         };
         var combinedBombs = CreateSyntheticBombs();
         var combinedProjectiles = CreateSyntheticProjectiles();
-        combinedBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedSamus, 0, 0);
+        combinedBombs.StepFrame(new SamusTerrain { Level = air }, combinedSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombined = combinedProjectiles.ObserveSlots();
-        SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combinedBombs);
+        SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combinedBombs);
 
         SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
         AssertEqual((int?)0, beforeCombined.FiredSlot(combinedProjectiles),
@@ -241,8 +241,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var spazerFlickerBombs = CreateSyntheticBombs();
     var spazerFlickerProjectiles = CreateSyntheticProjectiles();
-    spazerFlickerBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, spazerFlickerSamus, 0, 0);
-    spazerFlickerProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), spazerFlickerBombs);
+    spazerFlickerBombs.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, 0, 0);
+    spazerFlickerProjectiles.StepFrame(new SamusTerrain { Level = air }, spazerFlickerSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), spazerFlickerBombs);
     OamBuffer spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, InstalledFixtures.ProjectileArtwork(fixtureSprites)));
     AssertTrue(spazerFlickerOam.LastFinalizedSpriteCount != 0,
         "even-slot Spazer draws while NMI bit one is clear");
@@ -274,12 +274,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         };
         var cadenceBombs = CreateSyntheticBombs();
         var cadenceProjectiles = CreateSyntheticProjectiles();
-        cadenceBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, 0, 0);
-        cadenceProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), cadenceBombs);
+        cadenceBombs.StepFrame(new SamusTerrain { Level = air }, cadenceSamus, 0, 0);
+        cadenceProjectiles.StepFrame(new SamusTerrain { Level = air }, cadenceSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), cadenceBombs);
         for (int frame = 0; frame < 3; frame++)
         {
-            cadenceBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, 0, 0);
-            cadenceProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), cadenceBombs);
+            cadenceBombs.StepFrame(new SamusTerrain { Level = air }, cadenceSamus, 0, 0);
+            cadenceProjectiles.StepFrame(new SamusTerrain { Level = air }, cadenceSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), cadenceBombs);
         }
         AssertEqual(expectedReload, cadenceProjectiles.Slots[0].TrailTimer.RawValue,
             $"wave combination {beamType} reloads native trail cadence");
@@ -300,9 +300,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool flareBecameVisible = false;
     for (int frame = 0; frame < 60; frame++)
     {
-        chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+        chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
-        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargeBombs);
+        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargeBombs);
         if (frame == 0)
             AssertEqual((int?)0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
         else if (frame == 15)
@@ -352,12 +352,12 @@ internal static void VerifySamusPowerBeamProjectiles()
         frame < SamusProjectileRomData.Beams.ChargeSoundStartCounter;
         frame++)
     {
-        rejectedReleaseBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rejectedReleaseSamus, 0, 0);
-        rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), rejectedReleaseBombs);
+        rejectedReleaseBombs.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, 0, 0);
+        rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), rejectedReleaseBombs);
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
     SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
-    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), rejectedReleaseBombs);
+    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), rejectedReleaseBombs);
     AssertEqual((int?)null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
@@ -390,11 +390,11 @@ internal static void VerifySamusPowerBeamProjectiles()
     var rotatedMode7Projectiles = CreateSyntheticProjectiles();
     for (int frame = 0; frame < 15; frame++)
     {
-        baselineMode7Bombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, baselineMode7Samus, 0, 0);
-        rotatedMode7Bombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rotatedMode7Samus, 0, 0);
+        baselineMode7Bombs.StepFrame(new SamusTerrain { Level = air }, baselineMode7Samus, 0, 0);
+        rotatedMode7Bombs.StepFrame(new SamusTerrain { Level = air }, rotatedMode7Samus, 0, 0);
         SnesButton newInput = frame == 0 ? SnesButton.X : (ushort)0;
-        baselineMode7Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, baselineMode7Samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newInput }, new(0, 0), baselineMode7Bombs);
-        rotatedMode7Projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, rotatedMode7Samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newInput }, new(0, 0), rotatedMode7Bombs);
+        baselineMode7Projectiles.StepFrame(new SamusTerrain { Level = air }, baselineMode7Samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newInput }, new(0, 0), baselineMode7Bombs);
+        rotatedMode7Projectiles.StepFrame(new SamusTerrain { Level = air }, rotatedMode7Samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newInput }, new(0, 0), rotatedMode7Bombs);
     }
     var baselineMode7FlareOam = new OamBuffer();
     var rotatedMode7FlareOam = new OamBuffer();
@@ -479,9 +479,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         "active grapple resets charge-palette byte offset");
     chargeSamus.Grapple.Phase = GrapplePhase.Inactive;
 
-    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
+    chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
     SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
-    SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[(chargedReleaseSlot ?? throw new InvalidOperationException("Verification requires chargedReleaseSlot."))];
@@ -557,18 +557,17 @@ internal static void VerifySamusPowerBeamProjectiles()
     var bridgeProjectiles = CreateSyntheticProjectiles();
     for (int frame = 0; frame < 60; frame++)
     {
-        bridgeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, 0, 0);
-        bridgeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), bridgeBombs);
+        bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
+        bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), bridgeBombs);
     }
     bridgeSamus.PoseTransitions.ApplyOrdinaryJumpTransition(
-        bus,
         SamusPoseId.NeutralJumpTransitionRightPose,
         controllerNewInput: SnesButton.X);
     AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
         "normal-jump initializer publishes tagged shot direction");
-    bridgeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, 0, 0);
+    bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
     SamusProjectileSlotObservation beforeBridgeRelease = bridgeProjectiles.ObserveSlots();
-    bridgeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = 0 }, layer1: new(0, 0), sharedProjectiles: bridgeBombs);
+    bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = 0 }, layer1: new(0, 0), sharedProjectiles: bridgeBombs);
     int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
     AssertTrue(bridgeReleaseSlot is not null,
         "pose-direction bridge forces charged release while Shoot remains held");
@@ -596,14 +595,14 @@ internal static void VerifySamusPowerBeamProjectiles()
         var combinedChargeProjectiles = CreateSyntheticProjectiles();
         for (int frame = 0; frame < 60; frame++)
         {
-            combinedChargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, 0, 0);
-            combinedChargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), combinedChargeBombs);
+            combinedChargeBombs.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, 0, 0);
+            combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), combinedChargeBombs);
         }
 
-        combinedChargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, 0, 0);
+        combinedChargeBombs.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeCombinedChargedRelease =
             combinedChargeProjectiles.ObserveSlots();
-        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), combinedChargeBombs);
+        SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), combinedChargeBombs);
         int? combinedChargedReleaseSlot =
             beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
         AssertTrue(combinedChargedReleaseSlot is not null,
@@ -643,9 +642,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     hyperSamus.Presentation.SuitColors = fixtureSuitColors;
     var hyperBombs = CreateSyntheticBombs();
     var hyperProjectiles = CreateSyntheticProjectiles();
-    hyperBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, hyperSamus, 0, 0);
+    hyperBombs.StepFrame(new SamusTerrain { Level = air }, hyperSamus, 0, 0);
     SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
-    SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, hyperSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), hyperBombs);
+    SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(new SamusTerrain { Level = air }, hyperSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), hyperBombs);
     SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
     AssertEqual((int?)0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
@@ -734,14 +733,14 @@ internal static void VerifySamusPowerBeamProjectiles()
     // The release frame has already changed trail timer 4 to 3. Three more alpha passes
     // reach zero and allocate native trail byte index `$22` before the third pass moves the
     // projectile. Handling the draw immediately must consume only the populated left stream.
-    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
-    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
     ushort trailSourceX = chargedSlot.Position.X.Whole;
     ushort trailSourceY = chargedSlot.Position.Y.Whole;
-    chargeBombs.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
+    chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
+    chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), chargeBombs);
 
     AssertEqual(1, chargeProjectiles.ActiveTrailCount,
         "charged power allocates one of eighteen trail slots every fourth alpha pass");
@@ -859,9 +858,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool waveReportedExplosion = false;
     for (int frame = 0; frame < 12; frame++)
     {
-        waveWallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, waveWallSamus, 0, 0);
+        waveWallBombs.StepFrame(new SamusTerrain { Level = wall }, waveWallSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveFrame = waveWallProjectiles.ObserveSlots();
-        waveWallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), waveWallBombs);
+        waveWallProjectiles.StepFrame(new SamusTerrain { Level = wall }, waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), waveWallBombs);
         waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
     }
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
@@ -882,8 +881,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var wallBombs = CreateSyntheticBombs();
     var wallProjectiles = CreateSyntheticProjectiles();
-    wallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, 0, 0);
-    wallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), wallBombs);
+    wallBombs.StepFrame(new SamusTerrain { Level = wall }, wallSamus, 0, 0);
+    wallProjectiles.StepFrame(new SamusTerrain { Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), wallBombs);
     AssertEqual(79, wallProjectiles.Slots[0].Position.X.Whole,
         "right beam starts eleven pixels beyond Samus then moves four whole pixels");
     AssertEqual(0x1000, wallProjectiles.Slots[0].Position.X.Fraction,
@@ -892,9 +891,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool wallExploded = false;
     for (int frame = 0; frame < 16 && !wallExploded; frame++)
     {
-        wallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, 0, 0);
+        wallBombs.StepFrame(new SamusTerrain { Level = wall }, wallSamus, 0, 0);
         SamusProjectileSlotObservation beforeWallFrame = wallProjectiles.ObserveSlots();
-        wallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
+        wallProjectiles.StepFrame(new SamusTerrain { Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
         wallExploded = beforeWallFrame.CollisionStartedExplosion(wallProjectiles);
     }
     AssertTrue(wallExploded, "power beam reaches type-eight wall");
@@ -908,8 +907,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867b); frame++)
     {
-        wallBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, 0, 0);
-        wallProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
+        wallBombs.StepFrame(new SamusTerrain { Level = wall }, wallSamus, 0, 0);
+        wallProjectiles.StepFrame(new SamusTerrain { Level = wall }, wallSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), wallBombs);
     }
     AssertEqual(0, wallProjectiles.SlotTable.ProjectileCounter,
         "explosion delete decrements ordinary counter");
@@ -938,9 +937,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool solidShotExploded = false;
     for (int frame = 0; frame < 16 && !solidShotExploded; frame++)
     {
-        solidShotBombs.StepFrame(new SamusTerrain { Bus = bus, Level = solidShotWall }, solidShotSamus, 0, 0);
+        solidShotBombs.StepFrame(new SamusTerrain { Level = solidShotWall }, solidShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeSolidShotFrame = solidShotProjectiles.ObserveSlots();
-        solidShotProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = solidShotWall, Plms = solidShotPlms }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), solidShotBombs);
+        solidShotProjectiles.StepFrame(new SamusTerrain { Level = solidShotWall, Plms = solidShotPlms }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), solidShotBombs);
         solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
     }
     AssertTrue(solidShotExploded,
@@ -977,9 +976,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool waveShotReportedExplosion = false;
     for (int frame = 0; frame < 12; frame++)
     {
-        waveShotBombs.StepFrame(new SamusTerrain { Bus = bus, Level = waveShotWall }, waveShotSamus, 0, 0);
+        waveShotBombs.StepFrame(new SamusTerrain { Level = waveShotWall }, waveShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveShotFrame = waveShotProjectiles.ObserveSlots();
-        waveShotProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = waveShotWall, Plms = waveShotPlms }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), waveShotBombs);
+        waveShotProjectiles.StepFrame(new SamusTerrain { Level = waveShotWall, Plms = waveShotPlms }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), waveShotBombs);
         waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
     }
     AssertTrue(!waveShotReportedExplosion,
@@ -1010,9 +1009,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var missileBombs = CreateSyntheticBombs();
     var missileProjectiles = CreateSyntheticProjectiles();
-    missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
+    missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
     SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
-    SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), missileBombs);
+    SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), missileBombs);
     SamusProjectileSlot missile = missileProjectiles.Slots[0];
     AssertEqual((int?)0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
@@ -1057,8 +1056,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     // publishes its first four-frame `$2A48` record while the empty right stream terminates.
     for (int frame = 0; frame < 3; frame++)
     {
-        missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
-        missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
+        missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
+        missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
     }
     AssertEqual(1, missileProjectiles.ActiveTrailCount,
         "missile allocates one persistent trail every fourth alpha pass");
@@ -1080,9 +1079,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool missileExploded = false;
     for (int frame = 0; frame < 32 && !missileExploded; frame++)
     {
-        missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
+        missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
         SamusProjectileSlotObservation beforeMissileFrame = missileProjectiles.ObserveSlots();
-        missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
+        missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
         missileExploded = beforeMissileFrame.CollisionStartedExplosion(missileProjectiles);
     }
     AssertTrue(missileExploded,
@@ -1099,8 +1098,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867f); frame++)
     {
-        missileBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, 0, 0);
-        missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
+        missileBombs.StepFrame(new SamusTerrain { Level = wall }, missileSamus, 0, 0);
+        missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), missileBombs);
     }
     AssertEqual(0, missileProjectiles.SlotTable.ProjectileCounter,
         "missile explosion delete decrements ordinary counter");
@@ -1119,7 +1118,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         "Select wrap chooses the ordinary beam producer");
     missileBombs.Reset();
     SamusProjectileSlotObservation beforePostMissileBeam = missileProjectiles.ObserveSlots();
-    missileProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), missileBombs);
+    missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), missileBombs);
     int? postMissileBeamSlot = beforePostMissileBeam.FiredSlot(missileProjectiles);
     AssertTrue(postMissileBeamSlot.HasValue,
         "Shoot after missile deselection allocates a new beam");
@@ -1159,9 +1158,9 @@ internal static void VerifySamusPowerBeamProjectiles()
         };
         var pointBombs = CreateSyntheticBombs();
         var pointProjectiles = CreateSyntheticProjectiles();
-        pointBombs.StepFrame(new SamusTerrain { Bus = bus, Level = terrain }, pointSamus, 0, 0);
+        pointBombs.StepFrame(new SamusTerrain { Level = terrain }, pointSamus, 0, 0);
         SamusProjectileSlotObservation beforePointMissile = pointProjectiles.ObserveSlots();
-        pointProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = terrain }, pointSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), pointBombs);
+        pointProjectiles.StepFrame(new SamusTerrain { Level = terrain }, pointSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), pointBombs);
         return beforePointMissile.CollisionStartedExplosion(pointProjectiles);
     }
 
@@ -1425,9 +1424,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     var contactDoorBombs = CreateSyntheticBombs();
     var contactDoorProjectiles = CreateSyntheticProjectiles();
     var contactDoorPlms = new RoomPlmSystem();
-    contactDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = contactDoor }, contactDoorSamus, 0, 0);
+    contactDoorBombs.StepFrame(new SamusTerrain { Level = contactDoor }, contactDoorSamus, 0, 0);
     SamusProjectileSlotObservation beforeContactDoor = contactDoorProjectiles.ObserveSlots();
-    contactDoorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = contactDoor, Plms = contactDoorPlms }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), contactDoorBombs);
+    contactDoorProjectiles.StepFrame(new SamusTerrain { Level = contactDoor, Plms = contactDoorPlms }, contactDoorSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), contactDoorBombs);
     AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
         "beam born inside a blue cap collides before first-frame movement");
     AssertEqual(1, contactDoorPlms.SlotTable.ActiveCount,
@@ -1449,9 +1448,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool blueDoorExploded = false;
     for (int frame = 0; frame < 16 && !blueDoorExploded; frame++)
     {
-        blueDoorBombs.StepFrame(new SamusTerrain { Bus = bus, Level = blueDoor }, blueDoorSamus, 0, 0);
+        blueDoorBombs.StepFrame(new SamusTerrain { Level = blueDoor }, blueDoorSamus, 0, 0);
         SamusProjectileSlotObservation beforeBlueDoorFrame = blueDoorProjectiles.ObserveSlots();
-        blueDoorProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = blueDoor, Plms = blueDoorPlms }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), blueDoorBombs);
+        blueDoorProjectiles.StepFrame(new SamusTerrain { Level = blueDoor, Plms = blueDoorPlms }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), blueDoorBombs);
         blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
     }
     AssertTrue(blueDoorExploded,
@@ -1491,9 +1490,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var superBombs = CreateSyntheticBombs();
     var superProjectiles = CreateSyntheticProjectiles();
-    superBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, 0, 0);
+    superBombs.StepFrame(new SamusTerrain { Level = wall }, superSamus, 0, 0);
     SamusProjectileSlotObservation beforeSuper = superProjectiles.ObserveSlots();
-    SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), superBombs);
+    SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), superBombs);
     SamusProjectileSlot super = superProjectiles.Slots[0];
     SamusProjectileSlot superLink = superProjectiles.Slots[1];
     AssertEqual((int?)0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
@@ -1531,8 +1530,8 @@ internal static void VerifySamusPowerBeamProjectiles()
 
     for (int frame = 0; frame < 3; frame++)
     {
-        superBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, 0, 0);
-        superProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
+        superBombs.StepFrame(new SamusTerrain { Level = wall }, superSamus, 0, 0);
+        superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
     }
     AssertEqual(1, superProjectiles.ActiveTrailCount,
         "super's initial four-count allocates first exhaust trail");
@@ -1542,9 +1541,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool superExploded = false;
     for (int frame = 0; frame < 24 && !superExploded; frame++)
     {
-        superBombs.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, 0, 0);
+        superBombs.StepFrame(new SamusTerrain { Level = wall }, superSamus, 0, 0);
         SamusProjectileSlotObservation beforeSuperFrame = superProjectiles.ObserveSlots();
-        superProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
+        superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), superBombs);
         superExploded = beforeSuperFrame.CollisionStartedExplosion(superProjectiles);
     }
     AssertTrue(superExploded,
@@ -1575,7 +1574,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     };
     var pillarBombs = CreateSyntheticBombs();
     var pillarProjectiles = CreateSyntheticProjectiles();
-    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), pillarBombs);
+    pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), pillarBombs);
     var pillarOwner = pillarProjectiles.Slots[0];
     var pillarLink = pillarProjectiles.Slots[1];
     pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
@@ -1585,17 +1584,17 @@ internal static void VerifySamusPowerBeamProjectiles()
     pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
     pillarLink.Radius = pillarLink.Radius.WithX(8);
     // Native explosion timing remains live long enough for this three-frame sequence.
-    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
+    pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
     AssertEqual(0x139, pillarLink.Position.X.Whole,
         "native missile helper impact does not apply the beam leading-edge radius");
     AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.PackedType.Family,
         "supplemental pillar collision explodes the helper, not its owner");
-    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
+    pillarProjectiles.StepFrame(new SamusTerrain { Level = pillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
     AssertEqual(0x14b, pillarLink.Position.X.Whole,
         "original ROM repositions an exploded helper over air");
     pillarWords[853] = 0x8119;
     var secondPillarRoom = CreateRoom(new(64, 16), pillarWords, new byte[pillarWords.Length]);
-    pillarProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = secondPillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
+    pillarProjectiles.StepFrame(new SamusTerrain { Level = secondPillarRoom }, pillarSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0x100, 0), pillarBombs);
     AssertTrue(!pillarLink.IsActive,
         "native second collision deletes the explosion instead of restarting it");
     AssertEqual(1, pillarProjectiles.SlotTable.ProjectileCounter,
@@ -1627,10 +1626,10 @@ internal static void VerifySamusPowerBeamProjectiles()
     bool integratedSuperExploded = false;
     for (int frame = 0; frame < 32 && !integratedSuperExploded; frame++)
     {
-        integratedSuperBombs.StepFrame(new SamusTerrain { Bus = bus, Level = integratedSuperWall }, integratedSuperSamus, 0, 0);
+        integratedSuperBombs.StepFrame(new SamusTerrain { Level = integratedSuperWall }, integratedSuperSamus, 0, 0);
         SamusProjectileSlotObservation beforeIntegratedSuperFrame =
             integratedSuperProjectiles.ObserveSlots();
-        integratedSuperProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = integratedSuperWall, Plms = integratedSuperPlms }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), integratedSuperBombs);
+        integratedSuperProjectiles.StepFrame(new SamusTerrain { Level = integratedSuperWall, Plms = integratedSuperPlms }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), integratedSuperBombs);
         integratedSuperExploded =
             beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
@@ -1667,8 +1666,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     var skippedPlms = new RoomPlmSystem();
     for (int frame = 0; frame < 3; frame++)
     {
-        skippedBombs.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall }, skippedSamus, 0, 0);
-        skippedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), skippedBombs);
+        skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
+        skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), skippedBombs);
     }
     SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
     SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
@@ -1677,8 +1676,8 @@ internal static void VerifySamusPowerBeamProjectiles()
     skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
     skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
     skippedOwner.Velocity = skippedOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1400));
-    skippedBombs.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall }, skippedSamus, 0, 0);
-    skippedProjectiles.StepFrame(new SamusTerrain { Bus = bus, Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
+    skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
+    skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), skippedBombs);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.PackedType.Family,
         "the owner explodes on the column-seven wall");
     AssertTrue(skippedPlms.SlotTable.ActiveCount > 0,

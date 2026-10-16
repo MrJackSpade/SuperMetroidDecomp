@@ -39,7 +39,7 @@ internal static class ColorWindowSnapshotTestsVerification
             var pickup = new SamusSuitPickupState();
             AssertTrue(SamusSuitPickupRenderer.Capture(pickup.Flash) is null, "inactive suit emits no operation");
             var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
-            pickup.Begin(bus, samus, new(0, 0), kind);
+            pickup.Begin(samus, new(0, 0), kind);
             var phases = new HashSet<byte>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
             {
@@ -53,7 +53,7 @@ internal static class ColorWindowSnapshotTestsVerification
                     retained = SamusSuitPickupRenderer.Capture(pickup.Flash);
                     Compare(expected, (retained ?? throw new InvalidOperationException("Verification requires retained.")));
                 }
-                pickup.Step(bus, samus, new SnesCgram());
+                pickup.Step(samus, new SnesCgram());
                 if (retained is not null) Compare((expected ?? throw new InvalidOperationException("Verification requires expected.")), retained);
             }
             AssertTrue(!pickup.IsActive, "suit window fixture completes");

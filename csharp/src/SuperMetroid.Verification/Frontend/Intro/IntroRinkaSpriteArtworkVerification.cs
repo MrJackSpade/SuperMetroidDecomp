@@ -103,8 +103,8 @@ internal static class IntroRinkaSpriteArtworkVerification
                 $"intro Rinka palette edit preserves native part {part} X/Y");
 
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             state.SetupFirstIllustratedPage();

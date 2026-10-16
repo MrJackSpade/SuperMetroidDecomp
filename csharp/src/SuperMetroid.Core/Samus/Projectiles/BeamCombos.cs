@@ -218,7 +218,7 @@ internal sealed class BeamCombos
     /// True when the copy touched a translated persistent-progression or saved-entry byte.
     /// </returns>
     internal static bool RunSpacetimePaletteCopyTail(
-        ISnesAddressSpace bus,
+        SuperMetroid.Core.Saves.SaveMirrorMemory? progressionMirror,
         SamusProjectileSlot slot)
     {
         ushort inheritedY = slot.SpritemapPointer == 0
@@ -232,8 +232,8 @@ internal sealed class BeamCombos
 
         while (unchecked((short)(y - SpacetimeBeamCorruptionLayout.PaletteByteCount)) < 0)
         {
-            persistentMemoryCorrupted |= new SpacetimeBeamCorruptionMemory(
-                SnesMemoryBusRequirement.Require(bus, "SpaceTime source pointer requires WRAM.")).CopyPaletteWord(x, y);
+            persistentMemoryCorrupted |= new SpacetimeBeamCorruptionMemory(progressionMirror ?? throw new InvalidOperationException(
+                "SpaceTime's palette-copy overwrite writes the progression mirror; the frame must pass it.")).CopyPaletteWord(x, y);
             x = unchecked((ushort)(x + sizeof(ushort)));
             y = unchecked((ushort)(y + sizeof(ushort)));
         }

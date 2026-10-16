@@ -33,7 +33,7 @@ internal static class CeilingWrapRoomVerification
         samus.Position = samus.Position.WithWhole(new(1237, 139));
         samus.EquippedBeams = beams; samus.EquippedItems = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(1109, 0));
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
@@ -65,20 +65,20 @@ internal static class CeilingWrapRoomVerification
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         ushort blocker = level.GetCollisionBlock(new(76, 9)).LevelWord;
-        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
+        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(before.Collided, "Ordinary speedless contact blocks before ceiling overload");
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
         {
             SnesButton held = SnesButton.X;
             SnesButton pressed = frame == 0 ? held : SnesButton.None;
-            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, held, pressed);
-            shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
+            bombs.StepFrame(new SamusTerrain { Level = level }, samus, held, pressed);
+            shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = held, ControllerNewInput = pressed }, new(1109, 0), bombs);
             plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(1109, 0), Bg1XOffset = 0 });
             if (firstFull < 0 && plms.SlotTable.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");
-        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
+        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(!after.Collided, "Native full-pool collision remains carry clear without Speed Booster");
         AssertEqual((ushort)1236, samus.Position.X.Whole, "Samus enters first speed block without a clip or teleport");
         AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).LevelWord, "Exhaustion bypass does not break the block");

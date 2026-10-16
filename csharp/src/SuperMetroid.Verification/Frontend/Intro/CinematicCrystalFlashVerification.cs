@@ -33,7 +33,7 @@ internal static class CinematicCrystalFlashVerification
             ushort yBefore = samus.Position.Y.Whole;
 
             var rainbow = new MotherBrainRainbowBeamAttackSequence();
-            rainbow.StartActiveBeam(bus, samus);
+            rainbow.StartActiveBeam(samus);
             AssertEqual(DrainedSamusPhase.RainbowBeamLocked, samus.Drained.Phase,
                 $"Mother Brain command $18 installs drained lock after {movementCalls} Flash calls");
             AssertEqual(phaseBefore, samus.CrystalFlash.Phase,
@@ -57,11 +57,11 @@ internal static class CinematicCrystalFlashVerification
         motherSamus.MaxHealth = 9999;
         motherSamus.Health = 699;
         var motherRainbow = new MotherBrainRainbowBeamAttackSequence();
-        motherRainbow.StartActiveBeam(motherBus, motherSamus);
+        motherRainbow.StartActiveBeam(motherSamus);
         bool motherUnlocked = false;
         for (ushort frame = 0; frame < 700; frame++)
         {
-            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherBus, motherSamus, new RainbowBeamAttackFrame { EnemyFrameCounter = frame, MainEnemyExecutionCounter = frame });
+            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, new RainbowBeamAttackFrame { EnemyFrameCounter = frame, MainEnemyExecutionCounter = frame });
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
             bool unlockedSamus = !motherSamus.InputLocked &&
                 step.PhaseBefore != MotherBrainRainbowBeamAttackPhase.LetSamusFall &&
@@ -83,7 +83,7 @@ internal static class CinematicCrystalFlashVerification
         // stranded in its finish handler, which is the Super Metroid *CF suit state.
         (SuperMetroidAddressSpace superBus, SuperMetroidRuntime superRuntime,
             SamusState superSamus) = CreateCinematicFlashRuntime(movementCalls: 12);
-        superSamus.Drained.LetFall(superBus, superSamus);
+        superSamus.Drained.LetFall(superSamus);
         AssertEqual(DrainedSamusPhase.WaitingForFallingCommand, superSamus.Drained.Phase,
             "Super Metroid terminal drain installs crouching/falling controller state");
         superRuntime.StepFrame(0);
@@ -117,9 +117,8 @@ internal static class CinematicCrystalFlashVerification
         // and therefore frees the Super Metroid stun instead of yielding a suit.
         (SuperMetroidAddressSpace failedBus, SuperMetroidRuntime failedRuntime,
             SamusState failedSamus) = CreateCinematicFlashRuntime(0, admitFlash: false);
-        failedSamus.Drained.LetFall(failedBus, failedSamus);
+        failedSamus.Drained.LetFall(failedSamus);
         bool failedTimingAdmitted = failedSamus.CrystalFlash.TryBegin(
-            failedBus,
             failedSamus,
             (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X));
         AssertTrue(failedTimingAdmitted,
@@ -148,12 +147,12 @@ internal static class CinematicCrystalFlashVerification
         AssertEqual(DrainedSamusPhase.Inactive, superSamus.Drained.Phase,
             "Super Metroid release reaches an ordinary posture");
         SamusMovementType releasedMovement = superSamus.PoseMetadata.ReadMovementType();
-        bool xrayAdmitted = superSamus.Xray.TryBegin(superBus, superSamus, releasedMovement, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay });
+        bool xrayAdmitted = superSamus.Xray.TryBegin(superSamus, releasedMovement, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay });
         AssertTrue(xrayAdmitted, "X-Ray admits from the released immobile suit posture");
         AssertTrue(!superSamus.InputSnapshot.CrystalFlashPoseInputLocked,
             "X-Ray replaces the retained Crystal Flash input handler");
         for (int frame = 0; frame < 16 && superSamus.Xray.IsActive; frame++)
-            superSamus.Xray.StepBeam(superBus, superSamus, controllerInput: 0);
+            superSamus.Xray.StepBeam(superSamus, controllerInput: 0);
         AssertTrue(!superSamus.Xray.IsActive, "X-Ray recovery reaches ordinary teardown");
         AssertTrue(!superSamus.InputSnapshot.CrystalFlashPoseInputLocked,
             "X-Ray teardown does not restore the discarded Flash input lock");
@@ -271,10 +270,9 @@ internal static class CinematicCrystalFlashVerification
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
 
         bool admitted = samus.CrystalFlash.TryBegin(
-            bus,
             samus,
             admitFlash
                 ? (SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X)

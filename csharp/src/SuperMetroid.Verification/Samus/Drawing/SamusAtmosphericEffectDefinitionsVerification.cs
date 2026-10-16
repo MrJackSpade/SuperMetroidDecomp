@@ -57,8 +57,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         var guarded = NewSamusAtmosphericPolicyReadGuard(source);
 
         Suite(nameof(VerifyProductionWaterSplashSelection), () => VerifyProductionWaterSplashSelection());
-        Suite(nameof(VerifyProductionRunningContacts), () => VerifyProductionRunningContacts(guarded, testPose));
-        Suite(nameof(VerifyProductionCrateriaPolicies), () => VerifyProductionCrateriaPolicies(guarded, testPose));
+        Suite(nameof(VerifyProductionRunningContacts), () => VerifyProductionRunningContacts(testPose));
+        Suite(nameof(VerifyProductionCrateriaPolicies), () => VerifyProductionCrateriaPolicies(testPose));
 
         AssertThrows<InvalidDataException>(
             () => SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)0x1c),
@@ -99,7 +99,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
     /// <summary>Advances each running animation frame to its foot-contact tick and checks emitted atmospheric slots.</summary>
     private static void VerifyProductionRunningContacts(
-        ISnesAddressSpace guarded,
         SamusPoseId pose)
     {
         for (ushort frame = 0; frame < 10; frame++)
@@ -111,8 +110,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Kinematics = { Radius = new(5, 12) },
             };
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
-            samus.Presentation.InitializeAnimation(guarded, frame);
-            AdvanceToFootContactTick(samus, guarded);
+            samus.Presentation.InitializeAnimation(frame);
+            AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
 
             byte expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
@@ -126,7 +125,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
     /// <summary>Checks all sixteen Crateria room identities through both running and landing effect paths.</summary>
     private static void VerifyProductionCrateriaPolicies(
-        ISnesAddressSpace guarded,
         SamusPoseId pose)
     {
         for (byte room = 0; room < 16; room++)
@@ -144,8 +142,8 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Crateria, room);
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            runner.Presentation.InitializeAnimation(guarded, initialFrame: 2);
-            AdvanceToFootContactTick(runner, guarded);
+            runner.Presentation.InitializeAnimation(initialFrame: 2);
+            AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
             AssertEqual(wet ? 1 : 0,
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
@@ -175,13 +173,12 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
     /// <summary>Lets the compiled animation delay reach its final tick before checking footstep publication.</summary>
     private static void AdvanceToFootContactTick(
-        SamusState samus,
-        ISnesAddressSpace bus)
+        SamusState samus)
     {
         AssertTrue(samus.AnimationFrameTimer.RawValue is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer.RawValue > 1)
-            samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep());
     }
 
     /// <summary>Forbids production reads of migrated splash, foot-contact, and both Crateria policy tables.</summary>

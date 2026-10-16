@@ -140,9 +140,8 @@ public sealed class SamusXrayState
     /// The caller represents the already selected/equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this native routine.
     /// </summary>
-    public bool TryBegin(ISnesAddressSpace bus, SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, bool deferActivation = false)
+    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, bool deferActivation = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         bool cancellingDirectGMode = IsReserveMode;
@@ -188,7 +187,7 @@ public sealed class SamusXrayState
         if (cancellingDirectGMode)
         {
             TimeIsFrozen = true;
-            Finish(bus, samus);
+            Finish(samus);
             return true;
         }
         if (deferActivation)
@@ -198,17 +197,17 @@ public sealed class SamusXrayState
             return true;
         }
         BeginAdmittedBeam(facingLeft);
-        InstallSamusControl(bus, samus, targetPose);
+        InstallSamusControl(samus, targetPose);
         return true;
     }
 
     /// <summary>Commits the setup after movement/animation; higher-priority poses can supersede it.</summary>
-    public bool CommitPendingActivation(ISnesAddressSpace bus, SamusState samus, bool superseded)
+    public bool CommitPendingActivation(SamusState samus, bool superseded)
     {
         if (PendingActivationPose is not { } targetPose) return false;
         PendingActivationPose = null;
         if (superseded) return false;
-        InstallSamusControl(bus, samus, targetPose);
+        InstallSamusControl(samus, targetPose);
         return true;
     }
 
@@ -242,11 +241,11 @@ public sealed class SamusXrayState
     /// Installs the X-Ray pose and animation, replaces competing movement and palette owners,
     /// and requests the visor activation sound.
     /// </summary>
-    private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
+    private void InstallSamusControl(SamusState samus, SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
 
         // Special prospective-pose command five immediately overrides the freshly selected
         // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
@@ -339,11 +338,9 @@ public sealed class SamusXrayState
     /// standing/crouching turn bodies and the frame-two/timer-one completion gate.
     /// </summary>
     public XrayPoseInputResult HandlePoseInput(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         EnsureActive();
 
@@ -368,7 +365,7 @@ public sealed class SamusXrayState
                 (true, false) => SamusPoseId.TurningLeftToRightPose,
                 (true, true) => SamusPoseId.TurningLeftToRightCrouchingPose,
             };
-            ApplyXrayPoseChange(bus, samus, targetPose);
+            ApplyXrayPoseChange(samus, targetPose);
             return new XrayPoseInputResult();
         }
 
@@ -386,7 +383,7 @@ public sealed class SamusXrayState
             : samus.Pose == SamusPoseId.TurningLeftToRightPose
                 ? SamusPoseId.XrayingStandingRightPose
                 : SamusPoseId.XrayingCrouchingRightPose;
-        ApplyXrayPoseChange(bus, samus, completedPose);
+        ApplyXrayPoseChange(samus, completedPose);
         return new XrayPoseInputResult();
     }
 
@@ -422,13 +419,11 @@ public sealed class SamusXrayState
     /// state; the renderer consumes its angle/width only after setup has completed.
     /// </summary>
     public XrayBeamStepResult StepBeam(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerInput,
         SnesButton dashBinding = SnesButton.B,
         bool vramQueueHasRoom = true)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         EnsureActive();
 
@@ -509,7 +504,7 @@ public sealed class SamusXrayState
                 // word is nonzero. Automatic Reserve completion clears that word first;
                 // phase five then remains installed forever and produces greyout mode.
                 if (TimeIsFrozen)
-                    Finish(bus, samus);
+                    Finish(samus);
                 break;
 
             default:
@@ -662,7 +657,7 @@ public sealed class SamusXrayState
     }
 
     /// <summary>Restores Samus' normal pose and handlers, subsystem enables, palette request, and beam state.</summary>
-    private void Finish(ISnesAddressSpace bus, SamusState samus)
+    private void Finish(SamusState samus)
     {
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
         // X-ray during a crouched turn therefore stands Samus up—the documented retail
@@ -677,7 +672,7 @@ public sealed class SamusXrayState
 
         samus.Pose = targetPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct native history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input slot.
@@ -707,13 +702,12 @@ public sealed class SamusXrayState
 
     /// <summary>Commits a frozen X-ray turn pose with refreshed radii, animation, and native history.</summary>
     private static void ApplyXrayPoseChange(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Both branches of the frozen X-ray input handler publish history after
         // initializing their pose; ordinary gameplay transition dispatch is bypassed.
         samus.CommitPoseHistory();

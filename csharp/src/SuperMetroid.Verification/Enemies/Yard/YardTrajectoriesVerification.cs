@@ -37,7 +37,7 @@ internal static class YardTrajectoriesVerification
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             int largest = 0;
             for (int frame = 0; frame < 1200; frame++)
             {

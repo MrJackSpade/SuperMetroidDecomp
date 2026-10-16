@@ -55,8 +55,8 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame();
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
+        runtime.SuitPickup.Begin(runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);
         Rgba32[] expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         LayeredRenderSnapshot captured = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(captured.Layers.Length == 4 && captured.Layers[0] is OrdinaryGameplayRenderLayer
@@ -65,7 +65,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         var retained = RoundTripRenderPacket(new(new(1, 1, 0), captured));
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step(SnesButton.A);
-        runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
+        runtime.SuitPickup.Step(runtime.Player.IntroducedSamus, runtime.Cgram);
         runtime.BombProjectiles.PowerBombExplosion.StepFrame();
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 

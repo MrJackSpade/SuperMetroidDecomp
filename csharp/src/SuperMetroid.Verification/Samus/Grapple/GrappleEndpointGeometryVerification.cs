@@ -72,7 +72,7 @@ internal static class GrappleEndpointGeometryVerification
         {
             samus.Pose = pose;
             samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-            samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics();
+            samus.Presentation.InitializeAnimation(); samus.Presentation.PrimeGraphics();
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(samus.Position.X.Whole);

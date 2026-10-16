@@ -40,7 +40,7 @@ internal static class GunshipEscapeTimerVerification
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.Presentation.PrimeGraphics();
         runtime.EscapeTimer.RawStatus = (ushort)0x8006;
         runtime.EscapeTimer.SetTime(PackedBcd.FromDecimal(2), PackedBcd.FromDecimal(59), PackedBcd.FromDecimal(50));
@@ -51,7 +51,7 @@ internal static class GunshipEscapeTimerVerification
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeY(0x0440);
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         var timeBeforeBoarding = Time();
         runtime.StepFrame(SnesButton.Down);
         AssertEqual(GunshipFrameEvent.EntryStarted, runtime.Enemies.LastEnemyFrame.Gunship, "Down starts actual Landing Site boarding");

@@ -40,13 +40,13 @@ public static class SamusBombJumpMovement
 
     /// <summary>Runs one `$90:E032` main-handler frame.</summary>
     public static BombJumpMovementResult Step(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
         RoomPlmSystem plms)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         Ensure.NotNull(plms);
@@ -75,7 +75,7 @@ public static class SamusBombJumpMovement
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeedAtAddress(
                 (int)SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The native direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.
@@ -109,7 +109,7 @@ public static class SamusBombJumpMovement
             return End(samus, null);
 
         (BlockMoveResult vertical, bool movedDown) = MoveUpWithGravity(
-            bus,
+
             level,
             samus,
             nmiFrameCounter,
@@ -127,7 +127,7 @@ public static class SamusBombJumpMovement
 
     /// <summary>Applies bomb-jump gravity and vertical block collision, reporting the apex's downward branch.</summary>
     private static (BlockMoveResult Result, bool MovedDown) MoveUpWithGravity(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
@@ -142,7 +142,7 @@ public static class SamusBombJumpMovement
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
         if (result.Collided)
         {
             state.YSpeed = 0;

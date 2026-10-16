@@ -55,7 +55,7 @@ internal static class GroundedSpreadTransitionVerification
         AssertEqual((ushort)0, samus.Kinematics.Position.X.Fraction, "fixture initial X fraction matches native cleared RAM");
         AssertEqual((ushort)0, samus.Kinematics.Position.Y.Fraction, "fixture initial Y fraction matches native cleared RAM");
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         for (int frame = 0; frame < 120; frame++)
         {
             SnesButton input = runtime.Options.ControllerBindings.Shoot;

@@ -39,7 +39,7 @@ internal static class EscapeAnimalBlocksVerification
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
             SeedStationaryGrappleCollisionProbe(samus);
             int before = plms.SlotTable.ActiveCount;
-            SamusGrappleMovement.StepFiring(bus, level, samus,
+            SamusGrappleMovement.StepFiring(level, samus,
                 SnesButton.X, plms);
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");

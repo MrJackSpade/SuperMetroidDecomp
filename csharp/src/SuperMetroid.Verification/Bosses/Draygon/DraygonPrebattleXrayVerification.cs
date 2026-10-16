@@ -37,7 +37,7 @@ internal static class DraygonPrebattleXrayVerification
         samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
         samus.SelectedHudItem = SamusXrayRomData.SelectedHudItem;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");

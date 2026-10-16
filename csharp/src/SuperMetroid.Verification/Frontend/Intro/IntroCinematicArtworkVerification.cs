@@ -58,7 +58,7 @@ internal static class IntroCinematicArtworkVerification
         {
             GameInstallation installation = copy.Installation;
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
-            Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus, sourceRom));
+            Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus));
             IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();
             AssertTrue(stock.BackgroundCharacters.Transfer.Span.SequenceEqual(
                     RomDataReader.Decompress(bus, IntroCinematicRomData.Assets.BackgroundCharacters,
@@ -120,9 +120,8 @@ internal static class IntroCinematicArtworkVerification
                         CgramPalettes.ByteCount)),
                 "installed opening palette preserves every native RGB5 word");
 
-            var native = CreateRetailIntroFixture(bus);
+            var native = CreateRetailIntroFixture();
             var completeInstalled = CreateRetailIntroFixture(
-                NewFrontendCartridgeReadGuard(bus),
                 introFont: installation.LoadMaps().IntroFont,
                 characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
@@ -132,7 +131,7 @@ internal static class IntroCinematicArtworkVerification
                 completeInstalledMemory.Cgram.SequenceEqual(completeNativeMemory.Cgram),
                 "fully installed opening upload preserves every native VRAM and CGRAM word without a cartridge read");
             var guarded = NewIntroArtworkSourceReadGuard(bus);
-            var installed = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+            var installed = CreateRetailIntroFixture(characterArtwork: stock);
             byte[] nativeVram = native.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
             AssertTrue(installed.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(nativeVram),
                 "three installed PNGs create exact native opening-cinematic VRAM, including overlapping OBJ uploads");
@@ -171,8 +170,8 @@ internal static class IntroCinematicArtworkVerification
             using (var output = File.Create(paletteOverridePath))
                 IntroCinematicPalette.Write(output, paletteDocument);
             IntroCinematicArtworkCatalog editedPalette = installation.LoadIntroCinematicArt();
-            var editedPaletteState = CreateRetailIntroFixture(guarded, characterArtwork: editedPalette);
-            var stockPaletteState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+            var editedPaletteState = CreateRetailIntroFixture(characterArtwork: editedPalette);
+            var stockPaletteState = CreateRetailIntroFixture(characterArtwork: stock);
             Bgr555[] originalCgram = stockPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
             Bgr555[] editedCgram = editedPaletteState.CaptureTranslatedRenderSnapshot().Memory.Cgram.ToArray();
             AssertTrue(!editedCgram.SequenceEqual(originalCgram) &&
@@ -202,8 +201,8 @@ internal static class IntroCinematicArtworkVerification
                     }).ToArray(),
                 });
             IntroCinematicArtworkCatalog visiblePalette = installation.LoadIntroCinematicArt();
-            var stockVisualState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-            var editedVisualState = CreateRetailIntroFixture(guarded, characterArtwork: visiblePalette);
+            var stockVisualState = CreateRetailIntroFixture(characterArtwork: stock);
+            var editedVisualState = CreateRetailIntroFixture(characterArtwork: visiblePalette);
             bool changedVisiblePixel = false;
             for (int frame = 0; frame < 400; frame++)
             {
@@ -258,8 +257,8 @@ internal static class IntroCinematicArtworkVerification
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                 ?? throw new InvalidDataException("Extracted opening divider is empty.");
             const BindingFlags dividerSetupFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            var nativeDividerState = CreateRetailIntroFixture(bus);
-            var stockDividerState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+            var nativeDividerState = CreateRetailIntroFixture();
+            var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
             foreach (IntroCinematicState scene in new[] { nativeDividerState, stockDividerState })
                 scene.SetupFirstIllustratedPage();
             byte[] stockDividerVram = stockDividerState.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
@@ -277,7 +276,7 @@ internal static class IntroCinematicArtworkVerification
             using (var output = File.Create(dividerOverridePath))
                 IntroFinalLineTilemap.Write(output, dividerDocument);
             IntroCinematicArtworkCatalog editedDivider = installation.LoadIntroCinematicArt();
-            var editedDividerState = CreateRetailIntroFixture(guarded, characterArtwork: editedDivider);
+            var editedDividerState = CreateRetailIntroFixture(characterArtwork: editedDivider);
             editedDividerState.SetupFirstIllustratedPage();
             byte[] expectedDividerVram = stockDividerVram.ToArray();
             int dividerByte = (IntroCinematicRomData.Layers.NarrationTilemapWord +
@@ -301,8 +300,8 @@ internal static class IntroCinematicArtworkVerification
                     }).ToArray(),
                 });
             IntroCinematicArtworkCatalog visibleDivider = installation.LoadIntroCinematicArt();
-            var stockDividerVisual = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-            var editedDividerVisual = CreateRetailIntroFixture(guarded, characterArtwork: visibleDivider);
+            var stockDividerVisual = CreateRetailIntroFixture(characterArtwork: stock);
+            var editedDividerVisual = CreateRetailIntroFixture(characterArtwork: visibleDivider);
             foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
             {
                 scene.SetupFirstIllustratedPage();
@@ -357,7 +356,7 @@ internal static class IntroCinematicArtworkVerification
                     IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
 
                 IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
-                var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
+                var editedState = CreateRetailIntroFixture(characterArtwork: edited);
                 byte[] expected = nativeVram.ToArray();
                 // $8B:A395 copies the fixed OBJ sheet before the compressed sheet;
                 // the final $400 bytes of the first transfer are deliberately overwritten.
@@ -422,14 +421,14 @@ internal static class IntroCinematicArtworkVerification
                 edited.BackgroundPages.Span.CopyTo(expected.AsSpan(
                     (IntroVramLayout.BackgroundPages.Offset * 2)));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        CreateRetailIntroFixture(guarded, characterArtwork: edited)
+                        CreateRetailIntroFixture(characterArtwork: edited)
                             .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches exactly its production BG page transfer");
                 if (page == 0)
                 {
                     const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                    var stockScene = CreateRetailIntroFixture(bus, characterArtwork: stock);
-                    var editedScene = CreateRetailIntroFixture(bus, characterArtwork: edited);
+                    var stockScene = CreateRetailIntroFixture(characterArtwork: stock);
+                    var editedScene = CreateRetailIntroFixture(characterArtwork: edited);
                     foreach (IntroCinematicState scene in new[] { stockScene, editedScene })
                     {
                         scene.SetupFirstIllustratedPage();
@@ -490,16 +489,16 @@ internal static class IntroCinematicArtworkVerification
                 byte[] expected = nativeVram.ToArray();
                 transfer(edited).Span.CopyTo(expected.AsSpan(destination));
                 AssertTrue(!expected.SequenceEqual(nativeVram) &&
-                        CreateRetailIntroFixture(guarded, characterArtwork: edited)
+                        CreateRetailIntroFixture(characterArtwork: edited)
                             .CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"edited {name} reaches only its initial cinematic VRAM page");
-                var restoredEarly = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+                var restoredEarly = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredEarly.BindCharacterArtwork(edited);
                 AssertTrue(restoredEarly.CaptureTranslatedRenderSnapshot().Memory.Vram.SequenceEqual(expected),
                     $"restored first narration/portrait state receives edited {name}");
 
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-                var restoredLate = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+                var restoredLate = CreateRetailIntroFixture(characterArtwork: stock);
                 restoredLate.SetupFirstIllustratedPage();
                 byte[] lateBefore = restoredLate.CaptureTranslatedRenderSnapshot().Memory.Vram.ToArray();
                 restoredLate.BindCharacterArtwork(edited);
@@ -744,8 +743,8 @@ internal static class IntroCinematicArtworkVerification
             "caret JSON tile edit changes OAM art without changing sprite placement");
 
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var nativeState = CreateRetailIntroFixture(bus);
-        var installedState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var nativeState = CreateRetailIntroFixture();
+        var installedState = CreateRetailIntroFixture(characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         nativeState.SetupFirstIllustratedPage();
         installedState.SetupFirstIllustratedPage();
@@ -783,7 +782,7 @@ internal static class IntroCinematicArtworkVerification
     {
         byte[] native = VerifyIntroMotherBrainCollisionSource(CartridgeImportSource.Require(bus));
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var state = CreateRetailIntroFixture(guarded, characterArtwork: stock);
+        var state = CreateRetailIntroFixture(characterArtwork: stock);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         state.SetupFirstIllustratedPage();
         state.SetupMotherBrainFlashback();
@@ -862,8 +861,8 @@ internal static class IntroCinematicArtworkVerification
 
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             state.SetupFirstIllustratedPage();
@@ -945,8 +944,8 @@ internal static class IntroCinematicArtworkVerification
             "installed intro explosion actors never reread the twelve native compositions");
 
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
-        var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
+        var stockState = CreateRetailIntroFixture(characterArtwork: stock);
+        var editedState = CreateRetailIntroFixture(characterArtwork: edited);
         foreach (IntroCinematicState state in new[] { stockState, editedState })
         {
             state.SetupFirstIllustratedPage();

@@ -182,7 +182,7 @@ internal static class SpikeShinesparkSuitVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
             SnesLittleEndian.Word(8, (byte)SamusMovementType.MorphBallGround);

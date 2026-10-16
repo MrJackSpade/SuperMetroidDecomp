@@ -22,8 +22,8 @@ internal static class ReserveRefillRainbowBeamVerification
             Health = 0, MaxHealth = 99, ReserveEnergy = 3, MaxReserveEnergy = 100, ReserveTankMode = 1,
         };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
-        samus.Drained.SetupForRainbowBeam(bus, samus);
+        samus.Presentation.InitializeAnimation();
+        samus.Drained.SetupForRainbowBeam(samus);
         AssertTrue(samus.ScriptLocks.RainbowBeamHandlersInstalled, "the rainbow beam holds Samus");
 
         var recovery = new SamusReserveAutoRecoveryState();

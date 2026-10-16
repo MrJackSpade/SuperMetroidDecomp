@@ -66,8 +66,8 @@ internal static class TourianElevatorDoorsVerification
             };
             var bus = NewDoorNoReadAddressSpace();
             BlockMoveResult result = horizontal
-                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, state, new HorizontalBlockMove { Displacement = 4 << 16 })
-                : SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, state, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+                ? SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, state, new HorizontalBlockMove { Displacement = 4 << 16 })
+                : SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, state, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertEqual(elevator, result.Collided, "native solid elevator / passable physical door");
             AssertEqual(elevator && (int)pose < 9, level.ConsumeElevatorDoorContact(), "native elevator pose gating");
             if (elevator)

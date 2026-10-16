@@ -111,6 +111,9 @@ public sealed class SuperMetroidRuntime
     /// <summary>The session's BG tilemap staging (<c>$7E:4000</c>), shared by library backgrounds and X-ray.</summary>
     internal Bg2TilemapStaging Bg2TilemapStaging { get; }
 
+    /// <summary>The session's Mode 7 transfer queue residue, bound into the enemies and every Samus this runtime creates.</summary>
+    internal SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue Mode7QueueResidue { get; }
+
     /// <summary>The <see cref="XrayReveal"/> owner of this SuperMetroidRuntime.</summary>
     internal XrayReveal Xray { get; }
 
@@ -146,7 +149,7 @@ public sealed class SuperMetroidRuntime
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
     public SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt = null)
-        : this(addressSpace, overrides, initialPaletteArt, new FrameClock())
+        : this(addressSpace, overrides, initialPaletteArt, new FrameClock(), new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue())
     {
     }
 
@@ -155,8 +158,9 @@ public sealed class SuperMetroidRuntime
     /// <param name="overrides">The host's tester conveniences around the cartridge-authentic runtime: invincibility, infinite ammo, map reveal, escape-timeout prevention, and new-session equipment and Tourian unlocks (#633).</param>
     /// <param name="initialPaletteArt">Required installed palette image loaded into CGRAM during construction.</param>
     /// <param name="clock">The session's frame clock, shared with the frontend that counts while no runtime exists.</param>
+    /// <param name="mode7QueueResidue">The session's Mode 7 transfer queue residue, which outlives each runtime as WRAM does.</param>
     internal SuperMetroidRuntime(ISnesAddressSpace addressSpace, HostGameplayOverrides overrides, GameplayBasePaletteCatalog? initialPaletteArt,
-        FrameClock clock)
+        FrameClock clock, SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue mode7QueueResidue)
     {
         Display = new GameplayDisplayState();
         Player = new SamusFrameState();
@@ -164,6 +168,8 @@ public sealed class SuperMetroidRuntime
         Clock = Ensure.NotNull(clock);
         Options = new GameplayOptions();
         _addressSpace = Ensure.NotNull(addressSpace);
+        Mode7QueueResidue = Ensure.NotNull(mode7QueueResidue);
+        Enemies.Room.Mode7QueueResidue = Mode7QueueResidue;
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
@@ -187,9 +193,9 @@ public sealed class SuperMetroidRuntime
         DoorTransition = new DoorTransitionRunner(new DoorTransitionRunnerDependencies { ActorDrawing = ActorDrawing, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, Display = Display, Enemies = Enemies, EnemyPhase = EnemyPhase, HdmaPhase = HdmaPhase, MaridiaElevatube = MaridiaElevatube, Clock = Clock, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Plms = Plms, Room = Room, RoomLayer3Fx = RoomLayer3Fx, System = System, WreckedShipTreadmill = WreckedShipTreadmill});
         EscapeEffects = new EscapeRoomEffects(Enemies, Freeze, Clock, Room, System);
         RoomLoader = new RoomLoader(new RoomLoaderDependencies { Bg2TilemapStaging = Bg2TilemapStaging, Artwork = Artwork, BackgroundPhase = BackgroundPhase, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, CeresElevatorShaft = CeresElevatorShaft, CeresHaze = CeresHaze, Cgram = Cgram, Controller1 = Controller1, Display = Display, DoorTransition = DoorTransition, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, EscapeEffects = EscapeEffects, GameTime = GameTime, Hud = Hud, HudSetup = HudSetup, MaridiaElevatube = MaridiaElevatube, Clock = Clock, Options = Options, Player = Player, Plms = Plms, Projectiles = Projectiles, Room = Room, RoomLayer3Fx = RoomLayer3Fx, RoomPaletteFx = RoomPaletteFx, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, Tester = Tester, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill, AddressSpace = _addressSpace });
-        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System, AddressSpace = _addressSpace });
-        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites, AddressSpace = _addressSpace });
-        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Enemies = Enemies, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
+        AttractDemo = new AttractDemoDriver(new AttractDemoDriverDependencies { Artwork = Artwork, AttractSession = AttractSession, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, HudSetup = HudSetup, FrameBoundary = FrameBoundary, Player = Player, Room = Room, RoomLoader = RoomLoader, System = System});
+        DeathSequence = new DeathSequenceRunner(new DeathSequenceRunnerDependencies { ActorDrawing = ActorDrawing, Artwork = Artwork, Cgram = Cgram, Display = Display, FrameBoundary = FrameBoundary, Sprites = Sprites, Player = Player, Room = Room, VramWrites = VramWrites});
+        MessageBoxes = new MessageBoxFlow(new MessageBoxFlowDependencies { BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Enemies = Enemies, Freeze = Freeze, Hud = Hud, MessageBox = MessageBox, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, System = System, Vram = Vram, VramWrites = VramWrites});
         PlmPhase = new PlmFramePhase(new PlmFramePhaseDependencies { Artwork = Artwork, BackgroundScroll = BackgroundScroll, BombProjectiles = BombProjectiles, Cgram = Cgram, Controller1 = Controller1, Enemies = Enemies, EnemyRoomEffects = EnemyRoomEffects, Freeze = Freeze, MessageBox = MessageBox, MessageBoxes = MessageBoxes, Player = Player, Plms = Plms, Room = Room, SuitPickup = SuitPickup, Vram = Vram, VramWrites = VramWrites, AddressSpace = _addressSpace });
         ShotBlockVisuals = new PlmShotBlockVisuals(Plms);
         RoomMains = new RoomMainRoutines(new RoomMainRoutinesDependencies { BackgroundScroll = BackgroundScroll, Enemies = Enemies, Player = Player, Room = Room, RoomSpikes = RoomSpikes, RoomTreadmills = RoomTreadmills, SandAnimatedTiles = SandAnimatedTiles, System = System, TourianStatues = TourianStatues, Vram = Vram, VramWrites = VramWrites, WreckedShipTreadmill = WreckedShipTreadmill});
@@ -505,7 +511,7 @@ public sealed class SuperMetroidRuntime
         if (Player.Samus is { } hdmaSamus && !MessageBox.IsActive)
         {
             hdmaSamus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
-            BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
+            BombProjectiles.AdvancePowerBombHdma(hdmaSamus, Controller1.Current, DispatchGameState);
         }
     }
 
@@ -538,7 +544,7 @@ public sealed class SuperMetroidRuntime
         {
             if (Player.Samus is null)
                 throw new InvalidOperationException("A suit transformation has no Samus owner.");
-            SuitPickup.Step(_addressSpace, Player.Samus, Cgram);
+            SuitPickup.Step(Player.Samus, Cgram);
         }
 
         // DisplayMessageBox waits on NMI while retaining the already-published room OAM,
@@ -943,7 +949,7 @@ public sealed class SuperMetroidRuntime
             if (Room.LevelData is null)
                 throw new InvalidOperationException("Maridia elevatube has no active room level.");
             _ = MaridiaElevatube.Step(
-                _addressSpace,
+
                 Room.LevelData,
                 Player.Samus,
                 Clock.Counter,
@@ -956,7 +962,6 @@ public sealed class SuperMetroidRuntime
         // Ceres routine publishes a matrix for the following frame's presentation and may
         // change the outer dispatcher to state $20 only when its caller is state eight.
         RoomMains.LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
-            _addressSpace,
             Player.Samus,
             Enemies.Ceres.CeresStatus,
             allowDeparture: policy.AllowCeresElevatorDeparture,
@@ -1095,7 +1100,7 @@ public sealed class SuperMetroidRuntime
             if (Room.Camera is not null)
                 HdmaPhase.AdvanceHdmaObjectPreInstructions();
             if (Player.Samus is { } hdmaSamus)
-                BombProjectiles.AdvancePowerBombHdma(_addressSpace, hdmaSamus, Controller1.Current, DispatchGameState);
+                BombProjectiles.AdvancePowerBombHdma(hdmaSamus, Controller1.Current, DispatchGameState);
         }
         if (MessageBox.ConfirmationSelectionChangedThisFrame)
             MessageBoxes.MessageBoxSelectionSoundRequestedThisFrame = true;

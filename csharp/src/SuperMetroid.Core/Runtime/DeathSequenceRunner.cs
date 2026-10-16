@@ -32,8 +32,6 @@ internal sealed class DeathSequenceRunner
     private readonly ActiveRoomState _room;
     /// <summary>Queues death-pose graphics transfers consumed by the ordinary NMI pipeline.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Runtime address space used by bank-$9B death logic and pose drawing.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the death-state renderer and runtime services supplied by the gameplay host.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
@@ -48,7 +46,6 @@ internal sealed class DeathSequenceRunner
         _player = dependencies.Player;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
 
     /// <summary>
@@ -65,7 +62,6 @@ internal sealed class DeathSequenceRunner
         }
 
         SamusDeathSequenceStartResult result = _player.Samus.DeathSequence.Begin(
-            _addressSpace,
             _player.Samus,
             _room.Camera.PixelPosition);
 
@@ -108,7 +104,6 @@ internal sealed class DeathSequenceRunner
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
         _player.LastDeathSequenceStep = _player.Samus.DeathSequence.Step(
-            _addressSpace,
             _player.Samus,
             _cgram,
             _artwork.SamusBodyArt?.DeathPalettes);

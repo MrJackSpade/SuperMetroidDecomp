@@ -84,9 +84,8 @@ internal sealed class StationPlms : IPlmFamilySource
     /// animation frame. The declined route jumps to `$B008`, which still installs the
     /// once-per-room-entry lockout. Returns the first frame's tilemap updates.
     /// </summary>
-    public SaveStationConfirmationResult ResolveSaveStationConfirmation(ISnesAddressSpace bus, StationActivationEvent activation, bool accepted, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
+    public SaveStationConfirmationResult ResolveSaveStationConfirmation(StationActivationEvent activation, bool accepted, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(streamer);
         StationPlmState station = FindSaveStation(activation);
@@ -108,7 +107,7 @@ internal sealed class StationPlms : IPlmFamilySource
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         // Rounds Samus to the nearest block boundary.
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(((samus.Position.X.Whole + 8) >> 4) << 4)));
-        samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+        samus.PoseMetadata.ApplyForwardFacingPoseSetup();
         samus.InputLocked = true;
 
         station.SavePhase = SaveStationPhase.Animating;

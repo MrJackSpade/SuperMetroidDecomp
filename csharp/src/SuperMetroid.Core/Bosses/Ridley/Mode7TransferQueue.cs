@@ -5,10 +5,9 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// transfers to VRAM itself, but the queued descriptor bytes stay in WRAM after the NMI handler
 /// (<c>HandleMode7Transfers</c>, $80:8BBA) clears only the first control word, and running-cadence stage five
 /// later reads them as its delay list at <c>$91:0303</c> (#1338). This view writes exactly the bytes
-/// <c>QueueMode7Transfers</c> leaves behind.
+/// <c>QueueMode7Transfers</c> leaves behind, into the session's <see cref="Mode7TransferQueueResidue"/>.
 /// </summary>
-[CpuBusBoundary("domain view: the native Mode 7 transfer queue, whose residue running cadence stage five reads")]
-internal struct Mode7TransferQueue(ISnesAddressSpace bus)
+internal struct Mode7TransferQueue(Mode7TransferQueueResidue residue)
 {
     /// <summary><c>Mode7Stack</c> ($0334): the byte offset of the next free descriptor in this frame's queue.</summary>
     private int _stack;
@@ -39,27 +38,11 @@ internal struct Mode7TransferQueue(ISnesAddressSpace bus)
     {
         if (_stack == 0)
             return;
-        bus.WriteByte(Mode7TransferQueueLayout.QueueStart, 0);
-        bus.WriteByte(Mode7TransferQueueLayout.QueueStart + 1, 0);
+        residue._bytes[0] = 0;
+        residue._bytes[1] = 0;
         _stack = 0;
     }
 
-    /// <summary>
-    /// The queue byte at WRAM <paramref name="offset"/>, which bank $91's low-half delay-list reads alias: running cadence
-    /// stage five's <c>$91:0303</c>, or the pose-table overread of invalid poses at <c>$91:0302</c>. Only the queue's
-    /// bytes are a modeled cell; any other low-half offset is corrupt state.
-    /// </summary>
-    internal static byte ReadResidueByte(ISnesAddressSpace bus, ushort offset)
-    {
-        int address = (int)new SnesAddress(SnesLittleEndian.BankByte(Mode7TransferQueueLayout.QueueStart), offset);
-        if (address is < Mode7TransferQueueLayout.QueueStart or
-            >= Mode7TransferQueueLayout.QueueStart + Mode7TransferQueueLayout.QueueByteCount)
-            throw new InvalidDataException($"Bank $91 low-half byte ${offset:X4} lies outside the Mode 7 transfer queue.");
-        return (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "The Mode 7 transfer queue's residue requires live WRAM.")).ReadWorkRamByte(address);
-    }
-
     /// <summary>Writes one byte at <paramref name="offset"/> past the current descriptor.</summary>
-    private readonly void Write(int offset, byte value) =>
-        bus.WriteByte(Mode7TransferQueueLayout.QueueStart + _stack + offset, value);
+    private readonly void Write(int offset, byte value) => residue._bytes[_stack + offset] = value;
 }

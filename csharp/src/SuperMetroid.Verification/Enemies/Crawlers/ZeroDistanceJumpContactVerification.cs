@@ -33,7 +33,7 @@ internal static class ZeroDistanceJumpContactVerification
                     Properties: (ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);
-            var result = SamusAerialMovement.StepNormalJump(bus, level, samus, SnesButton.A, 0);
+            var result = SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);
             AssertEqual(initialX, unchecked((uint)samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
             AssertEqual(100, samus.Position.Y.Whole, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.Position.Y.Fraction,
@@ -45,7 +45,7 @@ internal static class ZeroDistanceJumpContactVerification
 
         var crouched = new SamusState { Pose = SamusPoseId.CrouchingLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         crouched.PoseMetadata.RefreshCollisionRadii();
-        SamusKnockbackMovement.Start(bus, crouched, 0, new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 5 }, level: level);
+        SamusKnockbackMovement.Start(crouched, 0, new KnockbackLaunch { KnockbackXDirection = 1, KnockbackTimer = 5 }, level: level);
         AssertEqual(SamusPoseId.KnockbackLeftPose, crouched.Pose, "crouch contact installs hurt pose");
         AssertEqual(16, crouched.Kinematics.Radius.Y, "hurt commit retains live crouch radius");
         crouched.PoseMetadata.RefreshCollisionRadii();

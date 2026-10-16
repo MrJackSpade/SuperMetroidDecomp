@@ -33,7 +33,7 @@ internal static class MetroidBombPlacementVerification
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         var target = enemies.SlotTable.Slots[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
@@ -46,7 +46,7 @@ internal static class MetroidBombPlacementVerification
         for (int frame = 0; frame < 120; frame++)
         {
             SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = assets.LevelData }, samus, input, input);
+            bombs.StepFrame(new SamusTerrain { Level = assets.LevelData }, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             enemies.Collision.ResolveOrdinaryBombHits(bombs, shots, samus);
@@ -103,7 +103,7 @@ internal static class MetroidBombPlacementVerification
         samus.Position = samus.Position.WithWhole(new(128, 153));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =

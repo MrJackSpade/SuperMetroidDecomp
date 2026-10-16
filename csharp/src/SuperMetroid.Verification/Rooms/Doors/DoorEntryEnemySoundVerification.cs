@@ -38,7 +38,7 @@ internal static class DoorEntryEnemySoundVerification
         samus.Position = samus.Position.WithWhole(new(64, 128));
         samus.InputLocked = true;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64];
         body.Position = body.Position.WithWhole(new(128, 128));

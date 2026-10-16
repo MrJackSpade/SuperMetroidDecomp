@@ -1320,14 +1320,14 @@ internal static class LookupStream3Verification
         sequence.Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState { Health = 99 };
-        var firstPage = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, firstPage.EscapePaletteFxRequests.Count, "stream 3 escape palette effects wait for door graphics");
-        var handoff = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        var handoff = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(4, handoff.EscapePaletteFxRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b296 + 7 * effect)), handoff.EscapePaletteFxRequests[effect],
                 "stream 3 native escape palette registration order");
-        var text = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
+        var text = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");
     }
 
@@ -3035,7 +3035,7 @@ internal static class LookupStream3Verification
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
             AssertTrue(stock.suppliedInitialNarration is null, "stock initial narration stores no page array");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-            var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
+            var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             byte[] nativeFont = SuperMetroid.AssetExtraction.Cartridge.RomDataReader.Decompress(rom,
                 IntroCinematicRomData.Assets.FontOne, maximumOutputBytes: IntroFontAtlasFormat.ByteCount);
@@ -3248,7 +3248,7 @@ internal static class LookupStream3Verification
             AssertTrue(stock.BackgroundPages.Span.SequenceEqual(native), "background edits do not cross-couple pages");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent backgrounds preserve canonical hash");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-            var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
+            var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.BackgroundPages.Offset * 2), native.Length).SequenceEqual(native),
@@ -3385,7 +3385,7 @@ internal static class LookupStream3Verification
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "portrait edits do not cross-mutate stock");
             AssertEqual(hash, Copy(native).ContentIdentity, "equivalent portrait preserves canonical hash");
             var font = IntroFontAtlas.Load(new MemoryStream(SuperMetroid.AssetExtraction.Frontend.Intro.IntroFontAtlasExtractor.Extract(rom)));
-            var intro = new IntroCinematicState(new TestAddressSpace(), introFont: font, characterArtwork: stock,
+            var intro = new IntroCinematicState(introFont: font, characterArtwork: stock,
                 beamArtwork: installation.LoadProjectiles().BeamTiles);
             AssertTrue(intro.CaptureTranslatedRenderSnapshot().Memory.Vram.Slice(
                 (IntroVramLayout.PortraitTilemap.Offset * 2), native.Length).SequenceEqual(native),

@@ -25,7 +25,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
         spinning.PoseMetadata.RefreshCollisionRadii();
-        spinning.Presentation.InitializeAnimation(bus);
+        spinning.Presentation.InitializeAnimation();
         spinning.Drained.PutStanding(spinning);
         AssertEqual(SamusPoseId.DrainedStandingRightPose, spinning.Pose, "drained controller installs the standing drained pose");
         AssertEqual(SamusPoseId.SpinJumpRightPose, spinning.InitializedPose, "drained controller skips InitializeSamusPose_1");
@@ -35,7 +35,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         spinning.PoseTransitions.ApplyWallContactAnimationRewind();
         AssertEqual((ushort)0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
-        spinning.PoseTransitions.ApplyWallJumpTrigger(bus);
+        spinning.PoseTransitions.ApplyWallJumpTrigger();
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 

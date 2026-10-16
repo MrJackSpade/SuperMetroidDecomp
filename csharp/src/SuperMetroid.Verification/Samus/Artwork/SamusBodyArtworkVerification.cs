@@ -208,13 +208,13 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        deathSamus.DeathSequence.Begin(bus, deathSamus, layer1: new(0, 0));
+        deathSamus.DeathSequence.Begin(deathSamus, layer1: new(0, 0));
         var deathCgram = new SnesCgram();
         for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
             frame++)
         {
             AssertTrue(frame < 200, "retail Samus death reaches the explosion draw phase");
-            deathSamus.DeathSequence.Step(bus, deathSamus, deathCgram, stock.DeathPalettes);
+            deathSamus.DeathSequence.Step(deathSamus, deathCgram, stock.DeathPalettes);
         }
         OamBuffer nativeDeathOam = SpriteFrameBuffer.DrawnOam(frame =>
             deathSamus.DeathSequence.DrawExplosion(frame, stock.Spritemaps, stock.DeathTiles));
@@ -297,23 +297,23 @@ internal static class SamusBodyArtworkVerification
             {
                 Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
             };
-            nativeSamus.DeathSequence.Begin(bus, nativeSamus, Position16<RoomPixels>.Zero);
-            installedSamus.DeathSequence.Begin(bus, installedSamus, Position16<RoomPixels>.Zero);
+            nativeSamus.DeathSequence.Begin(nativeSamus, Position16<RoomPixels>.Zero);
+            installedSamus.DeathSequence.Begin(installedSamus, Position16<RoomPixels>.Zero);
             var nativeColors = new SnesCgram();
             var installedColors = new SnesCgram();
             // Preflash still animates Samus's death pose. Begin comparison when
             // palette ownership passes to the independent bank-$9B sequence.
             for (int frame = 0; frame < 16; frame++)
             {
-                nativeSamus.DeathSequence.Step(bus, nativeSamus, nativeColors, stock.DeathPalettes);
-                installedSamus.DeathSequence.Step(bus, installedSamus, installedColors, stock.DeathPalettes);
+                nativeSamus.DeathSequence.Step(nativeSamus, nativeColors, stock.DeathPalettes);
+                installedSamus.DeathSequence.Step(installedSamus, installedColors, stock.DeathPalettes);
             }
             for (int frame = 0; frame < 240; frame++)
             {
                 SamusDeathSequenceStepResult nativeStep = nativeSamus.DeathSequence.Step(
-                    bus, nativeSamus, nativeColors, stock.DeathPalettes);
+                    nativeSamus, nativeColors, stock.DeathPalettes);
                 SamusDeathSequenceStepResult installedStep = installedSamus.DeathSequence.Step(
-                    guardedBus, installedSamus, installedColors, stock.DeathPalettes);
+                    installedSamus, installedColors, stock.DeathPalettes);
                 AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(installedColors)) &&
                     nativeStep.PhaseAfterStep == installedStep.PhaseAfterStep &&
                     nativeSamus.DeathSequence.AnimationTimer.RawValue ==
@@ -529,13 +529,13 @@ internal static class SamusBodyArtworkVerification
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        editedDeathSamus.DeathSequence.Begin(bus, editedDeathSamus, Position16<RoomPixels>.Zero);
+        editedDeathSamus.DeathSequence.Begin(editedDeathSamus, Position16<RoomPixels>.Zero);
         var editedDeathColors = new SnesCgram();
         for (int frame = 0; frame < 16; frame++)
-            editedDeathSamus.DeathSequence.Step(bus, editedDeathSamus,
+            editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors, replacement.DeathPalettes);
         for (int frame = 0; frame < 60; frame++)
-            editedDeathSamus.DeathSequence.Step(guardedBus, editedDeathSamus,
+            editedDeathSamus.DeathSequence.Step(editedDeathSamus,
                 editedDeathColors, replacement.DeathPalettes);
         AssertEqual((ushort)(originalDeathColor + 1),
             editedDeathColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart],

@@ -42,7 +42,7 @@ internal static class SuitPickupPeriodicDamageVerification
         samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
         samus.LiquidPhysics.PeriodicSubDamage = 0;
         samus.LiquidPhysics.PeriodicDamage = 0;
-        runtime.SuitPickup.Begin(bus, samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Begin(samus, runtime.Room.LoadedCamera.PixelPosition, SamusSuitPickupKind.Varia);
 
         // Reference ledger: the same producer calls, consumed once by the $90:E9CE port
         // after the transformation.

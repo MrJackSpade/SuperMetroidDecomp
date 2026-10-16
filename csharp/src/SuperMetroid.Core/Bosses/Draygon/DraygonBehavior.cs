@@ -1561,7 +1561,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        samus.DraygonGrabbed.Begin(_room.LoadedBus, samus, state.FacingRight);
+        samus.DraygonGrabbed.Begin(samus, state.FacingRight);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
         // `$A5:8EDB-$8EE5` set the whole spiral center only; the Y fraction (`$7E:7814`) carries over from
         // the previous spiral of this fight, so the first lift after a re-grab borrows on the native frame.
@@ -1844,7 +1844,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ReleaseSamusDuringEnemyMain(SamusState samus)
     {
-        samus.DraygonGrabbed.Release(_room.LoadedBus, samus);
+        samus.DraygonGrabbed.Release(samus);
         _frameResults.DraygonDiscardedSamusPoseRequests = true;
     }
 

@@ -89,7 +89,7 @@ internal static class EscapeRoomEffectsVerification
                 samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
                 samus.Kinematics.Radius = new(5, 16);
                 for (int frame = 0; frame < 32 && !runtime.RoomLoader.HasPendingDoorTransition; frame++)
-                    SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = runtime.Plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -(1 << 16) });
+                    SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = runtime.Plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -(1 << 16) });
                 AssertTrue(runtime.RoomLoader.HasPendingDoorTransition, "Samus can cross opened rescue exit and trigger room transition");
                 AssertEqual((ushort)184, runtime.RoomLayer3Fx.TargetYPosition, "rescue liquid target matches retail FX header");
             }

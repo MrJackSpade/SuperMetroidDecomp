@@ -61,7 +61,6 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>Executes one call to room main <c>$89:ACC3</c>.</summary>
-    /// <param name="bus">Pose data used only when admitting Samus to the departure trigger.</param>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
     /// <param name="ceresStatus">Bank-$A6 Ceres status word at native WRAM <c>$093F</c>.</param>
     /// <param name="allowDeparture">
@@ -71,13 +70,11 @@ public sealed class CeresElevatorShaftRoomMainState
     /// </param>
     /// <param name="scratch">Shared mutable room-main scratch: Var1 supplies and receives the encoded forward/reverse rotation index inherited by subsequent room owners; the countdown remains in this state's <see cref="RotationTimer"/>.</param>
     public CeresElevatorShaftRoomMainResult Step(
-        ISnesAddressSpace bus,
         SamusState? samus,
         ushort ceresStatus,
         bool allowDeparture,
         RoomMainScratchState scratch)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(scratch);
         DepartureRequestedThisFrame = false;
 
@@ -101,7 +98,7 @@ public sealed class CeresElevatorShaftRoomMainState
                 ? SamusPoseId.FacingLeftNormalPose
                 : SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.InputLocked = true;
             DepartureRequested = true;
             DepartureRequestedThisFrame = true;

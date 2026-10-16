@@ -30,7 +30,7 @@ internal static class GrappleSpinVerification
             samus.Position = samus.Position.WithWhole(new(512, 256));
             samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.SelectedHudItem = 4;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;

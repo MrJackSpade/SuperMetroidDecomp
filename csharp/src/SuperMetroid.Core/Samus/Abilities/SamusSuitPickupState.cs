@@ -78,13 +78,11 @@ public sealed class SamusSuitPickupState
     /// Executes <c>VariaSuitPickup</c> or <c>GravitySuitPickup</c> after its message closes.
     /// </summary>
     public void Begin(
-        ISnesAddressSpace bus,
         SamusState samus,
         Position16<RoomPixels> layer1,
         SamusSuitPickupKind kind,
         bool soundSuppressed = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (IsActive)
             throw new InvalidOperationException("A suit pickup transformation is already active.");
@@ -128,7 +126,7 @@ public sealed class SamusSuitPickupState
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         // Entry's Samus command $15 publishes history before locking gameplay.
         samus.CommitPoseHistory();
         samus.InputLocked = true;
@@ -146,9 +144,8 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Runs one installed bank-$88 HDMA pre-instruction.</summary>
-    public void Step(ISnesAddressSpace bus, SamusState samus, SnesCgram cgram)
+    public void Step(SamusState samus, SnesCgram cgram)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(cgram);
         if (!IsActive)
@@ -171,7 +168,7 @@ public sealed class SamusSuitPickupState
                 StepCurvedWidening();
                 break;
             case 3:
-                RevealSuit(bus, samus, cgram);
+                RevealSuit(samus, cgram);
                 break;
             case 4:
                 StepLightBeamShrinks();
@@ -271,7 +268,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Installs the equipment bit, suited front pose, and palette at the native third-stage handoff.</summary>
-    private void RevealSuit(ISnesAddressSpace bus, SamusState samus, SnesCgram cgram)
+    private void RevealSuit(SamusState samus, SnesCgram cgram)
     {
         ushort mask = Kind == SamusSuitPickupKind.Varia
             ? (ushort)SamusEquipmentFlags.VariaSuit
@@ -280,7 +277,7 @@ public sealed class SamusSuitPickupState
         samus.CollectedItems |= mask;
         samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();

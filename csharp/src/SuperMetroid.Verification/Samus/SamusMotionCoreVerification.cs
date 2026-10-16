@@ -167,17 +167,17 @@ internal static void VerifySamusHorizontalSpeed()
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
     var dashAnimation = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
-    dashAnimation.Presentation.InitializeAnimation(bus);
+    dashAnimation.Presentation.InitializeAnimation();
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: SnesButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        dashAnimation.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = SnesButton.B });
+        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = SnesButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        dashAnimation.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = SnesButton.B });
+        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = SnesButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 
@@ -208,7 +208,7 @@ internal static void VerifySamusHorizontalSpeed()
     for (int command = 0; command < 4; command++)
     {
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
-            bus,
+            null,
             movementType: SamusMovementType.Running,
             controllerInput: SnesButton.B,
             animationFrameBuffer: 0,
@@ -491,7 +491,7 @@ internal static void VerifySamusExtraDisplacement()
     standing.Kinematics.Radius = new(5, 21);
     standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStandingRight(
-        bus,
+
         level,
         standing,
         nmiFrameCounter: 0,
@@ -513,7 +513,7 @@ internal static void VerifySamusExtraDisplacement()
     negative.Kinematics.Radius = new(5, 21);
     negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStandingRight(
-        bus,
+
         level,
         negative,
         nmiFrameCounter: 1,
@@ -531,7 +531,7 @@ internal static void VerifySamusExtraDisplacement()
     uint transitionXBefore = transition.Kinematics.Position.X.RawValue;
     uint transitionYBefore = transition.Kinematics.Position.Y.RawValue;
     AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
-        bus,
+
         level,
         transition,
         SnesButton.A,
@@ -553,7 +553,7 @@ internal static void VerifySamusExtraDisplacement()
     rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
     uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
     AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
-        bus,
+
         level,
         rising,
         SnesButton.A,
@@ -576,7 +576,7 @@ internal static void VerifySamusExtraDisplacement()
     bouncingBall.Kinematics.YSubspeed = 0x4000;
     bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
-        bus,
+
         level,
         bouncingBall,
         controllerInput: 0,

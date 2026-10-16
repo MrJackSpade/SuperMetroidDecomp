@@ -42,13 +42,12 @@ internal sealed class ShutterBombArcScenario
 
     /// <summary>Places morphed, bomb-equipped Samus on or beside the selected shutter before the recorded sequence.</summary>
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
-    /// <param name="bus">Address space used to initialize Samus collision geometry and animation.</param>
     /// <param name="slotIndex">Enemy slot identifying the shutter platform; slot zero uses the left-shutter approach direction.</param>
     /// <param name="approach">Whether to start 32 pixels from the platform and move toward it for the first twelve scenario updates.</param>
     /// <param name="interval">Positive update interval between bomb-button inputs, which stop at update 220.</param>
     /// <param name="rollAt">Update index at which movement away from the shutter begins.</param>
     /// <param name="duration">Updates spent rolling away, followed by the same number rolling back toward the shutter.</param>
-    private ShutterBombArcScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, int slotIndex, bool approach, int interval, int rollAt, int duration)
+    private ShutterBombArcScenario(SuperMetroidRuntime runtime, int slotIndex, bool approach, int interval, int rollAt, int duration)
     {
         (SlotIndex, Approach, Interval, RollAt, Duration) = (slotIndex, approach, interval, rollAt, duration);
         Runtime = runtime;
@@ -62,17 +61,17 @@ internal sealed class ShutterBombArcScenario
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole - (approach ? Toward * 32 : 0)), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
         Runtime.StepFrame(0, new RuntimeFrameRequest());
     }
 
     /// <summary>The reported case: left shutter, starting on it, bombing every 8 frames, a 4-frame roll at 75.</summary>
-    internal static ShutterBombArcScenario Reproduced(SuperMetroidRuntime runtime, ISnesAddressSpace bus) => new(runtime, bus, 0, false, 8, 75, 4);
+    internal static ShutterBombArcScenario Reproduced(SuperMetroidRuntime runtime) => new(runtime, 0, false, 8, 75, 4);
 
     /// <summary>Builds a configured shutter approach and bomb sequence for the native comparison fixture.</summary>
-    internal static ShutterBombArcScenario Create(SuperMetroidRuntime runtime, ISnesAddressSpace bus, int slotIndex, bool approach, int interval, int rollAt, int duration) =>
-        new(runtime, bus, slotIndex, approach, interval, rollAt, duration);
+    internal static ShutterBombArcScenario Create(SuperMetroidRuntime runtime, int slotIndex, bool approach, int interval, int rollAt, int duration) =>
+        new(runtime, slotIndex, approach, interval, rollAt, duration);
 
     /// <summary>Horizontal input sign that moves Samus toward the selected shutter.</summary>
     private int Toward => SlotIndex == 0 ? -1 : 1;

@@ -27,7 +27,7 @@ internal static class JumpNoXMovementVerification
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 0;
@@ -35,7 +35,7 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YSubacceleration = 0x1c00;
         samus.HorizontalSpeed.AccelerationMode = 0;
 
-        SamusAerialMovement.StepNormalJump(bus, runtime.Room.LoadedLevelData, samus,
+        SamusAerialMovement.StepNormalJump(runtime.Room.LoadedLevelData, samus,
             (SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");

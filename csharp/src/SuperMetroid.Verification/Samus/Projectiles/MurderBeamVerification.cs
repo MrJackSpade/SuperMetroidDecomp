@@ -48,7 +48,7 @@ internal static class MurderBeamVerification
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
 
-        HoldCharge(bus, level, samus, projectiles, shared);
+        HoldCharge(level, samus, projectiles, shared);
 
         var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
@@ -57,9 +57,9 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)0x100f, samus.EquippedBeams,
             "same-frame Boots Left+A equips all four beams while retaining Charge");
 
-        shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, 0, 0);
+        shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
-        SamusProjectileFrameResult fired = projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+        SamusProjectileFrameResult fired = projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             "charged-left Murder Beam allocates slot zero");
         AssertTrue(fired.QueuedSoundEffect is null,
@@ -88,8 +88,8 @@ internal static class MurderBeamVerification
 
         for (int frame = 0; frame < 16; frame++)
         {
-            shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+            shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         }
         AssertEqual((ushort)0x901f, shot.Type, "Murder Beam persists without an instruction list");
         AssertEqual((ushort)200, shot.Damage, "persistent Murder Beam retains damage");
@@ -146,17 +146,17 @@ internal static class MurderBeamVerification
             phaseBoundary.Phase, "Mother Brain enters the phase-three recovery boundary");
         for (int frame = 0; frame < 120; frame++)
         {
-            shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+            shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         }
         AssertEqual((ushort)0x901f, shot.Type,
             "Murder Beam survives the phase-two to phase-three cutscene boundary");
         AssertEqual((ushort)200, shot.Damage,
             "phase-three Murder Beam retains its damage payload");
 
-        Suite(nameof(VerifyMissileAutoCancelMurderBeam), () => VerifyMissileAutoCancelMurderBeam(bus, level));
-        Suite(nameof(VerifyUnsafeMurderBeamDirection), () => VerifyUnsafeMurderBeamDirection(bus, level));
-        Suite(nameof(VerifyUnsafeUnchargedMurderBeam), () => VerifyUnsafeUnchargedMurderBeam(bus, level));
+        Suite(nameof(VerifyMissileAutoCancelMurderBeam), () => VerifyMissileAutoCancelMurderBeam(level));
+        Suite(nameof(VerifyUnsafeMurderBeamDirection), () => VerifyUnsafeMurderBeamDirection(level));
+        Suite(nameof(VerifyUnsafeUnchargedMurderBeam), () => VerifyUnsafeUnchargedMurderBeam(level));
         Console.WriteLine(
             "Murder Beam: precharge and missile auto-cancel setups, left-facing zero-list " +
             "persistence through Mother Brain's phase boundary, repeated 200-point damage " +
@@ -165,7 +165,6 @@ internal static class MurderBeamVerification
 
     /// <summary>Advances held shoot to the fully charged threshold, with an optional preexisting button hold for missile auto-cancel.</summary>
     private static void HoldCharge(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSystem projectiles,
@@ -177,8 +176,8 @@ internal static class MurderBeamVerification
             SnesButton newlyPressed = frame == 0 && !shootAlreadyHeld
                 ? SnesButton.X
                 : (ushort)0;
-            shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, SnesButton.X, newlyPressed);
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
+            shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, newlyPressed);
+            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
         }
         AssertEqual(SamusProjectileRomData.Beams.FullyChargedCounter,
             projectiles.Charge.FlareCounter, "pre-pause beam charge reaches charged threshold");
@@ -186,7 +185,6 @@ internal static class MurderBeamVerification
 
     /// <summary>Checks that the right-facing corrupted beam direction fails explicitly before it can masquerade as a normal shot.</summary>
     private static void VerifyUnsafeMurderBeamDirection(
-        ISnesAddressSpace bus,
         RoomLevelData level)
     {
         var samus = new SamusState
@@ -198,18 +196,17 @@ internal static class MurderBeamVerification
         };
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
-        HoldCharge(bus, level, samus, projectiles, shared);
+        HoldCharge(level, samus, projectiles, shared);
         samus.EquippedBeams = 0x100f;
         AssertThrows<NotSupportedException>(() =>
         {
-            shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, 0, 0);
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+            shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
+            projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
     /// <summary>Checks the Select plus Item Cancel missile route into a charged Murder Beam after missile cooldown suppresses an uncharged shot.</summary>
     private static void VerifyMissileAutoCancelMurderBeam(
-        ISnesAddressSpace bus,
         RoomLevelData level)
     {
         var samus = new SamusState
@@ -230,8 +227,8 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)1, samus.AutoCancelHudItemIndex,
             "missile auto-cancel request retains the selected HUD index");
 
-        shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, SnesButton.X, SnesButton.X);
-        projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
+        shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, SnesButton.X);
+        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
         AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "auto-cancel setup fires one Missile");
         AssertEqual((ushort)0, samus.SelectedHudItem,
@@ -239,10 +236,10 @@ internal static class MurderBeamVerification
         AssertEqual((ushort)0, samus.AutoCancelHudItemIndex,
             "successful Missile consumes its auto-cancel request");
 
-        HoldCharge(bus, level, samus, projectiles, shared, shootAlreadyHeld: true);
-        shared.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, 0, 0);
+        HoldCharge(level, samus, projectiles, shared, shootAlreadyHeld: true);
+        shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeMurder = projectiles.ObserveSlots();
-        projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
+        projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
@@ -252,7 +249,6 @@ internal static class MurderBeamVerification
 
     /// <summary>Rejects the uncharged corrupted beam combination before the projectile path treats it as an ordinary beam.</summary>
     private static void VerifyUnsafeUnchargedMurderBeam(
-        ISnesAddressSpace bus,
         RoomLevelData level)
     {
         var samus = new SamusState
@@ -261,7 +257,7 @@ internal static class MurderBeamVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x100f,
         };
-        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()),
+        AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }
 

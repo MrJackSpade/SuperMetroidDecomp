@@ -26,7 +26,7 @@ internal sealed class ShallowWaterJumpScenario
     internal SamusState Samus => Runtime.Player.IntroducedSamus;
 
     /// <summary>Places Samus standing in the water and settles two frames, ready for takeoff.</summary>
-    internal ShallowWaterJumpScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus)
+    internal ShallowWaterJumpScenario(SuperMetroidRuntime runtime)
     {
         Runtime = runtime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
@@ -40,7 +40,7 @@ internal sealed class ShallowWaterJumpScenario
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
         samus.EquippedItems = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0, new RuntimeFrameRequest());
         runtime.StepFrame(0, new RuntimeFrameRequest());
     }

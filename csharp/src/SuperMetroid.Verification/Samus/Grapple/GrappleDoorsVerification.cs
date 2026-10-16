@@ -45,7 +45,7 @@ internal static class GrappleDoorsVerification
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
             SeedStationaryGrappleCollisionProbe(samus);
             var plms = new RoomPlmSystem();
-            var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
+            var result = SamusGrappleMovement.StepFiring(level, samus, SnesButton.X, plms);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
             AssertEqual(1, plms.SlotTable.ActiveCount, "grapple allocates one blue-door opening actor");
             AssertEqual(RoomCollisionType.SolidBlock, level.GetCollisionBlockByIndex(origin).CollisionType,

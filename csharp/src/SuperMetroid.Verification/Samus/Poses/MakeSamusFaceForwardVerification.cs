@@ -19,7 +19,7 @@ internal static class MakeSamusFaceForwardVerification
         ushort boardingRadius = samus.Kinematics.Radius.Y;
         AssertTrue(boardingRadius != 0x18, "aim-up boarding pose has a non-front radius");
 
-        samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+        samus.PoseMetadata.ApplyForwardFacingPoseSetup();
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose, "power suit faces forward");
         AssertEqual(boardingRadius, samus.Kinematics.Radius.Y, "face-forward does not write SamusYRadius");
         AssertEqual((ushort)0x88, samus.Position.Y.Whole, "non-front radius lifts Samus three pixels");
@@ -28,7 +28,7 @@ internal static class MakeSamusFaceForwardVerification
             "the lift also writes SamusPreviousYPosition");
 
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+        samus.PoseMetadata.ApplyForwardFacingPoseSetup();
         AssertEqual((ushort)0x88, samus.Position.Y.Whole, "front-view radius 24 skips the lift");
         AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "no lift, no previous-Y write");
         Console.WriteLine("  MakeSamusFaceForward: live radius retained; lift and previous-Y write agree.");

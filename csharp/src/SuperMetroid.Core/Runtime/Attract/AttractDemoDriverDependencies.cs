@@ -43,7 +43,4 @@ internal sealed record AttractDemoDriverDependencies
 
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
-
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

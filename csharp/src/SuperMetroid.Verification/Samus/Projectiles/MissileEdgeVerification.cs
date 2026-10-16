@@ -32,8 +32,8 @@ internal static class MissileEdgeVerification
             for (int frame = 0; frame < 20; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, input, input);
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
+                shared.StepFrame(new SamusTerrain { Level = room }, samus, input, input);
+                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
                 if (frame == 0) AssertEqual(4, (int)samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];

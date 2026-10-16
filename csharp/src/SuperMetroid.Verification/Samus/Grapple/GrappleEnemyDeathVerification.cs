@@ -124,7 +124,7 @@ internal static class GrappleEnemyDeathVerification
             fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
             var movementRoom = CreateRoom(new(32, 32), new ushort[32 * 32], new byte[32 * 32]);
-            var result = SamusGrappleMovement.Step(new SamusTerrain { Bus = retail, Level = movementRoom }, samus, 0, 0);
+            var result = SamusGrappleMovement.Step(new SamusTerrain { Level = movementRoom }, samus, 0, 0);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
             AssertEqual(pose == SamusPoseId.StandingAimDiagonalDownRightPose ? pose : SamusPoseId.FacingRightNormalPose,

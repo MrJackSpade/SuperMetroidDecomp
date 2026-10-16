@@ -53,7 +53,7 @@ internal static class GameplayDisplayFrameTestsVerification
         VerifyRepaintAndImmutability(runtime);
         VerifyBossBackgroundTiming(runtime);
         VerifySceneRegisterTiming(runtime);
-        VerifyFixedColorTiming(runtime, bus);
+        VerifyFixedColorTiming(runtime);
         Console.WriteLine("  Gameplay display frame: repaint invariance, immutability and NMI timing of every re-timed register shadow confirmed.");
     }
 
@@ -159,7 +159,7 @@ internal static class GameplayDisplayFrameTestsVerification
 
     /// <summary>COLDATA shadows publish at the accepted NMI while the same effect's window table is read live.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
-    private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime, ISnesAddressSpace bus)
+    private static void VerifyFixedColorTiming(SuperMetroidRuntime runtime)
     {
         // Fireflea darkness: FX selector and the shared COLDATA shadows.
         RoomFxType originalFx = runtime.RoomLayer3Fx.Type;
@@ -205,8 +205,8 @@ internal static class GameplayDisplayFrameTestsVerification
 
         // Suit pickup: the light beam is a live HDMA window; its COLDATA follows the NMI.
         SamusState samus = runtime.Player.IntroducedSamus;
-        runtime.SuitPickup.Begin(bus, samus, new(0, 0), SamusSuitPickupKind.Varia);
-        runtime.SuitPickup.Step(bus, samus, runtime.Cgram);
+        runtime.SuitPickup.Begin(samus, new(0, 0), SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Step(samus, runtime.Cgram);
         FixedColorRegisterSnapshot suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
         AssertEqual(suitBefore.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())

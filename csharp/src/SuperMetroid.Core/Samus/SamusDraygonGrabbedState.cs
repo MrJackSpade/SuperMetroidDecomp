@@ -60,16 +60,15 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>
     /// Ports <c>SetSamusIntoTheGrabbedByDraygonPose</c> at `$90:E23B`.
     /// </summary>
-    public void Begin(ISnesAddressSpace bus, SamusState samus, bool draygonFacingRight)
+    public void Begin(SamusState samus, bool draygonFacingRight)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         samus.Pose = draygonFacingRight
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
             : SamusPoseId.DraygonGrabbedNeutralLeftPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
 
         IsActive = true;
         MovementHandlerReplaced = false;
@@ -138,12 +137,10 @@ public sealed class SamusDraygonGrabbedState
     /// nonzero and different from the last counted pattern.
     /// </summary>
     public DraygonEscapeResult StepEscapeHandler(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton newlyPressedInput,
         bool grappleLockedInPlace)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         EnsureActiveGrabbedPose();
 
@@ -162,7 +159,7 @@ public sealed class SamusDraygonGrabbedState
         bool released = counted && unchecked((short)(EscapeButtonCounter - EscapeButtonCounterTarget)) >= 0;
         SamusPoseId poseBeforeRelease = samus.Pose;
         if (released)
-            Release(bus, samus);
+            Release(samus);
 
         return new DraygonEscapeResult(
             grappleLockedInPlace,
@@ -173,9 +170,8 @@ public sealed class SamusDraygonGrabbedState
     /// Ports `$90:E2DE-$E359`. The release keeps extra run speed exactly as native does,
     /// but clears base X speed, all vertical velocity, bounce state, and acceleration mode.
     /// </summary>
-    public void Release(ISnesAddressSpace bus, SamusState samus)
+    public void Release(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         bool facingLeft = samus.PoseMetadata.IsFacingLeft();
@@ -184,7 +180,7 @@ public sealed class SamusDraygonGrabbedState
             : SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         if (samus.Pose != samus.PoseHistory.PreviousPose)
-            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Installing normal
         // movement interrupts a spark without resetting its independent boost/palette.
         samus.Shinespark.RelinquishMovementHandler();

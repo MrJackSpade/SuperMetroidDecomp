@@ -1564,8 +1564,8 @@ internal sealed class CeresRidleyBehavior
 
         // Both animations queue into this frame's Mode 7 transfer queue, the capsule first, so
         // the wing descriptors start after the capsule's. Their bytes outlive the transfer.
-        var queue = new Mode7TransferQueue(_room.Bus ?? throw new InvalidOperationException(
-            "The Ceres Ridley getaway requires a loaded room bus for its Mode 7 transfer queue."));
+        var queue = new Mode7TransferQueue(_room.Mode7QueueResidue ?? throw new InvalidOperationException(
+            "The Ceres Ridley getaway requires the session's Mode 7 transfer queue residue."));
 
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
         // lists patch only the two two-byte rows occupied by that animation in the map.

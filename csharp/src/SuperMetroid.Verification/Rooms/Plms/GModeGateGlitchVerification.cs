@@ -94,13 +94,13 @@ internal static class GModeGateGlitchVerification
         }
 
         SamusState samus = runtime.Player.IntroducedSamus;
-        EnterDirectGMode(bus, samus);
+        EnterDirectGMode(samus);
         samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Wave;
         samus.SelectedHudItem = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
 
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
@@ -110,15 +110,15 @@ internal static class GModeGateGlitchVerification
         {
             if (frame == reactivateFrame)
             {
-                AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+                AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
                     $"direct G-Mode cancellation is admitted on frame {frame}");
                 AssertTrue(!samus.Xray.IsGMode && !samus.Xray.ArePlmsSuspended,
                     $"frame {frame} X-Ray activation restores native subsystem words");
             }
 
             SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-            bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-            shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
+            bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+            shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
 
             SamusProjectileSlot shot = shots.Slots[0];
             if (shot.Type != 0 && shot.Position.X.Whole < 112 && passedGateFrame < 0)
@@ -151,7 +151,7 @@ internal static class GModeGateGlitchVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
 
         SamusState samus = runtime.Player.IntroducedSamus;
-        EnterDirectGMode(bus, samus);
+        EnterDirectGMode(samus);
         samus.Xray.TransitionDirectGModeToIndirect();
         AssertTrue(!samus.Xray.IsActive && samus.Xray.IsGMode,
             "door teardown removes direct X-Ray object but retains subsystem disables");
@@ -178,7 +178,7 @@ internal static class GModeGateGlitchVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
         };
         samus.Kinematics.Radius = new(5, 8);
-        EnterDirectGMode(bus, samus);
+        EnterDirectGMode(samus);
 
         ushort[] words = Enumerable.Repeat((ushort)0x3000, 16).ToArray();
         byte[] behavior = Enumerable.Repeat((byte)0x80, 16).ToArray();
@@ -223,7 +223,7 @@ internal static class GModeGateGlitchVerification
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "overloaded G-Mode sand preserves the running-momentum flag");
 
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "using X-Ray again cancels direct G-Mode after sand overload");
         AssertTrue(!samus.Xray.ArePlmsSuspended,
             "G-Mode cancellation restores the cartridge PLM-enable word");
@@ -335,7 +335,7 @@ internal static class GModeGateGlitchVerification
             RoomLevelData controlLevel = CreateLevel();
             var controlPlms = new RoomPlmSystem();
             SamusState controlSamus = CreateSamus();
-            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = controlLevel, Plms = controlPlms }, controlSamus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult control = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = controlLevel, Plms = controlPlms }, controlSamus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertTrue(control.Collided,
                 $"available PLM allocation retains ordinary solid contact for {description}");
 
@@ -344,7 +344,7 @@ internal static class GModeGateGlitchVerification
             FillSuspendedPlmPool(plms);
             SamusState samus = CreateSamus();
 
-            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertEqual(expectedPass, !result.Collided,
                 $"full PLM pool gives cartridge default collision for {description}");
             AssertEqual(collisionType,
@@ -485,7 +485,7 @@ internal static class GModeGateGlitchVerification
     }
 
     /// <summary>Uses fatal X-Ray damage and reserve recovery to reach direct G-Mode with all subsystem words disabled.</summary>
-    private static void EnterDirectGMode(ISnesAddressSpace bus, SamusState samus)
+    private static void EnterDirectGMode(SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedItems = samus.EquippedItems.With(SamusEquipmentFlags.XrayScope);
@@ -497,8 +497,8 @@ internal static class GModeGateGlitchVerification
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
+        samus.Presentation.InitializeAnimation();
+        AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "direct G-Mode fixture activates X-Ray");
 
         var recovery = new SamusReserveAutoRecoveryState();

@@ -470,6 +470,12 @@ public sealed class SamusState
     public ProjectileInheritanceRecords ProjectileInheritance { get; } = new();
 
     /// <summary>
+    /// The session's Mode 7 transfer queue residue, which her bank-$91 low-half delay reads alias. The room loader, attract
+    /// driver and intro bind it when they create her; a detached Samus that reaches such a read fails loudly.
+    /// </summary>
+    public SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; set; }
+
+    /// <summary>
     /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase
     /// inside-block owner before beta movement reaches a directional collision scan.
     /// </summary>
@@ -524,7 +530,7 @@ public sealed class SamusState
     /// enemy collision is deliberately outside the current room slice, with no substitute.
     /// </remarks>
     internal LargerPoseCollisionOutcome ResolveLargerPoseCollision(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
@@ -564,13 +570,13 @@ public sealed class SamusState
         // The probes run against independent copies. Native stores both available-distance
         // results before choosing a branch, so neither probe may move the live body early.
         BlockMoveResult upward = ProbeChangedPoseVertical(
-            bus,
+
             level,
             displacement: unchecked(SnesSixteenSixteen.FromWhole(-radiusDifference)),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             targetPose, plms);
         BlockMoveResult downward = ProbeChangedPoseVertical(
-            bus,
+
             level,
             displacement: SnesSixteenSixteen.FromWhole(radiusDifference),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
@@ -599,7 +605,7 @@ public sealed class SamusState
             // A collision here takes `$91:FE82` and restores PreviousPose; it does not use
             // `$91:FFA7`'s crouch selector because the initial flags were not both set.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                bus, level,
+level,
                 displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
@@ -618,7 +624,7 @@ public sealed class SamusState
 
             // `$91:FF2B` is the downward mirror of the opposite-side check above.
             BlockMoveResult opposite = ProbeChangedPoseVertical(
-                bus, level,
+level,
                 displacement: SnesSixteenSixteen.FromWhole(centerAdjustment),
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
                 targetPose, plms: plms);
@@ -673,7 +679,7 @@ public sealed class SamusState
     /// before calling `$91:FDAE`, so the elevator pseudo-door's below-$09 gate tests it.
     /// </remarks>
     internal BlockMoveResult ProbeChangedPoseVertical(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         int displacement,
         bool scanLeftToRight,
@@ -699,7 +705,7 @@ public sealed class SamusState
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-                bus, level, probe, amount, scanLeftToRight, plms);
+level, probe, amount, scanLeftToRight, plms);
             // Submerging sand clears native speed/gravity even during an observation.
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;
@@ -719,7 +725,7 @@ public sealed class SamusState
     /// Applies `$91:FFA7`'s non-morph fallback after simultaneous above/below collision.
     /// Direction metadata selects `$27/$28`; an aimed crouch consequently loses its aim.
     /// </summary>
-    internal void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
+    internal void ApplyPoseChangeCollisionCrouchFallback(SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.Radius.Y;
         SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft()
@@ -741,7 +747,7 @@ public sealed class SamusState
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius))));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        Presentation.InitializeAnimation(bus, initialFrame: 0);
+        Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>Absolute previous-Y word written by a pose-collision correction this frame.</summary>
@@ -875,9 +881,8 @@ public sealed class SamusState
     /// $91:E83A/E867, called by unpause command $0C: reconcile Morph/Spring Ball
     /// equipment without changing position, velocity, or vertical direction.
     /// </summary>
-    public void ReconcilePauseBallEquipment(ISnesAddressSpace bus)
+    public void ReconcilePauseBallEquipment()
     {
-        Ensure.NotNull(bus);
         bool springEquipped = EquippedItems.HasAny(SamusEquipmentFlags.SpringBall);
         SamusMovementType movement = PoseMetadata.ReadMovementType();
         bool enable = springEquipped && movement is
@@ -896,7 +901,7 @@ public sealed class SamusState
         PoseMetadata.RefreshCollisionRadii();
         // $91:F9F4/FA56 preserve animation only within the same ball family. Crossing
         // families through the equipment menu therefore runs the normal frame-zero setup.
-        Presentation.InitializeAnimation(bus);
+        Presentation.InitializeAnimation();
     }
 
     /// <summary>

@@ -27,8 +27,8 @@ internal static class RetailGameFixtureVerification
         EndingInventorySnapshot inventory = default, bool japaneseText = false) =>
         InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
     /// <summary>Creates an intro state with optionally supplied audio and installed visual catalogs.</summary>
-    internal static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    internal static IntroCinematicState CreateRetailIntroFixture(CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null) =>
-        InstalledFixtures.CreateIntro(bus, audio, introFont, characterArtwork, beamArtwork, samusBodyArtwork);
+        InstalledFixtures.CreateIntro(audio, introFont, characterArtwork, beamArtwork, samusBodyArtwork);
 }

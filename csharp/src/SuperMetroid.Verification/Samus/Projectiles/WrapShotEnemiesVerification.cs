@@ -63,8 +63,8 @@ internal static class WrapShotEnemiesVerification
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
-                bombs.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, input, input);
-                shots.StepFrame(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
+                bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
+                shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left ? 0 : 768), 0), bombs);
                 AssertEqual(0, runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");

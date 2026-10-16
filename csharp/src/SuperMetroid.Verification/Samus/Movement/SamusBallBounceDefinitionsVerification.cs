@@ -31,7 +31,7 @@ internal static class SamusBallBounceDefinitionsVerification
                 : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(guard);
+            samus.Presentation.InitializeAnimation();
             for (int phase = 0; phase < 3; phase++)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {

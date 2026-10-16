@@ -63,32 +63,32 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x30, vram.ReadByte(0xc100), "Samus bottom part 1 reaches VRAM word $6080");
     AssertEqual(0x40, vram.ReadByte(0xc300), "Samus bottom part 2 reaches VRAM word $6180");
 
-    samus.Presentation.InitializeAnimation(bus);
+    samus.Presentation.InitializeAnimation();
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "pose 1 initial animation delay");
 
     // Frames 0-3 each last ten calls. The fifth byte is command $F6, which returns a
     // healthy Samus to frame zero rather than ever exposing command index four as art.
     for (int tick = 0; tick < 9; tick++)
-        samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "standing frame remains zero for first nine ticks");
     AssertEqual(1, samus.AnimationFrameTimer.RawValue, "standing timer reaches one before advance");
-    samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+    samus.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual(1, samus.AnimationFrame, "standing frame advances on tenth tick");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "next standing frame reloads ten ticks");
     for (int tick = 0; tick < 30; tick++)
-        samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual(0, samus.AnimationFrame, "healthy $F6 command loops standing animation");
 
     // Below 30 energy, the same command enters frames 5-8. Command $FE,$04 then subtracts
     // four byte positions and loops that faster eight-tick breathing sequence.
     samus.Health = 29;
-    samus.Presentation.InitializeAnimation(bus);
+    samus.Presentation.InitializeAnimation();
     for (int tick = 0; tick < 40; tick++)
-        samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "low-health $F6 enters alternate sequence");
     AssertEqual(8, samus.AnimationFrameTimer.RawValue, "low-health sequence uses eight-tick delay");
     for (int tick = 0; tick < 32; tick++)
-        samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
+        samus.Presentation.AnimateNoFx(new SamusAnimationStep());
     AssertEqual(5, samus.AnimationFrame, "$FE,$04 loops low-health standing sequence");
 
     // Pose $FD overreads the native pointer table and selects $91:0302, a mutable
@@ -102,13 +102,13 @@ internal static void VerifySamusRenderingSlice()
 
     // `$FA gg aa` selects `gg` only when both vertical speed halves are zero.
     WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfa, 0x31, 0x32]);
-    unusedInstructionSamus.Presentation.InitializeAnimation(bus);
-    unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
+    unusedInstructionSamus.Presentation.InitializeAnimation();
+    unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallFallingRightPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` zero Y speed selects first pose byte");
     unusedInstructionSamus.Kinematics.YSubspeed = 1;
-    unusedInstructionSamus.Presentation.InitializeAnimation(bus);
-    unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
+    unusedInstructionSamus.Presentation.InitializeAnimation();
+    unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallFallingLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FA` nonzero Y subspeed selects second pose byte");
 
@@ -116,19 +116,19 @@ internal static void VerifySamusRenderingSlice()
     WriteUnusedPoseDelayInstruction(bus, [0x01, 0xfc, 0x02, 0x00, 0x41, 0x42]);
     unusedInstructionSamus.Kinematics.YSubspeed = 0;
     unusedInstructionSamus.EquippedItems = 0;
-    unusedInstructionSamus.Presentation.InitializeAnimation(bus);
-    unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
+    unusedInstructionSamus.Presentation.InitializeAnimation();
+    unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` unequipped branch selects first pose byte");
     unusedInstructionSamus.EquippedItems = 0x0002;
-    unusedInstructionSamus.Presentation.InitializeAnimation(bus);
-    unusedInstructionSamus.Presentation.AnimateDeathFrame(bus);
+    unusedInstructionSamus.Presentation.InitializeAnimation();
+    unusedInstructionSamus.Presentation.AnimateDeathFrame();
     AssertEqual(SamusPoseId.UnusedPose42, unusedInstructionSamus.PendingTransitionalPose,
         "$FC` equipped branch selects second pose byte");
 
     // Restore the ordinary debugger scenario before verifying frame-zero drawing below.
     samus.Health = 99;
-    samus.Presentation.InitializeAnimation(bus);
+    samus.Presentation.InitializeAnimation();
 
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -174,7 +174,7 @@ internal static void VerifySamusRenderingSlice()
     // The verified ordinary transition applies pose $09 after movement/animation and before
     // drawing. Its movement type one uses default position math and always draws both halves.
     SeedPoseNineSamusData(bus);
-    samus.PoseTransitions.ApplyStandingRightToRunningRight(bus);
+    samus.PoseTransitions.ApplyStandingRightToRunningRight();
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationFrame, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer.RawValue, "running pose first delay byte");
@@ -188,7 +188,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x00e3, samus.Presentation.BottomSpritemapIndex, "running pose bottom spritemap index");
     AssertEqual(2, oam.LastFinalizedSpriteCount, "synthetic running pose draws top and bottom pieces");
 
-    samus.PoseTransitions.ApplyRunningRightToStandingRight(bus);
+    samus.PoseTransitions.ApplyRunningRightToStandingRight();
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "running no-button fallback applies standing-right pose");
     AssertEqual(0, samus.AnimationFrame, "standing fallback resets animation frame");
     AssertEqual(10, samus.AnimationFrameTimer.RawValue, "standing fallback reloads frame-zero delay");
@@ -208,7 +208,7 @@ internal static void VerifySamusRenderingSlice()
     // checks below keep Samus at the seeded Y.
     samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);
     ushort radiusBeforeForwardSetup = samus.Kinematics.Radius.Y;
-    samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+    samus.PoseMetadata.ApplyForwardFacingPoseSetup();
     AssertEqual(SamusPoseId.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
         "forward setup shifts previous pose, not stale older walljump history");
     AssertEqual(0x0308, samus.PoseHistory.LastDifferentDirectionAndMovement,
@@ -216,7 +216,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "forward setup commits new pose");
     AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
         samus.PoseHistory.PreviousDirectionAndMovement, "forward setup commits new metadata");
-    samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+    samus.PoseMetadata.ApplyForwardFacingPoseSetup();
     AssertEqual(samus.Pose, samus.PoseHistory.LastDifferentPose,
         "same-pose forward setup still shifts native history");
     AssertTrue(!samus.PoseHistory.AllowsWallJumpProbe,
@@ -245,7 +245,7 @@ internal static void VerifySamusRenderingSlice()
 
     // `$9B` uses dedicated suited art and therefore must not inherit `$00`'s chest patch.
     samus.EquippedItems = 0x0001;
-    samus.PoseMetadata.ApplyForwardFacingPoseSetup(bus);
+    samus.PoseMetadata.ApplyForwardFacingPoseSetup();
     AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     SpriteArtwork bodyBeforeSuited = samus.Presentation.TileTransfers.BodyArtwork;
     oamFrame.BeginFrame();

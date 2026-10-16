@@ -1194,7 +1194,7 @@ internal static class RoomPlmPopulationVerification
             .Select(block => level.GetCollisionBlock(new(checked((ushort)(block % level.Size.X)), checked((ushort)(block / level.Size.X)))).LevelWord)
             .ToArray();
         SaveStationConfirmationResult confirmation =
-            plms.Stations.ResolveSaveStationConfirmation(bus, saveRequest, accepted: true, level: level, streamer: streamer, view: new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Stations.ResolveSaveStationConfirmation(saveRequest, accepted: true, level: level, streamer: streamer, view: new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(confirmation.Saving, "accepted save resumes the sleeping cartridge PLM");
         // #1269: $84:AFF4-$AFFA run in the PLM pass the message returned into.
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),

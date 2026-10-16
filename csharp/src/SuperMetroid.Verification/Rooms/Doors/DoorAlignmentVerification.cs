@@ -135,7 +135,7 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
         samus.HorizontalSpeed.HasRunningMomentum = true;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));

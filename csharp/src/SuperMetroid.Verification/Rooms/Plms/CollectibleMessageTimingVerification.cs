@@ -31,7 +31,7 @@ internal static class CollectibleMessageTimingVerification
         samus.Health = 49;
         samus.MaxHealth = 99;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         var item = runtime.Plms.CollectiblePlms.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);

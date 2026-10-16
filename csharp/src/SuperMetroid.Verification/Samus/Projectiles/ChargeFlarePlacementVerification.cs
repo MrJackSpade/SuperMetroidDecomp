@@ -165,7 +165,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));

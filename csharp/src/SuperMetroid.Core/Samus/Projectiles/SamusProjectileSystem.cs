@@ -307,7 +307,7 @@ public sealed class SamusProjectileSystem
     /// <param name="producerSoundSuppressed">Optional captured sound-suppression decision at production; null uses the shared Power Bomb owner's current active state.</param>
     public SamusProjectileFrameResult StepFrame(SamusTerrain terrain, SamusState samus, ProjectileButtonInput buttons, Position16<RoomPixels> layer1, SamusBombProjectileSystem sharedProjectiles, bool projectileProducerEnabled = true, bool? producerSoundSuppressed = null)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         Ensure.NotNull(sharedProjectiles);
@@ -463,7 +463,7 @@ public sealed class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
             {
-                persistentMemoryCorrupted |= BeamCombos.RunSpacetimePaletteCopyTail(terrain.Bus, slot);
+                persistentMemoryCorrupted |= BeamCombos.RunSpacetimePaletteCopyTail(terrain.ProgressionMirror, slot);
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {

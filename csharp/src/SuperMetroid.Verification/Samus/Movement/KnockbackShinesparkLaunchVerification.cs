@@ -19,13 +19,13 @@ internal static class KnockbackShinesparkLaunchVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.ShinesparkWindupLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x6c, 0x98)) };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400), "a shine is stored");
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.RelinquishMovementHandler();
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "normal movement replaced the windup handler");
 
-        samus.PoseTransitions.ApplyShinesparkDirectionTransition(bus, SamusPoseId.ShinesparkHorizontalLeftPose);
+        samus.PoseTransitions.ApplyShinesparkDirectionTransition(SamusPoseId.ShinesparkHorizontalLeftPose);
 
         AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "the left launch installs the horizontal handler");
         AssertEqual(SamusPoseId.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");

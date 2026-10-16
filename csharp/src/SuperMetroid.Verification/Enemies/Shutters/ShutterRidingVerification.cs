@@ -32,7 +32,7 @@ internal static class ShutterRidingVerification
             samus.InputLocked = false;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new(platform.Position.X.Whole, (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             // A real Shoot edge plants the bomb. Its explosion activates the shutter

@@ -14,8 +14,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 internal sealed class IntroBabyDiscoveryState
 {
-    /// <summary>Supplies collision and pose data while the intro demo moves Samus.</summary>
-    private readonly ISnesAddressSpace bus;
+
     /// <summary>Receives egg-hatch and baby-cry sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Feeds the scripted pose and movement input to Samus.</summary>
@@ -30,10 +29,10 @@ internal sealed class IntroBabyDiscoveryState
     internal readonly IntroDiscoverySprite confusedBaby;
 
     /// <summary>Sets up the native scene's Samus state, partial room collision map, actors, and demo input list.</summary>
-    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    public IntroBabyDiscoveryState(CartridgeAudioState? audio = null,
         SamusState? existingSamus = null)
     {
-        this.bus = Ensure.NotNull(bus);
+
         this.audio = audio;
 
         egg = CreateActor(IntroBabyActorDefinitions.Egg);
@@ -48,7 +47,7 @@ internal sealed class IntroBabyDiscoveryState
         Samus.PoseMetadata.RefreshCollisionRadii();
         // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
         // keeps running rather than restarting.
-        Samus.Presentation.SetAnimationFrameIfPoseChanged(bus);
+        Samus.Presentation.SetAnimationFrameIfPoseChanged();
         Samus.CommitPoseHistory();
         Samus.Presentation.PrimeGraphics();
 
@@ -108,7 +107,7 @@ internal sealed class IntroBabyDiscoveryState
                 // before input/movement, rather than requiring pose setters to publish early.
                 Samus.PoseMetadata.RefreshCollisionRadii();
                 IntroSamusDemoMovement.StepGroundedLeft(
-                    bus,
+
                     Level,
                     Samus,
                     demo.Held,

@@ -46,7 +46,7 @@ internal static class MockballBoostContactVerification
             for (int frame = 0; frame < 3; frame++)
             {
                 speed.ContactDamageIndex = SamusContactDamageIndex.None; // Runtime beta clears before movement.
-                SamusMorphBallMovement.StepGrounded(fixture.Bus, floor, samus, (ushort)frame);
+                SamusMorphBallMovement.StepGrounded(floor, samus, (ushort)frame);
                 enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
                 enemy.Health = 1000;
                 samus.InvincibilityTimer = NativeCountdown.Start(1); // Non-attacking control cannot hurt Samus.
@@ -58,14 +58,14 @@ internal static class MockballBoostContactVerification
             }
             speed.SpeedBoostCounter = 0x0301;
             speed.ContactDamageIndex = SamusContactDamageIndex.None;
-            SamusMorphBallMovement.StepGrounded(fixture.Bus, floor, samus, 4);
+            SamusMorphBallMovement.StepGrounded(floor, samus, 4);
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "sub-threshold boost does not grant a ball contact attack");
             speed.SpeedBoostCounter = 0x0401;
             speed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Pose = pose == SamusPoseId.MorphBallMovingRightPose
                 ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose;
             speed.AccelerationMode = 0;
-            SamusMorphBallMovement.StepGrounded(fixture.Bus, floor, samus, 5);
+            SamusMorphBallMovement.StepGrounded(floor, samus, 5);
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "stationary ball does not run the moving-ball boost publication");
             AssertEqual(0, speed.SpeedBoostCounter, "stopping retains native boost cancellation");
         }

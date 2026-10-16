@@ -34,7 +34,7 @@ internal static class XrayControlsVerification
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(128, 139));
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
             samus.EquippedBeams = 0;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;

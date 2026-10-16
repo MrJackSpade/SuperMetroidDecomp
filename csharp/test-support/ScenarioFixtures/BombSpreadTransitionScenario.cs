@@ -40,7 +40,7 @@ internal sealed class BombSpreadTransitionScenario
     internal static int TimingCaseCount(bool wallRoute) => wallRoute ? 14 : 10;
 
     /// <summary>Clears a bounded Landing Site fixture and equips Samus for an input-earned charged spread.</summary>
-    internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, bool left, int timingCase, bool wallRoute)
+    internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, bool left, int timingCase, bool wallRoute)
     {
         (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);
         Delay = timingCase < 10 ? timingCase : timingCase + 30;
@@ -65,7 +65,7 @@ internal sealed class BombSpreadTransitionScenario
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
     }
 
     /// <summary>Controller word for <paramref name="frame"/>.</summary>

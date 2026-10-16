@@ -26,5 +26,5 @@ internal static class RenderRetailFixture
         InstalledFixtures.CreateDestruction();
 
     /// <summary>Creates the intro cinematic from the shared retail fixture installation.</summary>
-    internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus) => InstalledFixtures.CreateIntro(bus);
+    internal static IntroCinematicState CreateIntro() => InstalledFixtures.CreateIntro();
 }

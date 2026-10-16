@@ -34,7 +34,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.InputLocked = true;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.Session.runtime = runtime;

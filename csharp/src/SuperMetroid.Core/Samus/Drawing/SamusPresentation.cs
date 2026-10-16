@@ -79,9 +79,8 @@ internal sealed class SamusPresentation
     /// Seeds the animation frame timer as <c>Set_Samus_AnimationFrame_if_PoseChanged</c>
     /// at <c>$91:FB08</c> does, including its bottom-minus-one liquid boundary test.
     /// </summary>
-    public void InitializeAnimation(ISnesAddressSpace bus, ushort initialFrame = 0)
+    public void InitializeAnimation(ushort initialFrame = 0)
     {
-        Ensure.NotNull(bus);
 
         _samus.AnimationFrame = initialFrame;
         // `$91:FB08` does not simply reuse the previous animation pass's `$0A9A`. It
@@ -89,7 +88,7 @@ internal sealed class SamusPresentation
         // Gravity Suit takes the ordinary speed-divisor path.
         _samus.AnimationFrameBuffer = _samus.LiquidPhysics.DeterminePoseChangeAnimationBuffer(_samus);
         _samus.AnimationDelayListAddress = ResolveAnimationDelayList();
-        byte initialDelay = ReadAnimationByte(bus, _samus.AnimationFrame);
+        byte initialDelay = ReadAnimationByte(_samus.AnimationFrame);
         if (SamusAnimationDelayDefinitions.IsCommand(initialDelay))
         {
             throw new InvalidOperationException(
@@ -110,11 +109,11 @@ internal sealed class SamusPresentation
     /// <see cref="SamusState.AnimationFrameBuffer"/>, so callers must be paths where native $0A9A is
     /// nonnegative, as it is at the intro's $8B:AF6C setup and $91:8739 demo end.
     /// </remarks>
-    internal void SetAnimationFrameIfPoseChanged(ISnesAddressSpace bus)
+    internal void SetAnimationFrameIfPoseChanged()
     {
         if (_samus.Pose == _samus.PoseHistory.PreviousPose)
             return;
-        InitializeAnimation(bus);
+        InitializeAnimation();
     }
 
     /// <summary>
@@ -166,9 +165,8 @@ internal sealed class SamusPresentation
     /// atmospheric slots, sound requests, and periodic-damage words before the timer
     /// decrement. The historical name remains as a source-compatible debugger API.
     /// </remarks>
-    public void AnimateNoFx(ISnesAddressSpace bus, SamusAnimationStep step)
+    public void AnimateNoFx(SamusAnimationStep step)
     {
-        Ensure.NotNull(bus);
         EnsureAnimationInitialized();
 
         // `$90:8000` dispatches the active room-FX animation handler before touching the
@@ -198,7 +196,7 @@ internal sealed class SamusPresentation
             return;
 
         _samus.AnimationFrame = unchecked((ushort)(_samus.AnimationFrame + 1));
-        HandleAnimationDelay(bus, step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput, step.QueueEchoSound);
+        HandleAnimationDelay(step.ControllerInput, step.ProspectiveInputPose, step.DemoPoseInput, step.QueueEchoSound);
     }
 
     /// <summary>
@@ -206,15 +204,14 @@ internal sealed class SamusPresentation
     /// `$90:8976`. Unlike ordinary gameplay animation, this call deliberately skips liquid-
     /// FX delay buffering, neutral-jump hacks, and controller-dependent Dash interception.
     /// </summary>
-    internal void AnimateDeathFrame(ISnesAddressSpace bus)
+    internal void AnimateDeathFrame()
     {
-        Ensure.NotNull(bus);
         EnsureAnimationInitialized();
         _samus.AnimationFrameTimer = _samus.AnimationFrameTimer.Decrement().Remaining;
         if (!_samus.AnimationFrameTimer.IsZero && !_samus.AnimationFrameTimer.IsNegative)
             return;
         _samus.AnimationFrame = unchecked((ushort)(_samus.AnimationFrame + 1));
-        HandleAnimationDelay(bus, controllerInput: 0);
+        HandleAnimationDelay(controllerInput: 0);
     }
 
     /// <summary>
@@ -233,11 +230,11 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Consumes a pose delay byte or native animation command after the frame timer expires.</summary>
-    private void HandleAnimationDelay(ISnesAddressSpace bus, SnesButton controllerInput,
+    private void HandleAnimationDelay(SnesButton controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
     {
-        byte delayOrCommand = ReadAnimationByte(bus, _samus.AnimationFrame);
+        byte delayOrCommand = ReadAnimationByte(_samus.AnimationFrame);
         if (!SamusAnimationDelayDefinitions.IsCommand(delayOrCommand))
         {
             // `$90:8554-$8568` replaces an ordinary running pose's per-pose delay list
@@ -247,8 +244,8 @@ internal sealed class SamusPresentation
             byte runningOrPoseDelay = _samus.HorizontalSpeed.HasRunningMomentum &&
                 _samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running
                 ? _samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster)
-                    ? _samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(bus, _samus.AnimationFrame)
-                    : ReadDefaultRunningAnimationByte(bus, _samus.AnimationFrame)
+                    ? _samus.HorizontalSpeed.ReadSpeedBoosterAnimationByte(_samus.Mode7QueueResidue, _samus.AnimationFrame)
+                    : ReadDefaultRunningAnimationByte(_samus.Mode7QueueResidue, _samus.AnimationFrame)
                 : delayOrCommand;
             _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(_samus.AnimationFrameBuffer + runningOrPoseDelay)));
             return;
@@ -267,7 +264,7 @@ internal sealed class SamusPresentation
             {
                 ushort stagedFrame = _samus.AnimationFrame;
                 if (_samus.HorizontalSpeed.TryAdvanceSpeedBoosterAnimationStage(
-                    bus,
+                    _samus.Mode7QueueResidue,
                     movementType: SamusMovementType.Running,
                     controllerInput,
                     _samus.AnimationFrameBuffer,
@@ -287,7 +284,7 @@ internal sealed class SamusPresentation
             {
                 _samus.AnimationFrame = 0;
                 _samus.AnimationFrameTimer = NativeCountdown.FromRaw(unchecked((ushort)(
-                    _samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(bus, byteIndex: 0))));
+                    _samus.AnimationFrameBuffer + ReadDefaultRunningAnimationByte(_samus.Mode7QueueResidue, byteIndex: 0))));
                 return;
             }
         }
@@ -345,7 +342,6 @@ internal sealed class SamusPresentation
                 // runs in the native frame. `$BF-$C4` use the same command to start their
                 // literal `$19/$1A` spin-jump operand after the grounded turn art finishes.
                 _samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
-                    bus,
                     unchecked((ushort)(_samus.AnimationFrame + 1)));
                 return;
 
@@ -355,14 +351,13 @@ internal sealed class SamusPresentation
                 // according to BOTH halves of Y speed. `$37/$38` test Spring Ball bit $0002
                 // and use this command to finish ordinary morph entry without guessing
                 // whether the transition walked off a ledge.
-                ushort itemMask = SnesLittleEndian.Word(ReadAnimationByte(bus, unchecked((ushort)(_samus.AnimationFrame + 1))), ReadAnimationByte(bus, unchecked((ushort)(_samus.AnimationFrame + 2))));
+                ushort itemMask = SnesLittleEndian.Word(ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 1))), ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 2))));
                 bool itemEquipped = (_samus.EquippedItems & itemMask) != 0;
                 bool movingVertically = _samus.Kinematics.YSpeed != 0 || _samus.Kinematics.YSubspeed != 0;
                 ushort targetOffset = itemEquipped
                     ? movingVertically ? (ushort)6 : (ushort)5
                     : movingVertically ? (ushort)4 : (ushort)3;
                 _samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
-                    bus,
                     unchecked((ushort)(_samus.AnimationFrame + targetOffset)));
                 return;
 
@@ -374,7 +369,6 @@ internal sealed class SamusPresentation
                 // treating valid cartridge bytecode as corrupt data.
                 bool faMovingVertically = _samus.Kinematics.YSpeed != 0 || _samus.Kinematics.YSubspeed != 0;
                 _samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
-                    bus,
                     unchecked((ushort)(_samus.AnimationFrame + (faMovingVertically ? 2 : 1))));
                 return;
 
@@ -395,10 +389,9 @@ internal sealed class SamusPresentation
                 // mask is followed by unequipped/equipped pose bytes. Poses `$3F/$40` are
                 // the only retail users (Spring Ball-aware Morph Ball selection), but the
                 // command still publishes through the ordinary transitional-pose seam.
-                ushort fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(bus, unchecked((ushort)(_samus.AnimationFrame + 1))), ReadAnimationByte(bus, unchecked((ushort)(_samus.AnimationFrame + 2))));
+                ushort fcItemMask = SnesLittleEndian.Word(ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 1))), ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 2))));
                 bool fcItemEquipped = (_samus.EquippedItems & fcItemMask) != 0;
                 _samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
-                    bus,
                     unchecked((ushort)(_samus.AnimationFrame + (fcItemEquipped ? 4 : 3))));
                 return;
 
@@ -407,14 +400,13 @@ internal sealed class SamusPresentation
                 // seam as $F8. Unlike F8, FD has no auto-jump special case before it falls
                 // through here. The one-frame $4B/$4C neutral-jump transitions use it.
                 _samus.PendingTransitionalPose = (SamusPoseId)ReadAnimationByte(
-                    bus,
                     unchecked((ushort)(_samus.AnimationFrame + 1)));
                 return;
 
             case 14:
                 // $90:84C7, command $FE nn: move backward nn byte positions. The operand
                 // remains in the same delay stream and is not itself an animation frame.
-                byte backwardCount = ReadAnimationByte(bus, unchecked((ushort)(_samus.AnimationFrame + 1)));
+                byte backwardCount = ReadAnimationByte(unchecked((ushort)(_samus.AnimationFrame + 1)));
                 _samus.AnimationFrame = unchecked((ushort)(_samus.AnimationFrame - backwardCount));
                 break;
 
@@ -425,7 +417,7 @@ internal sealed class SamusPresentation
 
         }
 
-        byte selectedDelay = ReadAnimationByte(bus, _samus.AnimationFrame);
+        byte selectedDelay = ReadAnimationByte(_samus.AnimationFrame);
         if (SamusAnimationDelayDefinitions.IsCommand(selectedDelay))
         {
             throw new InvalidDataException(
@@ -453,18 +445,18 @@ internal sealed class SamusPresentation
     }
 
     /// <summary>Reads one compiled delay byte from the animation list selected for this pose.</summary>
-    private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
-        SamusAnimationDelayDefinitions.ReadAnimationByte(bus,
+    private byte ReadAnimationByte(ushort byteIndex) =>
+        SamusAnimationDelayDefinitions.ReadAnimationByte(_samus.Mode7QueueResidue,
             unchecked((ushort)_samus.AnimationDelayListAddress), byteIndex);
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
     /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
-    internal static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
+    internal static byte ReadDefaultRunningAnimationByte(SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue, ushort byteIndex)
     {
         return SamusRunningCadenceDefinitions.ReadAnimationByte(
-            bus,
+            mode7Residue,
             SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer,
             byteIndex);
     }

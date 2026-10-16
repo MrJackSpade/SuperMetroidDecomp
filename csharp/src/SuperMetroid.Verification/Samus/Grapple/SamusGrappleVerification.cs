@@ -160,7 +160,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(50, firingSamus.Grapple.Anchor.Y, "grapple initial endpoint Y");
 
     GrappleMovementResult extending = SamusGrappleMovement.StepFiring(
-        bus, firingLevel, firingSamus, SnesButton.X);
+firingLevel, firingSamus, SnesButton.X);
     AssertTrue(extending.Fired && extending.Phase == GrapplePhase.Firing && !extending.OwnsMovement,
         "unobstructed firing remains live without stealing ordinary body movement");
     AssertEqual(12, firingSamus.Grapple.RopeLength, "firing length grows by twelve");
@@ -168,7 +168,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         "four fractional collision substeps publish the exact first-frame endpoint");
 
     GrappleMovementResult connected = SamusGrappleMovement.StepFiring(
-        bus, firingLevel, firingSamus, SnesButton.X);
+firingLevel, firingSamus, SnesButton.X);
     AssertTrue(connected.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked && connected.OwnsMovement,
         "persistent grapple block establishes connected movement");
     AssertEqual(GrapplePhase.ConnectedSwinging, firingSamus.Grapple.Phase,
@@ -208,7 +208,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     deferredConnectionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(deferredConnectionSamus);
     SamusGrappleMovement.StepFiring(
-        bus,
+
         firingLevel,
         deferredConnectionSamus,
         SnesButton.X);
@@ -225,7 +225,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     deferredConnectionSamus.Kinematics.YSubspeed = 0x6070;
 
     GrappleMovementResult deferredConnection = SamusGrappleMovement.StepFiring(
-        bus,
+
         firingLevel,
         deferredConnectionSamus,
         SnesButton.X,
@@ -266,13 +266,13 @@ internal static void VerifySamusGrappleSwingAndRelease()
     var breakableFiringPlms = new RoomPlmSystem();
     SamusGrappleMovement.BeginFiring(breakableFiringSamus);
     SamusGrappleMovement.StepFiring(
-        bus,
+
         breakableFiringLevel,
         breakableFiringSamus,
         SnesButton.X,
         breakableFiringPlms);
     GrappleMovementResult breakableConnection = SamusGrappleMovement.StepFiring(
-        bus,
+
         breakableFiringLevel,
         breakableFiringSamus,
         SnesButton.X,
@@ -300,9 +300,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     horizontalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(horizontalExtensionSamus);
     SamusGrappleMovement.StepFiring(
-        bus, horizontalExtensionLevel, horizontalExtensionSamus, SnesButton.X);
+horizontalExtensionLevel, horizontalExtensionSamus, SnesButton.X);
     GrappleMovementResult horizontalExtensionConnection = SamusGrappleMovement.StepFiring(
-        bus, horizontalExtensionLevel, horizontalExtensionSamus, SnesButton.X);
+horizontalExtensionLevel, horizontalExtensionSamus, SnesButton.X);
     AssertTrue(horizontalExtensionConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "horizontal extension BTS dispatches its referenced grapple block");
     AssertEqual(55, horizontalExtensionSamus.Grapple.Anchor.X,
@@ -322,9 +322,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     verticalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(verticalExtensionSamus);
     SamusGrappleMovement.StepFiring(
-        bus, verticalExtensionLevel, verticalExtensionSamus, SnesButton.X);
+verticalExtensionLevel, verticalExtensionSamus, SnesButton.X);
     GrappleMovementResult verticalExtensionConnection = SamusGrappleMovement.StepFiring(
-        bus, verticalExtensionLevel, verticalExtensionSamus, SnesButton.X);
+verticalExtensionLevel, verticalExtensionSamus, SnesButton.X);
     AssertTrue(verticalExtensionConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
         "vertical extension BTS dispatches its referenced grapple block");
     AssertEqual(56, verticalExtensionSamus.Grapple.Anchor.Y,
@@ -338,9 +338,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
     SamusState solidCollisionSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
     SamusGrappleMovement.BeginFiring(solidCollisionSamus);
     SamusGrappleMovement.StepFiring(
-        bus, solidLevel, solidCollisionSamus, SnesButton.X);
+solidLevel, solidCollisionSamus, SnesButton.X);
     GrappleMovementResult solidCancellation = SamusGrappleMovement.StepFiring(
-        bus, solidLevel, solidCollisionSamus, SnesButton.X);
+solidLevel, solidCollisionSamus, SnesButton.X);
     AssertTrue(solidCancellation.Phase == GrapplePhase.CancelPending,
         "solid block queues grapple firing cancellation");
 
@@ -364,9 +364,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
         spikeSamus.Kinematics.YSpeed = 1;
         SamusGrappleMovement.BeginFiring(spikeSamus);
         SamusGrappleMovement.StepFiring(
-            bus, spikeLevel, spikeSamus, SnesButton.X);
+spikeLevel, spikeSamus, SnesButton.X);
         GrappleMovementResult spikeReaction = SamusGrappleMovement.StepFiring(
-            bus, spikeLevel, spikeSamus, SnesButton.X);
+spikeLevel, spikeSamus, SnesButton.X);
 
         AssertEqual(expectedConnection, spikeReaction.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked,
             $"firing spike BTS ${behavior:X2} connection flag");
@@ -401,9 +401,9 @@ internal static void VerifySamusGrappleSwingAndRelease()
         SamusState endpointSamus = CreateSamus(SamusPoseId.FallingRightPose, new(32, 56));
         SamusGrappleMovement.BeginFiring(endpointSamus);
         SamusGrappleMovement.StepFiring(
-            bus, endpointLevel, endpointSamus, SnesButton.X, endpointPlms);
+endpointLevel, endpointSamus, SnesButton.X, endpointPlms);
         GrappleMovementResult endpointReaction = SamusGrappleMovement.StepFiring(
-            bus, endpointLevel, endpointSamus, SnesButton.X, endpointPlms);
+endpointLevel, endpointSamus, SnesButton.X, endpointPlms);
 
         AssertEqual(expectedCancellation, endpointReaction.Phase == GrapplePhase.CancelPending,
             $"grapple endpoint type ${(collisionWord >> 12):X1} cancellation topology");
@@ -422,14 +422,14 @@ internal static void VerifySamusGrappleSwingAndRelease()
     for (int firingFrame = 0; firingFrame < 10; firingFrame++)
     {
         GrappleMovementResult liveRange = SamusGrappleMovement.StepFiring(
-            bus, emptyWideLevel, rangeLimitedSamus, SnesButton.X);
+emptyWideLevel, rangeLimitedSamus, SnesButton.X);
         AssertTrue(liveRange.Fired, $"grapple range frame {firingFrame} remains live");
     }
     AssertEqual(120, rangeLimitedSamus.Grapple.RopeLength,
         "last collision-tested grapple firing length");
     ushort endpointBeforeRangeCancellation = rangeLimitedSamus.Grapple.Anchor.X;
     GrappleMovementResult rangeCancellation = SamusGrappleMovement.StepFiring(
-        bus, emptyWideLevel, rangeLimitedSamus, SnesButton.X);
+emptyWideLevel, rangeLimitedSamus, SnesButton.X);
     AssertTrue(rangeCancellation.Phase == GrapplePhase.CancelPending,
         "grapple queues cancellation when pre-collision length reaches 128");
     AssertEqual(endpointBeforeRangeCancellation, rangeLimitedSamus.Grapple.Anchor.X,
@@ -445,11 +445,11 @@ internal static void VerifySamusGrappleSwingAndRelease()
     BindGrapplePresentation(cancelledSamus);
     SamusGrappleMovement.BeginFiring(cancelledSamus);
     GrappleMovementResult cancelQueued = SamusGrappleMovement.StepFiring(
-        bus, firingLevel, cancelledSamus, controllerInput: 0);
+firingLevel, cancelledSamus, controllerInput: 0);
     AssertTrue(cancelQueued.Phase == GrapplePhase.CancelPending,
         "released firing queues cancellation");
     GrappleMovementResult cancelled =
-        SamusGrappleMovement.CompleteFiringCancellation(bus, firingLevel, cancelledSamus);
+        SamusGrappleMovement.CompleteFiringCancellation(firingLevel, cancelledSamus);
     AssertTrue(cancelled.Phase == GrapplePhase.Inactive && cancelledSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued firing cancellation clears on following call");
 
@@ -517,7 +517,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
 
             SamusGrappleMovement.BeginFiring(connectionSamus);
             GrappleMovementResult tableConnection = SamusGrappleMovement.StepFiring(
-                bus,
+
                 connectionLevel,
                 connectionSamus,
                 SnesButton.X);
@@ -629,7 +629,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
 
     // Left held at exact $8000 first applies the native +$0100 kick, then +12 input.
     // Gravity is exactly zero on that axis, so angle advances by $010C to $810C.
-    GrappleMovementResult swung = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = swingLevel }, samus, (SnesButton.X | SnesButton.Left), newlyPressedInput: 0);
+    GrappleMovementResult swung = SamusGrappleMovement.Step(new SamusTerrain { Level = swingLevel }, samus, (SnesButton.X | SnesButton.Left), newlyPressedInput: 0);
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
     AssertEqual(0x010c, samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
     AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
@@ -766,7 +766,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // Releasing Shoot runs $9B:CA65 now but queues $9B:CB8B for the next call. With signed
     // cosine -6 and doubled angular velocity 536, vertical magnitude is $00000C90.
     // The phase-shifted horizontal sample is +254, giving $000213D0.
-    GrappleMovementResult queued = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = swingLevel }, samus, 0, 0);
+    GrappleMovementResult queued = SamusGrappleMovement.Step(new SamusTerrain { Level = swingLevel }, samus, 0, 0);
     AssertTrue(queued.Phase == GrapplePhase.ReleaseFromSwing, "grapple release is one-frame queued");
     AssertEqual(GrapplePhase.ReleaseFromSwing, samus.Grapple.Phase, "release function pointer phase");
     AssertEqual(0, samus.Kinematics.YSpeed, "grapple release whole Y speed");
@@ -776,7 +776,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(0x13d0, samus.HorizontalSpeed.BaseSubspeed, "grapple release fractional X speed");
     AssertEqual(2, samus.HorizontalSpeed.AccelerationMode, "release selects deceleration mode");
 
-    GrappleMovementResult released = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = swingLevel }, samus, 0, 0);
+    GrappleMovementResult released = SamusGrappleMovement.Step(new SamusTerrain { Level = swingLevel }, samus, 0, 0);
     AssertTrue(released.Phase == GrapplePhase.Inactive, "queued grapple release completes");
     AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "completed release clears grapple phase");
     AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose,
@@ -811,7 +811,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         angle: SnesAngle.QuarterTurn,
         angularVelocity: 0x0100,
         faceRight: true);
-    GrappleMovementResult angularCollision = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = angularCollisionLevel }, angularCollisionSamus, SnesButton.X, newlyPressedInput: 0);
+    GrappleMovementResult angularCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = angularCollisionLevel }, angularCollisionSamus, SnesButton.X, newlyPressedInput: 0);
     AssertTrue(angularCollision.TerrainCollided, "grapple angular sweep reports terrain collision");
     AssertEqual(6, angularCollision.CollisionDistanceFromFeet,
         "nearest of six grapple body probes collides first");
@@ -849,7 +849,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
             angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0100,
             faceRight: true);
-        GrappleMovementResult spikeBlockContact = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = spikeBlockLevel }, spikeBlockSamus, SnesButton.X, newlyPressedInput: 0);
+        GrappleMovementResult spikeBlockContact = SamusGrappleMovement.Step(new SamusTerrain { Level = spikeBlockLevel }, spikeBlockSamus, SnesButton.X, newlyPressedInput: 0);
 
         AssertTrue(spikeBlockContact.TerrainCollided,
             $"solid grapple spike BTS ${behavior:X2} remains collision");
@@ -888,7 +888,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
             angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0100,
             faceRight: true);
-        GrappleMovementResult spikeAirContact = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = spikeAirLevel }, spikeAirSamus, SnesButton.X, newlyPressedInput: 0);
+        GrappleMovementResult spikeAirContact = SamusGrappleMovement.Step(new SamusTerrain { Level = spikeAirLevel }, spikeAirSamus, SnesButton.X, newlyPressedInput: 0);
 
         AssertTrue(!spikeAirContact.TerrainCollided,
             $"grapple spike-air BTS ${behavior:X2} remains noncollision");
@@ -915,7 +915,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // Total -$36F moves $40.80 to $3D.11; success ages the timer and damps only the extra
     // word from -$300 to -$2FA. This is the real collision-assisted grapple kick, not an
     // ordinary aerial jump applied to Samus's X/Y velocity.
-    GrappleMovementResult afterAngularCollision = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = swingLevel }, angularCollisionSamus, (SnesButton.X | SnesButton.A), newlyPressedInput: SnesButton.A);
+    GrappleMovementResult afterAngularCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = swingLevel }, angularCollisionSamus, (SnesButton.X | SnesButton.A), newlyPressedInput: SnesButton.A);
     AssertTrue(!afterAngularCollision.TerrainCollided,
         "collision kick crosses three clear angle-byte terrain sweeps");
     AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle.RawValue,
@@ -947,7 +947,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         angle: SnesAngle.QuarterTurn,
         angularVelocity: 0,
         faceRight: true);
-    GrappleMovementResult ropeCollision = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = ropeCollisionLevel }, ropeCollisionSamus, (SnesButton.X | SnesButton.Down), newlyPressedInput: SnesButton.Down);
+    GrappleMovementResult ropeCollision = SamusGrappleMovement.Step(new SamusTerrain { Level = ropeCollisionLevel }, ropeCollisionSamus, (SnesButton.X | SnesButton.Down), newlyPressedInput: SnesButton.Down);
     AssertTrue(ropeCollision.RopeLengthBlocked,
         "grapple rope growth follows extension BTS to solid collision");
     AssertEqual(32, ropeCollisionSamus.Grapple.RopeLength,
@@ -970,7 +970,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         angularVelocity: 0,
         faceRight: true);
     disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
-    GrappleMovementResult disconnectedAnchor = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = CreateEmptyRoom(new(16, 16)) }, disconnectedAnchorSamus, SnesButton.X, newlyPressedInput: 0);
+    GrappleMovementResult disconnectedAnchor = SamusGrappleMovement.Step(new SamusTerrain { Level = CreateEmptyRoom(new(16, 16)) }, disconnectedAnchorSamus, SnesButton.X, newlyPressedInput: 0);
     AssertTrue(disconnectedAnchor.Phase == GrapplePhase.ReleaseFromSwing &&
         disconnectedAnchorSamus.Grapple.ReleasedMovementActive,
         "air replacing a validated grapple anchor queues moving release");
@@ -997,7 +997,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         angle: SnesAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
-    GrappleMovementResult wallGrab = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, wallGrabSamus, SnesButton.X, newlyPressedInput: 0);
+    GrappleMovementResult wallGrab = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, SnesButton.X, newlyPressedInput: 0);
     AssertTrue(wallGrab.TerrainCollided && wallGrab.CameraPrevious.HasValue && wallGrab.Phase == GrapplePhase.WallGrab,
         "close grapple collision enters ROM-selected wall-grab function");
     AssertEqual(6, wallGrab.CollisionDistanceFromFeet,
@@ -1015,10 +1015,10 @@ internal static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(164, wallGrab.CameraPrevious?.Y,
         "special snap clamps native pre-snap body Y to twelve pixels");
 
-    GrappleMovementResult heldWall = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, wallGrabSamus, SnesButton.X, newlyPressedInput: 0);
+    GrappleMovementResult heldWall = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, SnesButton.X, newlyPressedInput: 0);
     AssertTrue(heldWall.Phase == GrapplePhase.WallGrab && wallGrabSamus.Grapple.Phase == GrapplePhase.WallGrab,
         "held Shoot retains frozen wall-grab pose");
-    GrappleMovementResult wallReleased = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    GrappleMovementResult wallReleased = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(wallReleased.Phase == GrapplePhase.WallGrabRelease,
         "wall-grab release opens native thirty-check wall-jump window");
     AssertEqual(30, wallGrabSamus.Grapple.WallJumpTimer.RawValue,
@@ -1027,7 +1027,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     // `$B9` faces left (pose direction four), so `$90:9CAC` probes left even though the
     // later launch selects right-facing wall-jump pose `$83`. Jump must be a fresh A edge;
     // the grapple function queues `$C9CE` now and performs the launch on the next call.
-    GrappleMovementResult wallJumpQueued = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, wallGrabSamus, controllerInput: SnesButton.A, newlyPressedInput: SnesButton.A);
+    GrappleMovementResult wallJumpQueued = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: SnesButton.A, newlyPressedInput: SnesButton.A);
     AssertTrue(wallJumpQueued.Phase == GrapplePhase.WallJumping,
         "fresh Jump plus wall probe queues grapple wall jump");
     AssertEqual(29, wallGrabSamus.Grapple.WallJumpTimer.RawValue,
@@ -1041,7 +1041,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
     wallGrabSamus.HorizontalSpeed.HasRunningMomentum = true;
     wallGrabSamus.ProjectileFlareCounter = 0x003c;
     wallGrabSamus.LiquidPhysics.BeginFrameSoundRequests();
-    GrappleMovementResult wallJumpStarted = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    GrappleMovementResult wallJumpStarted = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, wallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(wallJumpStarted.WallJumpStarted,
         "queued grapple wall jump starts on following function call");
     AssertEqual(GrapplePhase.Inactive, wallGrabSamus.Grapple.Phase,
@@ -1081,18 +1081,18 @@ internal static void VerifySamusGrappleSwingAndRelease()
         angle: SnesAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
-    SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, expiredWallGrabSamus, SnesButton.X, newlyPressedInput: 0);
-    SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, expiredWallGrabSamus, SnesButton.X, newlyPressedInput: 0);
+    SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     for (int eligibleCheck = 0; eligibleCheck < 30; eligibleCheck++)
     {
-        GrappleMovementResult grace = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+        GrappleMovementResult grace = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
         AssertEqual(GrapplePhase.WallGrabRelease, grace.Phase,
             $"wall-grab grace check {eligibleCheck + 1} remains live");
     }
-    GrappleMovementResult dropQueued = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    GrappleMovementResult dropQueued = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(dropQueued.Phase == GrapplePhase.Dropped,
         "wall-grab grace underflow queues dropped function");
-    GrappleMovementResult dropped = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
+    GrappleMovementResult dropped = SamusGrappleMovement.Step(new SamusTerrain { Level = specialLevel }, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(dropped.Phase == GrapplePhase.Inactive && expiredWallGrabSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued dropped handler clears grapple on following call");
     AssertEqual(SamusPoseId.CrouchingAimDiagonalDownLeftPose, expiredWallGrabSamus.Pose,
@@ -1120,7 +1120,7 @@ internal static void VerifySamusGrappleSwingAndRelease()
         angle: SnesAngle.FromRaw(0xd600),
         angularVelocity: 0x0200,
         faceRight: true);
-    GrappleMovementResult locked = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = lockedLevel }, lockedSamus, SnesButton.X, newlyPressedInput: 0);
+    GrappleMovementResult locked = SamusGrappleMovement.Step(new SamusTerrain { Level = lockedLevel }, lockedSamus, SnesButton.X, newlyPressedInput: 0);
     AssertTrue(locked.CameraPrevious.HasValue && locked.Phase == GrapplePhase.ConnectedLocked,
         "close collision enters ROM-selected locked function");
     AssertEqual(GrapplePhase.ConnectedLocked, lockedSamus.Grapple.Phase,
@@ -1131,15 +1131,15 @@ internal static void VerifySamusGrappleSwingAndRelease()
         "locked snap applies signed -30 X offset");
     AssertEqual(111, lockedSamus.Position.Y.Whole,
         "locked snap applies signed -24 Y offset");
-    GrappleMovementResult lockedHeld = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = lockedLevel }, lockedSamus, SnesButton.X, newlyPressedInput: 0);
+    GrappleMovementResult lockedHeld = SamusGrappleMovement.Step(new SamusTerrain { Level = lockedLevel }, lockedSamus, SnesButton.X, newlyPressedInput: 0);
     AssertTrue(lockedHeld.Phase == GrapplePhase.ConnectedLocked &&
         lockedSamus.Position.X.Whole == 105 && lockedSamus.Position.Y.Whole == 111,
         "held Shoot preserves special locked body without pendulum integration");
-    GrappleMovementResult lockedCancelQueued = SamusGrappleMovement.Step(new SamusTerrain { Bus = bus, Level = lockedLevel }, lockedSamus, controllerInput: 0, newlyPressedInput: 0);
+    GrappleMovementResult lockedCancelQueued = SamusGrappleMovement.Step(new SamusTerrain { Level = lockedLevel }, lockedSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(lockedCancelQueued.Phase == GrapplePhase.CancelPending && lockedCancelQueued.OwnsMovement,
         "locked release queues connected-pose cancellation");
     GrappleMovementResult lockedCancelled =
-        SamusGrappleMovement.CompleteFiringCancellation(bus, lockedLevel, lockedSamus);
+        SamusGrappleMovement.CompleteFiringCancellation(lockedLevel, lockedSamus);
     AssertTrue(lockedCancelled.Phase == GrapplePhase.Inactive && lockedCancelled.OwnsMovement,
         "connected cancellation owns pose-fallback frame");
     AssertEqual(SamusPoseId.CrouchingRightPose, lockedSamus.Pose,

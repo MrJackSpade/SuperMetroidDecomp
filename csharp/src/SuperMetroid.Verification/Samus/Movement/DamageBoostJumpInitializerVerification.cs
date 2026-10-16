@@ -20,11 +20,11 @@ internal static class DamageBoostJumpInitializerVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.DamageBoostLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00b6, 0x0082)) };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.HorizontalSpeed.BaseSpeed = 5;
         samus.HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
 
-        SamusKnockbackMovement.ApplyDamageBoostPoseTransition(bus, samus, SamusPoseId.NeutralJumpLeftPose, 0);
+        SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, SamusPoseId.NeutralJumpLeftPose, 0);
         AssertEqual(SamusPoseId.NeutralJumpLeftPose, samus.Pose, "the boost exits to neutral jump $4E");
         AssertEqual(SamusHorizontalAccelerationModes.Accelerating, samus.HorizontalSpeed.AccelerationMode,
             "with no extra run speed the initializer selects ordinary acceleration");

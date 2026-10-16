@@ -15,8 +15,8 @@ internal static class RetailCinematicTests
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var legacy = RenderRetailFixture.CreateIntro(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-        var captured = RenderRetailFixture.CreateIntro(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
+        var legacy = RenderRetailFixture.CreateIntro();
+        var captured = RenderRetailFixture.CreateIntro();
         var phases = new HashSet<IntroCinematicPhase>();
         int count = 0;
         for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)

@@ -23,11 +23,11 @@ internal static class XrayWindowGeometryVerification
             SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(184, 171)) };
-            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "geometry fixture enters native X-ray posture");
+            AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "geometry fixture enters native X-ray posture");
             for (int frame = 0; frame < 330; frame++)
             {
                 SnesButton input = (SnesButton.B | (frame < 90 ? 0 : frame < 170 ? SnesButton.Up : SnesButton.Down));
-                samus.Xray.StepBeam(bus, samus, input);
+                samus.Xray.StepBeam(samus, input);
                 VerifyXrayWindowGeometry(bus, samus, xrayGeometryReference);
             }
         }

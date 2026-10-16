@@ -235,7 +235,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         // them as two requests matters because each library owns an independent SPC port.
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3), maximumQueued: 6);
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1), maximumQueued: 6);
-        samus.PoseMetadata.SetupForElevator(_room.LoadedBus);
+        samus.PoseMetadata.SetupForElevator();
         samusProjectiles?.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);

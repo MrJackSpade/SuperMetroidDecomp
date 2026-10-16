@@ -57,13 +57,13 @@ public sealed class SamusCeresRidleyEjectionState
 
     /// <summary>Executes one `$90:E12E` or `$90:E1C8` handler call.</summary>
     public CeresRidleyEjectionResult Step(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         ushort layer1X,
         ushort nmiFrameCounter)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         if (!IsActive)
@@ -81,7 +81,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Pose = facingLeft
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
             samus.CommitPoseHistory();
@@ -111,7 +111,7 @@ public sealed class SamusCeresRidleyEjectionState
         uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             samus.PoseMetadata.ReadMovementType());
         var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
         {
@@ -145,7 +145,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.Kinematics.YSpeed = SnesFixedPosition.WholeOf(unchecked((int)accelerated));
             samus.Kinematics.YSubspeed = unchecked((ushort)accelerated);
         }
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, samus.Kinematics, new VerticalBlockMove { Displacement = unchecked((int)samus.Kinematics.VerticalSpeedFixed), ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 
         return new CeresRidleyEjectionResult();
     }

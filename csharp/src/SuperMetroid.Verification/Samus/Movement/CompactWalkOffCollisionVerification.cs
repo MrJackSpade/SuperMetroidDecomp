@@ -27,12 +27,12 @@ internal static class CompactWalkOffCollisionVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(80, 240)),
             };
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x6400);
             samus.Kinematics.YSpeed = 2;
             samus.Kinematics.YSubspeed = 0xf400;
             SamusPoseId target = left ? SamusPoseId.FallingLeftPose : SamusPoseId.FallingRightPose;
-            samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, target);
+            samus.PoseTransitions.ApplyWalkedOffFloorTransition(level, target);
             AssertEqual(0x00edffffu, samus.Kinematics.Position.Y.RawValue, "compact walk-off uses native floor center/subpixel correction");
             AssertEqual(target, samus.Pose, "compact walk-off selects ordinary falling art");
             AssertEqual(16, samus.Kinematics.Radius.Y, "compact walk-off retains live crouch radius until alpha");

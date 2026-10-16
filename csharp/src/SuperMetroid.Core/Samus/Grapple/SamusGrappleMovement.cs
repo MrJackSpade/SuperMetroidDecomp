@@ -261,7 +261,7 @@ public static class SamusGrappleMovement
     /// enemy pass which precedes <c>BlockCollGrappleBeam</c> at <c>$94:A85B</c>.
     /// </summary>
     public static GrappleMovementResult StepFiring(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
@@ -269,14 +269,14 @@ public static class SamusGrappleMovement
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         bool deferConnectionPoseChange = false)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.Firing)
             throw new InvalidOperationException("Grapple firing is not active.");
 
-        if (HandleFiringPoseChange(bus, level, samus, controllerInput) is { } poseChange)
+        if (HandleFiringPoseChange(level, samus, controllerInput) is { } poseChange)
             return poseChange;
 
         // The common pose-command tail clamps the camera's previous-position words after
@@ -307,7 +307,6 @@ public static class SamusGrappleMovement
                 case GrappleEnemyReaction.AttachAndParalyze:
                     grapple.Anchor = enemy.Anchor;
                     return ConnectAcceptedFiringCore(
-                        bus,
                         samus,
                         grapple,
                         previousPosition,
@@ -320,7 +319,7 @@ public static class SamusGrappleMovement
 
                 case GrappleEnemyReaction.HurtSamus:
                     ApplyGrappleEnemyDamage(
-                        bus,
+
                         samus,
                         controllerInput,
                         enemy.EnemyDamage);
@@ -361,7 +360,6 @@ public static class SamusGrappleMovement
                 unchecked((ushort)((grapple.Anchor.X & ~15) | 8)),
                 unchecked((ushort)((grapple.Anchor.Y & ~15) | 8)));
             return ConnectAcceptedFiringCore(
-                bus,
                 samus,
                 grapple,
                 previousPosition,
@@ -411,7 +409,7 @@ public static class SamusGrappleMovement
     /// </summary>
     public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton newlyPressedInput, ushort nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, bool deferDropPoseChange = false)
     {
-        Ensure.NotNull(terrain.Bus);
+
         Ensure.NotNull(terrain.Level);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
@@ -420,7 +418,7 @@ public static class SamusGrappleMovement
         {
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
-            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(terrain.Bus, terrain.Level, samus, grapple, deferDropPoseChange);
+            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(terrain.Level, samus, grapple, deferDropPoseChange);
             return new GrappleMovementResult(GrapplePhase.Inactive, PendingReleasePose: pendingReleasePose);
         }
 
@@ -431,11 +429,11 @@ public static class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallGrab)
             return StepWallGrab(terrain.Level, samus, controllerInput, enemyCollision);
         if (grapple.Phase == GrapplePhase.WallGrabRelease)
-            return StepWallGrabRelease(terrain.Bus, terrain.Level, samus, newlyPressedInput);
+            return StepWallGrabRelease(terrain.Level, samus, newlyPressedInput);
         if (grapple.Phase == GrapplePhase.WallJumping)
-            return CompleteGrappleWallJump(terrain.Bus, terrain.Level, samus, grapple);
+            return CompleteGrappleWallJump(terrain.Level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(terrain.Bus, terrain.Level, samus, grapple, nmiFrameCounter, terrain.Plms, deferDropPoseChange);
+            return CompleteDropped(terrain.Level, samus, grapple, nmiFrameCounter, terrain.Plms, deferDropPoseChange);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -479,9 +477,7 @@ public static class SamusGrappleMovement
         // flag. A match replaces pendulum positioning for this frame with the table's exact
         // pose, anchor-relative body offset, and locked/wallgrab function pointer.
         if (grapple.SpecialAngleHandling &&
-            TryHandleSpecialAngle(
-                terrain.Bus,
-                samus,
+            TryHandleSpecialAngle(samus,
                 grapple,
                 previousPosition,
                 out GrappleMovementResult special))
@@ -599,7 +595,7 @@ public static class SamusGrappleMovement
     /// `$60/$05` hurt lifetimes are the same shared gameplay contracts.
     /// </summary>
     private static void ApplyGrappleEnemyDamage(
-        ISnesAddressSpace bus,
+
         SamusState samus,
         SnesButton controllerInput,
         ushort damageBeforeSuit)
@@ -620,7 +616,7 @@ public static class SamusGrappleMovement
         ushort knockbackXDirection = SamusPoseMetadata.IsFacingLeft(samus.Pose)
             ? (ushort)1
             : (ushort)0;
-        SamusKnockbackMovement.Start(bus, samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = 5 });
+        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = 5 });
     }
 
     /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens a 30-update wall-jump window.</summary>
@@ -653,7 +649,7 @@ public static class SamusGrappleMovement
 
     /// <summary>During the release window, accepts a fresh Jump only when a 16-pixel probe finds a wall or solid enemy.</summary>
     private static GrappleMovementResult StepWallGrabRelease(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SnesButton newlyPressedInput)
@@ -677,7 +673,7 @@ public static class SamusGrappleMovement
             ? -(16 << 16)
             : 16 << 16;
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
-            bus,
+
             level,
             samus.Kinematics,
             signedProbe);
@@ -701,7 +697,6 @@ public static class SamusGrappleMovement
 
     /// <summary>Finishes the deferred wall jump by ejecting Samus, applying its dedicated pose transition, and clearing the beam.</summary>
     private static GrappleMovementResult CompleteGrappleWallJump(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
@@ -710,7 +705,7 @@ public static class SamusGrappleMovement
         // function-pointer handoff. The Samus helper keeps the peculiar `$B8->$84` and
         // `$B9->$83` reversal separate from ordinary spin-contact wall jumps.
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
-        samus.PoseTransitions.ApplyGrappleWallJump(bus);
+        samus.PoseTransitions.ApplyGrappleWallJump();
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
@@ -719,7 +714,7 @@ public static class SamusGrappleMovement
 
     /// <summary>Ends a dropped connection, clears movement speeds, and applies or defers the fall pose for the beta pass.</summary>
     private static GrappleMovementResult CompleteDropped(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
@@ -736,7 +731,7 @@ public static class SamusGrappleMovement
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         bool emptyBeta = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Grappling;
         if (!deferPoseChange)
-            samus.PoseTransitions.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter, plms);
+            samus.PoseTransitions.ApplyGrappleDropTransition(level, targetPose, nmiFrameCounter, plms);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
@@ -771,7 +766,6 @@ public static class SamusGrappleMovement
 
     /// <summary>Applies an exact special-angle connection record, including its pose and bounded camera displacement.</summary>
     internal static bool TryHandleSpecialAngle(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -798,7 +792,7 @@ public static class SamusGrappleMovement
             samus.Pose = special.Pose;
             samus.Position = samus.Position.WithWhole(grapple.Anchor + special.SamusOffset);
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            samus.Presentation.InitializeAnimation(initialFrame: 0);
             grapple.Phase = phase;
             grapple.WallJumpTimer = NativeCountdown.Start(0);
             grapple.SlowScrolling = false; // $9B:BB0D
@@ -1041,7 +1035,6 @@ public static class SamusGrappleMovement
 
     /// <summary>Commits attachment, selecting the movement-specific pose and either locked or swinging handling.</summary>
     internal static GrappleMovementResult ConnectAcceptedFiringCore(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
@@ -1171,7 +1164,6 @@ public static class SamusGrappleMovement
         }
 
         Position16<RoomPixels> cameraPrevious = ApplyPendingConnectionPose(
-            bus,
             samus,
             new GrapplePendingConnection(
                 pose,
@@ -1188,17 +1180,15 @@ public static class SamusGrappleMovement
     /// super-special transition owners have declined it.
     /// </summary>
     internal static Position16<RoomPixels> ApplyPendingConnectionPose(
-        ISnesAddressSpace bus,
         SamusState samus,
         GrapplePendingConnection pending)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
 
         samus.Pose = pending.Pose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
 
         if (pending.Swinging)
         {
@@ -1456,11 +1446,9 @@ public static class SamusGrappleMovement
     /// every gameplay-visible firing word owned by this class is cleared here.
     /// </summary>
     public static GrappleMovementResult CompleteFiringCancellation(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.CancelPending)
@@ -1486,7 +1474,7 @@ public static class SamusGrappleMovement
 
             samus.Pose = fallback;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            samus.Presentation.InitializeAnimation(initialFrame: 0);
             samus.HorizontalSpeed.AccelerationMode = 0;
             samus.HorizontalSpeed.BaseSpeed = 0;
             samus.HorizontalSpeed.BaseSubspeed = 0;
@@ -1525,7 +1513,7 @@ public static class SamusGrappleMovement
 
     /// <summary>Firing branch of native $9B:C490/$B861, before the selected grapple function runs.</summary>
     internal static GrappleMovementResult? HandleFiringPoseChange(
-        ISnesAddressSpace bus, RoomLevelData level, SamusState samus, SnesButton controllerInput)
+        RoomLevelData level, SamusState samus, SnesButton controllerInput)
     {
         var grapple = samus.Grapple;
         grapple.PoseChangeAutoFireTimer = grapple.PoseChangeAutoFireTimer.DecrementToZero();
@@ -1549,7 +1537,7 @@ public static class SamusGrappleMovement
         // Unlike a cancellation requested inside the extension function, this
         // decision precedes dispatch, so the cancel function runs immediately.
         grapple.Phase = GrapplePhase.CancelPending;
-        return CompleteFiringCancellation(bus, level, samus);
+        return CompleteFiringCancellation(level, samus);
     }
 
     /// <summary>Adds a grapple sound request to Samus's movement sound queue.</summary>
@@ -1626,7 +1614,6 @@ public static class SamusGrappleMovement
     /// pose commit; otherwise null, the pose having been applied here.
     /// </returns>
     private static SamusPoseId? CompleteQueuedRelease(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
@@ -1642,7 +1629,7 @@ public static class SamusGrappleMovement
             ? SamusPoseId.NormalJumpForwardLeftPose
             : SamusPoseId.NormalJumpForwardRightPose;
         if (!deferPoseChange)
-            ApplyReleasePose(bus, samus, releasePose);
+            ApplyReleasePose(samus, releasePose);
         grapple.Phase = GrapplePhase.Inactive;
         grapple.SlowScrolling = false; // $9B:CBBA
         grapple.DirectionInputAcceleration = 0;
@@ -1658,11 +1645,11 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Commits the <c>$9B:CB8B</c> release pose and its radius and animation.</summary>
-    internal static void ApplyReleasePose(ISnesAddressSpace bus, SamusState samus, SamusPoseId releasePose)
+    internal static void ApplyReleasePose(SamusState samus, SamusPoseId releasePose)
     {
         samus.Pose = releasePose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>

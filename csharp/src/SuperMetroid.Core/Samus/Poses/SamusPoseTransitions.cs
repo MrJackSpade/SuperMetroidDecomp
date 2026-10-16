@@ -39,13 +39,13 @@ internal sealed class SamusPoseTransitions
     /// so the turn is abandoned for left-facing crouch art regardless of its direction.
     /// Because the pose changes, $91:EBEE skips command two; only $91:F404 runs.
     /// </summary>
-    public void ApplyAimedCrouchingTurnInputFallback(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyAimedCrouchingTurnInputFallback(SamusPoseId targetPose)
     {
         if (!SamusPoseMetadata.IsAimedCrouchingTurnPose(_samus.Pose))
             throw new InvalidOperationException($"Aimed crouching turn fallback requires a type-$17 crouching turn, not ${(int)_samus.Pose:X2}.");
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(targetPose) && !SamusPoseMetadata.IsLeftFacingCrouchingPose(targetPose))
             throw new InvalidDataException($"Aimed crouching turn ${(int)_samus.Pose:X2} names non-crouching fallback ${(int)targetPose:X2}.");
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, targetPose, "Aimed crouching turn release");
+        ApplySimpleGroundedPoseChange(_samus.Pose, targetPose, "Aimed crouching turn release");
     }
 
     /// <summary>
@@ -77,14 +77,14 @@ internal sealed class SamusPoseTransitions
     /// records and `$13/$14` Shot records; they do not have a separate wall-fire handler.
     /// </remarks>
     public bool TryApplySpinOrWallJumpToNormalJumpTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         SnesButton controllerNewInput,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = _samus.Pose;
@@ -104,7 +104,7 @@ internal sealed class SamusPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             targetPose,
             nmiFrameCounter,
@@ -116,7 +116,7 @@ internal sealed class SamusPoseTransitions
         {
             // $91:FFA7 installs ordinary crouch when the expanded body is blocked above and
             // below. F433 still runs and sees the spin/wall-jump previous movement type.
-            _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             if (_samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                 _samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
             return true;
@@ -130,7 +130,7 @@ internal sealed class SamusPoseTransitions
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
         // branch of the common normal-jump initializer before ordinary acceleration.
         bool beganShinespark = TryBeginShinesparkWindup(
-            bus, targetPose, SamusPoseMetadata.IsWallJumpPose(sourcePose)
+            targetPose, SamusPoseMetadata.IsWallJumpPose(sourcePose)
                 ? SamusMovementType.WallJumping : SamusMovementType.SpinJumping);
         if (!beganShinespark)
             InitializeOrdinaryAerialAcceleration();
@@ -149,12 +149,11 @@ internal sealed class SamusPoseTransitions
         if ((controllerNewInput & SnesButton.X) != 0)
             _samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.NormalJumpPoseHandoffTag | _samus.PoseMetadata.ReadShotDirection()));
 
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
     /// <summary>Applies a normal-jump or falling turn, selecting aim-preserving art through $91:F9D6/$F9E0 after the shared larger-pose collision pass.</summary>
-    /// <param name="bus">Address space passed to pose metadata, animation, and collision helpers.</param>
     /// <param name="level">Live room geometry used to admit the selected turn body's expansion.</param>
     /// <param name="genericTargetPose">Generic right-to-left or left-to-right turn pose for the current jumping/falling family; aim-specific art is selected from the source shot direction, not this argument.</param>
     /// <param name="nmiFrameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
@@ -165,13 +164,13 @@ internal sealed class SamusPoseTransitions
     /// <exception cref="InvalidOperationException">The source/target movement families or facing metadata do not describe an admitted normal-jump/falling turn.</exception>
     /// <exception cref="InvalidDataException">The source pose's shot-direction metadata is outside zero through nine.</exception>
     public bool TryApplyAerialTurn(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId genericTargetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = _samus.Pose;
@@ -228,7 +227,7 @@ internal sealed class SamusPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             selectedTurnPose,
             nmiFrameCounter,
@@ -238,7 +237,7 @@ internal sealed class SamusPoseTransitions
             return false;
         if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -248,7 +247,7 @@ internal sealed class SamusPoseTransitions
         _samus.Pose = selectedTurnPose;
         // The changed-pose handler preserves the source radius until next alpha.
         _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -257,9 +256,8 @@ internal sealed class SamusPoseTransitions
     /// direction reversal folds extra speed into base speed and selects mode one, preserving
     /// old-world direction while the newly facing pose decelerates.
     /// </summary>
-    public void ApplySpinJumpDirectionTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplySpinJumpDirectionTransition(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         if (!SamusPoseMetadata.IsSpinJumpPose(targetPose) ||
             (!SamusPoseMetadata.IsWallJumpPose(_samus.Pose) && !SamusPoseMetadata.IsSpinJumpPose(_samus.Pose)))
         {
@@ -292,14 +290,13 @@ internal sealed class SamusPoseTransitions
 
         // InitializeSpinJump writes frame one, skipping the static first spin frame. This
         // is easy to miss because an ordinary ground jump initializes the pose elsewhere.
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 1);
+        _samus.Presentation.InitializeAnimation(initialFrame: 1);
     }
 
     /// <summary>
     /// Applies `$91:EABE`, solid-collision command five, and `$90:9949` after the block
     /// wall test succeeds. The launch values are read from the cartridge's dry-air tables.
     /// </summary>
-    /// <param name="bus">Address space passed to wall-jump pose, launch, animation, and dust helpers.</param>
     /// <param name="level">
     /// Live collision geometry supplied by gameplay. Null is reserved for isolated
     /// launch-value/particle diagnostics that explicitly model unobstructed space.
@@ -307,12 +304,12 @@ internal sealed class SamusPoseTransitions
     /// <param name="nmiFrameCounter">Native NMI counter passed to the changed-pose collision resolver when live room geometry is supplied.</param>
     /// <param name="plms">Optional PLM owner receiving changed-pose block reactions; unused by the unobstructed diagnostic path.</param>
     public void ApplyWallJumpTrigger(
-        ISnesAddressSpace bus,
+
         RoomLevelData? level = null,
         ushort nmiFrameCounter = 0,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         // Only the type-3 spin mover reaches `$91:EABE`. The cached movement type, not the
         // live pose, gates it: a drained pose stored without InitializeSamusPose_1 keeps
         // spinning and still wall-jumps.
@@ -327,12 +324,12 @@ internal sealed class SamusPoseTransitions
             // collision dispatcher. Expanding a compact spin body beneath a ceiling can
             // move the center away from it, reject the expansion, or select crouch.
             LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-                bus, level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
+level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             if (collision == LargerPoseCollisionOutcome.RetainSource)
                 return;
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
             {
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, _samus.Pose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(_samus.Pose);
                 return;
             }
             _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
@@ -363,7 +360,7 @@ internal sealed class SamusPoseTransitions
 
         SamusAerialMovement.InitializeWallJump(_samus);
         _samus.LiquidPhysics.SpawnWallJumpDust(_samus);
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -377,9 +374,8 @@ internal sealed class SamusPoseTransitions
     /// immediate bank-$9B cleanup, prospective-pose command six, and environment-selected
     /// `$90:9949` vertical launch that occur when the wall-jump function runs.
     /// </remarks>
-    public void ApplyGrappleWallJump(ISnesAddressSpace bus)
+    public void ApplyGrappleWallJump()
     {
-        Ensure.NotNull(bus);
         if (_samus.Pose is not (SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose))
         {
             throw new InvalidOperationException(
@@ -406,7 +402,7 @@ internal sealed class SamusPoseTransitions
 
         SamusAerialMovement.InitializeWallJump(_samus);
         _samus.LiquidPhysics.SpawnWallJumpDust(_samus);
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -419,14 +415,14 @@ internal sealed class SamusPoseTransitions
     /// the source or substitutes stable crouch.
     /// </returns>
     public bool ApplyGrappleDropTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null,
         bool clearMovementSpeed = true)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         bool supportedTarget = targetPose is
@@ -453,7 +449,7 @@ internal sealed class SamusPoseTransitions
         // only its output domain is restricted, not the source to connected-grapple art.
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             targetPose,
             nmiFrameCounter,
@@ -465,11 +461,11 @@ internal sealed class SamusPoseTransitions
             _samus.PoseMetadata.RefreshCollisionRadii();
             _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
             if (_samus.Pose != _samus.PoseHistory.PreviousPose)
-                _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+                _samus.Presentation.InitializeAnimation(initialFrame: 0);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
         // `$9B:C95E-$C967` clears the two base-X and two Y-speed words regardless of the
@@ -575,7 +571,6 @@ internal sealed class SamusPoseTransitions
     /// That delay is visible both to animation and to the 180-frame palette countdown.
     /// </remarks>
     private bool TryBeginShinesparkWindup(
-        ISnesAddressSpace bus,
         SamusPoseId targetPose,
         SamusMovementType previousMovementType)
     {
@@ -602,7 +597,7 @@ internal sealed class SamusPoseTransitions
             _samus.WritePreviousYPosition(_samus.Kinematics.Position.Y.Whole);
         }
 
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -610,16 +605,15 @@ internal sealed class SamusPoseTransitions
     /// Applies a `$C7/$C8 -> $C9-$CE` input-table match and installs its exact special
     /// movement handler. No ordinary jump velocity or grounded momentum routine runs.
     /// </summary>
-    public void ApplyShinesparkDirectionTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyShinesparkDirectionTransition(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         if (_samus.Pose is not (SamusPoseId.ShinesparkWindupRightPose or SamusPoseId.ShinesparkWindupLeftPose))
         {
             throw new InvalidOperationException(
                 $"Directional shinespark transition requires windup pose, not ${(int)_samus.Pose:X2}.");
         }
 
-        _samus.Shinespark.BeginDirectionalLaunch(bus, _samus, targetPose);
+        _samus.Shinespark.BeginDirectionalLaunch(_samus, targetPose);
     }
 
     /// <summary>
@@ -630,11 +624,9 @@ internal sealed class SamusPoseTransitions
     /// stream `$A4-$A7/$E0-$E7` with a fresh Jump edge.
     /// </summary>
     public void ApplyOrdinaryJumpTransition(
-        ISnesAddressSpace bus,
         SamusPoseId targetPose,
         SnesButton controllerNewInput = SnesButton.None)
     {
-        Ensure.NotNull(bus);
         bool verified =
             SamusPoseMetadata.IsStandingGroundTurnToJumpTransition(_samus.Pose, targetPose) ||
             (_samus.Pose, targetPose) is
@@ -699,7 +691,7 @@ internal sealed class SamusPoseTransitions
             : targetPose;
         // Pose dispatch happens after movement. The next alpha phase, including
         // the intro-demo alpha handler, owns publication of the new live radius.
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         SamusAerialMovement.InitializeJump(_samus);
 
         if (_samus.PoseMetadata.ReadMovementType() == SamusMovementType.NormalJumping &&
@@ -727,11 +719,10 @@ internal sealed class SamusPoseTransitions
     /// </summary>
     /// <returns>True when the initializer began a shinespark windup instead.</returns>
     internal bool InitializeInstalledNormalJumpPose(
-        ISnesAddressSpace bus,
         SamusMovementType previousMovementType,
         SnesButton controllerNewInput)
     {
-        if (TryBeginShinesparkWindup(bus, _samus.Pose, previousMovementType))
+        if (TryBeginShinesparkWindup(_samus.Pose, previousMovementType))
             return true;
         InitializeOrdinaryAerialAcceleration();
         PublishNormalJumpPoseShotDirection(controllerNewInput);
@@ -751,9 +742,8 @@ internal sealed class SamusPoseTransitions
     /// gun-extended records `$13/$14/$67/$68` use this same native initialization seam;
     /// “aim” survives in the historical method name only because that was the first slice.
     /// </summary>
-    public void ApplyAerialAimTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyAerialAimTransition(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         if (SamusPoseMetadata.IsCompactAerialPose(_samus.Pose) || SamusPoseMetadata.IsCompactAerialPose(targetPose))
         {
             // Compact poses change Samus's collision height. This overload intentionally
@@ -791,11 +781,11 @@ internal sealed class SamusPoseTransitions
         {
             // The normal-jump initializer also consumes stored shine on eligible poses.
             // This includes releasing forward midair, not just the initial ground jump.
-            if (TryBeginShinesparkWindup(bus, targetPose, previousMovementType))
+            if (TryBeginShinesparkWindup(targetPose, previousMovementType))
                 return;
             InitializeOrdinaryAerialAcceleration();
         }
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -809,13 +799,13 @@ internal sealed class SamusPoseTransitions
     /// second probe is blocked, `$91:FE82` retains the source. Neither case installs the target.
     /// </remarks>
     public bool TryApplyCompactAerialTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         bool rightJump = SamusPoseMetadata.IsRightFacingNormalJumpPose(_samus.Pose) &&
@@ -837,7 +827,7 @@ internal sealed class SamusPoseTransitions
 
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-                bus,
+
                 level,
                 targetPose,
                 nmiFrameCounter,
@@ -846,7 +836,7 @@ internal sealed class SamusPoseTransitions
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -859,12 +849,12 @@ internal sealed class SamusPoseTransitions
             // Successful expansion still runs the normal-jump initializer. A stored
             // shine may replace the requested aim pose; collision rejection above must
             // not consume the charge or apply the windup's one-pixel adjustment.
-            if (TryBeginShinesparkWindup(bus, targetPose,
+            if (TryBeginShinesparkWindup(targetPose,
                 rightJump || leftJump ? SamusMovementType.NormalJumping : SamusMovementType.Falling))
                 return true;
             InitializeOrdinaryAerialAcceleration();
         }
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -894,9 +884,8 @@ internal sealed class SamusPoseTransitions
     /// movement types initializes frame zero normally. Movement type changes take effect on
     /// the following frame because pose transitions occur after movement.
     /// </remarks>
-    public void ApplyGroundedAimTransition(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyGroundedAimTransition(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         bool sourceRight = SamusPoseMetadata.IsRightFacingStandingPose(_samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(_samus.Pose) ||
             SamusPoseMetadata.IsRightFacingRanIntoWallPose(_samus.Pose) ||
             SamusPoseMetadata.IsRightFacingLandingPose(_samus.Pose);
@@ -935,7 +924,7 @@ internal sealed class SamusPoseTransitions
         {
             // This is `$91:F404/$91:FB08`'s ordinary target installation. Replacing Pose
             // directly would omit radius refresh, delay-list selection, and command cleanup.
-            ApplySimpleGroundedPoseChange(bus, sourcePose, targetPose, "Grounded arm");
+            ApplySimpleGroundedPoseChange(sourcePose, targetPose, "Grounded arm");
             return;
         }
 
@@ -988,14 +977,14 @@ internal sealed class SamusPoseTransitions
     /// retail arm-pump bug.
     /// </remarks>
     public SamusPoseId? CheckProspectiveRunningPoseForWall(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
         out BlockMoveResult? onePixelProbe,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         onePixelProbe = null;
 
@@ -1024,7 +1013,7 @@ internal sealed class SamusPoseTransitions
         int onePixelForward = facingLeft
             ? -(1 << 16)
             : 1 << 16;
-        onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, _samus.Kinematics, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
+        onePixelProbe = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, _samus.Kinematics, new HorizontalBlockMove { Displacement = onePixelForward, AlignToSlopeAfterMovement = false });
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(target)
             : null;
@@ -1039,9 +1028,8 @@ internal sealed class SamusPoseTransitions
     /// moonwalk pose's facing, but `$91:EB4E` picks the wall pose from the proposed run's
     /// direction, so a moonwalk facing right can stop in the left-facing wall pose.
     /// </summary>
-    public void ApplyRanIntoWallPoseChange(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyRanIntoWallPoseChange(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         bool moonwalking = SamusPoseMetadata.IsMoonwalkingPose(_samus.Pose);
         bool rightSource = SamusPoseMetadata.IsRightFacingStandingPose(_samus.Pose) || SamusPoseMetadata.IsRightFacingRunningPose(_samus.Pose) ||
             SamusPoseMetadata.IsRightFacingRanIntoWallPose(_samus.Pose) || SamusPoseMetadata.IsRightFacingLandingPose(_samus.Pose) || moonwalking;
@@ -1059,13 +1047,12 @@ internal sealed class SamusPoseTransitions
                 $"Ran-into-wall pose change ${(int)_samus.Pose:X2} -> ${(int)targetPose:X2} is not a block-backed retail route.");
         }
 
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, targetPose, "Ran into wall");
+        ApplySimpleGroundedPoseChange(_samus.Pose, targetPose, "Ran into wall");
     }
 
     /// <summary>Applies `$89/$8A/$CF-$D2`'s same-facing exit to a type-one running pose.</summary>
-    public void ApplyRanIntoWallToRunning(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyRanIntoWallToRunning(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         bool rightRoute = SamusPoseMetadata.IsRightFacingRanIntoWallPose(_samus.Pose) &&
             SamusPoseMetadata.IsRightFacingRunningPose(targetPose);
         bool leftRoute = SamusPoseMetadata.IsLeftFacingRanIntoWallPose(_samus.Pose) &&
@@ -1077,7 +1064,7 @@ internal sealed class SamusPoseTransitions
                 $"Ran-into-wall running exit ${(int)_samus.Pose:X2} -> ${(int)targetPose:X2} is not a retail route.");
         }
 
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, targetPose, "Ran into wall to running");
+        ApplySimpleGroundedPoseChange(_samus.Pose, targetPose, "Ran into wall to running");
     }
 
     /// <summary>
@@ -1092,11 +1079,9 @@ internal sealed class SamusPoseTransitions
     /// ordinary radius-21 pose installations with no invented velocity adjustment.
     /// </remarks>
     public void ApplyMoonwalkPoseChange(
-        ISnesAddressSpace bus,
         SamusPoseId targetPose,
         bool moonwalkEnabled)
     {
-        Ensure.NotNull(bus);
 
         bool sourceStandingRight = SamusPoseMetadata.IsRightFacingStandingPose(_samus.Pose) ||
             SamusPoseMetadata.IsRightFacingRanIntoWallPose(_samus.Pose) ||
@@ -1120,7 +1105,6 @@ internal sealed class SamusPoseTransitions
             // `$91:F893-$F8A9` tests the candidate pose-X byte. `$4A/$76/$78` store four
             // and become right-to-left `$25`; `$49/$75/$77` store eight and become `$26`.
             ApplyGroundedTurn(
-                bus,
                 targetVisualRight ? SamusPoseId.TurningRightToLeftPose : SamusPoseId.TurningLeftToRightPose);
             return;
         }
@@ -1143,7 +1127,7 @@ internal sealed class SamusPoseTransitions
                 $"Moonwalk pose change ${(int)_samus.Pose:X2} -> ${(int)targetPose:X2} is not a stable retail route.");
         }
 
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, targetPose, "Moonwalk");
+        ApplySimpleGroundedPoseChange(_samus.Pose, targetPose, "Moonwalk");
     }
 
     /// <summary>
@@ -1151,9 +1135,8 @@ internal sealed class SamusPoseTransitions
     /// The six requested `$BF-$C4` records are not airborne yet: they retain the grounded
     /// turn movement handler while their three visible frames play.
     /// </summary>
-    public void ApplyMoonwalkTurnJump(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyMoonwalkTurnJump(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
 
         SamusPoseId expectedTarget = _samus.PoseMetadata.ReadShotDirection() switch
         {
@@ -1182,7 +1165,7 @@ internal sealed class SamusPoseTransitions
         // uses the tag to admit the turning HUD producer and forcibly release charge.
         byte sourceShotDirection = _samus.PoseMetadata.ReadShotDirection();
         FoldExtraRunSpeedIntoBaseAndStartTurn();
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, expectedTarget, "Moonwalk turn/jump");
+        ApplySimpleGroundedPoseChange(_samus.Pose, expectedTarget, "Moonwalk turn/jump");
         _samus.PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceShotDirection));
     }
 
@@ -1196,9 +1179,8 @@ internal sealed class SamusPoseTransitions
     /// already-supported default render/tile paths. Other transitions can change momentum,
     /// align radii, invoke collision, or run specialized handlers and remain rejected.
     /// </remarks>
-    public void ApplyStandingRightToRunningRight(ISnesAddressSpace bus)
+    public void ApplyStandingRightToRunningRight()
     {
-        Ensure.NotNull(bus);
         if (_samus.Pose != SamusPoseId.FacingRightNormalPose)
         {
             throw new InvalidOperationException(
@@ -1210,16 +1192,15 @@ internal sealed class SamusPoseTransitions
 
         // $91:F404 -> $91:FB08 resets animation frame zero and loads pose $09's first
         // delay byte after SamusFunc_F433 refreshes pose direction/movement metadata.
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
     /// Applies the verified no-button fallback from running-right pose $09 to standing-right
     /// pose $01 after ordinary running momentum has decelerated to zero.
     /// </summary>
-    public void ApplyRunningRightToStandingRight(ISnesAddressSpace bus)
+    public void ApplyRunningRightToStandingRight()
     {
-        Ensure.NotNull(bus);
         if (_samus.Pose != SamusPoseId.MovingRightNormalPose)
         {
             throw new InvalidOperationException(
@@ -1234,22 +1215,20 @@ internal sealed class SamusPoseTransitions
         // numeric extra pair intact. The following standing movement pass consumes that
         // final no-base-speed displacement before clearing every X-motion word.
         _samus.HorizontalSpeed.CancelRunningMomentum(_samus.PoseMetadata.ReadFacingDirection());
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>Applies the ordinary grounded $02 -> $0A start-moving-left transition.</summary>
-    public void ApplyStandingLeftToRunningLeft(ISnesAddressSpace bus) =>
+    public void ApplyStandingLeftToRunningLeft() =>
         ApplySimpleGroundedPoseChange(
-            bus,
             SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MovingLeftNormalPose,
             "Standing-left to running-left");
 
     /// <summary>Applies the no-button grounded $0A -> $02 fallback.</summary>
-    public void ApplyRunningLeftToStandingLeft(ISnesAddressSpace bus)
+    public void ApplyRunningLeftToStandingLeft()
     {
         ApplySimpleGroundedPoseChange(
-            bus,
             SamusPoseId.MovingLeftNormalPose,
             SamusPoseId.FacingLeftNormalPose,
             "Running-left to standing-left");
@@ -1265,9 +1244,8 @@ internal sealed class SamusPoseTransitions
     /// family (including `$E7`) to `$0A`. Landing movement has already cleared momentum in
     /// this frame; the new running pose begins accelerating on the next frame.
     /// </summary>
-    public void ApplyLandingToRunning(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyLandingToRunning(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
         bool right = SamusPoseMetadata.IsRightFacingLandingPose(_samus.Pose) &&
             targetPose == SamusPoseId.MovingRightNormalPose;
         bool left = SamusPoseMetadata.IsLeftFacingLandingPose(_samus.Pose) &&
@@ -1278,7 +1256,7 @@ internal sealed class SamusPoseTransitions
                 $"Landing-to-run transition ${(int)_samus.Pose:X2} -> ${(int)targetPose:X2} is not verified.");
         }
 
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, targetPose, "Landing-to-run");
+        ApplySimpleGroundedPoseChange(_samus.Pose, targetPose, "Landing-to-run");
     }
 
     /// <summary>
@@ -1286,9 +1264,8 @@ internal sealed class SamusPoseTransitions
     /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
     /// direction through `$91:F9C2` and may replace it with `$8B-$8E/$9C/$9D`.
     /// </summary>
-    public void ApplyGroundedTurn(ISnesAddressSpace bus, SamusPoseId targetPose, SnesButton controllerInput = SnesButton.None)
+    public void ApplyGroundedTurn(SamusPoseId targetPose, SnesButton controllerInput = SnesButton.None)
     {
-        Ensure.NotNull(bus);
 
         // `$91:F8D3-$F8DB` gives the two front-view poses a deliberately unusual route.
         // Their pose-X direction is zero, so they cannot honestly be classified as either
@@ -1340,7 +1317,7 @@ internal sealed class SamusPoseTransitions
         // turn/jump initializer without a new Jump edge.
         if (wasMoonwalking && (controllerInput & SnesButton.A) != 0)
         {
-            ApplyMoonwalkTurnJump(bus, turnsLeft
+            ApplyMoonwalkTurnJump(turnsLeft
                 ? SamusPoseId.MoonwalkTurnJumpLeftPose : SamusPoseId.MoonwalkTurnJumpRightPose);
             return;
         }
@@ -1416,7 +1393,7 @@ internal sealed class SamusPoseTransitions
         speed.ExtraRunSubspeed = 0;
         speed.AccelerationMode = 1;
 
-        ApplySimpleGroundedPoseChange(bus, _samus.Pose, selectedTurnPose, "Grounded turn");
+        ApplySimpleGroundedPoseChange(_samus.Pose, selectedTurnPose, "Grounded turn");
 
         if (wasMoonwalking)
         {
@@ -1431,23 +1408,22 @@ internal sealed class SamusPoseTransitions
     /// pose is installed. Crouch-to-hurt must keep the larger body above its floor.
     /// </summary>
     internal bool TryResolveKnockbackPoseCollision(
-        ISnesAddressSpace bus, RoomLevelData level, SamusPoseId targetPose,
+RoomLevelData level, SamusPoseId targetPose,
         ushort nmiFrameCounter, RoomPlmSystem? plms)
     {
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome outcome = _samus.ResolveLargerPoseCollision(
-            bus, level, targetPose, nmiFrameCounter, plms, out int adjustment);
+level, targetPose, nmiFrameCounter, plms, out int adjustment);
         if (outcome != LargerPoseCollisionOutcome.Allowed)
         {
             if (outcome == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
         _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)adjustment));
         return true;
     }
     /// <summary>Applies the crouch input tables' direct same-facing exits ($27/$71/$73/$85 to $01, or $28/$72/$74/$86 to $02) after larger-pose collision admits the standing body.</summary>
-    /// <param name="bus">Address space passed to native pose metadata, collision, and animation helpers.</param>
     /// <param name="level">Live room block geometry used by the shared pose-expansion resolver.</param>
     /// <param name="targetPose">Final standing-right $01 or standing-left $02 pose matching the current crouch facing; animated stand-up and cross-facing routes are not accepted.</param>
     /// <param name="nmiFrameCounter">Native NMI counter supplied to changed-pose block reactions.</param>
@@ -1457,13 +1433,13 @@ internal sealed class SamusPoseTransitions
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="level"/> is null.</exception>
     /// <exception cref="InvalidOperationException">The source and target are not a same-facing crouch-to-final-standing input-table route.</exception>
     public bool TryApplyDirectCrouchToStandingTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         bool rightRoute = SamusPoseMetadata.IsRightFacingCrouchingPose(_samus.Pose) &&
@@ -1480,7 +1456,7 @@ internal sealed class SamusPoseTransitions
 
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-                bus,
+
                 level,
                 targetPose,
                 nmiFrameCounter,
@@ -1491,7 +1467,7 @@ internal sealed class SamusPoseTransitions
             // $91:FFA7 does not restore an aimed crouch when the attempted standing body
             // is boxed in. It selects the ordinary stable crouch from facing metadata.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -1500,7 +1476,7 @@ internal sealed class SamusPoseTransitions
         // enlargement, and this direct transition does not call Samus_SetRadius afterward.
         // Ordinary alpha publishes the standing radius at the start of the next frame.
         _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -1519,13 +1495,13 @@ internal sealed class SamusPoseTransitions
     /// crouch; rejection by a compensating opposite-side probe retains the source pose.
     /// </returns>
     public bool TryApplyCrouchJumpTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         bool rightRoute = SamusPoseMetadata.IsRightFacingCrouchingPose(_samus.Pose) &&
@@ -1542,7 +1518,7 @@ internal sealed class SamusPoseTransitions
 
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-                bus,
+
                 level,
                 targetPose,
                 nmiFrameCounter,
@@ -1551,7 +1527,7 @@ internal sealed class SamusPoseTransitions
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -1566,7 +1542,7 @@ internal sealed class SamusPoseTransitions
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
             _samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 10);
 
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         SamusAerialMovement.InitializeJump(_samus);
         return true;
     }
@@ -1582,13 +1558,13 @@ internal sealed class SamusPoseTransitions
     /// expand from radius 16 to radius 21; native behavior then retains the crouching pose.
     /// </returns>
     public bool TryApplyPostureTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         bool startsCrouchingRight =
@@ -1652,14 +1628,14 @@ internal sealed class SamusPoseTransitions
             // ground the bottom boundary is unchanged; descending a slope, the probe meets
             // the surface first and the shorter clipped distance is what moves center Y.
             BlockMoveResult alignment = _samus.ProbeChangedPoseVertical(
-                bus, level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
+level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardPixels),
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             _samus.Kinematics.Position = _samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
                 _samus.Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
             _samus.WritePreviousYPosition(_samus.Kinematics.Position.Y.Whole);
-            _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            _samus.Presentation.InitializeAnimation(initialFrame: 0);
             return true;
         }
 
@@ -1668,7 +1644,7 @@ internal sealed class SamusPoseTransitions
         // reads the target radius from this ROM rather than assuming the ordinary value 21.
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-                bus,
+
                 level,
                 targetPose,
                 nmiFrameCounter,
@@ -1677,7 +1653,7 @@ internal sealed class SamusPoseTransitions
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -1688,7 +1664,7 @@ internal sealed class SamusPoseTransitions
         // Keeping that one-frame handoff is observable when the crouched body is resting
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
         _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -1705,13 +1681,13 @@ internal sealed class SamusPoseTransitions
     /// radius-seven body, `$91:FFA7` rejects the target and keeps Samus morphed.
     /// </remarks>
     public bool TryApplyMorphTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         // `$91:F7CE` does not require movement type five. Falling straight-down `$2D/$2E`
@@ -1763,7 +1739,7 @@ internal sealed class SamusPoseTransitions
                     $"Morph entry ${(int)targetPose:X2} expanded radius {previousRadius} -> {_samus.Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = _samus.ProbeChangedPoseVertical(
-                bus, level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
+level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPixels),
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
             _samus.Kinematics.Position = _samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
                 _samus.Kinematics.Position.Y.Whole + (SnesSixteenSixteen.WholeOf(alignment.AcceptedDisplacement)))));
@@ -1784,13 +1760,13 @@ internal sealed class SamusPoseTransitions
             // transition. Ordinary crouch entry normally sees zero, but retaining the
             // literal writes makes externally stimulated debugger states deterministic.
             CancelBounceForPostureTransition();
-            _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            _samus.Presentation.InitializeAnimation(initialFrame: 0);
             return true;
         }
 
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             targetPose,
             nmiFrameCounter,
@@ -1801,7 +1777,7 @@ internal sealed class SamusPoseTransitions
             // A morph source can only produce RetainSource here. Keep the defensive branch
             // explicit so a future caller cannot accidentally apply non-morph crouch fallback.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -1814,7 +1790,7 @@ internal sealed class SamusPoseTransitions
         // word remains unchanged until alpha's Samus_SetRadius next frame. This
         // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition();
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -1842,13 +1818,13 @@ internal sealed class SamusPoseTransitions
     /// and preserves the existing X/Y speed words that describe Samus's current fall.
     /// </remarks>
     public bool TryApplyUnmorphToFallingTransition(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         SamusPoseId targetPose,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = _samus.Pose;
@@ -1866,7 +1842,7 @@ internal sealed class SamusPoseTransitions
         }
 
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             targetPose,
             nmiFrameCounter,
@@ -1879,7 +1855,7 @@ internal sealed class SamusPoseTransitions
             // it does for aimed crouch and compact-aerial expansion. A failed compensating
             // probe instead retains the visible unmorph frame and all live speed words.
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return false;
         }
 
@@ -1890,7 +1866,7 @@ internal sealed class SamusPoseTransitions
         // InitializeAnimation resets only the target art stream. In particular, do not call
         // Make_Samus_Jump or clear YDirection/YSpeed/YSubspeed: the input record can occur
         // halfway through an actual fall, as it does when leaving Parlor's Morph Ball tunnel.
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
         return true;
     }
 
@@ -2123,10 +2099,10 @@ internal sealed class SamusPoseTransitions
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
     public void ApplyWalkedOffFloorTransition(
-        ISnesAddressSpace bus, RoomLevelData level, SamusPoseId targetPose,
+RoomLevelData level, SamusPoseId targetPose,
         ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         bool supportedSource =
             SamusPoseMetadata.IsRightFacingStandingPose(_samus.Pose) || SamusPoseMetadata.IsLeftFacingStandingPose(_samus.Pose) ||
@@ -2152,11 +2128,11 @@ internal sealed class SamusPoseTransitions
         // floor after a near-ground unmorph. Rejection also skips command five.
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus, level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
+level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         if (collision != LargerPoseCollisionOutcome.Allowed)
         {
             if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
             return;
         }
         _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
@@ -2179,7 +2155,7 @@ internal sealed class SamusPoseTransitions
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement routine consumes it.
         InitializeOrdinaryAerialAcceleration();
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -2205,11 +2181,9 @@ internal sealed class SamusPoseTransitions
     /// point remains for cinematic movement and focused collision-free fixtures only.
     /// </remarks>
     public void ApplyAerialLanding(
-        ISnesAddressSpace bus,
         bool wasSpinning,
         SnesButton controllerInput = SnesButton.None)
     {
-        Ensure.NotNull(bus);
         SamusPoseId sourcePose = _samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(wasSpinning, controllerInput);
@@ -2224,7 +2198,7 @@ internal sealed class SamusPoseTransitions
         }
 
         ApplyAerialLandingCollisionCommand(leavingScrewAttack);
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
+        _samus.Presentation.InitializeAnimation(initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
     }
 
     /// <summary>
@@ -2236,21 +2210,21 @@ internal sealed class SamusPoseTransitions
     /// source pose or selected its stable-crouch fallback; native skips the landing command.
     /// </returns>
     public bool TryApplyAerialLanding(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         bool wasSpinning,
         SnesButton controllerInput,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
 
         SamusPoseId sourcePose = _samus.Pose;
         bool leavingScrewAttack = SamusPoseMetadata.IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(wasSpinning, controllerInput);
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             targetPose,
             nmiFrameCounter,
@@ -2262,14 +2236,14 @@ internal sealed class SamusPoseTransitions
             // Correct the center now, but retain the movement frame's live radius
             // until alpha, including when landing on a frozen enemy.
             _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
-            _samus.Presentation.InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
+            _samus.Presentation.InitializeAnimation(initialFrame: StandingPoseInitialFrame(sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
             // `$91:FFA7` deliberately chooses stable crouch for a non-Morph source when
             // both the floor and ceiling reject the full landing body. This is what lets
             // a spin jump land in a 32-pixel passage without embedding Samus in its ceiling.
-            _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
         // F404 compares the requested pose with the post-collision pose. A rejected
@@ -2360,12 +2334,12 @@ internal sealed class SamusPoseTransitions
     /// block pose-change collision resolver; command five clears motion only if accepted.
     /// </summary>
     public bool TryApplyCompactAerialLanding(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         if (!SamusPoseMetadata.IsCompactAerialPose(_samus.Pose))
             throw new InvalidOperationException($"Compact landing requires pose $17/$18/$2D/$2E, not ${(int)_samus.Pose:X2}.");
@@ -2379,7 +2353,7 @@ internal sealed class SamusPoseTransitions
                 $"Compact pose ${(int)_samus.Pose:X2} has unexpected shot direction ${shotDirection:X2}."),
         };
         LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-            bus,
+
             level,
             targetPose,
             nmiFrameCounter,
@@ -2392,11 +2366,11 @@ internal sealed class SamusPoseTransitions
             // projectile collision still use it, and alpha's SetSamusRadius takes the
             // landing body only next frame, as for an ordinary landing.
             _samus.Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
-            _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+            _samus.Presentation.InitializeAnimation(initialFrame: 0);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
-            _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
         }
 
         // Like ordinary landings, F404's changed-pose result gates command five.
@@ -2410,9 +2384,8 @@ internal sealed class SamusPoseTransitions
     /// Consumes command $FD/$F8's command-three pose operand for every animation route in
     /// the current grounded/ordinary-air slice.
     /// </summary>
-    public bool ApplyPendingVerifiedAnimationTransition(ISnesAddressSpace bus)
+    public bool ApplyPendingVerifiedAnimationTransition()
     {
-        Ensure.NotNull(bus);
         if (_samus.PendingTransitionalPose is not SamusPoseId targetPose)
             return false;
 
@@ -2538,7 +2511,6 @@ internal sealed class SamusPoseTransitions
         // A live stored shine replaces the target with `$C7/$C8`, so never briefly seed
         // `$4D/$4E/$15/$16/$69/$6A` animation state in this branch.
         bool beganShinespark = TryBeginShinesparkWindup(
-            bus,
             targetPose,
             previousMovementType);
         if (!beganShinespark)
@@ -2555,7 +2527,7 @@ internal sealed class SamusPoseTransitions
             // the turn finish before base speed reached zero. Do not clear that speed.
             if (SamusPoseMetadata.ReadMovementType(installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
                 InitializeOrdinaryAerialAcceleration();
-            ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command",
+            ApplySimpleGroundedPoseChange(sourcePose, installedPose, "Animation command",
                 refreshRadius: !SamusPoseMetadata.IsAerialTurnPose(sourcePose));
         }
         if (sourcePose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or
@@ -2579,13 +2551,11 @@ internal sealed class SamusPoseTransitions
     /// metadata/radius work, initializing frame zero only for a changed pose.
     /// </summary>
     private void ApplySimpleGroundedPoseChange(
-        ISnesAddressSpace bus,
         SamusPoseId expectedPose,
         SamusPoseId targetPose,
         string transitionName,
         bool refreshRadius = true)
     {
-        Ensure.NotNull(bus);
         if (_samus.Pose != expectedPose)
         {
             throw new InvalidOperationException(
@@ -2601,6 +2571,6 @@ internal sealed class SamusPoseTransitions
         // unchanged. A prospective run rejected by the wall probe can resolve
         // back to the current wall-stop pose on every held-input frame.
         if (expectedPose != targetPose)
-            _samus.Presentation.InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(expectedPose, targetPose));
+            _samus.Presentation.InitializeAnimation(initialFrame: StandingPoseInitialFrame(expectedPose, targetPose));
     }
 }

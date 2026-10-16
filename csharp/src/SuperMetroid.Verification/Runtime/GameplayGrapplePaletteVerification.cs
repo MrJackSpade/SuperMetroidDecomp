@@ -53,7 +53,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.EquippedBeams = beam;
             samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
@@ -65,7 +65,7 @@ internal static class GameplayGrapplePaletteVerification
             AssertPalette("normal firing");
             samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
             samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(bus);
+            samus.Presentation.InitializeAnimation();
             samus.CommitPoseHistory();
             palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));

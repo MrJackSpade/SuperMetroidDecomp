@@ -90,7 +90,7 @@ internal sealed class SamusFramePhases
         _roomPaletteFx = dependencies.RoomPaletteFx;
         _system = dependencies.System;
         _addressSpace = dependencies.AddressSpace;
-        _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { AddressSpace = dependencies.AddressSpace, Controller1 = dependencies.Controller1, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Plms = dependencies.Plms, Room = dependencies.Room });
+        _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { Controller1 = dependencies.Controller1, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Plms = dependencies.Plms, Room = dependencies.Room });
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ internal sealed class SamusFramePhases
         else if (_player.Samus.Grapple.Phase == GrapplePhase.Firing)
         {
             _player.LastGrappleMovement = SamusGrappleMovement.StepFiring(
-                _addressSpace,
+
                 _room.LevelData,
                 _player.Samus,
                 _controller1.Current,
@@ -135,7 +135,7 @@ internal sealed class SamusFramePhases
         else if (_player.Samus.Grapple.Phase == GrapplePhase.CancelPending)
         {
             _player.LastGrappleMovement =
-                SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, _room.LevelData, _player.Samus);
+                SamusGrappleMovement.CompleteFiringCancellation(_room.LevelData, _player.Samus);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (_player.Samus.Grapple.Phase is
@@ -144,7 +144,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, _enemies.GrappleTargets.ResolveGrappleEndpoint, deferDropPoseChange: true);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, Plms = _plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, _enemies.GrappleTargets.ResolveGrappleEndpoint, deferDropPoseChange: true);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
@@ -215,7 +215,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_addressSpace, _player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status, ProjectileCooldownTimer = _bombProjectiles.CooldownTimer.RawValue, BombCounter = _bombProjectiles.BombCounter }, deferActivation);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status, ProjectileCooldownTimer = _bombProjectiles.CooldownTimer.RawValue, BombCounter = _bombProjectiles.BombCounter }, deferActivation);
     }
 
     /// <summary>
@@ -233,12 +233,12 @@ internal sealed class SamusFramePhases
                 break;
             case SamusMovementType.SpinJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(
-                    _addressSpace, level, _player.IntroducedSamus, _controller1.Current, _clock.Counter,
+level, _player.IntroducedSamus, _controller1.Current, _clock.Counter,
                     _controller1.NewlyPressed, _plms);
                 break;
             case SamusMovementType.NormalJumping:
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
-                    _addressSpace, level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
+level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
                 break;
             default:
                 throw new NotSupportedException(
@@ -387,7 +387,7 @@ internal sealed class SamusFramePhases
             // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this translated producer during the X-ray interval.
-            BombProjectileFrameResult bombFrame = _bombProjectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, samus, _controller1.Current, _controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
+            BombProjectileFrameResult bombFrame = _bombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = _plms }, samus, _controller1.Current, _controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
 
             if (bombFrame.BeamChargeConsumed)
             {
@@ -411,7 +411,8 @@ internal sealed class SamusFramePhases
             // so malformed callback-table entries can perform their literal WRAM
             // writes, then reclaim ownership only when such a write occurred.
             _system.WritePersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
-            SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
+            SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = _plms,
+                ProgressionMirror = new SuperMetroid.Core.Saves.SaveMirrorMemory(RuntimeMemory.RequireBus(_addressSpace)) }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
             if (projectileFrame.PersistentMemoryCorrupted)
                 _system.LoadPersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
 
@@ -506,7 +507,7 @@ internal sealed class SamusFramePhases
             // it must also run after `$9B:CB8B` has made that function inactive.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastAerialSamusMovement = SamusAerialMovement.StepReleasedFromGrapple(
-                _addressSpace,
+
                 _room.LevelData,
                 samus,
                 _controller1.Current,
@@ -605,7 +606,7 @@ internal sealed class SamusFramePhases
                     _player.ProspectiveSamusFallbackPose = null;
             }
             samus.CeresRidleyEjection.Step(
-                _addressSpace,
+
                 _room.LevelData,
                 samus,
                 camera.PixelPosition.X,
@@ -618,7 +619,7 @@ internal sealed class SamusFramePhases
         {
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastKnockbackMovement = SamusKnockbackMovement.Step(
-                _addressSpace,
+
                 _room.LevelData,
                 samus,
                 _clock.Counter,
@@ -642,7 +643,7 @@ internal sealed class SamusFramePhases
             _player.LastBombJumpMovement = samus.BombJumpStarting
                 ? SamusBombJumpMovement.Start(samus)
                 : SamusBombJumpMovement.Step(
-                    _addressSpace,
+
                     _room.LevelData,
                     samus,
                     _clock.Counter,
@@ -697,7 +698,7 @@ internal sealed class SamusFramePhases
             if (samus.Drained.Phase == DrainedSamusPhase.Falling)
             {
                 _player.LastDrainedSamusMovement = samus.Drained.StepFalling(
-                    _addressSpace,
+
                     _room.LevelData,
                     samus,
                     _clock.Counter);
@@ -719,7 +720,7 @@ internal sealed class SamusFramePhases
             // Determine_Samus_YAcceleration supplies the environment-selected pair
             // used as spark acceleration. Projectile_Func7 does not replace it.
             SamusAerialMovement.ConfigureEnvironmentGravity(samus);
-            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, samus, new ShinesparkFrame { NmiFrameCounter = _clock.Counter, ProjectileCounter = _projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = _projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
+            _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Level = _room.LevelData, Plms = _plms }, samus, new ShinesparkFrame { NmiFrameCounter = _clock.Counter, ProjectileCounter = _projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = _projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
             if (_player.LastShinesparkMovement.Value.WindupTimedOut)
             {
                 // The movement handler publishes an interrupted vertical pose. That
@@ -783,27 +784,27 @@ internal sealed class SamusFramePhases
             case SamusPoseId.StandingAimUpRightPose:
             case SamusPoseId.StandingAimDiagonalUpRightPose:
             case SamusPoseId.StandingAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStandingRight(_addressSpace, _room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStandingRight(_room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
                 break;
             case SamusPoseId.MovingRightNormalPose:
             case SamusPoseId.MovingRightGunExtendedPose:
             case SamusPoseId.RunningAimUpRightPose:
             case SamusPoseId.RunningAimDiagonalUpRightPose:
             case SamusPoseId.RunningAimDiagonalDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunningRight(_addressSpace, _room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunningRight(_room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
                 break;
             case SamusPoseId.FacingLeftNormalPose:
             case SamusPoseId.StandingAimUpLeftPose:
             case SamusPoseId.StandingAimDiagonalUpLeftPose:
             case SamusPoseId.StandingAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStandingLeft(_addressSpace, _room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepStandingLeft(_room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
                 break;
             case SamusPoseId.MovingLeftNormalPose:
             case SamusPoseId.MovingLeftGunExtendedPose:
             case SamusPoseId.RunningAimUpLeftPose:
             case SamusPoseId.RunningAimDiagonalUpLeftPose:
             case SamusPoseId.RunningAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunningLeft(_addressSpace, _room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRunningLeft(_room.LevelData, samus, _clock.Counter, _controller1.Current, _plms);
                 break;
             case SamusPoseId.MoonwalkFacingLeftPose:
             case SamusPoseId.MoonwalkFacingRightPose:
@@ -811,7 +812,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.MoonwalkAimUpRightPose:
             case SamusPoseId.MoonwalkAimDownLeftPose:
             case SamusPoseId.MoonwalkAimDownRightPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepMoonwalking(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepMoonwalking(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.RanIntoWallRightPose:
             case SamusPoseId.RanIntoWallLeftPose:
@@ -819,7 +820,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.RanIntoWallAimUpLeftPose:
             case SamusPoseId.RanIntoWallAimDownRightPose:
             case SamusPoseId.RanIntoWallAimDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRanIntoWall(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepRanIntoWall(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.TurningRightToLeftPose:
             case SamusPoseId.TurningLeftToRightPose:
@@ -857,7 +858,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.LandingAimDiagonalDownLeftPose:
             case SamusPoseId.FiringLandingRightPose:
             case SamusPoseId.FiringLandingLeftPose:
-                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastGroundedSamusMovement = SamusGroundedMovement.StepLanding(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.MorphBallGroundRightPose:
             case SamusPoseId.MorphBallGroundLeftPose:
@@ -867,17 +868,17 @@ internal sealed class SamusFramePhases
             case SamusPoseId.SpringBallGroundLeftPose:
             case SamusPoseId.SpringBallMovingRightPose:
             case SamusPoseId.SpringBallMovingLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepGrounded(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastMorphBallMovement = SamusMorphBallMovement.StepGrounded(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.MorphBallFallingRightPose:
             case SamusPoseId.MorphBallFallingLeftPose:
             case SamusPoseId.SpringBallFallingRightPose:
             case SamusPoseId.SpringBallFallingLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepFalling(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
+                _player.LastMorphBallMovement = SamusMorphBallMovement.StepFalling(_room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
                 break;
             case SamusPoseId.SpringBallJumpRightPose:
             case SamusPoseId.SpringBallJumpLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
+                _player.LastMorphBallMovement = SamusMorphBallMovement.StepSpringBallInAir(_room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
                 break;
             case SamusPoseId.NeutralJumpTransitionRightPose:
             case SamusPoseId.NeutralJumpTransitionLeftPose:
@@ -901,7 +902,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.NormalJumpAimDiagonalDownLeftPose:
             case SamusPoseId.NormalJumpAimDownRightPose:
             case SamusPoseId.NormalJumpAimDownLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(_room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
                 break;
             case SamusPoseId.SpinJumpRightPose:
             case SamusPoseId.SpinJumpLeftPose:
@@ -909,15 +910,15 @@ internal sealed class SamusFramePhases
             case SamusPoseId.SpaceJumpLeftPose:
             case SamusPoseId.ScrewAttackRightPose:
             case SamusPoseId.ScrewAttackLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _controller1.NewlyPressed, _plms);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepSpinJump(_room.LevelData, samus, _controller1.Current, _clock.Counter, _controller1.NewlyPressed, _plms);
                 break;
             case SamusPoseId.WallJumpRightPose:
             case SamusPoseId.WallJumpLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepWallJump(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepWallJump(_room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
                 break;
             case SamusPoseId.DamageBoostRightPose:
             case SamusPoseId.DamageBoostLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepDamageBoost(_room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
                 break;
             case SamusPoseId.TurningRightToLeftJumpPose:
             case SamusPoseId.TurningLeftToRightJumpPose:
@@ -935,7 +936,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.TurningLeftToRightFallingAimDownPose:
             case SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose:
             case SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.FallingRightPose:
             case SamusPoseId.FallingLeftPose:
@@ -949,7 +950,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.FallingAimDiagonalDownLeftPose:
             case SamusPoseId.FallingAimDownRightPose:
             case SamusPoseId.FallingAimDownLeftPose:
-                _player.LastAerialSamusMovement = SamusAerialMovement.StepFalling(_addressSpace, _room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
+                _player.LastAerialSamusMovement = SamusAerialMovement.StepFalling(_room.LevelData, samus, _controller1.Current, _clock.Counter, _plms);
                 break;
             case SamusPoseId.CrouchingRightPose:
             case SamusPoseId.CrouchingLeftPose:
@@ -959,7 +960,7 @@ internal sealed class SamusFramePhases
             case SamusPoseId.CrouchingAimDiagonalUpLeftPose:
             case SamusPoseId.CrouchingAimDiagonalDownRightPose:
             case SamusPoseId.CrouchingAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouching(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouching(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.KnockbackRightPose:
             case SamusPoseId.KnockbackLeftPose:
@@ -981,13 +982,13 @@ internal sealed class SamusFramePhases
             case SamusPoseId.StandingTransitionAimDiagonalUpLeftPose:
             case SamusPoseId.StandingTransitionAimDiagonalDownRightPose:
             case SamusPoseId.StandingTransitionAimDiagonalDownLeftPose:
-                _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastGroundedSamusMovement = SamusPostureMovement.StepCrouchStandTransition(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.MorphingTransitionRightPose:
             case SamusPoseId.MorphingTransitionLeftPose:
             case SamusPoseId.UnmorphingTransitionRightPose:
             case SamusPoseId.UnmorphingTransitionLeftPose:
-                _player.LastMorphBallMovement = SamusMorphBallMovement.StepTransition(_addressSpace, _room.LevelData, samus, _clock.Counter, _plms);
+                _player.LastMorphBallMovement = SamusMorphBallMovement.StepTransition(_room.LevelData, samus, _clock.Counter, _plms);
                 break;
             case SamusPoseId.DraygonGrabbedNeutralLeftPose:
             case SamusPoseId.DraygonGrabbedAimUpLeftPose:
@@ -1027,7 +1028,7 @@ internal sealed class SamusFramePhases
         // this consumer now includes both the zero-status no-op and nonzero
         // `$94:9763` one-pixel downward block scan.
         SamusGroundedMovement.StepFacingForward(
-            _addressSpace,
+
             _room.LevelData,
             samus,
             _clock.Counter,
@@ -1057,7 +1058,7 @@ internal sealed class SamusFramePhases
              samus.Kinematics.YDirection == SamusVerticalDirection.None))
         {
             _player.LastGroundedSamusMovement = SamusGroundedMovement.StepTurningOnGround(
-                _addressSpace,
+
                 _room.LevelData,
                 samus,
                 _clock.Counter,
@@ -1068,7 +1069,7 @@ internal sealed class SamusFramePhases
             SamusMovementType.TurningWhileFalling)
         {
             _player.LastAerialSamusMovement = SamusAerialMovement.StepTurningInAir(
-                _addressSpace,
+
                 _room.LevelData,
                 samus,
                 _clock.Counter,
@@ -1095,7 +1096,7 @@ internal sealed class SamusFramePhases
         int groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics, samus.HorizontalSpeed);
         BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-            _addressSpace,
+
             _room.LevelData,
             samus,
             _clock.Counter,
@@ -1126,7 +1127,6 @@ internal sealed class SamusFramePhases
             if (samus.Xray.SetupStage == XraySetupStage.BuildRevealReadBg2FirstScreen)
                 _xray.BuildXrayRevealTilemap();
             _player.LastXrayBeamStep = samus.Xray.StepBeam(
-                _addressSpace,
                 samus,
                 _controller1.Current);
         }
@@ -1184,7 +1184,6 @@ internal sealed class SamusFramePhases
         if (frame.XrayOwnsPoseInput)
         {
             samus.Xray.HandlePoseInput(
-                _addressSpace,
                 samus,
                 _controller1.Current);
         }
@@ -1286,7 +1285,6 @@ internal sealed class SamusFramePhases
             // an escape release additionally clears every pending route while installing
             // ordinary `$01/$02` and zeroing the documented velocity words.
             _player.LastDraygonEscape = samus.DraygonGrabbed.StepEscapeHandler(
-                _addressSpace,
                 samus,
                 _controller1.NewlyPressed,
                 samus.Grapple.Phase == GrapplePhase.ConnectedLocked);
@@ -1306,7 +1304,6 @@ internal sealed class SamusFramePhases
         if (frame.Mode.Beta == SamusBetaHandler.Fatal)
         {
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
-                _addressSpace,
                 samus,
                 _cgram,
                 _artwork.SamusBodyArt?.DeathPalettes);
@@ -1314,7 +1311,7 @@ internal sealed class SamusFramePhases
         // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
-            samus.Presentation.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, System = _system, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, System = _system, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
             StepSamusLoadAppearance();
         }
 

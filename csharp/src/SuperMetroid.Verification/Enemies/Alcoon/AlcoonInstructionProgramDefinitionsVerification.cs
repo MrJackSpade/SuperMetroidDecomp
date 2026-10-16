@@ -58,7 +58,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingYPosition)),
         };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(rom);
+        samus.Presentation.InitializeAnimation();
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;

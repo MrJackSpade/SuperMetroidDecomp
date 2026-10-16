@@ -45,7 +45,7 @@ internal static class GrappleFlarePlacementVerification
         }
         var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         int locked = 0;
         var authoredPoses = Enumerable.Range(0, 253)
@@ -78,14 +78,14 @@ internal static class GrappleFlarePlacementVerification
             Compare();
             for (int tick = 0; tick < 10; tick++)
             {
-                SamusGrappleMovement.StepFiring(nativeBus, empty, native, SnesButton.X);
-                SamusGrappleMovement.StepFiring(guarded, empty, selected, SnesButton.X);
-                SamusGrappleMovement.StepFiring(guarded, empty, changed, SnesButton.X);
+                SamusGrappleMovement.StepFiring(empty, native, SnesButton.X);
+                SamusGrappleMovement.StepFiring(empty, selected, SnesButton.X);
+                SamusGrappleMovement.StepFiring(empty, changed, SnesButton.X);
                 Compare();
             }
-            var expectedConnection = connect(nativeBus, native, native.Grapple, new(512, 512), true, false);
-            var selectedConnection = connect(guarded, selected, selected.Grapple, new(512, 512), true, false);
-            var editedConnection = connect(guarded, changed, changed.Grapple, new(512, 512), true, false);
+            var expectedConnection = connect(native, native.Grapple, new(512, 512), true, false);
+            var selectedConnection = connect(selected, selected.Grapple, new(512, 512), true, false);
+            var editedConnection = connect(changed, changed.Grapple, new(512, 512), true, false);
             AssertEqual(expectedConnection, selectedConnection, "Stock placement retains connection result");
             AssertEqual(expectedConnection, editedConnection, "Edited placement retains connection result");
             // A non-swinging connection installs the locked-in-place grapple function.

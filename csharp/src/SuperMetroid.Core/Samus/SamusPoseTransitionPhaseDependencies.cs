@@ -13,8 +13,7 @@ namespace SuperMetroid.Core.Samus;
 /// <summary>The collaborators a <see cref="SamusPoseTransitionPhase"/> is constructed with, built by its <see cref="SamusFramePhases"/> owner.</summary>
 internal sealed record SamusPoseTransitionPhaseDependencies
 {
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
+
     /// <summary>Controller1.</summary>
     public required ControllerInputState Controller1 { get; init; }
     /// <summary>Freeze.</summary>

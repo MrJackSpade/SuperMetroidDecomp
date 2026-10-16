@@ -70,11 +70,9 @@ public sealed class SamusDeathSequenceState
     /// the music wait are distinct producers and are not guessed here.
     /// </summary>
     public SamusDeathSequenceStartResult Begin(
-        ISnesAddressSpace bus,
         SamusState samus,
         Position16<RoomPixels> layer1)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (IsActive)
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
@@ -99,7 +97,7 @@ public sealed class SamusDeathSequenceState
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        samus.Presentation.InitializeAnimation(initialFrame: 0);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose dispatcher is not running.
         samus.CommitPoseHistory();
@@ -127,12 +125,10 @@ public sealed class SamusDeathSequenceState
     /// complete death characters.
     /// </summary>
     public SamusDeathSequenceStepResult Step(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesCgram cgram,
         SamusDeathPaletteArtworkCatalog? artwork = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(cgram);
         if (!IsActive)
@@ -150,7 +146,7 @@ public sealed class SamusDeathSequenceState
             case SamusDeathSequencePhase.PreFlashing:
                 // `$90:8976` advances the `$D7/$D8` delay stream only during state `$16`.
                 // State `$17` freezes that final body frame while its palettes alternate.
-                samus.Presentation.AnimateDeathFrame(bus);
+                samus.Presentation.AnimateDeathFrame();
                 drawPose = true;
                 PreFlashingTimer = PreFlashingTimer.Decrement().Remaining;
                 if (PreFlashingTimer.IsZero || PreFlashingTimer.IsNegative)

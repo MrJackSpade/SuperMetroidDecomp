@@ -64,11 +64,11 @@ internal static class BeamCallbackTablesVerification
             {
                 for (int frame = 0; frame < 60; frame++)
                 {
-                    shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, 0, 0);
-                    projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
+                    shared.StepFrame(new SamusTerrain { Level = room }, samus, 0, 0);
+                    projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), shared);
                 }
             }
-            projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? (ushort)0 : SnesButton.X, ControllerNewInput = charged ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
+            projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = charged ? (ushort)0 : SnesButton.X, ControllerNewInput = charged ? (ushort)0 : SnesButton.X }, new(0, 0), shared);
             AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
                 $"charged={charged} beam {beamType:X1} fires");
             // The fixture starts with every ordinary slot empty, so the fired shot is the

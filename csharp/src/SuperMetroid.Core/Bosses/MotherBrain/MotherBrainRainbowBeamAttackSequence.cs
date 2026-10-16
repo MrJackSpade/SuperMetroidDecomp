@@ -383,9 +383,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// <summary>
     /// Starts at `$A9:B983`, immediately after the power-bomb gate and charge countdown.
     /// </summary>
-    public void StartActiveBeam(ISnesAddressSpace bus, SamusState samus)
+    public void StartActiveBeam(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
@@ -406,9 +405,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // `$A9:B9C5-$B9D3` selects command five at 700 energy or above and command `$18`
         // below it. CPY/BPL is a signed 16-bit branch, retained by NativeAtLeast.
         if (NativeAtLeast(samus.Health, 700))
-            samus.Drained.SetupForRainbowBeamAbleToStand(bus, samus);
+            samus.Drained.SetupForRainbowBeamAbleToStand(samus);
         else
-            samus.Drained.SetupForRainbowBeamUnableToStand(bus, samus);
+            samus.Drained.SetupForRainbowBeamUnableToStand(samus);
 
         Phase = MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall;
     }
@@ -1134,9 +1133,8 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         unchecked((short)(value - threshold)) >= 0;
 
     /// <summary>Executes one call through the current Mother Brain body function.</summary>
-    public MotherBrainRainbowBeamAttackStepResult Step(ISnesAddressSpace bus, SamusState samus, RainbowBeamAttackFrame frame)
+    public MotherBrainRainbowBeamAttackStepResult Step(SamusState samus, RainbowBeamAttackFrame frame)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (Phase == MotherBrainRainbowBeamAttackPhase.Inactive)
             throw new InvalidOperationException("The active rainbow-beam sequence has not started.");
@@ -1240,7 +1238,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                         // The cartridge redundantly rereads the power-bomb flag here. The
                         // parameter is one stable WRAM sample for this translated AI call.
                         SamusProjectileCooldownTimer = 0;
-                        StartActiveBeam(bus, samus);
+                        StartActiveBeam(samus);
                     }
                 }
                 break;
@@ -1335,7 +1333,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.LetSamusFall:
                 // Controller zero changes the pose/radius, then `$A9:BACB` installs the wait
                 // function and falls straight through to its first custom movement call.
-                samus.Drained.LetFall(bus, samus);
+                samus.Drained.LetFall(samus);
                 Phase = MotherBrainRainbowBeamAttackPhase.WaitForSamusToLand;
                 goto case MotherBrainRainbowBeamAttackPhase.WaitForSamusToLand;
 

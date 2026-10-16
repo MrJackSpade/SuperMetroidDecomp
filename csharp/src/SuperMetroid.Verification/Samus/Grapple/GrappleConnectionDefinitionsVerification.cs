@@ -20,7 +20,7 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 internal static class GrappleConnectionDefinitionsVerification
 {
     /// <summary>Invokes the private special-angle dispatcher with its previous body position and receives its camera movement result.</summary>
-    internal delegate bool SpecialGrappleHandler(ISnesAddressSpace bus, SamusState samus,
+    internal delegate bool SpecialGrappleHandler(SamusState samus,
         SamusGrappleState grapple, Position16<RoomPixels> previous, out GrappleMovementResult result);
 
     /// <summary>Checks authored connection words and exact address ownership, then exercises normal, special-angle, cancellation, and drop dispatch.</summary>
@@ -54,7 +54,7 @@ internal static class GrappleConnectionDefinitionsVerification
         }
         AssertEqual(60, compiled, "Default 30 + vertical 20 + crouching 10 authored reads");
         Suite(nameof(VerifyGrappleConnectionDispatch), () => VerifyGrappleConnectionDispatch(rom));
-        Suite(nameof(VerifyGrappleSpecialConnections), () => VerifyGrappleSpecialConnections(rom, guard));
+        Suite(nameof(VerifyGrappleSpecialConnections), () => VerifyGrappleSpecialConnections(rom));
         Suite(nameof(VerifyGrappleCancellationAndDrop), () => VerifyGrappleCancellationAndDrop(rom));
         Console.WriteLine("Grapple connection definitions: 100 native words and 48 policy bytes, 3072 address classifications with loud non-catalog rejection, and real connection/angle/cancel/drop dispatch pass with migrated reads forbidden.");
     }
@@ -68,7 +68,7 @@ internal static class GrappleConnectionDefinitionsVerification
     {
         // Read the native function, handler, or pose word used as a dispatch oracle.
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1)));
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
+        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
@@ -93,7 +93,7 @@ internal static class GrappleConnectionDefinitionsVerification
             var g = samus.Grapple;
             g.FireDirection = direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            var result = connect(guard, samus, g, new(512, 512), !enemy, enemy);
+            var result = connect(samus, g, new(512, 512), !enemy, enemy);
             AssertEqual(!enemy, g.ValidateAnchorBlock, "Connection preserves block owner");
             AssertEqual(enemy, g.ValidateAnchorEnemy, "Connection preserves enemy owner");
             AssertEqual(-8, g.RopeLengthDelta, "Connection caller begins native retraction");
@@ -122,7 +122,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>Checks eight native special-angle rows, exact 16-bit angle matches, wrapped body offsets, phase changes, and camera clamps.</summary>
-    private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom, ISnesAddressSpace guard)
+    private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom)
     {
         // Read one native special-angle record word from two cartridge bytes.
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1)));
@@ -149,7 +149,7 @@ internal static class GrappleConnectionDefinitionsVerification
             g.Phase = GrapplePhase.ConnectedSwinging; g.Anchor = g.Anchor.WithY(512).WithX(512);
             g.Angle = SnesAngle.FromRaw((ushort)angle);
             int index = Array.FindLastIndex(native, row => row.Angle == angle);
-            AssertEqual(index >= 0, special(guard, samus, g, new(100, 200), out _), "Exact native special angle, no tolerance");
+            AssertEqual(index >= 0, special(samus, g, new(100, 200), out _), "Exact native special angle, no tolerance");
             if (index < 0)
             {
                 AssertEqual(100, samus.Position.X.Whole, "Non-match retains body X");
@@ -163,7 +163,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
             g.Angle = SnesAngle.FromRaw(row.Angle); g.WallJumpTimer = NativeCountdown.Start(77);
-            AssertTrue(special(guard, samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
+            AssertTrue(special(samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
             ushort x = unchecked((ushort)(g.Anchor.X + row.SamusOffset.X)), y = unchecked((ushort)(g.Anchor.Y + row.SamusOffset.Y));
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special wrapped body Y");
@@ -188,7 +188,7 @@ internal static class GrappleConnectionDefinitionsVerification
     /// <summary>Checks firing cancellation and directional drop pose choices against native policy bytes for reachable poses and radius boundaries.</summary>
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
-        var cancel = new Func<ISnesAddressSpace, RoomLevelData, SamusState, SnesButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
+        var cancel = new Func<RoomLevelData, SamusState, SnesButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
         var drop = (ISnesAddressSpace memory, SamusState player) => (byte)SamusGrappleMovement.SelectDroppedPose(player);
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
@@ -220,7 +220,7 @@ internal static class GrappleConnectionDefinitionsVerification
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = 2;
             samus.Grapple.PoseChangeAutoFireTimer = NativeCountdown.FromRaw(timer);
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            var result = cancel(guard, empty, samus, 0);
+            var result = cancel(empty, samus, 0);
             bool invalidDirection = (direction & 0xf0) != 0;
             bool cancelled = banned || invalidDirection || (direction != 2 && timer <= 1);
             AssertEqual(cancelled ? GrapplePhase.Inactive : GrapplePhase.Firing, samus.Grapple.Phase, "Actual cancellation/refire phase");

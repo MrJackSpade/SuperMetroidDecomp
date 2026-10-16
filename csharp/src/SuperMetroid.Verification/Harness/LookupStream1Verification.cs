@@ -1458,12 +1458,13 @@ internal static class LookupStream1Verification
             ushort expectedPointer = bus.ReadCartridgeWord(source);
             ushort pointer = SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose);
             AssertEqual(expectedPointer, pointer, $"animation alias ${pose:X2} reads its running-delay source");
+            var residue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
             for (int change = 0; change < 2; change++)
             {
                 byte expected = (byte)(pose - 0xFD + change * 16);
-                bus.WriteByte(0x7E0000 | pointer, expected);
-                AssertEqual(expected, SamusAnimationDelayDefinitions.ReadAnimationByte(bus, pointer, 0),
-                    $"animation alias ${pose:X2} observes WRAM mutation {change}");
+                residue._bytes[(0x7E0000 | pointer) - SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueLayout.QueueStart] = expected;
+                AssertEqual(expected, SamusAnimationDelayDefinitions.ReadAnimationByte(residue, pointer, 0),
+                    $"animation alias ${pose:X2} observes queue residue mutation {change}");
             }
         }
         Console.WriteLine("Animation aliases: three original running-delay words and six live WRAM mutations match.");

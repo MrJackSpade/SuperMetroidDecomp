@@ -23,7 +23,7 @@ internal static class IntroProjectileArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
-        var intro = CreateRetailIntroFixture(bus);
+        var intro = CreateRetailIntroFixture();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();

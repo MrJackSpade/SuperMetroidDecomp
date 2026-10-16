@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// exactly; the other regions are not replicated.
 /// </summary>
 [CpuBusBoundary("domain view: SpaceTime Beam corrupted palette copy")]
-internal readonly struct SpacetimeBeamCorruptionMemory(ISnesMemoryBus bus)
+internal readonly struct SpacetimeBeamCorruptionMemory(SuperMetroid.Core.Saves.SaveMirrorMemory progressionMirror)
 {
     /// <summary>
     /// Copies one word from <c>[$00],Y</c> (Y = <paramref name="sourceIndex"/>) to <c>$7E:C1C0,X</c> (X =
@@ -28,7 +28,8 @@ internal readonly struct SpacetimeBeamCorruptionMemory(ISnesMemoryBus bus)
             int destination = (destinationAddress + offset) & SnesCpuAddressLayout.AddressMask;
             if (!SaveMirrorMemory.Overlaps(destination, destination))
                 continue;
-            bus.WriteByte(destination, SpacetimeBeamCopyDefinitions.ReadCartridgeByte((sourceAddress + offset) & SnesCpuAddressLayout.AddressMask));
+            progressionMirror.WriteProgressionByte(destination,
+                SpacetimeBeamCopyDefinitions.ReadCartridgeByte((sourceAddress + offset) & SnesCpuAddressLayout.AddressMask));
             progression = true;
         }
         return progression;

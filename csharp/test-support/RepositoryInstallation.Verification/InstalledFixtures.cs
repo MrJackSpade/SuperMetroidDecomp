@@ -132,11 +132,11 @@ internal static class InstalledFixtures
         new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
-    internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    internal static IntroCinematicState CreateIntro(CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
     {
-        var intro = new IntroCinematicState(bus, audio, introFont ?? Maps.IntroFont,
+        var intro = new IntroCinematicState(audio, introFont ?? Maps.IntroFont,
             characterArtwork ?? IntroArtwork, beamArtwork ?? Projectiles.BeamTiles, samusBodyArtwork ?? SamusBody)
         {
             ProjectileCompositions = Projectiles.Catalog,

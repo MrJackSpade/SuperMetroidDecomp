@@ -153,7 +153,7 @@ internal static class CollectiblesVerification
         var grappleSamus = new SamusState();
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(grappleSamus);
-        var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
+        var orbHit = SamusGrappleMovement.StepFiring(orb.Level, grappleSamus,
             SnesButton.X, orb.Plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
@@ -239,7 +239,7 @@ internal static class CollectiblesVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(1124, 651)), Radius = new(5, 14),
         };
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
@@ -251,7 +251,7 @@ internal static class CollectiblesVerification
         fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
         AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
             "Morph Ball pickup draws native empty level word on message return");
-        var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
+        var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.CollectiblePhases[0],
@@ -259,7 +259,7 @@ internal static class CollectiblesVerification
         fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
         AssertEqual(0, fixture.Plms.SlotTable.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
         AssertEqual(0, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
-        var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
+        var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
@@ -666,7 +666,7 @@ internal static class CollectiblesVerification
         TestAddressSpace bus = CreateSuitPickupCartridge();
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.Samus.SamusSuitColorExtractor.Extract(bus)));
-        Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(bus, suitColors));
+        Suite(nameof(VerifySuitPickupHistory), () => VerifySuitPickupHistory(suitColors));
         var cgram = new SnesCgram();
         var samus = new SamusState
         {
@@ -681,7 +681,7 @@ internal static class CollectiblesVerification
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
-        pickup.Begin(bus, samus, layer1: new(0x0100, 0x0200),
+        pickup.Begin(samus, layer1: new(0x0100, 0x0200),
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
         AssertTrue(samus.InputLocked, "suit transformation locks Samus input");
@@ -706,12 +706,12 @@ internal static class CollectiblesVerification
         // stage pre-instruction ($91:D5A2): neither changes the window table.
         for (int installCall = 0; installCall < 2; installCall++)
         {
-            pickup.Step(curveGuard, samus, cgram);
+            pickup.Step(samus, cgram);
             AssertEqual(SamusSuitPickupBeam.None, pickup.Beam,
                 "instruction-list setup calls leave the beam empty");
             AssertEqual((byte)0, pickup.Substate, "instruction-list setup calls stay in stage zero");
         }
-        pickup.Step(curveGuard, samus, cgram);
+        pickup.Step(samus, cgram);
         AssertEqual(new SamusSuitPickupBeam(SamusSuitPickupBeamShape.GrowingFromEdges, 120, 120, 8), pickup.Beam,
             "stage zero publishes eight grown scanlines of the X=120 beam");
         ushort[] stageZero = SuitPickupBeamWindowBuilder.Build(pickup.Beam);
@@ -734,7 +734,7 @@ internal static class CollectiblesVerification
         var flashes = new List<SamusSuitPickupFlash> { (pickup.Flash ?? throw new InvalidOperationException("Verification requires pickup.Flash.")) };
         while (pickup.IsActive && transformationFrames < 2000)
         {
-            pickup.Step(curveGuard, samus, cgram);
+            pickup.Step(samus, cgram);
             transformationFrames++;
             if (pickup.Flash is { } flash)
             {
@@ -849,7 +849,7 @@ internal static class CollectiblesVerification
     }
 
     /// <summary>Checks pose-history shifts at transformation entry and reveal for both suits and preowned-suit states.</summary>
-    private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)
+    private static void VerifySuitPickupHistory(SamusSuitColorCatalog suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
         foreach (bool otherSuit in new[] { false, true })
@@ -864,7 +864,7 @@ internal static class CollectiblesVerification
             history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
             history.LastDifferentDirectionAndMovement = 0x1404;
             var pickup = new SamusSuitPickupState();
-            pickup.Begin(bus, samus, new(0, 0), kind);
+            pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
             ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
@@ -873,7 +873,7 @@ internal static class CollectiblesVerification
             AssertEqual(initialMetadata, history.PreviousDirectionAndMovement, "suit entry commits front metadata");
             int frames = 0;
             var cgram = new SnesCgram();
-            while (pickup.Substate < 4 && frames++ < 2000) pickup.Step(bus, samus, cgram);
+            while (pickup.Substate < 4 && frames++ < 2000) pickup.Step(samus, cgram);
             AssertEqual(4, pickup.Substate, "suit history fixture reaches reveal");
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");

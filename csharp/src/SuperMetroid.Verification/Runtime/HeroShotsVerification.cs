@@ -60,9 +60,9 @@ internal static class HeroShotsVerification
                         cameraX = unchecked((ushort)(SnesSixteenSixteen.WholeOf(next) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
-                shared.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, input, input);
+                shared.StepFrame(new SamusTerrain { Level = room }, samus, input, input);
                 SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
-                projectiles.StepFrame(new SamusTerrain { Bus = bus, Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), shared);
+                projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(cameraX, cameraY), shared);
                 if (native is not null)
                 {
                     ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,

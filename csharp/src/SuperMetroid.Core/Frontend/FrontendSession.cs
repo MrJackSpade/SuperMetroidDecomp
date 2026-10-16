@@ -60,6 +60,8 @@ internal sealed class FrontendSession
     public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
     /// <summary>Mutable emulated address space retained for the whole game session.</summary>
     internal readonly ISnesAddressSpace bus;
+    /// <summary>The session's Mode 7 transfer queue residue; like WRAM, it outlives each gameplay runtime.</summary>
+    internal readonly SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue mode7QueueResidue = new();
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
     public SuperMetroidGameOptions ConfiguredOptions { get; internal set; }
     /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
@@ -336,7 +338,7 @@ internal sealed class FrontendSession
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
             menuLayer1.RetainFrom(runtime);
-        runtime = new SuperMetroidRuntime(bus, ConfiguredOptions.RuntimeOverrides(forAttractDemo), Artwork.GameplayBasePalettes, frameClock);
+        runtime = new SuperMetroidRuntime(bus, ConfiguredOptions.RuntimeOverrides(forAttractDemo), Artwork.GameplayBasePalettes, frameClock, mode7QueueResidue);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);

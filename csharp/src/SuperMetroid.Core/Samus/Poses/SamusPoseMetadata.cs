@@ -184,11 +184,10 @@ internal sealed class SamusPoseMetadata
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
     /// Samus nor clears motion. Callers own the palette object and the special frame.
     /// </summary>
-    public void ApplyZebesStartPoseSetup(ISnesAddressSpace bus)
+    public void ApplyZebesStartPoseSetup()
     {
-        Ensure.NotNull(bus);
         SelectForwardFacingPose();
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -196,9 +195,9 @@ internal sealed class SamusPoseMetadata
     /// the riding-elevator handlers. Used on boarding ($A3:9548) and on a downward
     /// arrival's door finish ($82:E721).
     /// </summary>
-    public void SetupForElevator(ISnesAddressSpace bus)
+    public void SetupForElevator()
     {
-        ApplyForwardFacingPoseSetup(bus);
+        ApplyForwardFacingPoseSetup();
         // Command seven replaces both physical movement/input pointers. An uncrashed
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
         // admitted Flash keeps only its independent palette timer. Neither movement owner
@@ -225,11 +224,10 @@ internal sealed class SamusPoseMetadata
     /// input lock, palette, grapple, and priming the first graphics DMA before their first
     /// visible NMI.
     /// </remarks>
-    public void ApplyForwardFacingPoseSetup(ISnesAddressSpace bus)
+    public void ApplyForwardFacingPoseSetup()
     {
-        Ensure.NotNull(bus);
         SelectForwardFacingPose();
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
 
         // This forced owner shifts history even when already facing forward.
         // It does not pass through the ordinary input-transition epilogue.
@@ -320,9 +318,8 @@ internal sealed class SamusPoseMetadata
     /// Every admitted record stays within one facing, retains radius 21, and restarts the
     /// target's cartridge delay list at byte zero through the normal pose initializer.
     /// </summary>
-    public void ApplyDraygonGrabbedPoseChange(ISnesAddressSpace bus, SamusPoseId targetPose)
+    public void ApplyDraygonGrabbedPoseChange(SamusPoseId targetPose)
     {
-        Ensure.NotNull(bus);
 
         bool leftFamily = IsLeftFacingDraygonGrabbedPose(_samus.Pose) &&
             IsLeftFacingDraygonGrabbedPose(targetPose);
@@ -348,7 +345,7 @@ internal sealed class SamusPoseMetadata
                 $"Draygon pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {_samus.Kinematics.Radius.Y}.");
         }
 
-        _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+        _samus.Presentation.InitializeAnimation(initialFrame: 0);
     }
 
     /// <summary>
@@ -697,14 +694,14 @@ internal sealed class SamusPoseMetadata
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
     /// <remarks>The newly pressed buttons feed the transition-shot test at $91:F5CF.</remarks>
     public bool TrySetupPublishedBombJump(
-        ISnesAddressSpace bus,
+
         RoomLevelData level,
         bool timeIsFrozen,
         ushort nmiFrameCounter,
         SnesButton controllerNewInput,
         RoomPlmSystem? plms = null)
     {
-        Ensure.NotNull(bus);
+
         Ensure.NotNull(level);
         if (RejectUnsupportedPublishedBombJump(timeIsFrozen) ||
             _samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(_samus.BombJumpDirection)) != 0)
@@ -745,7 +742,7 @@ internal sealed class SamusPoseMetadata
                 // observable for a crouching bomb jump: radius 16 grows to 21 and may be
                 // rejected by a low ceiling instead of clipping Samus into terrain.
                 LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
-                    bus,
+
                     level,
                     targetPose,
                     nmiFrameCounter,
@@ -754,7 +751,7 @@ internal sealed class SamusPoseMetadata
                 if (collision != LargerPoseCollisionOutcome.Allowed)
                 {
                     if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                        _samus.ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+                        _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
                     return false;
                 }
 
@@ -766,7 +763,7 @@ internal sealed class SamusPoseMetadata
                 // The special target installs through $91:F433, which dispatches the new
                 // normal-jumping type to $91:F543 ($51/$52 cannot start a spark there). $F433
                 // then restores the suit palette after a wall jump with Screw Attack.
-                _samus.PoseTransitions.InitializeInstalledNormalJumpPose(bus, movementType, controllerNewInput);
+                _samus.PoseTransitions.InitializeInstalledNormalJumpPose(movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
                     _samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
                     _samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
@@ -774,7 +771,7 @@ internal sealed class SamusPoseMetadata
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).
                 // Preserve this frame's velocity; bomb start replaces it next frame.
-                _samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
+                _samus.Presentation.InitializeAnimation(initialFrame: 0);
                 ArmPublishedBombJump();
                 return true;
 

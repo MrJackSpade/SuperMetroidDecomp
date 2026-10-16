@@ -50,7 +50,7 @@ internal static class CrocomirePresentation1193Verification
         samus.Health = samus.MaxHealth = 999;
         samus.Position = samus.Position.WithWhole(new(600, 120));
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(bus);
+        samus.Presentation.InitializeAnimation();
         samus.CommitPoseHistory();
         samus.InputLocked = false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));

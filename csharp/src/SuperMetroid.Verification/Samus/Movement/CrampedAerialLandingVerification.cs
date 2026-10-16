@@ -61,7 +61,7 @@ internal static class CrampedAerialLandingVerification
         samus.Kinematics.YSpeed = 4;
 
         bool installedLanding = samus.PoseTransitions.TryApplyAerialLanding(
-            bus,
+
             level,
             wasSpinning: true,
             controllerInput: (SnesButton.Right | SnesButton.A),
@@ -98,7 +98,7 @@ internal static class CrampedAerialLandingVerification
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
         samus.Position = samus.Position.WithWholeY(0x0034);
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.PoseTransitions.TryApplyAerialLanding(bus, level, true, 0, 39440);
+        samus.PoseTransitions.TryApplyAerialLanding(level, true, 0, 39440);
         AssertTrue(samus.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
             "rejected landing still performs pre-command suit palette restoration");
     }

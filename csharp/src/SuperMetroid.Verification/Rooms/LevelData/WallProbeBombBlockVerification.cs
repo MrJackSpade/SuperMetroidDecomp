@@ -30,7 +30,7 @@ internal static class WallProbeBombBlockVerification
             state.Position = state.Position.WithWholeX(58).WithFractionX(fraction).WithWholeY(48);
             state.Radius = new(5, 5);
 
-            BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(bus, level, state, 8 << 16);
+            BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(level, state, 8 << 16);
             string context = $"wall probe in pose ${(int)pose:X2}";
             AssertEqual(!breaks, result.Collided, $"{context} collision");
             AssertEqual(breaks ? fraction : (ushort)0xffff, state.Position.X.Fraction, $"{context} X fraction");

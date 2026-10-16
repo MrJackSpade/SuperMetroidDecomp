@@ -649,7 +649,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyPausePageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
+        var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
         for (int direction = 0; direction < 2; direction++)
         {
@@ -694,12 +694,12 @@ internal static class RidleyFullMovieVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Position = samus.Position.WithWhole(new(512, 400));
         samus.EquippedItems = SamusEquipmentFlags.VariaSuit;
-        samus.SelectedHudItem = 1; samus.SuperMissiles = 5;
+        samus.SelectedHudItem = HudItem.Missile; samus.SuperMissiles = 5;
         samus.Presentation.LoadSuitPalette(runtime.Cgram);
         Bgr555[] expected = runtime.Cgram.Colors.Slice(192, 16).ToArray();
         for (int color = 192; color < 208; color++) runtime.Cgram.SetColor(color, Bgr555.FromWord(0x1234));
         runtime.StepFrame(SnesButton.Select);
-        AssertEqual((ushort)2, samus.SelectedHudItem, "selection enters Super Missiles without charge");
+        AssertEqual(HudItem.SuperMissile, samus.SelectedHudItem, "selection enters Super Missiles without charge");
         AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
@@ -992,7 +992,7 @@ internal static class RidleyFullMovieVerification
                 SuperMetroidGameState.LoadingNextRoomA or SuperMetroidGameState.LoadingNextRoomB))
                 for (int tile = 0; tile < HudState.MutableTileCount; tile++)
                     Check($"HUD tile {tile}", runtime.Hud.Tiles[tile], NativeSnapshotMemory.HudTilemap + tile * 2);
-            Check("Previous HUD selection", runtime.Hud._previousSelectedItem, NativeSnapshotMemory.PreviousHudSelection);
+            Check("Previous HUD selection", runtime.Hud._previousSelectedItem.ToNativeWord(), NativeSnapshotMemory.PreviousHudSelection);
             CheckBytes("Save/elevator markers", Bank80SystemState.UsedSaveStationByteCount,
                 runtime.System.GetUsedSaveStationByteRaw, NativeSnapshotMemory.SaveElevatorMarkers);
             CheckBytes("Map-station markers", Bank80SystemState.MapStationByteCount,
@@ -1220,8 +1220,8 @@ internal static class RidleyFullMovieVerification
             Check("Samus horizontal knockback direction", samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", samus.HurtFlashCounter, NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", samus.SubunitHealth, NativeSnapshotMemory.SubunitHealth);
-            Check("Samus selected HUD weapon", samus.SelectedHudItem, NativeSnapshotMemory.SelectedHudItem);
-            Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex, NativeSnapshotMemory.AutoCancelHudItemIndex);
+            Check("Samus selected HUD weapon", samus.SelectedHudItem.ToNativeWord(), NativeSnapshotMemory.SelectedHudItem);
+            Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", samus.HorizontalSpeed.AccelerationMode, NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusQuantity.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
             Check("Samus equipped items", samus.EquippedItems.ToNativeWord(), NativeSnapshotMemory.Items);
@@ -1234,7 +1234,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus super missile capacity", SamusQuantity.Encode(samus.MaxSuperMissiles), NativeSnapshotMemory.MaxSuperMissiles);
             Check("Samus power bombs", SamusQuantity.Encode(samus.PowerBombs), NativeSnapshotMemory.PowerBombs);
             Check("Samus power bomb capacity", SamusQuantity.Encode(samus.MaxPowerBombs), NativeSnapshotMemory.MaxPowerBombs);
-            Check("Samus reserve mode", samus.ReserveTankMode, NativeSnapshotMemory.ReserveMode);
+            Check("Samus reserve mode", samus.ReserveTankMode.ToNativeWord(), NativeSnapshotMemory.ReserveMode);
             Check("Samus reserve capacity", SamusQuantity.Encode(samus.MaxReserveEnergy), NativeSnapshotMemory.MaxReserve);
             Check("Samus reserve energy", SamusQuantity.Encode(samus.ReserveEnergy), NativeSnapshotMemory.Reserve);
             // The native CPU can still be decompressing source-room tiles while

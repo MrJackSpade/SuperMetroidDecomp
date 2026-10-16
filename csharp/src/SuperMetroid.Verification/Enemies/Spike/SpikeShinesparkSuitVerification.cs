@@ -57,7 +57,7 @@ internal static class SpikeShinesparkSuitVerification
         frozenSamus.Health = 0;
         frozenSamus.MaxHealth = 99;
         frozenSamus.ReserveEnergy = frozenSamus.MaxReserveEnergy = 2;
-        frozenSamus.ReserveTankMode = 1;
+        frozenSamus.ReserveTankMode = ReserveTankMode.Auto;
         var shortRecovery = new SamusReserveAutoRecoveryState();
         shortRecovery.Begin(frozenSamus);
         frozenRuntime.Freeze.GameplayTimeFrozen = true;
@@ -126,7 +126,7 @@ internal static class SpikeShinesparkSuitVerification
         samus.MaxHealth = 99;
         samus.ReserveEnergy = 60;
         samus.MaxReserveEnergy = 100;
-        samus.ReserveTankMode = 1;
+        samus.ReserveTankMode = ReserveTankMode.Auto;
         var recovery = new SamusReserveAutoRecoveryState();
         recovery.Begin(samus);
         runtime.Freeze.GameplayTimeFrozen = true;

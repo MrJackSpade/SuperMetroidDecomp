@@ -50,7 +50,7 @@ internal static class ReserveAutoFrontendVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         samus.Health = 0; samus.MaxHealth = 99;
-        samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
+        samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
         var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         var recovery = game.Session.reserveRecovery;

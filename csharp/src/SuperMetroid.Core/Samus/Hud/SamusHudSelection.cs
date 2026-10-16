@@ -38,15 +38,15 @@ internal sealed class SamusHudSelection
         SnesButton itemSwitchButton = SnesButton.Select,
         SnesButton itemCancelButton = SnesButton.Y)
     {
-        ushort previousSelection = _samus.SelectedHudItem;
+        HudItem previousSelection = _samus.SelectedHudItem;
         SnesButton switchMask = itemSwitchButton;
         SnesButton cancelMask = itemCancelButton;
         bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != 0;
 
         if ((controllerNewInput & cancelMask) != 0)
         {
-            _samus.AutoCancelHudItemIndex = 0;
-            _samus.SelectedHudItem = 0;
+            _samus.AutoCancelHudItemIndex = HudItem.Beam;
+            _samus.SelectedHudItem = HudItem.Beam;
         }
         else if ((controllerNewInput & switchMask) != 0)
         {
@@ -55,15 +55,13 @@ internal sealed class SamusHudSelection
             // entry zero is the unconditional Nothing handler.
             do
             {
-                _samus.SelectedHudItem++;
-                if (_samus.SelectedHudItem >= 6)
-                    _samus.SelectedHudItem = 0;
+                _samus.SelectedHudItem = HudItems.Next(_samus.SelectedHudItem);
             }
             while (!IsHudItemAvailable(_samus.SelectedHudItem));
 
             _samus.AutoCancelHudItemIndex = (controllerInput & cancelMask) != 0
                 ? _samus.SelectedHudItem
-                : (ushort)0;
+                : HudItem.Beam;
         }
 
         if (_samus.SelectedHudItem != previousSelection)
@@ -82,15 +80,15 @@ internal sealed class SamusHudSelection
     }
 
     /// <summary>Applies the native switched-to handlers' ammo and equipment admission rules.</summary>
-    private bool IsHudItemAvailable(ushort index) => index switch
+    private bool IsHudItemAvailable(HudItem item) => item switch
     {
-        0 => true,
-        1 => _samus.Missiles != 0,
-        2 => _samus.SuperMissiles != 0,
-        3 => _samus.PowerBombs != 0,
-        4 => _samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
-        5 => _samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
+        HudItem.Beam => true,
+        HudItem.Missile => _samus.Missiles != 0,
+        HudItem.SuperMissile => _samus.SuperMissiles != 0,
+        HudItem.PowerBomb => _samus.PowerBombs != 0,
+        HudItem.Grapple => _samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
+        HudItem.XRay => _samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
         _ => throw new InvalidDataException(
-            $"HUD item index {index} escaped the cartridge's six-entry switch table."),
+            $"HUD item {(ushort)item} escaped the cartridge's six-entry switch table."),
     };
 }

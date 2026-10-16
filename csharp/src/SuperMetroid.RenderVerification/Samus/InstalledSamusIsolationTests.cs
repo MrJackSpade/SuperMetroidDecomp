@@ -630,7 +630,7 @@ internal sealed class InstalledSamusIsolationTests
     {
         Pair pair = Create();
         pair.Apply("reserve setup", actor =>
-        { actor.Samus.Health = 0; actor.Samus.ReserveEnergy = 42; actor.Samus.ReserveTankMode = 1; });
+        { actor.Samus.Health = 0; actor.Samus.ReserveEnergy = 42; actor.Samus.ReserveTankMode = ReserveTankMode.Auto; });
         var stock = new SamusReserveAutoRecoveryState(); var edited = new SamusReserveAutoRecoveryState();
         stock.Begin(pair.Stock.Samus); edited.Begin(pair.Edited.Samus);
         ushort initialFrame = pair.Stock.Samus.AnimationFrame;

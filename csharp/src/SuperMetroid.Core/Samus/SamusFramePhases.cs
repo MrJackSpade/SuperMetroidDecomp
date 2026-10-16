@@ -363,7 +363,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
             // while a grapple is already active ($90:C59A), which changes nothing.
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
                 samus.HudSelection.HandleHudSelection(_controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
-                (samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem ||
+                (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
                 _projectiles.Firing.CancelChargeForHudSelection();
@@ -374,7 +374,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
             // The selected scope uses held Run, not Fire. Setup installs its
             // own pose handlers, superseding alpha's ordinary pending pose.
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-                samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
+                samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 (_controller1.Current & SnesButton.B) != 0 &&
                 TryBeginXrayFromSelectedHudItem(gameState, deferActivation: true))

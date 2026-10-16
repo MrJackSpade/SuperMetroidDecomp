@@ -43,7 +43,7 @@ internal static class UnpauseReserveBlackoutVerification
         SamusState samus = unpausingRuntime.Player.IntroducedSamus;
         samus.Health = 0;
         samus.MaxReserveEnergy = samus.ReserveEnergy = 100;
-        samus.ReserveTankMode = 1;
+        samus.ReserveTankMode = ReserveTankMode.Auto;
         unpausing.Session.pauseBrightness = (byte)0;
         unpausing.GameState = SuperMetroidGameState.Unpausing;
         unpausing.Step(0);

@@ -454,7 +454,7 @@ internal static class SamusBodyArtworkVerification
         var originalArmSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
         };
         var editedArmSamus = new SamusState
         {
@@ -687,7 +687,7 @@ internal static class SamusBodyArtworkVerification
         var nativeSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
+            AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile,
         };
         var installedSamus = new SamusState
         {

@@ -63,7 +63,7 @@ internal static class ProjectileDamageVerification
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
-            var system = new SamusProjectileSystem(); var samus = Samus(); samus.SelectedHudItem = item;
+            var system = new SamusProjectileSystem(); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
             var result = system.Firing.TryFireMissile(samus, SnesButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual((int?)0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
@@ -82,7 +82,7 @@ internal static class ProjectileDamageVerification
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var system = new SamusProjectileSystem(); var samus = Samus();
-            samus.EquippedBeams = (SamusBeamFlags)beam; samus.SelectedHudItem = 3; samus.PowerBombs = 10;
+            samus.EquippedBeams = (SamusBeamFlags)beam; samus.SelectedHudItem = HudItem.PowerBomb; samus.PowerBombs = 10;
             AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Slots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
@@ -189,7 +189,7 @@ internal static class ProjectileDamageVerification
                 Pose = SamusPoseId.FacingRightNormalPose,
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = (SamusBeamFlags)beam,
-                SelectedHudItem = 3,
+                SelectedHudItem = HudItem.PowerBomb,
                 PowerBombs = 10,
             };
             AssertTrue(projectiles.Combos.TryActivateCombo(

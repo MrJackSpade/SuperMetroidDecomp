@@ -43,7 +43,7 @@ internal sealed class IntroBabyDiscoveryState
         Samus = existingSamus ?? new SamusState();
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(new(376, 147));
-        Samus.SelectedHudItem = 0;
+        Samus.SelectedHudItem = HudItem.Beam;
         Samus.PoseMetadata.RefreshCollisionRadii();
         // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
         // keeps running rather than restarting.

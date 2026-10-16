@@ -44,7 +44,7 @@ internal static class XrayInputVerification
         samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
         runtime.StepFrame(0);
         runtime.StepFrame(SnesButton.Select);
-        AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
+        AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray through ordinary HUD input");
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "held Run activates selected X-ray without diagnostic activation");
         AssertTrue(runtime.Freeze.TimeIsFrozen, "X-ray activation freezes gameplay");

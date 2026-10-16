@@ -73,8 +73,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
             // in forced blank, after clearing Samus's HUD selection and hurt timers.
             SamusState lostSamus = session.runtime?.Player.Samus ?? throw new InvalidOperationException(
                 "Ceres destruction with Samus requires her gameplay state.");
-            lostSamus.SelectedHudItem = 0;
-            lostSamus.AutoCancelHudItemIndex = 0;
+            lostSamus.SelectedHudItem = HudItem.Beam;
+            lostSamus.AutoCancelHudItemIndex = HudItem.Beam;
             lostSamus.InvincibilityTimer = NativeCountdown.Start(0);
             lostSamus.KnockbackTimer = NativeCountdown.Start(0);
             session.ceresDestruction = null;

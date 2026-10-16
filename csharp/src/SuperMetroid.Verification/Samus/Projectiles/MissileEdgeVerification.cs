@@ -26,7 +26,7 @@ internal static class MissileEdgeVerification
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = 0x8000;
             var room = CreateRoom(new(64, 16), blocks, new byte[blocks.Length]);
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
-                SelectedHudItem = 1, Missiles = 5, MaxMissiles = 5 };
+                SelectedHudItem = HudItem.Missile, Missiles = 5, MaxMissiles = 5 };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)

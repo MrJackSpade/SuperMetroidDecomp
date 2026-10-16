@@ -18,6 +18,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Bosses.Kraid;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus;
 /// <summary>Checks close-range Super Missile damage and native projectile slot traversal in Kraid's mouth.</summary>
 internal static class KraidSuperMissileDamageVerification
 {
@@ -44,7 +45,7 @@ internal static class KraidSuperMissileDamageVerification
         var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
         runtime.Room.LevelData = level;
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
-        samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
+        samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
         samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation();samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));

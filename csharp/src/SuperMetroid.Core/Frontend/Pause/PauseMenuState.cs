@@ -884,7 +884,7 @@ internal sealed class PauseMenuState
                 else if (down)
                 {
                     if (SelectedReserveItem == PauseReserveItem.Transfer ||
-                        samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode)
+                        samus.ReserveTankMode == ReserveTankMode.Auto)
                         TrySelectEquipment(beams, 0, 1);
                     else
                     {
@@ -1012,7 +1012,7 @@ internal sealed class PauseMenuState
     {
         bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
         bool animated = inTanks && SelectedReserveItem == PauseReserveItem.Mode &&
-            samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode;
+            samus.ReserveTankMode == ReserveTankMode.Auto;
         bool enabled = animated || inTanks && SelectedReserveItem == PauseReserveItem.Transfer;
         SetReserveArrow(enabled, animated, nmiFrameCounter8);
     }
@@ -1047,9 +1047,9 @@ internal sealed class PauseMenuState
         presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
         // Native setup retains the initial MANUAL label for the zero/uninitialized
         // mode and patches its first four characters only after a nonzero mode exists.
-        if (samus.ReserveTankMode != 0)
+        if (samus.ReserveTankMode != ReserveTankMode.None)
             presentation.ApplyLabel(equipmentTilemap,
-                samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode ? "Auto" : "Manual",
+                samus.ReserveTankMode == ReserveTankMode.Auto ? "Auto" : "Manual",
                 preserveAttributes: true);
     }
 
@@ -1104,8 +1104,8 @@ internal sealed class PauseMenuState
             case PauseReserveItem.Mode:
                 if ((pressed & SnesButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
                 audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
-                samus.ReserveTankMode = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
-                    ? PauseReserveTransferRomData.ManualMode : PauseReserveLabelRomData.AutoMode;
+                samus.ReserveTankMode = samus.ReserveTankMode == ReserveTankMode.Auto
+                    ? ReserveTankMode.Manual : ReserveTankMode.Auto;
                 WriteReserveLabels();
                 return;
             case PauseReserveItem.Transfer:

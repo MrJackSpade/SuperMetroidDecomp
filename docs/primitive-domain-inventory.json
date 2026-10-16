@@ -1650,6 +1650,28 @@
     "5a83b0290",
     "5d3bc4277"
    ]
+  },
+  "HudItem": {
+   "previous": "SamusState.SelectedHudItem/AutoCancelHudItemIndex (ushort), HudState._previousSelectedItem, save slot HudItem word, SamusHudRomData.GrappleSelectedItem, SamusXrayRomData.SelectedHudItem, the private SamusArmCannonDefinitions.HudSelection enum",
+   "type": "enum HudItem : ushort (Beam, Missile, SuperMissile, PowerBomb, Grapple, XRay)",
+   "closedProof": "$90:C51D's selection ring wraps after entry five and every bank-$90 HUD dispatcher (switched-to handlers, arm-cannon cover table, weapon handlers) has exactly six entries; no writer stores another value",
+   "transitions": "HudItems.Next (the $90:C51D ring); cancels write Beam",
+   "boundary": "HudItems.Decode at SaveRamCodec, GameSaveJsonCodec and the Verification snapshot importer; ToNativeWord for SRAM/JSON writes, the missile data-pointer table index and word-level parity checks",
+   "invalidValues": "Decode throws InvalidDataException; Next, the availability switch and DesiredOpenFlag throw",
+   "consumers": "SamusHudSelection, SamusArmCannonState/Definitions, BeamFiring, SamusBombProjectileSystem, SamusProjectileSystem, BeamCombos, SamusFramePhases, SamusGrappleHudInput, rainbow-beam ammo drain, HudState/GameplayHudPresentation, saves, verification",
+   "tests": "VerifyHudSelection suites, VerifySamusArmCannonDefinitions, VerifyGameSaveJsonPersistence, VerifySaveRamLayout, Ridley and 100% replays",
+   "status": "resolved"
+  },
+  "ReserveTankMode": {
+   "previous": "SamusState.ReserveTankMode (ushort), save slot ReserveMode word, HudSnapshot.ReserveMode, PauseReserveLabelRomData.AutoMode, PauseReserveTransferRomData.ManualMode, '(mode & 1)' tests",
+   "type": "enum ReserveTankMode : ushort (None, Auto, Manual)",
+   "closedProof": "pickups and refills write only 1 when the mode is 0 (reserve-tank pickup, $91:DF12); the pause menu toggles 1 <-> 2 ($82:AEA9); $82:AB47 labels 1 AUTO and other nonzero MANUAL; AUTO is the only value with bit zero set",
+   "transitions": "None -> Auto on the first reserve energy; Auto <-> Manual in the pause menu",
+   "boundary": "ReserveTankModes.Decode at SaveRamCodec, GameSaveJsonCodec and the Verification snapshot importer; ToNativeWord for writes and word-level parity checks",
+   "invalidValues": "Decode throws InvalidDataException",
+   "consumers": "CollectiblePlms, EnemyDeathsAndDrops, SamusEnergyRestoration, SamusReserveAutoRecoveryState, GameplayGamePhases, PauseMenuState, PauseGamePhases, HudState, TesterTools, saves, verification",
+   "tests": "VerifyPauseReserve* suites, VerifyReserveAutoRecovery, VerifyGameSaveJsonPersistence, VerifySaveRamLayout, Ridley and 100% replays",
+   "status": "resolved"
   }
  },
  "summary": {

@@ -34,8 +34,8 @@ internal static class PauseReserveTankAssetsVerification
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks));
         foreach (ushort capacity in new ushort[] { 0, 100, 200, 300, 400 })
         {
-            var nativeSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };
-            var installedSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = 2 };
+            var nativeSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };
+            var installedSamus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankMode.Manual };
             var native = Create(bus, nativeSamus, catalog);
             var installed = Create(guard, installedSamus, catalog);
             foreach (ushort supply in ReserveSupplySamples(capacity))
@@ -66,7 +66,7 @@ internal static class PauseReserveTankAssetsVerification
         using (var output = File.Create(path)) PauseReserveTankPresentation.Write(output, custom);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(catalog.ContentIdentity != edited.ContentIdentity, "reserve-only edit changes content identity");
-        var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = 2, Health = 50, MaxHealth = 99 };
+        var samus = new SamusState { MaxReserveEnergy = 100, ReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, Health = 50, MaxHealth = 99 };
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
         int last = (snapshot.Memory.ModeledSpriteCount - 1) * 4;

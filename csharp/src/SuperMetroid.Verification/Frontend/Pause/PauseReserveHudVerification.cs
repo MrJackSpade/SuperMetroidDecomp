@@ -13,6 +13,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Frontend.Pause;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks pause-menu reserve input and HUD DMA timing through the real frontend dispatcher.</summary>
 internal static class PauseReserveHudVerification
@@ -29,9 +30,9 @@ internal static class PauseReserveHudVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
         samus.Health = 20; samus.MaxHealth = 99;
-        samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
+        samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.CollectedBeams = SamusBeamFlags.Charge;
-        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = 1 });
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = ReserveTankMode.Auto });
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
@@ -49,7 +50,7 @@ internal static class PauseReserveHudVerification
         long sequence = 0;
         void Step(SnesButton input = SnesButton.None) => game.StepCaptured(input, ++sequence, 1);
         Step(SnesButton.A);
-        AssertEqual(2, samus.ReserveTankMode, "paused A switches to manual");
+        AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "paused A switches to manual");
         AssertEqual(originalAuto, displayed.ReadWord(HudState.VramDestination + 8), "AUTO remains until next accepted NMI");
         Step();
         foreach (int index in new[] { 8, 9, 40, 41, 72, 73 })

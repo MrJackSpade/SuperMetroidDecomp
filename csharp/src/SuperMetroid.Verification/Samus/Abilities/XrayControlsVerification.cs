@@ -40,7 +40,7 @@ internal static class XrayControlsVerification
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
             runtime.StepFrame(0);
             runtime.StepFrame(runtime.Options.ControllerBindings.ItemSelect);
-            AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "ordinary input selects X-ray");
+            AssertEqual(HudItem.XRay, samus.SelectedHudItem, "ordinary input selects X-ray");
             runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);
             AssertTrue(!samus.Xray.IsActive, "Shoot alone does not activate selected X-ray");
             AssertTrue(runtime.Projectiles.LastFrameResult.QueuedSoundEffect is not null,
@@ -83,7 +83,7 @@ internal static class XrayControlsVerification
             AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "configured Run keeps scan fully expanded");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
             AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "Run release tears down scanning");
-            AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "release preserves X-ray selection");
+            AssertEqual(HudItem.XRay, samus.SelectedHudItem, "release preserves X-ray selection");
             // $90:AC32 held the cooldown at $20 while time was frozen; it drains only now.
             AssertTrue(runtime.BombProjectiles.CooldownTimer.RawValue is > 0 and <= 0x20,
                 "frozen-time cooldown still delays the first post-scan shot");

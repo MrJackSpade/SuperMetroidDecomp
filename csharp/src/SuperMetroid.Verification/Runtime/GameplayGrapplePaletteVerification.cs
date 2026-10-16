@@ -50,7 +50,7 @@ internal static class GameplayGrapplePaletteVerification
             samus.InputLocked = false;
             samus.EquippedItems = samus.CollectedItems = SamusEquipmentFlags.GrappleBeam;
             samus.EquippedBeams = (SamusBeamFlags)beam;
-            samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
+            samus.SelectedHudItem = HudItem.Grapple;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.CommitPoseHistory();

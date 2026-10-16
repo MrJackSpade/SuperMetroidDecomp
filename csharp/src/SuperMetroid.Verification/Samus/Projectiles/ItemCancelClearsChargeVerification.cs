@@ -38,7 +38,7 @@ internal static class ItemCancelClearsChargeVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
-        AssertEqual((ushort)0, samus.SelectedHudItem, "nothing is selected");
+        AssertEqual(HudItem.Beam, samus.SelectedHudItem, "nothing is selected");
 
         const SnesButton shoot = SnesButton.X;
         for (int frame = 0; frame < 10; frame++)
@@ -46,7 +46,7 @@ internal static class ItemCancelClearsChargeVerification
         AssertEqual((ushort)10, runtime.Projectiles.Charge.FlareCounter, "ten held frames charge to ten");
 
         runtime.StepFrame((shoot | SnesButton.Y));
-        AssertEqual((ushort)0, samus.SelectedHudItem, "the cancel leaves nothing selected");
+        AssertEqual(HudItem.Beam, samus.SelectedHudItem, "the cancel leaves nothing selected");
         AssertEqual((ushort)1, runtime.Projectiles.Charge.FlareCounter,
             "the cancel clears the charge before held Shoot counts it again");
         Console.WriteLine("  Item cancel: a Y press with nothing selected still clears the charge.");

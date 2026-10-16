@@ -98,7 +98,7 @@ internal static class GModeGateGlitchVerification
         samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedBeams = SamusBeamFlags.Wave;
-        samus.SelectedHudItem = 0;
+        samus.SelectedHudItem = HudItem.Beam;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
 
@@ -493,7 +493,7 @@ internal static class GModeGateGlitchVerification
         samus.MaxHealth = 99;
         samus.ReserveEnergy = 4;
         samus.MaxReserveEnergy = 100;
-        samus.ReserveTankMode = 1;
+        samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
         samus.PoseMetadata.RefreshCollisionRadii();

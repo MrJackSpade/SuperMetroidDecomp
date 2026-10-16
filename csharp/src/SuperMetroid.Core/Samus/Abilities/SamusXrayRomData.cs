@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </remarks>
 public static class SamusXrayRomData
 {
-    /// <summary>HUD item five selects HudSelectionHandler_Xray at $90:DDC8; held Run invokes $91:CAD6.</summary>
-    public const ushort SelectedHudItem = 5;
     /// <summary>Palette words copied into Samus's visor colors while X-ray is active.</summary>
     public static class Palette
     {

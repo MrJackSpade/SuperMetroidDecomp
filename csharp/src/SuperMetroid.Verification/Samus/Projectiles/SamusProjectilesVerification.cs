@@ -149,7 +149,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             Pose = pose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = 0,
-            SelectedHudItem = 0,
+            SelectedHudItem = HudItem.Beam,
         };
         var bombs = CreateSyntheticBombs();
         var projectiles = CreateSyntheticProjectiles();
@@ -1007,7 +1007,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-        SelectedHudItem = 1,
+        SelectedHudItem = HudItem.Missile,
         Missiles = 3,
     };
     var missileBombs = CreateSyntheticBombs();
@@ -1022,7 +1022,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         missileFired.QueuedSoundEffect,
         "missile producer queues library-one effect three");
     AssertEqual(2, missileSamus.Missiles, "missile producer consumes exactly one ammo");
-    AssertEqual(1, missileSamus.SelectedHudItem,
+    AssertEqual(HudItem.Missile, missileSamus.SelectedHudItem,
         "nonempty missile reserve remains HUD-selected");
     AssertEqual(1, missileProjectiles.SlotTable.ProjectileCounter,
         "missile increments the shared ordinary-projectile counter");
@@ -1117,7 +1117,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             SnesButton.Select,
             SnesButton.Select),
         "Select cycles the live HUD selection from missiles to beams");
-    AssertEqual(0, missileSamus.SelectedHudItem,
+    AssertEqual(HudItem.Beam, missileSamus.SelectedHudItem,
         "Select wrap chooses the ordinary beam producer");
     missileBombs.Reset();
     SamusProjectileSlotObservation beforePostMissileBeam = missileProjectiles.ObserveSlots();
@@ -1156,7 +1156,7 @@ internal static void VerifySamusPowerBeamProjectiles()
             // Request muzzle (64,yPosition): default Right adds (11,1), then
             // standing-pose mechanics subtract six from Y, regardless of artwork.
             Position = FixedPosition<RoomPixels>.FromWhole(new(53, unchecked((ushort)(yPosition + 5)))),
-            SelectedHudItem = 1,
+            SelectedHudItem = HudItem.Missile,
             Missiles = 1,
         };
         var pointBombs = CreateSyntheticBombs();
@@ -1488,7 +1488,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-        SelectedHudItem = 2,
+        SelectedHudItem = HudItem.SuperMissile,
         SuperMissiles = 3,
     };
     var superBombs = CreateSyntheticBombs();
@@ -1573,7 +1573,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var pillarSamus = new SamusState
     {
         Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-        SelectedHudItem = 2, SuperMissiles = 3,
+        SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
     };
     var pillarBombs = CreateSyntheticBombs();
     var pillarProjectiles = CreateSyntheticProjectiles();
@@ -1620,7 +1620,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-        SelectedHudItem = 2,
+        SelectedHudItem = HudItem.SuperMissile,
         SuperMissiles = 1,
     };
     var integratedSuperBombs = CreateSyntheticBombs();
@@ -1662,7 +1662,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     RoomLevelData skippedWall = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(skippedWords, skippedBehaviors, new ushort[skippedWords.Length]), new byte[8]);
     var skippedSamus = new SamusState
     {
-        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 96)), SelectedHudItem = 2, SuperMissiles = 1,
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 96)), SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 1,
     };
     var skippedBombs = CreateSyntheticBombs();
     var skippedProjectiles = CreateSyntheticProjectiles();

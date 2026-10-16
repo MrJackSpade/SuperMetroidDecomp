@@ -142,7 +142,7 @@ internal static class PauseEquipmentRulesVerification
         foreach (var scenario in new[] { (Health: 20, Reserve: 10), (Health: 98, Reserve: 10), (Health: 99, Reserve: 1) })
         {
             var samus = new SamusState { Health = (ushort)scenario.Health, MaxHealth = 99, ReserveEnergy = (ushort)scenario.Reserve,
-                MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = SamusBeamFlags.Charge };
+                MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var pause = Create(samus); EnterPauseEquipment(pause);
             pause.Step(0, SnesButton.Up); pause.Step(0, SnesButton.Down);
             AssertEqual((PauseEquipmentCategory.Reserves, 1), (pause.SelectedCategory, pause.SelectedItem), "manual transfer fixture reaches reserve dispatcher");

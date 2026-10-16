@@ -583,8 +583,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 return;
             case InWorldCollectibleKind.ReserveTank:
                 samus.MaxReserveEnergy += 100;
-                if (samus.ReserveTankMode == 0)
-                    samus.ReserveTankMode = 1;
+                if (samus.ReserveTankMode == ReserveTankMode.None)
+                    samus.ReserveTankMode = ReserveTankMode.Auto;
                 return;
             case InWorldCollectibleKind.MissileTank:
                 samus.MaxMissiles += 5;

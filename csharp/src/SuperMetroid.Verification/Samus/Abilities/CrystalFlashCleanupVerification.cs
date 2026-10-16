@@ -60,7 +60,7 @@ internal static class CrystalFlashCleanupVerification
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PowerBombs = samus.MaxPowerBombs = capacity;
-        samus.SelectedHudItem = 3;
+        samus.SelectedHudItem = HudItem.PowerBomb;
         samus.Position = samus.Position.WithWholeX(512);
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Position = samus.Position.WithWholeY((ushort)(511 - samus.Kinematics.Radius.Y));

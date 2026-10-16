@@ -186,11 +186,11 @@ public sealed class GameplayHudPresentation
     /// <param name="tiles">The mutable 32-by-3 HUD tilemap.</param>
     /// <param name="selectedItem">The native one-based selected-item number.</param>
     /// <param name="palette">The BG palette index to apply.</param>
-    public void ToggleItemHighlight(Span<ushort> tiles, ushort selectedItem, int palette)
+    public void ToggleItemHighlight(Span<ushort> tiles, SuperMetroid.Core.Samus.HudItem selectedItem, int palette)
     {
         ValidateTilemap(tiles);
         if ((uint)palette > 7) throw new ArgumentOutOfRangeException(nameof(palette));
-        int itemIndex = selectedItem - 1;
+        int itemIndex = (int)selectedItem - 1;
         if ((uint)itemIndex >= GameplayHudDefinitions.IconNames.Length) return;
         CompiledIcon icon = Icon(itemIndex);
         for (int y = 0; y < CompiledIcon.Height; y++)

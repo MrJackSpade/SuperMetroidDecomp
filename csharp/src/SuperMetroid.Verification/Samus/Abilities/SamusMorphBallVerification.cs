@@ -771,7 +771,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         EquippedItems = (SamusEquipmentFlags)((ushort)(
             SamusEquipmentFlags.MorphBall |
             SamusEquipmentFlags.Bombs)),
-        SelectedHudItem = 3,
+        SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
         ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
@@ -872,7 +872,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = (SamusEquipmentFlags)0x0004,
-        SelectedHudItem = 3,
+        SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 2,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
@@ -883,7 +883,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "selected power bomb uses first physical bomb slot");
     AssertEqual(1, powerBombSamus.PowerBombs,
         "power-bomb placement decrements ammo exactly once");
-    AssertEqual(3, powerBombSamus.SelectedHudItem,
+    AssertEqual(HudItem.PowerBomb, powerBombSamus.SelectedHudItem,
         "remaining power-bomb ammo retains HUD selection");
     AssertEqual(0x0028, powerBombs.CooldownTimer.RawValue,
         "power bomb loads non-beam cooldown table entry three");
@@ -1278,7 +1278,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
-        SelectedHudItem = 3,
+        SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 1,
         MaxPowerBombs = 5,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
@@ -1656,7 +1656,7 @@ private static void RunPowerBombToInitialBoundary(
     {
         Pose = SamusPoseId.MorphBallGroundRightPose,
         EquippedItems = SamusEquipmentFlags.MorphBall,
-        SelectedHudItem = 3,
+        SelectedHudItem = HudItem.PowerBomb,
         PowerBombs = 1,
         MaxPowerBombs = 5,
         Position = FixedPosition<RoomPixels>.FromWhole(position),

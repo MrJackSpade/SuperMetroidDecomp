@@ -182,7 +182,7 @@ internal static class ProjectileInheritanceProbeVerification
         }
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
-        samus.SelectedHudItem = weapon;
+        samus.SelectedHudItem = HudItems.Decode(weapon);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

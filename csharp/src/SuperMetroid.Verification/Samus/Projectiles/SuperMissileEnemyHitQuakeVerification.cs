@@ -25,7 +25,7 @@ internal static class SuperMissileEnemyHitQuakeVerification
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
-            SelectedHudItem = 2, SuperMissiles = 3,
+            SelectedHudItem = HudItem.SuperMissile, SuperMissiles = 3,
         };
         SamusProjectileSystem projectiles = CreateProjectileFixture();
         SamusBombProjectileSystem bombs = CreateBombFixture();

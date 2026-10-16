@@ -211,7 +211,7 @@ public sealed class SamusState
     public int MaxReserveEnergy { get; set; }
 
     /// <summary>Reserve-tank mode at WRAM `$09C0`: zero off, one auto, two manual.</summary>
-    public ushort ReserveTankMode { get; set; }
+    public ReserveTankMode ReserveTankMode { get; set; }
 
     /// <summary>Current missiles at WRAM `$09C6`.</summary>
     public int Missiles { get; set; }
@@ -240,10 +240,10 @@ public sealed class SamusState
     public int MaxPowerBombs { get; set; }
 
     /// <summary>Selected HUD item at WRAM <c>$09D2</c>: 0 none, 1 missiles, 2 supers, 3 bombs.</summary>
-    public ushort SelectedHudItem { get; set; }
+    public HudItem SelectedHudItem { get; set; }
 
     /// <summary>Native HUD auto-cancel index at WRAM <c>$0A04</c>.</summary>
-    public ushort AutoCancelHudItemIndex { get; set; }
+    public HudItem AutoCancelHudItemIndex { get; set; }
 
     /// <summary>
     /// Debugger-readable identity of the normal-versus-locked Samus state-handler pair.

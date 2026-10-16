@@ -29,7 +29,7 @@ public sealed class HudState
     /// <summary>Three mutable BG3 HUD rows in native row-major tilemap order.</summary>
     internal readonly ushort[] _tiles = new ushort[MutableTileCount];
     /// <summary>Previous item selection used to update both icon palettes and sound edges.</summary>
-    internal ushort _previousSelectedItem;
+    internal HudItem _previousSelectedItem;
     /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>
     [NonSerialized] private GameplayHudPresentation? presentation;
 
@@ -125,7 +125,7 @@ public sealed class HudState
         if (snapshot.MaxPowerBombs != 0)
             AddTwoByTwoIcon(itemIndex: 2);
 
-        if (snapshot.ReserveMode == 1)
+        if (snapshot.ReserveMode == ReserveTankMode.Auto)
             DrawAutoReserve(snapshot.ReserveHealth != 0);
 
         DrawHealth(snapshot.Health, snapshot.MaxHealth);
@@ -140,7 +140,7 @@ public sealed class HudState
             presentation?.SelectedPalette ?? GameplayHudDefinitions.SelectedPalette);
         // `$80:9AC9` initializes samus_prev_hud_item_index to zero. HandleHudTilemap
         // performs the first live comparison on the next gameplay pass.
-        _previousSelectedItem = 0;
+        _previousSelectedItem = HudItem.Beam;
         SelectionSoundRequestedThisFrame = false;
         IsInitialized = true;
     }
@@ -186,7 +186,7 @@ public sealed class HudState
             DrawAmmo(itemIndex: 1, samus.SuperMissiles);
         if (samus.MaxPowerBombs != 0)
             DrawAmmo(itemIndex: 2, samus.PowerBombs);
-        if (samus.ReserveTankMode == 1)
+        if (samus.ReserveTankMode == ReserveTankMode.Auto)
             DrawAutoReserve(samus.ReserveEnergy != 0);
 
         // `$80:9BD3-$9C20` changes the newly selected icon to palette four, restores the
@@ -350,7 +350,7 @@ public sealed class HudState
     }
 
     /// <summary>Changes the selected item's palette without rebuilding its tile words.</summary>
-    private void ToggleItemHighlight(ushort selectedItem, int paletteIndex)
+    private void ToggleItemHighlight(HudItem selectedItem, int paletteIndex)
     {
         (presentation ?? throw new InvalidOperationException(
             "HUD selection requires installed presentation assets.")).ToggleItemHighlight(_tiles, selectedItem, paletteIndex);
@@ -378,7 +378,7 @@ public sealed class HudState
         if (samus.MaxMissiles != 0) presentation.ApplyAmmo(_tiles, 0, samus.Missiles);
         if (samus.MaxSuperMissiles != 0) presentation.ApplyAmmo(_tiles, 1, samus.SuperMissiles);
         if (samus.MaxPowerBombs != 0) presentation.ApplyAmmo(_tiles, 2, samus.PowerBombs);
-        if (samus.ReserveTankMode == 1) presentation.ApplyAutoReserve(_tiles, samus.ReserveEnergy != 0);
+        if (samus.ReserveTankMode == ReserveTankMode.Auto) presentation.ApplyAutoReserve(_tiles, samus.ReserveEnergy != 0);
         presentation.ToggleItemHighlight(_tiles, samus.SelectedHudItem, presentation.SelectedPalette);
     }
 

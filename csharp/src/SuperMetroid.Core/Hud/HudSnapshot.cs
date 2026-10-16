@@ -11,9 +11,9 @@ public readonly record struct HudSnapshot(
     int PowerBombs,
     int MaxPowerBombs,
     SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems,
-    ushort SelectedItem,
+    SuperMetroid.Core.Samus.HudItem SelectedItem,
     int ReserveHealth,
-    ushort ReserveMode)
+    SuperMetroid.Core.Samus.ReserveTankMode ReserveMode)
 {
     /// <summary>A useful pre-item debugging state: 99 energy and no equipment.</summary>
     public static HudSnapshot CeresDebug => new(
@@ -26,7 +26,7 @@ public readonly record struct HudSnapshot(
         PowerBombs: 0,
         MaxPowerBombs: 0,
         EquippedItems: 0,
-        SelectedItem: 0,
+        SelectedItem: SuperMetroid.Core.Samus.HudItem.Beam,
         ReserveHealth: 0,
-        ReserveMode: 0);
+        ReserveMode: SuperMetroid.Core.Samus.ReserveTankMode.None);
 }

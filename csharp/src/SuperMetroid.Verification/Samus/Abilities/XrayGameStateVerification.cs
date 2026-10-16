@@ -49,7 +49,7 @@ internal static class XrayGameStateVerification
             game.Step(0);
             game.Step(SnesButton.Select);
             AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "selecting X-ray stays in state eight");
-            AssertEqual(SamusXrayRomData.SelectedHudItem, samus.SelectedHudItem, "Select reaches the equipped X-ray");
+            AssertEqual(HudItem.XRay, samus.SelectedHudItem, "Select reaches the equipped X-ray");
             AssertTrue(!samus.Xray.IsActive, "selection alone does not activate X-ray");
             return (game, runtime, samus);
         }

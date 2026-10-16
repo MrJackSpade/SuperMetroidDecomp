@@ -458,8 +458,8 @@ internal sealed class FrontendSession
                     "SpaceTime restart did not create the Ceres Samus state.");
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
             runtime.Tester.ApplyTesterInventory(restoredInventory: true);
-            restartedSamus.SelectedHudItem = 0;
-            restartedSamus.AutoCancelHudItemIndex = 0;
+            restartedSamus.SelectedHudItem = HudItem.Beam;
+            restartedSamus.AutoCancelHudItemIndex = HudItem.Beam;
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, selectedSaveSlot);
             RaiseSaveRamChanged();
             spacetimeIntroRestartSlot = null;
@@ -489,8 +489,8 @@ internal sealed class FrontendSession
                 slot.ApplyTo(runtime.Player.Samus ?? throw new InvalidOperationException(
                     "Ceres initialization did not create Samus."));
                 runtime.Tester.ApplyTesterInventory(restoredInventory: true);
-                runtime.Player.Samus.SelectedHudItem = 0;
-                runtime.Player.Samus.AutoCancelHudItemIndex = 0;
+                runtime.Player.Samus.SelectedHudItem = HudItem.Beam;
+                runtime.Player.Samus.AutoCancelHudItemIndex = HudItem.Beam;
                 ApplySelectedGameOptions();
                 return true;
             }

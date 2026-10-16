@@ -348,9 +348,9 @@ public sealed class SamusProjectileSystem
             // action is released. Holding Run owns this dispatch even if setup is
             // rejected; selection alone must not consume Shoot. Inputs are normalized
             // by the runtime, so the canonical Run bit also honors remapped bindings.
-            bool xrayBeamFallback = samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
+            bool xrayBeamFallback = samus.SelectedHudItem == HudItem.XRay &&
                 (buttons.ControllerInput & SnesButton.B) == 0;
-            if (samus.SelectedHudItem is 0 or 3 || xrayBeamFallback)
+            if (samus.SelectedHudItem is HudItem.Beam or HudItem.PowerBomb || xrayBeamFallback)
             {
                 (firedSlot, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
                     terrain.Level,
@@ -361,7 +361,7 @@ public sealed class SamusProjectileSystem
                     sharedProjectiles,
                     terrain.Plms);
             }
-            else if (samus.SelectedHudItem is 1 or 2)
+            else if (samus.SelectedHudItem is HudItem.Missile or HudItem.SuperMissile)
             {
                 (firedSlot, queuedSound) = Firing.TryFireMissile(
                     samus,

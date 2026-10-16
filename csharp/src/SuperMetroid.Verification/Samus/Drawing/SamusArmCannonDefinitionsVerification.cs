@@ -22,12 +22,10 @@ internal static class SamusArmCannonDefinitionsVerification
             rom, artworkDirectory.Root, SupportedCartridge.Sha256);
         var artwork = SuperMetroid.AssetExtraction.Samus.SamusArmCannonArtworkFiles.Load(
             artworkDirectory.Root, null);
-        for (ushort selectedHudItem = 0;
-             selectedHudItem < SamusArmCannonDefinitions.HudItemCount;
-             selectedHudItem++)
+        foreach (HudItem selectedHudItem in Enum.GetValues<HudItem>())
         {
             byte expected = rom.ReadCartridgeByte(
-                SamusArmCannonDefinitions.OpenFlagTable + selectedHudItem);
+                SamusArmCannonDefinitions.OpenFlagTable + (int)selectedHudItem);
             AssertEqual(
                 expected,
                 SamusArmCannonDefinitions.DesiredOpenFlag(selectedHudItem),
@@ -65,7 +63,7 @@ internal static class SamusArmCannonDefinitionsVerification
 
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusArmCannonDefinitions.DesiredOpenFlag(
-                SamusArmCannonDefinitions.HudItemCount),
+                (HudItem)Enum.GetValues<HudItem>().Length),
             "arm-cannon policy rejects an out-of-range HUD selection");
 
         Console.WriteLine(
@@ -75,7 +73,7 @@ internal static class SamusArmCannonDefinitionsVerification
     /// <summary>Rejects live reads of the compiled arm-cannon HUD policy table.</summary>
     private static CartridgeReadGuard NewArmCannonPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address >= SamusArmCannonDefinitions.OpenFlagTable &&
-                address < SamusArmCannonDefinitions.OpenFlagTable + SamusArmCannonDefinitions.HudItemCount,
+                address < SamusArmCannonDefinitions.OpenFlagTable + Enum.GetValues<HudItem>().Length,
             _ => "Runtime arm-cannon HUD policy read from cartridge ROM.");
 
     /// <summary>Runs the arm-cannon HUD policy and transition checks.</summary>

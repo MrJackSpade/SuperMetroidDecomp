@@ -44,7 +44,7 @@ internal static class GoldenTorizoCodeVerification
                 Health = 1500, MaxHealth = 1599, ReserveEnergy = 400, MaxReserveEnergy = 400,
                 Missiles = 200, MaxMissiles = 230, SuperMissiles = 40, MaxSuperMissiles = 50,
                 PowerBombs = 40, MaxPowerBombs = 50, EquippedItems = (SamusEquipmentFlags)8, CollectedItems = (SamusEquipmentFlags)8,
-                EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = 2, ReserveMissiles = 7,
+                EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = ReserveTankMode.Manual, ReserveMissiles = 7,
             };
             ushort[] before = Snapshot(samus);
             initialize(actor, null, samus, held, 0);
@@ -54,7 +54,7 @@ internal static class GoldenTorizoCodeVerification
                 : before;
             AssertTrue(expected.SequenceEqual(Snapshot(samus)),
                 $"GT code inventory: header ${(int)header:X4}, held ${held:X}, defeated {defeated}");
-            AssertEqual((ushort)2, samus.ReserveTankMode, "GT code does not set reserve mode");
+            AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "GT code does not set reserve mode");
             AssertEqual((ushort)7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
         }
 

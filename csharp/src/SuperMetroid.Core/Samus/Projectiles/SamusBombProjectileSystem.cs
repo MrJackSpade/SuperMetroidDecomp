@@ -373,7 +373,7 @@ public sealed class SamusBombProjectileSystem
         if ((controllerInput & shoot) == 0)
             return null;
 
-        bool placingPowerBomb = samus.SelectedHudItem == 3;
+        bool placingPowerBomb = samus.SelectedHudItem == HudItem.PowerBomb;
         if (placingPowerBomb && PowerBombExplosion.IsArmed)
             return null;
 
@@ -421,14 +421,14 @@ public sealed class SamusBombProjectileSystem
         {
             // The auto-cancel flag always wins. Otherwise consuming the last round clears
             // item index three so the next Shoot edge returns to the beam/normal-bomb path.
-            if (samus.AutoCancelHudItemIndex != 0)
+            if (samus.AutoCancelHudItemIndex != HudItem.Beam)
             {
-                samus.SelectedHudItem = 0;
-                samus.AutoCancelHudItemIndex = 0;
+                samus.SelectedHudItem = HudItem.Beam;
+                samus.AutoCancelHudItemIndex = HudItem.Beam;
             }
             else if (samus.PowerBombs == 0)
             {
-                samus.SelectedHudItem = 0;
+                samus.SelectedHudItem = HudItem.Beam;
             }
         }
 
@@ -452,7 +452,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         // Held Shoot with Power Bomb selected bypasses the ordinary spread helper.
-        if (samus.SelectedHudItem == 3)
+        if (samus.SelectedHudItem == HudItem.PowerBomb)
             return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||

@@ -42,7 +42,7 @@ internal static class MurderBeamVerification
             EquippedItems = SamusEquipmentFlags.HiJumpBoots,
             CollectedBeams = (SamusBeamFlags)0x100f,
             EquippedBeams = (SamusBeamFlags)0x1007,
-            SelectedHudItem = 0,
+            SelectedHudItem = HudItem.Beam,
         };
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
@@ -191,7 +191,7 @@ internal static class MurderBeamVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = (SamusBeamFlags)0x1007,
-            SelectedHudItem = 0,
+            SelectedHudItem = HudItem.Beam,
         };
         var projectiles = CreateProjectileFixture();
         var shared = CreateBombFixture();
@@ -223,16 +223,16 @@ internal static class MurderBeamVerification
                 (select | cancel),
                 select),
             "held Item Cancel plus Select chooses Missiles for auto-cancel");
-        AssertEqual((ushort)1, samus.AutoCancelHudItemIndex,
+        AssertEqual(HudItem.Missile, samus.AutoCancelHudItemIndex,
             "missile auto-cancel request retains the selected HUD index");
 
         shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, SnesButton.X);
         projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
         AssertTrue(projectiles.LastFrameResult.QueuedSoundEffect is not null,
             "auto-cancel setup fires one Missile");
-        AssertEqual((ushort)0, samus.SelectedHudItem,
+        AssertEqual(HudItem.Beam, samus.SelectedHudItem,
             "successful Missile auto-cancels back to beams");
-        AssertEqual((ushort)0, samus.AutoCancelHudItemIndex,
+        AssertEqual(HudItem.Beam, samus.AutoCancelHudItemIndex,
             "successful Missile consumes its auto-cancel request");
 
         HoldCharge(level, samus, projectiles, shared, shootAlreadyHeld: true);

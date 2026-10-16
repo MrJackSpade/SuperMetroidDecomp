@@ -191,8 +191,8 @@ public sealed class DoorTransitionState
                 {
                     // ResetProjectileData checks `$09EA` after clearing all projectile
                     // slots. This is the only gameplay effect of the Icon Cancel option.
-                    samus.SelectedHudItem = 0;
-                    samus.AutoCancelHudItemIndex = 0;
+                    samus.SelectedHudItem = SuperMetroid.Core.Samus.HudItem.Beam;
+                    samus.AutoCancelHudItemIndex = SuperMetroid.Core.Samus.HudItem.Beam;
                 }
                 PaletteTransition = new CartridgePaletteTransition(
                     destinationTarget,

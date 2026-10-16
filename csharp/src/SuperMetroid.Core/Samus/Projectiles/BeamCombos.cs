@@ -34,7 +34,7 @@ internal sealed class BeamCombos
         Ensure.NotNull(samus);
         Ensure.NotNull(shared);
         sound = 0;
-        if (samus.SelectedHudItem != 3) return false;
+        if (samus.SelectedHudItem != HudItem.PowerBomb) return false;
         SamusBeamCombination beam = new SamusBeamLoadoutWord(samus.EquippedBeams).LowNibbleCombination;
         if (!beam.IsRetail)
             throw new NotSupportedException("Out-of-table Spazer/Plasma combo dispatcher requires emulated ROM execution.");
@@ -94,7 +94,7 @@ internal sealed class BeamCombos
             };
         }
         if (samus.PowerBombs == 0)
-            samus.SelectedHudItem = samus.AutoCancelHudItemIndex = 0;
+            samus.SelectedHudItem = samus.AutoCancelHudItemIndex = HudItem.Beam;
         return activated;
     }
 

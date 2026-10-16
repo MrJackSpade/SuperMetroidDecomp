@@ -20,7 +20,7 @@ public sealed class SamusReserveAutoRecoveryState
         Ensure.NotNull(samus);
         if (samus.Health > 0)
             throw new InvalidOperationException("Reserve recovery requires nonpositive energy.");
-        if ((samus.ReserveTankMode & 1) == 0 || samus.ReserveEnergy == 0)
+        if (samus.ReserveTankMode != ReserveTankMode.Auto || samus.ReserveEnergy == 0)
             throw new InvalidOperationException("Automatic reserve recovery requires enabled reserves.");
 
         // CallSomeSamusCode($1B) conditionally installs the ordinary locked handler pair.

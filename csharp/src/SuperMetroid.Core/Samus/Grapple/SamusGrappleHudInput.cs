@@ -11,7 +11,7 @@ internal static class SamusGrappleHudInput
     public static bool IsSelectedAndAdmitted(SamusState samus)
     {
         if (samus.InputLocked || SamusPoseMetadata.IsForwardFacingPose(samus.Pose) ||
-            samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem)
+            samus.SelectedHudItem != HudItem.Grapple)
             return false;
 
         SamusHudHandler handler = SamusHudDefinitions.MovementHandler(samus.PoseMetadata.ReadMovementType());

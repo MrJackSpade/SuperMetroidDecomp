@@ -73,7 +73,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.Vram);
         session.GameplayRuntime.UpdatePauseHeldInput();
-        ushort previousReserveMode = session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
+        ReserveTankMode previousReserveMode = session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode;
         bool unpauseRequested = session.ActivePauseMenu.Step(
             session.GameplayRuntime.System.TimedHeldInput,
             session.GameplayRuntime.PhysicalController1.NewlyPressed,
@@ -81,8 +81,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.Clock.Counter8);
         // State $0F runs the HUD writer after pause input. Its DMA is visible
         // at the next accepted NMI, including the first unpause fade frame.
-        if (previousReserveMode == PauseReserveLabelRomData.AutoMode &&
-            session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
+        if (previousReserveMode == ReserveTankMode.Auto &&
+            session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == ReserveTankMode.Manual)
             session.GameplayRuntime.Hud.ClearAutoReserveIndicator();
         session.GameplayRuntime.Hud.UpdateGameplayCounters(session.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
         session.GameplayRuntime.Hud.QueueUpload(session.GameplayRuntime.VramWrites);

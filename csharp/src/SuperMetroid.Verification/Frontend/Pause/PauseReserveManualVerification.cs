@@ -20,14 +20,14 @@ internal static class PauseReserveManualVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
-            MaxReserveEnergy = 100, ReserveTankMode = 1,
+            MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
             CollectedBeams = SamusBeamFlags.Charge };
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
         AssertEqual(PauseReserveTransferRomData.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
         pause.Step(0, SnesButton.A);
-        AssertEqual(2, samus.ReserveTankMode, "A changes AUTO to MANUAL");
+        AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "A changes AUTO to MANUAL");
         pause.Step(0, SnesButton.Down);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "manual Down stays in tanks");
         AssertEqual(1, pause.SelectedItem, "manual Down selects transfer");
@@ -52,7 +52,7 @@ internal static class PauseReserveManualVerification
         }
         AssertEqual(0, pause.SelectedItem, "exhaustion returns to mode item");
         pause.Step(0, SnesButton.A);
-        AssertEqual(1, samus.ReserveTankMode, "A restores AUTO");
+        AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode, "A restores AUTO");
         Suite(nameof(VerifyManualReserveSoundAndClamp), () => VerifyManualReserveSoundAndClamp());
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
@@ -63,7 +63,7 @@ internal static class PauseReserveManualVerification
         foreach (ushort startingHealth in new ushort[] { 20, 98 })
         {
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
-                MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = SamusBeamFlags.Charge };
+                MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Manual, CollectedBeams = SamusBeamFlags.Charge };
             var audio = new CartridgeAudioState();
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);

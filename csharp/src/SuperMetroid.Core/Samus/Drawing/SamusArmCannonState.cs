@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed class SamusArmCannonState
 {
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
-    internal ushort _previousSelectedHudItem;
+    internal HudItem _previousSelectedHudItem;
 
     /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
     [field: NonSerialized]
@@ -51,13 +51,6 @@ public sealed class SamusArmCannonState
     public SamusArmCannonUpdateResult Update(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (samus.SelectedHudItem >= SamusArmCannonDefinitions.HudItemCount)
-        {
-            throw new InvalidDataException(
-                $"HUD item {samus.SelectedHudItem} is outside native range " +
-                $"0..{SamusArmCannonDefinitions.HudItemCount - 1}.");
-        }
-
         bool itemChanged = samus.SelectedHudItem != _previousSelectedHudItem;
         if (itemChanged)
         {
@@ -137,7 +130,7 @@ public sealed class SamusArmCannonState
     }
 
     /// <summary>Starts opening or closing only after the HUD item has been stable for two updates.</summary>
-    private bool TryStartTransition(ushort selectedHudItem)
+    private bool TryStartTransition(HudItem selectedHudItem)
     {
         if (ToggleFlag < 2)
             return false;

@@ -23,7 +23,7 @@ internal static class PauseReserveLabelsVerification
         foreach (ushort capacity in new ushort[] { 0, 100 })
         foreach (ushort mode in new ushort[] { 0, 1, 2 })
         {
-            var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = mode,
+            var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = ReserveTankModes.Decode(mode),
                 CollectedItems = SamusEquipmentFlags.MorphBall };
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
             EnterPauseEquipment(pause);

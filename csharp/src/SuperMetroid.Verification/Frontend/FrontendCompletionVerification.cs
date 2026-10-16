@@ -155,7 +155,7 @@ internal static void VerifyReserveAutoRecovery()
         MaxHealth = 99,
         ReserveEnergy = 2,
         MaxReserveEnergy = 99,
-        ReserveTankMode = 1,
+        ReserveTankMode = ReserveTankMode.Auto,
     };
     var reserve = new SamusReserveAutoRecoveryState();
     reserve.Begin(samus);

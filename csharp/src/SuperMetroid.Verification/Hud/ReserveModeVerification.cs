@@ -124,7 +124,7 @@ internal static class ReserveModeVerification
             MaxHealth = 99,
             ReserveEnergy = reserveEnergy,
             MaxReserveEnergy = 100,
-            ReserveTankMode = reserveEnergy == 0 ? (ushort)0 : (ushort)1,
+            ReserveTankMode = reserveEnergy == 0 ? ReserveTankMode.None : ReserveTankMode.Auto,
             EquippedItems = SamusEquipmentFlags.XrayScope,
         };
         samus.PoseMetadata.RefreshCollisionRadii();

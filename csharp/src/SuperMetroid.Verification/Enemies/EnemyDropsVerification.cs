@@ -109,7 +109,7 @@ internal static class EnemyDropsVerification
                     "big-energy pickup caps ordinary energy");
                 AssertEqual((ushort)100, samus.ReserveEnergy,
                     "big-energy overflow fills and caps reserve energy");
-                AssertEqual((ushort)1, samus.ReserveTankMode,
+                AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode,
                     "first reserve overflow enables automatic reserve mode");
             });
 

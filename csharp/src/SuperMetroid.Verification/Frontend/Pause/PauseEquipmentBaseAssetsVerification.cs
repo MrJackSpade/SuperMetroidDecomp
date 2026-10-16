@@ -126,7 +126,7 @@ internal static class PauseEquipmentBaseAssetsVerification
                 SamusEquipmentFlags.SpeedBooster),
             EquippedItems = (SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.MorphBall |
                 SamusEquipmentFlags.Bombs | SamusEquipmentFlags.HiJumpBoots),
-            MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245, ReserveTankMode = 1,
+            MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245, ReserveTankMode = ReserveTankMode.Auto,
         };
         static void EnterEquipment(PauseMenuState pause)
         {

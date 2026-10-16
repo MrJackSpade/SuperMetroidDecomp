@@ -1517,14 +1517,14 @@ internal static class LookupStream4Verification
             var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"AUTO preserves document content hash");
             var hud=new HudState();hud.BindPresentation(selected);
-            hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=1,ReserveHealth=1});
+            hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=ReserveTankMode.Auto,ReserveHealth=1});
             foreach(bool full in new[]{true,false})
             {
                 ushort[] tiles=Enumerable.Repeat((ushort)0x1234,96).ToArray();selected.ApplyAutoReserve(tiles,full);
                 var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"All twelve independently edited AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=1,ReserveEnergy=(ushort)(full?1:0)});
+                hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=ReserveTankMode.Auto,ReserveEnergy=(ushort)(full?1:0)});
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
             ushort[] before=hud.Tiles.ToArray();hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});

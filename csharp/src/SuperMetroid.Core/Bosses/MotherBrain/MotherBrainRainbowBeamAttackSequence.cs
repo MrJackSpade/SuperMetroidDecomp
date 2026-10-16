@@ -1096,18 +1096,18 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // are visited every call, matching the branch layout rather than sharing the gate.
         if ((mainEnemyExecutionCounter & 3) == 0)
         {
-            samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: 1);
-            samus.SuperMissiles = DecrementOneAmmoType(samus, samus.SuperMissiles, selectedItem: 2);
+            samus.Missiles = DecrementOneAmmoType(samus, samus.Missiles, selectedItem: HudItem.Missile);
+            samus.SuperMissiles = DecrementOneAmmoType(samus, samus.SuperMissiles, selectedItem: HudItem.SuperMissile);
         }
 
-        samus.PowerBombs = DecrementOneAmmoType(samus, samus.PowerBombs, selectedItem: 3);
+        samus.PowerBombs = DecrementOneAmmoType(samus, samus.PowerBombs, selectedItem: HudItem.PowerBomb);
     }
 
     /// <summary>Decrements one ammo count and clears the selected HUD item on depletion.</summary>
     private static int DecrementOneAmmoType(
         SamusState samus,
         int current,
-        ushort selectedItem)
+        HudItem selectedItem)
     {
         if (current == 0)
             return 0;
@@ -1122,9 +1122,9 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // store itself is conditional. Spell that convergence out to avoid the tempting but
         // incorrect interpretation that the HUD item number leaks into the ammo count.
         if (samus.SelectedHudItem == selectedItem)
-            samus.SelectedHudItem = 0;
+            samus.SelectedHudItem = HudItem.Beam;
 
-        samus.AutoCancelHudItemIndex = 0;
+        samus.AutoCancelHudItemIndex = HudItem.Beam;
         return 0;
     }
 

@@ -152,7 +152,7 @@ internal static class PauseSelectorsVerification
         static PauseMenuState Create(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog content, PauseEquipmentCategory category, int item)
         {
             var samus = new SamusState();
-            if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = 2; }
+            if (category == PauseEquipmentCategory.Reserves) { samus.MaxReserveEnergy = 100; samus.ReserveEnergy = 50; samus.ReserveTankMode = ReserveTankMode.Manual; }
             else
             {
                 PauseEquipmentBit bit = PauseEquipmentRules.Mask(category, item);

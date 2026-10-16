@@ -58,7 +58,7 @@ internal sealed class TesterTools
         _player.Samus.EquippedBeams = TesterInventoryDefinitions.Beams & ~SamusBeamFlags.Spazer;
         _player.Samus.Health = _player.Samus.MaxHealth = TesterInventoryDefinitions.Energy;
         _player.Samus.ReserveEnergy = _player.Samus.MaxReserveEnergy = TesterInventoryDefinitions.Reserves;
-        _player.Samus.ReserveTankMode = 1;
+        _player.Samus.ReserveTankMode = ReserveTankMode.Auto;
         _player.Samus.Missiles = _player.Samus.MaxMissiles = TesterInventoryDefinitions.Missiles;
         _player.Samus.SuperMissiles = _player.Samus.MaxSuperMissiles = TesterInventoryDefinitions.SuperMissiles;
         _player.Samus.PowerBombs = _player.Samus.MaxPowerBombs = TesterInventoryDefinitions.PowerBombs;

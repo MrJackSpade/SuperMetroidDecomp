@@ -46,7 +46,7 @@ internal static class ChainsawFiringVerification
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));
-        samus.SelectedHudItem = 0;
+        samus.SelectedHudItem = HudItem.Beam;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
         projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
@@ -74,7 +74,7 @@ internal static class ChainsawFiringVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = (SamusBeamFlags)0x000d,
-            SelectedHudItem = 0,
+            SelectedHudItem = HudItem.Beam,
         };
         AssertThrows<InvalidOperationException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Level = reactiveLevel }, reactiveSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), CreateBombFixture()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
@@ -98,7 +98,7 @@ internal static class ChainsawFiringVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = (SamusBeamFlags)0x000d,
-            SelectedHudItem = 0,
+            SelectedHudItem = HudItem.Beam,
         };
         var doorPlms = new RoomPlmSystem();
         var doorProjectiles = CreateProjectileFixture();

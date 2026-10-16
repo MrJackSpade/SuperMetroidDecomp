@@ -308,8 +308,8 @@ internal sealed class RoomLoader
         _tester.ApplyTesterInventory();
         // $91:E00D clears both persisted HUD selection words after mirror restore.
         // Otherwise the arm-cannon cover can leak into the front-facing load pose.
-        _player.Samus.SelectedHudItem = 0;
-        _player.Samus.AutoCancelHudItemIndex = 0;
+        _player.Samus.SelectedHudItem = HudItem.Beam;
+        _player.Samus.AutoCancelHudItemIndex = HudItem.Beam;
         _options.ControllerBindings = slot.ControllerBindings;
         _options.MoonwalkEnabled = slot.MoonwalkEnabled;
         _options.IconCancelEnabled = slot.IconCancelEnabled;

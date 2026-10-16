@@ -36,7 +36,7 @@ internal static class YappingMawGrappleReleaseVerification
         samus.Grapple.Phase = GrapplePhase.ConnectedSwinging;
         samus.Grapple.CancelFromConnectedPose = false;
         samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
-        samus.SelectedHudItem = 4;
+        samus.SelectedHudItem = HudItem.Grapple;
         samus.InputLocked = true;
         // Stage the last two frames of the actual Maw's held delay. The report's
         // (936,172) is this population mouth (936,192) plus native held offset (0,-20).

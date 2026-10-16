@@ -35,7 +35,7 @@ internal static class DraygonPrebattleXrayVerification
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(456, 459));
         samus.EquippedItems = SamusEquipmentFlags.XrayScope;
-        samus.SelectedHudItem = SamusXrayRomData.SelectedHudItem;
+        samus.SelectedHudItem = HudItem.XRay;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         runtime.StepFrame(0);

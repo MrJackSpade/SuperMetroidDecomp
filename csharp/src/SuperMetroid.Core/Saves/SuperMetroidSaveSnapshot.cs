@@ -43,7 +43,7 @@ public sealed record SuperMetroidSaveSnapshot
     public SamusBeamFlags CollectedBeams { get; init; }
 
     /// <summary>The native reserve-tank mode word; zero is unset, one is auto, and two is manual.</summary>
-    public ushort ReserveMode { get; init; }
+    public ReserveTankMode ReserveMode { get; init; }
 
     /// <summary>Samus's current energy in energy-point units.</summary>
     public int Health { get; init; } = 99;
@@ -70,7 +70,7 @@ public sealed record SuperMetroidSaveSnapshot
     public int MaxPowerBombs { get; init; }
 
     /// <summary>The native HUD selection index: beam, missile, super missile, power bomb, grapple, or X-ray.</summary>
-    public ushort HudItem { get; init; }
+    public HudItem HudItem { get; init; }
 
     /// <summary>The acquired reserve-tank capacity in energy-point units.</summary>
     public int MaxReserveEnergy { get; init; }

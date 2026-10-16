@@ -523,7 +523,7 @@ internal static void VerifySamusArmCannon()
         Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
-        SelectedHudItem = 0,
+        SelectedHudItem = HudItem.Beam,
     };
 
     samus.Presentation.TileTransfers.BindArtwork(InstalledFixtures.SamusBody);
@@ -546,7 +546,7 @@ internal static void VerifySamusArmCannon()
     AssertEqual(2, cannon.DrawingMode,
         "pose record publishes after-body arm-cannon draw mode");
 
-    samus.SelectedHudItem = 1;
+    samus.SelectedHudItem = HudItem.Missile;
     byte openBeforeSelection = cannon.OpenFlag;
     cannon.Update(samus);
     AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeSelection,
@@ -609,7 +609,7 @@ internal static void VerifySamusArmCannon()
 
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
     // call decrements immediately to three, followed by two, one, and invisible zero.
-    samus.SelectedHudItem = 0;
+    samus.SelectedHudItem = HudItem.Beam;
     byte openBeforeDeselection = cannon.OpenFlag;
     cannon.Update(samus);
     AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeDeselection,

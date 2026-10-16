@@ -69,7 +69,7 @@ internal static class SpacetimeBeamVerification
 
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));
-        samus.SelectedHudItem = 0;
+        samus.SelectedHudItem = HudItem.Beam;
         samus.Missiles = 20;
         samus.MaxMissiles = 50;
         samus.SuperMissiles = 7;

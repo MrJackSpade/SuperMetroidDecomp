@@ -39,7 +39,7 @@ internal static class GrappleHurtFeedbackVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.EquippedItems = SamusEquipmentFlags.GrappleBeam;
-        samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
+        samus.SelectedHudItem = HudItem.Grapple;
         runtime.Artwork.BindGrapplePresentation();
         SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, new Position16<RoomPixels>(160, 64), 52,
             SnesAngle.QuarterTurn, 0, faceRight: true);

@@ -111,7 +111,7 @@ internal static class PauseReserveUiAssetsVerification
         static SamusState Samus() => new()
         {
             MaxHealth = 499, Health = 499, MaxReserveEnergy = 400, ReserveEnergy = 245,
-            ReserveTankMode = 1,
+            ReserveTankMode = ReserveTankMode.Auto,
         };
         static void EnterEquipment(PauseMenuState pause)
         {

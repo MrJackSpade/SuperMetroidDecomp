@@ -379,7 +379,7 @@ internal static class CollectiblesVerification
                 return;
             case InWorldCollectibleKind.ReserveTank:
                 AssertEqual(100, samus.MaxReserveEnergy, "reserve tank capacity");
-                AssertEqual(1, samus.ReserveTankMode, "first reserve tank enables auto mode");
+                AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode, "first reserve tank enables auto mode");
                 return;
         }
 

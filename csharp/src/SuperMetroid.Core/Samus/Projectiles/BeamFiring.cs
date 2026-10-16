@@ -439,7 +439,7 @@ internal sealed class BeamFiring
 
         // Admission reserves room for a Super Missile's later collision link. Ammo/free-
         // slot rejection rolls back the native count, but does not undo its cooldown write.
-        bool isSuperMissile = samus.SelectedHudItem == 2;
+        bool isSuperMissile = samus.SelectedHudItem == HudItem.SuperMissile;
         int ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
         int admissionLimit = isSuperMissile ? SamusProjectileRomData.NonBeam.SuperMissileAdmissionLimit : SamusProjectileSystem.SlotCount;
         if (_slotTable.ProjectileCounter >= admissionLimit ||
@@ -480,7 +480,7 @@ internal sealed class BeamFiring
         InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, baseSpeed: 0);
 
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
-            SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
+            SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem.ToNativeWord() * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
@@ -497,13 +497,13 @@ internal sealed class BeamFiring
         // to begin charging safely while the missile cooldown suppresses its unsafe initial
         // uncharged shot.
         sharedProjectiles.SetSharedCooldown(isSuperMissile ? (ushort)20 : (ushort)10);
-        if (samus.AutoCancelHudItemIndex != 0)
+        if (samus.AutoCancelHudItemIndex != HudItem.Beam)
         {
-            samus.SelectedHudItem = 0;
-            samus.AutoCancelHudItemIndex = 0;
+            samus.SelectedHudItem = HudItem.Beam;
+            samus.AutoCancelHudItemIndex = HudItem.Beam;
         }
         else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
-            samus.SelectedHudItem = 0;
+            samus.SelectedHudItem = HudItem.Beam;
         return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
     }
 

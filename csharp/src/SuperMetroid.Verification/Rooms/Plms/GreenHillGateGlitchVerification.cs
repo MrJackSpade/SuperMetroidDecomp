@@ -100,7 +100,7 @@ internal static class GreenHillGateGlitchVerification
         samus.EquippedItems = (SamusEquipmentFlags)((ushort)(
             SamusEquipmentFlags.GrappleBeam |
             SamusEquipmentFlags.SpeedBooster));
-        samus.SelectedHudItem = 4;
+        samus.SelectedHudItem = HudItem.Grapple;
         samus.HorizontalSpeed.BaseSpeed = checked((ushort)baseSpeed);
         samus.HorizontalSpeed.BaseSubspeed = 0;
         samus.HorizontalSpeed.ExtraRunSpeed = 4;

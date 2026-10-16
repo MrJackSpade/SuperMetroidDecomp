@@ -160,7 +160,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     // proves both palette directions and the one-frame QueueSfx publication.
     damagedSamus.MaxMissiles = 5;
     damagedSamus.Missiles = 5;
-    damagedSamus.SelectedHudItem = 1;
+    damagedSamus.SelectedHudItem = HudItem.Missile;
     hud.UpdateGameplayCounters(damagedSamus);
     AssertEqual(0x1000, hud.Tiles[0x14 / 2] & 0x1c00,
         "live HUD selects missile icon with palette four");
@@ -169,7 +169,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     hud.UpdateGameplayCounters(damagedSamus);
     AssertTrue(!hud.SelectionSoundRequestedThisFrame,
         "stable HUD selection does not repeat the selection sound");
-    damagedSamus.SelectedHudItem = 0;
+    damagedSamus.SelectedHudItem = HudItem.Beam;
     hud.UpdateGameplayCounters(damagedSamus);
     AssertEqual(0x1400, hud.Tiles[0x14 / 2] & 0x1c00,
         "live HUD restores deselected missile icon to palette five");

@@ -506,8 +506,8 @@ internal sealed class EnemyDeathsAndDrops
         if (reserve >= samus.MaxReserveEnergy)
             reserve = samus.MaxReserveEnergy;
         samus.ReserveEnergy = reserve;
-        if (reserve != 0 && samus.ReserveTankMode == 0)
-            samus.ReserveTankMode = 1;
+        if (reserve != 0 && samus.ReserveTankMode == ReserveTankMode.None)
+            samus.ReserveTankMode = ReserveTankMode.Auto;
         samus.Health = samus.MaxHealth;
     }
 

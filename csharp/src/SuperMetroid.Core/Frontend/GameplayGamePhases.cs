@@ -325,7 +325,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             return false;
 
         session.runtime.Freeze.GameplayTimeFrozen = true;
-        if ((samus.ReserveTankMode & 1) != 0 && samus.ReserveEnergy != 0)
+        if (samus.ReserveTankMode == ReserveTankMode.Auto && samus.ReserveEnergy != 0)
         {
             session.reserveRecovery.Begin(samus);
             session.GameState = SuperMetroidGameState.ReserveTanksAuto;

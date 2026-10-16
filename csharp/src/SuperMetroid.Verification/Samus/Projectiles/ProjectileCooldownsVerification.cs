@@ -83,7 +83,7 @@ internal static class ProjectileCooldownsVerification
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                EquippedBeams = (SamusBeamFlags)beam, SelectedHudItem = 3, PowerBombs = 10 };
+                EquippedBeams = (SamusBeamFlags)beam, SelectedHudItem = HudItem.PowerBomb, PowerBombs = 10 };
             AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
             AssertEqual((ushort)retail.ReadCartridgeByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),

@@ -2948,7 +2948,7 @@ internal static class LookupStream1Verification
             int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1 };
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = HudItem.Missile };
                 samus.Presentation.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(samus); cannon.Update(samus);
@@ -3032,7 +3032,7 @@ internal static class LookupStream1Verification
             .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value:X4}")));
         AssertThrows<InvalidDataException>(() => stock.TryGet(2096, out _), "Original upper index rejection");
         AssertThrows<InvalidDataException>(() => stock.TryGet(ushort.MaxValue, out _), "Original full ushort rejection");
-        VerifySamusZeroOamSelectorReadsLowBankMemory(stock);
+        VerifySamusZeroOamSelectorDrawsNothing(stock);
         Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
     }
 
@@ -3040,17 +3040,18 @@ internal static class LookupStream1Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Samus OAM pointer table")]
     private static byte LookupStream1OamPointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Checks that zero-valued OAM selectors still read the low-bank memory mirror.</summary>
+    /// <summary>
+    /// Checks that a zero OAM pointer-table entry draws nothing: it would dereference $92:0000 direct-page scratch,
+    /// which the port exempts (owner decision on #1318).
+    /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    [CpuBusBoundary("exact bus test: Samus spritemap selector zero reads its record from bank $92's low-half live memory")]
-    private static void VerifySamusZeroOamSelectorReadsLowBankMemory(SamusSpritemapArtworkCatalog stock)
+    private static void VerifySamusZeroOamSelectorDrawsNothing(SamusSpritemapArtworkCatalog stock)
     {
-        var memory = new TestAddressSpace();
-        byte[] record = [1, 0, 3, 0, 2, 0x34, 0x12];
-        for (int index = 0; index < record.Length; index++) memory.WriteByte(0x920000 + index, record[index]);
         OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(3, new Position16<ScreenPixels>(127, 131),
             SpriteFrameTestArtwork.Spritemaps(stock), new SpriteSource(SpriteSourceKind.Samus)));
-        AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
+        OamBuffer empty = SpriteFrameBuffer.DrawnOam(_ => { });
+        AssertTrue(oam.LowTable.SequenceEqual(empty.LowTable) && oam.HighTable.SequenceEqual(empty.HighTable),
+            "a zero selector draws no OAM entry through the actual renderer");
     }
 
     /// <summary>Checks body tile pixel inputs, derived bytes, and independent edited planar data.</summary>

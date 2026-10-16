@@ -41,8 +41,8 @@ internal static class GameSaveJsonVerification
             MaxPowerBombs = 5,
             ReserveEnergy = 37,
             MaxReserveEnergy = 100,
-            ReserveTankMode = 1,
-            SelectedHudItem = 2,
+            ReserveTankMode = ReserveTankMode.Auto,
+            SelectedHudItem = HudItem.SuperMissile,
             CollectedItems = (SamusEquipmentFlags)((ushort)(
                 SamusEquipmentFlags.MorphBall |
                 SamusEquipmentFlags.Bombs |

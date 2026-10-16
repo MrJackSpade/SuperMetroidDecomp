@@ -676,7 +676,7 @@ public sealed class IntroCinematicState
             Mode7QueueResidue = Mode7QueueResidue,
             Pose = SamusPoseId.FacingLeftNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
-            SelectedHudItem = 1,
+            SelectedHudItem = HudItem.Missile,
             Missiles = 900,
             MaxMissiles = 900,
         };

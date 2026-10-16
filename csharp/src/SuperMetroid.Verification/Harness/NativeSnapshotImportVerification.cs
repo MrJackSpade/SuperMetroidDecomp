@@ -102,7 +102,7 @@ internal static class NativeSnapshotImportVerification
         ushort[] initialHud = runtime.Hud._tiles;
         for (int index = 0; index < initialHud.Length; index++)
             initialHud[index] = W(NativeSnapshotMemory.HudTilemap + index * 2);
-        runtime.Hud._previousSelectedItem = W(NativeSnapshotMemory.PreviousHudSelection);
+        runtime.Hud._previousSelectedItem = HudItems.Decode(W(NativeSnapshotMemory.PreviousHudSelection));
         memory.AsSpan(NativeSnapshotMemory.ScrollStorage, RoomScrollGrid.StorageByteCount)
             .CopyTo(runtime.Room.LoadedCamera.Scrolls._storage._bytes);
         runtime.Hud.MinimapDisabled = W(NativeSnapshotMemory.MinimapDisabled) != 0;
@@ -164,10 +164,10 @@ internal static class NativeSnapshotImportVerification
         samus.KnockbackXDirection = W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
         samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
-        samus.SelectedHudItem = W(NativeSnapshotMemory.SelectedHudItem);
+        samus.SelectedHudItem = HudItems.Decode(W(NativeSnapshotMemory.SelectedHudItem));
         samus.ArmCannon._previousSelectedHudItem = samus.SelectedHudItem;
-        samus.AutoCancelHudItemIndex = W(NativeSnapshotMemory.AutoCancelHudItemIndex);
-        samus.ReserveTankMode = W(NativeSnapshotMemory.ReserveMode);
+        samus.AutoCancelHudItemIndex = HudItems.Decode(W(NativeSnapshotMemory.AutoCancelHudItemIndex));
+        samus.ReserveTankMode = ReserveTankModes.Decode(W(NativeSnapshotMemory.ReserveMode));
         samus.MaxReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.MaxReserve));
         samus.ReserveEnergy = SamusQuantity.Decode(W(NativeSnapshotMemory.Reserve));
         samus.Pose = (SamusPoseId)W(NativeSnapshotMemory.Pose);

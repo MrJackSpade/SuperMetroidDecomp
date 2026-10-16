@@ -76,7 +76,7 @@ internal static class BeamSpeedRowsVerification
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
             var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
-                SelectedHudItem = weapon, Missiles = 10, SuperMissiles = 10 };
+                SelectedHudItem = HudItems.Decode(weapon), Missiles = 10, SuperMissiles = 10 };
             var projectiles = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             int vx = direction is 1 or 2 or 3 ? 0x100 : direction is 6 or 7 or 8 ? -0x100 : 0;

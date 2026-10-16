@@ -106,7 +106,7 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    right.PoseMetadata.RefreshCollisionRadii(bus);
+    right.PoseMetadata.RefreshCollisionRadii();
     right.Presentation.InitializeAnimation(bus);
     right.HorizontalSpeed.BaseSpeed = 3;
     right.HorizontalSpeed.BaseSubspeed = 0x4444;
@@ -121,7 +121,7 @@ internal static void VerifySamusDrainedController()
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
     AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
     AssertEqual(SamusVerticalDirection.Down, right.Kinematics.YDirection, "drained fall selects down direction");
-    AssertTrue(right.Drained.UpdatePalette(bus, drainedCgram, right.EquippedItems, suitColors),
+    AssertTrue(right.Drained.UpdatePalette(drainedCgram, right.EquippedItems, suitColors),
         "drained controller zero restores selected suit palette");
     AssertEqual(0x300f, drainedCgram.Colors[207],
         "drained controller zero copies all sixteen suit colors");
@@ -161,13 +161,13 @@ internal static void VerifySamusDrainedController()
     AssertTrue(landing.ImpactYSpeed != 0 || landing.ImpactYSubspeed != 0,
         "drained landing preserves pre-clear impact magnitude");
 
-    right.Drained.PutStanding(bus, right);
+    right.Drained.PutStanding(right);
     AssertEqual(SamusPoseId.DrainedStandingRightPose, right.Pose,
         "controller one selects standing right");
     AssertEqual(0, right.AnimationFrame, "standing drained starts index zero");
     AssertEqual(16, right.AnimationFrameTimer.RawValue, "standing drained timer is literal sixteen");
 
-    right.Drained.Release(bus, right);
+    right.Drained.Release(right);
     AssertEqual(4, right.AnimationFrame, "standing release writes byte index four");
     AssertEqual(1, right.AnimationFrameTimer.RawValue, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
@@ -184,14 +184,14 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    left.PoseMetadata.RefreshCollisionRadii(bus);
+    left.PoseMetadata.RefreshCollisionRadii();
     left.Presentation.InitializeAnimation(bus);
-    left.Drained.PutCrouchingOrFalling(bus, left);
+    left.Drained.PutCrouchingOrFalling(left);
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
     AssertEqual(8, left.AnimationFrame, "controller four writes byte index eight");
     AssertEqual(16, left.AnimationFrameTimer.RawValue, "controller four writes timer sixteen");
-    left.Drained.Release(bus, left);
+    left.Drained.Release(left);
     AssertEqual(13, left.AnimationFrame,
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
@@ -223,7 +223,7 @@ internal static void VerifySamusDrainedController()
     {
         // `$8D:C552` writes a palette record only when its pre-decrement timer is one.
         bool paletteWritten = left.Drained.HyperBeamPaletteFx.InstructionTimer.RawValue == 1;
-        left.Drained.HyperBeamPaletteFx.Step(hyperBeamGuard, drainedCgram, projectileColors);
+        left.Drained.HyperBeamPaletteFx.Step(drainedCgram, projectileColors);
         int expectedFrame = (call / 2) % HyperBeamPaletteFxState.FrameCount;
         AssertEqual(expectedFrame, left.Drained.HyperBeamPaletteFx.CurrentFrameIndex,
             $"Hyper Beam palette-FX call {call + 1} frame index");
@@ -253,7 +253,7 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    able.PoseMetadata.RefreshCollisionRadii(bus);
+    able.PoseMetadata.RefreshCollisionRadii();
     able.Presentation.InitializeAnimation(bus);
     able.Drained.SetupForRainbowBeamAbleToStand(bus, able);
     AssertEqual(SamusPoseId.KnockbackLeftPose, able.Pose,
@@ -265,7 +265,7 @@ internal static void VerifySamusDrainedController()
 
     // The handler survives the later controller-four pose change. It accepts Up only from
     // left drained `$E9` at frame >=8, writes 13/1, and replaces itself with RTS.
-    able.Drained.PutCrouchingOrFalling(bus, able);
+    able.Drained.PutCrouchingOrFalling(able);
     AssertTrue(!able.Drained.StepGetUpHandler(able, newlyPressedInput: 0),
         "able timer handler ignores absent Up edge");
     AssertTrue(able.Drained.StepGetUpHandler(able, newlyPressedInput: SnesButton.Up),
@@ -280,10 +280,10 @@ internal static void VerifySamusDrainedController()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
-    unable.PoseMetadata.RefreshCollisionRadii(bus);
+    unable.PoseMetadata.RefreshCollisionRadii();
     unable.Presentation.InitializeAnimation(bus);
     unable.Drained.SetupForRainbowBeamUnableToStand(bus, unable);
-    unable.Drained.PutCrouchingOrFalling(bus, unable);
+    unable.Drained.PutCrouchingOrFalling(unable);
     AssertEqual(DrainedGetUpHandler.UnableToStand, unable.Drained.GetUpHandler,
         "rainbow command $18 installs failed-stand timer handler");
     AssertTrue(unable.Drained.StepGetUpHandler(unable, newlyPressedInput: SnesButton.Up),
@@ -302,31 +302,31 @@ internal static void VerifySamusDrainedController()
     // advancing. Each call loads before decrementing, matching `$91:D96F-$D997` ordering.
     unable.Drained.PresentationColors = rainbowColors;
     unable.Drained.EnableRainbow(unable);
-    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
+    AssertTrue(unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors),
         "rainbow handler owns palette dispatcher");
     AssertEqual(0x1000, drainedCgram.Colors[192],
         "rainbow first call loads Hyper Beam palette zero");
     AssertEqual(1, unable.Drained.ChargePaletteIndex,
         "one-call rainbow cadence advances immediately");
     unable.Drained.IncrementRainbowPaletteFrame(maximumFrame: 10);
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
+    unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(2, unable.Drained.CommonPaletteTimer.RawValue,
         "Baby-raised rainbow delay reloads two");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow second palette advances into delayed index");
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
+    unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(0x1040, drainedCgram.Colors[192],
         "rainbow delayed index loads before timer decrement");
     AssertEqual(2, unable.Drained.ChargePaletteIndex,
         "rainbow delay holds palette index for first call");
-    unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors);
+    unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors);
     AssertEqual(3, unable.Drained.ChargePaletteIndex,
         "rainbow delay advances on second call");
 
     unable.Drained.DisableRainbowAndStartStandingAnimation(unable);
     AssertEqual(13, unable.AnimationFrame, "command $17 resumes standing animation at frame thirteen");
     AssertEqual(1, unable.AnimationFrameTimer.RawValue, "command $17 resume timer");
-    AssertTrue(unable.Drained.UpdatePalette(bus, drainedCgram, unable.EquippedItems, suitColors),
+    AssertTrue(unable.Drained.UpdatePalette(drainedCgram, unable.EquippedItems, suitColors),
         "command $17 restores selected suit palette");
     AssertEqual(0x3000, drainedCgram.Colors[192],
         "command $17 replaces rainbow palette immediately");
@@ -731,15 +731,15 @@ internal static void VerifySamusGrabbedByDraygon()
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
     SamusPoseTransition rightUpShoot = (SamusPoseTransitionTable.Find(
-        bus, samus.Pose, canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.X, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
+        samus.Pose, canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.X, canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNe...."));
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, rightUpShoot.ProspectivePose);
     AssertEqual(SamusPoseId.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose,
-        samus.PoseMetadata.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
-    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, samus.PoseMetadata.ReadNoInputFallbackPose(bus));
+        samus.PoseMetadata.ReadNoInputFallbackPose(), "right grabbed aim fallback is $EC");
+    samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(bus, samus.PoseMetadata.ReadNoInputFallbackPose());
     AssertThrows<InvalidOperationException>(
         () => samus.PoseMetadata.ApplyDraygonGrabbedPoseChange(
             bus,

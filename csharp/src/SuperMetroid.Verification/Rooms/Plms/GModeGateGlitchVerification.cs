@@ -99,7 +99,7 @@ internal static class GModeGateGlitchVerification
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Wave;
         samus.SelectedHudItem = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
 
         var shots = CreateProjectileFixture();
@@ -445,7 +445,7 @@ internal static class GModeGateGlitchVerification
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();
         var plms = new RoomPlmSystem();
@@ -496,7 +496,7 @@ internal static class GModeGateGlitchVerification
         samus.ReserveTankMode = 1;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "direct G-Mode fixture activates X-Ray");

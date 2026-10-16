@@ -36,9 +36,9 @@ internal static class ChozoGrabAnimationVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         samus.AnimationFrame = 2;
         samus.AnimationFrameTimer = NativeCountdown.Start((ushort)3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
@@ -73,7 +73,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame(bus)) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Phase, actual.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.PreExplosionRadius, actual.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");
@@ -106,7 +106,7 @@ internal static class ChozoGrabAnimationVerification
             runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
             {
-                if (expectedExplosion.StepFrame(bus)) expectedExplosion.ReleaseFlag();
+                if (expectedExplosion.StepFrame()) expectedExplosion.ReleaseFlag();
                 var actual = runtime.BombProjectiles.PowerBombExplosion;
                 AssertEqual(expectedExplosion.Phase, actual.Phase, $"carried Power Bomb phase at frame {frames}");
                 AssertEqual(expectedExplosion.PreExplosionRadius, actual.PreExplosionRadius, $"carried Power Bomb pre-radius at frame {frames}");

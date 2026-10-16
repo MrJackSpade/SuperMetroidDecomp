@@ -38,7 +38,7 @@ internal static class KraidHeadCommandMappingVerification
             AssertEqual(expected[index], KraidHeadInstructionDefinitions.Resolve(expected[index].Pointer),
                 "Head exact-address resolution");
             AssertEqual(Word(actual.Pointer + 2),
-                KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, actual.Pointer),
+                KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(actual.Pointer),
                 "Growth selection reads the native raw word for frame, sound and terminal cursors");
             index++;
         }

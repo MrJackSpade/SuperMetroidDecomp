@@ -34,14 +34,14 @@ internal static class RetailDoorCaptureTests
                 new Position16<RoomPixels>(left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithX(SnesFixedPosition.FromRaw(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed));
             runtime.Player.IntroducedSamus.Kinematics.Position = runtime.Player.IntroducedSamus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed));
-            SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, bus, door, destination, left ? "left" : "right");
+            SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, door, destination, left ? "left" : "right");
         }
     }
 
     /// <summary>Advances a door through scrolling and destination load, comparing each captured frame.</summary>
-    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer, SuperMetroidRuntime runtime, ISnesAddressSpace bus, RetailDoorCase doorCase, string context, Action<RenderFrameSnapshot>? publish = null)
+    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer, SuperMetroidRuntime runtime, RetailDoorCase doorCase, string context, Action<RenderFrameSnapshot>? publish = null)
     {
-            PublishDoor(runtime, bus, doorCase.Door);
+            PublishDoor(runtime, doorCase.Door);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);
@@ -63,7 +63,7 @@ internal static class RetailDoorCaptureTests
     }
 
     /// <summary>Finds the authored collision block and publishes its door through production collision handling.</summary>
-    internal static void PublishDoor(SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort pointer)
+    internal static void PublishDoor(SuperMetroidRuntime runtime, ushort pointer)
     {
         // Same staged approach as the existing visual regression: discover the real
         // authored door via its collision block, then run the production dispatcher.
@@ -72,9 +72,9 @@ internal static class RetailDoorCaptureTests
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: false);
+            var door = level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: true);
+            level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: true);
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

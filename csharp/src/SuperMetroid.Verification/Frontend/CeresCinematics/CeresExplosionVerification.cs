@@ -38,7 +38,7 @@ internal static class CeresExplosionVerification
             {
                 // Bank $82 runs HDMA before bank $8B dispatch. The reference is seeded
                 // only when C345 transfers the station map and switches flight handler.
-                reference.StepFrame(bus);
+                reference.StepFrame();
                 var previous = scene.Phase;
                 scene.Step();
                 if (previous == CeresDestructionPhase.ApproachExplosion &&

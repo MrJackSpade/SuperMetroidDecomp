@@ -33,7 +33,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.InputLocked = true;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -48,10 +48,10 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock ||
-                level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, publishDoorSideEffects: false)
+                level.ResolveDoorCollision(block.Behavior, samus.Pose, publishDoorSideEffects: false)
                     .Door?.DestinationRoomPointer != FixtureRoomHeaders.MotherBrain)
                 continue;
-            level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, publishDoorSideEffects: true);
+            level.ResolveDoorCollision(block.Behavior, samus.Pose, publishDoorSideEffects: true);
             selected = true;
         }
         AssertTrue(selected, "the shaft has a door into Mother Brain's room");

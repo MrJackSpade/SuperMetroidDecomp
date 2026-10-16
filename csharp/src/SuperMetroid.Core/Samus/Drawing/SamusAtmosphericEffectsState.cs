@@ -84,7 +84,6 @@ public sealed class SamusAtmosphericEffectsState
     /// Ports <c>Handle_AtmosphericEffects</c> at <c>$90:8A4C-$8C1E</c>, including timer
     /// underflow, reverse slot order, per-type motion, clipping, and the two OAM paths.
     /// </summary>
-    /// <param name="bus">Address space providing mirrored WRAM for type two attributes and the Samus spritemap path.</param>
     /// <param name="sprites">Frame receiving visible effects as draws, with slot three processed first.</param>
     /// <param name="camera">Room-space camera X and Y origin in whole pixels.</param>
     /// <param name="fxYPosition">Live liquid-surface Y in room pixels, used to anchor the diving splash on each update.</param>
@@ -92,7 +91,6 @@ public sealed class SamusAtmosphericEffectsState
     /// <param name="directArtwork">Installed small-sprite attributes required for visible direct effects other than type two's WRAM-backed attributes.</param>
     /// <param name="standardObjects">The installed standard OBJ page every effect's characters come from; required when one is visible.</param>
     public void UpdateAndDraw(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> camera,
         ushort fxYPosition,
@@ -100,7 +98,6 @@ public sealed class SamusAtmosphericEffectsState
         SamusAtmosphericArtworkCatalog? directArtwork = null,
         SpriteArtwork? standardObjects = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
         var drawing = new AtmosphereDrawing(sprites, camera, standardObjects, artwork, directArtwork);
 
@@ -152,7 +149,7 @@ public sealed class SamusAtmosphericEffectsState
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.Position = slot.Position.WithY(fxYPosition);
-                    DrawSamusTableSpritemap(bus, drawing, slot, slotIndex, 399);
+                    DrawSamusTableSpritemap(drawing, slot, slotIndex, 399);
                     break;
 
                 case 4:
@@ -163,7 +160,7 @@ public sealed class SamusAtmosphericEffectsState
                     break;
 
                 case 5:
-                    DrawSamusTableSpritemap(bus, drawing, slot, slotIndex, 390);
+                    DrawSamusTableSpritemap(drawing, slot, slotIndex, 390);
                     break;
 
                 case 6:
@@ -220,7 +217,6 @@ public sealed class SamusAtmosphericEffectsState
 
     /// <summary>Draws splash/bubble frames through Samus's spritemap table, clipping Y's high byte while preserving native X wrap.</summary>
     private static void DrawSamusTableSpritemap(
-        ISnesAddressSpace bus,
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
         int slotIndex,
@@ -234,10 +230,7 @@ public sealed class SamusAtmosphericEffectsState
             return;
 
         SpriteArtwork page = drawing.RequirePage();
-        drawing.Sprites.AddSamusSpritemap(
-            bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Samus atmospheric spritemap requires WRAM."),
-            unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
+        drawing.Sprites.AddSamusSpritemap(unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
             new Position16<ScreenPixels>(screenX, screenY),
             new SamusSpritemapArtwork(drawing.Spritemaps ?? throw new InvalidOperationException(
                 "Samus atmospheric spritemap requires installed artwork."), page, () => page),

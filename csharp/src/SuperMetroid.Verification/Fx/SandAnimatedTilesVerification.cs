@@ -44,12 +44,12 @@ internal static class SandAnimatedTilesVerification
             SuperMetroid.AssetExtraction.Fx.RoomFxAnimatedTileAtlasExtractor.Extract(bus)));
         var provider = new RoomFxArtworkTestProvider(atlas);
         var guarded = NewRoomFxArtworkForbiddenBus(bus);
-        sand.LoadRoom(guarded, sandFxRecord, 0, AreaId.Maridia);
+        sand.LoadRoom(sandFxRecord, 0, AreaId.Maridia);
         AssertEqual(2, sand.Count, "both FX sand bits create objects");
         for (int tick = 0; tick < 31; tick++)
         {
             byte before = vram.ReadByte(0x2000);
-            sand.Step(guarded, vram, queue);
+            sand.Step(vram, queue);
             AssertEqual(before, vram.ReadByte(0x2000), "sand animation does not bypass NMI");
             AssertEqual(tick % 10 == 0 ? 2 : 0, queue.Entries.Count,
                 "sand source changes follow compiled cartridge durations");
@@ -79,9 +79,9 @@ internal static class SandAnimatedTilesVerification
                 }
             }
         }
-        sand.LoadRoom(guarded, 0, 0, AreaId.Maridia);
+        sand.LoadRoom(0, 0, AreaId.Maridia);
         AssertEqual(0, sand.Count, "next room without FX clears sand owners");
-        sand.Step(guarded, vram, queue);
+        sand.Step(vram, queue);
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");

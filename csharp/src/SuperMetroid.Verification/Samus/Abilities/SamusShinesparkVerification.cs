@@ -87,7 +87,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(SamusSpecialPaletteType.SpeedBoosterShine, shine.Shinespark.PaletteType, "stored shine installs palette handler one");
 
     var cgram = new SnesCgram();
-    AssertTrue(shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0, suitColors, cycleColors),
+    AssertTrue(shine.Shinespark.UpdatePalette(cgram, equippedItems: 0, suitColors, cycleColors),
         "stored shine copies first ROM palette");
     AssertEqual(0x1100, cgram.Colors[192], "stored shine follows double pointer");
     AssertEqual(179, shine.Shinespark.ShineTimer.RawValue, "stored palette decrements every frame");
@@ -96,7 +96,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 
     // Ten further calls arrive with timer 170 on the final call and publish the warning.
     for (int tick = 0; tick < 10; tick++)
-        shine.Shinespark.UpdatePalette(bus, cgram, equippedItems: 0, suitColors, cycleColors);
+        shine.Shinespark.UpdatePalette(cgram, equippedItems: 0, suitColors, cycleColors);
     AssertTrue(shine.Shinespark.StoredShineWarningSoundRequested,
         "stored timer 170 requests warning sound");
     AssertTrue(shine.Shinespark.ConsumeStoredShineWarningSoundRequest(),
@@ -106,7 +106,7 @@ internal static void VerifySamusStoredShineAndShinespark()
     AssertEqual(169, shine.Shinespark.ShineTimer.RawValue,
         "warning frame still decrements timer");
 
-    shine.PoseMetadata.RefreshCollisionRadii(bus);
+    shine.PoseMetadata.RefreshCollisionRadii();
     shine.Presentation.InitializeAnimation(bus);
     shine.Shinespark.BeginWindup(shine);
     AssertEqual(ShinesparkPhase.Windup, shine.Shinespark.Phase,
@@ -161,7 +161,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 99,
         };
-        directional.PoseMetadata.RefreshCollisionRadii(bus);
+        directional.PoseMetadata.RefreshCollisionRadii();
         directional.Presentation.InitializeAnimation(bus);
         directional.Shinespark.TryStoreFromSpeedBooster(0x0400);
         directional.Shinespark.BeginWindup(directional);
@@ -205,7 +205,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 99,
     };
-    externallyReversedSpark.PoseMetadata.RefreshCollisionRadii(bus);
+    externallyReversedSpark.PoseMetadata.RefreshCollisionRadii();
     externallyReversedSpark.Presentation.InitializeAnimation(bus);
     externallyReversedSpark.Shinespark.TryStoreFromSpeedBooster(0x0400);
     externallyReversedSpark.Shinespark.BeginWindup(externallyReversedSpark);
@@ -256,7 +256,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = energy,
         };
-        invincible.PoseMetadata.RefreshCollisionRadii(bus);
+        invincible.PoseMetadata.RefreshCollisionRadii();
         invincible.Presentation.InitializeAnimation(bus);
         invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         invincible.Shinespark.BeginWindup(invincible);
@@ -279,7 +279,7 @@ internal static void VerifySamusStoredShineAndShinespark()
         Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
         Health = 30,
     };
-    horizontal.PoseMetadata.RefreshCollisionRadii(bus);
+    horizontal.PoseMetadata.RefreshCollisionRadii();
     horizontal.Presentation.InitializeAnimation(bus);
     horizontal.Shinespark.TryStoreFromSpeedBooster(0x0400);
     horizontal.Shinespark.BeginWindup(horizontal);
@@ -426,7 +426,7 @@ internal static void VerifySamusStoredShineAndShinespark()
             Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
             Health = 29,
         };
-        fixture.PoseMetadata.RefreshCollisionRadii(fixtureBus);
+        fixture.PoseMetadata.RefreshCollisionRadii();
         fixture.Presentation.InitializeAnimation(fixtureBus);
         fixture.Shinespark.TryStoreFromSpeedBooster(0x0400);
         fixture.Shinespark.BeginWindup(fixture);

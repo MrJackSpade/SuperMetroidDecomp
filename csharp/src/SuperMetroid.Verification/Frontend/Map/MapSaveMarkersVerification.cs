@@ -95,14 +95,13 @@ internal static class MapSaveMarkersVerification
             var typedArea = (AreaId)area;
             if (!MapSaveMarkerDefinitions.Indices(typedArea).Contains(index))
             {
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus,
-                    typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
-                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
+                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "cartridge rejects unused marker index");
+                AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(typedArea, index, original.SaveMarkers), "compiled definition rejects same unused marker index");
                 continue;
             }
-            var native = new FileSelectStationMarker(bus, typedArea, index,
+            var native = new FileSelectStationMarker(typedArea, index,
                 original.SaveMarkers);
-            var installed = new FileSelectStationMarker(guard, typedArea, index, original.SaveMarkers);
+            var installed = new FileSelectStationMarker(typedArea, index, original.SaveMarkers);
             AssertEqual(native.MapPosition, installed.MapPosition, "stock selected marker coordinates");
             for (int frame = 0; frame < 128; frame++)
             {
@@ -111,9 +110,9 @@ internal static class MapSaveMarkersVerification
             }
             valid++;
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
         foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
-            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(guard, AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
+            AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options);

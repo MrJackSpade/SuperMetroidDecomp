@@ -59,7 +59,6 @@ internal static class LookupPaletteFxDispatchVerification
         Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
         var forbidden = OriginalPaletteFxObjects().SelectMany(pointer =>
             Enumerable.Range(0x8d0000 | pointer, 4)).ToHashSet();
-        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(NewRoomPaletteFxDefinitionGuard(rom, forbidden),
-            OriginalPaletteFxObjects()));
+        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(OriginalPaletteFxObjects()));
     }
 }

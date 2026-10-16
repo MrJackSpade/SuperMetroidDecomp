@@ -803,11 +803,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// native early exit after the first overlapping enemy/component pair.
     /// </summary>
     public int ResolvePhantoonProjectileHits(
-        ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
         _room.EnsureLoaded();

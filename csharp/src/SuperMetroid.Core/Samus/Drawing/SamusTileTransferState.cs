@@ -65,9 +65,8 @@ public sealed class SamusTileTransferState
     /// <summary>
     /// Ports <c>Set_SamusTilesDefinitions_ForCurrentAnimation</c> at <c>$92:8000</c>.
     /// </summary>
-    public void SelectForPoseFrame(ISnesAddressSpace bus, SamusPoseId pose, ushort animationFrame)
+    public void SelectForPoseFrame(SamusPoseId pose, ushort animationFrame)
     {
-        Ensure.NotNull(bus);
 
         SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
@@ -85,9 +84,8 @@ public sealed class SamusTileTransferState
     /// <summary>
     /// Ports <c>TransferSamusTilesToVRAM</c> at <c>$80:9376</c> for one accepted NMI.
     /// </summary>
-    public void TransferToVram(ISnesAddressSpace bus, SnesVram vram)
+    public void TransferToVram(SnesVram vram)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(vram);
 
         // Samus has a dedicated DMA path instead of using the ordinary seven-byte VRAM

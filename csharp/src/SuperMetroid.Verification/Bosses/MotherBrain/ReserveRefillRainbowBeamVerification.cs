@@ -21,7 +21,7 @@ internal static class ReserveRefillRainbowBeamVerification
             Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x007d)),
             Health = 0, MaxHealth = 99, ReserveEnergy = 3, MaxReserveEnergy = 100, ReserveTankMode = 1,
         };
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         samus.Drained.SetupForRainbowBeam(bus, samus);
         AssertTrue(samus.ScriptLocks.RainbowBeamHandlersInstalled, "the rainbow beam holds Samus");

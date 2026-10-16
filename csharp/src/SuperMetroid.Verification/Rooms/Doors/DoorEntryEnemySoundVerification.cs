@@ -37,7 +37,7 @@ internal static class DoorEntryEnemySoundVerification
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));
         samus.InputLocked = true;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64];
@@ -58,7 +58,7 @@ internal static class DoorEntryEnemySoundVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
+            level.ResolveDoorCollision(block.Behavior, samus.Pose, true);
             selected = true;
         }
         AssertTrue(selected, "the Ki Hunter room has an exit");

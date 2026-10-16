@@ -37,7 +37,7 @@ internal static class SamusStandaloneSpeedsVerification
                 actual.AccelerationMode = reference.AccelerationMode = mode;
                 actual.DecelerationMultiplier = reference.DecelerationMultiplier = multiplier;
                 uint expected = calculate(native);
-                uint result = actual.CalculateBaseSpeedAtAddress(guard, address);
+                uint result = actual.CalculateBaseSpeedAtAddress(address);
                 AssertEqual(expected, result, "Compiled entry preserves existing native-word arithmetic");
                 AssertEqual(reference.BaseSpeed, actual.BaseSpeed, "Whole base speed write");
                 AssertEqual(reference.BaseSubspeed, actual.BaseSubspeed, "Fraction base speed write");
@@ -59,11 +59,11 @@ internal static class SamusStandaloneSpeedsVerification
             actual.BaseSpeed = reference.BaseSpeed = 0;
             actual.BaseSubspeed = reference.BaseSubspeed = 0;
             actual.AccelerationMode = reference.AccelerationMode = 0;
-            AssertEqual(calculate(Read(mutable.ReadByte, mutableAddress)), actual.CalculateBaseSpeedAtAddress(mutable, mutableAddress), "Mutable low-bank record observes live changed data");
+            AssertEqual(calculate(Read(mutable.ReadByte, mutableAddress)), actual.CalculateBaseSpeedAtAddress(mutableAddress), "Mutable low-bank record observes live changed data");
         }
         foreach (int invalidAddress in new[] { 0x909f26, 0x90a32d, 0x919f25 })
             AssertThrows<InvalidDataException>(
-                () => actual.CalculateBaseSpeedAtAddress(mutable, invalidAddress),
+                () => actual.CalculateBaseSpeedAtAddress(invalidAddress),
                 "Unknown high-bank horizontal record rejected");
 
         Console.WriteLine($"Standalone Samus speeds: {cases} actual bomb/Grapple calculations match ROM-fed arithmetic with reads forbidden; mutable low-bank aliases remain live and unknown ROM records fail loudly.");

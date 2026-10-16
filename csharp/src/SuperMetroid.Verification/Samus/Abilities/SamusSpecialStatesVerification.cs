@@ -117,7 +117,7 @@ internal static void VerifySamusCrystalFlash()
         PowerBombs = 10,
         InvincibilityTimer = NativeCountdown.Start(96),
     };
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
 
     samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
@@ -147,7 +147,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash installs palette handler seven");
 
     var crystalCgram = new SnesCgram();
-    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram, samus, beamPalettes, crystalColors),
         "Crystal Flash palette handler owns first visible frame");
     AssertEqual(0x0100, crystalCgram.Colors[0xe0],
         "Crystal Flash body palette begins at sprite palette-six color zero");
@@ -171,7 +171,7 @@ internal static void VerifySamusCrystalFlash()
     // Five more calls expire only the bubble timer and select pointer one. The ten-call
     // body timer remains halfway through its first record.
     for (int paletteCall = 0; paletteCall < 5; paletteCall++)
-        samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors);
+        samus.CrystalFlash.UpdatePalette(crystalCgram, samus, beamPalettes, crystalColors);
     AssertEqual(0x0220, crystalCgram.Colors[0xea],
         "Crystal Flash bubble palette advances independently");
     AssertEqual(5, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
@@ -181,7 +181,7 @@ internal static void VerifySamusCrystalFlash()
     samus.InvincibilityTimer = NativeCountdown.Start(77);
     for (int frame = 0; frame < 9; frame++)
     {
-        samus.CrystalFlash.Step(bus, samus, (ushort)frame);
+        samus.CrystalFlash.Step(samus, (ushort)frame);
         AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
@@ -189,7 +189,7 @@ internal static void VerifySamusCrystalFlash()
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
-    samus.CrystalFlash.Step(bus, samus, 9);
+    samus.CrystalFlash.Step(samus, 9);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "raise completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
@@ -221,10 +221,10 @@ internal static void VerifySamusCrystalFlash()
     // Seventeen calls remain below `$20.00`; call eighteen adds the old `$0330` speed,
     // reaches `$20B0`, and installs the afterglow. Its rendered table still used `$1D80`.
     for (int hdmaCall = 1; hdmaCall <= 17; hdmaCall++)
-        AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash expansion call {hdmaCall}");
+        AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash expansion call {hdmaCall}");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
         "Crystal Flash expansion remains active through call seventeen");
-    AssertTrue(!crystalWindow.StepFrame(bus), "Crystal Flash expansion transition is not cleanup");
+    AssertTrue(!crystalWindow.StepFrame(), "Crystal Flash expansion transition is not cleanup");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Phase,
         "Crystal Flash call eighteen installs afterglow");
     AssertEqual(0x20b0, crystalWindow.ExplosionRadius,
@@ -239,7 +239,7 @@ internal static void VerifySamusCrystalFlash()
     int stockFadeSteps = ReadRetailCrystalFlashStockFadeSteps();
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
-        AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash afterglow call {hdmaCall}");
+        AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash afterglow call {hdmaCall}");
         AssertEqual(Math.Max(0, 4 - hdmaCall), (int)crystalWindow.FixedColorRed,
             "custom Crystal Flash red fades without shortening native lifetime");
         AssertEqual(Math.Max(0, 3 - hdmaCall), (int)crystalWindow.FixedColorGreen,
@@ -247,7 +247,7 @@ internal static void VerifySamusCrystalFlash()
         AssertEqual(Math.Max(0, 2 - hdmaCall), (int)crystalWindow.FixedColorBlue,
             "custom Crystal Flash blue fade");
     }
-    AssertTrue(crystalWindow.StepFrame(bus),
+    AssertTrue(crystalWindow.StepFrame(),
         "Crystal Flash cleans up on the call after the native fade count");
     AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
         "Crystal Flash HDMA cleanup clears phase");
@@ -263,7 +263,7 @@ internal static void VerifySamusCrystalFlash()
     samus.KnockbackTimer = NativeCountdown.Start(5);
     var resourcesBeforeSkipped =
         (samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
-    samus.CrystalFlash.Step(bus, samus, 15);
+    samus.CrystalFlash.Step(samus, 15);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "non-draining main frame still clears hit immunity");
     AssertEqual(0, samus.KnockbackTimer.RawValue, "non-draining main frame still clears knockback timer");
     AssertEqual(resourcesBeforeSkipped,
@@ -273,7 +273,7 @@ internal static void VerifySamusCrystalFlash()
     {
         samus.InvincibilityTimer = NativeCountdown.Start(77);
         samus.KnockbackTimer = NativeCountdown.Start(5);
-        samus.CrystalFlash.Step(bus, samus, unchecked((ushort)(drain * 8)));
+        samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
         AssertEqual(0, samus.KnockbackTimer.RawValue, "ammo-drain frame clears knockback timer");
     }
@@ -292,7 +292,7 @@ internal static void VerifySamusCrystalFlash()
     int finishFrames = 0;
     while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
     {
-        samus.CrystalFlash.Step(bus, samus, (ushort)(0x0100 + finishFrames));
+        samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep { ControllerInput = chord });
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
@@ -302,13 +302,13 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
     samus.InvincibilityTimer = NativeCountdown.Start(77);
-    samus.CrystalFlash.Step(bus, samus, 0x0200);
+    samus.CrystalFlash.Step(samus, 0x0200);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
         "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer.RawValue,
         "cleanup requests normal palette restoration");
-    AssertTrue(samus.CrystalFlash.UpdatePalette(bus, crystalCgram, samus, beamPalettes, crystalColors),
+    AssertTrue(samus.CrystalFlash.UpdatePalette(crystalCgram, samus, beamPalettes, crystalColors),
         "Crystal Flash finish restores beam palette");
     AssertEqual(0x0300, crystalCgram.Colors[0xe0],
         "Crystal Flash finish restores beam palette color zero");
@@ -325,7 +325,7 @@ internal static void VerifySamusCrystalFlash()
         SuperMissiles = 10,
         PowerBombs = 10,
     };
-    left.PoseMetadata.RefreshCollisionRadii(bus);
+    left.PoseMetadata.RefreshCollisionRadii();
     left.PoseHistory.PreviousPose = left.Pose;
     left.PoseHistory.PreviousDirectionAndMovement = 4;
     AssertTrue(left.CrystalFlash.TryBegin(bus, left, chord),
@@ -413,7 +413,7 @@ internal static void VerifySamusXray()
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
     };
     standing.Xray.PresentationColors = xrayColors;
-    standing.PoseMetadata.RefreshCollisionRadii(bus);
+    standing.PoseMetadata.RefreshCollisionRadii();
     standing.Presentation.InitializeAnimation(bus);
 
     AssertTrue(
@@ -433,7 +433,7 @@ internal static void VerifySamusXray()
     AssertTrue(!standing.Xray.ConsumeActivationSoundRequest(),
         "consumed X-ray startup sound cannot replay");
 
-    AssertEqual(2, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    AssertEqual(2, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
     standing.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
@@ -442,7 +442,7 @@ internal static void VerifySamusXray()
 
     // Palette handler eight runs in the palette-FX phase. Timer one expires immediately,
     // writes only visor color four, advances byte offset zero to two, and reloads five.
-    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
         "X-ray widening palette writes first visor color");
     AssertEqual(0x3be0, cgram.Colors[196], "first widening visor color");
     AssertEqual(2, standing.Xray.SpecialPaletteFrame, "widening palette offset advances");
@@ -497,7 +497,7 @@ internal static void VerifySamusXray()
     AssertEqual(248, xrayFrame[0].R,
         "X-ray gameplay window never modifies the IRQ-owned HUD band");
 
-    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");
     AssertEqual(1, standing.Xray.BeamSizeFlag, "full beam palette flag");
     AssertEqual(0x43ff, cgram.Colors[196], "first full-beam visor color");
@@ -513,7 +513,7 @@ internal static void VerifySamusXray()
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(bus, standing, (SnesButton.B | SnesButton.Up));
     AssertEqual(10, standing.Xray.Angle.TableIndex, "right X-ray upper clamp includes width");
-    AssertEqual(0, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "upper-clamped angle selects looking-up art");
 
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
@@ -535,7 +535,7 @@ internal static void VerifySamusXray()
     AssertEqual(0x0e04, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray turn publishes turning metadata");
     AssertEqual(SamusPoseId.TurningRightToLeftPose, standing.Pose, "X-ray right-to-left standing turn pose");
     AssertEqual(0xf6, standing.Xray.Angle.TableIndex, "X-ray turn mirrors angle");
-    AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
+    AssertTrue(standing.Xray.StepMovement(standing) is null,
         "X-ray movement is RTS during type-E turn");
     for (int tick = 0; tick < 5; tick++)
         standing.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
@@ -548,7 +548,7 @@ internal static void VerifySamusXray()
     AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
     AssertEqual(4, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray completion publishes stable metadata");
     AssertEqual(SamusPoseId.XrayingStandingLeftPose, standing.Pose, "X-ray turn installs left standing body");
-    AssertEqual(0, (standing.Xray.StepMovement(bus, standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
+    AssertEqual(0, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "left near-up angle selects looking-up art");
 
     // Releasing Dash enters states three/four/five. State five restores ordinary left
@@ -570,7 +570,7 @@ internal static void VerifySamusXray()
         "X-ray teardown sound is consumable exactly once");
     AssertTrue(!standing.Xray.ConsumeDeactivationSoundRequest(),
         "consumed X-ray teardown sound cannot replay");
-    AssertTrue(standing.Xray.UpdatePalette(bus, cgram, standing.EquippedItems, xraySuitColors),
+    AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
     AssertEqual(0, standing.Xray.SpecialPaletteType, "X-ray palette handler clears");
@@ -583,7 +583,7 @@ internal static void VerifySamusXray()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
     };
-    crouched.PoseMetadata.RefreshCollisionRadii(bus);
+    crouched.PoseMetadata.RefreshCollisionRadii();
     crouched.Presentation.InitializeAnimation(bus);
     AssertTrue(crouched.Xray.TryBegin(bus, crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "crouched X-ray setup accepted");
@@ -616,7 +616,7 @@ internal static void VerifySamusXray()
         Pose = SamusPoseId.FacingLeftNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0174, 0x028b)),
     };
-    interrupted.PoseMetadata.RefreshCollisionRadii(bus);
+    interrupted.PoseMetadata.RefreshCollisionRadii();
     interrupted.Presentation.InitializeAnimation(bus);
     AssertTrue(interrupted.Xray.TryBegin(bus, interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }, deferActivation: true),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
@@ -652,7 +652,7 @@ internal static void VerifySamusXray()
     SamusState Rejected(SamusPoseId pose, ushort ySpeed = 0, ushort ySubspeed = 0)
     {
         var sample = new SamusState { Pose = pose };
-        sample.PoseMetadata.RefreshCollisionRadii(bus);
+        sample.PoseMetadata.RefreshCollisionRadii();
         sample.Presentation.InitializeAnimation(bus);
         sample.Kinematics.YSpeed = ySpeed;
         sample.Kinematics.YSubspeed = ySubspeed;
@@ -780,13 +780,13 @@ internal static void VerifySamusDeathSequence()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x04c0)),
     };
-    samus.PoseMetadata.RefreshCollisionRadii(guardedBus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     samus.Presentation.InitializeAnimation(guardedBus);
     samus.PoseHistory.PreviousPose = samus.Pose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
     samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-    SamusMovementType deathSourceMovementType = samus.PoseMetadata.ReadMovementType(guardedBus);
+    SamusMovementType deathSourceMovementType = samus.PoseMetadata.ReadMovementType();
     samus.DeathSequence.Begin(
         guardedBus,
         samus,
@@ -796,7 +796,7 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
     AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.PoseHistory.PreviousPose, "death commits right pose");
-    AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(bus), (byte)samus.PoseMetadata.ReadMovementType(bus)),
+    AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
         samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
@@ -861,7 +861,7 @@ internal static void VerifySamusDeathSequence()
         Pose = SamusPoseId.MorphBallGroundLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 80)),
     };
-    morphedLeft.PoseMetadata.RefreshCollisionRadii(guardedBus);
+    morphedLeft.PoseMetadata.RefreshCollisionRadii();
     morphedLeft.Presentation.InitializeAnimation(guardedBus);
     morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
     morphedLeft.PoseHistory.PreviousDirectionAndMovement = 0x0404;
@@ -871,12 +871,12 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
-    AssertEqual(SnesLittleEndian.Word(morphedLeft.PoseMetadata.ReadPoseXDirection(bus), (byte)morphedLeft.PoseMetadata.ReadMovementType(bus)),
+    AssertEqual(SnesLittleEndian.Word(morphedLeft.PoseMetadata.ReadPoseXDirection(), (byte)morphedLeft.PoseMetadata.ReadMovementType()),
         morphedLeft.PoseHistory.PreviousDirectionAndMovement, "death commits left metadata");
     AssertEqual(1, morphedLeft.AnimationFrame, "Morph death begins unmorph frame one");
 
     var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose };
-    spinning.PoseMetadata.RefreshCollisionRadii(guardedBus);
+    spinning.PoseMetadata.RefreshCollisionRadii();
     spinning.Presentation.InitializeAnimation(guardedBus);
     spinning.DeathSequence.Begin(
         guardedBus, spinning, layer1: new(0, 0));

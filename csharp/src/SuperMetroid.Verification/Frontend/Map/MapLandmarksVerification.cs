@@ -68,7 +68,7 @@ internal static class MapLandmarksVerification
         {
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(area); system.SetBossBits(area, (BossBits)1);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-            var marker = new FileSelectStationMarker(bus, area, 0, original.SaveMarkers);
+            var marker = new FileSelectStationMarker(area, 0, original.SaveMarkers);
             var native = new FileSelectRoomMapGraphics(bus, system, area,
                 mapPresentation: original);
             var room = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);

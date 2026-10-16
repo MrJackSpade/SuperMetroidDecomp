@@ -63,12 +63,12 @@ internal static class SamusGrappleMovementAccess
             samus.Pose = faceRight
                 ? SamusPoseId.GrappleSwingRightPose
                 : SamusPoseId.GrappleSwingLeftPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
 
             // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
             // first pendulum position now prevents one frame of stale pre-grapple coordinates.
-            SamusGrappleMovement.PositionSamusFromPendulum((ISnesAddressSpace)(bus), (SamusState)(samus), (SamusGrappleState)(grapple));
+            SamusGrappleMovement.PositionSamusFromPendulum((SamusState)(samus), (SamusGrappleState)(grapple));
 
             // This helper represents a connection that has already passed `$9B:C79D`; publish
             // the handler-tail flag that retail would leave for the following swing frame.

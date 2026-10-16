@@ -85,7 +85,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x0033);
     movement.RainbowBeamAngle = SnesAngle.Zero;
     ushort beamBefore = YEightEight(samus);
-    MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(bus, samus);
+    MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(samus);
     AssertEqual(0x1000, unchecked((ushort)(YEightEight(samus) - beamBefore)),
         "rainbow beam table-derived Y velocity");
     AssertEqual(116, samus.Position.X.Whole, "rainbow beam horizontal $10.00 step");
@@ -96,7 +96,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Position = samus.Position.WithWholeX(0x00e0);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x7777);
     samus.Position = samus.Position.WithWholeY(100);
-    MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(bus, samus);
+    MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(samus);
     AssertTrue(samus.Position.X.Whole == 0x00eb && wall.NativeCarry, "rainbow beam wall clamp returns carry");
     AssertEqual(0x00eb, samus.Position.X.Whole, "rainbow beam hardcoded wall X $EB");
     AssertEqual(0, samus.Kinematics.Position.X.Fraction, "rainbow wall clamp clears X subposition");
@@ -109,7 +109,7 @@ internal static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Position = samus.Position.WithWholeY(0x0030);
     samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x9999);
     movement.RainbowBeamAngle = SnesAngle.HalfTurn;
-    MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(bus, samus);
+    MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(samus);
     AssertTrue(samus.Position.Y.Whole == 0x0030 && samus.Kinematics.Position.Y.Fraction == 0 && !ceiling.NativeCarry,
         "rainbow ceiling clamp is hidden from caller carry");
     AssertEqual(0x0030, samus.Position.Y.Whole, "rainbow hardcoded ceiling Y $30");

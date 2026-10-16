@@ -3187,7 +3187,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         byte randomLow = unchecked((byte)_room.Random.Read());
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(_room.LoadedBus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if ((byte)movementType >= 28)
         {
             throw new InvalidDataException(
@@ -4511,7 +4511,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>
-    internal void RegisterMotherBrainHeadTouch(EnemySharedReactions table)
+    internal static void RegisterMotherBrainHeadTouch(EnemySharedReactions table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MotherBrainHeadTouch,
@@ -4521,7 +4521,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // the head's visible flash length between the cartridge's 13/14-frame
                 // cadence; every other movement type returns without changing either actor.
                 RoomEnemySlot slot = context.Slot;
-                if (context.Samus.PoseMetadata.ReadMovementType(_room.LoadedBus) == SamusMovementType.SpinJumping)
+                if (context.Samus.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping)
                     slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
                         ? (ushort)14
                         : (ushort)13);

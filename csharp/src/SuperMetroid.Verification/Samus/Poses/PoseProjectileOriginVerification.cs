@@ -21,8 +21,8 @@ internal static class PoseProjectileOriginVerification
     internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
-        var initialize = new Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
-        var refresh = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
+        var initialize = new Action<SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
+        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
         SamusPoseId guardedPose = default;
         var bus = new CartridgeReadGuard(rom)
             .Forbid(address => address == 0x91b629 + (int)guardedPose * 8 + 3,
@@ -54,15 +54,15 @@ internal static class PoseProjectileOriginVerification
             bool running = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 1) == 1;
             bool beamRunning = running || pose is 0x75 or 0x76;
             slot.Direction = direction;
-            initialize(bus, samus, slot);
+            initialize(samus, slot);
             AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
-            AssertEqual(unchecked((sbyte)art), samus.PoseMetadata.ReadGraphicsYOffset(bus), "Visual body offset remains replaceable");
+            AssertEqual(unchecked((sbyte)art), samus.PoseMetadata.ReadGraphicsYOffset(), "Visual body offset remains replaceable");
 
             var g = samus.Grapple;
             g.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(bus, samus);
+            SamusGrappleMovement.BeginFiring(samus);
             bool held = pose is (int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose;
             int firingDirection = held ? (pose == (int)SamusPoseId.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadCartridgeByte(0x91b629 + pose * 8 + 3);
             if ((firingDirection & 0xf0) != 0)
@@ -78,7 +78,7 @@ internal static class PoseProjectileOriginVerification
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.BeamStart.Y, "Grapple flare retains visual correction");
             ushort endpoint = g.Anchor.Y;
             samus.Position += new Offset16<RoomPixels>(0, 5);
-            refresh(bus, samus, g);
+            refresh(samus, g);
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalY)), g.RopeStart.Y, "Late Grapple physical start ignores art correction");
             AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.BeamStart.Y, "Late Grapple flare uses current artwork");
             AssertEqual(endpoint, g.Anchor.Y, "Late draw does not move collision endpoint");

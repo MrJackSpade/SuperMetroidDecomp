@@ -144,22 +144,20 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Clears the prior room and selects the current door's native FX record.</summary>
     public void Load(
-        ISnesAddressSpace bus,
         SnesVram vram,
         SnesCgram cgram,
         ushort fxPointer,
         ushort doorPointer,
         ushort randomNumber,
         ushort roomHeaderPointer = 0) =>
-        LoadCore(bus, vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
+        LoadCore(vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
 
     /// <summary>
     /// Clears the prior BG3 tilemap, selects the door's FX record, and initializes the
     /// liquid and palette state shared by room effects and PLMs.
     /// </summary>
-    internal void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
+    internal void LoadCore(SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
         Reset();
@@ -198,7 +196,7 @@ public sealed class RoomLayer3FxState
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend,
             $"bank-$83 FX record ${record:X4}");
-        animatedTiles.Load(bus, Type);
+        animatedTiles.Load(Type);
         ApplyPaletteBlend(cgram, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
@@ -301,9 +299,8 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Runs the active bank-$88 pre-instruction and rain animtile handler.</summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, RoomLayer3FxFrame frame)
+    public void Step(SnesVram vram, RoomLayer3FxFrame frame)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(vram);
         audioPowerBomb = frame.PowerBomb;
         if (!frame.LiquidMotionAlreadyAdvanced)
@@ -323,7 +320,7 @@ public sealed class RoomLayer3FxState
         // The shared bank-$87 handler runs independently of the bank-$88 HDMA
         // pre-instruction. In particular, lava/acid need this transfer before their BG3
         // tilemap can name anything other than stale standard-HUD characters.
-        animatedTiles.Step(bus, vram, artwork: AnimatedTileArtwork);
+        animatedTiles.Step(vram, artwork: AnimatedTileArtwork);
 
         if (liquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
             return;

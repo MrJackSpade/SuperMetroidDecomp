@@ -202,7 +202,6 @@ public sealed class BabyMetroidCutsceneState
     /// the head AI has already moved this frame; <paramref name="head"/> carries them.
     /// </summary>
     public BabyMetroidCutsceneStepResult Step(
-        ISnesAddressSpace bus,
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
         Position16<RoomPixels> head,
@@ -210,7 +209,6 @@ public sealed class BabyMetroidCutsceneState
         ushort enemyFrameCounter = 0,
         ushort randomNumber = 0)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(motherBrain);
         if (Phase == BabyMetroidCutscenePhase.Inactive)
@@ -293,7 +291,7 @@ public sealed class BabyMetroidCutsceneState
                 if (brainCollision)
                 {
                     Phase = BabyMetroidCutscenePhase.LatchOntoMotherBrain;
-                    samus.Drained.PutStanding(bus, samus); // Drained Samus command one.
+                    samus.Drained.PutStanding(samus); // Drained Samus command one.
                 }
                 break;
 
@@ -400,7 +398,7 @@ public sealed class BabyMetroidCutsceneState
                 brainCollision = ceilingCollision;
                 if (ceilingCollision)
                 {
-                    samus.Drained.PutCrouchingOrFalling(bus, samus);
+                    samus.Drained.PutCrouchingOrFalling(samus);
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
                     MovementTablePointer = BabyMetroidRouteDefinitions.FirstRecordPointer;
                 }

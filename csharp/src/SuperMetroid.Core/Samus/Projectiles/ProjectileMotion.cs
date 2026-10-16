@@ -244,7 +244,6 @@ internal sealed class ProjectileMotion
 
     /// <summary>Ignites a Super Missile with its invisible link and updates both point reactions after each movement axis.</summary>
     internal bool RunSuperMissilePreInstruction(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusProjectileSlot slot,
@@ -279,7 +278,7 @@ internal sealed class ProjectileMotion
             if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
             {
                 BeamFiring.InitializeDirectionalVelocity(samus.ProjectileInheritance, slot, unchecked((short)slot.Variable));
-                SpawnSuperMissileLink(bus, samus, slot);
+                SpawnSuperMissileLink(samus, slot);
             }
         }
         else
@@ -347,7 +346,6 @@ internal sealed class ProjectileMotion
 
     /// <summary>Allocates the invisible collision link at ignition and records its native byte index in the owner.</summary>
     internal void SpawnSuperMissileLink(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusProjectileSlot owner)
     {
@@ -363,7 +361,7 @@ internal sealed class ProjectileMotion
         // `$90:BF78` deliberately calls the ordinary muzzle initializer again after copying
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose cartridge origin tables can change.
-        BeamFiring.InitializePosition(bus, samus, link);
+        BeamFiring.InitializePosition(samus, link);
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
         link.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);

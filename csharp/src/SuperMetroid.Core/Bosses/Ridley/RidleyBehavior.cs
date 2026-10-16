@@ -588,7 +588,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomLevelData? level)
     {
         RidleyAttackSituation situation;
-        if (samus?.PoseMetadata.ReadMovementType(_room.LoadedBus) == SamusMovementType.SpinJumping)
+        if (samus?.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping)
         {
             situation = RidleyAttackSituation.SpinJumping;
         }
@@ -696,7 +696,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             ReadRidleyHealthMovementDivisorIndex(state));
         state.TailWhipRequest = 1;
 
-        if (samus?.PoseMetadata.ReadMovementType(_room.LoadedBus) != SamusMovementType.SpinJumping)
+        if (samus?.PoseMetadata.ReadMovementType() != SamusMovementType.SpinJumping)
         {
             BeginNorfairRidleyGroundAttack(state);
             return;
@@ -934,7 +934,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     }
 
     /// <summary>Releases Samus's script lock and grants movement-dependent intangibility outside death.</summary>
-    internal void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
+    internal static void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
         samus?.ScriptLocks.SetStationaryScriptControlLock(false);
@@ -943,7 +943,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
-            SamusMovementType movement = samus?.PoseMetadata.ReadMovementType(_room.LoadedBus) ?? SamusMovementType.Standing;
+            SamusMovementType movement = samus?.PoseMetadata.ReadMovementType() ?? SamusMovementType.Standing;
             state.IntangibilityTimer = NativeCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
         }
     }
@@ -1023,11 +1023,11 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
-    internal bool SamusMovementUsesRidleyGrab(SamusState? samus)
+    internal static bool SamusMovementUsesRidleyGrab(SamusState? samus)
     {
         if (samus is null)
             return false;
-        SamusMovementType movement = samus.PoseMetadata.ReadMovementType(_room.LoadedBus);
+        SamusMovementType movement = samus.PoseMetadata.ReadMovementType();
         return RidleySamusInteractionDefinitions.CanGrab(movement);
     }
 

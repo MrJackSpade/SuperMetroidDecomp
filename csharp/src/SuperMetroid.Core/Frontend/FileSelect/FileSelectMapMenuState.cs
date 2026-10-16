@@ -84,7 +84,7 @@ public sealed class FileSelectMapMenuState
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
+        marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
         animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
@@ -113,7 +113,7 @@ public sealed class FileSelectMapMenuState
         animations.BindPalette(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
-        marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
+        marker.BindPosition((AreaId)area, stationIndex, catalog?.SaveMarkers);
     }
 
     /// <summary>Starts room-map scrolling at the compiled anchor for the saved area and station.</summary>
@@ -123,7 +123,7 @@ public sealed class FileSelectMapMenuState
         AreaMapPresentationCatalog catalog = mapPresentation ?? throw new InvalidOperationException(
             "File-select map requires installed map presentation assets.");
         var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
-        return new FileSelectMapScroll(bus, catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
+        return new FileSelectMapScroll(catalog.Get(typedArea), roomGraphics.MapSystem, anchor);
     }
 
     /// <summary>Advances one menu update, retaining input latching during entry and native ordering of icon/palette animation, scrolling, navigation, transition sounds, and delayed load/options handoff.</summary>
@@ -160,7 +160,7 @@ public sealed class FileSelectMapMenuState
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 scroll = CreateScrollForCurrentContent();
-                marker = new FileSelectStationMarker(bus, (AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
+                marker = new FileSelectStationMarker((AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetPalette();
             }
@@ -172,7 +172,7 @@ public sealed class FileSelectMapMenuState
                 if (++pendingFrames < FileSelectMapRomData.ReturnSetupFrames) break;
                 if (returnWindow is null)
                 {
-                    returnWindow = FileSelectMapWindow.CreateReturn(bus, area, mapPresentation?.Labels);
+                    returnWindow = FileSelectMapWindow.CreateReturn(area, mapPresentation?.Labels);
                     Queue(SoundEffectLibrary1Sounds.MapReturn);
                 }
                 else if (returnWindow.Step())

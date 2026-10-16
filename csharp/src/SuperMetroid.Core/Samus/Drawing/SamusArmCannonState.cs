@@ -48,9 +48,8 @@ public sealed class SamusArmCannonState
     /// Runs the HUD selection stability update and `HandleArmCannonOpenState`. Calling once
     /// per gameplay frame reproduces `$90:C519-$C534` followed later by `$90:C5C4`.
     /// </summary>
-    public SamusArmCannonUpdateResult Update(ISnesAddressSpace bus, SamusState samus)
+    public SamusArmCannonUpdateResult Update(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (samus.SelectedHudItem >= SamusArmCannonDefinitions.HudItemCount)
         {
@@ -86,13 +85,11 @@ public sealed class SamusArmCannonState
     /// before/after-body order from <see cref="DrawingMode"/>.
     /// </summary>
     public SamusArmCannonDrawResult Draw(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         SamusState samus,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
 
@@ -115,7 +112,7 @@ public sealed class SamusArmCannonState
         ushort offsetAddress = unchecked((ushort)(offsetsBase + samus.AnimationFrame * 2));
         sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetAddress));
         sbyte yOffset = unchecked((sbyte)ReadDrawingByte(unchecked((ushort)(offsetAddress + 1))));
-        sbyte graphicsYOffset = samus.PoseMetadata.ReadGraphicsYOffset(bus);
+        sbyte graphicsYOffset = samus.PoseMetadata.ReadGraphicsYOffset();
 
         short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
         short screenY = unchecked((short)(

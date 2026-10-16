@@ -18,7 +18,7 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
 
     /// <inheritdoc/>
     public int ResolveCeresRidleyProjectileHits(ISnesAddressSpace bus, SamusProjectileSystem projectiles, SamusBombProjectileSystem sharedProjectiles) =>
-        ceresRidley.ResolveCeresRidleyProjectileHits(bus, projectiles, sharedProjectiles);
+        ceresRidley.ResolveCeresRidleyProjectileHits(projectiles, sharedProjectiles);
 
     /// <inheritdoc/>
     public void DrawCeresRidleyImmediateBabyAndDoor(OamBuffer oam, Position16<RoomPixels> camera) =>

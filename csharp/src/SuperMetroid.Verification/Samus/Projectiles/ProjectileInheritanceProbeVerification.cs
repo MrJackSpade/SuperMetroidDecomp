@@ -188,7 +188,7 @@ internal static class ProjectileInheritanceProbeVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame(SnesButton.Right);
         var records = new ProjectileInheritanceRecordsAccess(samus.ProjectileInheritance);

@@ -67,7 +67,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // The real route reached `$E9` through controller zero, which had already loaded the
     // pose radius. Controller one/four intentionally do not refresh it, so initialize that
     // pre-existing WRAM state once rather than widening touch collision in production code.
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
     {
         BrainPosition = new(0x0040, 0x0060),
@@ -94,13 +94,13 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     // `$F8` reaches zero without expiring. This is 248 visibly stationary calls, not an
     // approximate four-second host delay.
     for (int call = 1; call <= 248; call++)
-        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
+        baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.FunctionTimer.RawValue, "Baby dash delay exact zero boundary");
     AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
-    baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
+    baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
@@ -120,7 +120,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
            calls < 700)
     {
         SamusPoseId samusPoseBeforeStep = samus.Pose;
-        latch = baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
+        latch = baby.Step(samus, motherBrain, HeadOf(motherBrain));
         calls++;
         sawBodyStumbleRequest |= latch.BodyStumbleRequested;
         sawMotherBrainInterrupt |= motherBrain.Phase ==

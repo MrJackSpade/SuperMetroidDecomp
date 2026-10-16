@@ -54,36 +54,36 @@ internal static class ProjectileDamageVerification
         {
             var system = new SamusProjectileSystem();
             var samus = Samus(); samus.EquippedBeams = beam;
-            system.Firing.TryFireBeam(bus, room, samus, SnesButton.X, new SamusBombProjectileSystem(), null, charged);
+            system.Firing.TryFireBeam(room, samus, SnesButton.X, new SamusBombProjectileSystem(), null, charged);
             var slot = system.Slots[0];
             int table = charged ? SamusProjectileRomData.Beams.ChargedDataPointers : SamusProjectileRomData.Beams.UnchargedDataPointers;
             Check(slot, table, beam, slot.Direction & 15);
-            system.EnemyImpacts.ReflectFromEnemy(bus, samus, 0);
+            system.EnemyImpacts.ReflectFromEnemy(samus, 0);
             Check(slot, table, beam, slot.Direction & 15);
         }
         foreach (ushort item in new ushort[] { 1, 2 })
         {
             var system = new SamusProjectileSystem(); var samus = Samus(); samus.SelectedHudItem = item;
-            var result = system.Firing.TryFireMissile(bus, samus, SnesButton.X, 0, new SamusBombProjectileSystem());
+            var result = system.Firing.TryFireMissile(samus, SnesButton.X, 0, new SamusBombProjectileSystem());
             AssertEqual((int?)0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
-            system.EnemyImpacts.ReflectFromEnemy(bus, samus, 0);
+            system.EnemyImpacts.ReflectFromEnemy(samus, 0);
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
             if (item == 2)
             {
-                system.Motion.SpawnSuperMissileLink(bus, samus, system.Slots[0]);
+                system.Motion.SpawnSuperMissileLink(samus, system.Slots[0]);
                 AssertEqual((ushort)300, system.Slots[1].Damage, "Invisible link remains occupied/nonzero damage");
                 AssertEqual((ushort)300, system.Slots[0].Damage, "Link allocation does not replace its owner");
             }
         }
         var hyper = new SamusProjectileSystem();
-        hyper.Firing.TryFireHyperBeam(bus, room, Samus(), new SamusBombProjectileSystem(), null);
+        hyper.Firing.TryFireHyperBeam(room, Samus(), new SamusBombProjectileSystem(), null);
         AssertEqual((ushort)1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var system = new SamusProjectileSystem(); var samus = Samus();
             samus.EquippedBeams = beam; samus.SelectedHudItem = 3; samus.PowerBombs = 10;
-            AssertTrue(system.Combos.TryActivateCombo(bus, samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
+            AssertTrue(system.Combos.TryActivateCombo(samus, new SamusBombProjectileSystem(), out _), "Combo initializes with damage ROM reads forbidden");
             foreach (var slot in system.Slots.Take(4))
                 AssertEqual((ushort)(beam == 2 ? 90 : 300), slot.Damage, "SBA/ordinary Ice/Spazer trail damage");
         }
@@ -193,7 +193,7 @@ internal static class ProjectileDamageVerification
                 PowerBombs = 10,
             };
             AssertTrue(projectiles.Combos.TryActivateCombo(
-                    guarded, samus, shared, out _),
+                    samus, shared, out _),
                 $"beam {beam:X} activates with cost/angle ROM reads forbidden");
             AssertEqual((ushort)9, samus.PowerBombs,
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");

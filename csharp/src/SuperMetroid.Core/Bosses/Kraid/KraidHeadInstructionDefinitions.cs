@@ -138,9 +138,8 @@ internal static class KraidHeadInstructionDefinitions
     /// record's first word without executing it. Every authored record is compiled; any
     /// other cursor is corrupt state.
     /// </summary>
-    public static ushort ReadGrowthSelectionWord(ISnesAddressSpace bus, ushort pointer)
+    public static ushort ReadGrowthSelectionWord(ushort pointer)
     {
-        Ensure.NotNull(bus);
         foreach (KraidHeadInstructionDefinition definition in All)
         {
             if (definition.Pointer != pointer)

@@ -39,12 +39,12 @@ internal static class SamusIndexedSpeedsVerification
                     AssertEqual(expected, entry, "All six indexed words match native data");
                     compiledCount++;
                     forbidReads = true;
-                    AssertEqual(expected, speed.ReadEntry(guard, (SamusMovementType)movement), "Actual byte-indexed read preserves adjacent authored tables");
+                    AssertEqual(expected, speed.ReadEntry((SamusMovementType)movement), "Actual byte-indexed read preserves adjacent authored tables");
                 }
                 else
                 {
                     AssertThrows<InvalidDataException>(
-                        () => speed.ReadEntry(guard, (SamusMovementType)movement),
+                        () => speed.ReadEntry((SamusMovementType)movement),
                         "Byte-indexed high-bank overread rejected");
                 }
             }
@@ -60,12 +60,12 @@ internal static class SamusIndexedSpeedsVerification
             if (compiled)
             {
                 forbidReads = true;
-                AssertEqual(Read(address), speed.ReadEntry(guard, SamusMovementType.Running), "Restored authored ROM base respects exact record alignment");
+                AssertEqual(Read(address), speed.ReadEntry(SamusMovementType.Running), "Restored authored ROM base respects exact record alignment");
             }
             else
             {
                 AssertThrows<InvalidDataException>(
-                    () => speed.ReadEntry(guard, SamusMovementType.Running),
+                    () => speed.ReadEntry(SamusMovementType.Running),
                     "Restored non-catalog ROM base rejected");
             }
         }

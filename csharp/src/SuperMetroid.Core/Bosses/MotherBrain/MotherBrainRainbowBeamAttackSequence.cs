@@ -1253,7 +1253,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
-                movement = _movement.MoveTowardWall(bus, samus);
+                movement = _movement.MoveTowardWall(samus);
                 if (movement.Value.NativeCarry)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.OneFrameDelay;
@@ -1269,7 +1269,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
-                movement = _movement.MoveTowardWall(bus, samus);
+                movement = _movement.MoveTowardWall(samus);
 
                 // `$A9:BA0F` decrements zero to `$FFFF`; BPL fails on this very call.
                 FunctionTimer = FunctionTimer.Decrement().Remaining;

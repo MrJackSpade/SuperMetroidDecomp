@@ -50,7 +50,7 @@ internal static class GrappleGatesVerification
                 oam.BeginFrame();
                 if (frame == 2)
                 {
-                    SeedStationaryGrappleCollisionProbe(bus, samus);
+                    SeedStationaryGrappleCollisionProbe(samus);
                     var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }

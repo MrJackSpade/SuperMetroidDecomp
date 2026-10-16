@@ -13,7 +13,7 @@ public static class SamusPostDrawAudio
     /// initializer's $0A23. A spin can end through aiming, firing, landing or another
     /// transition; the shared post-draw check handles them without per-input patches.
     /// </summary>
-    public static void Step(ISnesAddressSpace bus, SamusState samus,
+    public static void Step(SamusState samus,
         SamusMovementType previousMovement, SnesButton controllerInput)
     {
         // The signed latch takes native's direct branch to rearming positive one. It
@@ -33,7 +33,7 @@ public static class SamusPostDrawAudio
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, maximumQueued: 15);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
-            samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+            samus.PoseMetadata.ReadMovementType() is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             return;
 
         samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 15);

@@ -67,11 +67,9 @@ internal sealed class CeresRidleyBehavior
     /// subtracts enemy health; the projectile owner performs its normal explosion change.
     /// </summary>
     public int ResolveCeresRidleyProjectileHits(
-        ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
 
@@ -98,7 +96,7 @@ internal sealed class CeresRidleyBehavior
             {
                 continue;
             }
-            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
+            if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex))
                 continue;
 
             ResolveCeresRidleyShotAfterCollision(slot);

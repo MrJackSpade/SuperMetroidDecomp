@@ -110,12 +110,12 @@ internal static class LookupStream4Verification
         var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
         var fx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
-        fx.SpawnDefinition(guarded, ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
+        fx.SpawnDefinition(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer, 0);
         int ticks = 0;
         foreach (var row in rows)
         for (int hold = 0; hold < row.Duration; hold++)
         {
-            fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             for (int color = 0; color < SnesCgram.ColorCount; color++)
             {
                 ushort expected = color >= destination && color < destination + row.Colors.Length
@@ -128,7 +128,7 @@ internal static class LookupStream4Verification
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
         AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0].Duration, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
-        fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "Foreground mechanics avoid live ROM reads");
         foreach (int invalid in new[] { -1, rows.Count, int.MaxValue })
@@ -219,12 +219,12 @@ internal static class LookupStream4Verification
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> guardedPresentationReads);
             var fx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
-            fx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
+            fx.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int cycle = 0; cycle < 2; cycle++)
             foreach (var row in nativeRows)
             for (int hold = 0; hold < row.Duration; hold++)
             {
-                fx.Step(guarded, cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < SnesCgram.ColorCount; color++)
                 {
                     ushort expected = color >= destination && color < destination + row.Colors.Length
@@ -309,10 +309,10 @@ internal static class LookupStream4Verification
             var cgram = new SnesCgram();
             selected.Apply(cgram);
             foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
-                fx.SpawnDefinition(guarded, program.DefinitionPointer, 0);
+                fx.SpawnDefinition(program.DefinitionPointer, 0);
             for (int tick = 0; tick <= 80; tick++)
             {
-                fx.Step(guarded, cgram, selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                fx.Step(cgram, selected, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 ushort[] expected = document.Colors.Select(Pack).ToArray();
                 foreach (var program in TitleScreenAmbientPaletteFxColorDefinitions.All)
                 {
@@ -450,12 +450,12 @@ internal static class LookupStream4Verification
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
-            native.SpawnDefinition(nativeBus, definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(installedBus, definition.DefinitionPointer, 0);
+            native.SpawnDefinition(definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
             {
-                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedBus, installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed environmental cycle matches original colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed environmental cycle performs zero live color reads");
@@ -523,12 +523,12 @@ internal static class LookupStream4Verification
             var installedBus = NewPaletteFxMechanicsForbiddenBus(rom, out StrongBox<int> installedBusPresentationReads);
             var native = new RoomPaletteFxSystem(); var installed = new RoomPaletteFxSystem();
             var nativeCgram = new SnesCgram(); var installedCgram = new SnesCgram();
-            native.SpawnDefinition(nativeBus, definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(installedBus, definition.DefinitionPointer, 0);
+            native.SpawnDefinition(definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, 0);
             for (int step = 0; step <= 24; step++)
             {
-                native.Step(nativeBus, nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-                installed.Step(installedBus, installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                native.Step(nativeCgram, new ReferencePaletteFxColorSource(nativeBus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                installed.Step(installedCgram, stock, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)), "actual installed text fade matches native colors each step");
             }
             AssertEqual(0, installedBusPresentationReads.Value, "installed text fade makes zero live color reads");
@@ -1387,7 +1387,7 @@ internal static class LookupStream4Verification
             }
             if(edit is -1 or 0 or 131)
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(NewProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{EquippedItems=(ushort)(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug with{EquippedItems=(ushort)(SamusEquipmentFlags.XrayScope|SamusEquipmentFlags.GrappleBeam),MaxMissiles=1,MaxSuperMissiles=1,MaxPowerBombs=1});
                 for(int item=0;item<5;item++){var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),hud.Tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+cell%width],"Actual HUD inventory draws installed icon");}
             }
             for(int item=0;item<5;item++)selected.TryApplyIcon(tiles,item);
@@ -1449,7 +1449,7 @@ internal static class LookupStream4Verification
             AssertTrue(selected.TopRowTransfer.Span.SequenceEqual(stock.TopRowTransfer.Span),"Template edits leave immutable top row independent");
             if(edit is -1 or 390 or 570)
             {
-                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(NewProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug);
+                var hud=new HudState();hud.BindPresentation(selected);hud.Initialize(HudSnapshot.CeresDebug);
                 for(int row=0;row<3;row++)for(int x=26;x<32;x++)AssertEqual(tiles[row*32+x],hud.Tiles[row*32+x],"Actual initializer preserves selected initial minimap and border");
                 for(int x=1;x<=4;x++)AssertEqual(tiles[64+x],hud.Tiles[64+x],"Actual initializer preserves selected ENERGY typography");
             }
@@ -1521,17 +1521,17 @@ internal static class LookupStream4Verification
             var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"AUTO preserves document content hash");
             var hud=new HudState();hud.BindPresentation(selected);
-            hud.Initialize(NewProjectileCompositionForbiddenBus(),HudSnapshot.CeresDebug with{ReserveMode=1,ReserveHealth=1});
+            hud.Initialize(HudSnapshot.CeresDebug with{ReserveMode=1,ReserveHealth=1});
             foreach(bool full in new[]{true,false})
             {
                 ushort[] tiles=Enumerable.Repeat((ushort)0x1234,96).ToArray();selected.ApplyAutoReserve(tiles,full);
                 var cells=full?document.AutoReserve.ContainsEnergy:document.AutoReserve.Empty;
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"All twelve independently edited AUTO cells");
                 for(int tile=0;tile<96;tile++)if(tile%32 is not(8 or 9))AssertEqual((ushort)0x1234,tiles[tile],"AUTO leaves other HUD cells unchanged");
-                hud.UpdateGameplayCounters(NewProjectileCompositionForbiddenBus(),new SamusState{Health=99,MaxHealth=99,ReserveTankMode=1,ReserveEnergy=(ushort)(full?1:0)});
+                hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=1,ReserveEnergy=(ushort)(full?1:0)});
                 for(int cell=0;cell<6;cell++)AssertEqual(Word(cells[cell]),hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Actual HUD reserve state chooses exact supplied AUTO cells");
             }
-            ushort[] before=hud.Tiles.ToArray();hud.UpdateGameplayCounters(NewProjectileCompositionForbiddenBus(),new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
+            ushort[] before=hud.Tiles.ToArray();hud.UpdateGameplayCounters(new SamusState{Health=99,MaxHealth=99,ReserveTankMode=0,ReserveEnergy=1});
             for(int cell=0;cell<6;cell++)AssertEqual(before[GameplayHudDefinitions.AutoReserveCellIndex(cell)],hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Manual reserve does not select another AUTO state");
             hud.ClearAutoReserveIndicator();for(int cell=0;cell<6;cell++)AssertEqual(selected.Blank,hud.Tiles[GameplayHudDefinitions.AutoReserveCellIndex(cell)],"Explicit manual switch clears AUTO");
         }
@@ -1751,7 +1751,7 @@ internal static class LookupStream4Verification
                 var actual = new SnesCgram();
                 for (int index = 0; index < SnesCgram.ColorCount; index++) actual.SetColor(index, Bgr555.FromWord((ushort)(index * 31)));
                 if (edit is -1 or 0 or 575)
-                    SamusProjectileSystem.LoadBeamPalette(NewProjectileCompositionForbiddenBus(), actual,
+                    SamusProjectileSystem.LoadBeamPalette(actual,
                         (ushort)(selection | 0x1000), selected);
                 else selected.LoadTo(actual, SamusBeamCombinations.FromTableIndex(selection));
                 int pointer = 0x900000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x90c3c9 + selection * 2));
@@ -1792,8 +1792,8 @@ internal static class LookupStream4Verification
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
-        Func<SamusState?, bool> canGrab = enemies.RidleyBehavior.SamusMovementUsesRidleyGrab;
-        Action<RidleyEnemyState, SamusState?> release = enemies.RidleyBehavior.ReleaseNorfairRidleyGrab;
+        Func<SamusState?, bool> canGrab = RidleyBehavior.SamusMovementUsesRidleyGrab;
+        Action<RidleyEnemyState, SamusState?> release = RidleyBehavior.ReleaseNorfairRidleyGrab;
         for (int pose = 0; pose <= 0xfc; pose++)
         {
             var samus = new SamusState { Pose = (SamusPoseId)pose };

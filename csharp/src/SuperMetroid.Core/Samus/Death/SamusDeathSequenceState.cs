@@ -79,7 +79,7 @@ public sealed class SamusDeathSequenceState
         if (IsActive)
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
-        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
         var initialFrames =
             SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         if ((byte)sourceMovementType >= initialFrames.Length)
@@ -88,7 +88,7 @@ public sealed class SamusDeathSequenceState
                 $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
         }
 
-        FacingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        FacingLeft = samus.PoseMetadata.IsFacingLeft();
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
@@ -98,11 +98,11 @@ public sealed class SamusDeathSequenceState
         // with the movement-type table result. All six delays are two, so the timer produced
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose dispatcher is not running.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(initialFrame, timer: 2);
 
         // The cartridge subtracts layer 1 directly from Samus's live words because its death
@@ -227,18 +227,15 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>Publishes `$92:EDBE`'s one right/left explosion spritemap at captured screen position, bound to the death characters.</summary>
-    public void DrawExplosion(ISnesAddressSpace bus, SpriteFrameBuffer sprites,
+    public void DrawExplosion(SpriteFrameBuffer sprites,
         SamusSpritemapArtworkCatalog? artwork = null, SamusDeathTileAtlas? deathTiles = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
         if (ExplosionSpritemapIndex is not ushort spritemap)
             return;
         SpriteArtwork explosion = (deathTiles ?? throw new InvalidOperationException(
             "Samus death explosion requires installed death artwork.")).Explosion;
-        sprites.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Samus death spritemap requires WRAM."),
-            spritemap, ScreenPosition, new SamusSpritemapArtwork(artwork ?? throw new InvalidOperationException(
+        sprites.AddSamusSpritemap(spritemap, ScreenPosition, new SamusSpritemapArtwork(artwork ?? throw new InvalidOperationException(
                 "Samus death spritemap requires installed artwork."), explosion, () => explosion),
             new SpriteSource(SpriteSourceKind.SamusDeathExplosion));
     }

@@ -26,7 +26,7 @@ public static class SamusPostureMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Validate(bus, level, samus);
+        Validate(level, samus);
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
             !SamusPoseMetadata.IsLeftFacingCrouchingPose(samus.Pose))
         {
@@ -60,7 +60,7 @@ public static class SamusPostureMovement
         ushort nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
-        Validate(bus, level, samus);
+        Validate(level, samus);
         if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
         {
             throw new InvalidOperationException(
@@ -90,11 +90,11 @@ public static class SamusPostureMovement
         // behavior that lets a stage-four run continue sliding during crouch transition
         // `$35/$36`; bank $91 samples and stores the shine before normal crouching clears
         // that momentum. The old exception at this seam prevented that native route.
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(facingLeft, samus, baseSpeed: 0);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         // `$90:923F` uses the external-Y replacement when present. Otherwise it couples
         // the downward floor probe to the total X speed calculated by the horizontal pass;
@@ -107,11 +107,9 @@ public static class SamusPostureMovement
 
     /// <summary>Requires the address space, level, and Samus state used by both posture handlers.</summary>
     private static void Validate(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
     }

@@ -137,17 +137,17 @@ public sealed class SamusCrystalFlashState
 
         // `$90:D5ED-$D600` considers direction byte four left and every other value right.
         // Read that byte from the source pose before replacing it with Crystal Flash art.
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         samus.Pose = facingLeft
             ? SamusPoseId.CrystalFlashLeftPose
             : SamusPoseId.CrystalFlashRightPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.Special)
+        samus.PoseMetadata.RefreshCollisionRadii();
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Successful HDMA-owned activation publishes history directly, before
         // installing its movement handler. Rejected activation must not shift it.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
 
         // The native routine reuses shinespark words but installs a distinct pointer. The
         // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
@@ -189,18 +189,15 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>Executes one active handler call in the native beta-movement position.</summary>
-    /// <param name="bus">Pose movement-type source used by the finishing handler.</param>
     /// <param name="samus">Live actor receiving movement, ammunition/energy, animation, and handler-completion writes.</param>
     /// <param name="nmiFrameCounter">Native accepted-NMI counter; ammunition drains only when its low three bits are zero.</param>
     /// <returns>A value snapshot of the entry phase and retained bubble-HDMA request, even when this call changes phase.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="samus"/> is null.</exception>
     /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
-        ISnesAddressSpace bus,
         SamusState samus,
         ushort nmiFrameCounter)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (Phase == CrystalFlashPhase.Inactive)
             throw new InvalidOperationException("Crystal Flash has no installed movement handler.");
@@ -226,7 +223,7 @@ public sealed class SamusCrystalFlashState
                 break;
 
             case CrystalFlashPhase.Finishing:
-                StepFinish(bus, samus);
+                StepFinish(samus);
                 break;
 
             default:
@@ -310,7 +307,7 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests palette restoration.</summary>
-    private void StepFinish(ISnesAddressSpace bus, SamusState samus)
+    private void StepFinish(SamusState samus)
     {
         // Retail usually enters with equality because RaisedYPosition was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
@@ -321,7 +318,7 @@ public sealed class SamusCrystalFlashState
         // The ROM delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
         // Therefore cleanup naturally happens on the following beta pass, once type zero is
         // observable here, and that frame performs no ordinary standing movement.
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.Standing)
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Standing)
             return;
 
         SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
@@ -345,13 +342,11 @@ public sealed class SamusCrystalFlashState
     /// currently equipped beam combination.
     /// </remarks>
     public bool UpdatePalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes = null,
         SuperMetroid.Core.Samus.Artwork.CrystalFlashColorCatalog? colors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         Ensure.NotNull(samus);
         if (SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash)

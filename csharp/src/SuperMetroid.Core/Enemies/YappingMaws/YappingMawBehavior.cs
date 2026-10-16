@@ -398,19 +398,19 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            SamusMovementType movement = samus.PoseMetadata.ReadMovementKind(_room.LoadedBus);
+            SamusMovementType movement = samus.PoseMetadata.ReadMovementKind();
             if (movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             {
                 // CallSomeSamusCode(3) selects pose $01/$02 from the current direction,
                 // then runs the ordinary pose metadata and animation initialization path.
                 // Reusing those public ROM-backed helpers prevents a Yapping-Maw-only pose
                 // approximation from drifting away from every other Samus transition.
-                samus.Pose = samus.PoseMetadata.IsFacingLeft(_room.LoadedBus)
+                samus.Pose = samus.PoseMetadata.IsFacingLeft()
                     ? SamusPoseId.FacingLeftNormalPose
                     : SamusPoseId.FacingRightNormalPose;
-                samus.PoseMetadata.RefreshCollisionRadii(_room.LoadedBus);
+                samus.PoseMetadata.RefreshCollisionRadii();
                 samus.Presentation.InitializeAnimation(_room.LoadedBus, initialFrame: 0);
-                samus.CommitPoseHistory(_room.LoadedBus);
+                samus.CommitPoseHistory();
             }
         }
 

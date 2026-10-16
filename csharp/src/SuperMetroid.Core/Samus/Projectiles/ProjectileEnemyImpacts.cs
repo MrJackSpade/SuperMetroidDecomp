@@ -61,9 +61,8 @@ internal sealed class ProjectileEnemyImpacts
     /// position, but reconstructs its bank-$93 damage, direction-specific animation, radii,
     /// and family pre-instruction exactly as the native routine does.
     /// </summary>
-    public void ReflectFromEnemy(ISnesAddressSpace bus, SamusState samus, int slotIndex)
+    public void ReflectFromEnemy(SamusState samus, int slotIndex)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
@@ -150,10 +149,8 @@ internal sealed class ProjectileEnemyImpacts
     /// the projectile system owns the exact bank-$90 impact conversion.
     /// </remarks>
     public bool TryImpactIntroMotherBrainMissile(
-        ISnesAddressSpace bus,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sharedProjectiles);
 
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -178,12 +175,10 @@ internal sealed class ProjectileEnemyImpacts
     /// projectile owner alone mutates the parallel slot arrays and shared cooldown.
     /// </summary>
     public bool TryStartEnemyImpact(
-        ISnesAddressSpace bus,
         SamusBombProjectileSystem sharedProjectiles,
         int slotIndex,
         bool blocksPlasmaBeam = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sharedProjectiles);
         if ((uint)slotIndex >= SamusProjectileSystem.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex));

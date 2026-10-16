@@ -37,7 +37,7 @@ internal static class GrappleEndpointGeometryVerification
             };
             grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
             var oamFrame = new SpriteFrameBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            SamusGrappleMovement.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             OamBuffer oam = oamFrame.FinalizeAsOam();
             bool swinging = pose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
             ushort relativeY = unchecked((ushort)(endpointY - camera));
@@ -72,7 +72,7 @@ internal static class GrappleEndpointGeometryVerification
         {
             samus.Pose = pose;
             samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-            samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
+            samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics();
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(samus.Position.X.Whole);

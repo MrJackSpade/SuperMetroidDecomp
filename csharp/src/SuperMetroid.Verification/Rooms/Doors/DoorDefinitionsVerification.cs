@@ -33,7 +33,7 @@ internal static class DoorDefinitionsVerification
             RoomHeaderDefinitions.Get(RoomHeaderPointers.LandingSite).DoorListPointer);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0], [0], [0]), [], doorListPointer: landingDoors.Pointer);
         CartridgeDoorHeader resolved = (level.ResolveDoorCollision(
-            NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door."));
+            behavior: 0, samusPose: 0).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door."));
         AssertEqual(DoorDefinitions.Get(landingDoors.DoorPointers.Span[0]), resolved,
             "production collision resolves compiled BTS index without a bus read");
         AssertEqual(resolved, level.PendingDoorTransition,

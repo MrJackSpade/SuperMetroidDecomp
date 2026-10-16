@@ -54,7 +54,7 @@ internal static class IntroRinkaDefinitionsVerification
         };
         for (int frame = 0; frame < 220; frame++)
         {
-            system.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
+            system.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
             int expectedCount = frame < 74 ? 0 : frame < 202 ? 2 : 4;
             AssertEqual(expectedCount, system.LiveRinkas.Count,
                 $"intro Rinka two-wave spawn count at frame {frame}");
@@ -81,7 +81,7 @@ internal static class IntroRinkaDefinitionsVerification
             "all intro Rinkas remain active before Mother Brain explodes");
 
         for (int frame = 0; frame < 100; frame++)
-            system.Step(guarded, samus, motherBrainExploding: true, explosionsAllocated: false);
+            system.Step(samus, motherBrainExploding: true, explosionsAllocated: false);
         AssertEqual(0, system.ActiveCount,
             "all intro Rinkas retire after Mother Brain begins exploding");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

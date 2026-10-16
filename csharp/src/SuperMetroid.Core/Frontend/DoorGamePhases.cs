@@ -54,7 +54,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // into the next room.
         SamusState doorSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Door transition requires live Samus state.");
-        SamusMovementType doorMovementType = doorSamus.PoseMetadata.ReadMovementType(session.bus);
+        SamusMovementType doorMovementType = doorSamus.PoseMetadata.ReadMovementType();
         // A live power-bomb explosion drops all three requests inside the queue
         // routines, so neither ring holds anything for $E29E to wait on.
         bool doorSoundsSuppressed = session.GameplayRuntime.PowerBombExplosionSuppressesSounds;
@@ -95,7 +95,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
             session.audio.DoorTransitionSoundsDisabled = false;
             // The cartridge resumes spin audio only after sound admission is
             // restored at the final fade boundary, not on each fade frame.
-            if (SamusSpinSoundCommand.Select(session.bus, session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
+            if (SamusSpinSoundCommand.Select(session.GameplayRuntime.Player.IntroducedSamus) is { } spinSound)
                 session.audio.QueueSoundAndGetAccumulator(spinSound, maximumQueued: 9,
                     soundSuppressed: session.GameplayRuntime.AttractDemo.IsAttractDemo || session.GameplayRuntime.PowerBombExplosionSuppressesSounds);
             session.GameState = SuperMetroidGameState.MainGameplay;

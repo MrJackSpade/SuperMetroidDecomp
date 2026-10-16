@@ -175,7 +175,7 @@ internal sealed class DoorTransitionRunner
                 "Wrecked Ship treadmill door setup requires an active destination room.");
         }
 
-        _wreckedShipTreadmill.Start(_addressSpace, direction);
+        _wreckedShipTreadmill.Start(direction);
         // Both native spawn helpers return carry set when their fixed arrays are full, and
         // the door routine deliberately ignores that result. The dedicated animated owner
         // above cannot exhaust; preserve the PLM allocator's native false result here.
@@ -242,7 +242,7 @@ internal sealed class DoorTransitionRunner
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (_enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
-            _player.Samus.Presentation.Draw(_addressSpace, _sprites,
+            _player.Samus.Presentation.Draw(_sprites,
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
         _sprites.FinalizeFrame();
     }

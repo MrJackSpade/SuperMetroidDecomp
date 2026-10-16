@@ -68,7 +68,7 @@ public sealed class FileSelectMapNavigation
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
                 break;
             case FileSelectMapNavigationPhase.PreparingWindow:
-                Window = new FileSelectMapWindow(bus, area, labels);
+                Window = new FileSelectMapWindow(area, labels);
                 Phase = FileSelectMapNavigationPhase.ExpandingWindow;
                 break;
             case FileSelectMapNavigationPhase.ExpandingWindow:

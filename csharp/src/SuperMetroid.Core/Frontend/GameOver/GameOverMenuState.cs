@@ -62,7 +62,7 @@ public sealed class GameOverMenuState
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, mapPresentation.Sprites,
             loadInitialBackground: false);
         LoadGameOverTilemap(mapPresentation.GameOver);

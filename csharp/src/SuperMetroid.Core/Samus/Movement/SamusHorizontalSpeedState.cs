@@ -345,12 +345,11 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(ISnesAddressSpace bus, SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null)
+    public bool UpdateSpeedBoosterPalette(SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
 
-        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, frame.EquippedItems, suitColors);
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(cgram, frame.EquippedItems, suitColors);
         ushort suitTableOffset = frame.EquippedItems.GetSuitPaletteTableOffset();
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
@@ -448,10 +447,9 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+        SnesCgram cgram, ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         if (!NormalSuitPaletteRestoreRequested)
             return false;
@@ -770,9 +768,8 @@ public sealed class SamusHorizontalSpeedState
     /// Resolves authored speed entries without ROM access. Fields remain split into the
     /// same high/low words as the original table instead of becoming floating-point values.
     /// </summary>
-    public SpeedTableEntry ReadEntry(ISnesAddressSpace bus, SamusMovementType movementType)
+    public SpeedTableEntry ReadEntry(SamusMovementType movementType)
     {
-        Ensure.NotNull(bus);
         int address = ResolveEntryAddress(movementType);
         return ReadEntryAtAddress(address);
     }
@@ -794,9 +791,9 @@ public sealed class SamusHorizontalSpeedState
     /// Ports <c>Samus_CalcBaseSpeed_X</c> at <c>$90:9A7E</c> and returns its unsigned
     /// 16.16 result. It mutates the modeled WRAM speed words exactly once.
     /// </summary>
-    public uint CalculateBaseSpeed(ISnesAddressSpace bus, SamusMovementType movementType)
+    public uint CalculateBaseSpeed(SamusMovementType movementType)
     {
-        SpeedTableEntry entry = ReadEntry(bus, movementType);
+        SpeedTableEntry entry = ReadEntry(movementType);
         return CalculateBaseSpeed(entry);
     }
 
@@ -804,9 +801,8 @@ public sealed class SamusHorizontalSpeedState
     /// Executes `$90:9A7E` against a literal bank-$90 table address. Bomb jumps use the
     /// standalone record at `$90:9F25` instead of the movement-type-indexed normal table.
     /// </summary>
-    public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
+    public uint CalculateBaseSpeedAtAddress(int address)
     {
-        Ensure.NotNull(bus);
         return CalculateBaseSpeed(ReadEntryAtAddress(address));
     }
 
@@ -875,10 +871,9 @@ public sealed class SamusHorizontalSpeedState
     /// jump's decision to retain horizontal motion.
     /// </summary>
     public AerialBaseSpeedResult CalculateBaseSpeedDecelerationDisallowed(
-        ISnesAddressSpace bus,
         SamusMovementType movementType)
     {
-        SpeedTableEntry entry = ReadEntry(bus, movementType);
+        SpeedTableEntry entry = ReadEntry(movementType);
 
         if ((AccelerationMode & 1) != 0)
         {

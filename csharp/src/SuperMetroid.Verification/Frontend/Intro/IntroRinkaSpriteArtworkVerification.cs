@@ -77,7 +77,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         var rinkas = new IntroRinkaSystem();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)
-            rinkas.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
+            rinkas.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,
             "intro Rinka first two-wave actors exist for installed artwork test");
         var stockOam = new OamBuffer();

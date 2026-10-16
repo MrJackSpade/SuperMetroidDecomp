@@ -110,7 +110,7 @@ internal static class MapSpritesVerification
             var guard = NewMapSpriteGuard(bus);
             var system = new Bank80SystemState(); system.SetAreaMapAcquired(AreaId.WreckedShip);
             system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-            var marker = new FileSelectStationMarker(bus, AreaId.WreckedShip, 0,
+            var marker = new FileSelectStationMarker(AreaId.WreckedShip, 0,
                 original.SaveMarkers);
             var room = new FileSelectRoomMapGraphics(guard, system, AreaId.WreckedShip, mapPresentation: original);
             var nativeRoom = new FileSelectRoomMapGraphics(bus, system,

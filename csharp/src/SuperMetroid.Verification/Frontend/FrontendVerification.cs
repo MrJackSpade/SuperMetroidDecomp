@@ -505,7 +505,7 @@ internal static void VerifySavedGameLoadAppearance()
     AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
     AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
     AssertEqual(runtime.Player.IntroducedSamus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
-    AssertEqual(SnesLittleEndian.Word(runtime.Player.IntroducedSamus.PoseMetadata.ReadPoseXDirection(bus), (byte)runtime.Player.IntroducedSamus.PoseMetadata.ReadMovementType(bus)),
+    AssertEqual(SnesLittleEndian.Word(runtime.Player.IntroducedSamus.PoseMetadata.ReadPoseXDirection(), (byte)runtime.Player.IntroducedSamus.PoseMetadata.ReadMovementType()),
         appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Player.Samus is { InputLocked: false },

@@ -13,9 +13,8 @@ internal static class SamusSlopePhysicsAccess
         /// Values may be 0–20; masking with $1F is part of every native consumer.
         /// </summary>
         internal static byte ReadAlignmentHeight(
-            ISnesAddressSpace bus,
             byte behavior,
             ushort xPosition)
-            => SamusSlopePhysics.ReadAlignmentHeight(bus, new RoomBlockBehavior(behavior), xPosition);
+            => SamusSlopePhysics.ReadAlignmentHeight(new RoomBlockBehavior(behavior), xPosition);
     }
 }

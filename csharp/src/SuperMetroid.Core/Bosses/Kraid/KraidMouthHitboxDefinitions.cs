@@ -41,10 +41,8 @@ internal static class KraidMouthHitboxDefinitions
     /// accepted as hitboxes.
     /// </summary>
     public static (short Left, short Top, short Bottom) ResolveCollision(
-        ISnesAddressSpace bus,
         ushort pointer)
     {
-        Ensure.NotNull(bus);
         if (IsDefined(pointer))
         {
             (short left, short top, _, short bottom) = Resolve(pointer);

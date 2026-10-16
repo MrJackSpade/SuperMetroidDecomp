@@ -16,7 +16,6 @@ public static class SamusSlopePhysics
     /// <summary>
     /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c> at <c>$94:84D6</c>.
     /// </summary>
-    /// <param name="bus">Compatibility address space forwarded to the typed overload for null validation; scaling uses compiled multipliers and performs no cartridge reads.</param>
     /// <param name="behavior">
     /// Native BTS byte. Bits 0–4 choose the profile; bit 7 marks a ceiling slope.
     /// </param>
@@ -26,24 +25,20 @@ public static class SamusSlopePhysics
     /// value suppresses grounded slope scaling exactly as the native routine does.
     /// </param>
     public static int ScaleGroundedHorizontalDisplacement(
-        ISnesAddressSpace bus,
         byte behavior,
         int displacement,
         uint verticalSpeed)
         => ScaleGroundedHorizontalDisplacement(
-            bus,
             new RoomBlockBehavior(behavior),
             displacement,
             verticalSpeed);
 
     /// <summary>Typed BTS overload used by live room collision.</summary>
     public static int ScaleGroundedHorizontalDisplacement(
-        ISnesAddressSpace bus,
         RoomBlockBehavior bts,
         int displacement,
         uint verticalSpeed)
     {
-        Ensure.NotNull(bus);
 
         // Ceiling slopes and airborne Samus leave the incoming amount untouched. This is
         // the routine's complete early-return condition, not a host-side policy choice.
@@ -70,11 +65,9 @@ public static class SamusSlopePhysics
 
     /// <summary>Typed BTS overload used by live room collision.</summary>
     public static byte ReadAlignmentHeight(
-        ISnesAddressSpace bus,
         RoomBlockBehavior bts,
         ushort xPosition)
     {
-        Ensure.NotNull(bus);
 
         // BTS bit $40 mirrors the profile horizontally. XORing the complete coordinate by
         // $000F is equivalent to flipping its low nibble while retaining native word math.
@@ -94,13 +87,11 @@ public static class SamusSlopePhysics
     /// original call immediately after <c>Samus_MoveRight_NoSolidColl</c>.
     /// </remarks>
     public static SlopeAlignmentResult AlignYPosition(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         Position16<RoomPixels> position,
         ushort yRadius,
         bool horizontalSlopeCollisionEnabled = true)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         ushort xPosition = position.X;
         ushort yPosition = position.Y;
@@ -122,7 +113,7 @@ public static class SamusSlopePhysics
             floorBlock = bottom;
             if (!bottom.Bts.SlopeFlipsVertically)
             {
-                int height = ReadAlignmentHeight(bus, bottom.Bts, xPosition);
+                int height = ReadAlignmentHeight(bottom.Bts, xPosition);
                 int bottomNibble = bottomPosition & 15;
                 short correction = unchecked((short)(height - bottomNibble - 1));
                 if (correction < 0)
@@ -143,7 +134,7 @@ public static class SamusSlopePhysics
             ceilingBlock = top;
             if (top.Bts.SlopeFlipsVertically)
             {
-                int height = ReadAlignmentHeight(bus, top.Bts, xPosition);
+                int height = ReadAlignmentHeight(top.Bts, xPosition);
                 int invertedTopNibble = (topPosition & 15) ^ 15;
                 short correction = unchecked((short)(height - invertedTopNibble - 1));
                 if (correction <= 0)

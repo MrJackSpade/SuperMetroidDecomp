@@ -108,9 +108,8 @@ public sealed class HudState
     /// Ports the visible data work of <c>$80:9A79</c> and its first
     /// <c>$80:9B44</c> update for an explicit inventory snapshot.
     /// </summary>
-    public void Initialize(ISnesAddressSpace bus, HudSnapshot snapshot)
+    public void Initialize(HudSnapshot snapshot)
     {
-        Ensure.NotNull(bus);
 
         (presentation ?? throw new InvalidOperationException(
             "HUD initialization requires installed presentation assets.")).ApplyTemplate(_tiles);
@@ -153,12 +152,10 @@ public sealed class HudState
     /// enemy damage from changing physics state while the visible HUD remains frozen at 99.
     /// </summary>
     public void UpdateGameplayCounters(
-        ISnesAddressSpace bus,
         SamusState samus,
         bool timeIsFrozen = false,
         bool soundSuppressed = false)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
@@ -204,7 +201,7 @@ public sealed class HudState
                 presentation?.DeselectedPalette ?? GameplayHudDefinitions.DeselectedPalette);
             _previousSelectedItem = samus.SelectedHudItem;
 
-            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
             SelectionSoundRequestedThisFrame =
                 movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
@@ -216,9 +213,8 @@ public sealed class HudState
     /// Ports the visible 5x3 result of <c>UpdateMinimap</c> at <c>$90:A91B</c> for a
     /// supplied room/map position, including exploration bits and the blinking center tile.
     /// </summary>
-    public void UpdateMinimap(ISnesAddressSpace bus, Bank80SystemState system, MinimapFrame frame)
+    public void UpdateMinimap(Bank80SystemState system, MinimapFrame frame)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");

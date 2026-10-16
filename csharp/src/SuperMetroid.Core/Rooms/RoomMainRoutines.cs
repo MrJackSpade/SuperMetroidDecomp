@@ -99,11 +99,10 @@ internal sealed class RoomMainRoutines
     {
         if (_player.Samus?.Xray.AreAnimatedTilesSuspended == true)
             return;
-        _sandAnimatedTiles.Step(_addressSpace, _vram, _vramWrites);
-        _roomSpikes.Step(_addressSpace, _vram, _vramWrites);
+        _sandAnimatedTiles.Step(_vram, _vramWrites);
+        _roomSpikes.Step(_vram, _vramWrites);
         if (_room.ActiveRoom is not null)
-            _roomTreadmills.Step(_addressSpace,
-                _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), _vramWrites);
+            _roomTreadmills.Step(_system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss), _vramWrites);
         _tourianStatues.StepTiles();
 
         // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
@@ -114,7 +113,6 @@ internal sealed class RoomMainRoutines
             AreaId areaIndex = _room.ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active cartridge room.");
             _wreckedShipTreadmill.Step(
-                _addressSpace,
                 _system.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
                 _vramWrites);
         }

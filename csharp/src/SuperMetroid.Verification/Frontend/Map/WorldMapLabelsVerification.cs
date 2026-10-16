@@ -30,9 +30,9 @@ internal static class WorldMapLabelsVerification
         {
             native.SelectArea(area); installed.SelectArea(area);
             AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
-            var nativeWindow = new FileSelectMapWindow(bus, area,
+            var nativeWindow = new FileSelectMapWindow(area,
                 ReadCartridgeMapWindowMotion(bus, area), original.Labels);
-            var installedWindow = new FileSelectMapWindow(guard, area, original.Labels);
+            var installedWindow = new FileSelectMapWindow(area, original.Labels);
             while (!nativeWindow.IsComplete)
             {
                 AssertEqual((nativeWindow.Left, nativeWindow.Right, nativeWindow.Top, nativeWindow.Bottom),

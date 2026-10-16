@@ -20,7 +20,7 @@ internal static class KraidMouthMappingsVerification
             AssertTrue(KraidMouthHitboxDefinitions.IsDefined(pointer), "Native mouth shape is defined");
             AssertEqual(expected, KraidMouthHitboxDefinitions.Resolve(pointer), "Native mouth shape case");
             AssertEqual((expected.Item1, expected.Item2, expected.Item4),
-                KraidMouthHitboxDefinitions.ResolveCollision(rom, pointer), "Collision uses left/top/bottom only");
+                KraidMouthHitboxDefinitions.ResolveCollision(pointer), "Collision uses left/top/bottom only");
         }
         for (int raw = 0x9787; raw <= 0x97c8; raw++)
         {

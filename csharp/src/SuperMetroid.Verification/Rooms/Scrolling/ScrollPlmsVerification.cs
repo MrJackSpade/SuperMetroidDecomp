@@ -123,7 +123,7 @@ internal static class ScrollPlmsVerification
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
-        ball.PoseMetadata.RefreshCollisionRadii(bus);
+        ball.PoseMetadata.RefreshCollisionRadii();
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
@@ -152,11 +152,11 @@ internal static class ScrollPlmsVerification
             EquippedItems = (ushort)SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
-        bombJump.PoseMetadata.RefreshCollisionRadii(bus);
+        bombJump.PoseMetadata.RefreshCollisionRadii();
         bombJump.Kinematics.YAcceleration = 0;
         bombJump.Kinematics.YSubacceleration = 0;
         bombJump.RequestMorphedBombJump(2);
-        SamusBombJumpMovement.Start(bus, bombJump);
+        SamusBombJumpMovement.Start(bombJump);
         bombJump.Kinematics.YSpeed = 1;
         bombJump.Kinematics.YSubspeed = 0;
         SamusBombJumpMovement.Step(

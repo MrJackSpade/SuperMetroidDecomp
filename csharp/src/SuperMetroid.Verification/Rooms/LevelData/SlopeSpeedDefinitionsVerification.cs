@@ -45,7 +45,7 @@ internal static class SlopeSpeedDefinitionsVerification
             // and discarded high-byte boundaries independently of the middle word.
             int displacement = unchecked((int)(high | (uint)(operand << 8) | (uint)(operand & 255)));
             AssertEqual(NativeScale(displacement, multipliers[shape]),
-                SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, (byte)shape, displacement, 0),
+                SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)shape, displacement, 0),
                 "Native byte truncation, sign and multiplier through real slope movement");
             cases++;
         }
@@ -59,7 +59,7 @@ internal static class SlopeSpeedDefinitionsVerification
         {
             int expected = (raw & 128) != 0 || vertical != 0
                 ? displacement : NativeScale(displacement, multipliers[raw & 31]);
-            AssertEqual(expected, SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, (byte)raw, displacement, vertical),
+            AssertEqual(expected, SamusSlopePhysics.ScaleGroundedHorizontalDisplacement((byte)raw, displacement, vertical),
                 "Every BTS orientation and whole/fractional airborne early return");
         }
         AssertEqual(8388608, cases, "Exhaustive slope multiplier operand coverage");

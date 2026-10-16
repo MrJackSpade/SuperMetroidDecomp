@@ -142,8 +142,8 @@ internal static class MapLoadAnchorsVerification
                         var stations = new byte[Bank80SystemState.MapStationByteCount]; stations[area] = 1;
                         system.LoadMapStationBytes(stations);
                     }
-                    var native = new FileSelectMapScroll(bus, SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
-                    var compiled = new FileSelectMapScroll(guard, catalog.Get(typedArea), system, actual);
+                    var native = new FileSelectMapScroll(SuperMetroid.AssetExtraction.Frontend.Map.AreaMapImporter.Load(bus, typedArea), system, expected);
+                    var compiled = new FileSelectMapScroll(catalog.Get(typedArea), system, actual);
                     AssertEqual(ScrollState(native), ScrollState(compiled), "compiled anchors retain bounds and initial clipping for empty/sparse/full/downloaded maps");
                     foreach (SnesButton input in MapScrollControls.Buttons)
                         for (int tick = 0; tick < 40; tick++)

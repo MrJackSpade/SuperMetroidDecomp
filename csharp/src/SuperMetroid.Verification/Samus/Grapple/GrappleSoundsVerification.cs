@@ -20,9 +20,9 @@ internal static class GrappleSoundsVerification
         var air = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(), new byte[256], new ushort[256]), new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         PrepareRetailSamusFixture(samus);
-        SamusGrappleMovement.BeginFiring(bus, samus);
+        SamusGrappleMovement.BeginFiring(samus);
         AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 5), 1),
             samus.LiquidPhysics.SoundRequests.Single(), "grapple firing starts native library-one sound five once");
         samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -35,7 +35,7 @@ internal static class GrappleSoundsVerification
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();
             samus.Pose = SamusPoseId.GrappleSwingRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Grapple.Phase = phase;
             if (phase == GrapplePhase.CancelPending)
                 SamusGrappleMovement.CompleteFiringCancellation(bus, air, samus);

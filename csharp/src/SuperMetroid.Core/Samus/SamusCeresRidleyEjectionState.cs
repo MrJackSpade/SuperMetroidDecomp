@@ -77,14 +77,14 @@ public sealed class SamusCeresRidleyEjectionState
             // refreshes the animation. InitializeSamusPose_1 does not publish the hurt pose's
             // radius, so the `21 - radius` alignment uses the source pose's live radius; the
             // ordinary pose epilogue publishes radius 21 on the following frame.
-            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection(bus) == 4;
+            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection() == 4;
             samus.Pose = facingLeft
                 ? SamusPoseId.KnockbackLeftPose
                 : SamusPoseId.KnockbackRightPose;
             samus.Presentation.InitializeAnimation(bus);
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
                 samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y))));
 
@@ -109,8 +109,7 @@ public sealed class SamusCeresRidleyEjectionState
         horizontalSpeed.SelectEnvironmentSpeedTable(
             samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
-            bus,
-            samus.PoseMetadata.ReadMovementType(bus));
+            samus.PoseMetadata.ReadMovementType());
         var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
@@ -118,7 +117,7 @@ public sealed class SamusCeresRidleyEjectionState
         {
             // MoveSamus_Left/Right end in Kill_SamusXSpeed_IfCollisionDetected ($90:E5CE),
             // which cancels speed boosting and clears the extra-run words as well.
-            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
             // `$90:E1FD/$E21C` restore the ordinary handlers, then
             // HandleKnockbackVerticalCollision ($90:DF6E) sees the still-set collision flag,
             // clears the movement words and aligns the feet to the previous pose. The push

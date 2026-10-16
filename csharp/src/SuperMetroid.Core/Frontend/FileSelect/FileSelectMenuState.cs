@@ -63,7 +63,7 @@ public sealed class FileSelectMenuState
         this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.mapPresentation = mapPresentation;
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes,
+        ppu = new MenuPpuState(mapPresentation?.Tiles, mapPresentation?.Palettes,
             mapPresentation?.WorldArtwork, mapPresentation?.Sprites,
             loadInitialBackground: mapPresentation is null);
         if (mapPresentation is not null)

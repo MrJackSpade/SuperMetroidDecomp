@@ -42,7 +42,7 @@ internal static class FallingSpeedRecurrenceVerification
             for (int frame = 0; frame < 20; frame++)
             {
                 uint expected = (frame & 1) == 0 ? 0x10000u : 0x1c000u;
-                var result = speed.CalculateBaseSpeedDecelerationDisallowed(bus, SamusMovementType.Falling);
+                var result = speed.CalculateBaseSpeedDecelerationDisallowed(SamusMovementType.Falling);
                 AssertEqual(expected, result.Speed, $"retail falling speed medium={medium} frame={frame}");
                 AssertEqual(expected, speed.BaseFixed, "falling speed persists the CPU-observed recurrence");
                 AssertEqual(2, speed.AccelerationMode, "aerial mode two does not become a deceleration mode");

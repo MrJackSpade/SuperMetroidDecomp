@@ -45,10 +45,10 @@ internal static class PowerBombRuntimeIntegrationVerification
         explosion.Arm();
         explosion.Spawn(
             new(PowerBombRuntimeVerificationDefinitions.ScreenCenterX, PowerBombRuntimeVerificationDefinitions.ScreenCenterY));
-        explosion.StepFrame(bus);
+        explosion.StepFrame();
         AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
             "HDMA allocation setup does not draw the first flash prematurely");
-        explosion.StepFrame(bus);
+        explosion.StepFrame();
         // The window table is read during display, but the pre-instruction's COLDATA
         // write reaches the PPU only with the following accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(controller1Input: 0);

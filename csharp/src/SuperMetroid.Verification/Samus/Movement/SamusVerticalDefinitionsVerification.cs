@@ -45,8 +45,8 @@ internal static class SamusVerticalDefinitionsVerification
                 samus.Kinematics.YAcceleration = 999;
                 samus.Kinematics.YSubacceleration = 999;
                 if (launch == 2) SamusAerialMovement.InitializeDryAirJump(guard, samus);
-                else if (launch == 1) SamusAerialMovement.InitializeWallJump(guard, samus);
-                else SamusAerialMovement.InitializeJump(guard, samus);
+                else if (launch == 1) SamusAerialMovement.InitializeWallJump(samus);
+                else SamusAerialMovement.InitializeJump(samus);
                 AssertEqual(unchecked((ushort)(whole + (boost ? raw >> 1 : 0))), samus.Kinematics.YSpeed, "Native independent whole launch addition");
                 AssertEqual(unchecked((ushort)(fraction + (boost ? raw : 0))), samus.Kinematics.YSubspeed, "Native fractional overflow does not carry");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea7 + medium * 2)), samus.Kinematics.YAcceleration, "Native gravity whole word");

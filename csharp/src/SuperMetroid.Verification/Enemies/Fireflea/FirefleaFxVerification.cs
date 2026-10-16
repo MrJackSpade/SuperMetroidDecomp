@@ -40,12 +40,12 @@ internal static class FirefleaFxVerification
         Suite(nameof(VerifyFirefleaFlashingAlgorithm), () => VerifyFirefleaFlashingAlgorithm(rom));
         Suite(nameof(VerifyFirefleaDarknessAlgorithm), () => VerifyFirefleaDarknessAlgorithm(rom));
         Suite(nameof(VerifyFirefleaFrozenDarkness), VerifyFirefleaFrozenDarkness);
-        fx.Load(bus, vram, new SnesCgram(), record, 0, 0);
+        fx.Load(vram, new SnesCgram(), record, 0, 0);
         AssertEqual(FirefleaFxDefinitions.FlashDuration, fx.Fireflea.Timer, "Fireflea load initializes native six-frame timer");
         AssertTrue(!fx.IsRenderable, "Fireflea darkness does not invent a BG3 texture");
         for (int frame = 1; frame <= 144; frame++)
         {
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             int expectedIndex = (frame / 6) % 12;
             int shade = SnesLittleEndian.HighByte(flash[expectedIndex]);
             AssertEqual((ushort)expectedIndex, fx.Fireflea.Index, $"Fireflea index frame {frame}");
@@ -55,16 +55,16 @@ internal static class FirefleaFxVerification
         }
         ushort timer = fx.Fireflea.Timer;
         byte red = fixedColor.Red;
-        for (int frame = 0; frame < 100; frame++) fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
+        for (int frame = 0; frame < 100; frame++) fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
         AssertEqual(timer, fx.Fireflea.Timer, "X-ray frozen time retains flashing phase");
         AssertEqual(red, fixedColor.Red, "X-ray frozen time retains fixed color");
         AssertEqual(LayerBlendingConfiguration.Fireflea, fx.LayerBlendConfiguration, "frozen Fireflea still selects blending");
         for (ushort level = 0; level <= 12; level += 2)
         {
-            fx.Load(bus, vram, new SnesCgram(), record, 0, 0);
+            fx.Load(vram, new SnesCgram(), record, 0, 0);
             for (int frame = 1; frame <= 78; frame++)
             {
-                fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
+                fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
                 int index = level < 10 ? frame / 6 % 12 : frame < 6 ? 0 : 6;
                 byte shade = SnesLittleEndian.HighByte((ushort)(darkness[level / 2] + flash[index]));
                 AssertEqual(shade | 0x20, fixedColor.Red, $"death offset {level}, frame {frame}: red");
@@ -73,14 +73,14 @@ internal static class FirefleaFxVerification
                 AssertEqual(level, fx.Fireflea.Darkness, "enemy death offset reaches the Fireflea FX state");
             }
             byte retained = fixedColor.Red;
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
             AssertEqual(retained, fixedColor.Red, "frozen death level retains its exact shade");
         }
         // Removing the effect must stop its producer, not let the old flashing timer
         // keep changing a subsequent room's fixed color.
-        fx.Load(bus, vram, new SnesCgram(), 0, 0, 0);
+        fx.Load(vram, new SnesCgram(), 0, 0, 0);
         fixedColor.Red = 0x25;
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(0x25, fixedColor.Red, "non-Fireflea room does not execute the old producer");
         if (includeXrayCapture) VerifyFirefleaXrayCapture();
         Console.WriteLine("  Fireflea FX: compiled native shades, ROM-read guard, initialization, flash cycles, all seven death offsets, COLDATA order and frozen-time retention agree.");
@@ -134,12 +134,12 @@ internal static class FirefleaFxVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
-        runtime.RoomLayer3Fx.Step(bus, runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = 6 });
+        runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = 6 });
         byte shade = runtime.RoomLayer3Fx.FixedColors.Snapshot().RedIntensity;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The blend selector and COLDATA shadows reach the PPU at the accepted NMI (#1307).
@@ -154,7 +154,7 @@ internal static class FirefleaFxVerification
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && !darkLayer.AddSubscreen,
             "ordinary Fireflea keeps both room maps and subtracts fixed color");
-        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
+        AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(packet.Layers[0] is GameplayColorMathRenderLayer, "Fireflea capture uses source-aware X-ray compositor");

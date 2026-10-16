@@ -120,13 +120,13 @@ internal sealed class InstalledSamusIsolationTests
             Samus.Presentation.TileTransfers.BindArtwork(Body);
             Samus.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
-            Samus.PoseMetadata.RefreshCollisionRadii(Memory);
+            Samus.PoseMetadata.RefreshCollisionRadii();
             Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
             Samus.Presentation.InitializeAnimation(Memory);
-            Samus.CommitPoseHistory(Memory);
+            Samus.CommitPoseHistory();
             if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
             else if (medium == SamusLiquidMedium.LavaOrAcid) Samus.LiquidPhysics.ConfigureLavaAcid(0);
-            Samus.Presentation.LoadSuitPalette(Memory, Colors);
+            Samus.Presentation.LoadSuitPalette(Colors);
             var blocks = new ushort[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
             {
@@ -197,11 +197,11 @@ internal sealed class InstalledSamusIsolationTests
             aFrame.BeginFrame(); bFrame.BeginFrame();
             ushort cameraX = (ushort)Math.Max(0, Stock.Samus.Position.X.Whole - 128);
             ushort cameraY = (ushort)Math.Max(0, Stock.Samus.Position.Y.Whole - 128);
-            bool visible = Stock.Samus.Presentation.Draw(Stock.Memory, aFrame, new(cameraX, cameraY), frame);
-            Require(visible == Edited.Samus.Presentation.Draw(Edited.Memory, bFrame, new(cameraX, cameraY), frame),
+            bool visible = Stock.Samus.Presentation.Draw(aFrame, new(cameraX, cameraY), frame);
+            Require(visible == Edited.Samus.Presentation.Draw(bFrame, new(cameraX, cameraY), frame),
                 context + ": visibility changed");
-            Stock.Samus.Presentation.TileTransfers.TransferToVram(Stock.Memory, Stock.Tiles);
-            Edited.Samus.Presentation.TileTransfers.TransferToVram(Edited.Memory, Edited.Tiles);
+            Stock.Samus.Presentation.TileTransfers.TransferToVram(Stock.Tiles);
+            Edited.Samus.Presentation.TileTransfers.TransferToVram(Edited.Tiles);
             beforeStock.RequireSame(new(Stock.Samus), context + ": stock draw mutated mechanics");
             beforeEdited.RequireSame(new(Edited.Samus), context + ": edited draw mutated mechanics");
             Check(context + " after draw");
@@ -265,7 +265,7 @@ internal sealed class InstalledSamusIsolationTests
         pair.Apply(context + " airborne setup", actor =>
         {
             actor.Samus.Position -= new Offset16<RoomPixels>(0, 80);
-            SamusAerialMovement.ConfigureEnvironmentGravity(actor.Memory, actor.Samus);
+            SamusAerialMovement.ConfigureEnvironmentGravity(actor.Samus);
             actor.Samus.Drained.LetFall(actor.Memory, actor.Samus);
         });
         bool fell = false;
@@ -278,19 +278,19 @@ internal sealed class InstalledSamusIsolationTests
                 if (actor.Samus.Drained.Phase == DrainedSamusPhase.Falling)
                     actor.Samus.Drained.StepFalling(actor.Memory, actor.Level, actor.Samus, frame);
                 Animate(actor, frame);
-                actor.Samus.Drained.UpdatePalette(actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits);
+                actor.Samus.Drained.UpdatePalette(actor.Colors, actor.Samus.EquippedItems, actor.Suits);
             });
             fell |= pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.Falling;
         }
         Require(fell && pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.OnFloor,
             context + ": animation command must install falling and terrain collision must end it");
-        pair.Apply(context + " stand", actor => actor.Samus.Drained.PutStanding(actor.Memory, actor.Samus));
+        pair.Apply(context + " stand", actor => actor.Samus.Drained.PutStanding(actor.Samus));
         for (ushort frame = 0; frame < 24; frame++)
             pair.Apply(context + $" standing {frame}", actor => Animate(actor, frame));
-        pair.Apply(context + " crouch", actor => actor.Samus.Drained.PutCrouchingOrFalling(actor.Memory, actor.Samus));
+        pair.Apply(context + " crouch", actor => actor.Samus.Drained.PutCrouchingOrFalling(actor.Samus));
         for (ushort frame = 0; frame < 24; frame++)
             pair.Apply(context + $" crouching {frame}", actor => Animate(actor, frame));
-        pair.Apply(context + " release", actor => actor.Samus.Drained.Release(actor.Memory, actor.Samus));
+        pair.Apply(context + " release", actor => actor.Samus.Drained.Release(actor.Samus));
         CompleteAnimation(pair, left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             context + " released");
         Require(pair.Stock.Samus.Drained.Phase == DrainedSamusPhase.Inactive,
@@ -317,7 +317,7 @@ internal sealed class InstalledSamusIsolationTests
             for (ushort frame = 0; frame < 24; frame++)
                 pair.Apply(label + $" run {frame}", actor =>
                 {
-                    actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                    actor.Samus.PoseMetadata.RefreshCollisionRadii();
                     GroundedMovementResult result = left
                         ? SamusGroundedMovement.StepRunningLeft(actor.Memory, actor.Level, actor.Samus, frame,
                             (SnesButton.Left | SnesButton.B))
@@ -330,7 +330,7 @@ internal sealed class InstalledSamusIsolationTests
             pair.Apply(label + " turn admission", actor => actor.Samus.PoseTransitions.ApplyGroundedTurn(actor.Memory,
                 left ? SamusPoseId.TurningLeftToRightPose : SamusPoseId.TurningRightToLeftPose));
             int turnFrames = 0;
-            while (pair.Stock.Samus.PoseMetadata.ReadMovementKind(pair.Stock.Memory) == SamusMovementType.TurningOnGround && turnFrames < 120)
+            while (pair.Stock.Samus.PoseMetadata.ReadMovementKind() == SamusMovementType.TurningOnGround && turnFrames < 120)
             {
                 ushort frame = (ushort)turnFrames++;
                 pair.Apply(label + $" turn {frame}", actor =>
@@ -350,7 +350,7 @@ internal sealed class InstalledSamusIsolationTests
             for (ushort frame = 0; frame < 8; frame++)
                 hurt.Apply(label + $" knockback {frame}", actor =>
                 {
-                    actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                    actor.Samus.PoseMetadata.RefreshCollisionRadii();
                     var result = SamusKnockbackMovement.Step(actor.Memory, actor.Level, actor.Samus, frame);
                     Animate(actor, frame);
                     return result;
@@ -372,7 +372,7 @@ internal sealed class InstalledSamusIsolationTests
         {
             AerialMovementResult result = pair.Apply(label + $" frame {frame}", actor =>
             {
-                actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                actor.Samus.PoseMetadata.RefreshCollisionRadii();
                 var movement = SamusAerialMovement.StepNormalJump(actor.Memory, actor.Level, actor.Samus,
                     SnesButton.A, frame);
                 Animate(actor, frame);
@@ -426,7 +426,7 @@ internal sealed class InstalledSamusIsolationTests
     private static void Animate(Actor actor, ushort frame)
     {
         actor.Samus.Presentation.AnimateNoFx(actor.Memory, new SamusAnimationStep { NmiFrameCounter = frame });
-        if (actor.Samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Memory)) actor.Samus.CommitPoseHistory(actor.Memory);
+        if (actor.Samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(actor.Memory)) actor.Samus.CommitPoseHistory();
     }
 
     /// <summary>Advances both animations to an authored target pose within the bounded transition lifetime.</summary>
@@ -435,7 +435,7 @@ internal sealed class InstalledSamusIsolationTests
         for (ushort frame = 0; frame < 120 && pair.Stock.Samus.Pose != target; frame++)
             pair.Apply(context + $" frame {frame}", actor =>
             {
-                actor.Samus.PoseMetadata.RefreshCollisionRadii(actor.Memory);
+                actor.Samus.PoseMetadata.RefreshCollisionRadii();
                 Animate(actor, frame);
             });
         Require(pair.Stock.Samus.Pose == target, context + ": authored animation transition did not finish");
@@ -488,9 +488,9 @@ internal sealed class InstalledSamusIsolationTests
             ushort frame = (ushort)frames++;
             pair.Apply(context + $" frame {frame}", actor =>
             {
-                var result = actor.Samus.CrystalFlash.Step(actor.Memory, actor.Samus, frame);
+                var result = actor.Samus.CrystalFlash.Step(actor.Samus, frame);
                 Animate(actor, frame);
-                actor.Samus.CrystalFlash.UpdatePalette(actor.Memory, actor.Colors, actor.Samus, beams, actor.Crystal);
+                actor.Samus.CrystalFlash.UpdatePalette(actor.Colors, actor.Samus, beams, actor.Crystal);
                 return result;
             });
             if (frames == 10) Require(pair.Stock.Samus.Position.Y.Whole == initialY - 20,
@@ -524,7 +524,7 @@ internal sealed class InstalledSamusIsolationTests
             "Stored shine was not admitted");
         for (int frame = 0; frame < 180; frame++)
             pair.Apply($"stored shine palette {frame}", actor => actor.Samus.Shinespark.UpdatePalette(
-                actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles));
+                actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles));
         Require(pair.Stock.Samus.Shinespark.Phase == ShinesparkPhase.Inactive && pair.Stock.Samus.Shinespark.ShineTimer.IsZero,
             "Edited stored-shine colors must retain the 180-call expiration");
     }
@@ -559,7 +559,7 @@ internal sealed class InstalledSamusIsolationTests
             {
                 var result = actor.Samus.Shinespark.Step(new SamusTerrain { Bus = actor.Memory, Level = actor.Level }, actor.Samus, new ShinesparkFrame { NmiFrameCounter = frame, GameTimeFrames = frame });
                 Animate(actor, frame);
-                actor.Samus.Shinespark.UpdatePalette(actor.Memory, actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles);
+                actor.Samus.Shinespark.UpdatePalette(actor.Colors, actor.Samus.EquippedItems, actor.Suits, actor.Cycles);
                 return result;
             });
         }
@@ -613,9 +613,9 @@ internal sealed class InstalledSamusIsolationTests
             {
                 var before = new SamusMechanicsSnapshot(pair.Stock.Samus);
                 OamBuffer a = SpriteFrameBuffer.DrawnOam(frame =>
-                    pair.Stock.Samus.DeathSequence.DrawExplosion(pair.Stock.Memory, frame, pair.Stock.Body.Spritemaps, pair.Stock.Body.DeathTiles));
+                    pair.Stock.Samus.DeathSequence.DrawExplosion(frame, pair.Stock.Body.Spritemaps, pair.Stock.Body.DeathTiles));
                 OamBuffer b = SpriteFrameBuffer.DrawnOam(frame =>
-                    pair.Edited.Samus.DeathSequence.DrawExplosion(pair.Edited.Memory, frame, pair.Edited.Body.Spritemaps, pair.Edited.Body.DeathTiles));
+                    pair.Edited.Samus.DeathSequence.DrawExplosion(frame, pair.Edited.Body.Spritemaps, pair.Edited.Body.DeathTiles));
                 before.RequireSame(new(pair.Stock.Samus), context + ": death draw mutated state");
                 pair.Check(context + " explosion draw");
                 draws++;

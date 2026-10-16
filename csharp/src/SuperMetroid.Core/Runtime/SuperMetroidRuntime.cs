@@ -556,7 +556,7 @@ public sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            RoomLayer3Fx.Step(_addressSpace, Vram, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = RoomLayer3Fx.MovesLiquidInHdmaPass });
+            RoomLayer3Fx.Step(Vram, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = RoomLayer3Fx.MovesLiquidInHdmaPass });
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -611,7 +611,7 @@ public sealed class SuperMetroidRuntime
         if (RoomPaletteFx.HandlerEnabled && !Enemies.Elevator.ElevatorDoorTransitionActive &&
             Player.Samus?.Xray.ArePaletteFxSuspended != true)
         {
-            RoomPaletteFx.Step(_addressSpace, Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
+            RoomPaletteFx.Step(Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Enemies.SlotTable.Slots.Count == 0 || Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Clock.Counter }, BombProjectiles.PowerBombExplosion);
         }
@@ -619,7 +619,6 @@ public sealed class SuperMetroidRuntime
         if (RoomPaletteFx.HandlerEnabled)
         {
             Player.Samus?.Drained.HyperBeamPaletteFx.Step(
-                _addressSpace,
                 Cgram,
                 Artwork.BeamArtwork?.HyperBeamFxColors);
         }
@@ -750,7 +749,7 @@ public sealed class SuperMetroidRuntime
         {
             Enemies.Projectiles.ResolveEnemyProjectileSamusHits(samus);
             Enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
-                _addressSpace, Projectiles, BombProjectiles);
+                Projectiles, BombProjectiles);
             // GameState_8 calls `$A0:A306` every gameplay frame after the enemy-
             // projectile passes. The native routine reads the high byte of live WRAM
             // radius `$0CEE`; a zero byte is its own inactive/pre-explosion guard.
@@ -759,7 +758,6 @@ public sealed class SuperMetroidRuntime
             SamusPowerBombExplosionState powerBomb =
                 BombProjectiles.PowerBombExplosion;
             Enemies.Collision.ResolveOrdinaryPowerBombHits(
-                _addressSpace,
                 powerBomb.Position,
                 SnesUnsignedEightEight.Whole(powerBomb.ExplosionRadius),
                 samus);
@@ -821,9 +819,9 @@ public sealed class SuperMetroidRuntime
                     currentCameraPoint,
                     new HorizontalCameraContext(
                         KnockbackDirection: samus.KnockbackDirection,
-                        MovementType: samus.PoseMetadata.ReadMovementType(_addressSpace),
+                        MovementType: samus.PoseMetadata.ReadMovementType(),
                         XAccelerationMode: samus.HorizontalSpeed.AccelerationMode,
-                        PoseXDirection: samus.PoseMetadata.ReadPoseXDirection(_addressSpace),
+                        PoseXDirection: samus.PoseMetadata.ReadPoseXDirection(),
                         CameraDistanceIndex: Enemies.RoomMainHooks.ZebetiteCameraDistanceIndex));
                 camera.TrackMovedSamusVertically(
                     previousCameraPoint,
@@ -857,7 +855,7 @@ public sealed class SuperMetroidRuntime
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
             // map, so only tiles actually visited by this runtime are revealed.
-            Hud.UpdateMinimap(_addressSpace, System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, NmiFrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+            Hud.UpdateMinimap(System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = Room.LevelData.Size, Samus = samus.Position.Whole, NmiFrameCounter = Clock.Counter8, MapRevealMode = Options.MapRevealMode, PresentationMap = Artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
         }
     }
 
@@ -915,7 +913,7 @@ public sealed class SuperMetroidRuntime
             // Native PLM_Handler has not returned while a pickup message is open.
             // Its newly granted inventory reaches the HUD only after that return.
             if (Player.Samus is not null && !Plms.CollectiblePlms.HasPendingCollectibleMessage)
-                Hud.UpdateGameplayCounters(_addressSpace, Player.Samus, Freeze.TimeIsFrozen,
+                Hud.UpdateGameplayCounters(Player.Samus, Freeze.TimeIsFrozen,
                     soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             Hud.QueueUpload(VramWrites);
         }
@@ -1040,7 +1038,7 @@ public sealed class SuperMetroidRuntime
             PowerBombRenderSnapshot.Capture(BombProjectiles.PowerBombExplosion),
             GameplayMessageBoxRenderer.Capture(MessageBox, Artwork.HudCharacters),
             SuitPickup.IsActive ? SuitPickup.Beam : null,
-            SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep, _addressSpace),
+            SamusXrayDisplaySnapshot.Capture(Player.Samus, Player.LastXrayBeamStep),
             TourianStatues.Enabled);
         return new(Display.Latched, frameEnd, PpuMemorySnapshot.Capture(Vram, Cgram, DisplayedSprites));
     }

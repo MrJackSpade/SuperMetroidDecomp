@@ -22,7 +22,7 @@ internal static class WallJumpExpansionVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(left ? (ushort)119 : (ushort)137, 127)),
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1000);
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
             ushort beforeX = samus.Position.X.Whole;
             samus.PoseTransitions.ApplyWallJumpTrigger(bus, room);

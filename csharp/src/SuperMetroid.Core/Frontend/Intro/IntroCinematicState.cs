@@ -300,7 +300,7 @@ public sealed class IntroCinematicState
 
         // $8B:A3AC performs the ordinary beam palette load before copying the full intro palette, which
         // replaces it; the flashback projectile pages bind the beam's characters.
-        SamusProjectileSystem.LoadBeamPalette(bus, cgram, equippedBeams: 0, beamArtwork?.Palettes);
+        SamusProjectileSystem.LoadBeamPalette(cgram, equippedBeams: 0, beamArtwork?.Palettes);
         characterArtwork.Palette.LoadTo(cgram);
 
         // The PPU loads above are invisible: the intro stays in forced blank until its fade.
@@ -601,7 +601,7 @@ public sealed class IntroCinematicState
         {
             // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
             // Pose commits at the end of the previous frame deliberately leave it unchanged.
-            flashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
+            flashbackSamus.PoseMetadata.RefreshCollisionRadii();
 
             // $90:E91D runs DemoInputObjectHandler inside Samus's current-state handler,
             // after the cinematic function, so a demo loaded by $8B:AEB8 plays its first
@@ -626,7 +626,7 @@ public sealed class IntroCinematicState
             // the next dispatch on.
             if (!flashbackMotherBrain.IsVisible)
                 flashbackSamusDisplay = IntroSamusDisplay.Hidden;
-            if (flashbackProjectiles.EnemyImpacts.TryImpactIntroMotherBrainMissile(bus, flashbackBombProjectiles))
+            if (flashbackProjectiles.EnemyImpacts.TryImpactIntroMotherBrainMissile(flashbackBombProjectiles))
             {
                 bool fourthHit = flashbackMotherBrain.RegisterMissileHit();
                 if (fourthHit)
@@ -640,7 +640,6 @@ public sealed class IntroCinematicState
         if (flashbackRinkas is not null && flashbackSamus is not null)
         {
             flashbackRinkas.Step(
-                bus,
                 flashbackSamus,
                 motherBrainExploding: flashbackMotherBrain?.ExplosionStarted == true,
                 explosionsAllocated: flashbackMotherBrainExplosions is not null);
@@ -685,14 +684,14 @@ public sealed class IntroCinematicState
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         flashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
         flashbackSamus.Presentation.TileTransfers.BindArtwork(samusBodyArtwork);
-        flashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
+        flashbackSamus.PoseMetadata.RefreshCollisionRadii();
         flashbackSamus.Presentation.InitializeAnimation(bus);
-        flashbackSamus.CommitPoseHistory(bus);
-        flashbackSamus.Presentation.PrimeGraphics(bus);
+        flashbackSamus.CommitPoseHistory();
+        flashbackSamus.Presentation.PrimeGraphics();
         // The native NMI consumes the freshly selected top/bottom definitions before the
         // next displayed OAM image. Apply that dedicated DMA now so the first host-rendered
         // flashback frame names initialized OBJ characters rather than stale intro art.
-        flashbackSamus.Presentation.TileTransfers.TransferToVram(bus, vram);
+        flashbackSamus.Presentation.TileTransfers.TransferToVram(vram);
         flashbackMotherBrain = new IntroMotherBrainSpriteState();
         flashbackMotherBrainExplosions = null;
         flashbackRinkas = new IntroRinkaSystem();
@@ -796,7 +795,7 @@ public sealed class IntroCinematicState
         // text-to-gameplay palette crossfade as the Mother Brain scene.
         babyDiscovery = new IntroBabyDiscoveryState(bus, audio, flashbackSamus
             ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."));
-        babyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
+        babyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(vram);
 
         // The old gameplay objects have reached their delete lists. Releasing the scoped
         // references prevents their projectile/collision handlers from running behind the
@@ -1039,7 +1038,7 @@ public sealed class IntroCinematicState
         // Accepted NMI transfers the definitions selected by the previous Samus draw. This
         // is what makes pose/frame changes use their corresponding ROM graphics rather than
         // interpreting stale standing tiles as a hurt body on the next visible frame.
-        samus.Presentation.TileTransfers.TransferToVram(bus, vram);
+        samus.Presentation.TileTransfers.TransferToVram(vram);
 
         AerialMovementResult? fallingMovement = null;
         BlockMoveResult? hurtEndingProbe = null;
@@ -1098,12 +1097,12 @@ public sealed class IntroCinematicState
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
         bool animationTransitionApplied = samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(bus);
-        animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, samus);
+        animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(samus);
         transitionAccepted |= animationTransitionApplied;
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(bus), nmiFrameCounter);
+            samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), nmiFrameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1131,12 +1130,12 @@ public sealed class IntroCinematicState
         // and hurt interruption. Publish only the final accepted pose, once per slot;
         // an unchanged animation frame must not erase the preceding transition history.
         if (transitionAccepted)
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
 
         // `$90:E84D` runs the ordinary Samus palette handler even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
         // invincibility flicker remains independently enforced by Samus.Draw.
-        SamusHurtFlashPalette.Update(bus, cgram, samus, demoInput, samusHurtColors);
+        SamusHurtFlashPalette.Update(cgram, samus, demoInput, samusHurtColors);
 
         // `$8B:8E0D` ages the two hit words after both Samus state handlers, but before the
         // cinematic-object walker can publish a new Rinka collision later in this frame.
@@ -1156,10 +1155,10 @@ public sealed class IntroCinematicState
         // this scoped frontend yet; freezing input after the exact pose change has the same
         // observable contract for the remaining Mother Brain explosion frames.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
-        FlashbackSamus.PoseMetadata.RefreshCollisionRadii(bus);
+        FlashbackSamus.PoseMetadata.RefreshCollisionRadii();
         // $91:874B: a Samus already in pose two keeps her running animation.
         FlashbackSamus.Presentation.SetAnimationFrameIfPoseChanged(bus);
-        FlashbackSamus.CommitPoseHistory(bus);
+        FlashbackSamus.CommitPoseHistory();
         FlashbackDemoInput.Disable();
     }
 
@@ -1194,13 +1193,13 @@ public sealed class IntroCinematicState
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(bus, sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+            FlashbackSamus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
             // The flashback's VRAM holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(ProjectileCompositions, projectilePages, EquippedBeams: 0);
-            flashbackProjectiles.DrawLiveProjectiles(bus, sprites, Position16<RoomPixels>.Zero, nmiFrameCounter, projectileArtwork);
-            flashbackProjectiles.AdvanceTrails(bus, timeIsFrozen: false, TrailArtwork);
+            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, nmiFrameCounter, projectileArtwork);
+            flashbackProjectiles.AdvanceTrails(timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, TrailArtwork, projectileArtwork);
-            flashbackProjectiles.DrawExplosions(bus, sprites, Position16<RoomPixels>.Zero, projectileArtwork);
+            flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
         }
         flashbackRinkas?.Draw(oam, characterArtwork?.RinkaSprites);
         flashbackMotherBrainExplosions?.Draw(oam,
@@ -1246,8 +1245,8 @@ public sealed class IntroCinematicState
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        BabyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(bus, vram);
-        BabyDiscovery.Samus.Presentation.Draw(bus, sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+        BabyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(vram);
+        BabyDiscovery.Samus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>

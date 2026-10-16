@@ -37,10 +37,10 @@ internal static class KraidHeadInstructionsVerification
             () => KraidHeadInstructionDefinitions.Resolve(0x9788),
             "Kraid head catalog rejects following mouth geometry");
         AssertThrows<InvalidDataException>(
-            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x8000),
+            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(0x8000),
             "Kraid head tilemap resolver rejects unrelated upper-ROM code");
         AssertThrows<InvalidDataException>(
-            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x3ffe),
+            () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(0x3ffe),
             "Kraid head selection rejects a low-half pointer");
 
         Console.WriteLine(

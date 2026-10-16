@@ -15,7 +15,7 @@ internal static class ProjectileOriginsVerification
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var bus = new ProjectileOriginReadGuard(rom);
-        var initialize = new Action<ISnesAddressSpace, SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
+        var initialize = new Action<SamusState, SamusProjectileSlot>(BeamFiring.InitializePosition);
         var samus = new SamusState();
         var slot = new SamusProjectileSlot(0);
 
@@ -27,7 +27,7 @@ internal static class ProjectileOriginsVerification
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
             short dy = Word((running ? 0x90c240 : 0x90c218) + offset);
             byte correction = rom.ReadCartridgeByte(0x91b629 + (int)pose * 8 + 4);
-            initialize(bus, samus, slot);
+            initialize(samus, slot);
             AssertEqual(unchecked((ushort)(x + dx)), slot.Position.X.Whole, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.Position.Y.Whole, "Physical muzzle Y follows native signed origin and unsigned pose correction");
             AssertEqual(direction, slot.Direction, "Origin lookup does not rewrite lifecycle/direction bits");

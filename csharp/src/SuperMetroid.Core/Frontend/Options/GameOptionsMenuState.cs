@@ -70,7 +70,7 @@ public sealed class GameOptionsMenuState
         this.audio = audio;
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");
-        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, mapPresentation.Sprites, loadInitialBackground: false);
         mapPresentation.GameOptions.LoadBackground(ppu.Vram);
 

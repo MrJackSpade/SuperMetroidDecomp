@@ -47,7 +47,7 @@ internal static class ReserveAutoFrontendVerification
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = 1;
@@ -95,7 +95,7 @@ internal static class ReserveAutoFrontendVerification
         // Seed the display at the pre-transfer health. Each subsequent gameplay
         // pass queues its HUD update for the next accepted NMI, including while
         // automatic recovery freezes movement. Inspect presentation, not just HP.
-        runtime.Hud.UpdateGameplayCounters(bus, samus);
+        runtime.Hud.UpdateGameplayCounters(samus);
         runtime.Hud.QueueUpload(runtime.VramWrites);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, Rgba32[]>();

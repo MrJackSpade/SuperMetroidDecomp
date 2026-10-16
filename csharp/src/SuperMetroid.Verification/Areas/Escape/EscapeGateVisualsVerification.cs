@@ -130,7 +130,7 @@ internal static class EscapeGateVisualsVerification
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(closing.DoorPlms.TrySpawnDoorClosingPlm(guarded, closingLevel,
+        AssertTrue(closing.DoorPlms.TrySpawnDoorClosingPlm(closingLevel,
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)

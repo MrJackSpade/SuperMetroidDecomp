@@ -62,8 +62,8 @@ internal static class GameplayHudPresentationVerification
         var installed = new HudState();
         native.BindPresentation(presentation);
         installed.BindPresentation(presentation);
-        native.Initialize(bus, snapshot);
-        installed.Initialize(guard, snapshot);
+        native.Initialize(snapshot);
+        installed.Initialize(snapshot);
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed HUD template, icons, tanks, counters, AUTO and highlight match native");
 
@@ -82,8 +82,8 @@ internal static class GameplayHudPresentationVerification
             ReserveEnergy = 25,
             ReserveTankMode = 1,
         };
-        native.UpdateGameplayCounters(bus, samus);
-        installed.UpdateGameplayCounters(guard, samus);
+        native.UpdateGameplayCounters(samus);
+        installed.UpdateGameplayCounters(samus);
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed live HUD updates match native without presentation ROM reads");
         AssertEqual(native.SelectionSoundRequestedThisFrame, installed.SelectionSoundRequestedThisFrame,
@@ -93,8 +93,8 @@ internal static class GameplayHudPresentationVerification
         var installedSystem = new Bank80SystemState();
         nativeSystem.SetAreaMapAcquired(AreaId.Crateria);
         installedSystem.SetAreaMapAcquired(AreaId.Crateria);
-        native.UpdateMinimap(bus, nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
-        installed.UpdateMinimap(guard, installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        native.UpdateMinimap(nativeSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
+        installed.UpdateMinimap(installedSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 0, PresentationMap = original.Get(AreaId.Crateria) });
         AssertTrue(native.Tiles.SequenceEqual(installed.Tiles),
             "installed minimap anchor matches native and needs no HUD visual ROM data");
 
@@ -132,10 +132,10 @@ internal static class GameplayHudPresentationVerification
 
         var editedHud = new HudState();
         editedHud.BindPresentation(edited.GameplayHud);
-        editedHud.Initialize(guard, snapshot);
+        editedHud.Initialize(snapshot);
         var stockHud = new HudState();
         stockHud.BindPresentation(original.GameplayHud);
-        stockHud.Initialize(guard, snapshot);
+        stockHud.Initialize(snapshot);
         AssertEqual(stockHud.Tiles[70], editedHud.Tiles[68],
             "edited health anchor moves its first digit through production HUD setup");
         AssertEqual(stockHud.Tiles[71], editedHud.Tiles[69],
@@ -145,10 +145,10 @@ internal static class GameplayHudPresentationVerification
 
         var rebind = new HudState();
         rebind.BindPresentation(original.GameplayHud);
-        rebind.Initialize(guard, snapshot);
+        rebind.Initialize(snapshot);
         var rebindSystem = new Bank80SystemState();
         rebindSystem.SetAreaMapAcquired(AreaId.Crateria);
-        rebind.UpdateMinimap(guard, rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
+        rebind.UpdateMinimap(rebindSystem, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(23, 0), RoomSize = new(144, 80), Samus = new(0x0440, 0x04bb), NmiFrameCounter = 8, PresentationMap = original.Get(AreaId.Crateria) });
         ushort[] logicalMap = Enumerable.Range(0, 15)
             .Select(i => rebind.Tiles[(i / 5) * 32 + 26 + i % 5]).ToArray();
         rebind.BindPresentation(edited.GameplayHud, samus);

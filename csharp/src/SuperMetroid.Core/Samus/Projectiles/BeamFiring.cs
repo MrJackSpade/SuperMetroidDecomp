@@ -79,7 +79,6 @@ internal sealed class BeamFiring
 
     /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
     internal (int? Slot, ushort Sound, byte MaximumQueued) HandleBeamInput(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
@@ -96,7 +95,7 @@ internal sealed class BeamFiring
         if (samus.HyperBeam != 0)
         {
             (int? slot, ushort sound) = (controllerInput & shoot) != 0
-                ? TryFireHyperBeam(bus, level, samus, sharedProjectiles, roomPlms)
+                ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
                 : (null, 0);
             return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
         }
@@ -115,7 +114,6 @@ internal sealed class BeamFiring
             _animation.ClearFlareAnimationState();
             (int? slot, ushort sound) = held
                 ? TryFireBeam(
-                    bus,
                     level,
                     samus,
                     controllerNewInput,
@@ -137,7 +135,6 @@ internal sealed class BeamFiring
             _charge.FlareCounter = 0;
             _animation.ClearFlareAnimationState();
             return CompleteBeamRelease(TryFireBeam(
-                bus,
                 level,
                 samus,
                 controllerNewInput,
@@ -158,7 +155,6 @@ internal sealed class BeamFiring
                 {
                     _animation.ClearFlareAnimationState();
                     (int? slot, ushort sound) = TryFireBeam(
-                        bus,
                         level,
                         samus,
                         controllerNewInput,
@@ -180,7 +176,7 @@ internal sealed class BeamFiring
                         MaximumQueued: 9);
                 }
             }
-            else if (_combos.TryActivateCombo(bus, samus, sharedProjectiles, out ushort comboSound))
+            else if (_combos.TryActivateCombo(samus, sharedProjectiles, out ushort comboSound))
             {
                 // Native tries FireSBA only on the call after charge reaches 120.
                 // Successful activation clears flare animation and restores the suit;
@@ -201,7 +197,6 @@ internal sealed class BeamFiring
         _charge.FlareCounter = 0;
         _animation.ClearFlareAnimationState();
         return CompleteBeamRelease(TryFireBeam(
-            bus,
             level,
             samus,
             controllerNewInput,
@@ -235,7 +230,6 @@ internal sealed class BeamFiring
 
     /// <summary>Attempts allocation and muzzle setup for an ordinary or charged beam shot.</summary>
     internal (int? Slot, ushort Sound) TryFireBeam(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerNewInput,
@@ -276,7 +270,7 @@ internal sealed class BeamFiring
 
         byte direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
-            : samus.PoseMetadata.ReadShotDirection(bus);
+            : samus.PoseMetadata.ReadShotDirection();
 
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
@@ -285,7 +279,7 @@ internal sealed class BeamFiring
         }
 
         slot.Direction = direction;
-        InitializePosition(bus, samus, slot);
+        InitializePosition(samus, slot);
         slot.TrailTimer = NativeCountdown.Start(4);
         slot.Type = SamusProjectileTypeWord.CreateBeam(samus.EquippedBeams, charged);
         ProjectileInvincibilityTimer = NativeCountdown.Start(10);
@@ -349,7 +343,6 @@ internal sealed class BeamFiring
 
     /// <summary>Allocates charged-Plasma art with Hyper damage, Wave collision, and a 21-frame cooldown.</summary>
     internal (int? Slot, ushort Sound) TryFireHyperBeam(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles,
@@ -374,7 +367,7 @@ internal sealed class BeamFiring
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable._slots[slotIndex];
-        byte direction = samus.PoseMetadata.ReadShotDirection(bus);
+        byte direction = samus.PoseMetadata.ReadShotDirection();
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
@@ -382,7 +375,7 @@ internal sealed class BeamFiring
         }
         slot.Direction = direction;
 
-        InitializePosition(bus, samus, slot);
+        InitializePosition(samus, slot);
         ProjectileInvincibilityTimer = NativeCountdown.Start(10);
 
         // The literal `$9018` is charged Plasma for bank-$93 data/art purposes even though
@@ -429,7 +422,6 @@ internal sealed class BeamFiring
 
     /// <summary>Consumes a current or retained Shoot edge, ammo, and cooldown to launch a missile.</summary>
     internal (int? Slot, ushort Sound) TryFireMissile(
-        ISnesAddressSpace bus,
         SamusState samus,
         SnesButton controllerNewInput,
         SnesButton controllerPreviousNewInput,
@@ -466,12 +458,12 @@ internal sealed class BeamFiring
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable._slots[slotIndex];
-        byte direction = samus.PoseMetadata.ReadShotDirection(bus);
+        byte direction = samus.PoseMetadata.ReadShotDirection();
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
             return (null, 0);
         slot.Direction = direction;
 
-        InitializePosition(bus, samus, slot);
+        InitializePosition(samus, slot);
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
         ProjectileInvincibilityTimer = NativeCountdown.Start(20);
         if (isSuperMissile)
@@ -517,12 +509,11 @@ internal sealed class BeamFiring
 
     /// <summary>Places the muzzle using pose height and the running or ordinary directional origin table.</summary>
     internal static void InitializePosition(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusProjectileSlot slot)
     {
         byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.

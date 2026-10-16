@@ -722,7 +722,7 @@ public sealed class SamusState
     internal void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.Radius.Y;
-        SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft(bus)
+        SamusPoseId fallbackPose = PoseMetadata.IsFacingLeft()
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
         if (sourcePose == fallbackPose)
@@ -879,7 +879,7 @@ public sealed class SamusState
     {
         Ensure.NotNull(bus);
         bool springEquipped = EquippedItems.HasAny(SamusEquipmentFlags.SpringBall);
-        SamusMovementType movement = PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movement = PoseMetadata.ReadMovementType();
         bool enable = springEquipped && movement is
             SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling;
         bool disable = !springEquipped && movement is
@@ -889,11 +889,11 @@ public sealed class SamusState
 
         // The native handlers select the stationary pose even while airborne. Keeping
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
-        bool left = PoseMetadata.IsFacingLeft(bus);
+        bool left = PoseMetadata.IsFacingLeft();
         Pose = enable
             ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
             : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
-        PoseMetadata.RefreshCollisionRadii(bus);
+        PoseMetadata.RefreshCollisionRadii();
         // $91:F9F4/FA56 preserve animation only within the same ball family. Crossing
         // families through the equipment menu therefore runs the normal frame-zero setup.
         Presentation.InitializeAnimation(bus);
@@ -912,9 +912,9 @@ public sealed class SamusState
     /// Transition owners must call this after their final pose/metadata selection,
     /// not for intermediate assignments, rollbacks, or ordinary frame sampling.
     /// </summary>
-    internal void CommitPoseHistory(ISnesAddressSpace bus)
+    internal void CommitPoseHistory()
     {
-        ushort metadata = (ushort)(SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(bus), (byte)PoseMetadata.ReadMovementType(bus)));
+        ushort metadata = (ushort)(SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(), (byte)PoseMetadata.ReadMovementType()));
         PoseHistory.CommitTransition(Pose, metadata);
     }
 }

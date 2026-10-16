@@ -189,10 +189,9 @@ public sealed class SamusDrainedState
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+    public bool UpdatePalette(SnesCgram cgram, ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
 
         if (_suitPaletteRestoreRequested)
@@ -247,12 +246,12 @@ public sealed class SamusDrainedState
 
         // Direction byte four is left; every other byte chooses the right-facing record.
         // Read it before replacing the pose, exactly as `$91:E50D` does.
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         samus.Pose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
-        if (samus.PoseMetadata.ReadMovementKind(bus) != SamusMovementType.Special ||
+        samus.PoseMetadata.RefreshCollisionRadii();
+        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Special ||
             samus.Kinematics.Radius.Y != 21)
             throw new InvalidDataException("ROM drained pose $E8/$E9 metadata changed unexpectedly.");
 
@@ -265,7 +264,7 @@ public sealed class SamusDrainedState
         Phase = DrainedSamusPhase.WaitingForFallingCommand;
         // Native controller commands 0/1/2/4 return carry set; their dispatcher
         // then shifts history even for a same-pose command. Hyper (3) does not.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
     }
 
     /// <summary>
@@ -332,41 +331,36 @@ public sealed class SamusDrainedState
     }
 
     /// <summary>Ports controller function one at <c>$91:E571</c>.</summary>
-    public void PutStanding(ISnesAddressSpace bus, SamusState samus)
+    public void PutStanding(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         samus.Presentation.SetPoseAndAnimationFromScriptedController(
-            bus,
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: 0,
             timer: 16,
             refreshRadius: false);
         Phase = DrainedSamusPhase.Standing;
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
     }
 
     /// <summary>Ports controller function four at <c>$91:E60C</c>.</summary>
-    public void PutCrouchingOrFalling(ISnesAddressSpace bus, SamusState samus)
+    public void PutCrouchingOrFalling(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         samus.Presentation.SetPoseAndAnimationFromScriptedController(
-            bus,
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: 8,
             timer: 16,
             refreshRadius: false);
         Phase = DrainedSamusPhase.Crouching;
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
     }
 
     /// <summary>Ports controller function two at <c>$91:E59B</c>.</summary>
-    public void Release(ISnesAddressSpace bus, SamusState samus)
+    public void Release(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // These are literal byte indices into the asymmetrical delay programs, not visual
@@ -379,11 +373,11 @@ public sealed class SamusDrainedState
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
         // broad native behavior instead of rejecting a caller that the 65816 accepts.
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         Phase = DrainedSamusPhase.Releasing;
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
     }
 
     /// <summary>Ports controller function three at <c>$91:E5F0</c>.</summary>
@@ -410,10 +404,10 @@ public sealed class SamusDrainedState
         // Both commands unconditionally choose left-facing knockback pose `$54`, even when
         // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
         samus.Pose = SamusPoseId.KnockbackLeftPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Shared rainbow setup calls the native previous-pose helper before lock.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         // Shared `$90:F394` installs the locked current/new state handlers after changing art.
         samus.InputLocked = true;
         Phase = DrainedSamusPhase.RainbowBeamLocked;

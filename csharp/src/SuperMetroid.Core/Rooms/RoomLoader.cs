@@ -267,11 +267,11 @@ internal sealed class RoomLoader
         // Command nine does not begin at its endpoint. It selects a front-facing pose,
         // frame two/timer three, a suit-specific bank-$8D palette object, and the 360-call
         // appearance handler before restoring ordinary input.
-        _player.IntroducedSamus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+        _player.IntroducedSamus.Presentation.LoadSuitPalette(_cgram);
         _player.IntroducedSamus.PoseMetadata.ApplyZebesStartPoseSetup(_addressSpace);
         _player.IntroducedSamus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
         _player.IntroducedSamus.LiquidPhysics.RoomIdentity = room.Identity;
-        _player.IntroducedSamus.Presentation.PrimeGraphics(_addressSpace);
+        _player.IntroducedSamus.Presentation.PrimeGraphics();
         _player._samusLoadAppearancePaletteFxDefinition =
             _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
                 ? RoomLoadingRomData.GravitySuitLoadPaletteFx
@@ -279,13 +279,12 @@ internal sealed class RoomLoader
                     ? RoomLoadingRomData.VariaSuitLoadPaletteFx
                     : RoomLoadingRomData.PowerSuitLoadPaletteFx;
         _roomPaletteFx.SpawnDefinition(
-            _addressSpace,
             _player._samusLoadAppearancePaletteFxDefinition,
             _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
         _player._samusLoadAppearanceFramesRemaining = NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount);
         _player.IntroducedSamus.InputLocked = true;
-        _player.PreviousMovementTypeForXray = _player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace);
+        _player.PreviousMovementTypeForXray = _player.IntroducedSamus.PoseMetadata.ReadMovementType();
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
     }
@@ -380,12 +379,12 @@ internal sealed class RoomLoader
             station.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport,
             GunshipLoadScenario.EscapingCeres);
-        samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
-        samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
+        samus.Presentation.LoadSuitPalette(_cgram);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(_addressSpace);
         samus.LiquidPhysics.RoomIdentity = room.Identity;
-        samus.Presentation.PrimeGraphics(_addressSpace);
-        _player.PreviousMovementTypeForXray = samus.PoseMetadata.ReadMovementType(_addressSpace);
+        samus.Presentation.PrimeGraphics();
+        _player.PreviousMovementTypeForXray = samus.PoseMetadata.ReadMovementType();
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
     }
@@ -832,12 +831,12 @@ internal sealed class RoomLoader
         // has already driven OBJ palette four to black at this point. Omitting this shared
         // reload therefore retained valid OAM and tile data but rendered Samus as a solid
         // black silhouette after every ordinary desktop door transition.
-        _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+        _player.Samus.Presentation.LoadSuitPalette(_cgram);
 
         // The door loader writes no SamusYRadius; the next unlocked alpha's SetSamusRadius
         // does, so an elevator rider keeps the boarding pose's radius through the door.
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
-        _player.Samus.Presentation.PrimeGraphics(_addressSpace);
+        _player.Samus.Presentation.PrimeGraphics();
         _player.GroundedSamusMovementEnabled = true;
         return viewport;
     }
@@ -949,7 +948,6 @@ internal sealed class RoomLoader
         // blend, uploads the common $8A BG3 tilemap, and creates the type-owned HDMA/
         // animtile state before palette-FX objects and enemies begin running.
         _roomLayer3Fx.Load(
-            _addressSpace,
             _vram,
             _cgram,
             room.State.FxPointer,
@@ -960,11 +958,11 @@ internal sealed class RoomLoader
         _ceresHaze.Load(RoomCallbackDefinitions.SpawnsCeresHaze(room.State.SetupCallback),
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
-        _sandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
+        _sandAnimatedTiles.LoadRoom(room.State.FxPointer, door.Pointer,
             room.AreaIndex);
-        _roomSpikes.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
+        _roomSpikes.LoadRoom(room.State.FxPointer, door.Pointer,
             room.AreaIndex);
-        _roomTreadmills.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer,
+        _roomTreadmills.LoadRoom(room.State.FxPointer, door.Pointer,
             room.AreaIndex);
         if (_player.Samus is not null)
             _roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
@@ -974,7 +972,6 @@ internal sealed class RoomLoader
         // be created on every shared room-load path; Landing Site bit zero replaces CGRAM
         // colors used by the scrolling-sky horizon on the first gameplay handler call.
         _roomPaletteFx.LoadRoom(
-            _addressSpace,
             room.State.FxPointer,
             door.Pointer,
             room.AreaIndex,
@@ -1048,12 +1045,12 @@ internal sealed class RoomLoader
             // groups those owners differently, yet this point preserves the observable
             // PLM-pool order: every room-authored actor exists before the closer requests
             // the next highest free slot, and no enemy-authored PLM has run yet.
-            _plms.DoorPlms.TrySpawnDoorClosingPlm(_addressSpace, _room.LevelData, door, _system);
+            _plms.DoorPlms.TrySpawnDoorClosingPlm(_room.LevelData, door, _system);
         }
 
         // $82:E4CC updates the entering beam before $82:E4D8 initializes enemies. Golden Torizo's code mutates
         // equipment during initialization; its grant must not retroactively select the beam loaded for this room.
-        _artwork.UpdateBeamTilesAndPalette(_addressSpace, _cgram, _player.Samus?.EquippedBeams ?? 0);
+        _artwork.UpdateBeamTilesAndPalette(_cgram, _player.Samus?.EquippedBeams ?? 0);
 
         _enemies.Load(new RoomEnemyLoadRequest(
             _addressSpace,
@@ -1230,7 +1227,7 @@ internal sealed class RoomLoader
             Position = FixedPosition<RoomPixels>.FromWhole(_room.ActiveLoadStation.SamusPosition.WithY(0)),
         };
         _artwork.BindSamusPalettePresentation();
-        SamusPresentation.LoadPowerSuitPalette(_addressSpace, _cgram, _artwork.MapPresentation?.SamusSuitColors);
+        SamusPresentation.LoadPowerSuitPalette(_cgram, _artwork.MapPresentation?.SamusSuitColors);
         _tester.ApplyTesterInventory();
 
         // Fresh-game loading has one deliberately non-general palette write after copying
@@ -1243,11 +1240,11 @@ internal sealed class RoomLoader
         // until the moving pad reaches it and both projectiles delete themselves.
         new NewGamePalettes(_cgram).ClearCeresElevatorConcealer();
 
-        _player.Samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
+        _player.Samus.PoseMetadata.RefreshCollisionRadii();
         _player.Samus.Presentation.InitializeAnimation(_addressSpace);
         _player.Samus.LiquidPhysics.RoomIdentity = _room.ActiveRoom.Identity;
-        _player.Samus.Presentation.PrimeGraphics(_addressSpace);
-        _player.PreviousMovementTypeForXray = _player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
+        _player.Samus.Presentation.PrimeGraphics();
+        _player.PreviousMovementTypeForXray = _player.Samus.PoseMetadata.ReadMovementType();
 
         // `$90:F21B/$90:F226` use SpawnEprojWithGfx and thus briefly seed both objects
         // from enemy slot zero. Their shared initializer at `$86:A301`, however, runs
@@ -1264,7 +1261,7 @@ internal sealed class RoomLoader
         // the ROM HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        _hud.UpdateMinimap(_addressSpace, _system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, NmiFrameCounter = _clock.Counter8, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
+        _hud.UpdateMinimap(_system, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = _room.LevelData?.Size ?? _room.ActiveRoom.Size.ToRoomBlocks(), Samus = _player.Samus.Position.Whole, NmiFrameCounter = _clock.Counter8, MapRevealMode = _options.MapRevealMode, PresentationMap = _artwork.MapPresentation?.Get(roomGeometry.AreaIndex) });
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

@@ -89,7 +89,7 @@ internal static class ReserveModeVerification
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterNmi(knockbackVariant, 0);
         knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
-        knockbackVariant.PoseMetadata.RefreshCollisionRadii(bus);
+        knockbackVariant.PoseMetadata.RefreshCollisionRadii();
         knockbackVariant.Presentation.InitializeAnimation(bus);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
@@ -129,7 +129,7 @@ internal static class ReserveModeVerification
             ReserveTankMode = reserveEnergy == 0 ? (ushort)0 : (ushort)1,
             EquippedItems = (ushort)SamusEquipmentFlags.XrayScope,
         };
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         AssertTrue(samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "X-Ray fixture activation");

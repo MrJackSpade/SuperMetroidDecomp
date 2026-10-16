@@ -189,7 +189,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
         var cancel = new Func<ISnesAddressSpace, RoomLevelData, SamusState, SnesButton, GrappleMovementResult?>(SamusGrappleMovement.HandleFiringPoseChange);
-        var drop = (ISnesAddressSpace memory, SamusState player) => (byte)SamusGrappleMovement.SelectDroppedPose(memory, player);
+        var drop = (ISnesAddressSpace memory, SamusState player) => (byte)SamusGrappleMovement.SelectDroppedPose(player);
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
@@ -244,7 +244,7 @@ internal static class GrappleConnectionDefinitionsVerification
         {
             samus.Pose = (SamusPoseId)sourcePose;
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
-            bool left = SamusPoseMetadata.IsFacingLeft(rom, (SamusPoseId)sourcePose);
+            bool left = SamusPoseMetadata.IsFacingLeft((SamusPoseId)sourcePose);
             int expected = radius < 17 ? (left ? 0x28 : 0x27) : (left ? 2 : 1);
             AssertEqual(expected, drop(guard, samus), "Non-fireable drop direction retains facing fallback");
         }

@@ -54,7 +54,7 @@ internal static class GroundedSpreadTransitionVerification
         samus.Position = samus.Position.WithWhole(new(512, 490));
         AssertEqual((ushort)0, samus.Kinematics.Position.X.Fraction, "fixture initial X fraction matches native cleared RAM");
         AssertEqual((ushort)0, samus.Kinematics.Position.Y.Fraction, "fixture initial Y fraction matches native cleared RAM");
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 120; frame++)
         {

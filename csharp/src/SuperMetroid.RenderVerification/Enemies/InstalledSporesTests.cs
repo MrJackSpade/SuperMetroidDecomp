@@ -88,8 +88,8 @@ internal static class InstalledSporesTests
             var baselineVram = new SnesVram(); var editedVram = new SnesVram();
             var colors = new SnesCgram(); var editedColors = new SnesCgram();
             RoomLayer3FxState baseline = Create(stock), replacement = Create(edited);
-            baseline.Load(memory, baselineVram, colors, definition.Pointer, definition.DoorPointer, 0);
-            replacement.Load(memory, editedVram, editedColors, definition.Pointer, definition.DoorPointer, 0);
+            baseline.Load(baselineVram, colors, definition.Pointer, definition.DoorPointer, 0);
+            replacement.Load(editedVram, editedColors, definition.Pointer, definition.DoorPointer, 0);
             Require(baseline.Type == RoomFxType.Spores && baseline.CaptureForDisplay() is not null,
                 "The cartridge's spores FX has no display capture.");
             Require(baseline.LayerBlendConfiguration == LayerBlendingConfiguration.Spores,
@@ -103,8 +103,8 @@ internal static class InstalledSporesTests
                 bool frozen = frame is >= 37 and < 45;
                 var camera = new Position16<RoomPixels>(unchecked((ushort)(frame * 79)), unchecked((ushort)(65520 + frame * 3)));
                 RoomLayer3FxRenderSnapshot before = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
-                baseline.Step(memory, baselineVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
-                replacement.Step(memory, editedVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                baseline.Step(baselineVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
+                replacement.Step(editedVram, new RoomLayer3FxFrame { Camera = camera, TimeIsFrozen = frozen, MainGameLoopCarry = false });
                 var capture = (baseline.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires baseline.CaptureForDisplay()."));
                 if (frozen) Require(capture == before, "Frozen spores changed scroll or phase.");
                 else

@@ -55,7 +55,7 @@ internal static class NoobTubePlmVerification
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
         samus.Position = samus.Position.WithWholeY(0x0100);
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
@@ -94,7 +94,7 @@ internal static class NoobTubePlmVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
-        SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
+        SeedStationaryGrappleCollisionProbe(grappleSamus);
         var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
             SnesButton.X, plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
@@ -312,7 +312,7 @@ internal static class NoobTubePlmVerification
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
         samus.InputLocked = false;
-        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = new RoomPlmSystem();
@@ -346,13 +346,13 @@ internal static class NoobTubePlmVerification
     /// Loads the Glass Tunnel's relevant FX words: water at Y $0010 with the small-tide
     /// option and the bit that suppresses water physics until the tube breaks.
     /// </summary>
-    internal static RoomLayer3FxState CreateNoobTubeWaterFx(TestAddressSpace bus)
+    internal static RoomLayer3FxState CreateNoobTubeWaterFx()
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel
         // record and import its presentation dependencies at this verification boundary.
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var roomFx = CreateRetailFxState(rom);
-        roomFx.Load(bus, new SnesVram(), new SnesCgram(), 0x9c94, doorPointer: 0,
+        roomFx.Load(new SnesVram(), new SnesCgram(), 0x9c94, doorPointer: 0,
             randomNumber: 0);
         return roomFx;
     }

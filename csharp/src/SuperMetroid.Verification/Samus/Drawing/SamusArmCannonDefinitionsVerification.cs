@@ -48,11 +48,11 @@ internal static class SamusArmCannonDefinitionsVerification
             SamusArmCannonState cannon = samus.ArmCannon;
             (byte Open, byte Close, ushort Frame) initial =
                 (cannon.OpenFlag, cannon.CloseFlag, cannon.Frame);
-            cannon.Update(guarded, samus);
+            cannon.Update(samus);
             AssertEqual(initial, (cannon.OpenFlag, cannon.CloseFlag, cannon.Frame),
                 $"arm-cannon HUD item {selectedHudItem} waits for a stable second sample");
             byte openBeforeSecond = cannon.OpenFlag;
-            cannon.Update(guarded, samus);
+            cannon.Update(samus);
             AssertEqual(
                 expected != 0,
                 cannon.OpenFlag != openBeforeSecond,

@@ -252,13 +252,11 @@ public sealed class SamusLiquidPhysicsState
     /// lava/acid fixed-point damage accumulation.
     /// </summary>
     public void PrepareAnimationFrame(
-        ISnesAddressSpace bus,
         SamusState samus,
         ushort nmiFrameCounter = 0,
         Bank80SystemState? system = null,
         bool beginSoundRequestFrame = true)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // Direct verifier/debugger calls begin a publication window here. The full runtime
@@ -268,8 +266,8 @@ public sealed class SamusLiquidPhysicsState
         if (beginSoundRequestFrame)
             BeginFrameSoundRequests();
 
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
-        TrySpawnRunningFootsteps(bus, samus, movementType);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
+        TrySpawnRunningFootsteps(samus, movementType);
 
         // Samus_Animate's FX handlers call $90:EC3E, whose occupied bottom
         // pixel is Y + pose radius - 1. The exclusive collision boundary would
@@ -316,7 +314,7 @@ public sealed class SamusLiquidPhysicsState
                 // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
                 // the two extra-run words are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
-                samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
                 samus.HorizontalSpeed.ExtraRunSpeed = 0;
                 samus.HorizontalSpeed.ExtraRunSubspeed = 0;
             }
@@ -374,14 +372,12 @@ public sealed class SamusLiquidPhysicsState
     /// surface but before animation and pose-change cleanup erase the impact velocity/radius.
     /// </summary>
     public void HandleLandingSoundEffectsAndGraphics(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
         ushort impactYSpeed,
         ushort impactYSubspeed)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // `$91:F046-$F074` ends the spin-loop sound separately from the impact. The test is
@@ -707,7 +703,6 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies native sound suppression.</summary>
     private void TrySpawnRunningFootsteps(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusMovementType movementType)
     {
@@ -741,10 +736,10 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if (useWetFootsteps)
-            SpawnFootstepPair(bus, samus, type: 1);
+            SpawnFootstepPair(samus, type: 1);
         else if (samus.HorizontalSpeed.IsFullSpeedBoost &&
                  DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary) == SamusLiquidMedium.Air)
-            SpawnFootstepPair(bus, samus, type: 7);
+            SpawnFootstepPair(samus, type: 7);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
         // a stored shinespark, and boost stage four each suppress library-three sound $06.
@@ -759,9 +754,9 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
-    private void SpawnFootstepPair(ISnesAddressSpace bus, SamusState samus, byte type)
+    private void SpawnFootstepPair(SamusState samus, byte type)
     {
-        bool directionIsFour = samus.PoseMetadata.IsFacingLeft(bus);
+        bool directionIsFour = samus.PoseMetadata.IsFacingLeft();
         ushort firstX = directionIsFour
             ? unchecked((ushort)(samus.Position.X.Whole - 12))
             : unchecked((ushort)(samus.Position.X.Whole + 12));
@@ -801,7 +796,7 @@ public sealed class SamusLiquidPhysicsState
         unchecked((short)(surface - boundary)) < 0;
 
     /// <summary>Ports $91:FA76's pose-entry dust writes, shared by ordinary and grapple wall jumps.</summary>
-    internal void SpawnWallJumpDust(ISnesAddressSpace bus, SamusState samus)
+    internal void SpawnWallJumpDust(SamusState samus)
     {
         // Get_Samus_Bottom_Boundary ($90:EC3E) uses the last occupied pixel of the current
         // pose's definition radius, not live $0B00, which keeps the spin body's radius
@@ -811,7 +806,7 @@ public sealed class SamusLiquidPhysicsState
         ushort bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1));
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
-        int offset = samus.PoseMetadata.IsFacingRight(bus)
+        int offset = samus.PoseMetadata.IsFacingRight()
             ? -SamusWallJumpDustDefinitions.HorizontalOffset
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,

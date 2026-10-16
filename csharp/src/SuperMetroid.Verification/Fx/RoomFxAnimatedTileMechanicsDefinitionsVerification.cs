@@ -62,13 +62,13 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             var state = new RoomFxAnimatedTilesState();
             var vram = new SnesVram();
             var writes = new VramWriteQueue();
-            state.LoadDefinition(guarded, definition.ObjectPointer);
+            state.LoadDefinition(definition.ObjectPointer);
 
             int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
             int observedFrames = 0;
             for (int step = 0; step < steps; step++)
             {
-                state.Step(guarded, vram, writes);
+                state.Step(vram, writes);
                 if (state.LastSourceAddress.HasValue)
                     observedFrames++;
             }

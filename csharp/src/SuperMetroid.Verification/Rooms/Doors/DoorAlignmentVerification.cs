@@ -111,7 +111,6 @@ internal static class DoorAlignmentVerification
             if (block.CollisionType != RoomCollisionType.DoorBlock)
                 continue;
             CartridgeDoorHeader? candidate = level.ResolveDoorCollision(
-                bus,
                 block.Behavior,
                 SamusPoseId.MovingRightNormalPose,
                 publishDoorSideEffects: false).Door;
@@ -135,9 +134,9 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
         samus.HorizontalSpeed.HasRunningMomentum = true;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(bus, behavior, samus.Pose, true);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));
         runtime.GameTime.Load(frames: 58, seconds: 56, minutes: 34, hours: 12);

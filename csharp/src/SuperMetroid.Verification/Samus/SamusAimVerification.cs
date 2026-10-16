@@ -66,7 +66,7 @@ internal static void VerifySamusStandingAimMovement()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
     };
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     samus.Presentation.InitializeAnimation(bus);
 
     SamusPoseId[] rightAimRoute = [
@@ -85,7 +85,7 @@ internal static void VerifySamusStandingAimMovement()
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, $"right aim pose ${(int)target:X2} clears base speed");
     }
     samus.PoseTransitions.ApplyGroundedAimTransition(bus, SamusPoseId.StandingAimUpRightPose);
-    AssertEqual(0x01, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(bus), "right aimed no-input fallback");
+    AssertEqual(0x01, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(), "right aimed no-input fallback");
 
     // The aimed running records execute the same movement-type-one dispatcher while their
     // own animation and shot-direction metadata remain selected. Cross the post-movement
@@ -112,7 +112,7 @@ internal static void VerifySamusStandingAimMovement()
         Pose = SamusPoseId.FacingLeftNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
     };
-    leftSamus.PoseMetadata.RefreshCollisionRadii(bus);
+    leftSamus.PoseMetadata.RefreshCollisionRadii();
     leftSamus.Presentation.InitializeAnimation(bus);
     SamusPoseId[] leftAimRoute = [
         SamusPoseId.StandingAimUpLeftPose,
@@ -128,7 +128,7 @@ internal static void VerifySamusStandingAimMovement()
         AssertTrue(result.Vertical.Collided, $"left aim pose ${(int)target:X2} remains grounded");
     }
     leftSamus.PoseTransitions.ApplyGroundedAimTransition(bus, SamusPoseId.StandingAimUpLeftPose);
-    AssertEqual(0x02, (byte)leftSamus.PoseMetadata.ReadNoInputFallbackPose(bus), "left aimed no-input fallback");
+    AssertEqual(0x02, (byte)leftSamus.PoseMetadata.ReadNoInputFallbackPose(), "left aimed no-input fallback");
 
     leftSamus.PoseTransitions.ApplyGroundedAimTransition(bus, SamusPoseId.RunningAimDiagonalUpLeftPose);
     ushort leftXBefore = leftSamus.Position.X.Whole;
@@ -248,12 +248,12 @@ internal static void VerifySamusAimedAerialMovement()
         Pose = SamusPoseId.StandingAimDiagonalUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 171)),
     };
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     samus.Presentation.InitializeAnimation(bus);
     samus.PoseTransitions.ApplyOrdinaryJumpTransition(
         bus, SamusPoseId.NormalJumpTransitionAimDiagonalUpRightPose);
     AssertEqual(21, samus.Kinematics.Radius.Y, "aimed jump commit retains standing radius");
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(19, samus.Kinematics.Radius.Y, "next alpha publishes aimed jump radius");
     ushort launchY = samus.Position.Y.Whole;
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
@@ -286,7 +286,7 @@ internal static void VerifySamusAimedAerialMovement()
         "jump enters compact down-right pose");
     AssertEqual(SamusPoseId.NormalJumpAimDownRightPose, samus.Pose, "compact jump pose");
     AssertEqual(19, samus.Kinematics.Radius.Y, "compact jump commit retains old live radius");
-    samus.PoseMetadata.RefreshCollisionRadii(bus); // Next alpha publishes compact geometry.
+    samus.PoseMetadata.RefreshCollisionRadii(); // Next alpha publishes compact geometry.
     AssertEqual(10, samus.Kinematics.Radius.Y, "compact jump radius");
     AssertEqual(compactCenterY, samus.Position.Y.Whole, "shrinking compact jump preserves center");
     AssertEqual(compactVelocity, samus.Kinematics.VerticalSpeedFixed, "compact entry preserves 16.16 velocity");
@@ -296,7 +296,7 @@ internal static void VerifySamusAimedAerialMovement()
             bus, level, SamusPoseId.NormalJumpAimDiagonalDownRightPose, nmiFrameCounter: 5),
         "jump exits compact down-right pose");
     AssertEqual(10, samus.Kinematics.Radius.Y, "compact expansion commit retains old live radius");
-    samus.PoseMetadata.RefreshCollisionRadii(bus); // Next alpha publishes expanded geometry.
+    samus.PoseMetadata.RefreshCollisionRadii(); // Next alpha publishes expanded geometry.
     AssertEqual(19, samus.Kinematics.Radius.Y, "compact jump exit radius");
     AssertEqual(compactCenterY, samus.Position.Y.Whole, "open-air compact expansion preserves center");
     AssertEqual(compactVelocity, samus.Kinematics.VerticalSpeedFixed, "compact exit preserves 16.16 velocity");
@@ -330,7 +330,7 @@ internal static void VerifySamusAimedAerialMovement()
         Pose = SamusPoseId.FallingAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 170)),
     };
-    compactFall.PoseMetadata.RefreshCollisionRadii(bus);
+    compactFall.PoseMetadata.RefreshCollisionRadii();
     compactFall.Presentation.InitializeAnimation(bus);
     compactFall.Kinematics.YSpeed = 1;
     compactFall.Kinematics.YSubspeed = 0x4000;
@@ -354,7 +354,7 @@ internal static void VerifySamusAimedAerialMovement()
         compactBottom,
         unchecked((ushort)(compactFall.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(compactFall.Pose))),
         "compact landing preserves floor boundary");
-    compactFall.PoseMetadata.RefreshCollisionRadii(bus);
+    compactFall.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(21, compactFall.Kinematics.Radius.Y, "the next alpha publishes the landing radius");
     AssertEqual(0u, compactFall.Kinematics.VerticalSpeedFixed, "compact landing clears vertical speed");
     AssertEqual(SamusVerticalDirection.None, compactFall.Kinematics.YDirection, "compact landing clears vertical direction");
@@ -380,7 +380,7 @@ internal static void VerifySamusAimedAerialMovement()
         Pose = SamusPoseId.FallingAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x002e, 0x00be)),
     };
-    capturedCompactLanding.PoseMetadata.RefreshCollisionRadii(bus);
+    capturedCompactLanding.PoseMetadata.RefreshCollisionRadii();
     capturedCompactLanding.Presentation.InitializeAnimation(bus);
     AssertEqual(0x00c8, capturedCompactLanding.Kinematics.BottomBoundary,
         "captured compact body begins on half-platform surface");
@@ -401,7 +401,7 @@ internal static void VerifySamusAimedAerialMovement()
         Pose = SamusPoseId.NormalJumpAimDownLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 100)),
     };
-    compactLeft.PoseMetadata.RefreshCollisionRadii(bus);
+    compactLeft.PoseMetadata.RefreshCollisionRadii();
     compactLeft.Presentation.InitializeAnimation(bus);
     AssertTrue(
         compactLeft.PoseTransitions.TryApplyCompactAerialTransition(
@@ -409,7 +409,7 @@ internal static void VerifySamusAimedAerialMovement()
         "mirrored compact jump expands");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalDownLeftPose, compactLeft.Pose, "mirrored compact jump target");
     AssertEqual(10, compactLeft.Kinematics.Radius.Y, "mirrored expansion retains old radius until alpha");
-    compactLeft.PoseMetadata.RefreshCollisionRadii(bus);
+    compactLeft.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(19, compactLeft.Kinematics.Radius.Y, "mirrored compact jump radius");
 
     var compactLeftLanding = new SamusState
@@ -417,7 +417,7 @@ internal static void VerifySamusAimedAerialMovement()
         Pose = SamusPoseId.FallingAimDownLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 170)),
     };
-    compactLeftLanding.PoseMetadata.RefreshCollisionRadii(bus);
+    compactLeftLanding.PoseMetadata.RefreshCollisionRadii();
     compactLeftLanding.Presentation.InitializeAnimation(bus);
     compactLeftLanding.Kinematics.YSpeed = 1;
     compactLeftLanding.Kinematics.YSubspeed = 0x4000;
@@ -456,7 +456,7 @@ internal static void VerifySamusAimedAerialMovement()
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 176)),
     };
-    boxedCompact.PoseMetadata.RefreshCollisionRadii(bus);
+    boxedCompact.PoseMetadata.RefreshCollisionRadii();
     boxedCompact.Presentation.InitializeAnimation(bus);
     AssertTrue(
         !boxedCompact.PoseTransitions.TryApplyCompactAerialTransition(
@@ -465,19 +465,19 @@ internal static void VerifySamusAimedAerialMovement()
     AssertEqual(SamusPoseId.CrouchingRightPose, boxedCompact.Pose, "boxed compact expansion selects crouch");
     AssertEqual(10, boxedCompact.Kinematics.Radius.Y, "boxed compact fallback retains live radius until alpha");
     AssertEqual(170, boxedCompact.Position.Y.Whole, "boxed compact fallback applies FFD4 offset");
-    boxedCompact.PoseMetadata.RefreshCollisionRadii(bus);
+    boxedCompact.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(16, boxedCompact.Kinematics.Radius.Y, "next alpha publishes compact fallback crouch radius");
     AssertEqual(170, boxedCompact.Position.Y.Whole, "radius publication does not repeat center correction");
 
     // PSP_Falling chooses ordinary falling from the physics-facing byte. Aim is
     // reconsidered on the next input pass, rather than being preserved by the walk-off.
     samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     samus.Presentation.InitializeAnimation(bus);
-    AssertEqual(SamusPoseId.FallingRightPose, samus.PoseTransitions.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
+    AssertEqual(SamusPoseId.FallingRightPose, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), "up-right walk-off target");
     samus.PoseTransitions.ApplyWalkedOffFloorTransition(bus, level, SamusPoseId.FallingRightPose);
     AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "aimed walk-off starts downward");
-    samus.PoseMetadata.RefreshCollisionRadii(bus); // Next alpha precedes the airborne input/aim transition.
+    samus.PoseMetadata.RefreshCollisionRadii(); // Next alpha precedes the airborne input/aim transition.
     samus.PoseTransitions.ApplyAerialAimTransition(bus, SamusPoseId.FallingAimDiagonalUpRightPose);
 
     // `$90:8324-$8345` leaves both the command index and zero timer untouched when `$F0`
@@ -494,7 +494,7 @@ internal static void VerifySamusAimedAerialMovement()
     AssertEqual(16, samus.AnimationFrameTimer.RawValue, "post-F0 frame loads literal delay");
 
     samus.PoseTransitions.ApplyAerialAimTransition(bus, SamusPoseId.FallingAimDiagonalDownRightPose);
-    AssertEqual(0x29, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(bus), "aimed fall fallback target");
+    AssertEqual(0x29, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(), "aimed fall fallback target");
     samus.PoseTransitions.ApplyAerialAimTransition(bus, SamusPoseId.FallingRightPose);
     AssertEqual(SamusPoseId.FallingRightPose, samus.Pose, "aimed fall applies unaimed fallback");
 
@@ -601,22 +601,20 @@ internal static void VerifySamusGunExtendedMovement()
         ((ushort)0x0000, (ushort)0x0100, (ushort)0x000b));
 
     AssertEqual(0x0b,
-        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0).")).ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0).")).ProspectivePose,
         "Shot+Right selects running gun extension");
     AssertEqual(0x13,
-        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, SnesButton.X, 0).")).ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(SamusPoseId.NeutralJumpRightPose, SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NeutralJumpRightPose, SnesButton.X, 0).")).ProspectivePose,
         "Shot selects neutral-jump gun extension");
     AssertEqual(0x67,
-        (byte)(SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, SnesButton.X, 0).")).ProspectivePose,
+        (byte)(SamusPoseTransitionTable.Find(SamusPoseId.FallingRightPose, SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.FallingRightPose, SnesButton.X, 0).")).ProspectivePose,
         "Shot selects falling gun extension");
 
     SamusPoseTransitionLookup heldRightAndShot = SamusPoseTransitionTable.Lookup(
-        bus,
         SamusPoseId.MovingRightGunExtendedPose,
         (SnesButton.Right | SnesButton.X),
         canonicalNewInput: 0);
     SamusPoseTransitionLookup releasedRightHoldingShot = SamusPoseTransitionTable.Lookup(
-        bus,
         SamusPoseId.MovingRightGunExtendedPose,
         SnesButton.X,
         canonicalNewInput: 0);
@@ -626,9 +624,9 @@ internal static void VerifySamusGunExtendedMovement()
         "running-gun Shot-only terminator requests fallback");
 
     SamusPoseTransition forwardRightRelease =
-        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
+        (SamusPoseTransitionTable.Find(SamusPoseId.NormalJumpForwardRightPose, SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardRightPose, (ushort)Snes...."));
     SamusPoseTransition forwardLeftRelease =
-        (SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
+        (SamusPoseTransitionTable.Find(SamusPoseId.NormalJumpForwardLeftPose, SnesButton.A, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.NormalJumpForwardLeftPose, (ushort)SnesB...."));
     AssertEqual(0x4d, (byte)forwardRightRelease.ProspectivePose,
         "held Jump without Right selects neutral right jump");
     AssertEqual(0x4e, (byte)forwardLeftRelease.ProspectivePose,
@@ -645,7 +643,7 @@ internal static void VerifySamusGunExtendedMovement()
     })
     {
         var releasedForwardJump = new SamusState { Pose = source };
-        releasedForwardJump.PoseMetadata.RefreshCollisionRadii(bus);
+        releasedForwardJump.PoseMetadata.RefreshCollisionRadii();
         releasedForwardJump.Presentation.InitializeAnimation(bus, initialFrame: 1);
         releasedForwardJump.Kinematics.YSpeed = 3;
         releasedForwardJump.Kinematics.YSubspeed = 0x4567;
@@ -670,7 +668,7 @@ internal static void VerifySamusGunExtendedMovement()
     // `$91:F50C` preserves the animation phase across movement-type-one arm changes. Begin
     // on a nonzero index so resetting to frame zero cannot accidentally satisfy the check.
     var running = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
-    running.PoseMetadata.RefreshCollisionRadii(bus);
+    running.PoseMetadata.RefreshCollisionRadii();
     running.Presentation.InitializeAnimation(bus, initialFrame: 4);
     ushort runningFrame = running.AnimationFrame;
     ushort runningTimer = running.AnimationFrameTimer.RawValue;
@@ -680,13 +678,13 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(runningFrame, running.AnimationFrame, "running gun extension preserves frame");
     AssertEqual(runningTimer, running.AnimationFrameTimer.RawValue, "running gun extension preserves timer");
     AssertEqual(runningDelayList, running.AnimationDelayListAddress, "running gun extension retains shared delay list");
-    running.PoseTransitions.ApplyGroundedAimTransition(bus, running.PoseMetadata.ReadNoInputFallbackPose(bus));
+    running.PoseTransitions.ApplyGroundedAimTransition(bus, running.PoseMetadata.ReadNoInputFallbackPose());
     AssertEqual(SamusPoseId.FacingRightNormalPose, running.Pose,
         "releasing Right while holding Shot leaves running-gun pose");
 
     // Same-radius airborne arm changes must not perturb the live 16.16 velocity or direction.
     var jumping = new SamusState { Pose = SamusPoseId.NeutralJumpRightPose };
-    jumping.PoseMetadata.RefreshCollisionRadii(bus);
+    jumping.PoseMetadata.RefreshCollisionRadii();
     jumping.Presentation.InitializeAnimation(bus);
     jumping.Kinematics.YSpeed = 3;
     jumping.Kinematics.YSubspeed = 0x4567;
@@ -697,7 +695,7 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(SamusVerticalDirection.Up, jumping.Kinematics.YDirection, "jump gun extension preserves direction");
 
     var falling = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
-    falling.PoseMetadata.RefreshCollisionRadii(bus);
+    falling.PoseMetadata.RefreshCollisionRadii();
     falling.Presentation.InitializeAnimation(bus);
     falling.Kinematics.YSpeed = 2;
     falling.Kinematics.YSubspeed = 0xabcd;
@@ -722,13 +720,13 @@ internal static void VerifySamusGunExtendedMovement()
     AssertEqual(SamusPoseId.FacingRightNormalPose, falling.Pose, "$E6 returns to standing right");
 
     var releasedLanding = new SamusState { Pose = SamusPoseId.FallingGunExtendedRightPose };
-    releasedLanding.PoseMetadata.RefreshCollisionRadii(bus);
+    releasedLanding.PoseMetadata.RefreshCollisionRadii();
     releasedLanding.Presentation.InitializeAnimation(bus);
     releasedLanding.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: false, controllerInput: 0);
     AssertEqual(SamusPoseId.NormalLandingRightPose, releasedLanding.Pose, "released Shot selects ordinary landing $A4");
 
     var mirroredLanding = new SamusState { Pose = SamusPoseId.FallingGunExtendedLeftPose };
-    mirroredLanding.PoseMetadata.RefreshCollisionRadii(bus);
+    mirroredLanding.PoseMetadata.RefreshCollisionRadii();
     mirroredLanding.Presentation.InitializeAnimation(bus);
     mirroredLanding.PoseTransitions.ApplyAerialLanding(bus, wasSpinning: false, SnesButton.X);
     AssertEqual(SamusPoseId.FiringLandingLeftPose, mirroredLanding.Pose, "held Shot selects mirrored firing landing $E7");
@@ -796,28 +794,28 @@ internal static void VerifySamusGunExtendedMovement()
     // the real initializer so this verifies radius, animation, and vertical launch state in
     // addition to the family predicate used by the runtime switch.
     var firingLandingJumpRight = new SamusState { Pose = SamusPoseId.FiringLandingRightPose };
-    firingLandingJumpRight.PoseMetadata.RefreshCollisionRadii(bus);
+    firingLandingJumpRight.PoseMetadata.RefreshCollisionRadii();
     firingLandingJumpRight.PoseTransitions.ApplyOrdinaryJumpTransition(
         bus, SamusPoseId.NeutralJumpTransitionRightPose);
     AssertEqual(SamusPoseId.NeutralJumpTransitionRightPose, firingLandingJumpRight.Pose,
         "right firing landing installs neutral jump $4B");
     AssertEqual(21, firingLandingJumpRight.Kinematics.Radius.Y,
         "right firing-landing jump retains landing radius");
-    firingLandingJumpRight.PoseMetadata.RefreshCollisionRadii(bus);
+    firingLandingJumpRight.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(19, firingLandingJumpRight.Kinematics.Radius.Y,
         "right firing-landing next alpha installs normal-jump radius");
     AssertEqual(SamusVerticalDirection.Up, firingLandingJumpRight.Kinematics.YDirection,
         "right firing-landing jump launches upward");
 
     var firingLandingJumpLeft = new SamusState { Pose = SamusPoseId.FiringLandingLeftPose };
-    firingLandingJumpLeft.PoseMetadata.RefreshCollisionRadii(bus);
+    firingLandingJumpLeft.PoseMetadata.RefreshCollisionRadii();
     firingLandingJumpLeft.PoseTransitions.ApplyOrdinaryJumpTransition(
         bus, SamusPoseId.NeutralJumpTransitionLeftPose);
     AssertEqual(SamusPoseId.NeutralJumpTransitionLeftPose, firingLandingJumpLeft.Pose,
         "left firing landing installs neutral jump $4C");
     AssertEqual(21, firingLandingJumpLeft.Kinematics.Radius.Y,
         "left firing-landing jump retains landing radius");
-    firingLandingJumpLeft.PoseMetadata.RefreshCollisionRadii(bus);
+    firingLandingJumpLeft.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(19, firingLandingJumpLeft.Kinematics.Radius.Y,
         "left firing-landing next alpha installs normal-jump radius");
     AssertEqual(SamusVerticalDirection.Up, firingLandingJumpLeft.Kinematics.YDirection,

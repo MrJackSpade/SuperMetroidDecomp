@@ -166,7 +166,7 @@ internal sealed class MessageBoxFlow
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.
         if (_player.Samus is not null && !frameSuspended)
-            _hud.UpdateGameplayCounters(_addressSpace, _player.Samus, _freeze.TimeIsFrozen,
+            _hud.UpdateGameplayCounters(_player.Samus, _freeze.TimeIsFrozen,
                 soundSuppressed: _bombProjectiles.PowerBombExplosion.IsActive);
         if (!frameSuspended)
             _hud.QueueUpload(_vramWrites);

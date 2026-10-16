@@ -231,7 +231,7 @@ internal sealed class CeresDestructionCinematicState
     {
         // The global bank-$82 frame dispatcher runs HDMA before the cinematic. A
         // newly spawned blast therefore cannot advance until the following call.
-        stationExplosion.StepFrame(bus);
+        stationExplosion.StepFrame();
         switch (Phase)
         {
             case CeresDestructionPhase.WaitForMusicQueue:
@@ -401,9 +401,9 @@ internal sealed class CeresDestructionCinematicState
             if (paletteFx is null)
             {
                 paletteFx = new RoomPaletteFxSystem();
-                paletteFx.SpawnDefinition(bus, CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
+                paletteFx.SpawnDefinition(CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
-            paletteFx.Step(bus, cgram, paletteFxColors ?? throw new InvalidOperationException(
+            paletteFx.Step(cgram, paletteFxColors ?? throw new InvalidOperationException(
                     "Ceres palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");

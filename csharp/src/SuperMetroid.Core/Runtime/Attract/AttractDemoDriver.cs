@@ -67,7 +67,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         if (_attractSession.Input is null) return;
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.StepStock(SuperMetroidGameState.PlayingDemo,
-            _player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace));
+            _player.IntroducedSamus.PoseMetadata.ReadMovementType());
         _attractSession.InputRestore = _controller1.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
@@ -127,10 +127,10 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _roomLoader.LoadCartridgeRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         ApplyAttractRoomSetup(scene.RoomSetupPointer);
-        _player.Samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
-        _player.Samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
+        _player.Samus.Presentation.LoadSuitPalette(_cgram);
+        _player.Samus.PoseMetadata.RefreshCollisionRadii();
         _player.Samus.Presentation.InitializeAnimation(_addressSpace);
-        _player.Samus.Presentation.PrimeGraphics(_addressSpace);
+        _player.Samus.Presentation.PrimeGraphics();
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);

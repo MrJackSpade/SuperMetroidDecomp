@@ -49,7 +49,7 @@ public sealed class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+        ppu = new MenuPpuState(mapPresentation.Tiles, mapPresentation.Palettes,
             mapPresentation.WorldArtwork, sprites, loadInitialBackground: false);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;

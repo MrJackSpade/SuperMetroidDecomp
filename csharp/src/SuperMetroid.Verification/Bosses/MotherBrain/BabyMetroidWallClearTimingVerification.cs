@@ -46,7 +46,7 @@ internal static class BabyMetroidWallClearTimingVerification
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         samus.HorizontalSpeed.BaseSubspeed = 0x3000;
         samus.HorizontalSpeed.ExtraRunSpeed = 2;

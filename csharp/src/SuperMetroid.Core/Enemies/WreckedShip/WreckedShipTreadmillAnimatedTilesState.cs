@@ -60,12 +60,11 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// Mirrors <c>Spawn_AnimatedTilesObject</c> for object $8275 or $827B. Both lists begin
     /// on the wait-for-area-boss instruction with an instruction timer of one.
     /// </summary>
-    public void Start(ISnesAddressSpace bus, WreckedShipTreadmillDirection direction)
+    public void Start(WreckedShipTreadmillDirection direction)
     {
-        Ensure.NotNull(bus);
         WreckedShipTreadmillObjectDefinition definition =
             WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
-        StartDefinition(bus, direction, definition.ObjectPointer);
+        StartDefinition(direction, definition.ObjectPointer);
     }
 
     /// <summary>
@@ -73,11 +72,9 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// retains strict generic-dispatch tests for deliberately constructed definitions.
     /// </summary>
     internal void StartDefinition(
-        ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
         AnimatedTileObject objectPointer)
     {
-        Ensure.NotNull(bus);
 
         IsActive = true;
         Direction = direction;
@@ -107,11 +104,9 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// source exists; after the bit is set, the four one-frame entries loop forever.
     /// </summary>
     public void Step(
-        ISnesAddressSpace bus,
         bool areaBossDefeated,
         VramWriteQueue writes)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(writes);
         LastSourceAddress = null;
         if (!IsActive)

@@ -135,7 +135,6 @@ internal static class EnemyProjectileDefinitionsVerification
             shot.Direction = (ushort)SamusProjectileDirection.Right;
             shot.Position = shot.Position.WithWhole(new(0x0100, 0x0100));
             int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
-                guard,
                 shots,
                 new SamusBombProjectileSystem());
             AssertEqual(1, hits, $"{kind} production shot admitted");

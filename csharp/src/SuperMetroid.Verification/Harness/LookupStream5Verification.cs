@@ -875,7 +875,7 @@ internal static class LookupStream5Verification
         var map = new LookupStream5ScrollMap();
         for (int selected = 0; selected < 4; selected++)
         {
-            var stock = new FileSelectMapScroll(rom, map, state, new(240, 128));
+            var stock = new FileSelectMapScroll(map, state, new(240, 128));
             ushort startX = stock.Scroll.X, startY = stock.Scroll.Y;
             for (int tick = 1; tick <= 8; tick++)
             {
@@ -886,7 +886,7 @@ internal static class LookupStream5Verification
                 AssertEqual(tick == 8 ? MapScrollDirection.None : (MapScrollDirection)(selected + 1), stock.Direction, "Accepted direction survives release");
             }
         }
-        var priority = new FileSelectMapScroll(rom, map, state, new(240, 128));
+        var priority = new FileSelectMapScroll(map, state, new(240, 128));
         _ = priority.Step((native[0] | native[1] | native[2] | native[3]));
         AssertEqual(MapScrollDirection.Left, priority.Direction, "Left takes priority among simultaneous directions");
         Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");

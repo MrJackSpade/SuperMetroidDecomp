@@ -98,7 +98,7 @@ public sealed class SamusBombProjectileSystem
         bool crystalFlashWindowWasActive = PowerBombExplosion.Phase is
             PowerBombExplosionPhase.CrystalFlashExplosion or
             PowerBombExplosionPhase.CrystalFlashAfterglow;
-        bool powerBombCleanup = PowerBombExplosion.StepFrame(bus);
+        bool powerBombCleanup = PowerBombExplosion.StepFrame();
         if (powerBombCleanup && !crystalFlashWindowWasActive)
         {
             // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
@@ -118,7 +118,7 @@ public sealed class SamusBombProjectileSystem
         // $88:8B78 runs Samus command $1E at the end of every cleanup, including the
         // Crystal Flash window's own.
         if (powerBombCleanup)
-            ResumeSoundsAfterPowerBombExplosion(bus, samus, gameState);
+            ResumeSoundsAfterPowerBombExplosion(samus, gameState);
 
         SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
     }
@@ -261,12 +261,10 @@ public sealed class SamusBombProjectileSystem
     /// Draws $93:834D's bomb-slot subset in descending physical-slot order.
     /// </summary>
     public void Draw(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ProjectileDrawArtwork artwork)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -318,15 +316,14 @@ public sealed class SamusBombProjectileSystem
     /// sound through command $1C; otherwise a flare of at least $10 resumes the charge loop.
     /// </summary>
     private static void ResumeSoundsAfterPowerBombExplosion(
-        ISnesAddressSpace bus,
         SamusState samus,
         SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState)
     {
         if (gameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
             return;
-        if (samus.PoseMetadata.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+        if (samus.PoseMetadata.ReadMovementType() is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            if (SamusSpinSoundCommand.Select(bus, samus) is { } spinSound)
+            if (SamusSpinSoundCommand.Select(samus) is { } spinSound)
                 samus.LiquidPhysics.QueueMovementSound(spinSound, maximumQueued: 9);
             return;
         }

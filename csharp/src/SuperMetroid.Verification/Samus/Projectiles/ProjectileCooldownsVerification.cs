@@ -40,7 +40,7 @@ internal static class ProjectileCooldownsVerification
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = beam };
-            var result = projectiles.Firing.TryFireBeam(bus, room, samus, edge, shared, null, charged);
+            var result = projectiles.Firing.TryFireBeam(room, samus, edge, shared, null, charged);
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
             int address = charged ? 0x90c264 + beam : edge == 0 ? 0x90c283 + beam : 0x90c254 + beam;
             AssertEqual((ushort)retail.ReadCartridgeByte(address), shared.CooldownTimer.RawValue,
@@ -84,7 +84,7 @@ internal static class ProjectileCooldownsVerification
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = beam, SelectedHudItem = 3, PowerBombs = 10 };
-            AssertTrue(projectiles.Combos.TryActivateCombo(bus, samus, shared, out _),
+            AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");
             AssertEqual((ushort)retail.ReadCartridgeByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
                 shared.CooldownTimer.RawValue, "Combo retains six-bit index into padding/non-beam neighbors");

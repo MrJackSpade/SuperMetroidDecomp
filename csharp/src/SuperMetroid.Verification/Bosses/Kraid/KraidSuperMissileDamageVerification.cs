@@ -46,7 +46,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.Room.LevelData = level;
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));
         game.GameState = SuperMetroidGameState.MainGameplay;

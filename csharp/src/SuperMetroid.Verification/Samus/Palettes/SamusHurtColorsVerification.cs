@@ -47,7 +47,7 @@ internal static class SamusHurtColorsVerification
         CompareHurtCycle(rom, catalog, cinematic: false);
         CompareHurtCycle(rom, catalog, cinematic: true);
         AssertThrows<InvalidOperationException>(() => SamusHurtFlashPalette.Update(
-            rom, new SnesCgram(), new SamusState { HurtFlashCounter = 1 }, 0),
+            new SnesCgram(), new SamusState { HurtFlashCounter = 1 }, 0),
             "hurt flash requires installed color artwork instead of a cartridge fallback");
         AssertThrows<InvalidDataException>(() => SamusHurtColorCatalog.Load(
             new MemoryStream(Encoding.UTF8.GetBytes("{\"version\":1,\"version\":1}"))),
@@ -76,7 +76,7 @@ internal static class SamusHurtColorsVerification
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)
                 cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index, Bgr555.FromWord(checked((ushort)(sentinel))));
             SamusHurtFlashPalette.Update(
-                guarded, cgram, samus, 0, catalog);
+                cgram, samus, 0, catalog);
             AssertEqual((ushort)(call + 1), samus.HurtFlashCounter,
                 $"{(cinematic ? "intro" : "ordinary")} hurt call {call} counter");
             if (call == 7)
@@ -126,7 +126,7 @@ internal static class SamusHurtColorsVerification
             var cgram = new SnesCgram();
             var guarded = NewForbiddenHurtColorBus(rom);
             SamusHurtFlashPalette.Update(
-                guarded, cgram, samus, 0, edited.SamusHurtColors);
+                cgram, samus, 0, edited.SamusHurtColors);
             SamusHurtColorVariant variant = cinematic
                 ? SamusHurtColorVariant.Intro : SamusHurtColorVariant.Hurt;
             for (int index = 0; index < SamusHurtColorFormat.ColorsPerPalette; index++)

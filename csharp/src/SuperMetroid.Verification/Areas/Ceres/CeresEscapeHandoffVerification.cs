@@ -40,7 +40,7 @@ internal static class CeresEscapeHandoffVerification
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(100, 100));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
 
@@ -110,7 +110,7 @@ internal static class CeresEscapeHandoffVerification
         // that interrupts a radius-$13 airborne body raises it by 21-19 = 2 pixels and keeps
         // the live radius until the following frame's pose epilogue.
         SamusState airborne = CreateSamus(SamusPoseId.FallingRightPose, position: new(100, 100));
-        airborne.PoseMetadata.RefreshCollisionRadii(bus);
+        airborne.PoseMetadata.RefreshCollisionRadii();
         airborne.Presentation.InitializeAnimation(bus);
         airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
         airborne.CeresRidleyEjection.Request(airborne);

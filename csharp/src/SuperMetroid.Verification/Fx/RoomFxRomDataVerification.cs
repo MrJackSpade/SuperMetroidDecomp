@@ -351,11 +351,11 @@ internal static class RoomFxRomDataVerification
                      frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
                      frameNumber++)
                 {
-                    state.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+                    state.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
                     AssertEqual(0, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                         $"{type} heat wave retains phase before frame four");
                 }
-                state.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+                state.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0x0100, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
                 AssertEqual(15, (state.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires state.CaptureForDisplay().")).LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
@@ -397,7 +397,7 @@ internal static class RoomFxRomDataVerification
     /// <summary>Decodes a literal synthetic sixteen-byte record independently of the compiled catalog before production FX initialization.</summary>
     internal static void LoadSyntheticRoomFx(RoomLayer3FxState state, TestAddressSpace bus,
         SnesVram vram, SnesCgram cgram, ushort pointer) =>
-        state.LoadDefinition(bus, vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
+        state.LoadDefinition(vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
     /// <summary>Reads all sixteen bank-$83 record bytes in native word/byte order for the independent fixture oracle.</summary>
     [CpuBusBoundary("exact bus test: decodes the synthetic sixteen-byte bank-$83 room FX record")]

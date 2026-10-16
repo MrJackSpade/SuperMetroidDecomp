@@ -62,7 +62,7 @@ internal static class YardAirborneVerification
                 SnesSignedSixteenSixteen.FromRaw(unchecked((int)initialY)));
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;
             for (int frame = 0; frame < 24; frame++)
             {

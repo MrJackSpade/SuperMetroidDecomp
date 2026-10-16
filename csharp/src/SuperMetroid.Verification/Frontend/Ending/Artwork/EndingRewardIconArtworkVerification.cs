@@ -110,7 +110,7 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var upload = new EndingRewardGraphicsUpload(uploadBus, stock.RewardIcon);
+                var upload = new EndingRewardGraphicsUpload(stock.RewardIcon);
                 var partialVram = new SnesVram();
                 partialVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5,
                     SnesVram.ByteCount).ToArray());

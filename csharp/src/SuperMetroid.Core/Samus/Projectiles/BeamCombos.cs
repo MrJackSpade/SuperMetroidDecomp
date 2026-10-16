@@ -28,10 +28,9 @@ internal sealed class BeamCombos
     /// This is the allocation boundary; the normal producer must call it only after
     /// charge/input eligibility, and particles require their own pre-instruction updates.
     /// </summary>
-    internal bool TryActivateCombo(ISnesAddressSpace bus, SamusState samus,
+    internal bool TryActivateCombo(SamusState samus,
         SamusBombProjectileSystem shared, out ushort sound)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         Ensure.NotNull(shared);
         sound = 0;
@@ -85,7 +84,7 @@ internal sealed class BeamCombos
             _slotTable.ProjectileCounter = 4;
             shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable._slots[0].Type & 63)));
             ComboState = kind == SamusComboKind.Spazer ? (ushort)0
-                : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacingRight(bus) ? (ushort)4 : unchecked((ushort)-4);
+                : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacingRight() ? (ushort)4 : unchecked((ushort)-4);
             sound = kind switch
             {
                 SamusComboKind.Wave => 40,

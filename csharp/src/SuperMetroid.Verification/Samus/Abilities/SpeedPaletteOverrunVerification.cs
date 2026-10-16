@@ -34,9 +34,9 @@ internal static class SpeedPaletteOverrunVerification
             var cgram = new SnesCgram();
             ushort equipped = (ushort)(SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster);
             for (int call = 0; call < phase / 2; call++)
-                speed.UpdateSpeedBoosterPalette(memory, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = equipped }, cycleColors: colors);
+                speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = equipped }, cycleColors: colors);
             AssertEqual(phase, speed.SpecialPaletteFrame, "Screw Attack leaves its shared phase for the next movement handler");
-            AssertTrue(speed.UpdateSpeedBoosterPalette(memory, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors),
+            AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors),
                 "leaving Screw Attack while boosted copies the native overrun palette without a crash");
             ushort pointer = Read(0x910000 | (Read(0x91daad) + phase));
             for (int color = 0; color < 16; color++)
@@ -54,10 +54,10 @@ internal static class SpeedPaletteOverrunVerification
             var first = cgram.Colors.ToArray();
             for (int call = 0; call < 3; call++)
             {
-                AssertTrue(!speed.UpdateSpeedBoosterPalette(memory, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors), "overrun palette remains until timer expires");
+                AssertTrue(!speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors), "overrun palette remains until timer expires");
                 AssertTrue(first.SequenceEqual(cgram.Colors), "palette holds for four frames");
             }
-            speed.UpdateSpeedBoosterPalette(memory, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors);
+            speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.NormalJumping, AnimationFrame = 0, EquippedItems = equipped }, cycleColors: colors);
             for (int color = 0; color < 16; color++)
                 AssertEqual((ushort)(Read(0x9b9f80 + color * 2) & 0x7fff), cgram.Colors[192 + color], "next tick restores native final Gravity boost shade");
         }

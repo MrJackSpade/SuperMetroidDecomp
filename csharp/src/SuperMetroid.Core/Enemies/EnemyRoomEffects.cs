@@ -190,7 +190,7 @@ internal sealed class EnemyRoomEffects
         if (requests.MotherBrainDeathStep is { } death)
         {
             foreach (ushort definition in death.EscapePaletteFxRequests)
-                _roomPaletteFx.SpawnDefinition(_addressSpace, definition, _player.IntroducedSamus.EquippedItems);
+                _roomPaletteFx.SpawnDefinition(definition, _player.IntroducedSamus.EquippedItems);
             if (death.TimerHandlingEnableRequested)
                 _player.IntroducedSamus.Drained.RelinquishTimerHackHandler();
             if (death.MotherBrainEscapeTimerStartRequested)

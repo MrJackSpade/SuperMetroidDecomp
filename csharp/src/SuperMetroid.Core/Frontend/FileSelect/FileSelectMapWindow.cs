@@ -14,19 +14,17 @@ public sealed class FileSelectMapWindow
     private NativeCountdown timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
-    /// <param name="bus">Non-null runtime address-space dependency; this setup uses compiled motion rather than reading cartridge tables.</param>
     /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
     /// <param name="labels">Required installed world-map label anchors; a missing catalog is rejected even though the parameter defaults to null.</param>
     /// <exception cref="ArgumentOutOfRangeException">The area has no supported transition.</exception>
     /// <exception cref="InvalidOperationException">World-map labels are not installed.</exception>
-    public FileSelectMapWindow(ISnesAddressSpace bus, int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
-        : this(bus, area, FileSelectMapWindowMotions.Get(area), labels) { }
+    public FileSelectMapWindow(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+        : this(area, FileSelectMapWindowMotions.Get(area), labels) { }
 
     /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
-    internal FileSelectMapWindow(ISnesAddressSpace bus, int area, FileSelectMapWindowMotion motion,
+    internal FileSelectMapWindow(int area, FileSelectMapWindowMotion motion,
         SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
     {
-        Ensure.NotNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         var installedLabels = labels ?? throw new InvalidOperationException(
@@ -58,9 +56,9 @@ public sealed class FileSelectMapWindow
     public bool IsReturning { get; private set; }
 
     /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>
-    public static FileSelectMapWindow CreateReturn(ISnesAddressSpace bus, int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
+    public static FileSelectMapWindow CreateReturn(int area, SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? labels = null)
     {
-        var window = new FileSelectMapWindow(bus, area, labels);
+        var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;
         window.timer = NativeCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapRomData.ReturnWindowTimerReduction)));
         int inset = FileSelectMapRomData.ReturnWindowInset;

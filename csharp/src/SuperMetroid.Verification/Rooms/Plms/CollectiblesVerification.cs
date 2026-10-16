@@ -152,7 +152,7 @@ internal static class CollectiblesVerification
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         var grappleSamus = new SamusState();
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
-        SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
+        SeedStationaryGrappleCollisionProbe(grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
             SnesButton.X, orb.Plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
@@ -677,7 +677,7 @@ internal static class CollectiblesVerification
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
         };
         samus.Presentation.SuitColors = suitColors;
-        SamusPresentation.LoadPowerSuitPalette(bus, cgram, suitColors);
+        SamusPresentation.LoadPowerSuitPalette(cgram, suitColors);
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
@@ -764,7 +764,7 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.GravitySuit;
-        samus.Presentation.LoadSuitPalette(bus, cgram);
+        samus.Presentation.LoadSuitPalette(cgram);
         AssertEqual((ushort)0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
     }
@@ -866,7 +866,7 @@ internal static class CollectiblesVerification
             var pickup = new SamusSuitPickupState();
             pickup.Begin(bus, samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(bus), (byte)samus.PoseMetadata.ReadMovementType(bus)));
+            ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
@@ -878,7 +878,7 @@ internal static class CollectiblesVerification
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
-            AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(bus), (byte)samus.PoseMetadata.ReadMovementType(bus)),
+            AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
         }

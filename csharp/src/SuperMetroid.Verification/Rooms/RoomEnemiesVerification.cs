@@ -367,7 +367,6 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
     int hits = enemies.Projectiles.ResolveEnemyProjectileSamusProjectileHits(
-        bus,
         shots,
         new SamusBombProjectileSystem());
 
@@ -1106,7 +1105,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
-            bus, projectiles, sharedProjectiles),
+            projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
         observedNormalRidleyPalette |= state.CommonDrawPaletteIndex == 0x0e00;
         observedFlashRidleyPalette |= state.CommonDrawPaletteIndex == 0;

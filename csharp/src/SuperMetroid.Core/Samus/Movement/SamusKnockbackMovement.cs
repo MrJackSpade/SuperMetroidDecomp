@@ -81,7 +81,7 @@ public static class SamusKnockbackMovement
         if (samus.KnockbackActive || samus.KnockbackDirection != 0)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
-        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
         bool morphed = sourceMovementType is
             SamusMovementType.MorphBallGround or
             SamusMovementType.MorphBallFalling or
@@ -132,7 +132,7 @@ public static class SamusKnockbackMovement
         // `$90:DEFA` replaces an ordinary body with `$53/$54`. `$90:DF15`, by contrast,
         // republishes the exact Morph/Spring Ball pose. Because UpdateSamusPose sees no
         // pose change in that branch, the rolling animation frame and timer survive.
-        bool facingLeft = SamusPoseMetadata.IsFacingLeft(bus, samus.Pose);
+        bool facingLeft = SamusPoseMetadata.IsFacingLeft(samus.Pose);
         if (humanoid)
         {
             SamusPoseId targetPose = facingLeft
@@ -157,7 +157,7 @@ public static class SamusKnockbackMovement
             samus.Pose = facingLeft
                 ? SamusPoseId.UnusedKnockbackLeftPose
                 : SamusPoseId.UnusedKnockbackRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             humanoid = true;
         }
 
@@ -208,7 +208,7 @@ public static class SamusKnockbackMovement
         (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
             SamusVerticalMotionDefinitions.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
-        SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
+        SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         if (humanoid)
             samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         return true;
@@ -237,14 +237,14 @@ public static class SamusKnockbackMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, samus.PoseMetadata.ReadMovementType(bus));
+        uint baseSpeed = speed.CalculateBaseSpeed(samus.PoseMetadata.ReadMovementType());
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == 0, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's
         // base speed incorrectly accelerates the next frame away from the obstacle.
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
         BlockMoveResult vertical = samus.KnockbackDirection is 1 or 2
             ? MoveWithSharedVerticalSpeedCalculation(bus, level, samus, nmiFrameCounter, plms)
@@ -301,7 +301,7 @@ public static class SamusKnockbackMovement
         // reset in `$91:8113` does not run for a merely prospective type change.
         // Preserve velocity and hurt words until the common expiry handoff consumes them.
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.KnockbackActive = false;
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
@@ -335,7 +335,7 @@ public static class SamusKnockbackMovement
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's delay stream starts at frame zero.
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         if (!samus.PoseTransitions.InitializeInstalledNormalJumpPose(bus, SamusMovementType.DamageBoost, controllerNewInput))
             samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
@@ -345,14 +345,13 @@ public static class SamusKnockbackMovement
     /// after movement/animation, including boosts which already restored normal movement.
     /// Returns whether this higher-priority transition superseded ordinary pose input.
     /// </summary>
-    public static bool TryFinishExpiredHitInterruption(ISnesAddressSpace bus, SamusState samus)
+    public static bool TryFinishExpiredHitInterruption(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         if (!IsExpiredHitInterruptionPending(samus))
             return false;
 
-        FinishExpiredHitInterruption(bus, samus);
+        FinishExpiredHitInterruption(samus);
         return true;
     }
 
@@ -372,9 +371,8 @@ public static class SamusKnockbackMovement
     /// hurt-expiry request, including when a higher-priority animation command has
     /// since replaced the current movement handler.
     /// </summary>
-    public static void FinishExpiredHitInterruption(ISnesAddressSpace bus, SamusState samus)
+    public static void FinishExpiredHitInterruption(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
         // Command one always calls `$90:EC7E`, even when command eight first installed

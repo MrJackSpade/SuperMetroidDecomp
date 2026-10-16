@@ -20,7 +20,7 @@ internal static class PoseDispatchDefinitionsVerification
     {
         var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();
-        Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory(memory);
+        Action<SamusState, ISnesAddressSpace> commit = (state, memory) => state.CommitPoseHistory();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             int address = SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount;
@@ -28,21 +28,21 @@ internal static class PoseDispatchDefinitionsVerification
             ISnesAddressSpace source = forbidden;
             samus.Pose = (SamusPoseId)pose;
             byte aim = rom.ReadCartridgeByte(address + 3);
-            AssertEqual(aim, samus.PoseMetadata.ReadShotDirection(source), "Live aim and restrictions retain the full native byte without authored ROM reads");
-            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection(source, (SamusPoseId)pose), "Prospective aim retains native byte and adjacent indexes");
-            AssertEqual(facing, samus.PoseMetadata.ReadPoseXDirection(source), "Live pose facing retains native value");
-            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection(source, (SamusPoseId)pose), "Prospective pose facing retains native value");
-            AssertEqual(fallback, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(source), "No-input fallback retains native pose or sentinel");
+            AssertEqual(aim, samus.PoseMetadata.ReadShotDirection(), "Live aim and restrictions retain the full native byte without authored ROM reads");
+            AssertEqual(aim, SamusPoseMetadata.ReadShotDirection((SamusPoseId)pose), "Prospective aim retains native byte and adjacent indexes");
+            AssertEqual(facing, samus.PoseMetadata.ReadPoseXDirection(), "Live pose facing retains native value");
+            AssertEqual(facing, SamusPoseMetadata.ReadPoseXDirection((SamusPoseId)pose), "Prospective pose facing retains native value");
+            AssertEqual(fallback, (byte)samus.PoseMetadata.ReadNoInputFallbackPose(), "No-input fallback retains native pose or sentinel");
             if (movement <= (byte)SamusMovementType.Special)
             {
-                AssertEqual(movement, (byte)samus.PoseMetadata.ReadMovementType(source), "Live movement discriminator matches native");
-                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType(source, (SamusPoseId)pose), "Prospective movement discriminator matches native");
+                AssertEqual(movement, (byte)samus.PoseMetadata.ReadMovementType(), "Live movement discriminator matches native");
+                AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType((SamusPoseId)pose), "Prospective movement discriminator matches native");
                 commit(samus, source);
                 AssertEqual((ushort)(SnesLittleEndian.Word(facing, movement)), samus.PoseHistory.PreviousDirectionAndMovement,
                     "Actual history publisher retains native facing/movement word");
             }
             else
-                AssertThrows<InvalidDataException>(() => samus.PoseMetadata.ReadMovementType(source), "Adjacent invalid movement remains a loud error");
+                AssertThrows<InvalidDataException>(() => samus.PoseMetadata.ReadMovementType(), "Adjacent invalid movement remains a loud error");
         }
 
         // These three compiled tables are queried by ordinary movement, rendering, and
@@ -50,8 +50,8 @@ internal static class PoseDispatchDefinitionsVerification
         // while still materializing a backing object on every access under a particular
         // compiler/runtime combination, so guard the actual production API rather than
         // assuming its source declaration is allocation-free.
-        _ = MeasurePoseDispatchAllocation(forbidden, out _);
-        long allocated = MeasurePoseDispatchAllocation(forbidden, out int checksum);
+        _ = MeasurePoseDispatchAllocation(out _);
+        long allocated = MeasurePoseDispatchAllocation(out int checksum);
         AssertTrue(checksum != 0, "Pose-dispatch allocation probe consumes live table values");
         AssertEqual(0L, allocated,
             "Warmed pose-dispatch lookups allocate no per-frame table storage");
@@ -60,15 +60,15 @@ internal static class PoseDispatchDefinitionsVerification
     }
     /// <summary>Measures allocations across warmed facing, movement, and fallback lookups.</summary>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
-    private static long MeasurePoseDispatchAllocation(ISnesAddressSpace forbidden, out int checksum)
+    private static long MeasurePoseDispatchAllocation(out int checksum)
     {
         checksum = 0;
         long before = GC.GetAllocatedBytesForCurrentThread();
         for (int index = 0; index < 65536; index++)
         {
             SamusPoseId pose = unchecked((SamusPoseId)(index % 253));
-            checksum += SamusPoseMetadata.ReadPoseXDirection(forbidden, pose);
-            checksum += (byte)SamusPoseMetadata.ReadMovementType(forbidden, pose);
+            checksum += SamusPoseMetadata.ReadPoseXDirection(pose);
+            checksum += (byte)SamusPoseMetadata.ReadMovementType(pose);
             checksum += (int)SamusPoseDispatchDefinitions.ReadNoInputPose(pose);
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;

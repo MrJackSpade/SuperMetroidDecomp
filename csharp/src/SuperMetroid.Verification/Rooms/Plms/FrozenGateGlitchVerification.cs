@@ -106,7 +106,7 @@ internal static class FrozenGateGlitchVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
         samus.Position = samus.Position.WithWholeY(FrozenGateY);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         AssertEqual((ushort)5, samus.Kinematics.Radius.X,
             "standing Samus horizontal collision radius");
         AssertEqual((ushort)21, samus.Kinematics.Radius.Y,

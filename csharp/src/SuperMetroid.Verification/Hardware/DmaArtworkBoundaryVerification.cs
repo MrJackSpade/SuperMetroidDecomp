@@ -90,8 +90,8 @@ internal static class DmaArtworkBoundaryVerification
             "Kraid death restoration requires installed HUD art even when queued");
 
         var animation = new RoomFxAnimatedTilesState();
-        animation.LoadDefinition(memory, AnimatedTileObject.Lava);
-        AssertThrows<InvalidOperationException>(() => animation.Step(memory, new SnesVram()),
+        animation.LoadDefinition(AnimatedTileObject.Lava);
+        AssertThrows<InvalidOperationException>(() => animation.Step(new SnesVram()),
             "direct animated characters require installed art, not a bus reader");
         Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background, eight BG3 transfer cases and missing-artwork rejection pass.");
     }

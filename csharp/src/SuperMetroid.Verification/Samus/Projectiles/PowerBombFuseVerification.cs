@@ -64,7 +64,7 @@ internal static class PowerBombFuseVerification
         for (int frame = 0; frame < 400; frame++)
         {
             retainedSpeed = explosion.RadiusSpeed;
-            if (!explosion.StepFrame(bus)) continue;
+            if (!explosion.StepFrame()) continue;
             completed = true;
             break;
         }

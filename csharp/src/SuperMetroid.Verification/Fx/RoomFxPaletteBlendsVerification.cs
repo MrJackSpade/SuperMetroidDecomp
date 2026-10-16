@@ -211,7 +211,7 @@ internal static class RoomFxPaletteBlendsVerification
             PaletteBlendColors = catalog,
             Layer3Tilemaps = tilemaps,
         };
-        state.Load(bus, new SnesVram(), cgram, record.Pointer, doorPointer: 0, randomNumber: 0);
+        state.Load(new SnesVram(), cgram, record.Pointer, doorPointer: 0, randomNumber: 0);
         return (state, bus, cgram);
     }
 

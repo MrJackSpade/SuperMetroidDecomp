@@ -68,7 +68,7 @@ internal static class InstalledPowerBombIsolationTests
                     {
                         frames++;
                         Require(frames < 300, "The bounded stock explosion failed to clean up.");
-                        bool expected = baseline.StepFrame(memory), actual = replacement.StepFrame(memory);
+                        bool expected = baseline.StepFrame(), actual = replacement.StepFrame();
                         string context = $"{edit}, {(crystalFlash ? "Crystal Flash" : "Power Bomb")}, frame {frames}";
                         RequireSameMechanics(baseline, replacement, context);
                         Require(expected == actual, context + ": cleanup result differs");
@@ -230,7 +230,7 @@ internal static class InstalledPowerBombIsolationTests
                 RequireSameMechanics(state, legacy, "Legacy stock graph restore");
                 CompareRemainder(state, legacy, colors, "Legacy stock graph resume");
                 legacyRestores++;
-                _ = state.StepFrame(memory);
+                _ = state.StepFrame();
             } while (state.IsActive);
         }
         Console.WriteLine($"Explosion state compatibility: {currentRestores} current and {legacyRestores} old-layout " +
@@ -258,7 +258,7 @@ internal static class InstalledPowerBombIsolationTests
         int remaining = Math.Max(color.Red, Math.Max(color.Green, color.Blue)) + 1;
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         for (int frame = 1; frame <= remaining; frame++)
-            Require(historical.StepFrame(memory) == (frame == remaining),
+            Require(historical.StepFrame() == (frame == remaining),
                 context + ": modded legacy capture did not preserve its historical cleanup frame");
         Require(!historical.IsActive, context + ": modded legacy capture did not release HDMA");
     }
@@ -274,7 +274,7 @@ internal static class InstalledPowerBombIsolationTests
         do
         {
             Require(++frames < 300, context + ": cleanup did not occur");
-            Require(baseline.StepFrame(memory) == restored.StepFrame(memory), context + ": cleanup frame differs");
+            Require(baseline.StepFrame() == restored.StepFrame(), context + ": cleanup frame differs");
             RequireSameMechanics(baseline, restored, context);
             Require(Colors(baseline) == Colors(restored), context + ": restored display fade differs");
         } while (baseline.IsActive);

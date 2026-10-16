@@ -57,7 +57,7 @@ internal static class ProjectileTrailArtworkVerification
                 DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(sprites =>
                 {
-                    authoredSystem.AdvanceTrails(NewProjectileCompositionForbiddenBus(), frozenFrame, catalog);
+                    authoredSystem.AdvanceTrails(frozenFrame, catalog);
                     authoredSystem.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
@@ -98,12 +98,12 @@ internal static class ProjectileTrailArtworkVerification
             // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
             OamBuffer native = SpriteFrameBuffer.DrawnOam(sprites =>
             {
-                system.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, null);
+                system.AdvanceTrails(true, null);
                 system.DrawTrails(sprites, Position16<RoomPixels>.Zero, null, InstalledFixtures.ProjectileArtwork());
             });
             OamBuffer authored = SpriteFrameBuffer.DrawnOam(sprites =>
             {
-                system.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, catalog);
+                system.AdvanceTrails(true, catalog);
                 system.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
             });
             AssertTrue(native.ImageEquals(authored), "Trail catalog preserves native culling and complete OAM bytes");
@@ -124,19 +124,19 @@ internal static class ProjectileTrailArtworkVerification
         trail.InstructionPointer = first; trail.InstructionTimer = NativeCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
-            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, edited);
+            animation.AdvanceTrails(true, edited);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, edited, InstalledFixtures.ProjectileArtwork());
         });
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
-        animation.AdvanceTrails(bus, false, catalog);
+        animation.AdvanceTrails(false, catalog);
         OamBuffer original = SpriteFrameBuffer.DrawnOam(sprites =>
         {
-            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, catalog);
+            animation.AdvanceTrails(true, catalog);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
         });
         OamBuffer changed = SpriteFrameBuffer.DrawnOam(sprites =>
         {
-            animation.AdvanceTrails(NewProjectileCompositionForbiddenBus(), true, edited);
+            animation.AdvanceTrails(true, edited);
             animation.DrawTrails(sprites, Position16<RoomPixels>.Zero, edited, InstalledFixtures.ProjectileArtwork());
         });
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");

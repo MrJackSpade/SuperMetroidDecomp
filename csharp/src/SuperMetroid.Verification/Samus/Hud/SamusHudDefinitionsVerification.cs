@@ -55,7 +55,7 @@ internal static class SamusHudDefinitionsVerification
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
                     (handler is 0xdd3d or 0xdd6f or 0xddd8 || handler == 0xdd74 && turn != 0 ||
                         handler == 0xdd8c && Transition((SamusPoseId)pose, false));
-                AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(bus, samus), "Actual Grapple HUD admission");
+                AssertEqual(expected, SamusGrappleHudInput.IsSelectedAndAdmitted(samus), "Actual Grapple HUD admission");
             }
         }
         // Exercise the other consumer, the real beam producer. Earn a partial charge

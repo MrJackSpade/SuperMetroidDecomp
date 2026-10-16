@@ -43,7 +43,7 @@ internal static class ChargeFlarePlacementVerification
         var system = new SamusProjectileSystem();
         var sprites = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(bus)));
         var drawMetadata = new FlareMetadataDraw(system.Animation.DrawFlareComponentWithMetadata);
-        var draw = new Action<ISnesAddressSpace, SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork objects = InstalledFixtures.ProjectileArtwork();
         int cases = 0;
         foreach (SamusPoseId pose in new[]
@@ -83,9 +83,9 @@ internal static class ChargeFlarePlacementVerification
         var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
-        OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(bus, frame, subject, Position16<RoomPixels>.Zero, 0, null,
+        OamBuffer original = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
             new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
-        OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(bus, frame, subject, Position16<RoomPixels>.Zero, 0, null,
+        OamBuffer changed = SpriteFrameBuffer.DrawnOam(frame => draw(frame, subject, Position16<RoomPixels>.Zero, 0, null,
             new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
         AssertTrue(original.LastFinalizedSpriteCount > 0, "Edited flare placement fixture draws visible sprites");
         AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Visual shift retains sprite count");
@@ -106,10 +106,10 @@ internal static class ChargeFlarePlacementVerification
             }
             subject.HyperBeam = hyper;
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
-            original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(guarded, frame, subject, new(0, 0),
+            original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 originalSystem.AdvanceChargeFlare(subject), null,
                 new ChargeFlareArtwork { Placement = stock, Compositions = sprites, Objects = objects }));
-            changed = SpriteFrameBuffer.DrawnOam(frame => editedSystem.DrawChargeFlare(guarded, frame, subject, new(0, 0),
+            changed = SpriteFrameBuffer.DrawnOam(frame => editedSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 editedSystem.AdvanceChargeFlare(subject), null,
                 new ChargeFlareArtwork { Placement = edited, Compositions = sprites, Objects = objects }));
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
@@ -165,7 +165,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));

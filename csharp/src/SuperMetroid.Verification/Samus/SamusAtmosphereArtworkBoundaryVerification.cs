@@ -49,7 +49,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 OamBuffer oam;
-                effects.UpdateAndDraw(runtimeBus, oamFrame, new(0, 0), 128,
+                effects.UpdateAndDraw(oamFrame, new(0, 0), 128,
                     directArtwork: artwork, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 oam = oamFrame.FinalizeAsOam();
                 AssertEqual((byte)expected, oam.LowTable[2],
@@ -65,7 +65,7 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
                 var oamFrame = new SpriteFrameBuffer();
                 oamFrame.BeginFrame();
                 OamBuffer oam;
-                missing.UpdateAndDraw(runtimeBus, oamFrame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+                missing.UpdateAndDraw(oamFrame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects);
                 oam = oamFrame.FinalizeAsOam();
             }, "authored atmospheric art cannot fall back to ROM");
 
@@ -73,9 +73,9 @@ internal static class SamusAtmosphereArtworkBoundaryVerification
             var mutable = new SamusAtmosphericEffectsState();
             mutable.SetSlot(0, 2, 0, 2, new(128, 128));
             OamBuffer mutableOam = SpriteFrameBuffer.DrawnOam(frame =>
-                mutable.UpdateAndDraw(runtimeBus, frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+                mutable.UpdateAndDraw(frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
             OamBuffer emptyOam = SpriteFrameBuffer.DrawnOam(frame =>
-                new SamusAtmosphericEffectsState().UpdateAndDraw(runtimeBus, frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
+                new SamusAtmosphericEffectsState().UpdateAndDraw(frame, new(0, 0), 128, standardObjects: SpriteFrameTestArtwork.StandardObjects));
             AssertTrue(mutableOam.LowTable.ToArray().SequenceEqual(emptyOam.LowTable.ToArray()),
                 "type two's null list pointer draws nothing, whatever WRAM holds (#1318)");
 

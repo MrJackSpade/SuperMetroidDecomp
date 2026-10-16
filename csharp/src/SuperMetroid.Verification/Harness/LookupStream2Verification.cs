@@ -243,14 +243,14 @@ internal static class LookupStream2Verification
             AssertEqual(64, cycle, "Native pass cadence sums to its exact loop period");
             var guarded = NewPaletteFxMechanicsForbiddenBus(rom, out _);
             var actual = new RoomPaletteFxSystem();
-            actual.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
+            actual.SpawnDefinition(definition.DefinitionPointer, equippedItems: 0);
             var cgram = new SnesCgram();
             var colors = new ReferencePaletteFxColorSource(guarded);
             int frameIndex = 0, elapsed = 0;
             for (int tick = 0; tick <= cycle; tick++)
             {
                 if (elapsed == nativeDurations[frameIndex]) { frameIndex = (frameIndex + 1) % 15; elapsed = 0; }
-                actual.Step(guarded, cgram, colors, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+                actual.Step(cgram, colors, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
                 for (int color = 0; color < 3; color++)
                     AssertEqual(ReadVerificationWord(rom, 0x8d0000 | definition.ColorPointer(frameIndex, color)),
                         cgram.Colors[definition.ColorByteIndex / 2 + color], "Actual CGRAM follows each exact native hold and loop boundary");
@@ -1417,7 +1417,7 @@ internal static class LookupStream2Verification
                 StepNative(nativeSystem.TrailSlots[0], nativeSystem.TrailSlots[0].Right, nativeOam, frozenFrame);
                 OamBuffer authoredOam = SpriteFrameBuffer.DrawnOam(frame =>
                 {
-                    authoredSystem.AdvanceTrails(NewProjectileCompositionForbiddenBus(), frozenFrame, catalog);
+                    authoredSystem.AdvanceTrails(frozenFrame, catalog);
                     authoredSystem.DrawTrails(frame, Position16<RoomPixels>.Zero, catalog, InstalledFixtures.ProjectileArtwork());
                 });
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");

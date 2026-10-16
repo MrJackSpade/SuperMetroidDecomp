@@ -217,7 +217,7 @@ public sealed class TourianStatueSequence
                         break;
                     case AnimatedTileInstruction.SpawnPaletteFxObject:
                         _roomPaletteFx.SpawnDefinition(
-                            bus, MechanicsWord(tile, operand), _player.IntroducedSamus.EquippedItems);
+                            MechanicsWord(tile, operand), _player.IntroducedSamus.EquippedItems);
                         break;
                     case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
                     case AnimatedTileInstruction.SpawnTourianStatueSoul:

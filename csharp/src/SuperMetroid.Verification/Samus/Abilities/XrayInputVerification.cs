@@ -34,7 +34,7 @@ internal static class XrayInputVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         // The platform's lowest position is a Morph-only tunnel. Standing there
         // embeds the torso in terrain and cannot validate a visible X-ray beam.
@@ -137,12 +137,12 @@ internal static class XrayInputVerification
             runtime.LoadCartridgeRoomForDebug(roomPointer);
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
-            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(bus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
+            AssertTrue(samus.Xray.TryBegin(bus, samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
             for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             var baseFrame = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

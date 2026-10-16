@@ -420,7 +420,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             (short)unchecked((ushort)(top.Position.X.Whole + 8 - samus.Position.X.Whole)) >= 0 &&
             (short)unchecked((ushort)(top.Position.Y.Whole - 64 - samus.Position.Y.Whole)) < 0 &&
             (short)unchecked((ushort)(top.Position.Y.Whole - samus.Position.Y.Whole)) >= 0;
-        if (insideEntrance && samus.PoseMetadata.ReadMovementKind(_room.LoadedBus) == SamusMovementType.Standing)
+        if (insideEntrance && samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slotTable._slots[top.SlotIndex + 2];
             top.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
@@ -433,7 +433,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             }
             samus.PoseMetadata.ApplyForwardFacingPoseSetup(_room.LoadedBus);
             samus.InputLocked = true;
-            samus.Presentation.PrimeGraphics(_room.LoadedBus);
+            samus.Presentation.PrimeGraphics();
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);
             top.VariableA = 144;

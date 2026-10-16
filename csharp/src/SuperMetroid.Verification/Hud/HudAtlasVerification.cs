@@ -116,7 +116,7 @@ internal static class HudAtlasVerification
             // observable, rather than accepting parity between two black HUDs.
             for (int i = 0; i < 32; i++) runtime.Cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 0x421)));
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.Hud.UpdateMinimap(guard, runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
+            runtime.Hud.UpdateMinimap(runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = (runtime.Artwork.MapPresentation ?? throw new InvalidOperationException("Verification requires runtime.Artwork.MapPresentation.")).Get(AreaId.Crateria) });
             runtime.Hud.QueueUpload(runtime.VramWrites);
         }
         static Rgba32[] Render(SuperMetroidRuntime runtime) => SnesBgTilemapRenderer.Render2Bpp(runtime.Vram, runtime.Cgram,

@@ -145,7 +145,7 @@ internal static class FileSelectRoomMapVerification
                 setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
         cancel.Step(0);
         AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
-                FileSelectMapWindow.CreateReturn(bus, 4, maps.Labels))),
+                FileSelectMapWindow.CreateReturn(4, maps.Labels))),
             "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
@@ -445,7 +445,7 @@ internal static class FileSelectRoomMapVerification
         SnesButton[] inputs = [SnesButton.Left, SnesButton.Right, SnesButton.Up, SnesButton.Down];
         for (int direction = 1; direction <= 4; direction++)
         {
-            var scroll = new FileSelectMapScroll(bus, map, system, new(240, 128));
+            var scroll = new FileSelectMapScroll(map, system, new(240, 128));
             AssertEqual(124, scroll.Scroll.X, "room map centers native horizontal bounds");
             AssertEqual(32, scroll.Scroll.Y, "room map rounds the 112px center offset down to a tile boundary");
             AssertEqual(24, scroll.Minimum.Y, "room-select upper arrow boundary gets delayed 24px adjustment");
@@ -461,10 +461,10 @@ internal static class FileSelectRoomMapVerification
             }
             AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
         }
-        var precedence = new FileSelectMapScroll(bus, map, system, new(240, 128));
+        var precedence = new FileSelectMapScroll(map, system, new(240, 128));
         precedence.Step((SnesButton.Up | SnesButton.Down | SnesButton.Left | SnesButton.Right));
         AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
-        var empty = new FileSelectMapScroll(bus, map, new Bank80SystemState(), new(216, 48));
+        var empty = new FileSelectMapScroll(map, new Bank80SystemState(), new(216, 48));
         AssertEqual(208, empty.Minimum.X, "empty map uses retail left default");
         AssertEqual(224, empty.Maximum.X, "empty map uses retail right default");
         AssertEqual(32, empty.Minimum.Y, "empty map uses top default then file-select adjustment");
@@ -502,7 +502,7 @@ internal static class FileSelectRoomMapVerification
         }
         var sprites = MapSpriteCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)),
             new MemoryStream(artwork[MapSpriteFormat.PngFile]));
-        var marker = new FileSelectStationMarker(bus, AreaId.Crateria, 0, layout);
+        var marker = new FileSelectStationMarker(AreaId.Crateria, 0, layout);
         int[] expectedFrames = [0x60, 0x61, 0x60, 0x5f, 0x60, 0x61, 0x60, 0x5f];
         int[] durations = [4, 8, 4, 8, 4, 8, 4, 8];
         for (int phase = 0; phase < durations.Length; phase++)
@@ -527,9 +527,9 @@ internal static class FileSelectRoomMapVerification
             AssertTrue(first.SequenceEqual(oam.LowTable.ToArray()), "repainting station marker does not advance animation");
         }
         int unused = Enumerable.Range(0, 16).First(index => !MapSaveMarkerDefinitions.IsUsable(AreaId.Crateria, index));
-        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, unused, layout),
+        AssertThrows<InvalidDataException>(() => new FileSelectStationMarker(AreaId.Crateria, unused, layout),
             "unused station map entry rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(bus, AreaId.Crateria, 16, layout),
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, 16, layout),
             "station lookup cannot cross the sixteen-slot domain");
     }
 

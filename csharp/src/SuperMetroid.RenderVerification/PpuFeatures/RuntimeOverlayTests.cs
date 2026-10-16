@@ -35,7 +35,7 @@ internal static class RuntimeOverlayTests
         // sequence. This isolates the production composition order in one room.
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
-        for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
+        for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame();
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
@@ -50,7 +50,7 @@ internal static class RuntimeOverlayTests
         for (int tick = 0; tick < 90; tick++)
         {
             var retained = Check($"combined overlay tick {tick}");
-            runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
+            runtime.BombProjectiles.PowerBombExplosion.StepFrame();
             runtime.MessageBox.Step(0);
             runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
             // Force GPU resources to contain the next frame before replaying the old

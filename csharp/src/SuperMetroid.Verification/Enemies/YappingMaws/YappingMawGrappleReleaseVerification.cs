@@ -30,9 +30,9 @@ internal static class YappingMawGrappleReleaseVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
         samus.Position = samus.Position.WithWhole(new(936, 172));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 24);
-        samus.Presentation.SetPoseAndAnimationFromScriptedController(bus, samus.Pose, 24, 3, refreshRadius: false);
+        samus.Presentation.SetPoseAndAnimationFromScriptedController(samus.Pose, 24, 3, refreshRadius: false);
         samus.Grapple.Phase = GrapplePhase.ConnectedSwinging;
         samus.Grapple.CancelFromConnectedPose = false;
         samus.EquippedItems |= (ushort)SamusEquipmentFlags.GrappleBeam;
@@ -60,7 +60,7 @@ internal static class YappingMawGrappleReleaseVerification
         // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
         AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseId.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
         AssertTrue(!samus.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
-        AssertTrue(samus.PoseMetadata.ReadMovementType(bus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
+        AssertTrue(samus.PoseMetadata.ReadMovementType() != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame((SnesButton.Left | SnesButton.X | SnesButton.R));
         AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
         AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");

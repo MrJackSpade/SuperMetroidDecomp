@@ -23,7 +23,7 @@ internal static class PowerBombAfterglowShapeVerification
         explosion.Arm();
         explosion.Spawn(new(32, 208));
         for (int frame = 0; frame < 200 && explosion.Phase != PowerBombExplosionPhase.Afterglow; frame++)
-            explosion.StepFrame(rom);
+            explosion.StepFrame();
         AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Phase, "reported blast reaches the fade transition");
         AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.RenderedPhase, "transition retains the final expanding oval");
         ushort finalShape = explosion.RenderedShapeDefinitionPointer;
@@ -51,7 +51,7 @@ internal static class PowerBombAfterglowShapeVerification
             }
             checkedFrames++;
             AssertTrue(checkedFrames < 200, "afterglow cleanup is bounded");
-            explosion.StepFrame(rom);
+            explosion.StepFrame();
         }
         AssertTrue(checkedFrames > 1, "confirms both final expansion and fading frames");
         Console.WriteLine($"Power Bomb afterglow: {checkedFrames} frames retain the native oval, including captured windows and rendered corner pixels.");

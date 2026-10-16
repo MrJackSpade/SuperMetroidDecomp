@@ -192,7 +192,7 @@ internal static partial class SwapchainTests
 
     /// <summary>Checks that a blocked GPU consumer does not let a queued gameplay door transition corrupt frame identity or progress.</summary>
     internal static void VerifyBlockedDoor(D3D11RenderDevice device, D3D11FrameRenderer renderer,
-        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
+        SuperMetroidRuntime runtime, ushort door, ushort destination, string context)
     {
         nint window = CreateWindowExW(0, "STATIC", "Hidden door backlog verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -213,7 +213,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => entered.IsSet);
             var clock = Stopwatch.StartNew();
             RenderFrameSnapshot? latest = null;
-            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
+            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
                 {
                     latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), (packet.Layers ?? throw new InvalidOperationException("Verification requires packet.Layers.")), packet.BrightnessPasses);
                     worker.Publish(latest);

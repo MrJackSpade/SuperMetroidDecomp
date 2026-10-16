@@ -48,12 +48,12 @@ internal static class PauseDoorShinesparkVerification
             samus.InputLocked = false;
             samus.Health = 999;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
             samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
             samus.Shinespark.BeginWindup(samus);
             samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkHorizontalRightPose);
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, 128));
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(SnesButton.Start);

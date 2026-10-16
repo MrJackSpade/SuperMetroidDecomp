@@ -404,7 +404,7 @@ internal static class LookupStream1Verification
             AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameCount(invalid), "Inactive/out-of-domain atmospheric type rejects");
             AssertThrows<InvalidDataException>(() => SamusAtmosphericAnimationDefinitions.FrameTimer(invalid, 0), "Invalid atmospheric type fails before frame selection");
         }
-        Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence(NewSamusAtmosphericAnimationReadGuard(rom)));
+        Suite(nameof(VerifyProductionAtmosphericCadence), () => VerifyProductionAtmosphericCadence());
     }
 
     /// <summary>Reads bank-$90 atmospheric timer tables for the cadence oracle.</summary>
@@ -1071,7 +1071,7 @@ internal static class LookupStream1Verification
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.TileTransfers.BindArtwork(stock);
-            samus.Presentation.Draw(rom, new SpriteFrameBuffer(), new(0, 0));
+            samus.Presentation.Draw(new SpriteFrameBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
@@ -1142,7 +1142,7 @@ internal static class LookupStream1Verification
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.Presentation.TileTransfers.BindArtwork(stock);
-                samus.Presentation.Draw(rom, new SpriteFrameBuffer(), new(0, 0));
+                samus.Presentation.Draw(new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
@@ -1224,7 +1224,7 @@ internal static class LookupStream1Verification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.Presentation.TileTransfers.BindArtwork(stock);
-            samus.Presentation.Draw(rom, new SpriteFrameBuffer(), layer1: new(0, 0));
+            samus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
             ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
@@ -1664,7 +1664,7 @@ internal static class LookupStream1Verification
         var compositions = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
-        var draw = new Action<ISnesAddressSpace, SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
+        var draw = new Action<SpriteFrameBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlareArtwork>(system.Animation.DrawFlareComponent);
         ProjectileDrawArtwork flareObjects = InstalledFixtures.ProjectileArtwork();
         var shiftedDocument = RequiredJson.Deserialize<ChargeFlarePlacementDocument>(json, options);
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
@@ -1684,9 +1684,9 @@ internal static class LookupStream1Verification
             short y = Word((running ? 0x90c1f0 : 0x90c1c2) + direction * 2);
             var expected = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, new((ushort)(100 + x), unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose))))));
-            OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(NewLookupFlareForbiddenBus(), frame, samus, Position16<RoomPixels>.Zero, 0, null,
+            OamBuffer actual = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
                 new ChargeFlareArtwork { Placement = stock, Compositions = compositions, Objects = flareObjects }));
-            OamBuffer edited = SpriteFrameBuffer.DrawnOam(frame => draw(NewLookupFlareForbiddenBus(), frame, samus, Position16<RoomPixels>.Zero, 0, null,
+            OamBuffer edited = SpriteFrameBuffer.DrawnOam(frame => draw(frame, samus, Position16<RoomPixels>.Zero, 0, null,
                 new ChargeFlareArtwork { Placement = shifted, Compositions = compositions, Objects = flareObjects }));
             AssertTrue(expected.ImageEquals(actual), "Actual flare OAM matches independently positioned native sprite");
             AssertEqual(expected.NextByteOffset / 4, actual.LastFinalizedSpriteCount, "Native flare OAM admission");
@@ -2957,13 +2957,13 @@ internal static class LookupStream1Verification
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1 };
                 samus.Presentation.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
-                cannon.Update(rom, samus); cannon.Update(rom, samus);
+                cannon.Update(samus); cannon.Update(samus);
                 int pointer = SnesLittleEndian.Word(LookupStream1CannonPlacementRomByte(rom, 0x90c7df + (int)pose * 2), LookupStream1CannonPlacementRomByte(rom, 0x90c7e0 + (int)pose * 2));
                 int offset = (LookupStream1CannonPlacementRomByte(rom, 0x900000 | pointer) & 128) != 0 ? 4 : 2;
                 int x = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2)));
                 int y = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x900000 | (pointer + offset + frame * 2 + 1)));
                 int graphics = unchecked((sbyte)LookupStream1CannonPlacementRomByte(rom, 0x91b629 + (int)pose * 8 + 4));
-                OamBuffer cannonOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(rom, frame, samus, Position16<RoomPixels>.Zero, 0));
+                OamBuffer cannonOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, Position16<RoomPixels>.Zero, 0));
                 AssertEqual(1, cannonOam.LastFinalizedSpriteCount, "Actual cover draw publication");
                 OamEntry cannonEntry = cannonOam.GetEntry(0);
                 AssertEqual(128 + x, cannonEntry.X, "Actual native cover X");
@@ -3054,7 +3054,7 @@ internal static class LookupStream1Verification
         var memory = new TestAddressSpace();
         byte[] record = [1, 0, 3, 0, 2, 0x34, 0x12];
         for (int index = 0; index < record.Length; index++) memory.WriteByte(0x920000 + index, record[index]);
-        OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(memory, 3, new Position16<ScreenPixels>(127, 131),
+        OamBuffer oam = SpriteFrameBuffer.DrawnOam(frame => frame.AddSamusSpritemap(3, new Position16<ScreenPixels>(127, 131),
             SpriteFrameTestArtwork.Spritemaps(stock), new SpriteSource(SpriteSourceKind.Samus)));
         AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
     }
@@ -3231,7 +3231,7 @@ internal static class LookupStream1Verification
         foreach (var selected in new (SamusPoseId Pose, ushort Phase)[] { (SamusPoseId.FacingRightNormalPose, 0), (SamusPoseId.UnusedPose65, 6), (SamusPoseId.UnusedPose65, 7), (SamusPoseId.UnusedPose66, 8), (SamusPoseId.DeathSequenceLeftPose, 0) })
         {
             var state = new SamusTileTransferState(); state.BindArtwork(body);
-            state.SelectForPoseFrame(guard, selected.Pose, selected.Phase);
+            state.SelectForPoseFrame(selected.Pose, selected.Phase);
             int frameAddress = 0x920000 | (Word(0x92d94e + (int)selected.Pose * 2) + selected.Phase * 4);
             int topAddress = 0x920000 | (Word(0x92d91e + LookupStream1BodyTransfersRomByte(rom, frameAddress) * 2) + LookupStream1BodyTransfersRomByte(rom, frameAddress + 1) * 7);
             AssertEqual(topAddress, state.TopDefinitionAddress, "Native physical upper selection including cross-group position");
@@ -3248,7 +3248,7 @@ internal static class LookupStream1Verification
             }
             Copy(state.TopDefinitionAddress, 0x6000);
             if (state.BottomTransferEnabled) Copy(state.BottomDefinitionAddress, 0x6080);
-            state.TransferToVram(guard, actual);
+            state.TransferToVram(actual);
             AssertTrue(expected.ImageEquals(actual), "Actual complete native split DMA and physical cross-group aliases");
             AssertTrue(state.TopTransferEnabled, "Native NMI preserves transfer flags");
             transfers++;

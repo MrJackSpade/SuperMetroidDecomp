@@ -9,7 +9,7 @@ namespace SuperMetroid.IntegrationVerification.Gameplay;
 internal static class MaridiaPipeIncomingDoorSeed
 {
     /// <summary>Places Samus above the authored Plasma Spark door block and lets gravity drive the source-room approach before the frontend owns the transition.</summary>
-    public static void Apply(SuperMetroidRuntime runtime, ISnesAddressSpace bus, CartridgeDoorHeader door)
+    public static void Apply(SuperMetroidRuntime runtime, CartridgeDoorHeader door)
     {
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom);
         var level = runtime.Room.LoadedLevelData;
@@ -18,7 +18,7 @@ internal static class MaridiaPipeIncomingDoorSeed
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            if (level.ResolveDoorCollision(bus, block.Behavior, runtime.Player.IntroducedSamus.Pose, false).Pointer != door.Pointer) continue;
+            if (level.ResolveDoorCollision(block.Behavior, runtime.Player.IntroducedSamus.Pose, false).Pointer != door.Pointer) continue;
             entry = index;
             break;
         }

@@ -25,11 +25,11 @@ internal static class EscapeRunningFootstepsVerification
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(bus, samus);
             else samus.Drained.SetupForRainbowBeamUnableToStand(bus, samus);
-            samus.Drained.PutCrouchingOrFalling(bus, samus);
+            samus.Drained.PutCrouchingOrFalling(samus);
             if (!able)
             {
                 AssertTrue(samus.Drained.StepGetUpHandler(samus, SnesButton.Up), "cutscene still accepts failed stand-up");
@@ -55,7 +55,7 @@ internal static class EscapeRunningFootstepsVerification
 
             samus.Pose = pose;
             samus.InputLocked = false;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus, initialFrame: 8);
             samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
             samus.LiquidPhysics.FxType = RoomFxType.Acid;

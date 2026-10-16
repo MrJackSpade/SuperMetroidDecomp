@@ -21,11 +21,11 @@ internal static class RoomPaletteFxSystemAccess
         internal ushort PreviousSamusInHeatPaletteIndex => self.previousSamusInHeatPaletteIndex;
 
         /// <summary>Loads an explicit FX record through the normal room palette-object path.</summary>
-        internal void LoadDefinition(ISnesAddressSpace bus, RoomFxRecordDefinition definition,
+        internal void LoadDefinition(RoomFxRecordDefinition definition,
             AreaId area, ushort equippedItems, bool areaMiniBossDefeated)
         {
             Ensure.NotNull(definition);
-            self.LoadRoomCore((ISnesAddressSpace)(bus), (ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (ushort)(equippedItems), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
+            self.LoadRoomCore((ushort)(definition.Pointer), (ushort)(definition.DoorPointer), (AreaId)(area), (ushort)(equippedItems), (bool)(areaMiniBossDefeated), (RoomFxRecordDefinition?)(definition));
         }
     }
 }

@@ -38,7 +38,7 @@ internal static class GateJumpTraceVerification
             samus.EquippedItems = samus.EquippedBeams = 0;
             samus.SelectedHudItem = 1;
             samus.Missiles = samus.MaxMissiles = 10;
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 224));
             bool activated = false;

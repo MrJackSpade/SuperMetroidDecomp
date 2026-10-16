@@ -39,6 +39,13 @@ namespace SuperMetroid.Core;
 /// </summary>
 internal static class CoreAccess
 {
+    /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
+    internal static bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectileSlot shot)
+    {
+        KraidBehavior.KraidCollisionScratch scratch = KraidBehavior.LoadKraidCollisionScratch(body, hitboxPointer);
+        return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
+    }
+
     /// <summary>Exposes frontend-owned gameplay runtime, attract timing, audio, and Samus observations for verification.</summary>
     extension(SuperMetroidGame game)
     {
@@ -248,13 +255,6 @@ internal static class CoreAccess
         /// routine against constructed memory.
         /// </summary>
         internal void BindFixtureBus(ISnesAddressSpace bus) => enemies.Room.Bus = Ensure.NotNull(bus);
-
-        /// <summary>Kraid's mouth hitbox test: the production collision-scratch load followed by its mouth overlap.</summary>
-        internal bool KraidMouthHitboxOverlapsShot(RoomEnemySlot body, ushort hitboxPointer, SamusProjectileSlot shot)
-        {
-            KraidBehavior.KraidCollisionScratch scratch = enemies.KraidBehavior.LoadKraidCollisionScratch(body, hitboxPointer);
-            return scratch.OverlapsMouth(new KraidBehavior.KraidCollisionShot(shot.Position.Whole, shot.Radius, shot.Type, shot.Damage));
-        }
 
         /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>

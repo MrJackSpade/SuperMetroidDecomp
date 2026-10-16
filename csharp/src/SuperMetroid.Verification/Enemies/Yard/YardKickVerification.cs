@@ -27,7 +27,7 @@ internal static class YardKickVerification
             var state = enemies.YardStates[0];
             var samus = new SamusState { Pose = pose, Health = 999, MaxHealth = 999,
                 Position = FixedPosition<RoomPixels>.FromWhole(actor.Position.Whole) };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             enemies.StepFrame(new RoomEnemyFrame { Camera = new((ushort)(actor.Position.X.Whole - 128), (ushort)(actor.Position.Y.Whole - 112)), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
             // Seed the airborne touch-admission case. The real contact dispatcher
             // must install the kick and consume the published distance words.

@@ -102,7 +102,7 @@ internal static class GenericSpriteArtworkVerification
         actual = intro.PrepareMotherBrainOam().FinalizedAsOam();
         var expectedFrame = new SpriteFrameBuffer();
         expectedFrame.BeginFrame();
-        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(memory, expectedFrame, new(0, 0), 0);
+        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
         DrawImportedSpritemap(reference, expectedFrame.Oam,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),

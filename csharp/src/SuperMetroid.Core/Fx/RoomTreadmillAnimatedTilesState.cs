@@ -13,7 +13,7 @@ public sealed class RoomTreadmillAnimatedTilesState
     internal readonly List<WreckedShipTreadmillAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous population and follows the selected FX record's native bit order.</summary>
-    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(ushort fxPointer, ushort doorPointer, AreaId area)
     {
         objects.Clear();
         if (fxPointer == 0) return;
@@ -43,14 +43,14 @@ public sealed class RoomTreadmillAnimatedTilesState
             // native object identity, not room number or an assumed area-specific bit.
             if (direction is null) continue;
             var animation = new WreckedShipTreadmillAnimatedTilesState();
-            animation.Start(bus, direction.Value);
+            animation.Start(direction.Value);
             objects.Add(animation);
         }
     }
 
     /// <summary>Runs each selected native list; its boss wait gates graphics independently of floor collision.</summary>
-    public void Step(ISnesAddressSpace bus, bool areaBossDefeated, VramWriteQueue writes)
+    public void Step(bool areaBossDefeated, VramWriteQueue writes)
     {
-        foreach (var animation in objects) animation.Step(bus, areaBossDefeated, writes);
+        foreach (var animation in objects) animation.Step(areaBossDefeated, writes);
     }
 }

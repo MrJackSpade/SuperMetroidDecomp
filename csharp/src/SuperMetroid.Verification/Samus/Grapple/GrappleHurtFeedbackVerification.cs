@@ -44,7 +44,7 @@ internal static class GrappleHurtFeedbackVerification
         runtime.Artwork.BindGrapplePresentation();
         SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, new Position16<RoomPixels>(160, 64), 52,
             SnesAngle.QuarterTurn, 0, faceRight: true);
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         runtime.StepFrame(SnesButton.X);
         AssertEqual((ushort)0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");

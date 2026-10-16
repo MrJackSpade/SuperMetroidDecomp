@@ -24,7 +24,7 @@ internal static class IntroPoseHistoryVerification
         var entries = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = 0x8000;
         var room = CreateRoom(new(16, 32), entries, new byte[entries.Length]);
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         var history = samus.PoseHistory;
         history.PreviousPose = samus.Pose;
@@ -114,7 +114,7 @@ internal static class IntroPoseHistoryVerification
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = (ushort)(SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(bus), (byte)after.PoseMetadata.ReadMovementType(bus)));
+            ushort metadata = (ushort)(SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(), (byte)after.PoseMetadata.ReadMovementType()));
             if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");

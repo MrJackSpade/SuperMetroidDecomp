@@ -121,7 +121,7 @@ internal static class RoomFxLayer3TilemapsVerification
             PaletteBlendColors = paletteColors,
         };
         var vram = new SnesVram();
-        state.Load(guarded, vram, new SnesCgram(), record.Pointer, doorPointer: 0, randomNumber: 0);
+        state.Load(vram, new SnesCgram(), record.Pointer, doorPointer: 0, randomNumber: 0);
         AssertEqual(type, state.Type, "installed room-FX BG3 page preserves the selected FX type");
         return vram;
     }

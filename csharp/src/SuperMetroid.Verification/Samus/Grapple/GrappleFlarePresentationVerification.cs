@@ -121,11 +121,11 @@ internal static class GrappleFlarePresentationVerification
                 }
             }
             var aFrame = new SpriteFrameBuffer(); var bFrame = new SpriteFrameBuffer(); var cFrame = new SpriteFrameBuffer();
-            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
+            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(native, aFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             OamBuffer a = aFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(actual, bFrame, Position16<RoomPixels>.Zero, stock, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple catalog retains native flare visibility");
             OamBuffer b = bFrame.FinalizeAsOam();
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(changed, cFrame, Position16<RoomPixels>.Zero, edited, standardObjects: SpriteFrameTestArtwork.StandardObjects), "Grapple art edit retains origin visibility gate");
             OamBuffer c = cFrame.FinalizeAsOam();
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer.RawValue), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.ImageEquals(b) && (a.LastFinalizedSpriteCount * 4) == (b.LastFinalizedSpriteCount * 4), "Grapple stock parts preserve native complete OAM");
@@ -164,7 +164,7 @@ internal static class GrappleFlarePresentationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics(bus);
+        samus.Presentation.InitializeAnimation(bus); samus.Presentation.PrimeGraphics();
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(100);

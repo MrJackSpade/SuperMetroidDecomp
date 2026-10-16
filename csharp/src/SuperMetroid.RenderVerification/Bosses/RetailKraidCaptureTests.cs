@@ -32,7 +32,7 @@ internal static class RetailKraidCaptureTests
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus); samus.Presentation.InitializeAnimation(bus);
+        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation(bus);
         var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
         var phases = new HashSet<ushort>();
@@ -122,7 +122,7 @@ internal static class RetailKraidCaptureTests
             !deathPhases.Contains((ushort)KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade and BG3 restore verified.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.Rooms.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
@@ -131,7 +131,7 @@ internal static class RetailKraidCaptureTests
             runtime.StepFrame(0);
         if (runtime.Enemies.KraidBehavior.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
     }
 
     /// <summary>Stages an audit missile at Kraid's active mouth hitbox and uses production collision.</summary>
@@ -140,7 +140,7 @@ internal static class RetailKraidCaptureTests
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
         // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
-        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(bus, boss.InvulnerableMouthHitbox);
+        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(boss.InvulnerableMouthHitbox);
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;

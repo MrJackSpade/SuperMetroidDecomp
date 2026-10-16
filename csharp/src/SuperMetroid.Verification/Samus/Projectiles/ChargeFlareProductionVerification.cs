@@ -46,9 +46,9 @@ internal static class ChargeFlareProductionVerification
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)
             {
-                OamBuffer a = native.ChargeFlareOam(bus, samus, new(0, 0), placement, stock);
-                OamBuffer b = compiled.ChargeFlareOam(guarded, samus, new(0, 0), placement, stock);
-                OamBuffer c = changed.ChargeFlareOam(guarded, samus, new(0, 0), placement, edited);
+                OamBuffer a = native.ChargeFlareOam(samus, new(0, 0), placement, stock);
+                OamBuffer b = compiled.ChargeFlareOam(samus, new(0, 0), placement, stock);
+                OamBuffer c = changed.ChargeFlareOam(samus, new(0, 0), placement, edited);
                 AssertTrue(a.ImageEquals(b), "Normal/Hyper flare producer preserves complete native sprite output");
                 AssertEqual(a.LastFinalizedSpriteCount, b.LastFinalizedSpriteCount, "Flare producer preserves its sprite count");
                 AssertEqual(a.LastFinalizedSpriteCount, c.LastFinalizedSpriteCount, "Edited flare producer preserves component count");
@@ -70,7 +70,7 @@ internal static class ChargeFlareProductionVerification
             Array.Fill(invalidSelector.Charge._flareFrames, outOfTableFrame);
             var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.Presentation.TileTransfers.BindArtwork(body);
-            OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(guarded, subject, new(0, 0), placement, stock);
+            OamBuffer outOfTableOam = invalidSelector.ChargeFlareOam(subject, new(0, 0), placement, stock);
             AssertEqual(0, outOfTableOam.LastFinalizedSpriteCount,
                 $"Out-of-table flare frame ${outOfTableFrame:X4} draws no sprites");
         }
@@ -83,7 +83,7 @@ internal static class ChargeFlareProductionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(bus);
+        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(bus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));

@@ -175,11 +175,9 @@ internal sealed class EnemyProjectileEngine
     /// Kago bugs remember the incoming projectile type and switch to their ROM shot list.
     /// </summary>
     public int ResolveEnemyProjectileSamusProjectileHits(
-        ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
         _room.EnsureLoaded();

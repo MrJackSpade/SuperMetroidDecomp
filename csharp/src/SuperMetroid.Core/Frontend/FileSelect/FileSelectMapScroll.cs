@@ -25,14 +25,12 @@ public sealed class FileSelectMapScroll
     public MapScrollDirection Direction { get; private set; }
 
     /// <summary>Calculates the initial viewport and scrolling bounds from the visible map plane.</summary>
-    /// <param name="bus">Installed address space required by the file-select host contract.</param>
     /// <param name="map">Area map whose station or explored cells define the visible bounds.</param>
     /// <param name="system">Persistent area-map and explored-cell state.</param>
     /// <param name="player">Player marker's map coordinate in pixels.</param>
-    public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
+    public FileSelectMapScroll(IAreaMapView map,
         Bank80SystemState system, Position16<MapPixels> player)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(map);
         Ensure.NotNull(system);
         // Native selects one plane, not the union: a downloaded map uses its station

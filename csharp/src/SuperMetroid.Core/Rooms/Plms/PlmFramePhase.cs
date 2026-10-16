@@ -159,7 +159,7 @@ internal sealed class PlmFramePhase
                     InWorldCollectibleKind.SpazerBeam or
                     InWorldCollectibleKind.PlasmaBeam)
                 {
-                    _artwork.UpdateBeamTilesAndPalette(_addressSpace, _cgram, samus.EquippedBeams);
+                    _artwork.UpdateBeamTilesAndPalette(_cgram, samus.EquippedBeams);
                 }
                 else if (pickup.Kind is
                          InWorldCollectibleKind.VariaSuit or

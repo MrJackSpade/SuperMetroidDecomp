@@ -68,7 +68,7 @@ public sealed class SamusDraygonGrabbedState
         samus.Pose = draygonFacingRight
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
             : SamusPoseId.DraygonGrabbedNeutralLeftPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
 
         IsActive = true;
@@ -82,7 +82,7 @@ public sealed class SamusDraygonGrabbedState
         ReleasePublishedToOwner = false;
         OwnerFacingRight = draygonFacingRight;
         // Forced grab owns its history shift; no ordinary input slot is consumed.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         // `$90:E289-$E295` empties every prospective-pose slot. The super-special one is Samus's;
         // the runtime clears the others after EnemyMain (EnemyRoomStatus publishes the grab).
         samus.PendingTransitionalPose = null;
@@ -178,11 +178,11 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(bus);
         Ensure.NotNull(samus);
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         samus.Pose = facingLeft
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         if (samus.Pose != samus.PoseHistory.PreviousPose)
             samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Installing normal
@@ -192,7 +192,7 @@ public sealed class SamusDraygonGrabbedState
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose dispatcher to observe the standing pose.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
 
         samus.HorizontalSpeed.BaseSpeed = 0;
         samus.HorizontalSpeed.BaseSubspeed = 0;

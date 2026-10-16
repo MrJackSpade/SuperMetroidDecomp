@@ -133,14 +133,14 @@ internal static class MapPresentationVerification
                 SuperMetroid.AssetExtraction.Hud.GameplayHudPresentationExtractor.Extract(source)));
             var hud = new HudState();
             hud.BindPresentation(hudArt);
-            hud.Initialize(new TestAddressSpace(), HudSnapshot.CeresDebug);
-            hud.UpdateMinimap(NewForbiddenMapBus(), system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
+            hud.Initialize(HudSnapshot.CeresDebug);
+            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = map });
             AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
             AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
-            hud.UpdateMinimap(NewForbiddenMapBus(), system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
+            hud.UpdateMinimap(system, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(5, 5), RoomSize = new(16, 16), Samus = new(128, 128), NmiFrameCounter = 8, MapRevealMode = MapRevealMode.Secret, PresentationMap = reloaded });
             AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
         }
         AssertThrows<InvalidDataException>(() => Load(Json(document with { Version = 2 })), "reject unsupported map schema");
@@ -1199,10 +1199,10 @@ internal static class MapPresentationVerification
             {
                 Artwork = { MapPresentation = edited },
             };
-            stockRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
-            editedRuntime.RoomPaletteFx.SpawnDefinition(bus, definitionPointer, 0);
-            stockRuntime.RoomPaletteFx.Step(bus, stockRuntime.Cgram, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedRuntime.RoomPaletteFx.Step(bus, editedRuntime.Cgram, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            stockRuntime.RoomPaletteFx.SpawnDefinition(definitionPointer, 0);
+            editedRuntime.RoomPaletteFx.SpawnDefinition(definitionPointer, 0);
+            stockRuntime.RoomPaletteFx.Step(stockRuntime.Cgram, original.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedRuntime.RoomPaletteFx.Step(editedRuntime.Cgram, edited.RoomPaletteFx, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertTrue(
                 stockRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)] !=
                 editedRuntime.Cgram.Colors[colorByteIndex / sizeof(ushort)],

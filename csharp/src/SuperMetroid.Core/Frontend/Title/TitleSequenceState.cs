@@ -320,7 +320,7 @@ public sealed class TitleSequenceState
         StepBabyMetroidAnimation();
         // The title calls the same bank-$8D interpreter as rooms. Its two console
         // programs own their colors and timers; the host must not synthesize a blink.
-        consolePaletteFx.Step(bus, cgram, titlePalettePresentation ?? throw new InvalidOperationException(
+        consolePaletteFx.Step(cgram, titlePalettePresentation ?? throw new InvalidOperationException(
                 "Title palette FX requires installed title colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
         // only here, not when the subsequent fade-in arms the title idle countdown.
@@ -332,8 +332,8 @@ public sealed class TitleSequenceState
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
-        consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
-        consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
+        consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
+        consolePaletteFx.SpawnDefinition(TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }
 
     /// <summary>

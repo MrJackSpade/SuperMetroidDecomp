@@ -50,12 +50,10 @@ internal sealed class DoorPlms : IPlmFamilySource
     /// for non-closing directions or native pool exhaustion.
     /// </returns>
     public bool TrySpawnDoorClosingPlm(
-        ISnesAddressSpace bus,
         RoomLevelData level,
         CartridgeDoorHeader door,
         Bank80SystemState system)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(door);
         Ensure.NotNull(system);

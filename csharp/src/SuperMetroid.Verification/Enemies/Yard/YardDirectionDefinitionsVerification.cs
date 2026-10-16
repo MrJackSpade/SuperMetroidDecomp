@@ -133,11 +133,11 @@ internal static class YardDirectionDefinitionsVerification
                     : SamusPoseId.FacingRightNormalPose,
                 AbsoluteMovedLastFrameXFixed = 0x00018000,
             };
-            enemies.YardBehavior.KickYardIntoAir(slot, state, samus);
+            YardEnemyBehavior.KickYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(state, expected,
                 $"Yard contact kick facing {facing}");
 
-            enemies.YardBehavior.ShootYardIntoAir(slot, state, samus);
+            YardEnemyBehavior.ShootYardIntoAir(slot, state, samus);
             AssertYardAirborneLists(state, expected,
                 $"Yard shot launch facing {facing}");
         }

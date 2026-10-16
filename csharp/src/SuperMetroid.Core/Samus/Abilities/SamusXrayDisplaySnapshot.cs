@@ -30,15 +30,12 @@ public readonly record struct SamusXrayDisplaySnapshot(
     /// </summary>
     /// <param name="samus">Samus, when present.</param>
     /// <param name="lastBeamStep">This frame's beam step result, when one ran.</param>
-    /// <param name="bus">Definition source for the static pose metadata.</param>
-    public static SamusXrayDisplaySnapshot? Capture(SamusState? samus, XrayBeamStepResult? lastBeamStep,
-        ISnesAddressSpace bus)
+    public static SamusXrayDisplaySnapshot? Capture(SamusState? samus, XrayBeamStepResult? lastBeamStep)
     {
-        Ensure.NotNull(bus);
         bool finished = lastBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
         if (samus is null || !samus.Xray.IsActive && !finished) return null;
         return new(finished, samus.Xray.SetupStage, samus.Xray.BeamPhase, samus.Xray.Angle,
-            samus.Xray.AngularWidth, samus.Position.Whole, samus.PoseMetadata.IsFacingLeft(bus),
-            samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.Crouching);
+            samus.Xray.AngularWidth, samus.Position.Whole, samus.PoseMetadata.IsFacingLeft(),
+            samus.PoseMetadata.ReadMovementType() == SamusMovementType.Crouching);
     }
 }

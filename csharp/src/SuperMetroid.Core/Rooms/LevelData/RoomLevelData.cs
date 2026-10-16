@@ -376,12 +376,10 @@ public sealed class RoomLevelData
     /// does, then publishes the normal-door transition request for the top-level dispatcher.
     /// </summary>
     public DoorListEntry ResolveDoorCollision(
-        ISnesAddressSpace bus,
         byte behavior,
         SamusPoseId samusPose,
         bool publishDoorSideEffects = true)
     {
-        Ensure.NotNull(bus);
         if (DoorListPointer is not ushort doorListPointer)
         {
             // Every cartridge-backed room header supplies this pointer. Its nullable form

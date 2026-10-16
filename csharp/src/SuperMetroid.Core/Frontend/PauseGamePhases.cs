@@ -84,7 +84,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         if (previousReserveMode == PauseReserveLabelRomData.AutoMode &&
             session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
             session.GameplayRuntime.Hud.ClearAutoReserveIndicator();
-        session.GameplayRuntime.Hud.UpdateGameplayCounters(session.bus, session.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
+        session.GameplayRuntime.Hud.UpdateGameplayCounters(session.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
         session.GameplayRuntime.Hud.QueueUpload(session.GameplayRuntime.VramWrites);
         session.display.PublishMenu(session.ActivePauseMenu);
         if (unpauseRequested)
@@ -130,7 +130,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             (resumedSamus.EquippedItems & (ushort)SamusEquipmentFlags.SpeedBooster) != 0);
         // Samus command $0C also calls LoadSamusSuitPalette at $91:E6CB.
         // Equipment bits are live, but the restored gameplay palette is cached.
-        resumedSamus.Presentation.LoadSuitPalette(session.bus, session.GameplayRuntime.Cgram);
+        resumedSamus.Presentation.LoadSuitPalette(session.GameplayRuntime.Cgram);
         session.GameplayRuntime.Plms.Stations.ResumeMapStationsAfterUnpause();
         resumedSamus.ScriptLocks.ReleaseRefillStationLockOnUnpause();
         session.GameplayRuntime.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();

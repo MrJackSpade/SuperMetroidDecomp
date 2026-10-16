@@ -46,8 +46,8 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
             self.Player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
-            self.Player.Samus.PoseMetadata.RefreshCollisionRadii(self._addressSpace);
-            self.Player.Samus.Presentation.PrimeGraphics(self._addressSpace);
+            self.Player.Samus.PoseMetadata.RefreshCollisionRadii();
+            self.Player.Samus.Presentation.PrimeGraphics();
             self.Player.GroundedSamusMovementEnabled = true;
             return viewport;
         }

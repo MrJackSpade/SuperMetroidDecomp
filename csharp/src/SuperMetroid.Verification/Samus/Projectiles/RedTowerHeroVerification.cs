@@ -34,7 +34,7 @@ internal static class RedTowerHeroVerification
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
 
             // Preserve every retail enemy and terrain block. Activate the upper

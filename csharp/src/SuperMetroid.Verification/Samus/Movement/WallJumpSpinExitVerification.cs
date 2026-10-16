@@ -43,7 +43,7 @@ internal static class WallJumpSpinExitVerification
             samus.EquippedItems = (ushort)items;
             samus.Pose = SamusPoseId.WallJumpRightPose;
             samus.Position = samus.Position.WithWhole(new(512, 400));
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(bus);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 3;

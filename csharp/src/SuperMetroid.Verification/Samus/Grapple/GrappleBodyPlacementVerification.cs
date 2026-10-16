@@ -22,7 +22,7 @@ internal static class GrappleBodyPlacementVerification
     /// <summary>Compares installed and edited swing art across mirrored angles, facing, anchor wrap, and pendulum updates.</summary>
     internal static void VerifyGrappleBodyPlacement(SuperMetroidAddressSpace rom)
     {
-        var position = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.PositionSamusFromPendulum);
+        var position = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.PositionSamusFromPendulum);
         CartridgeReadGuard bus = new CartridgeReadGuard(rom)
             .Forbid(address => address is >= 0x9bc1c2 and < 0x9bc2c2,
                 _ => "Installed swing art still reads the ROM selector.")
@@ -53,7 +53,7 @@ internal static class GrappleBodyPlacementVerification
             int table = left ? 0x9bc2c2 : 0x9bc302;
             sbyte x = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2));
             sbyte y = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2 + 1));
-            position(bus, samus, g);
+            position(samus, g);
             AssertEqual(unchecked((ushort)(g.RopeStart.X + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
             AssertEqual(replaceArt ? (nativeFrame + 11) & 31 : nativeFrame, samus.AnimationFrame, "Visual frame override still applies");

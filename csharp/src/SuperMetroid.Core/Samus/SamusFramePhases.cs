@@ -99,7 +99,7 @@ internal sealed class SamusFramePhases
     /// equipped combination.
     /// </summary>
     internal void UpdateGameplayBeamTilesAndPalette(ushort equippedBeams) =>
-        _artwork.UpdateBeamTilesAndPalette(_addressSpace, _cgram, equippedBeams);
+        _artwork.UpdateBeamTilesAndPalette(_cgram, equippedBeams);
 
     /// <summary>
     /// <c>GrappleBeamHandler</c> ($9B:C490), reached from the HUD-selection dispatch of
@@ -148,12 +148,12 @@ internal sealed class SamusFramePhases
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
-                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, _player.Samus)) &&
+                 (_player.DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_player.Samus)) &&
                  ((_controller1.NewlyPressed | _player.Samus.InputSnapshot.PreviousDrawNewInput) & SnesButton.X) != 0)
         {
             // Normal HUD item four now reaches the same bank-$9B actor as the
             // diagnostic entry point, after bank-$90's movement-type admission.
-            SamusGrappleMovement.BeginFiring(_addressSpace, _player.Samus, _controller1.Current);
+            SamusGrappleMovement.BeginFiring(_player.Samus, _controller1.Current);
             _player.LastGrappleMovement = new GrappleMovementResult(
                 _player.Samus.Grapple.Phase,
                 Fired: _player.Samus.Grapple.Phase == GrapplePhase.Firing,
@@ -226,7 +226,7 @@ internal sealed class SamusFramePhases
     {
         RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(
             "Uninitialized-pose movement requires active room level data.");
-        switch (_player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace))
+        switch (_player.IntroducedSamus.PoseMetadata.ReadMovementType())
         {
             case SamusMovementType.Special:
                 // `$90:A7DA` only clears the momentum-transition selector.
@@ -242,7 +242,7 @@ internal sealed class SamusFramePhases
                 break;
             default:
                 throw new NotSupportedException(
-                    $"Cached movement type ${(byte)_player.IntroducedSamus.PoseMetadata.ReadMovementType(_addressSpace):X2} under " +
+                    $"Cached movement type ${(byte)_player.IntroducedSamus.PoseMetadata.ReadMovementType():X2} under " +
                     $"uninitialized pose ${(int)_player.IntroducedSamus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
@@ -317,7 +317,7 @@ internal sealed class SamusFramePhases
         // before beta movement. Refreshing the split gravity words every frame is
         // essential at a liquid surface: a jump can cross from water to air without
         // any pose transition that would otherwise reinitialize acceleration.
-        SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, samus);
+        SamusAerialMovement.ConfigureEnvironmentGravity(samus);
 
         if (_room.ActiveRoom is null)
             throw new InvalidOperationException("Live Samus terrain reactions require an active cartridge room.");
@@ -330,7 +330,6 @@ internal sealed class SamusFramePhases
         if (!samus.ScriptLocks.StationaryScriptControlLocked)
         {
             SamusTerrainHazardCollision.PrepareFrame(
-                _addressSpace,
                 _room.LevelData,
                 samus,
                 _room.ActiveRoom.AreaIndex,
@@ -369,7 +368,7 @@ internal sealed class SamusFramePhases
             {
                 _projectiles.Firing.CancelChargeForHudSelection();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+                samus.Presentation.LoadSuitPalette(_cgram);
             }
 
             // The selected scope uses held Run, not Fire. Setup installs its
@@ -394,7 +393,7 @@ internal sealed class SamusFramePhases
             {
                 _projectiles.Firing.CancelChargeForBombSpread();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(_addressSpace, _cgram);
+                samus.Presentation.LoadSuitPalette(_cgram);
             }
 
         }
@@ -436,7 +435,7 @@ internal sealed class SamusFramePhases
         // before beta applies animation/input transitions. Admission reads the
         // preceding snapshot; a newly queued X-ray pose is not installed yet.
         _player.PreviousMovementTypeForXray = frame.XrayActivatedThisFrame
-            ? frame.MovementBeforeXrayAdmission : samus.PoseMetadata.ReadMovementType(_addressSpace);
+            ? frame.MovementBeforeXrayAdmission : samus.PoseMetadata.ReadMovementType();
     }
 
     /// <summary>
@@ -505,7 +504,7 @@ internal sealed class SamusFramePhases
             // `$9B:C7C1` replaces the normal beta movement-handler pointer on the
             // release-input frame. It remains independent of the beam function, so
             // it must also run after `$9B:CB8B` has made that function inactive.
-            SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, samus);
+            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastAerialSamusMovement = SamusAerialMovement.StepReleasedFromGrapple(
                 _addressSpace,
                 _room.LevelData,
@@ -578,7 +577,7 @@ internal sealed class SamusFramePhases
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
-            samus.Xray.StepMovement(_addressSpace, samus);
+            samus.Xray.StepMovement(samus);
         }
         // `$90:E119` installs a separate movement/gamma-handler pair for Ceres
         // Ridley's retreat. It must precede ordinary damage knockback because pose
@@ -617,7 +616,7 @@ internal sealed class SamusFramePhases
         // `$53/$54` can still select the retail damage-boost escape chord.
         else if (samus.KnockbackActive)
         {
-            SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, samus);
+            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastKnockbackMovement = SamusKnockbackMovement.Step(
                 _addressSpace,
                 _room.LevelData,
@@ -639,9 +638,9 @@ internal sealed class SamusFramePhases
             // The shared alpha environment pass above already selected these words;
             // repeat the explicit special-handler publication here to preserve the
             // old diagnostic seam while allowing water/lava instead of forcing air.
-            SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, samus);
+            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastBombJumpMovement = samus.BombJumpStarting
-                ? SamusBombJumpMovement.Start(_addressSpace, samus)
+                ? SamusBombJumpMovement.Start(samus)
                 : SamusBombJumpMovement.Step(
                     _addressSpace,
                     _room.LevelData,
@@ -662,7 +661,6 @@ internal sealed class SamusFramePhases
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
             _player.LastCrystalFlashMovement = samus.CrystalFlash.Step(
-                _addressSpace,
                 samus,
                 _clock.Counter);
             if (_player.LastCrystalFlashMovement.Value.PhaseAtStart == CrystalFlashPhase.Raising &&
@@ -720,7 +718,7 @@ internal sealed class SamusFramePhases
         {
             // Determine_Samus_YAcceleration supplies the environment-selected pair
             // used as spark acceleration. Projectile_Func7 does not replace it.
-            SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, samus);
+            SamusAerialMovement.ConfigureEnvironmentGravity(samus);
             _player.LastShinesparkMovement = samus.Shinespark.Step(new SamusTerrain { Bus = _addressSpace, Level = _room.LevelData, Plms = _plms }, samus, new ShinesparkFrame { NmiFrameCounter = _clock.Counter, ProjectileCounter = _projectiles.SlotTable.ProjectileCounter, PlayerInvincibilityEnabled = _options.PlayerInvincibilityEnabled, Projectiles = _projectiles, GameTimeFrames = _gameTime.Frames, DeferTimeoutPoseChange = true, PreviousCheckpoint = frame.PreviousCameraPoint });
             if (_player.LastShinesparkMovement.Value.WindupTimedOut)
             {
@@ -758,7 +756,7 @@ internal sealed class SamusFramePhases
         // It only clears the momentum-transition selector. This path is reachable
         // when hurt-expiry command one replaces a freshly installed Shinespark
         // handler while retaining its `$C7/$C8` body and palette (Shinespark Suit).
-        else if (samus.PoseMetadata.ReadMovementType(_addressSpace) == SamusMovementType.Special)
+        else if (samus.PoseMetadata.ReadMovementType() == SamusMovementType.Special)
         {
             // No positional movement.
         }
@@ -1053,7 +1051,7 @@ internal sealed class SamusFramePhases
         // turn `$44` can retain downward direction while its type remains
         // `$0E`; treating that word as type `$17` sent it into A790 and
         // produced the live replay crash from issue 58.
-        SamusMovementType turnMovementType = samus.PoseMetadata.ReadMovementKind(_addressSpace);
+        SamusMovementType turnMovementType = samus.PoseMetadata.ReadMovementKind();
         if (turnMovementType == SamusMovementType.TurningOnGround ||
             (turnMovementType == SamusMovementType.TurningWhileJumping &&
              samus.Kinematics.YDirection == SamusVerticalDirection.None))
@@ -1155,7 +1153,7 @@ internal sealed class SamusFramePhases
         // the boarding pose's radius.
         if (_player.GroundedSamusMovementEnabled && !_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) &&
             !samus.DeathSequence.IsActive && !_enemies.Elevator.ElevatorDoorTransitionActive)
-            samus.PoseMetadata.RefreshCollisionRadii(_addressSpace);
+            samus.PoseMetadata.RefreshCollisionRadii();
         // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
         // affects the next beta, not the animation already owned this frame.
         frame.StationaryScriptControlLocked = samus.ScriptLocks.StationaryScriptControlLocked;
@@ -1165,7 +1163,7 @@ internal sealed class SamusFramePhases
         // $0B can resume it after the HDMA transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
         frame.SuitOwnsSamus = _suitPickup.IsActive;
-        frame.MovementTypeAtFrameStart = samus.PoseMetadata.ReadMovementType(_addressSpace);
+        frame.MovementTypeAtFrameStart = samus.PoseMetadata.ReadMovementType();
 
         // Direction bits already use the transition table's canonical layout. Input
         // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
@@ -1182,7 +1180,7 @@ internal sealed class SamusFramePhases
         // pass, ahead of `$91:F046`'s landing sounds during collision.
         frame.XrayOwnsPoseInput = samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus;
         frame.XrayActivatedThisFrame = false;
-        frame.MovementBeforeXrayAdmission = samus.PoseMetadata.ReadMovementType(_addressSpace);
+        frame.MovementBeforeXrayAdmission = samus.PoseMetadata.ReadMovementType();
         if (frame.XrayOwnsPoseInput)
         {
             samus.Xray.HandlePoseInput(
@@ -1203,7 +1201,6 @@ internal sealed class SamusFramePhases
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
             ? default
             : SamusPoseTransitionTable.Lookup(
-                _addressSpace,
                 samus.Pose,
                 _controller1.Current,
                 _attractDemo.IsAttractDemo ? _controller1.NewlyPressed : samus.InputSnapshot.ConsumeAutoJumpInput(_controller1.NewlyPressed));
@@ -1225,9 +1222,9 @@ internal sealed class SamusFramePhases
         if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
         {
             _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
-                samus.PoseMetadata.ReadMovementType(_addressSpace),
+                samus.PoseMetadata.ReadMovementType(),
                 samus.Pose,
-                samus.PoseMetadata.ReadNoInputFallbackPose(_addressSpace),
+                samus.PoseMetadata.ReadNoInputFallbackPose(),
                 frame.DeceleratingFallbackHasMomentum).ProspectivePose;
         }
     }
@@ -1269,7 +1266,6 @@ internal sealed class SamusFramePhases
                 ? drainedSubspeed.ImpactYSubspeed
                 : samus.Kinematics.YSubspeed;
             samus.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-                _addressSpace,
                 samus,
                 frame.MovementTypeAtFrameStart,
                 frame.PoseAtFrameStart,
@@ -1370,7 +1366,7 @@ internal sealed class SamusFramePhases
 
         // PlaySamusFanfare publishes its same-pose history shift only on the
         // completion call, before the ordinary handlers regain control.
-        samus.CommitPoseHistory(_addressSpace);
+        samus.CommitPoseHistory();
         samus.InputLocked = false;
         _player.GroundedSamusMovementEnabled = true;
         _player._samusLoadAppearancePaletteFxDefinition = 0;

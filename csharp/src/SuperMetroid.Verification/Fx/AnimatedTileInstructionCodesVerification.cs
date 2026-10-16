@@ -87,14 +87,14 @@ internal static class AnimatedTileInstructionCodesVerification
             TestAddressSpace bus = CreateConstructedLavaAnimatedTileCartridge(program);
             var state = new WreckedShipTreadmillAnimatedTilesState();
             var error = AssertThrows<InvalidDataException>(() => state.StartDefinition(
-                bus, WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.Lava),
+                WreckedShipTreadmillDirection.Rightwards, AnimatedTileObject.Lava),
                 "non-treadmill animated-tile object rejects before interpreting its program");
             AssertTrue(error.Message.Contains("$87:82AB", StringComparison.Ordinal),
                 "unsupported animated-tile error identifies the rejected object");
         }
         var mismatched = new WreckedShipTreadmillAnimatedTilesState();
         AssertThrows<InvalidDataException>(() => mismatched.StartDefinition(
-            new TestAddressSpace(), WreckedShipTreadmillDirection.Leftwards,
+            WreckedShipTreadmillDirection.Leftwards,
             AnimatedTileObject.WreckedShipTreadmillRightwards),
             "compiled treadmill definition rejects the opposite direction");
     }
@@ -121,13 +121,13 @@ internal static class AnimatedTileInstructionCodesVerification
         var guarded = NewWreckedShipTreadmillMechanicsForbiddenBus(bus, definition, out StrongBox<int> guardedPresentationReads);
         var state = new WreckedShipTreadmillAnimatedTilesState();
         var writes = new VramWriteQueue();
-        state.Start(guarded, direction);
-        state.Step(guarded, areaBossDefeated: false, writes);
+        state.Start(direction);
+        state.Step(areaBossDefeated: false, writes);
         AssertEqual(0, writes.Entries.Count, $"{direction} retail boss wait");
 
         for (int frame = 0; frame < expectedSources.Length; frame++)
         {
-            state.Step(guarded, areaBossDefeated: true, writes);
+            state.Step(areaBossDefeated: true, writes);
             VramWriteEntry entry = writes.Entries[frame];
             AssertEqual(expectedSources[frame], entry.SourceAddress,
                 $"{direction} retail source frame {frame}");
@@ -138,7 +138,7 @@ internal static class AnimatedTileInstructionCodesVerification
                 $"{direction} retail VRAM destination {frame}");
         }
 
-        state.Step(guarded, areaBossDefeated: true, writes);
+        state.Step(areaBossDefeated: true, writes);
         AssertEqual(expectedSources[0], writes.Entries[^1].SourceAddress,
             $"{direction} compiled goto returns to frame zero");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

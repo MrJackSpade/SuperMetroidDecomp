@@ -26,7 +26,7 @@ internal static class GrappleFiringDefinitionsVerification
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
         Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(GrappleFiringDefinitionsRomByte(rom, address), GrappleFiringDefinitionsRomByte(rom, address + 1))));
-        var refresh = new Action<ISnesAddressSpace, SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
+        var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId sourcePose = SamusPoseId.FacingRightNormalPose;
         var bus = NewGrappleFiringReadGuard(rom, () => sourcePose);
@@ -76,7 +76,7 @@ internal static class GrappleFiringDefinitionsVerification
                 samus.Position = samus.Position.WithWhole(new((ushort)raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
-                SamusGrappleMovement.BeginFiring(bus, samus);
+                SamusGrappleMovement.BeginFiring(samus);
                 AssertEqual(vx, grapple.ExtensionVelocity.X.SignedRawValue, "Actual launch X velocity");
                 AssertEqual(vy, grapple.ExtensionVelocity.Y.SignedRawValue, "Actual launch Y velocity");
                 AssertEqual(angle, grapple.Angle.RawValue, "Actual launch angle");
@@ -90,7 +90,7 @@ internal static class GrappleFiringDefinitionsVerification
                 // not reuse stale offsets or move the independent collision endpoint.
                 samus.Position += new Offset16<RoomPixels>(7, -5);
                 grapple.OriginOffset = new(1234, 1234);
-                refresh(bus, samus, grapple);
+                refresh(samus, grapple);
                 AssertEqual(unchecked((ushort)(samus.Position.X.Whole + x)), grapple.RopeStart.X, "Late physical Start X");
                 AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + correctedY)), grapple.RopeStart.Y, "Late physical Start Y");
                 AssertEqual(anchorX, grapple.Anchor.X, "Late draw retains endpoint X");
@@ -116,7 +116,7 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(bus, samus);
+            SamusGrappleMovement.BeginFiring(samus);
             if (replaceFlare)
                 AssertEqual(0x55aa, grapple.FlareOffset.X, "Presentation override is actually consumed");
             for (int frame = 1; frame <= 10; frame++)
@@ -156,7 +156,7 @@ internal static class GrappleFiringDefinitionsVerification
                 outward && (input & (int)SnesButton.Up) != 0 ? (left ? 8 : 1) : (left ? 7 : 2);
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            SamusGrappleMovement.BeginFiring(bus, samus, (SnesButton)input);
+            SamusGrappleMovement.BeginFiring(samus, (SnesButton)input);
             AssertEqual(direction, grapple.FireDirection, "Held aim selection");
             AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
             AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");

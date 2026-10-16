@@ -168,7 +168,7 @@ public sealed class SamusXrayState
             return false;
         }
 
-        SamusMovementType currentMovementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType currentMovementType = samus.PoseMetadata.ReadMovementType();
         if (ClassifyAllowedMovement(previousMovementType) == XrayPosture.Disallowed)
             return false;
 
@@ -176,7 +176,7 @@ public sealed class SamusXrayState
         if (posture == XrayPosture.Disallowed)
             return false;
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         SamusPoseId targetPose = posture == XrayPosture.Crouching
             ? facingLeft ? SamusPoseId.XrayingCrouchingLeftPose : SamusPoseId.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseId.XrayingStandingLeftPose : SamusPoseId.XrayingStandingRightPose;
@@ -245,7 +245,7 @@ public sealed class SamusXrayState
     private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
 
         // Special prospective-pose command five immediately overrides the freshly selected
@@ -347,10 +347,10 @@ public sealed class SamusXrayState
         Ensure.NotNull(samus);
         EnsureActive();
 
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         if (movementType != SamusMovementType.TurningOnGround)
         {
-            bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+            bool facingLeft = samus.PoseMetadata.IsFacingLeft();
             SnesButton turnBinding = facingLeft
                 ? SnesButton.Right
                 : SnesButton.Left;
@@ -378,7 +378,7 @@ public sealed class SamusXrayState
         if (samus.AnimationFrame != 2 || samus.AnimationFrameTimer.RawValue != 1)
             return default;
 
-        bool nowFacingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool nowFacingLeft = samus.PoseMetadata.IsFacingLeft();
         SamusPoseId completedPose = nowFacingLeft
             ? samus.Pose == SamusPoseId.TurningRightToLeftPose
                 ? SamusPoseId.XrayingStandingLeftPose
@@ -394,16 +394,15 @@ public sealed class SamusXrayState
     /// Executes <c>SamusMovementHandler_Xray</c> at `$90:E94F`: turning is an RTS, while
     /// stable X-ray poses force timer fifteen and one of five angle-selected art frames.
     /// </summary>
-    public ushort? StepMovement(ISnesAddressSpace bus, SamusState samus)
+    public ushort? StepMovement(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         EnsureActive();
 
-        if (samus.PoseMetadata.ReadMovementType(bus) == SamusMovementType.TurningOnGround)
+        if (samus.PoseMetadata.ReadMovementType() == SamusMovementType.TurningOnGround)
             return null;
 
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         ushort frame = facingLeft
             ? Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameFour ? (ushort)4 :
               Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameThree ? (ushort)3 :
@@ -524,12 +523,10 @@ public sealed class SamusXrayState
 
     /// <summary>Runs `$91:DCB4-$DD30` and writes only visor color four until restoration.</summary>
     public bool UpdatePalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
 
         if (unchecked((short)BeamSizeFlag) < 0)
@@ -670,21 +667,21 @@ public sealed class SamusXrayState
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
         // X-ray during a crouched turn therefore stands Samus up—the documented retail
         // X-ray stand-up glitch—and the radius difference moves her center upward.
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType(bus);
+        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
         bool crouching = movementType == SamusMovementType.Crouching;
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         ushort oldRadius = samus.Kinematics.Radius.Y;
         SamusPoseId targetPose = crouching
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
             : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
 
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct native history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input slot.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         if (radiusDifference >= 0)
             samus.Position -= new Offset16<RoomPixels>(0, unchecked((short)radiusDifference));
 
@@ -715,11 +712,11 @@ public sealed class SamusXrayState
         SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
         // Both branches of the frozen X-ray input handler publish history after
         // initializing their pose; ordinary gameplay transition dispatch is bypassed.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
     }
 
     /// <summary>Admits standing-like and crouching movement types to different visor poses.</summary>

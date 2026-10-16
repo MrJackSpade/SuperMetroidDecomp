@@ -445,7 +445,7 @@ internal static class SamusFullBodyCycleColorsVerification
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var cgram = new SnesCgram();
-                AssertTrue(speed.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
+                AssertTrue(speed.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = items }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Speed Booster reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.SpeedBooster, suit, phase);
             }
@@ -454,7 +454,7 @@ internal static class SamusFullBodyCycleColorsVerification
             {
                 var screw = new SamusHorizontalSpeedState { SpecialPaletteFrame = (ushort)(phase * 2) };
                 var cgram = new SnesCgram();
-                AssertTrue(screw.UpdateSpeedBoosterPalette(guard, cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
+                AssertTrue(screw.UpdateSpeedBoosterPalette(cgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 1, EquippedItems = (ushort)(items | (ushort)SamusEquipmentFlags.ScrewAttack) }, cycleColors: edited.SamusFullBodyCycleColors),
                     "Screw Attack reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ScrewAttack, suit,
                     Math.Min(phase, 6 - phase));
@@ -465,7 +465,7 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 6; phase++)
             {
                 var cgram = new SnesCgram();
-                AssertTrue(stored.Shinespark.UpdatePalette(guard, cgram, items,
+                AssertTrue(stored.Shinespark.UpdatePalette(cgram, items,
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "stored shine reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.StoredShine, suit,
@@ -478,7 +478,7 @@ internal static class SamusFullBodyCycleColorsVerification
             for (int phase = 0; phase < 4; phase++)
             {
                 var cgram = new SnesCgram();
-                AssertTrue(active.Shinespark.UpdatePalette(guard, cgram, items,
+                AssertTrue(active.Shinespark.UpdatePalette(cgram, items,
                         cycleColors: edited.SamusFullBodyCycleColors),
                     "active shinespark reaches installed color source");
                 AssertColors(cgram, SamusFullBodyCycleFamily.ActiveShinespark, suit, phase);

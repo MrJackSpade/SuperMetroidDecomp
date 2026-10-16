@@ -32,7 +32,7 @@ internal static class CeilingWrapRoomVerification
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
         samus.EquippedBeams = beams; samus.EquippedItems = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(1109, 0));
         int mismatches = 0;

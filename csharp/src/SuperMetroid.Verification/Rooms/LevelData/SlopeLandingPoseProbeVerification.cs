@@ -36,7 +36,7 @@ internal static class SlopeLandingPoseProbeVerification
         {
             var samus = new SamusState { Pose = SamusPoseId.NeutralJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x69, y)) };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ySubposition);
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             return samus;
         }
 

@@ -120,7 +120,7 @@ internal static class RoomPlmPopulationVerification
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
             bool spawned = plms.DoorPlms.TrySpawnDoorClosingPlm(
-                new TestAddressSpace(), level, door, new Bank80SystemState());
+                level, door, new Bank80SystemState());
             AssertEqual(expectedHeader != 0, spawned,
                 $"door-closing direction {direction} fallback admission matches cartridge");
             if (expectedHeader == 0)
@@ -210,7 +210,7 @@ internal static class RoomPlmPopulationVerification
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
                 SetupCodePointer: DoorSetupCode.None);
-            AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+            AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertTrue(typedClosing is null
@@ -394,7 +394,7 @@ internal static class RoomPlmPopulationVerification
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, plms.GreyDoorSnapshots.Single().Phase,
             "redirected actor retains explicit grey-door ownership while closing");
@@ -502,7 +502,7 @@ internal static class RoomPlmPopulationVerification
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+        AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
         for (int frame = 0; frame < 10; frame++)
@@ -887,7 +887,7 @@ internal static class RoomPlmPopulationVerification
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
             SetupCodePointer: DoorSetupCode.None);
-        AssertTrue(escape.DoorPlms.TrySpawnDoorClosingPlm(guarded, escapeLevel, motherBrainExit, system),
+        AssertTrue(escape.DoorPlms.TrySpawnDoorClosingPlm(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.SlotTable.ActiveCount,
             "resident escape gate is redirected in place rather than duplicated");
@@ -921,7 +921,7 @@ internal static class RoomPlmPopulationVerification
             blockDefinitions: new byte[0x400 * 8]);
         fallbackLevel.SetForegroundEntry(gateBlock, originalGateWord);
         var fallback = new RoomPlmSystem();
-        AssertTrue(fallback.DoorPlms.TrySpawnDoorClosingPlm(guarded, fallbackLevel, motherBrainExit, system),
+        AssertTrue(fallback.DoorPlms.TrySpawnDoorClosingPlm(fallbackLevel, motherBrainExit, system),
             "special door without a resident cap spawns C8D0 fallback");
         AssertEqual(PlmHeaderId.MotherBrainEscapeRoomGateClosing,
             fallback.PopulationSlots.Single().HeaderPointer,
@@ -931,7 +931,7 @@ internal static class RoomPlmPopulationVerification
 
         var nonClosingDoor = motherBrainExit with { Orientation = new(DoorDirection.Right, DoorClosingBehavior.None) };
         var nonClosing = new RoomPlmSystem();
-        AssertTrue(!nonClosing.DoorPlms.TrySpawnDoorClosingPlm(guarded, fallbackLevel, nonClosingDoor, system),
+        AssertTrue(!nonClosing.DoorPlms.TrySpawnDoorClosingPlm(fallbackLevel, nonClosingDoor, system),
             "directions zero through three retain the native no-closing-PLM branch");
         AssertEqual(0, nonClosing.SlotTable.ActiveCount,
             "non-closing door does not consume a PLM slot");

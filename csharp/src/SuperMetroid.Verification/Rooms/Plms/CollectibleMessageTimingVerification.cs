@@ -30,7 +30,7 @@ internal static class CollectibleMessageTimingVerification
         samus.Position = samus.Position.WithWhole(new(1296, 110));
         samus.Health = 49;
         samus.MaxHealth = 99;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         runtime.StepFrame(0);
         runtime.StepFrame(0);

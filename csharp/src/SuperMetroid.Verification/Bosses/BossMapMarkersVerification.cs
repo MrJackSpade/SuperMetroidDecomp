@@ -79,7 +79,7 @@ internal static class BossMapMarkersVerification
                     RetailPresentationFixture());
                 var savedGraphics = savedMenu.roomGraphics;
                 var liveGraphics = new FileSelectRoomMapGraphics(bus, system, (AreaId)area, mapPresentation: RetailPresentationFixture());
-                var marker = new FileSelectStationMarker(bus, (AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
+                var marker = new FileSelectStationMarker((AreaId)area, 0, RetailPresentationFixture().SaveMarkers);
                 ushort scrollX = unchecked((ushort)(x - 128)), scrollY = unchecked((ushort)(y - 112));
                 AssertTrue(liveGraphics.Render(new(scrollX, scrollY), marker).SequenceEqual(
                     savedGraphics.Render(new(scrollX, scrollY), marker)),

@@ -13,7 +13,7 @@ public sealed class RoomSandAnimatedTilesState
     internal readonly List<RoomFxAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous room and spawns selected ceiling/falling-sand definitions in native order.</summary>
-    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(ushort fxPointer, ushort doorPointer, AreaId area)
     {
         objects.Clear();
         if (fxPointer == 0) return;
@@ -27,14 +27,14 @@ public sealed class RoomSandAnimatedTilesState
             if (definition is not (AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling))
                 continue;
             var animation = new RoomFxAnimatedTilesState();
-            animation.LoadDefinition(bus, definition);
+            animation.LoadDefinition(definition);
             objects.Add(animation);
         }
     }
 
     /// <summary>Advances the shared timed-list interpreter and queues the ROM-authored character frames for NMI.</summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue writes)
+    public void Step(SnesVram vram, VramWriteQueue writes)
     {
-        foreach (var animation in objects) animation.Step(bus, vram, writes);
+        foreach (var animation in objects) animation.Step(vram, writes);
     }
 }

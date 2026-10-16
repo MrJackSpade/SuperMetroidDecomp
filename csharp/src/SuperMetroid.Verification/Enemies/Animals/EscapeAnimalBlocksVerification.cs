@@ -37,7 +37,7 @@ internal static class EscapeAnimalBlocksVerification
         for (int y = 10; y <= 12; y++)
         {
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
-            SeedStationaryGrappleCollisionProbe(bus, samus);
+            SeedStationaryGrappleCollisionProbe(samus);
             int before = plms.SlotTable.ActiveCount;
             SamusGrappleMovement.StepFiring(bus, level, samus,
                 SnesButton.X, plms);

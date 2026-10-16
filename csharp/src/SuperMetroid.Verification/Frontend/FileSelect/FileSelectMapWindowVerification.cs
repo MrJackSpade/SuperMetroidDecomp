@@ -34,7 +34,7 @@ internal static class FileSelectMapWindowVerification
         Suite(nameof(VerifyFileSelectMapWindowComposition), () => VerifyFileSelectMapWindowComposition());
         Suite(nameof(VerifyFileSelectMapEntry), () => VerifyFileSelectMapEntry());
         TestAddressSpace fake = CreateFractionalMapWindowCartridge();
-        var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(1, 1)));
+        var fractional = new FileSelectMapWindow(0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(1, 1)));
         // This arithmetic fixture starts below the authored label domain to exercise the lower clamp.
         var edges = fractional.edges;
         Array.Clear(edges);
@@ -45,7 +45,7 @@ internal static class FileSelectMapWindowVerification
         AssertEqual(2, fractional.Top, "map window clamp retains fractional Y");
         fractional.Step();
         AssertEqual(2, fractional.Left, "completed map window remains stable");
-        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(fake, 6), "Ceres has no area-select window record");
+        AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(6), "Ceres has no area-select window record");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(bus));
@@ -58,7 +58,7 @@ internal static class FileSelectMapWindowVerification
         int[] labelY = [50, 127, 181, 80, 159, 139];
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
-            var window = new FileSelectMapWindow(bus, area, RetailPresentationFixture().Labels);
+            var window = new FileSelectMapWindow(area, RetailPresentationFixture().Labels);
             AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
             AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");
             AssertEqual(window.Left, window.Right, "map window starts with zero width");
@@ -82,7 +82,7 @@ internal static class FileSelectMapWindowVerification
     private static void VerifyFileSelectMapWindowComposition()
     {
         TestAddressSpace fake = CreateComposedMapWindowCartridge();
-        var window = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
+        var window = new FileSelectMapWindow(0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
         Rgba32 areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
         Rgba32[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
         Rgba32[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
@@ -100,7 +100,7 @@ internal static class FileSelectMapWindowVerification
             "completed expansion disables window and displays entire empty room frame");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var returning = FileSelectMapWindow.CreateReturn(bus, 4, RetailPresentationFixture().Labels);
+        var returning = FileSelectMapWindow.CreateReturn(4, RetailPresentationFixture().Labels);
         AssertEqual(8, returning.Left, "native return rectangle left inset");
         AssertEqual(248, returning.Right, "native return rectangle right inset");
         AssertEqual(8, returning.Top, "native return rectangle top inset");

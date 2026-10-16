@@ -28,7 +28,6 @@ internal static void VerifySamusPoseTransitionMatching()
     // at the first record whose complete required masks are present.
 
     SamusPoseTransition jumpUp = (SamusPoseTransitionTable.Find(
-        bus,
         currentPose: fixturePose,
         canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.A,
         canonicalNewInput: SnesButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
@@ -37,42 +36,38 @@ internal static void VerifySamusPoseTransitionMatching()
         "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = (SamusPoseTransitionTable.Find(
-        bus,
         currentPose: fixturePose,
         canonicalHeldInput: (SnesButton.Up | SnesButton.Y),
         canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: (usho...."));
     AssertEqual(0x03, (byte)up.ProspectivePose, "Samus transition permits extra held action");
 
     SamusPoseTransition right = (SamusPoseTransitionTable.Find(
-        bus,
         currentPose: fixturePose,
         canonicalHeldInput: SnesButton.Right,
         canonicalNewInput: 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x010...."));
     AssertEqual(0x09, (byte)right.ProspectivePose, "Samus standing Right proposes running pose");
 
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(bus, fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0),
+        SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0),
         "Samus zero input bypasses transition table");
     AssertEqual<SamusPoseTransition?>(null,
         SamusPoseTransitionTable.Find(
-            bus,
             SamusPoseId.MovingRightGunExtendedPose,
             canonicalHeldInput: (SnesButton.Right | SnesButton.X),
             canonicalNewInput: 0),
         "Samus same-pose transition is suppressed");
     AssertEqual<SamusPoseTransition?>(null,
-        SamusPoseTransitionTable.Find(bus, fixturePose, canonicalHeldInput: SnesButton.Down, canonicalNewInput: 0),
+        SamusPoseTransitionTable.Find(fixturePose, canonicalHeldInput: SnesButton.Down, canonicalNewInput: 0),
         "Samus transition terminator returns no match");
 
     SamusPoseTransitionLookup zeroInput = SamusPoseTransitionTable.Lookup(
-        bus, fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0);
+        fixturePose, canonicalHeldInput: 0, canonicalNewInput: 0);
     SamusPoseTransitionLookup samePose = SamusPoseTransitionTable.Lookup(
-        bus,
         SamusPoseId.MovingRightGunExtendedPose,
         canonicalHeldInput: (SnesButton.Right | SnesButton.X),
         canonicalNewInput: 0);
     SamusPoseTransitionLookup terminator = SamusPoseTransitionTable.Lookup(
-        bus, fixturePose, canonicalHeldInput: SnesButton.Down, canonicalNewInput: 0);
+        fixturePose, canonicalHeldInput: SnesButton.Down, canonicalNewInput: 0);
     AssertTrue(zeroInput.UsesPoseDefinitionFallback,
         "Samus zero input enters pose-definition fallback");
     AssertTrue(!samePose.UsesPoseDefinitionFallback,
@@ -83,9 +78,9 @@ internal static void VerifySamusPoseTransitionMatching()
     // Pose $2F uses the authored empty list at $91:A0DC. Its immediate terminator is a
     // direct return for held input, unlike exhaustion after at least one unmatched record.
     const SamusPoseId emptyListPose = SamusPoseId.TurningRightToLeftJumpPose;
-    AssertTrue(!SamusPoseTransitionTable.Lookup(bus, emptyListPose, SnesButton.A, 0).UsesPoseDefinitionFallback,
+    AssertTrue(!SamusPoseTransitionTable.Lookup(emptyListPose, SnesButton.A, 0).UsesPoseDefinitionFallback,
         "empty pose table preserves turn momentum while Jump remains held");
-    AssertTrue(SamusPoseTransitionTable.Lookup(bus, emptyListPose, 0, 0).UsesPoseDefinitionFallback,
+    AssertTrue(SamusPoseTransitionTable.Lookup(emptyListPose, 0, 0).UsesPoseDefinitionFallback,
         "releasing all input still invokes fallback before reading an empty table");
 
     Console.WriteLine(
@@ -121,7 +116,7 @@ internal static void VerifySamusHorizontalSpeed()
     speed.SelectNormalAirSpeedTable();
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
-    SpeedTableEntry entry = speed.ReadEntry(bus, movementType: SamusMovementType.Running);
+    SpeedTableEntry entry = speed.ReadEntry(movementType: SamusMovementType.Running);
     AssertEqual(0x0000, entry.Acceleration, "running acceleration whole word");
     AssertEqual(0x3000, entry.AccelerationSubspeed, "running acceleration fraction");
     AssertEqual(0x0002, entry.MaximumSpeed, "running maximum whole word");
@@ -130,15 +125,15 @@ internal static void VerifySamusHorizontalSpeed()
 
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,
     // so the native quirked comparison clamps that result down to the table's 2.C000 cap.
-    StepFrames(4, _ => speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running));
+    StepFrames(4, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
     AssertEqual(0x0000c000u, speed.BaseFixed, "running acceleration after four calls");
-    StepFrames(11, _ => speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running));
+    StepFrames(11, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
     AssertEqual(0x0002c000u, speed.BaseFixed, "running acceleration clamps at 2.C000");
 
     // Deceleration subtracts 0.8000 per call. Crossing below zero makes the signed high
     // word negative, clearing both halves and restoring acceleration mode zero.
     speed.AccelerationMode = 2;
-    StepFrames(6, _ => speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Running));
+    StepFrames(6, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
     AssertEqual(0u, speed.BaseFixed, "running deceleration underflow clears speed");
     AssertEqual(0, speed.AccelerationMode, "running deceleration restores acceleration mode");
 
@@ -266,17 +261,17 @@ internal static void VerifySamusHorizontalSpeed()
         bus, SamusPaletteRomData.Common.NormalSuitPalettePointer(0), 0x0321);
 
     var boostCgram = new SnesCgram();
-    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "stage-four palette timer one copies immediately");
     AssertEqual(0x1234, boostCgram.Colors[192], "first Speed Booster palette comes from bank $9B");
     AssertEqual(2, booster.SpecialPaletteFrame, "Speed Booster palette advances to pointer offset two");
     AssertEqual(4, booster.SpecialPaletteTimer.RawValue, "Speed Booster palette reloads four-frame timer");
     for (int paletteTick = 0; paletteTick < 3; paletteTick++)
     {
-        AssertTrue(!booster.UpdateSpeedBoosterPalette(bus, boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }),
+        AssertTrue(!booster.UpdateSpeedBoosterPalette(boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }),
             "Speed Booster palette waits during positive timer");
     }
-    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000 }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "fourth Speed Booster palette tick copies next frame");
     AssertEqual(0x4567, boostCgram.Colors[192], "second Speed Booster palette pointer");
 
@@ -290,9 +285,9 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
     var submergedBoostCgram = new SnesCgram();
     submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(bus, submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2000, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Speed Booster palette copy");
-    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(bus, submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2001, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = 0x2001, BottomBoundarySubmerged = true }),
         "submerged Varia Suit suppresses active Speed Booster palette copy");
     AssertEqual(0x7777, submergedBoostCgram.Colors[192],
         "submerged Speed Booster leaves live Samus palette untouched");
@@ -300,7 +295,7 @@ internal static void VerifySamusHorizontalSpeed()
         "submerged Speed Booster freezes common palette timer");
     AssertEqual(0, submergedBoost.SpecialPaletteFrame,
         "submerged Speed Booster freezes palette-list offset");
-    AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(bus, submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster).ToNativeWord(), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(submergedBoost.UpdateSpeedBoosterPalette(submergedBoostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Running, AnimationFrame = 0, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.SpeedBooster).ToNativeWord(), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "submerged Gravity Suit bypasses Speed Booster palette suppression");
     AssertEqual(0x6a5a, submergedBoostCgram.Colors[192],
         "submerged Gravity Suit Speed Booster palette remains ROM-authored");
@@ -313,20 +308,20 @@ internal static void VerifySamusHorizontalSpeed()
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SnesCgram();
     submergedScrewCgram.SetColor(192, Bgr555.FromWord(0x2222));
-    AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(bus, submergedScrewCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = 0x0008, BottomBoundarySubmerged = true }),
+    AssertTrue(!submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = 0x0008, BottomBoundarySubmerged = true }),
         "submerged Power Suit suppresses active Screw Attack palette copy");
     AssertEqual(0x2222, submergedScrewCgram.Colors[192],
         "submerged Screw Attack retains the current suit colors");
     AssertEqual(0, submergedScrew.SpecialPaletteFrame,
         "submerged Screw Attack freezes palette-list offset");
-    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(bus, submergedScrewCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 26, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "submerged Gravity Suit bypasses Screw Attack palette suppression");
     AssertEqual(0x5b4b, submergedScrewCgram.Colors[192],
         "submerged Gravity Screw palette remains ROM-authored");
 
     SyntheticSamusCartridge.WriteSamusPaletteColors(
         bus, SamusPaletteRomData.Common.NormalSuitPalettePointer(4), 0x3a2a);
-    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(bus, submergedScrewCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 27, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
+    AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(submergedScrewCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.SpinJumping, AnimationFrame = 27, EquippedItems = (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(), BottomBoundarySubmerged = true }, suitColors: SuitColors(), cycleColors: CycleColors()),
         "Gravity Screw frame 27 restores normal suit colors underwater");
     AssertEqual(0x3a2a, submergedScrewCgram.Colors[192],
         "late Gravity Screw uses the fixture's normal suit palette");
@@ -421,7 +416,7 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0, leftDeparture.SpeedEchoIndex,
         "left departure clears shared index after both slots cross");
 
-    AssertTrue(booster.UpdateSpeedBoosterPalette(bus, boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Standing, AnimationFrame = 0, EquippedItems = 0x2000 }, suitColors: SuitColors()),
+    AssertTrue(booster.UpdateSpeedBoosterPalette(boostCgram, new SpeedBoosterPaletteFrame { MovementType = SamusMovementType.Standing, AnimationFrame = 0, EquippedItems = 0x2000 }, suitColors: SuitColors()),
         "cancel copies normal suit palette through runtime seam");
     AssertEqual(0x0321, boostCgram.Colors[192], "cancel restores ROM-authored Power Suit palette");
     AssertTrue(!booster.NormalSuitPaletteRestoreRequested, "normal-suit palette request is one-shot");

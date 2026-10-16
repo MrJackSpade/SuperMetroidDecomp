@@ -110,12 +110,10 @@ public sealed class SamusProjectileSystem
     /// pages bind the equipped beam's characters (<see cref="SuperMetroid.Core.Samus.Artwork.ProjectileObjectPages"/>).
     /// </summary>
     public static void LoadBeamPalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         ushort equippedBeams,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         LoadSelectedBeamPalette(cgram, SelectedCombination(equippedBeams), palettes);
     }
@@ -165,13 +163,11 @@ public sealed class SamusProjectileSystem
     /// That action models carry set at `$91:D70B`, bypassing special handlers for one frame.
     /// </remarks>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
-        ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
         LayerBlendingConfiguration layerBlendingDefaultConfig =
             LayerBlendingConfiguration.NormalGameplay)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         Ensure.NotNull(samus);
         LastVisorPaletteStep = default;
@@ -224,7 +220,6 @@ public sealed class SamusProjectileSystem
             // palette zero rather than resuming a partially completed cycle.
             Charge.SamusChargePaletteIndex = 0;
             LastVisorPaletteStep = samus.VisorPalette.Update(
-                bus,
                 cgram,
                 samus.Xray.SpecialPaletteKind,
                 layerBlendingDefaultConfig);
@@ -334,7 +329,7 @@ public sealed class SamusProjectileSystem
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
-        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.PoseMetadata.ReadMovementType(terrain.Bus));
+        SamusHudHandler hudHandler = SamusHudDefinitions.MovementHandler(samus.PoseMetadata.ReadMovementType());
         bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
             hudHandler == SamusHudHandler.Jump;
         // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
@@ -358,7 +353,6 @@ public sealed class SamusProjectileSystem
             if (samus.SelectedHudItem is 0 or 3 || xrayBeamFallback)
             {
                 (firedSlot, queuedSound, queuedSoundMaximum) = Firing.HandleBeamInput(
-                    terrain.Bus,
                     terrain.Level,
                     samus,
                     buttons.ControllerInput,
@@ -370,7 +364,6 @@ public sealed class SamusProjectileSystem
             else if (samus.SelectedHudItem is 1 or 2)
             {
                 (firedSlot, queuedSound) = Firing.TryFireMissile(
-                    terrain.Bus,
                     samus,
                     buttons.ControllerNewInput,
                     buttons.ControllerPreviousNewInput,
@@ -457,7 +450,6 @@ public sealed class SamusProjectileSystem
             else if (slot.PreInstruction == SamusProjectilePreInstruction.SuperMissile)
             {
                 collisionStartedExplosion |= Motion.RunSuperMissilePreInstruction(
-                    terrain.Bus,
                     terrain.Level,
                     samus,
                     slot,
@@ -586,7 +578,6 @@ public sealed class SamusProjectileSystem
 
     /// <summary>Publishes the charge-flare components <see cref="AdvanceChargeFlare"/> reported, before Samus.</summary>
     public void DrawChargeFlare(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         SamusState samus,
         Position16<RoomPixels> layer1,
@@ -594,22 +585,19 @@ public sealed class SamusProjectileSystem
         SamusMode7Transform? mode7Transform,
         ChargeFlareArtwork artwork)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);
         foreach (int component in components.DrawOrder)
-            Animation.DrawFlareComponent(bus, sprites, samus, layer1, component, mode7Transform, artwork);
+            Animation.DrawFlareComponent(sprites, samus, layer1, component, mode7Transform, artwork);
     }
 
     /// <summary>Draws `$93:8254`'s live ordinary-projectile subset after Samus.</summary>
     public void DrawLiveProjectiles(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ushort nmiFrameCounter,
         ProjectileDrawArtwork artwork)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -650,18 +638,15 @@ public sealed class SamusProjectileSystem
     /// Advances <c>$90:B6A9</c>'s eighteen projectile-trail slots as a simulation phase, after the ordinary
     /// projectile pass. Each side owns its own timer, instruction pointer and position.
     /// </summary>
-    /// <param name="bus">Address space passed to the trail instruction helpers.</param>
     /// <param name="timeIsFrozen">
     /// WRAM <c>$0A78</c>. Frozen trails retain their current record and are still drawn;
     /// their timers and embedded position commands do not advance.
     /// </param>
     /// <param name="artwork">Installed trail frame artwork; required by a trail side when it resolves a timed display record.</param>
     public void AdvanceTrails(
-        ISnesAddressSpace bus,
         bool timeIsFrozen,
         SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork = null)
     {
-        Ensure.NotNull(bus);
 
         // Native Y starts at byte index $22, so the most recently preferred allocation slot
         // is also handled first, left side before right.
@@ -697,12 +682,10 @@ public sealed class SamusProjectileSystem
     /// Draws beam explosions in bank-$A0's earlier bomb/explosion phase.
     /// </summary>
     public void DrawExplosions(
-        ISnesAddressSpace bus,
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
         ProjectileDrawArtwork artwork)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(sprites);
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)

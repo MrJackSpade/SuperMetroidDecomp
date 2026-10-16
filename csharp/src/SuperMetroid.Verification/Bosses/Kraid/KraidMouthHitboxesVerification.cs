@@ -34,7 +34,7 @@ internal static class KraidMouthHitboxesVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewKraidMouthLowHalfGuard(rom);
         enemies.BindFixtureBus(guarded);
-        Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> overlaps = enemies.KraidMouthHitboxOverlapsShot;
+        Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> overlaps = CoreAccess.KraidMouthHitboxOverlapsShot;
         var body = enemies.SlotTable.Slots[0];
         var shot = new SamusProjectileSystem().Slots[0];
         body.Position = body.Position.WithWhole(new(256, 256));
@@ -57,7 +57,7 @@ internal static class KraidMouthHitboxesVerification
 
         foreach (ushort pointer in new ushort[] { 0, 2, 0x1ff8 })
         {
-            AssertThrows<InvalidDataException>(() => KraidMouthHitboxDefinitions.ResolveCollision(guarded, pointer),
+            AssertThrows<InvalidDataException>(() => KraidMouthHitboxDefinitions.ResolveCollision(pointer),
                 $"Kraid low-half mouth pointer ${pointer:X4} has no compiled geometry");
             AssertThrows<InvalidDataException>(() => overlaps(body, pointer, shot),
                 $"Kraid mouth collision rejects low-half pointer ${pointer:X4}");
@@ -66,7 +66,7 @@ internal static class KraidMouthHitboxesVerification
         foreach (ushort pointer in new ushort[] { 0x8000, 0x9787, 0x9789, 0x97c8, 0xffff })
         {
             AssertThrows<InvalidDataException>(
-                () => KraidMouthHitboxDefinitions.ResolveCollision(guarded, pointer),
+                () => KraidMouthHitboxDefinitions.ResolveCollision(pointer),
                 $"Kraid non-catalog cartridge pointer ${pointer:X4} rejects");
         }
 

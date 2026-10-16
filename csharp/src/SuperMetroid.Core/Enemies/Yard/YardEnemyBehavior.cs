@@ -180,7 +180,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the look-at/hide test at $A3:CE9A.</summary>
-    private void HandleYardHiding(
+    private static void HandleYardHiding(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -189,7 +189,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool withinVerticalBand = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= -96;
-        byte samusFacing = samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus);
+        byte samusFacing = samus.PoseMetadata.ReadPoseXDirection();
         bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == (byte)SamusFacingDirection.Left
             : samusFacing == (byte)SamusFacingDirection.Right;
@@ -526,7 +526,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the running/airborne kick setup at $A3:D49F.</summary>
-    internal void KickYardIntoAir(
+    internal static void KickYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -537,7 +537,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var horizontal = SnesSignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
         (ushort kickFraction, ushort kickWhole) = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
-        if ((samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus) & 4) != 0)
+        if ((samus.PoseMetadata.ReadPoseXDirection() & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
             horizontal,
@@ -545,7 +545,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports ordinary-beam launch setup at $A3:D557.</summary>
-    internal void ShootYardIntoAir(
+    internal static void ShootYardIntoAir(
         RoomEnemySlot slot,
         YardEnemyState state,
         SamusState samus)
@@ -555,7 +555,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
         // Only the whole words are stored; both fraction words keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
-            samus.PoseMetadata.ReadPoseXDirection(_room.LoadedBus) == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
+            samus.PoseMetadata.ReadPoseXDirection() == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
             -1));
     }
 

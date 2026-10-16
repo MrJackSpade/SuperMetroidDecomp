@@ -43,7 +43,7 @@ internal static class TorizoLandingLifetimeVerification
         runtime.Room.LevelData = level;
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation(bus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(240, (ushort)(192-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));
         game.GameState = SuperMetroidGameState.MainGameplay;

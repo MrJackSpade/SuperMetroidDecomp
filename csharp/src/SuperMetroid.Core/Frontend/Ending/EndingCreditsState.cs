@@ -170,8 +170,8 @@ internal sealed class EndingCreditsState
             case EndingCreditsPhase.WaitForEscapeMusic:
                 if (!audio.HasQueuedMusic)
                 {
-                    paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Lava, 0);
-                    paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Crust, 0);
+                    paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.Lava, 0);
+                    paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.Crust, 0);
                     brightness = 0;
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeInEscapeSceneA;
@@ -387,7 +387,7 @@ internal sealed class EndingCreditsState
                 if (RewardGesture.JumpRequested)
                 {
                     rewardGesture = null;
-                    rewardGraphics = new EndingRewardGraphicsUpload(bus, mode7Artwork?.RewardIcon);
+                    rewardGraphics = new EndingRewardGraphicsUpload(mode7Artwork?.RewardIcon);
                     rewardJump = new EndingRewardJump(bus, EndingReward, UploadRewardGraphic);
                     Phase = EndingCreditsPhase.PostCreditsJump;
                 }
@@ -463,7 +463,7 @@ internal sealed class EndingCreditsState
         }
 
         // The native cinematic invokes the shared bank-$8D interpreter after actors.
-        paletteFx.Step(bus, cgram, paletteFxArtwork ?? throw new InvalidOperationException(
+        paletteFx.Step(cgram, paletteFxArtwork ?? throw new InvalidOperationException(
                 "Ending palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
             throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
@@ -503,7 +503,7 @@ internal sealed class EndingCreditsState
     private void SetupEscapeSceneB()
     {
         ResetPaletteFx();
-        paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GreyClouds, 0);
+        paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.GreyClouds, 0);
         LoadMode7(EndingMode7SceneId.EscapeB);
         LoadEscapeCloudCharacters();
         sprites.Clear();
@@ -550,8 +550,8 @@ internal sealed class EndingCreditsState
         palettes.EndingBackdrop.Write(0, Bgr555.Black);
         palettes.EndingLogoBackground.Write(0, Bgr555.Black);
         palettes.EndingObjectTransparent.Write(0, Bgr555.Black);
-        paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.PlanetAfterglow, 0);
-        paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GunshipEmergence, 0);
+        paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
+        paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
         mode7 = new(mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
         mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
         mode7Angle = SnesAngle.NormalizeTableIndex(-112);
@@ -819,7 +819,7 @@ internal sealed class EndingCreditsState
         switch (cue)
         {
             case CinematicSpriteCueKind.FadeExplosionPalette:
-                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.FadePlanet, 0);
+                paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.FadePlanet, 0);
                 new FrontendPalettes(cgram).EndingExplosionGlow.Write(0, new Bgr555(1, 0, 0));
                 return;
 
@@ -832,9 +832,9 @@ internal sealed class EndingCreditsState
 
             case CinematicSpriteCueKind.StartZebesExplosion:
                 explosionBurstDisplay = true;
-                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Supernova, 0);
-                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Explosion, 0);
-                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.WideExplosion, 0);
+                paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.Supernova, 0);
+                paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.Explosion, 0);
+                paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.WideExplosion, 0);
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -845,7 +845,7 @@ internal sealed class EndingCreditsState
 
             case CinematicSpriteCueKind.ExplosionFinale:
                 explosionFinaleDisplay = true;
-                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.SupernovaFinale, 0);
+                paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);
@@ -1539,7 +1539,7 @@ internal sealed class EndingCreditsState
         rewardJump = null;
         sprites.Clear();
         endingLogo = new EndingLogo(bus, cgram,
-            () => paletteFx.SpawnDefinition(bus, EndingLogoDefinitions.LandingPaletteFx, 0),
+            () => paletteFx.SpawnDefinition(EndingLogoDefinitions.LandingPaletteFx, 0),
             paletteArtwork);
         Phase = EndingCreditsPhase.PostCreditsLogo;
     }

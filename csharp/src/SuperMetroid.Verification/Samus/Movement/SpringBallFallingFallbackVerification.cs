@@ -39,7 +39,7 @@ internal static class SpringBallFallingFallbackVerification
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallFallingRightPose;
         samus.Position = samus.Position.WithWhole(new(512, 400));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.

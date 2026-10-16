@@ -86,8 +86,8 @@ internal static class PowerBombFixedColorsVerification
         int frames = 0;
         do
         {
-            bool nativeComplete = native.StepFrame(rom);
-            bool installedComplete = installed.StepFrame(guarded);
+            bool nativeComplete = native.StepFrame();
+            bool installedComplete = installed.StepFrame();
             string label = $"{(crystalFlash ? "Crystal Flash" : "Power Bomb")} frame {frames}";
             AssertEqual(nativeComplete, installedComplete, $"{label} completion");
             AssertEqual(native.Phase, installed.Phase, $"{label} next phase");
@@ -126,8 +126,8 @@ internal static class PowerBombFixedColorsVerification
         state.Arm();
         state.Spawn(new(128, 112));
         var forbidden = NewForbiddenPowerBombColorBus(new TestAddressSpace());
-        _ = state.StepFrame(forbidden); // Native setup precedes the first colored frame.
-        _ = state.StepFrame(forbidden);
+        _ = state.StepFrame(); // Native setup precedes the first colored frame.
+        _ = state.StepFrame();
         AssertEqual((byte)document.PreExplosion[0].Red, state.FixedColorRed,
             "Power Bomb color override reaches the live explosion frame");
         AssertEqual(0, forbidden.ForbiddenReadAttempts,

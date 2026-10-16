@@ -43,9 +43,8 @@ internal sealed class RoomFxAnimatedTilesState
     /// Replaces the previous room's object with the one spawned by the selected FX type.
     /// Non-animated types deliberately leave the owner empty.
     /// </summary>
-    public void Load(ISnesAddressSpace bus, RoomFxType type)
+    public void Load(RoomFxType type)
     {
-        Ensure.NotNull(bus);
         AnimatedTileObject definition = type switch
         {
             RoomFxType.Lava => AnimatedTileObject.Lava,
@@ -57,13 +56,12 @@ internal sealed class RoomFxAnimatedTilesState
                 RoomFxType.CeresRidley or RoomFxType.CeresElevator or RoomFxType.CeresHaze => 0,
             _ => throw new InvalidOperationException($"Undefined RoomFxType {type}."),
         };
-        LoadDefinition(bus, definition);
+        LoadDefinition(definition);
     }
 
     /// <summary>Loads a timed looping object selected by a cartridge header, independent of FX type.</summary>
-    public void LoadDefinition(ISnesAddressSpace bus, AnimatedTileObject definition)
+    public void LoadDefinition(AnimatedTileObject definition)
     {
-        Ensure.NotNull(bus);
         Reset();
         objectPointer = definition;
         if (objectPointer == AnimatedTileObject.None)
@@ -89,10 +87,9 @@ internal sealed class RoomFxAnimatedTilesState
     /// Supported retail lists contain timed source frames, <c>goto</c>, and no other
     /// commands; encountering anything else fails loudly instead of freezing the texture.
     /// </summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue? writes = null,
+    public void Step(SnesVram vram, VramWriteQueue? writes = null,
         RoomFxAnimatedTileAtlas? artwork = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(vram);
         LastSourceAddress = null;
         if (!IsActive)

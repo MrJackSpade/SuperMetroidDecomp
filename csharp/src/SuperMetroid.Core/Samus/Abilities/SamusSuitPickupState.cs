@@ -107,7 +107,7 @@ public sealed class SamusSuitPickupState
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
-        samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+        samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
         samus.HorizontalSpeed.ExtraRunSpeed = 0;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.BaseSpeed = 0;
@@ -127,10 +127,10 @@ public sealed class SamusSuitPickupState
         samus.Pose = otherSuitAlreadyEquipped
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         // Entry's Samus command $15 publishes history before locking gameplay.
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
         samus.InputLocked = true;
 
         // Native writes whole positions but leaves fractional words untouched. These are
@@ -279,12 +279,12 @@ public sealed class SamusSuitPickupState
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
         samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
-        samus.CommitPoseHistory(bus);
-        samus.Presentation.LoadSuitPalette(bus, cgram);
+        samus.CommitPoseHistory();
+        samus.Presentation.LoadSuitPalette(cgram);
         Substate++;
     }
 

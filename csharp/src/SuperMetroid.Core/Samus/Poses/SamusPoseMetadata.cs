@@ -22,9 +22,8 @@ internal sealed class SamusPoseMetadata
     /// Ports <c>Samus_SetRadius</c> at <c>$90:EC22</c>: every pose is five pixels wide and
     /// reads its vertical radius from pose-definition byte six.
     /// </summary>
-    public void RefreshCollisionRadii(ISnesAddressSpace bus)
+    public void RefreshCollisionRadii()
     {
-        Ensure.NotNull(bus);
         _samus.Kinematics.Radius = new(5, ReadPoseYRadius(_samus.Pose));
     }
 
@@ -33,10 +32,9 @@ internal sealed class SamusPoseMetadata
         SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
 
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
-    public byte ReadPoseXDirection(ISnesAddressSpace bus)
+    public byte ReadPoseXDirection()
     {
-        Ensure.NotNull(bus);
-        return ReadPoseXDirection(bus, _samus.InitializedPose);
+        return ReadPoseXDirection(_samus.InitializedPose);
     }
 
     /// <summary>
@@ -44,9 +42,8 @@ internal sealed class SamusPoseMetadata
     /// initializers compare the old and prospective records before publishing the new
     /// pose, so making that distinction explicit avoids temporarily corrupting live state.
     /// </summary>
-    public static byte ReadPoseXDirection(ISnesAddressSpace bus, SamusPoseId pose)
+    public static byte ReadPoseXDirection(SamusPoseId pose)
     {
-        Ensure.NotNull(bus);
         return SamusPoseDispatchDefinitions.ReadFacing(pose);
     }
 
@@ -55,49 +52,47 @@ internal sealed class SamusPoseMetadata
     /// diagnostics and unknown records, while gameplay decisions no longer compare an
     /// unexplained byte to literals four and eight.
     /// </summary>
-    public SamusFacingDirection ReadFacingDirection(ISnesAddressSpace bus) =>
-        (SamusFacingDirection)ReadPoseXDirection(bus);
+    public SamusFacingDirection ReadFacingDirection() =>
+        (SamusFacingDirection)ReadPoseXDirection();
 
     /// <summary>Typed facing view for an arbitrary current or prospective pose.</summary>
-    public static SamusFacingDirection ReadFacingDirection(ISnesAddressSpace bus, SamusPoseId pose) =>
-        (SamusFacingDirection)ReadPoseXDirection(bus, pose);
+    public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
+        (SamusFacingDirection)ReadPoseXDirection(pose);
 
     /// <summary>True only for the verified left-facing pose-definition value four.</summary>
-    public bool IsFacingLeft(ISnesAddressSpace bus) =>
-        ReadFacingDirection(bus) == SamusFacingDirection.Left;
+    public bool IsFacingLeft() =>
+        ReadFacingDirection() == SamusFacingDirection.Left;
 
     /// <summary>Left-facing query for an arbitrary pose without mutating live state.</summary>
-    public static bool IsFacingLeft(ISnesAddressSpace bus, SamusPoseId pose) =>
-        ReadFacingDirection(bus, pose) == SamusFacingDirection.Left;
+    public static bool IsFacingLeft(SamusPoseId pose) =>
+        ReadFacingDirection(pose) == SamusFacingDirection.Left;
 
     /// <summary>True only for the verified right-facing pose-definition value eight.</summary>
-    public bool IsFacingRight(ISnesAddressSpace bus) =>
-        ReadFacingDirection(bus) == SamusFacingDirection.Right;
+    public bool IsFacingRight() =>
+        ReadFacingDirection() == SamusFacingDirection.Right;
 
     /// <summary>
     /// Reads and validates pose-definition byte one, the exclusive movement dispatcher.
     /// </summary>
-    public SamusMovementType ReadMovementType(ISnesAddressSpace bus)
+    public SamusMovementType ReadMovementType()
     {
-        Ensure.NotNull(bus);
-        return ReadMovementType(bus, _samus.InitializedPose);
+        return ReadMovementType(_samus.InitializedPose);
     }
 
     /// <summary>
     /// Compatibility spelling retained for callers that describe the value as a movement
     /// kind. Both APIs now return the same validated discriminator.
     /// </summary>
-    public SamusMovementType ReadMovementKind(ISnesAddressSpace bus) =>
-        ReadMovementType(bus);
+    public SamusMovementType ReadMovementKind() =>
+        ReadMovementType();
 
     /// <summary>
     /// Reads pose-definition byte one for a prospective pose without mutating Samus.
     /// Values beyond the complete retail dispatcher are corrupt cartridge metadata and
     /// fail here, before they can be mistaken for a valid gameplay state downstream.
     /// </summary>
-    public static SamusMovementType ReadMovementType(ISnesAddressSpace bus, SamusPoseId pose)
+    public static SamusMovementType ReadMovementType(SamusPoseId pose)
     {
-        Ensure.NotNull(bus);
         byte rawMovementType = SamusPoseDispatchDefinitions.ReadMovement(pose);
         if (rawMovementType > (byte)SamusMovementType.Special)
         {
@@ -110,16 +105,15 @@ internal sealed class SamusPoseMetadata
     }
 
     /// <summary>Compatibility spelling for an arbitrary prospective pose.</summary>
-    public static SamusMovementType ReadMovementKind(ISnesAddressSpace bus, SamusPoseId pose) =>
-        ReadMovementType(bus, pose);
+    public static SamusMovementType ReadMovementKind(SamusPoseId pose) =>
+        ReadMovementType(pose);
 
     /// <summary>
     /// Reads pose-definition byte two, the pose selected by <c>$91:82D9</c> when no
     /// controller bits are held and the transition table therefore is not consulted.
     /// </summary>
-    public SamusPoseId ReadNoInputFallbackPose(ISnesAddressSpace bus)
+    public SamusPoseId ReadNoInputFallbackPose()
     {
-        Ensure.NotNull(bus);
         return SamusPoseDispatchDefinitions.ReadNoInputPose(_samus.Pose);
     }
 
@@ -127,16 +121,14 @@ internal sealed class SamusPoseMetadata
     /// Reads pose-definition byte three, the ten-way arm-cannon direction consumed by
     /// the native normal-jump landing selector at <c>$91:E974</c>.
     /// </summary>
-    public byte ReadShotDirection(ISnesAddressSpace bus)
+    public byte ReadShotDirection()
     {
-        Ensure.NotNull(bus);
-        return ReadShotDirection(bus, _samus.Pose);
+        return ReadShotDirection(_samus.Pose);
     }
 
     /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
-    public static byte ReadShotDirection(ISnesAddressSpace bus, SamusPoseId pose)
+    public static byte ReadShotDirection(SamusPoseId pose)
     {
-        Ensure.NotNull(bus);
         return SamusPoseAimDefinitions.Read(pose);
     }
 
@@ -145,9 +137,8 @@ internal sealed class SamusPoseMetadata
     /// Physical beam/Grapple origins use their separate compiled correction; replacing
     /// artwork must not shift a projectile's collision position.
     /// </summary>
-    public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
+    public sbyte ReadGraphicsYOffset()
     {
-        Ensure.NotNull(bus);
         return (_samus.Presentation.TileTransfers.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork."))
             .GraphicsYOffset(_samus.Pose);
@@ -217,7 +208,7 @@ internal sealed class SamusPoseMetadata
         _samus.CrystalFlash.RelinquishMovementHandler();
         _samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         _samus.InputLocked = true;
-        _samus.Presentation.PrimeGraphics(bus);
+        _samus.Presentation.PrimeGraphics();
     }
 
     /// <summary>
@@ -242,7 +233,7 @@ internal sealed class SamusPoseMetadata
 
         // This forced owner shifts history even when already facing forward.
         // It does not pass through the ordinary input-transition epilogue.
-        _samus.CommitPoseHistory(bus);
+        _samus.CommitPoseHistory();
 
         // `$91:E438-$91:E44A` compares the live radius, still the previous pose's, and
         // lifts both Y words by three unless it is already the front view's 24.
@@ -350,7 +341,7 @@ internal sealed class SamusPoseMetadata
 
         ushort oldRadius = _samus.Kinematics.Radius.Y;
         _samus.Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        RefreshCollisionRadii();
         if (_samus.Kinematics.Radius.Y != oldRadius)
         {
             throw new InvalidDataException(
@@ -689,11 +680,11 @@ internal sealed class SamusPoseMetadata
     /// families clear the published direction exactly like the table's carry-clear routines.
     /// </remarks>
     /// <returns>True when the pending low-byte direction was rejected and cleared.</returns>
-    public bool RejectUnsupportedPublishedBombJump(ISnesAddressSpace bus, bool timeIsFrozen)
+    public bool RejectUnsupportedPublishedBombJump(bool timeIsFrozen)
     {
         if (_samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(_samus.BombJumpDirection)) != 0)
             return false;
-        SamusMovementType movement = ReadMovementKind(bus);
+        SamusMovementType movement = ReadMovementKind();
         bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
@@ -715,11 +706,11 @@ internal sealed class SamusPoseMetadata
     {
         Ensure.NotNull(bus);
         Ensure.NotNull(level);
-        if (RejectUnsupportedPublishedBombJump(bus, timeIsFrozen) ||
+        if (RejectUnsupportedPublishedBombJump(timeIsFrozen) ||
             _samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(_samus.BombJumpDirection)) != 0)
             return false;
 
-        SamusMovementType movementType = ReadMovementKind(bus);
+        SamusMovementType movementType = ReadMovementKind();
         switch (movementType)
         {
             case SamusMovementType.Standing:
@@ -745,7 +736,7 @@ internal sealed class SamusPoseMetadata
                 // `$90:DFF7` tests the pose-definition direction, not the descriptive pose
                 // number. Any value other than literal four follows the right-facing path.
                 SamusPoseId sourcePose = _samus.Pose;
-                SamusPoseId targetPose = ReadPoseXDirection(bus) == (byte)SamusFacingDirection.Left
+                SamusPoseId targetPose = ReadPoseXDirection() == (byte)SamusFacingDirection.Left
                     ? SamusPoseId.NormalJumpForwardLeftPose
                     : SamusPoseId.NormalJumpForwardRightPose;
 
@@ -768,7 +759,7 @@ internal sealed class SamusPoseMetadata
                 }
 
                 _samus.Pose = targetPose;
-                RefreshCollisionRadii(bus);
+                RefreshCollisionRadii();
                 _samus.Kinematics.Position = _samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
                     _samus.Kinematics.Position.Y.Whole + centerAdjustment)));
 

@@ -43,7 +43,7 @@ internal static class GrappleDoorsVerification
             };
             // Seed an extending beam exactly at each cap tile. Collision still traverses
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
-            SeedStationaryGrappleCollisionProbe(bus, samus);
+            SeedStationaryGrappleCollisionProbe(samus);
             var plms = new RoomPlmSystem();
             var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
             AssertTrue(result.Phase == GrapplePhase.CancelPending, $"grapple cancels on blue {orientation} cap {hitOffset}");
@@ -67,11 +67,11 @@ internal static class GrappleDoorsVerification
     }
 
     /// <summary>Seeds an endpoint collision probe without an impossible forward-facing firing pose.</summary>
-    internal static void SeedStationaryGrappleCollisionProbe(ISnesAddressSpace bus, SamusState samus)
+    internal static void SeedStationaryGrappleCollisionProbe(SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Grapple.Phase = GrapplePhase.Firing;
-        samus.Grapple.FireDirection = samus.PoseMetadata.ReadShotDirection(bus);
+        samus.Grapple.FireDirection = samus.PoseMetadata.ReadShotDirection();
     }
 
     /// <summary>Runs door opening and grapple pose-refire checks together.</summary>

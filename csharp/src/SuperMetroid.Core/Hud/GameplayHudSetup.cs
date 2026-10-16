@@ -96,7 +96,7 @@ internal sealed class GameplayHudSetup
             _vramWrites.EnqueueAsset(VramAssetId.HudTopRowTilemap, GameplayHudDefinitions.TopRowByteCount,
                 GameplayVram.HudTilemapDma());
 
-        _hud.Initialize(_addressSpace, snapshot);
+        _hud.Initialize(snapshot);
         _hud.QueueUpload(_vramWrites);
     }
 }

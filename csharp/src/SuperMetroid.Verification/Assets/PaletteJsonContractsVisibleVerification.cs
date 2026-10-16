@@ -37,8 +37,8 @@ internal static class PaletteJsonContractsVisibleVerification
         var editedFx = new RoomPaletteFxSystem();
         foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
-            stockFx.SpawnDefinition(stockBus, definition.DefinitionPointer, 0);
-            editedFx.SpawnDefinition(editedBus, definition.DefinitionPointer, 0);
+            stockFx.SpawnDefinition(definition.DefinitionPointer, 0);
+            editedFx.SpawnDefinition(definition.DefinitionPointer, 0);
         }
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
@@ -47,8 +47,8 @@ internal static class PaletteJsonContractsVisibleVerification
         // ticking concurrently. Compare all native instruction timers, not endpoints.
         for (int tick = 0; tick < 160; tick++)
         {
-            stockFx.Step(stockBus, stockCgram, original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            editedFx.Step(editedBus, editedCgram, replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            stockFx.Step(stockCgram, original, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            editedFx.Step(editedCgram, replacement, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             AssertPaletteContractFxState(stockFx, editedFx);
             AssertSameBytes(stockBus.WorkRam, editedBus.WorkRam, "color replacement preserves all live WRAM");
             foreach (var definition in TitleScreenAmbientPaletteFxColorDefinitions.All)

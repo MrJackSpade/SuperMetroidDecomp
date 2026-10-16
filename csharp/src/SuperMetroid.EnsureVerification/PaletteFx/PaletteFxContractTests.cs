@@ -51,9 +51,9 @@ internal static class PaletteFxContractTests
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var cgram = new SnesCgram();
         var fx = new RoomPaletteFxSystem();
-        fx.SpawnDefinition(bus, GunshipEngineDefinitionPointer, 0);
+        fx.SpawnDefinition(GunshipEngineDefinitionPointer, 0);
         int colorIndex = GunshipEngineColorIndex / sizeof(ushort);
-        fx.Step(bus, cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+        fx.Step(cgram, new ContractPaletteColors(), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         if (cgram.Colors[colorIndex] != new Bgr555(31, 0, 0) || fx.ActiveCount != 1)
             throw new InvalidOperationException("The first palette step did not paint the supplied colors.");
         Console.WriteLine("#1152: eight compiler dependency contracts and the supplied-colors step pass; no gameplay search.");

@@ -139,7 +139,7 @@ internal static class CinematicCrystalFlashVerification
         // Release the successful drained actor, then use the production X-Ray admission and
         // teardown. X-Ray replaces the retained RTS input word and must not resurrect that
         // lock after the visor closes.
-        superSamus.Drained.Release(superBus, superSamus);
+        superSamus.Drained.Release(superSamus);
         for (int frame = 0; frame < 128 &&
             superSamus.Drained.Phase != DrainedSamusPhase.Inactive; frame++)
         {
@@ -147,7 +147,7 @@ internal static class CinematicCrystalFlashVerification
         }
         AssertEqual(DrainedSamusPhase.Inactive, superSamus.Drained.Phase,
             "Super Metroid release reaches an ordinary posture");
-        SamusMovementType releasedMovement = superSamus.PoseMetadata.ReadMovementType(superBus);
+        SamusMovementType releasedMovement = superSamus.PoseMetadata.ReadMovementType();
         bool xrayAdmitted = superSamus.Xray.TryBegin(superBus, superSamus, releasedMovement, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay });
         AssertTrue(xrayAdmitted, "X-Ray admits from the released immobile suit posture");
         AssertTrue(!superSamus.InputSnapshot.CrystalFlashPoseInputLocked,
@@ -270,7 +270,7 @@ internal static class CinematicCrystalFlashVerification
         samus.PowerBombs = samus.MaxPowerBombs = 10;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
 
         bool admitted = samus.CrystalFlash.TryBegin(
@@ -281,7 +281,7 @@ internal static class CinematicCrystalFlashVerification
                 : (SnesButton.Down | SnesButton.L | SnesButton.R));
         AssertEqual(admitFlash, admitted, "cinematic Flash fixture admission");
         for (ushort frame = 0; frame < movementCalls; frame++)
-            samus.CrystalFlash.Step(bus, samus, frame);
+            samus.CrystalFlash.Step(samus, frame);
         return (bus, runtime, samus);
     }
 

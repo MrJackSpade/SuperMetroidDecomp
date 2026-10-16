@@ -159,7 +159,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             Enemies.BindFixtureBus(Memory);
             Enemies.Presentation._vram = Vram;
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.ProcessKraidHeadInstruction);
-            hit = Enemies.KraidMouthHitboxOverlapsShot;
+            hit = CoreAccess.KraidMouthHitboxOverlapsShot;
             transfer = new Action<KraidEnemyState, ushort>(Enemies.KraidBehavior.TransferKraidHeadTilemap);
             Body.Position = Body.Position.WithWhole(new(512, 512));
             byte[] sentinel = new byte[SnesVram.ByteCount]; Array.Fill(sentinel, (byte)0xcd); Vram.LoadBytes(0, sentinel);

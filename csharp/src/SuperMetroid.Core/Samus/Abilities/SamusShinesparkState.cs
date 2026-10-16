@@ -359,7 +359,7 @@ public sealed class SamusShinesparkState
     internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, SamusPoseId pose)
     {
         samus.Pose = pose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -383,7 +383,7 @@ public sealed class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = samus.PoseMetadata.IsFacingLeft(terrain.Bus)
+                SamusPoseId verticalPose = samus.PoseMetadata.IsFacingLeft()
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
                 BeginDirectionalLaunch(terrain.Bus, samus, verticalPose, frame.DeferTimeoutPoseChange);
@@ -446,7 +446,7 @@ false);
             SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy)) >= 0;
         bool lowEnergy = !frame.PlayerInvincibilityEnabled && !hasNativeEnergy;
         if (collided || lowEnergy)
-            BeginCrash(terrain.Bus, samus);
+            BeginCrash(samus);
 
         // At exactly 30 energy, this frame still moves and drains to 29. The following
         // frame moves once more before EndSuperJump observes that 29 is below the threshold.
@@ -466,11 +466,10 @@ false);
     /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems,
+    public bool UpdatePalette(SnesCgram cgram, ushort equippedItems,
         SamusSuitColorCatalog? suitColors = null,
         SamusFullBodyCycleColorCatalog? cycleColors = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         if (PaletteType is not (SamusSpecialPaletteType.SpeedBoosterShine or SamusSpecialPaletteType.Shinesparking))
             return false;
@@ -514,7 +513,7 @@ false);
     }
 
     /// <summary>Stops translational spark motion, seeds paired orbit angles and installs the crash handler without clearing aliased angular travel.</summary>
-    private void BeginCrash(ISnesAddressSpace bus, SamusState samus)
+    private void BeginCrash(SamusState samus)
     {
         // `$90:D2BA-$D345` kills translational velocity before installing the crash handler.
         samus.Kinematics.YSpeed = 0;
@@ -526,7 +525,7 @@ false);
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
-        bool facingLeft = samus.PoseMetadata.IsFacingLeft(bus);
+        bool facingLeft = samus.PoseMetadata.IsFacingLeft();
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
@@ -668,7 +667,7 @@ false,             CrashSequenceFinished: true);
         // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
-        SamusPoseId standingPose = samus.PoseMetadata.IsFacingLeft(bus)
+        SamusPoseId standingPose = samus.PoseMetadata.IsFacingLeft()
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         ushort previousRadius = samus.Kinematics.Radius.Y;
@@ -813,7 +812,7 @@ false,             CrashSequenceFinished: true);
             samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(bus), samus, baseSpeed: 0);
+        var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacingLeft(), samus, baseSpeed: 0);
         return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 

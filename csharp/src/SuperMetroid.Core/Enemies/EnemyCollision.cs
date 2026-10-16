@@ -355,7 +355,7 @@ internal sealed class EnemyCollision
                         enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                             !projectile.PackedType.BeamCombination.HasPlasma);
                 }
-                else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
+                else if (!projectiles.EnemyImpacts.TryStartEnemyImpact(sharedProjectiles, projectile.SlotIndex,
                     enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
                     continue;
 
@@ -668,12 +668,10 @@ internal sealed class EnemyCollision
     /// uses it as the horizontal radius and derives a three-quarter-height vertical ellipse.
     /// </summary>
     public int ResolveOrdinaryPowerBombHits(
-        ISnesAddressSpace bus,
         Position16<RoomPixels> explosionCenter,
         byte explosionRadius,
         SamusState? samus = null)
     {
-        Ensure.NotNull(bus);
         _room.EnsureLoaded();
         if (explosionRadius == 0)
             return 0;

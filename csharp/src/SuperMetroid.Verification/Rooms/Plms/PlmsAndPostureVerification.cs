@@ -256,7 +256,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)), // standing bottom is pixel 63, immediately above row-four floor
     };
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     samus.Presentation.InitializeAnimation(bus);
     AssertTrue(
         samus.PoseTransitions.TryApplyPostureTransition(
@@ -275,7 +275,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 45)), // standing bottom pixel 65 overlaps the floor starting at 64
     };
-    sunkSamus.PoseMetadata.RefreshCollisionRadii(bus);
+    sunkSamus.PoseMetadata.RefreshCollisionRadii();
     sunkSamus.Presentation.InitializeAnimation(bus);
     AssertTrue(
         sunkSamus.PoseTransitions.TryApplyPostureTransition(
@@ -296,7 +296,7 @@ internal static void VerifySamusPostureMovement()
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "crouch clears numeric horizontal velocity");
     AssertEqual(0x0401, samus.HorizontalSpeed.SpeedBoostCounter, "crouch movement preserves boost stage");
     AssertTrue(samus.HorizontalSpeed.HasRunningMomentum, "crouch movement preserves momentum bookkeeping");
-    samus.HorizontalSpeed.ApplyStoppedInputFallback(samus.PoseMetadata.ReadFacingDirection(bus));
+    samus.HorizontalSpeed.ApplyStoppedInputFallback(samus.PoseMetadata.ReadFacingDirection());
     AssertEqual(0, samus.HorizontalSpeed.SpeedBoostCounter, "crouch input fallback independently cancels boost");
     AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, "fallback cancels momentum bookkeeping");
 
@@ -306,7 +306,7 @@ internal static void VerifySamusPostureMovement()
         "crouch begins standing transition");
     AssertEqual(16, samus.Kinematics.Radius.Y, "standing commit retains crouch radius");
     AssertEqual(43, samus.Position.Y.Whole, "floor-constrained expansion moves center up five");
-    samus.PoseMetadata.RefreshCollisionRadii(bus);
+    samus.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes standing transition radius");
     for (int tick = 0; tick < 3; tick++)
         samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
@@ -324,7 +324,7 @@ internal static void VerifySamusPostureMovement()
             Pose = facesLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)),
         };
-        aimedSamus.PoseMetadata.RefreshCollisionRadii(bus);
+        aimedSamus.PoseMetadata.RefreshCollisionRadii();
         aimedSamus.Presentation.InitializeAnimation(bus);
         AssertTrue(
             aimedSamus.PoseTransitions.TryApplyPostureTransition(
@@ -340,7 +340,7 @@ internal static void VerifySamusPostureMovement()
         AssertEqual(aimedCrouchTargets[index], aimedSamus.Pose, "aimed crouch FD target");
         AssertEqual(
             facesLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose,
-            aimedSamus.PoseMetadata.ReadNoInputFallbackPose(bus),
+            aimedSamus.PoseMetadata.ReadNoInputFallbackPose(),
             "aimed crouch definition fallback");
         GroundedMovementResult aimedCrouchFrame = SamusPostureMovement.StepCrouching(
             bus, level, aimedSamus, unchecked((ushort)index));
@@ -352,7 +352,7 @@ internal static void VerifySamusPostureMovement()
             $"aimed stand transition ${(int)(aimedStandTransitions[index]):X2} begins");
         AssertEqual(16, aimedSamus.Kinematics.Radius.Y, "aimed standing commit retains crouch radius");
         AssertEqual(43, aimedSamus.Position.Y.Whole, "aimed stand keeps feet aligned");
-        aimedSamus.PoseMetadata.RefreshCollisionRadii(bus);
+        aimedSamus.PoseMetadata.RefreshCollisionRadii();
         AssertEqual(21, aimedSamus.Kinematics.Radius.Y, "aimed stand next alpha radius");
         for (int tick = 0; tick < 3; tick++)
             aimedSamus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
@@ -367,7 +367,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    crouchAim.PoseMetadata.RefreshCollisionRadii(bus);
+    crouchAim.PoseMetadata.RefreshCollisionRadii();
     crouchAim.Presentation.InitializeAnimation(bus);
     foreach (SamusPoseId target in new SamusPoseId[] {
         SamusPoseId.CrouchingAimUpRightPose,
@@ -392,7 +392,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    directStand.PoseMetadata.RefreshCollisionRadii(bus);
+    directStand.PoseMetadata.RefreshCollisionRadii();
     directStand.Presentation.InitializeAnimation(bus);
     AssertTrue(
         directStand.PoseTransitions.TryApplyDirectCrouchToStandingTransition(
@@ -401,7 +401,7 @@ internal static void VerifySamusPostureMovement()
     AssertEqual(SamusPoseId.FacingRightNormalPose, directStand.Pose, "direct crouch exit target");
     AssertEqual(16, directStand.Kinematics.Radius.Y, "direct crouch exit commit retains live crouch radius");
     AssertEqual(43, directStand.Position.Y.Whole, "direct crouch exit keeps feet aligned");
-    directStand.PoseMetadata.RefreshCollisionRadii(bus);
+    directStand.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(21, directStand.Kinematics.Radius.Y, "next alpha publishes direct crouch exit radius");
     AssertEqual(43, directStand.Position.Y.Whole, "alpha does not repeat direct crouch exit center correction");
 
@@ -410,7 +410,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    directStandLeft.PoseMetadata.RefreshCollisionRadii(bus);
+    directStandLeft.PoseMetadata.RefreshCollisionRadii();
     directStandLeft.Presentation.InitializeAnimation(bus);
     AssertTrue(
         directStandLeft.PoseTransitions.TryApplyDirectCrouchToStandingTransition(
@@ -428,7 +428,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    crouchJump.PoseMetadata.RefreshCollisionRadii(bus);
+    crouchJump.PoseMetadata.RefreshCollisionRadii();
     crouchJump.Presentation.InitializeAnimation(bus);
     AssertTrue(
         crouchJump.PoseTransitions.TryApplyCrouchJumpTransition(
@@ -437,7 +437,7 @@ internal static void VerifySamusPostureMovement()
     AssertEqual(SamusPoseId.NeutralJumpTransitionRightPose, crouchJump.Pose, "ordinary crouch jump transition pose");
     AssertEqual(16, crouchJump.Kinematics.Radius.Y, "crouch jump commit retains live crouch radius");
     AssertEqual(35, crouchJump.Position.Y.Whole, "ordinary crouch jump collision plus FC8A offset");
-    crouchJump.PoseMetadata.RefreshCollisionRadii(bus);
+    crouchJump.PoseMetadata.RefreshCollisionRadii();
     AssertEqual(19, crouchJump.Kinematics.Radius.Y, "next alpha publishes crouch jump radius");
     AssertEqual(35, crouchJump.Position.Y.Whole, "alpha does not repeat crouch jump center correction");
     AssertEqual(4, crouchJump.Kinematics.YSpeed, "ordinary crouch jump Y speed");
@@ -449,7 +449,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    crouchJumpLeft.PoseMetadata.RefreshCollisionRadii(bus);
+    crouchJumpLeft.PoseMetadata.RefreshCollisionRadii();
     crouchJumpLeft.Presentation.InitializeAnimation(bus);
     AssertTrue(
         crouchJumpLeft.PoseTransitions.TryApplyCrouchJumpTransition(
@@ -466,7 +466,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingAimDiagonalUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    aimedCrouchJump.PoseMetadata.RefreshCollisionRadii(bus);
+    aimedCrouchJump.PoseMetadata.RefreshCollisionRadii();
     aimedCrouchJump.Presentation.InitializeAnimation(bus);
     AssertTrue(
         aimedCrouchJump.PoseTransitions.TryApplyCrouchJumpTransition(
@@ -486,7 +486,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    tunnelSamus.PoseMetadata.RefreshCollisionRadii(bus);
+    tunnelSamus.PoseMetadata.RefreshCollisionRadii();
     tunnelSamus.Presentation.InitializeAnimation(bus);
     AssertTrue(
         !tunnelSamus.PoseTransitions.TryApplyPostureTransition(
@@ -500,7 +500,7 @@ internal static void VerifySamusPostureMovement()
         Pose = SamusPoseId.CrouchingAimUpRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(48, 48)),
     };
-    tunnelJump.PoseMetadata.RefreshCollisionRadii(bus);
+    tunnelJump.PoseMetadata.RefreshCollisionRadii();
     tunnelJump.Presentation.InitializeAnimation(bus);
     AssertTrue(
         !tunnelJump.PoseTransitions.TryApplyCrouchJumpTransition(

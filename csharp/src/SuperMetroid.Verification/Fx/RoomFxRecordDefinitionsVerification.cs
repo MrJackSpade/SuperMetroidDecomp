@@ -50,9 +50,9 @@ internal static class RoomFxRecordDefinitionsVerification
             new MemoryStream(RoomFxLayer3TilemapExtractor.Extract(bus)));
         var nativeFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
         var compiledFx = new RoomLayer3FxState { PaletteBlendColors = colors, Layer3Tilemaps = tilemaps };
-        nativeFx.Load(bus, nativeVram, nativeCgram, room.State.FxPointer,
+        nativeFx.Load(nativeVram, nativeCgram, room.State.FxPointer,
             station.DoorPointer, randomNumber: 0, room.Pointer);
-        compiledFx.Load(guarded, compiledVram, compiledCgram, room.State.FxPointer,
+        compiledFx.Load(compiledVram, compiledCgram, room.State.FxPointer,
             station.DoorPointer, randomNumber: 0, room.Pointer);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
         AssertEqual(nativeFx.BaseYPosition, compiledFx.BaseYPosition, "Ceres compiled FX base Y");
@@ -69,25 +69,25 @@ internal static class RoomFxRecordDefinitionsVerification
 
         var nativePalette = new RoomPaletteFxSystem();
         var compiledPalette = new RoomPaletteFxSystem();
-        nativePalette.LoadRoom(bus, room.State.FxPointer, station.DoorPointer,
+        nativePalette.LoadRoom(room.State.FxPointer, station.DoorPointer,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
-        compiledPalette.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
+        compiledPalette.LoadRoom(room.State.FxPointer, station.DoorPointer,
             room.AreaIndex, equippedItems: 0, areaMiniBossDefeated: false);
         AssertEqual(nativePalette.ActiveCount, compiledPalette.ActiveCount,
             "Ceres compiled palette-FX object count");
 
         var nativeSand = new RoomSandAnimatedTilesState();
         var compiledSand = new RoomSandAnimatedTilesState();
-        nativeSand.LoadRoom(bus, room.State.FxPointer, station.DoorPointer, room.AreaIndex);
-        compiledSand.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
+        nativeSand.LoadRoom(room.State.FxPointer, station.DoorPointer, room.AreaIndex);
+        compiledSand.LoadRoom(room.State.FxPointer, station.DoorPointer,
             room.AreaIndex);
         AssertEqual(nativeSand.Count, compiledSand.Count,
             "Ceres compiled sand animation count");
 
         var nativeTreadmills = new RoomTreadmillAnimatedTilesState();
         var compiledTreadmills = new RoomTreadmillAnimatedTilesState();
-        nativeTreadmills.LoadRoom(bus, room.State.FxPointer, station.DoorPointer, room.AreaIndex);
-        compiledTreadmills.LoadRoom(guarded, room.State.FxPointer, station.DoorPointer,
+        nativeTreadmills.LoadRoom(room.State.FxPointer, station.DoorPointer, room.AreaIndex);
+        compiledTreadmills.LoadRoom(room.State.FxPointer, station.DoorPointer,
             room.AreaIndex);
         AssertEqual(nativeTreadmills.Count, compiledTreadmills.Count,
             "Ceres compiled treadmill animation count");

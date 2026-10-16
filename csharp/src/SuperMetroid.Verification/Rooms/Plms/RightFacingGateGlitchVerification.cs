@@ -192,7 +192,7 @@ internal static class RightFacingGateGlitchVerification
         samus.EquippedBeams = (ushort)(SamusBeamFlags.Ice | SamusBeamFlags.Wave);
         samus.SelectedHudItem = 2;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 

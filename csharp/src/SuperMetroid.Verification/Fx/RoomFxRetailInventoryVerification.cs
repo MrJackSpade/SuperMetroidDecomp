@@ -264,7 +264,6 @@ internal static class RoomFxRetailInventoryVerification
         SeedVisibleRoomFxPalette(cgram);
         var actual = CreateRetailFxState(bus);
         actual.Load(
-            bus,
             vram,
             cgram,
             room.State.FxPointer,
@@ -316,7 +315,7 @@ internal static class RoomFxRetailInventoryVerification
         if (unchecked((short)expectedBase) < 0)
         {
             actual.PrimeViewport(new Position16<RoomPixels>(0, 0));
-            actual.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+            actual.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
             RoomLayer3FxRenderSnapshot hiddenSnapshot = actual.CaptureForDisplay()
                 ?? throw new InvalidDataException(
                     $"Room {room.Identity} negative liquid record $83:{expectedRecord:X4} " +
@@ -341,7 +340,7 @@ internal static class RoomFxRetailInventoryVerification
             ? unchecked((ushort)(expectedBase - RetailRoomFxDefinitions.AuditSurfaceScreenY))
             : (ushort)0;
         actual.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        actual.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+        actual.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
         if (expectedType is RoomFxType.Lava or RoomFxType.Acid)
         {
@@ -411,7 +410,7 @@ internal static class RoomFxRetailInventoryVerification
         var vram = new SnesVram();
         var cgram = new SnesCgram();
         var fx = CreateRetailFxState(bus);
-        fx.Load(bus, vram, cgram, room.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, room.State.FxPointer, doorPointer: 0, randomNumber: 0);
 
         // Give the three nontransparent two-bit values distinct colors so the assertion
         // observes changes in the ROM pixels, not merely a still opaque rectangle.
@@ -421,7 +420,7 @@ internal static class RoomFxRetailInventoryVerification
         ushort cameraY = unchecked((ushort)(
             fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
         RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
             ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
@@ -445,7 +444,7 @@ internal static class RoomFxRetailInventoryVerification
              frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
              frame++)
         {
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
         }
         Rgba32[] second = RenderRoomFx(
             vram,
@@ -604,7 +603,6 @@ internal static class RoomFxRetailInventoryVerification
         SeedVisibleRoomFxPalette(cgram);
         var fx = CreateRetailFxState(bus);
         fx.Load(
-            bus,
             vram,
             cgram,
             room.State.FxPointer,
@@ -626,7 +624,7 @@ internal static class RoomFxRetailInventoryVerification
         int movingFrames = 0;
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
             if (fx.PackedYVelocity == 0)
                 break;
         }
@@ -797,7 +795,6 @@ internal static class RoomFxRetailInventoryVerification
         var fx = CreateRetailFxState(bus);
         var vram = new SnesVram();
         fx.Load(
-            bus,
             vram,
             new SnesCgram(),
             room.State.FxPointer,
@@ -811,7 +808,7 @@ internal static class RoomFxRetailInventoryVerification
             // A fresh VRAM object is sufficient here because the assertion targets the
             // liquid position, not animation output. The production animated-tile owner
             // still executes and therefore remains covered by fail-loud dispatch.
-            fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
+            fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             int offset = unchecked((short)(fx.CurrentYPosition - fx.BaseYPosition));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
@@ -843,22 +840,22 @@ internal static class RoomFxRetailInventoryVerification
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
         var fx = CreateRetailFxState(bus);
-        fx.Load(bus, vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, visibleRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         AssertEqual(RoomFxType.Lava, fx.Type, "transition source owns visible lava");
 
         // Loading a no-FX room must clear the owner even though the old tilemap and
         // animated characters remain in VRAM until another producer overwrites them.
-        fx.Load(bus, vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, fxPointer: 0, doorPointer: 0, randomNumber: 0);
         AssertTrue(fx.CaptureForDisplay() is null,
             "transition to no-FX room clears the prior liquid snapshot");
 
         // Loading a heat-only $FFFF record retains the lava type and BG2/palette owners,
         // but the stale visible liquid plane must remain suppressed.
-        fx.Load(bus, vram, cgram, hiddenRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
+        fx.Load(vram, cgram, hiddenRoom.State.FxPointer, doorPointer: 0, randomNumber: 0);
         fx.PrimeViewport(new Position16<RoomPixels>(0, 0));
-        fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
+        fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, 0), TimeIsFrozen = false, MainGameLoopCarry = true });
         var frame = new Rgba32[
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(

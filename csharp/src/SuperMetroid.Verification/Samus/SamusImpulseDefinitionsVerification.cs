@@ -39,7 +39,7 @@ internal static class SamusImpulseDefinitionsVerification
             bomb.BombJumpActive = false;
             bomb.Kinematics.YAcceleration = 7;
             bomb.Kinematics.YSubacceleration = 123;
-            SamusBombJumpMovement.Start(noReads, bomb);
+            SamusBombJumpMovement.Start(bomb);
             int medium = gravity == 0 && raw < bombBottom ? liquid : 0;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.YSpeed, "Bomb native whole launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909efb + medium * 2)), bomb.Kinematics.YSubspeed, "Bomb native fractional launch");
@@ -62,7 +62,7 @@ internal static class SamusImpulseDefinitionsVerification
         foreach (SnesButton input in new SnesButton[] { 0, SnesButton.Left, SnesButton.Right })
         {
             var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            hurt.PoseMetadata.RefreshCollisionRadii(poseOnly);
+            hurt.PoseMetadata.RefreshCollisionRadii();
             hurt.EquippedItems = (ushort)(((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) |
                 ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) |
                 ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0));

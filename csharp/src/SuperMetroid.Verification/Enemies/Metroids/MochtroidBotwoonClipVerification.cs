@@ -95,9 +95,9 @@ internal static class MochtroidBotwoonClipVerification
         samus.EquippedBeams = samus.CollectedBeams = (ushort)SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
         samus.InvincibilityTimer = NativeCountdown.Start(120);
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
-        samus.CommitPoseHistory(bus);
+        samus.CommitPoseHistory();
 
         RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
             slot => slot.NativeIndex == expected.EnemyNativeIndex);

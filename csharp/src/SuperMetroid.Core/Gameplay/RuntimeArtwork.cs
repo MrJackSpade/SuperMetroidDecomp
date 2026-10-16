@@ -301,10 +301,10 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile pages
     /// show and loads its palette.
     /// </summary>
-    internal void UpdateBeamTilesAndPalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedBeams)
+    internal void UpdateBeamTilesAndPalette(SnesCgram cgram, ushort equippedBeams)
     {
         LoadedBeams = equippedBeams;
-        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(bus, cgram, equippedBeams, BeamArtwork?.Palettes);
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(cgram, equippedBeams, BeamArtwork?.Palettes);
     }
 
     /// <summary>

@@ -61,7 +61,7 @@ internal static class KraidGrowthCommandCursorVerification
         {
             int address = 0xa70000 | (definition.Pointer + 2);
             ushort expected = (ushort)(SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1)));
-            AssertEqual(expected, KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(guard, definition.Pointer),
+            AssertEqual(expected, KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(definition.Pointer),
                 $"native growth selection word at ${definition.Pointer:X4}");
         }
         Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and offset-two words for all declared commands pass.");

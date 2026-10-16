@@ -20,9 +20,8 @@ public static class SamusBombJumpMovement
     internal const ushort ActiveFlag = 1 << 11;
 
     /// <summary>Runs `$90:E025`, which initializes velocity but deliberately moves zero pixels.</summary>
-    public static BombJumpMovementResult Start(ISnesAddressSpace bus, SamusState samus)
+    public static BombJumpMovementResult Start(SamusState samus)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         byte direction = unchecked((byte)samus.BombJumpDirection);
         if (direction is < 1 or > 3 || (samus.BombJumpDirection & ActiveFlag) == 0)
@@ -74,15 +73,14 @@ public static class SamusBombJumpMovement
             // directly to the deceleration-allowed calculator. Direction one is left;
             // direction three is right. Existing base words intentionally participate.
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeedAtAddress(
-                bus,
-            (int)SamusStandaloneSpeedRecord.DiagonalBombJump);
+                (int)SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
             horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The native direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.
             if (horizontal.Value.Collided)
-                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection(bus));
+                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
 
         // `$90:8F1B` changes signed underflow to the falling direction. A diagonal jump

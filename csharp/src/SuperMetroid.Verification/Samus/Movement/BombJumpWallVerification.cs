@@ -21,12 +21,12 @@ internal static class BombJumpWallVerification
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = 0x8000;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = new(new(59, 0), new(80, 0))};
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
         samus.Kinematics.YSubacceleration = 0x4000;
         samus.RequestMorphedBombJump(3);
-        SamusBombJumpMovement.Start(bus, samus);
+        SamusBombJumpMovement.Start(samus);
         var result = SamusBombJumpMovement.Step(bus, level, samus, 0, new RoomPlmSystem());
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
         AssertTrue(samus.HorizontalSpeed.BaseFixed == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.RawValue:X8}, radius={samus.Kinematics.Radius.X})");
@@ -52,7 +52,7 @@ internal static class BombJumpWallVerification
         words[3 * 32 + 23] = 0x8000;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 16), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
         var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = new(new(371, 0), new(71, 0))};
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);
         var hit = SamusMorphBallMovement.StepGrounded(bus, level, samus, 0, new RoomPlmSystem());
@@ -70,11 +70,11 @@ internal static class BombJumpWallVerification
         // The native rising helper restores pose input below one whole pixel/frame,
         // using the speed BEFORE this frame's gravity subtraction, not at the apex.
         var hurt = new SamusState { Pose = SamusPoseId.KnockbackRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) };
-        hurt.PoseMetadata.RefreshCollisionRadii(bus);
+        hurt.PoseMetadata.RefreshCollisionRadii();
         hurt.Presentation.InitializeAnimation(bus);
         hurt.PoseMetadata.PublishBombJumpDirection(2);
         AssertTrue(hurt.PoseMetadata.TrySetupPublishedBombJump(bus, level, false, 0, controllerNewInput: 0), "hurt pose admits bomb start");
-        SamusBombJumpMovement.Start(bus, hurt);
+        SamusBombJumpMovement.Start(hurt);
         hurt.Kinematics.YSpeed = 1;
         hurt.Kinematics.YSubspeed = 0;
         hurt.Kinematics.YSubacceleration = 0x4000;
@@ -92,12 +92,12 @@ internal static class BombJumpWallVerification
         // Native owns independent movement/input pointers: replace only the former
         // until the common hurt-expiry command restores both.
         hurt.Pose = SamusPoseId.NormalJumpForwardRightPose;
-        hurt.PoseMetadata.RefreshCollisionRadii(bus);
+        hurt.PoseMetadata.RefreshCollisionRadii();
         AssertTrue(SamusKnockbackMovement.Start(bus, hurt, 0, new KnockbackLaunch { KnockbackXDirection = 0 }), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
         hurt.KnockbackTimer = NativeCountdown.Start(0);
-        AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, hurt), "hurt expiry consumes its transitional command");
+        AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(hurt), "hurt expiry consumes its transitional command");
         AssertTrue(!hurt.BombJumpPoseInputLocked, "hurt expiry restores normal pose input");
     }
 

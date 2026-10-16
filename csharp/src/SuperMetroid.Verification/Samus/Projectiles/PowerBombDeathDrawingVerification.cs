@@ -50,7 +50,7 @@ internal static class PowerBombDeathDrawingVerification
             var before = new OamBuffer();
             enemies.Drawing.DrawLayers(before, new(0, 0), 0, 7);
             AssertTrue(before.NextByteOffset != 0, "live enemy was queued and drawn before power-bomb damage");
-            AssertEqual(1, enemies.Collision.ResolveOrdinaryPowerBombHits(fixture.Bus, new(128, 128), 64),
+            AssertEqual(1, enemies.Collision.ResolveOrdinaryPowerBombHits(new(128, 128), 64),
                 "power bomb reaches the queued enemy");
             var after = new OamBuffer();
             enemies.Drawing.DrawLayers(after, new(0, 0), 0, 7);

@@ -67,7 +67,7 @@ internal static class MapStationLayoutVerification
         AssertTrue(Draw(baseIcons).SequenceEqual(Draw(editIcons)), "moving icon onto explored tile cannot reveal it");
         state.MarkExploredMapTile(AreaId.Brinstar, new(5, 8));
         AssertTrue(!Draw(baseIcons).SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
-        var marker = new FileSelectStationMarker(bus, AreaId.Brinstar, 0,
+        var marker = new FileSelectStationMarker(AreaId.Brinstar, 0,
             original.SaveMarkers);
         var nativeGraphics = new FileSelectRoomMapGraphics(bus, state, AreaId.Brinstar,
             mapPresentation: original);

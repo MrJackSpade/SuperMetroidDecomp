@@ -12,7 +12,6 @@ internal static class SamusPoseTransitionTableAccess
         /// <summary>
         /// Finds the first matching transition for canonical Super Metroid input bits.
         /// </summary>
-        /// <param name="bus">CPU address space containing bank-$91 transition data.</param>
         /// <param name="currentPose">Current pose whose pointer-table entry is selected.</param>
         /// <param name="canonicalHeldInput">
         /// Held input after custom bindings have been translated to the table's canonical bits.
@@ -21,10 +20,9 @@ internal static class SamusPoseTransitionTableAccess
         /// </param>
         /// <param name="canonicalNewInput">Rising-edge form of the same canonical input.</param>
         internal static SamusPoseTransition? Find(
-            ISnesAddressSpace bus,
             SamusPoseId currentPose,
             SnesButton canonicalHeldInput,
             SnesButton canonicalNewInput) =>
-            SamusPoseTransitionTable.Lookup(bus, currentPose, canonicalHeldInput, canonicalNewInput).Transition;
+            SamusPoseTransitionTable.Lookup(currentPose, canonicalHeldInput, canonicalNewInput).Transition;
     }
 }

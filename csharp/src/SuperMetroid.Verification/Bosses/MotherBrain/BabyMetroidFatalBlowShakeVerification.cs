@@ -25,12 +25,12 @@ internal static class BabyMetroidFatalBlowShakeVerification
         var head = new Position16<RoomPixels>(0x00c8, 0x0077);
 
         // Frame-counter index 0: zero offsets around the origin; velocity zeroed then decremented.
-        baby.Step(bus, samus, motherBrain, head, enemyFrameCounter: 0);
+        baby.Step(samus, motherBrain, head, enemyFrameCounter: 0);
         AssertEqual(BabyMetroidCutscenePhase.TakeFinalBlow, baby.Phase, "zero health starts the fatal blow");
         AssertEqual((ushort)0xffff, baby.Velocity.Y.RawValue, "the first shake call decrements the cleared Y velocity");
 
         // Index 1: offsets (-1,+1), undoubled.
-        baby.Step(bus, samus, motherBrain, head, enemyFrameCounter: 2);
+        baby.Step(samus, motherBrain, head, enemyFrameCounter: 2);
         AssertEqual((ushort)0xfffe, baby.Velocity.Y.RawValue, "every shake call decrements the Y velocity");
         AssertEqual((ushort)0x00c7, baby.Position.X.Whole, "the shake adds the undoubled X offset");
         Console.WriteLine("Baby Metroid fatal-blow shake: $A9:CEDB decrements Y velocity and adds undoubled offsets.");

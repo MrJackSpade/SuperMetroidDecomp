@@ -113,7 +113,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
             samus.Presentation.InitializeAnimation(guarded, frame);
             AdvanceToFootContactTick(samus, guarded);
-            samus.LiquidPhysics.PrepareAnimationFrame(guarded, samus, nmiFrameCounter: 1);
+            samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
 
             byte expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
                 ? (byte)1
@@ -146,7 +146,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             runner.Presentation.InitializeAnimation(guarded, initialFrame: 2);
             AdvanceToFootContactTick(runner, guarded);
-            runner.LiquidPhysics.PrepareAnimationFrame(guarded, runner, nmiFrameCounter: 1);
+            runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
             AssertEqual(wet ? 1 : 0,
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production Crateria running policy ${room:X2}");
@@ -162,7 +162,6 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 landing.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
             landing.LiquidPhysics.BeginFrameSoundRequests();
             landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
-                guarded,
                 landing,
                 previousMovementType: SamusMovementType.Falling,
                 previousPose: pose,

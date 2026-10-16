@@ -32,7 +32,7 @@ internal static class DrainedSparkCrashVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         // Two calls left in the echo hold after the echoes finish circling Samus.
         samus.Shinespark.Phase = ShinesparkPhase.CrashEchoCircle;

@@ -36,7 +36,7 @@ internal static class ProjectileCompositionsVerification
             VerifyHyperBeamFxColorArtwork(rom);
         }
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
-        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(rom, content));
+        Suite(nameof(VerifyProjectileCompositionOwners), () => VerifyProjectileCompositionOwners(content));
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
@@ -116,7 +116,7 @@ internal static class ProjectileCompositionsVerification
 
     /// <summary>Checks shot, explosion, and bomb draw owners preserve OAM, flicker, and projectile state without ROM reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
+    private static void VerifyProjectileCompositionOwners(ProjectileSpriteCatalog content)
     {
         var forbidden = NewProjectileCompositionForbiddenBus();
         int comparisons = 0;
@@ -139,12 +139,12 @@ internal static class ProjectileCompositionsVerification
                 ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork(content);
                 var native = new SpriteFrameBuffer(); var extracted = new SpriteFrameBuffer();
                 native.BeginFrame(); extracted.BeginFrame();
-                shots.DrawLiveProjectiles(rom, native, Position16<RoomPixels>.Zero, parity, artwork);
-                shots.DrawExplosions(rom, native, Position16<RoomPixels>.Zero, artwork);
-                bombs.Draw(rom, native, Position16<RoomPixels>.Zero, artwork);
-                shots.DrawLiveProjectiles(forbidden, extracted, Position16<RoomPixels>.Zero, parity, artwork);
-                shots.DrawExplosions(forbidden, extracted, Position16<RoomPixels>.Zero, artwork);
-                bombs.Draw(forbidden, extracted, Position16<RoomPixels>.Zero, artwork);
+                shots.DrawLiveProjectiles(native, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawExplosions(native, Position16<RoomPixels>.Zero, artwork);
+                bombs.Draw(native, Position16<RoomPixels>.Zero, artwork);
+                shots.DrawLiveProjectiles(extracted, Position16<RoomPixels>.Zero, parity, artwork);
+                shots.DrawExplosions(extracted, Position16<RoomPixels>.Zero, artwork);
+                bombs.Draw(extracted, Position16<RoomPixels>.Zero, artwork);
                 AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
                     "Production projectile composition preserves admission, flicker and OAM");
                 AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
@@ -158,7 +158,7 @@ internal static class ProjectileCompositionsVerification
                 bomb.BombTimer = NativeCountdown.Start(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
-                bombs.Draw(forbidden, hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));
+                bombs.Draw(hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));
                 hidden.FinalizeFrame();
                 AssertEqual(0, hidden.Draws.Length, "Detonated power bomb remains hidden with extracted art");
             }

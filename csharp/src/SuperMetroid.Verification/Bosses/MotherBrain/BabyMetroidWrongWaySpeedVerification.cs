@@ -26,7 +26,7 @@ internal static class BabyMetroidWrongWaySpeedVerification
         baby.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0x015f), new SnesSignedEightEight(0x012b));
 
         // Layer-1 X zero puts X $133 beyond the $120-wide vaguely-on-screen band.
-        baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
+        baby.Step(samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
         AssertEqual((ushort)0x0145, baby.Velocity.X.RawValue,
             "the wrong-way off-screen reversal subtracts the $10 extra, $8 and two $1 steps");
         Console.WriteLine("Baby Metroid wrong-way speed: $A9:F466 legs apply the $10 off-screen extra.");

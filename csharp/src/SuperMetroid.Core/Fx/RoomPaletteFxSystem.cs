@@ -62,12 +62,10 @@ public sealed class RoomPaletteFxSystem
     /// be reimplemented as a host-side tint.
     /// </summary>
     public void SpawnDefinition(
-        ISnesAddressSpace bus,
         ushort definition,
         ushort equippedItems,
         bool areaMiniBossDefeated = false)
     {
-        Ensure.NotNull(bus);
         Spawn(definition, equippedItems, areaMiniBossDefeated);
         if (!IsDefinitionActive(definition))
         {
@@ -81,20 +79,18 @@ public sealed class RoomPaletteFxSystem
     /// sixteen-byte bank-$83 FX record.
     /// </summary>
     public void LoadRoom(
-        ISnesAddressSpace bus,
         ushort fxPointer,
         ushort doorPointer,
         AreaId area,
         ushort equippedItems,
         bool areaMiniBossDefeated) =>
-        LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
+        LoadRoomCore(fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
 
     /// <summary>Clears the old room's slots and spawns the selected FX record's area-specific palette bits.</summary>
-    internal void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
+    internal void LoadRoomCore(ushort fxPointer, ushort doorPointer,
         AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
-        Ensure.NotNull(bus);
         foreach (PaletteFxSlot slot in slots)
             slot.Clear();
         soundRequests.Clear();
@@ -130,10 +126,9 @@ public sealed class RoomPaletteFxSystem
     /// presentation on every step. Construction creates only serializable program
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
-    public void Step(ISnesAddressSpace bus, SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
+    public void Step(SnesCgram cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
         SamusPowerBombExplosionState? powerBomb = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(cgram);
         Ensure.NotNull(colors);
         audioPowerBomb = powerBomb;

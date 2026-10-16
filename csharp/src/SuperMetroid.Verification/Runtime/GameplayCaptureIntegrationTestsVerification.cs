@@ -52,7 +52,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
 
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
-        for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
+        for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame();
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int i = 0; i < 13; i++) runtime.MessageBox.Step(0);
         runtime.SuitPickup.Begin(bus, runtime.Player.IntroducedSamus, new(0, 0), SamusSuitPickupKind.Varia);
@@ -66,7 +66,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay overlay parity");
         runtime.MessageBox.Step(SnesButton.A);
         runtime.SuitPickup.Step(bus, runtime.Player.IntroducedSamus, runtime.Cgram);
-        runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
+        runtime.BombProjectiles.PowerBombExplosion.StepFrame();
         AssertTrue(expected.SequenceEqual(RenderForComparison(retained)), "composed gameplay packet survives all effect updates");
 
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };

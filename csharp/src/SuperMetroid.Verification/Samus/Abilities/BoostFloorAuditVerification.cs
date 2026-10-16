@@ -27,7 +27,7 @@ internal static class BoostFloorAuditVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.VariaSuit);
         samus.Position = samus.Position.WithWhole(new(80, 420));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         int flatFloorFrames = 0;

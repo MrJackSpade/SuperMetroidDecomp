@@ -33,7 +33,7 @@ internal static class BabyMetroidThemeVerification
         {
             begin();
             beginMotherBrain();
-            var step = baby.Step(bus, samus, sequence, HeadOf(sequence));
+            var step = baby.Step(samus, sequence, HeadOf(sequence));
             apply(state, step);
             collect();
             ushort[] expected = frame switch { 0 => [0], 72 => [0xff48, 5], _ => [] };

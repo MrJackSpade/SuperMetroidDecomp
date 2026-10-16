@@ -164,9 +164,8 @@ public sealed class SamusPowerBombExplosionState
     /// Runs one invocation of the active bank-$88 HDMA pre-instruction.
     /// </summary>
     /// <returns>True only on the frame that $88:8B4E completes cleanup.</returns>
-    public bool StepFrame(ISnesAddressSpace bus)
+    public bool StepFrame()
     {
-        Ensure.NotNull(bus);
         if (!IsActive)
             return false;
 

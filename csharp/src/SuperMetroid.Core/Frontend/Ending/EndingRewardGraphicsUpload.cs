@@ -11,10 +11,8 @@ internal sealed class EndingRewardGraphicsUpload
     private int completedChunks;
 
     /// <summary>Captures the installed reward-icon transfer and verifies it fills the native upload range.</summary>
-    public EndingRewardGraphicsUpload(ISnesAddressSpace bus,
-        EndingRewardIconArtwork? artwork = null)
+    public EndingRewardGraphicsUpload(EndingRewardIconArtwork? artwork = null)
     {
-        Ensure.NotNull(bus);
         graphics = (artwork ?? throw new InvalidOperationException(
             "Ending reward requires installed icon artwork.")).Transfer.ToArray();
         if (graphics.Length < EndingRewardGraphicsUploadDefinitions.SourceBytes)

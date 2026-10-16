@@ -37,7 +37,7 @@ internal static class PowerBombDeathRadiusVerification
             higher.Properties = killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0;
             var lower = Place(enemies.SlotTable.Slots[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
 
-            enemies.Collision.ResolveOrdinaryPowerBombHits(fixture.Bus, new(explosionX, explosionY), radius);
+            enemies.Collision.ResolveOrdinaryPowerBombHits(new(explosionX, explosionY), radius);
 
             if (killerLethal)
             {

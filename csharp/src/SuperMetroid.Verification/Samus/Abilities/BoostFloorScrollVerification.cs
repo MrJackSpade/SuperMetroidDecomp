@@ -30,7 +30,7 @@ internal static class BoostFloorScrollVerification
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.SpeedBooster;
         samus.Position = samus.Position.WithWhole(new(1040, 171));
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
         // Seed an already established boost at the reported floor, avoiding the
         // unrelated bomb-tunnel approach. All subsequent movement/contacts are live.

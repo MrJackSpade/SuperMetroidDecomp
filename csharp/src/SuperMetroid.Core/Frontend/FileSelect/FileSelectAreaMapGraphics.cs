@@ -62,7 +62,7 @@ public sealed class FileSelectAreaMapGraphics
         Palettes = mapPalettes;
         screens = mapScreens;
         sprites = mapSprites;
-        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites,
+        ppu = new MenuPpuState(mapTiles, mapPalettes, worldArtwork, mapSprites,
             loadInitialBackground: false);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.

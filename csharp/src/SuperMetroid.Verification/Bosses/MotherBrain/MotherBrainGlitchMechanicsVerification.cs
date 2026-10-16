@@ -24,12 +24,12 @@ internal static class MotherBrainGlitchMechanicsVerification
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
-        spinning.PoseMetadata.RefreshCollisionRadii(bus);
+        spinning.PoseMetadata.RefreshCollisionRadii();
         spinning.Presentation.InitializeAnimation(bus);
-        spinning.Drained.PutStanding(bus, spinning);
+        spinning.Drained.PutStanding(spinning);
         AssertEqual(SamusPoseId.DrainedStandingRightPose, spinning.Pose, "drained controller installs the standing drained pose");
         AssertEqual(SamusPoseId.SpinJumpRightPose, spinning.InitializedPose, "drained controller skips InitializeSamusPose_1");
-        AssertEqual(SamusMovementType.SpinJumping, spinning.PoseMetadata.ReadMovementType(bus), "cached $0A1F keeps the spin-jump movement type");
+        AssertEqual(SamusMovementType.SpinJumping, spinning.PoseMetadata.ReadMovementType(), "cached $0A1F keeps the spin-jump movement type");
 
         // $90:9DB2 tests only the Screw Attack poses; any other pose rewinds to frame $0A.
         spinning.PoseTransitions.ApplyWallContactAnimationRewind();
@@ -49,7 +49,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         ushort LatchVelocity(int startDx, ushort invincibility)
         {
             var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = NativeCountdown.FromRaw(invincibility) };
-            samus.PoseMetadata.RefreshCollisionRadii(bus);
+            samus.PoseMetadata.RefreshCollisionRadii();
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
             baby.Phase = BabyMetroidCutscenePhase.LatchOntoSamus;
@@ -57,7 +57,7 @@ internal static class MotherBrainGlitchMechanicsVerification
             // Moving left a whole pixel per frame: after this frame's mover the gap shrinks by one.
             baby.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0xff00), new SnesSignedEightEight(0));
             var motherBrain = new MotherBrainRainbowBeamAttackSequence();
-            baby.Step(bus, samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
+            baby.Step(samus, motherBrain, HeadOf(motherBrain), layer1: Position16<RoomPixels>.Zero);
             return baby.Velocity.X.RawValue;
         }
         // Samus's X radius is five for every humanoid pose.

@@ -25,8 +25,8 @@ internal static class InstalledSamusArtworkTests
     {
         var check = new ArtworkPixelCheck(device, renderer);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        int transfers = CheckBodyTransfers(fixture, memory, check);
-        int poses = CheckPoseDrawing(fixture, memory, check);
+        int transfers = CheckBodyTransfers(fixture, check);
+        int poses = CheckPoseDrawing(fixture, check);
         int queued = CheckQueuedTransfers(fixture, memory, check);
         Require(check.ChangedPixels > 0, "The artwork acceptance run changed no visible pixels.");
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {fixture.EditedPngCount} actual PNG overrides; " +
@@ -36,13 +36,13 @@ internal static class InstalledSamusArtworkTests
 
     /// <summary>Draws each Samus pose with stock and edited art and checks OAM, physical state, and visible pixels.</summary>
     private static int CheckPoseDrawing(InstalledSamusArtworkFixture fixture,
-        SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
+        ArtworkPixelCheck check)
     {
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
             var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
-            stock.PoseMetadata.RefreshCollisionRadii(memory); edited.PoseMetadata.RefreshCollisionRadii(memory);
+            stock.PoseMetadata.RefreshCollisionRadii(); edited.PoseMetadata.RefreshCollisionRadii();
             stock.Presentation.TileTransfers.BindArtwork(fixture.Stock);
             stock.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             edited.Presentation.TileTransfers.BindArtwork(fixture.Edited);
@@ -51,10 +51,10 @@ internal static class InstalledSamusArtworkTests
             var a = new SnesVram(); var b = new SnesVram();
             var oaFrame = new SpriteFrameBuffer(); var obFrame = new SpriteFrameBuffer();
             oaFrame.BeginFrame(); obFrame.BeginFrame();
-            bool visible = stock.Presentation.Draw(memory, oaFrame, new(0, 0));
-            Require(visible == edited.Presentation.Draw(memory, obFrame, new(0, 0)), $"pose {pose:X2}: visibility changed");
-            stock.Presentation.TileTransfers.TransferToVram(memory, a);
-            edited.Presentation.TileTransfers.TransferToVram(memory, b);
+            bool visible = stock.Presentation.Draw(oaFrame, new(0, 0));
+            Require(visible == edited.Presentation.Draw(obFrame, new(0, 0)), $"pose {pose:X2}: visibility changed");
+            stock.Presentation.TileTransfers.TransferToVram(a);
+            edited.Presentation.TileTransfers.TransferToVram(b);
             OamBuffer oa = oaFrame.FinalizeAsOam(), ob = obFrame.FinalizeAsOam();
             Require(oa.ImageEquals(ob),
                 $"pose {pose:X2}: pixel-only edit changed OAM placement");
@@ -86,7 +86,7 @@ internal static class InstalledSamusArtworkTests
     /// <summary>Checks split body-tile DMA, pending definition identity, neighboring VRAM, and rendered pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckBodyTransfers(InstalledSamusArtworkFixture fixture,
-        SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
+        ArtworkPixelCheck check)
     {
         int count = 0;
         for (int half = 0; half < 2; half++)
@@ -111,8 +111,8 @@ internal static class InstalledSamusArtworkTests
                     var transfer = new SamusTileTransferState();
                     int pointer = fixture.Stock.DefinitionAddress(upper, (byte)set, (byte)position);
                     SetPendingDefinition(transfer, upper, pointer);
-                    transfer.BindArtwork(fixture.Stock); transfer.TransferToVram(memory, va);
-                    transfer.BindArtwork(fixture.Edited); transfer.TransferToVram(memory, vb);
+                    transfer.BindArtwork(fixture.Stock); transfer.TransferToVram(va);
+                    transfer.BindArtwork(fixture.Edited); transfer.TransferToVram(vb);
                     Require(transfer.TopDefinitionAddress == (upper ? pointer : 0) &&
                         transfer.BottomDefinitionAddress == (upper ? 0 : pointer),
                         "Artwork rebind changed a pending DMA pointer");

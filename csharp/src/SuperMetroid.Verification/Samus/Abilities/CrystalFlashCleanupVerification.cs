@@ -62,7 +62,7 @@ internal static class CrystalFlashCleanupVerification
         samus.PowerBombs = samus.MaxPowerBombs = capacity;
         samus.SelectedHudItem = 3;
         samus.Position = samus.Position.WithWholeX(512);
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Position = samus.Position.WithWholeY((ushort)(511 - samus.Kinematics.Radius.Y));
         samus.Presentation.InitializeAnimation(bus);
         runtime.StepFrame(0);

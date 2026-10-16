@@ -52,7 +52,7 @@ internal static class BeamCallbackTablesVerification
             var shared = CreateBombFixture();
             if (initializeOnly)
             {
-                projectiles.Firing.TryFireBeam(bus, room, samus, SnesButton.X, shared, null, charged);
+                projectiles.Firing.TryFireBeam(room, samus, SnesButton.X, shared, null, charged);
                 AssertTrue(projectiles.Slots[0].Type != 0 || projectiles.Slots[0].InstructionPointer != 0,
                     $"charged={charged} beam {beamType:X1} initializes");
                 AssertEqual((SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beamType)).Translated ?? throw new InvalidOperationException("Verification requires SamusBeamCallbackDefinitions.Resolve(charged, SamusBeamCombinations.FromTableIndex(beam....")),

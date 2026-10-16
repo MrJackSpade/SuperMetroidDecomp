@@ -27,7 +27,6 @@ internal static class IntroSamusDemoMovement
         ushort nmiFrameCounter)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
-            bus,
             samus.Pose,
             heldInput,
             newlyPressedInput);
@@ -42,11 +41,11 @@ internal static class IntroSamusDemoMovement
                 // definition byte two only once both base-speed halves reach exact zero.
                 fallback = samus.HorizontalSpeed.BaseFixed != 0
                     ? samus.Pose
-                    : samus.PoseMetadata.ReadNoInputFallbackPose(bus);
+                    : samus.PoseMetadata.ReadNoInputFallbackPose();
             }
             else if (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose))
             {
-                SamusPoseId noInputPose = samus.PoseMetadata.ReadNoInputFallbackPose(bus);
+                SamusPoseId noInputPose = samus.PoseMetadata.ReadNoInputFallbackPose();
                 if (noInputPose != SamusMovementRomData.Poses.RetainCurrentPoseFallback && noInputPose != samus.Pose)
                     fallback = noInputPose;
             }
@@ -91,14 +90,14 @@ internal static class IntroSamusDemoMovement
         if (wallPose is { } stoppedPose)
         {
             samus.PoseTransitions.ApplyRanIntoWallPoseChange(bus, stoppedPose);
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
             return;
         }
 
         if (prospective is { } transition)
         {
             ApplyPoseTransition(bus, samus, poseAtFrameStart, transition.ProspectivePose);
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
             return;
         }
 
@@ -119,7 +118,7 @@ internal static class IntroSamusDemoMovement
         // when deceleration retains the same pose. Idle frames have no slot and
         // must preserve the older history used by subsequent movement decisions.
         if (fallback.HasValue)
-            samus.CommitPoseHistory(bus);
+            samus.CommitPoseHistory();
     }
 
     /// <summary>Dispatches only the retail left-facing jump, run/stand, and grounded aiming transitions admitted by the SR388 demo.</summary>

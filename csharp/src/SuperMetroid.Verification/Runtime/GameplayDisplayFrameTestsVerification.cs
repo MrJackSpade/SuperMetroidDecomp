@@ -50,7 +50,7 @@ internal static class GameplayDisplayFrameTestsVerification
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.FrameBoundary.BeginAcceptedFrame(0);
 
-        VerifyRepaintAndImmutability(runtime, bus);
+        VerifyRepaintAndImmutability(runtime);
         VerifyBossBackgroundTiming(runtime);
         VerifySceneRegisterTiming(runtime);
         VerifyFixedColorTiming(runtime, bus);
@@ -59,7 +59,7 @@ internal static class GameplayDisplayFrameTestsVerification
 
     /// <summary>Publishing twice without stepping, and capturing one frame twice, yield identical pictures that later simulation cannot change.</summary>
     [PpuLayoutBoundary("exact hardware test: replaces PPU memory after publication")]
-    private static void VerifyRepaintAndImmutability(SuperMetroidRuntime runtime, ISnesAddressSpace bus)
+    private static void VerifyRepaintAndImmutability(SuperMetroidRuntime runtime)
     {
         GameplayDisplayFrame frame = runtime.PublishDisplayFrame();
         Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.Capture(frame));
@@ -74,7 +74,7 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(new(128, 120));
-        for (int i = 0; i < 20; i++) explosion.StepFrame(bus);
+        for (int i = 0; i < 20; i++) explosion.StepFrame();
         runtime.Room.ScrollingSky = new ScrollingSkyState();
         runtime.Display.GameplayHudCharacterBaseWord = KraidHudCharacterWord;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
@@ -188,11 +188,11 @@ internal static class GameplayDisplayFrameTestsVerification
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(new(128, 120));
-        for (int i = 0; i < 4; i++) explosion.StepFrame(bus);
+        for (int i = 0; i < 4; i++) explosion.StepFrame();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         byte latchedRed = explosion.FixedColorRed;
         int steps = 0;
-        while (explosion.FixedColorRed == latchedRed && steps++ < 64) explosion.StepFrame(bus);
+        while (explosion.FixedColorRed == latchedRed && steps++ < 64) explosion.StepFrame();
         AssertTrue(explosion.FixedColorRed != latchedRed, "fixture reaches a power-bomb COLDATA change");
         GameplayDisplayFrame pending = runtime.PublishDisplayFrame();
         AssertEqual(explosion.RenderedPhase, pending.FrameEnd.PowerBomb.RenderedPhase, "power-bomb window table is read live");

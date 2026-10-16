@@ -157,7 +157,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             state.LastSoundEffect = ShitroidSoundDefinitions.DrainCry;
         }
         BabyMetroidCutsceneStepResult step = baby.Step(
-            _room.LoadedBus,
             target,
             sequence,
             state.Head.Position.Whole,

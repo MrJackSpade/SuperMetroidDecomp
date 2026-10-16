@@ -53,7 +53,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     {
         if (Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
             frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-            _ = species.ResolvePhantoonProjectileHits(bus, frame.SamusProjectiles, frame.SharedProjectiles);
+            _ = species.ResolvePhantoonProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles);
     }
 
     /// <inheritdoc/>

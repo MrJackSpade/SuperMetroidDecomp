@@ -311,8 +311,8 @@ internal static class TitleGradientVerification
         foreach (TitleScreenAmbientPaletteFxColorDefinition definition in
                  TitleScreenAmbientPaletteFxColorDefinitions.All)
         {
-            native.SpawnDefinition(bus, definition.DefinitionPointer, 0);
-            installed.SpawnDefinition(guardedBus, definition.DefinitionPointer, 0);
+            native.SpawnDefinition(definition.DefinitionPointer, 0);
+            installed.SpawnDefinition(definition.DefinitionPointer, 0);
         }
 
         var nativeCgram = new SnesCgram();
@@ -321,8 +321,8 @@ internal static class TitleGradientVerification
             definition => definition.CycleFrames) * 2;
         for (int frame = 0; frame < frames; frame++)
         {
-            native.Step(bus, nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
-            installed.Step(guardedBus, installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            native.Step(nativeCgram, new ReferencePaletteFxColorSource(bus), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
+            installed.Step(installedCgram, presentation, new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (!new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)))
             {
                 throw new InvalidDataException(

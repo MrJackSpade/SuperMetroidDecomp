@@ -367,7 +367,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 SamusState target = RequireShitroidSamus(samus);
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
-                    target.Drained.Release(_room.LoadedBus, target);
+                    target.Drained.Release(target);
                     slot.Parameter2 = 1;
                     state.Function = ShitroidAiFunction.ReleasedFollow;
                     FollowReleasedSamus(slot, state, target);
@@ -684,7 +684,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         BreakReleasedShitroidFollow(state);
-        if (samus.PoseMetadata.ReadMovementType(_room.LoadedBus) == SamusMovementType.SpinJumping &&
+        if (samus.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping &&
             unchecked((short)(samus.Position.X.Whole - 512)) >= 0)
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the

@@ -17,9 +17,9 @@ internal static class MoonwalkRanIntoWallVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x00c3)) };
-        samus.PoseMetadata.RefreshCollisionRadii(bus);
+        samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation(bus);
-        AssertTrue(!samus.PoseMetadata.IsFacingLeft(bus), "moonwalk pose $75 faces right");
+        AssertTrue(!samus.PoseMetadata.IsFacingLeft(), "moonwalk pose $75 faces right");
 
         samus.PoseTransitions.ApplyRanIntoWallPoseChange(bus, SamusPoseId.RanIntoWallLeftPose);
         AssertEqual(SamusPoseId.RanIntoWallLeftPose, samus.Pose, "the proposed left run stops in wall pose $8A");

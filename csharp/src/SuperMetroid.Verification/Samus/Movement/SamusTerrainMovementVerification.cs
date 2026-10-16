@@ -27,27 +27,27 @@ internal static void VerifySamusSlopePhysics()
     // $00C0 there, causing a grounded 1.0 displacement to become 0.C000.
     AssertEqual(
         0x0000c000,
-        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, 0x12, 0x00010000, verticalSpeed: 0),
+        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(0x12, 0x00010000, verticalSpeed: 0),
         "BTS $12 grounded positive slope scaling");
     AssertEqual(
         unchecked((int)0xffff4000),
-        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, 0x12, -0x00010000, verticalSpeed: 0),
+        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(0x12, -0x00010000, verticalSpeed: 0),
         "BTS $12 grounded negative slope scaling");
 
     // Ceiling bit $80 and any nonzero Y speed are independent native early returns.
     AssertEqual(
         0x00010000,
-        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, 0x92, 0x00010000, verticalSpeed: 0),
+        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(0x92, 0x00010000, verticalSpeed: 0),
         "ceiling slope does not scale horizontal speed");
     AssertEqual(
         0x00010000,
-        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, 0x12, 0x00010000, verticalSpeed: 1),
+        SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(0x12, 0x00010000, verticalSpeed: 1),
         "airborne Samus does not receive grounded slope scaling");
 
     // Authored shape $12 runs from height 16 to 1. BTS bit $40 mirrors X=0 to
     // sample 15; use the actual compiled geometry rather than replacing ROM samples.
-    AssertEqual(16, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x12, 0), "slope unmirrored height sample");
-    AssertEqual(1, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x52, 0), "slope mirrored height sample");
+    AssertEqual(16, SamusSlopePhysics.ReadAlignmentHeight(0x12, 0), "slope unmirrored height sample");
+    AssertEqual(1, SamusSlopePhysics.ReadAlignmentHeight(0x52, 0), "slope mirrored height sample");
 
     // A type-1/BTS-$12 block occupies (0,1). At center Y=21 with radius 5, Samus's bottom
     // is Y=25 (low nibble 9). Height 8 yields correction 8-9-1 = -2, so $94:87F4 moves
@@ -56,7 +56,6 @@ internal static void VerifySamusSlopePhysics()
         [0x0000, 0x0000, 0x1000, 0x0000],
         [0x00, 0x00, 0x12, 0x00]);
     SlopeAlignmentResult aligned = SamusSlopePhysics.AlignYPosition(
-        bus,
         level,
         position: new(8, 21),
         yRadius: 5);
@@ -64,7 +63,6 @@ internal static void VerifySamusSlopePhysics()
     AssertTrue(aligned.Adjusted, "non-square floor slope sets adjusted flag");
 
     SlopeAlignmentResult disabled = SamusSlopePhysics.AlignYPosition(
-        bus,
         level,
         position: new(8, 21),
         yRadius: 5,
@@ -327,7 +325,6 @@ internal static void VerifySamusBlockCollision()
         };
         spikeSamus.Kinematics.Radius = new(5, 5);
         SamusTerrainHazardCollision.PrepareFrame(
-            bus,
             spikeLevel,
             spikeSamus,
             AreaId.Norfair,
@@ -368,7 +365,6 @@ internal static void VerifySamusBlockCollision()
         };
         spikeSamus.Kinematics.Radius = new(5, 5);
         SamusTerrainHazardCollision.PrepareFrame(
-            bus,
             wreckedShipSpikes,
             spikeSamus,
             AreaId.WreckedShip,
@@ -397,7 +393,6 @@ internal static void VerifySamusBlockCollision()
         };
         spikeAirSamus.Kinematics.Radius = spikeAirSamus.Kinematics.Radius.WithY(17);
         SamusTerrainHazardCollision.PrepareFrame(
-            bus,
             spikeAirLevel,
             spikeAirSamus,
             AreaId.Norfair,
@@ -426,7 +421,6 @@ internal static void VerifySamusBlockCollision()
     contactSafeSamus.Kinematics.Radius = contactSafeSamus.Kinematics.Radius.WithY(5);
     contactSafeSamus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
     SamusTerrainHazardCollision.PrepareFrame(
-        bus,
         contactSafeSpikeAir,
         contactSafeSamus,
         AreaId.Norfair,
@@ -1241,10 +1235,10 @@ internal static void VerifySamusMoonwalking()
     foreach ((SamusPoseId source, SamusPoseId target, _, _) in turns)
     {
         var turn = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(80, 27)) };
-        turn.PoseMetadata.RefreshCollisionRadii(bus);
+        turn.PoseMetadata.RefreshCollisionRadii();
         turn.HorizontalSpeed.BaseSpeed = 1;
         turn.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
-        byte sourceMuzzleDirection = turn.PoseMetadata.ReadShotDirection(bus);
+        byte sourceMuzzleDirection = turn.PoseMetadata.ReadShotDirection();
         turn.PoseTransitions.ApplyMoonwalkTurnJump(bus, target);
         AssertEqual((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceMuzzleDirection),
             turn.PoseTransitionShotDirection, "all six Moonwalk jump routes publish their original muzzle direction");
@@ -1343,11 +1337,11 @@ internal static void VerifySamusRanIntoWall()
     for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
     {
         SamusPoseId sourcePose = nativePosesByShotDirection[direction];
-        AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(bus, sourcePose),
+        AssertEqual(direction, SamusPoseMetadata.ReadShotDirection(sourcePose),
             $"ran-into-wall fixture pose ${(int)sourcePose:X2} aim");
         AssertEqual(
             selectedByShotDirection[direction],
-            SamusPoseTransitions.SelectRanIntoWallPose(bus, sourcePose),
+            SamusPoseTransitions.SelectRanIntoWallPose(sourcePose),
             $"ran-into-wall shot selector {direction}");
     }
     WritePoseDefinitionByte(bus, (int)SamusPoseId.MovingRightNormalPose, 3, 2);

@@ -24,7 +24,7 @@ internal static class GrapplePoseRefireVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };
             PrepareRetailSamusFixture(samus);
-            SamusGrappleMovement.BeginFiring(bus, samus);
+            SamusGrappleMovement.BeginFiring(samus);
             for (int frame = 1; frame < changeFrame; frame++)
                 SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X);
             samus.Pose = left ? SamusPoseId.StandingAimDiagonalUpLeftPose : SamusPoseId.StandingAimDiagonalUpRightPose;
@@ -37,7 +37,7 @@ internal static class GrapplePoseRefireVerification
             }
             var grapple = samus.Grapple;
             AssertEqual(GrapplePhase.Firing, grapple.Phase, "early direction change refires");
-            AssertEqual(samus.PoseMetadata.ReadShotDirection(bus), grapple.FireDirection, "refire uses current pose direction");
+            AssertEqual(samus.PoseMetadata.ReadShotDirection(), grapple.FireDirection, "refire uses current pose direction");
             AssertEqual(10, grapple.PoseChangeAutoFireTimer.RawValue, "refire resets native ten-frame timer");
             AssertTrue(samus.LiquidPhysics.SoundRequests.SequenceEqual(new[] {
                 SamusGrappleRomData.Sounds.RestartStop, SamusGrappleRomData.Sounds.Fire }), "refire publishes native stop/start sound order and queue limits");

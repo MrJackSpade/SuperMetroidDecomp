@@ -9,7 +9,7 @@ public sealed class RoomSpikeAnimatedTilesState
     private readonly RoomFxAnimatedTilesState animation = new();
 
     /// <summary>Replaces the previous room's animation using the selected door-specific FX record.</summary>
-    public void LoadRoom(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer, AreaId area)
+    public void LoadRoom(ushort fxPointer, ushort doorPointer, AreaId area)
     {
         animation.Reset();
         if (fxPointer == 0) return;
@@ -20,12 +20,12 @@ public sealed class RoomSpikeAnimatedTilesState
             if ((bits & (1 << bit)) != 0 &&
                 AreaAnimatedTileObjectDefinitions.Read(area, bit) == AnimatedTileObject.HorizontalSpikes)
             {
-                animation.LoadDefinition(bus, AnimatedTileObject.HorizontalSpikes);
+                animation.LoadDefinition(AnimatedTileObject.HorizontalSpikes);
                 return;
             }
     }
 
     /// <summary>Schedules the authored character transfer for the next accepted NMI.</summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue writes) =>
-        animation.Step(bus, vram, writes);
+    public void Step(SnesVram vram, VramWriteQueue writes) =>
+        animation.Step(vram, writes);
 }

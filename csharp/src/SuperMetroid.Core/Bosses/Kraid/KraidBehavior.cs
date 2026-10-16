@@ -904,9 +904,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Converts a mouth hitbox pointer into wrapped world-space collision bounds.</summary>
-    internal KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
+    internal static KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
     {
-        (short left, short top, short bottom) = KraidMouthHitboxDefinitions.ResolveCollision(_room.LoadedBus, pointer);
+        (short left, short top, short bottom) = KraidMouthHitboxDefinitions.ResolveCollision(pointer);
         return new()
         {
             Left = unchecked((ushort)(body.Position.X.Whole + left)),
@@ -1597,7 +1597,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
         ushort selectionWord = KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(
-            _room.LoadedBus, body.VariableB);
+            body.VariableB);
         KraidHeadResumeDefinition resume =
             KraidHeadInstructionDefinitions.GrowthResume(selectionWord);
         body.VariableB = resume.Pointer;

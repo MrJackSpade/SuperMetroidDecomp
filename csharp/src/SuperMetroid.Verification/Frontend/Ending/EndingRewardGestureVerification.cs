@@ -28,8 +28,7 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
-        var graphicsUpload = new EndingRewardGraphicsUpload(uploadBus,
-            RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
+        var graphicsUpload = new EndingRewardGraphicsUpload(RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
         var graphicsVram = new SnesVram();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,

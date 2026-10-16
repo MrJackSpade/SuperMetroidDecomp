@@ -102,7 +102,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SpikeTimers[0] = unchecked((ushort)(seedDelay + 64));
         state.SpikeTimers[1] = unchecked((ushort)(seedDelay + 96));
         state.SpikeTimers[2] = unchecked((ushort)(seedDelay + 48));
-        state.SpikeTimerByteOffset = 0;
+        state.SpikeTimerIndex = 0;
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -124,16 +124,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         FakeKraidEnemyState state,
         Position16<RoomPixels> camera)
     {
-        // Main AI stores the next selector before acting on the old value. Because the old
-        // value is passed as a byte offset into scratch RAM, offsets zero/two/four alias the
-        // three adjacent clocks above rather than three enemy slots.
-        ushort selectedByteOffset = state.SpikeTimerByteOffset;
-        ushort nextByteOffset = unchecked((ushort)(selectedByteOffset + 2));
-        if (selectedByteOffset >= 4)
-            nextByteOffset = 0;
-        state.SpikeTimerByteOffset = nextByteOffset;
-
-        int timerIndex = selectedByteOffset >> 1;
+        // Main AI stores the next selector before acting on the old value. The native byte offsets zero/two/four
+        // into scratch RAM alias the three adjacent clocks above rather than three enemy slots.
+        int timerIndex = state.SpikeTimerIndex;
+        state.SpikeTimerIndex = timerIndex >= state.SpikeTimers.Length - 1 ? 0 : timerIndex + 1;
         ushort timer = state.SpikeTimers[timerIndex];
         if (timer != 0)
         {

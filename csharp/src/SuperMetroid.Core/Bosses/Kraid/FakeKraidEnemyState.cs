@@ -54,8 +54,8 @@ public sealed class FakeKraidEnemyState
     /// </summary>
     public ushort[] SpikeTimers { get; } = new ushort[3];
 
-    /// <summary>Byte offset zero/two/four selecting the spike clock visited this frame.</summary>
-    public ushort SpikeTimerByteOffset { get; internal set; }
+    /// <summary>Index 0-2 of the spike clock visited this frame (native byte offset twice this).</summary>
+    public int SpikeTimerIndex { get; internal set; }
 
 
     /// <summary>Number of spike projectiles successfully allocated by this actor.</summary>

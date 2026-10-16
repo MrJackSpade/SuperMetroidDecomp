@@ -12,7 +12,7 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 [CpuBusBoundary("exact bus test: sparse synthetic CPU address space whose bytes the test seeds directly")]
 internal sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
-    IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
+    IRoomEnemyDefinitionSource
 {
     /// <summary>Only CPU addresses explicitly seeded by a focused fixture; all others read as zero.</summary>
     private readonly Dictionary<int, byte> _bytes = [];

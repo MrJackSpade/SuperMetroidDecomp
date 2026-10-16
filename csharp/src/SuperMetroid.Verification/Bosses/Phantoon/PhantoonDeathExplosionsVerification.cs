@@ -29,7 +29,7 @@ internal static class PhantoonDeathExplosionsVerification
         foreach (bool full in new[] { false, true })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewPhantoonDeathReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var body = enemies.SlotTable.Slots[0];
             var tentacles = enemies.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Tentacles = tentacles };
@@ -79,10 +79,4 @@ internal static class PhantoonDeathExplosionsVerification
         Console.WriteLine("Phantoon death: 52 native bytes and six frame-exact 29-request sequences preserve timing, positions, animation and full-pool behavior with schedule reads forbidden.");
     }
 
-    /// <summary>Rejects migrated death-schedule reads and all writes during production verification.</summary>
-    private static CartridgeReadGuard NewPhantoonDeathReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa7da1d and < 0xa7da51,
-                _ => "Unexpected migrated death schedule read.")
-            .RejectWrites(_ => "Unexpected death schedule bus write.");
 }

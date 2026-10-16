@@ -189,7 +189,7 @@ internal static class DeadTourianCorpseArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
-        enemies.BindFixtureBus(source);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Parameter1 = parameter;
         new Action<RoomEnemySlot>(enemies.DeadSidehopperBehavior.InitializeDeadSidehopper)(slot);
@@ -204,7 +204,7 @@ internal static class DeadTourianCorpseArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
-        enemies.BindFixtureBus(source);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);
         slot.Parameter1 = checked((ushort)(variant * 2));

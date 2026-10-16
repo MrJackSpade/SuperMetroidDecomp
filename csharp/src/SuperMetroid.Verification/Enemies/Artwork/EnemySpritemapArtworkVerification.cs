@@ -108,17 +108,17 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Runs Choot's idle, jumping and falling animations with the installed stock artwork.</summary>
     private static void VerifyInstalledChootInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        EnemyTileArtworkCatalog stock)
     {
-        Suite(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(rom, stock));
+        Suite(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(stock));
     }
 
     /// <summary>Checks Bull frame selectors and exercises normal and immune-shot programs without cartridge visual reads.</summary>
     private static void VerifyInstalledBullInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        EnemyTileArtworkCatalog stock)
     {
         var enemies = new RoomEnemySystem { TileArtwork = stock };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
         bull.Bind(bull.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -143,9 +143,9 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Runs Puyo's grounded and airborne programs with the installed stock artwork.</summary>
     private static void VerifyInstalledPuyoInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock) =>
+        EnemyTileArtworkCatalog stock) =>
         Suite(nameof(PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions),
-            () => PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions(rom, stock));
+            () => PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions(stock));
 
     /// <summary>
     /// The stock catalog from <paramref name="stockDirectory"/> with its compositions replaced, as the installation
@@ -393,8 +393,8 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(NorfairRioAnimationsConstants.Spritemaps(Enum.GetValues<NorfairRioProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("norfair_rio_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Norfair Rio's programs show exactly its installed frames");
-        Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(rom, stock));
-        Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(stock));
+        Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(stock));
         Suite(nameof(VerifyInstalledAlcoonInstructionFrames), () => VerifyInstalledAlcoonInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledMochtroidVisuals), () => VerifyInstalledMochtroidVisuals(rom, stock));
         Suite(nameof(VerifyInstalledEvirVisuals), () => VerifyInstalledEvirVisuals(rom, stock));
@@ -403,8 +403,8 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledBotwoonVisuals), () => VerifyInstalledBotwoonVisuals(rom, stock));
         Suite(nameof(VerifyInstalledBeetomInstructionFrames), () => VerifyInstalledBeetomInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledHopperInstructionFrames), () => VerifyInstalledHopperInstructionFrames(rom, stock));
-        Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(rom, stock));
-        Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(rom, stock));
+        Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(stock));
+        Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(stock));
         Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock));
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
                 MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
@@ -1387,9 +1387,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(stockMetroid.LowTable[1], editedMetroid.LowTable[1],
             "ordinary-Metroid body art edit leaves physical Y unchanged");
         OamBuffer stockBrain = DrawInstalledMotherBrainFrame(
-            stock, rom, 0xa586, new(0x0140, 0x00a0));
+            stock, 0xa586, new(0x0140, 0x00a0));
         OamBuffer editedBrain = DrawInstalledMotherBrainFrame(
-            edited, rom, 0xa586, new(0x0140, 0x00a0));
+            edited, 0xa586, new(0x0140, 0x00a0));
         AssertEqual(unchecked((byte)(stockBrain.LowTable[0] + 1)),
             editedBrain.LowTable[0],
             "Mother Brain head artwork edit changes live OAM X without ROM reads");
@@ -1403,9 +1403,9 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(stockDeadTorizo.LowTable[1], editedDeadTorizo.LowTable[1],
             "Dead Torizo corpse composition edit leaves physical Y placement unchanged");
         OamBuffer stockRidleyWing = DrawInstalledRidleySupplement(
-            stock, rom, facing: 0, wingFrame: 0, tailDirection: null);
+            stock, facing: 0, wingFrame: 0, tailDirection: null);
         OamBuffer editedRidleyWing = DrawInstalledRidleySupplement(
-            edited, rom, facing: 0, wingFrame: 0, tailDirection: null);
+            edited, facing: 0, wingFrame: 0, tailDirection: null);
         AssertEqual(unchecked((byte)(stockRidleyWing.LowTable[0] + 1)),
             editedRidleyWing.LowTable[0],
             "Ridley wing artwork edit changes live OAM X without ROM reads");
@@ -1429,19 +1429,15 @@ internal static class EnemySpritemapArtworkVerification
             "editable KiHunter OAM offset changes its displayed frame");
         AssertEqual(stockHunter.LowTable[0], editedHunter.LowTable[0],
             "KiHunter visual edit leaves physical X placement unchanged");
-        OamBuffer stockIntroEvir = DrawRoomSpriteObject(stock, NewBankB4ReadGuard(rom),
-            RoomSpriteObjectKind.DraygonIntroEvir);
-        OamBuffer editedIntroEvir = DrawRoomSpriteObject(edited, NewBankB4ReadGuard(rom),
-            RoomSpriteObjectKind.DraygonIntroEvir);
+        OamBuffer stockIntroEvir = DrawRoomSpriteObject(stock, RoomSpriteObjectKind.DraygonIntroEvir);
+        OamBuffer editedIntroEvir = DrawRoomSpriteObject(edited, RoomSpriteObjectKind.DraygonIntroEvir);
         AssertEqual(unchecked((byte)(stockIntroEvir.LowTable[0] + 1)),
             editedIntroEvir.LowTable[0],
             "editable Draygon intro Evir offset changes live room sprite-object OAM");
         AssertEqual(stockIntroEvir.LowTable[1], editedIntroEvir.LowTable[1],
             "Draygon intro Evir edit leaves vertical placement unchanged");
-        OamBuffer stockDeathEvir = DrawRoomSpriteObject(stock, NewBankB4ReadGuard(rom),
-            RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
-        OamBuffer editedDeathEvir = DrawRoomSpriteObject(edited, NewBankB4ReadGuard(rom),
-            RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
+        OamBuffer stockDeathEvir = DrawRoomSpriteObject(stock, RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
+        OamBuffer editedDeathEvir = DrawRoomSpriteObject(edited, RoomSpriteObjectKind.DraygonDeathEvirFacingRight);
         AssertEqual(unchecked((byte)(stockDeathEvir.LowTable[1] + 1)),
             editedDeathEvir.LowTable[1],
             "address-named shared sprite-object edit changes live room OAM");
@@ -1793,7 +1789,7 @@ internal static class EnemySpritemapArtworkVerification
             AssertEqual(stockSbug.LowTable[0], editedSbug.LowTable[0],
                 $"Sbug visual edit leaves enemy ${(int)definition:X4} physical X unchanged");
         }
-        Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(rom, edited));
+        Suite(nameof(CrawlerBehaviorVerification.VerifyCrawlerBehavior), () => CrawlerBehaviorVerification.VerifyCrawlerBehavior(edited));
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  {
                      EnemyDefinitionId.Zeela,
@@ -2941,7 +2937,7 @@ internal static class EnemySpritemapArtworkVerification
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
             var enemies = new RoomEnemySystem { TileArtwork = art };
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
@@ -3071,7 +3067,7 @@ internal static class EnemySpritemapArtworkVerification
         foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
-                stock, rom, frame.Pointer, new(0x0140, 0x00a0));
+                stock, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
             DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = 0x0400, BaseTileIndex = 0x0010 });
             AssertTrue(actual.ImageEquals(expected) &&
@@ -3080,19 +3076,19 @@ internal static class EnemySpritemapArtworkVerification
         }
 
         OamBuffer aboveScreen = DrawInstalledMotherBrainFrame(
-            stock, rom, 0xa586, new(0x0140, 0x000f));
+            stock, 0xa586, new(0x0140, 0x000f));
         AssertEqual(0, aboveScreen.NextByteOffset,
             "Mother Brain private draw still culls a head above the viewport");
     }
 
     /// <summary>Draws one Mother Brain world frame through the installed private renderer under a cartridge-read guard.</summary>
     private static OamBuffer DrawInstalledMotherBrainFrame(
-        EnemyTileArtworkCatalog art, ISnesAddressSpace rom, ushort pointer,
+        EnemyTileArtworkCatalog art, ushort pointer,
         Position16<RoomPixels> world)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        enemies.BindFixtureBus(NewMotherBrainFrameReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();
         enemies.MotherBrainBehavior.DrawMotherBrainWorldSpritemap(oam, pointer, world, (ushort)0x0400, (ushort)0x0010, new Position16<RoomPixels>((ushort)0x0100, (ushort)0x0010));
         return oam;
@@ -3101,11 +3097,11 @@ internal static class EnemySpritemapArtworkVerification
     /// <summary>Spawns and draws a room sprite object to inspect its installed OAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
-        ISnesAddressSpace bus, RoomSpriteObjectKind kind)
+        RoomSpriteObjectKind kind)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =
@@ -3118,18 +3114,6 @@ internal static class EnemySpritemapArtworkVerification
         return oam;
     }
 
-    /// <summary>Rejects bank $B4 reads so room sprite objects use installed artwork.</summary>
-    private static CartridgeReadGuard NewBankB4ReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xb4,
-                address => $"Installed room sprite object reread bank-$B4 byte ${address:X6}.");
-
-    /// <summary>Rejects Mother Brain's native head-art ranges during installed-frame drawing.</summary>
-    private static CartridgeReadGuard NewMotherBrainFrameReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa9a586 and < 0xa9a7c2 or
-                >= 0xa9ad3e and < 0xa9aee4,
-                address => $"Mother Brain draw reread native artwork byte ${address:X6}.");
 
     /// <summary>Rejects native visual-data reads for the enemy frame under inspection.</summary>
     private static CartridgeReadGuard NewFrameReadGuard(ISnesAddressSpace source,

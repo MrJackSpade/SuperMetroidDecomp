@@ -153,9 +153,8 @@ recordIndex,
         PlmSlot slot,
         RoomPlmPlacement placement)
     {
-        (ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram,
-            Bank80SystemState system, AreaId areaIndex) =
-            (room.Bus, room.Level, room.Streamer, room.Vram, room.System, room.AreaIndex);
+        (RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram, Bank80SystemState system, AreaId areaIndex) =
+            (room.Level, room.Streamer, room.Vram, room.System, room.AreaIndex);
         PlmHeaderId header = record.HeaderPointer;
         if (DoorPlms.TryIdentifyColoredDoor(
                 header,

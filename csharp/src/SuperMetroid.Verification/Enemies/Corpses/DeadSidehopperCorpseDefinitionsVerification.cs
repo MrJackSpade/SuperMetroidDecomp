@@ -26,12 +26,10 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             expectedConfigurationPointer: 0xdd78));
 
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
-            rom,
             parameter1: 0,
             graphicsVariant: 0,
             DeadSidehopperCorpseDefinitions.InitiallyAlive));
         Suite(nameof(VerifyProductionInitialization), () => VerifyProductionInitialization(
-            rom,
             parameter1: 2,
             graphicsVariant: 2,
             DeadSidehopperCorpseDefinitions.InitiallyDead));
@@ -73,14 +71,13 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
 
     /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>
     private static void VerifyProductionInitialization(
-        SuperMetroidAddressSpace rom,
         ushort parameter1,
         ushort graphicsVariant,
         DeadSidehopperCorpseDefinition expected)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(NewDeadSidehopperCorpseDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CorpseSidehopper, slot.Definition);
@@ -115,11 +112,6 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             $"dead sidehopper parameter {parameter1} wrap offset");
     }
 
-    /// <summary>Blocks the migrated corpse records and rotation offset during initialization.</summary>
-    private static CartridgeReadGuard NewDeadSidehopperCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa9dd68 and < 0xa9dd88 or >= 0xa9e242 and < 0xa9e244,
-                address => $"Dead sidehopper attempted migrated corpse metadata read ${address:X6}.");
 
     /// <summary>Runs the Sidehopper corpse definition check with the retail cartridge.</summary>
     [VerificationCommand("--dead-sidehopper-corpse-definitions")]

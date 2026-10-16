@@ -14,10 +14,10 @@ using SuperMetroid.Verification.Harness;
 internal static class BoulderBehaviorVerification
 {
     /// <summary>The real initializer starts the Left program, which the runtime then plays through once and back.</summary>
-    internal static void VerifyBoulderBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyBoulderBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BoulderFrameToolingDefinitions.Bank });
@@ -40,7 +40,7 @@ internal static class BoulderBehaviorVerification
     internal static int BoulderBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyBoulderBehavior), () => VerifyBoulderBehavior(rom));
+        Suite(nameof(VerifyBoulderBehavior), () => VerifyBoulderBehavior());
         Suite(nameof(BoulderAnimationsVerification.VerifyBoulderAnimations), () => BoulderAnimationsVerification.VerifyBoulderAnimations(rom));
         return 0;
     }

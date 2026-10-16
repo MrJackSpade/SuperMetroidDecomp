@@ -2116,7 +2116,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             ? EnemyDefinitionId.GoldenTorizoOrb
             : EnemyDefinitionId.BombTorizoOrb;
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, header);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(header);
         _torizoOrbDropRequests.Add(new TorizoOrbDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             projectile.Position.Whole,

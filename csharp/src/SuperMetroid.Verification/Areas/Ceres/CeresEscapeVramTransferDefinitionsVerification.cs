@@ -63,7 +63,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
             Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
-        system.BindFixtureBus(NewCeresEscapeTransferReadGuard(rom));
+        system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         foreach (ushort start in new[]
                  {
                      CeresEscapeVramTransferDefinitions.TimerSprites,
@@ -140,11 +140,6 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             "both installed timer lists and Japanese overlay execute with descriptor reads blocked.");
     }
 
-    /// <summary>Rejects native descriptor reads while installed Ceres transfer lists are queued.</summary>
-    private static CartridgeReadGuard NewCeresEscapeTransferReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address),
-                address => $"Installed Ceres transfer read native descriptor ${address:X6}.");
 
     /// <summary>Imports indexed character pages needed to run the installed Ceres escape transfer path.</summary>
     [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]

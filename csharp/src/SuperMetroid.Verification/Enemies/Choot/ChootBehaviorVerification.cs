@@ -19,10 +19,10 @@ internal static class ChootBehaviorVerification
     /// start the jumping and falling animations, which switch it on. Each shows its frames and holds the last; the update
     /// that reaches the native sleep still reports the held frame as new.
     /// </summary>
-    internal static void VerifyChootBehavior(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyChootBehavior(EnemyTileArtworkCatalog? artwork = null)
     {
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ChootFrameToolingDefinitions.Bank });
@@ -64,7 +64,7 @@ internal static class ChootBehaviorVerification
     internal static int ChootInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyChootBehavior), () => VerifyChootBehavior(rom));
+        Suite(nameof(VerifyChootBehavior), () => VerifyChootBehavior());
         Suite(nameof(ChootAnimationsVerification.VerifyChootAnimations), () => ChootAnimationsVerification.VerifyChootAnimations(rom));
         return 0;
     }

@@ -161,7 +161,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             return enemies;
         }
 

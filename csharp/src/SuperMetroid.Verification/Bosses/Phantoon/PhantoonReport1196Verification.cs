@@ -22,7 +22,7 @@ internal static class PhantoonReport1196Verification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var enemies = CreatePhantoonSystem(bus);
+        var enemies = CreatePhantoonSystem();
         var state = enemies.PhantoonBehavior.Phantoon;
         enemies.BeginEnemySoundRequestFrame();
         (state ?? throw new InvalidOperationException("Verification requires state.")).Body.VariableE = 1;
@@ -57,7 +57,7 @@ internal static class PhantoonReport1196Verification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyPhantoonDeathWaveInitialization()
     {
-        var enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        var enemies = CreatePhantoonSystem();
         var boss = enemies.PhantoonBehavior.Phantoon;
         (boss ?? throw new InvalidOperationException("Verification requires boss.")).Bg2Scroll = boss.Bg2Scroll.WithX(9);
         boss.Mouth.VariableD = 3072;

@@ -38,7 +38,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
                 FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress);
         var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
         {

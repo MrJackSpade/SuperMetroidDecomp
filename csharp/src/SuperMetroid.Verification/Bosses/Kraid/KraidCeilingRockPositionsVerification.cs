@@ -36,7 +36,7 @@ internal static class KraidCeilingRockPositionsVerification
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewKraidCeilingGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 63);
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.RunKraidGrowthFunction;
         var requests = enemies.FrameResults.KraidPlms;
@@ -71,9 +71,4 @@ internal static class KraidCeilingRockPositionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock positions")]
     private static byte KraidCeilingRockPositionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Rejects reads of the migrated ceiling-placement window and any attempted bus write.</summary>
-    private static CartridgeReadGuard NewKraidCeilingGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa7acb3 and <= 0xa7acc5, _ => "Unexpected migrated ceiling placement read.")
-            .RejectWrites(_ => "Unexpected ceiling bus write.");
 }

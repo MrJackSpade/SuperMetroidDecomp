@@ -28,7 +28,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyWorkRobotInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(rom, out RoomEnemySlot robot);
+        RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(out RoomEnemySlot robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();
         WorkRobotEnemyState state = enemies.WorkRobotStates[0] ?? throw new InvalidOperationException("Verification requires enemies.WorkRobotStates[0].");
 
@@ -50,11 +50,10 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
 
     /// <summary>Installs a powered bank A8 robot with deterministic random input for list execution.</summary>
     internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
-        ISnesAddressSpace bus,
         out RoomEnemySlot robot)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
 
         robot = enemies.SlotTable.Slots[0];

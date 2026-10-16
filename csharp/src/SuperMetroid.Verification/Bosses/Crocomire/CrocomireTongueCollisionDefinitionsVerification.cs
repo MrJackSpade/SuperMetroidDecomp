@@ -21,7 +21,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var denied = NewCrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
-        enemies.BindFixtureBus(denied);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -91,7 +91,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var denied = NewCrocomireTongueNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var compiled = new RoomEnemySystem();
-        compiled.BindFixtureBus(denied);
+        compiled.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with

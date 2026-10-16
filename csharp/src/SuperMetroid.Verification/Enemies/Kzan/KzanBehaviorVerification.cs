@@ -18,10 +18,10 @@ using SuperMetroid.Verification.Harness;
 internal static class KzanBehaviorVerification
 {
     /// <summary>The initializer starts the idle program, which shows its one frame and then holds it.</summary>
-    internal static void VerifyKzanBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyKzanBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank });
@@ -42,9 +42,9 @@ internal static class KzanBehaviorVerification
     internal static int SingleFrameEnemyVisualsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyKzanBehavior), () => VerifyKzanBehavior(rom));
+        Suite(nameof(VerifyKzanBehavior), () => VerifyKzanBehavior());
         Suite(nameof(KzanAnimationsVerification.VerifyKzanAnimations), () => KzanAnimationsVerification.VerifyKzanAnimations(rom));
-        Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior(rom));
+        Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior());
         Suite(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(rom));
         Suite(nameof(VerifyPolypRockAnimations), () => VerifyPolypRockAnimations(rom));
         Suite(nameof(PolypRockBehaviorVerification.VerifyPolypRockBehavior), () => PolypRockBehaviorVerification.VerifyPolypRockBehavior(rom));

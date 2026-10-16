@@ -49,8 +49,7 @@ internal static class MotherBrainCorpseArtworkVerification
 
         // Only the oracle/import above receives cartridge bytes. Production transfers and
         // staging run against the same cartridge-incapable memory type as installed games.
-        SnesVram stockVram = TransferMotherBrainCorpsePages(stock,
-            SuperMetroidAddressSpace.CreateWithoutCartridge());
+        SnesVram stockVram = TransferMotherBrainCorpsePages(stock);
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             int sourceOffset = checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(page) -
@@ -106,8 +105,7 @@ internal static class MotherBrainCorpseArtworkVerification
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
-        SnesVram editedVram = TransferMotherBrainCorpsePages(edited,
-            SuperMetroidAddressSpace.CreateWithoutCartridge());
+        SnesVram editedVram = TransferMotherBrainCorpsePages(edited);
         int editedVramOffset = MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
         AssertEqual((byte)(stockVram.ReadByte(editedVramOffset) ^ 0x80),
@@ -141,12 +139,12 @@ internal static class MotherBrainCorpseArtworkVerification
 
     /// <summary>Routes all corpse page requests through the production encounter into cartridge-free VRAM.</summary>
     private static SnesVram TransferMotherBrainCorpsePages(
-        EnemyTileArtworkCatalog artwork, ISnesAddressSpace bus)
+        EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {

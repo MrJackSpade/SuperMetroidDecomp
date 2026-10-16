@@ -40,8 +40,8 @@ internal static class RidleyAttackChoicesVerification
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var actual = new RoomEnemySystem();
         var reference = new RoomEnemySystem();
-        actual.BindFixtureBus(NewRidleyAttackReadGuard(rom));
-        reference.BindFixtureBus(rom);
+        actual.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        reference.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> select = actual.RidleyBehavior.SelectNorfairRidleyAttack;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> runReference = reference.RidleyBehavior.RunNorfairRidleyFunction;
         ushort random = 0;
@@ -90,8 +90,4 @@ internal static class RidleyAttackChoicesVerification
         Console.WriteLine("Ridley choices: all 48 native pointers and 655360 actual selections pass with table reads forbidden, exact RNG and same-frame setup checks.");
     }
 
-    /// <summary>Forbids production rereads of the compiled Ridley attack-choice table.</summary>
-    private static CartridgeReadGuard NewRidleyAttackReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6b38c and < 0xa6b3ec,
-            _ => "Unexpected migrated Ridley attack-choice read.");
 }

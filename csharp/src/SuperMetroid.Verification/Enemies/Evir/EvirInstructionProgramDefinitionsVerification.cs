@@ -31,7 +31,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     {
         foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
         {
-            var enemies = NewEvirInstructionSystem(rom);
+            var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameDefinitions.Spritemap),
@@ -40,7 +40,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         }
 
         {
-            var enemies = NewEvirInstructionSystem(rom);
+            var enemies = NewEvirInstructionSystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileNormal);
             _ = EnemyInstructionRunner.ShownFrames(slot, 4);
@@ -52,7 +52,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         }
 
         {
-            var enemies = NewEvirInstructionSystem(rom);
+            var enemies = NewEvirInstructionSystem();
             // The regeneration cues read Evir.instList-$80,X: the body record two slots before the projectile, as the
             // retail population lays them out.
             RoomEnemySlot slot = enemies.SlotTable.Slots[2];
@@ -88,10 +88,10 @@ internal static class EvirInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Creates an enemy system bound to the supplied address space.</summary>
-    internal static RoomEnemySystem NewEvirInstructionSystem(ISnesAddressSpace bus)
+    internal static RoomEnemySystem NewEvirInstructionSystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 

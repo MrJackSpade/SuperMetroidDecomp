@@ -14,7 +14,7 @@ internal static class WaverBehaviorVerification
     /// <summary>
     /// Each selected animation shows its frames and holds the last; only the two spins report their completion to main AI.
     /// </summary>
-    internal static void VerifyWaverBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyWaverBehavior()
     {
         foreach (WaverAnimationSelector selector in new[]
                  {
@@ -23,7 +23,7 @@ internal static class WaverBehaviorVerification
                  })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Waver, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = WaverFrameToolingDefinitions.Bank });
@@ -52,7 +52,7 @@ internal static class WaverBehaviorVerification
     internal static int WaverBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyWaverBehavior), () => VerifyWaverBehavior(rom));
+        Suite(nameof(VerifyWaverBehavior), () => VerifyWaverBehavior());
         Suite(nameof(WaverAnimationsVerification.VerifyWaverAnimations), () => WaverAnimationsVerification.VerifyWaverAnimations(rom));
         return 0;
     }

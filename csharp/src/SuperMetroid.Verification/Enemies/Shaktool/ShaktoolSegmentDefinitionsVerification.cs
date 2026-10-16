@@ -35,7 +35,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewShaktoolSegmentReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < definitions.Length; index++)
         {
@@ -136,8 +136,4 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool {label} rejects {invalid}");
     }
 
-    /// <summary>Blocks access to the migrated native segment tables during production initialization.</summary>
-    private static CartridgeReadGuard NewShaktoolSegmentReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xaade95 and < 0xaadf05,
-            address => $"Shaktool attempted migrated segment-definition read ${address:X6}.");
 }

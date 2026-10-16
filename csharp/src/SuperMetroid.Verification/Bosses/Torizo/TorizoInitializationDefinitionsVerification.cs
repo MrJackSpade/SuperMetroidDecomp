@@ -30,7 +30,7 @@ internal static class TorizoInitializationDefinitionsVerification
 
             var enemies = new RoomEnemySystem();
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = new SnesCgram();
             bool defeated = false;
             enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);

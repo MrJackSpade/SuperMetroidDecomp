@@ -47,7 +47,7 @@ internal static class HopperAnimationDefinitionsVerification
             bool upsideDown = orientation != 0;
             string context = $"{variant}/{orientation}";
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
@@ -86,7 +86,7 @@ internal static class HopperAnimationDefinitionsVerification
                 $"hopper landed sound {context}");
         }
 
-        Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(rom, artwork));
+        Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(artwork));
         AssertThrows<InvalidDataException>(
             () => HopperAnimationDefinitions.Program(4, false, false),
             "hopper animation variant beyond authored table");
@@ -103,11 +103,10 @@ internal static class HopperAnimationDefinitionsVerification
 
     /// <summary>Checks the Tourian Sidehopper uses the large-Sidehopper landed program and sound.</summary>
     private static void VerifyTourianSidehopperInstructionAlias(
-        SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog? artwork)
     {
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 

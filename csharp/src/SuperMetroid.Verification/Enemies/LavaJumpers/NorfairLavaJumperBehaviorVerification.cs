@@ -18,10 +18,10 @@ internal static class NorfairLavaJumperBehaviorVerification
     /// The follower initializer starts the follower loop, which plays its counted inner loop once and starts over.
     /// One-update frames are still flagged new on the update that reaches a native sleep.
     /// </summary>
-    internal static void VerifyNorfairLavaJumperBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyNorfairLavaJumperBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
@@ -72,7 +72,7 @@ internal static class NorfairLavaJumperBehaviorVerification
     internal static int NorfairLavaJumperBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyNorfairLavaJumperBehavior), () => VerifyNorfairLavaJumperBehavior(rom));
+        Suite(nameof(VerifyNorfairLavaJumperBehavior), () => VerifyNorfairLavaJumperBehavior());
         Suite(nameof(NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations), () => NorfairLavaJumperAnimationsVerification.VerifyNorfairLavaJumperAnimations(rom));
         return 0;
     }

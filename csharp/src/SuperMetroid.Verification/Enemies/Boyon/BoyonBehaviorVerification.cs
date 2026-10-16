@@ -19,16 +19,16 @@ internal static class BoyonBehaviorVerification
     /// The real initializer starts the idle loop, which stops off-screen processing and loops on time; Samus close by
     /// starts the bounce, which processes off screen, plays the bounce sound, permits the bounce arc and loops on time.
     /// </summary>
-    internal static void VerifyBoyonBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyBoyonBehavior()
     {
-        (RoomEnemySystem idleSystem, RoomEnemySlot idle, BoyonEnemyState idleState) = Create(rom);
+        (RoomEnemySystem idleSystem, RoomEnemySlot idle, BoyonEnemyState idleState) = Create();
         AssertEqual(AnimationProgramCursor<BoyonProgram>.Start(BoyonProgram.Idle), idleState.Program, "Boyon initializer starts idling");
         idle.Properties = idle.Properties.With(EnemyProperties.ProcessOffScreen);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.IdleLoop, BoyonFrameDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(idle, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.IdleLoop)), "Boyon idle loop");
         AssertTrue(!idle.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon idle stops off-screen processing");
 
-        (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create(rom);
+        (RoomEnemySystem bounceSystem, RoomEnemySlot bounce, BoyonEnemyState bounceState) = Create();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(bounce.Position.Whole) };
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
         BoyonBehavior.RunBoyonMain(bounce, bounceState, samus);
@@ -42,10 +42,10 @@ internal static class BoyonBehaviorVerification
     }
 
     /// <summary>A Boyon with a 64-pixel trigger range after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, BoyonEnemyState) Create(SuperMetroidAddressSpace rom)
+    private static (RoomEnemySystem, RoomEnemySlot, BoyonEnemyState) Create()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BoyonFrameToolingDefinitions.Bank });
@@ -61,7 +61,7 @@ internal static class BoyonBehaviorVerification
     internal static int LookupBoyonProgramsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyBoyonBehavior), () => VerifyBoyonBehavior(rom));
+        Suite(nameof(VerifyBoyonBehavior), () => VerifyBoyonBehavior());
         Suite(nameof(BoyonAnimationsVerification.VerifyBoyonAnimations), () => BoyonAnimationsVerification.VerifyBoyonAnimations(rom));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;

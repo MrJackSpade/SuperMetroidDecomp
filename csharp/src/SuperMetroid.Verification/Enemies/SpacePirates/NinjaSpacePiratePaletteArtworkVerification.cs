@@ -44,8 +44,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         // Native initialization for x=$100, span=$80, facing left: midpoint=$C0;
         // 32 acceleration steps sum to $4200, so the adjusted right post is $102.
         const ushort nativeX = 0x0102;
-        (RoomEnemySlot stockSlot, SnesCgram stockColors, AnimationProgramCursor<NinjaSpacePirateProgram> stockProgram) = Initialize(
-            NewNinjaPaletteReadGuard(bus), stock);
+        (RoomEnemySlot stockSlot, SnesCgram stockColors, AnimationProgramCursor<NinjaSpacePirateProgram> stockProgram) = Initialize(stock);
         AssertTrue(new CgramPalettes(nativeColors).ImageEquals(new CgramPalettes(stockColors)),
             "Installed ninja target palette preserves full native CGRAM including neighbors");
         AssertEqual(nativeX, stockSlot.Position.X.Whole,
@@ -64,8 +63,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         edit.Required("colors").Required(4)["red"] = red.GetValue<int>() ^ 1;
         File.WriteAllText(overridePath, edit.ToJsonString());
         var selected = EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory);
-        (RoomEnemySlot editedSlot, SnesCgram editedColors, _) = Initialize(
-            NewNinjaPaletteReadGuard(bus), selected);
+        (RoomEnemySlot editedSlot, SnesCgram editedColors, _) = Initialize(selected);
         for (int color = 0; color < SnesCgram.ColorCount; color++)
             AssertEqual((ushort)(nativeColors.Colors[color].ToWord() ^
                 (color == NinjaSpacePiratePaletteDefinitions.TargetColor + 4 ? 1 : 0)),
@@ -79,7 +77,6 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         AssertTrue(savedOverride.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Enemy stock re-extraction preserves the shared ninja color override");
         (RoomEnemySlot restoredSlot, SnesCgram restoredColors, _) = Initialize(
-            NewNinjaPaletteReadGuard(bus),
             EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory));
         AssertTrue(new CgramPalettes(restoredColors).ImageEquals(new CgramPalettes(editedColors)),
             "Reload after stock repair retains the selected ninja target colors");
@@ -88,14 +85,14 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         Console.WriteLine("Ninja Pirate palette: shared gold-Pirate sheet matches native CGRAM; live edit, ROM guard, placement isolation and override persistence pass.");
 
         static (RoomEnemySlot Slot, SnesCgram Colors, AnimationProgramCursor<NinjaSpacePirateProgram> Program) Initialize(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
+            EnemyTileArtworkCatalog artwork)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var colors = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));
-            enemies.BindFixtureBus(source);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = colors;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
@@ -108,11 +105,4 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         }
     }
 
-    /// <summary>Rejects migrated palette ROM reads and writes during ninja initialization.</summary>
-    private static CartridgeReadGuard NewNinjaPaletteReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .ForbidRange(NinjaSpacePiratePaletteDefinitions.SharedGoldPirateSource,
-                EnemyPaletteSheet.ColorCount * sizeof(ushort),
-                _ => "Installed ninja palette read its migrated ROM source.")
-            .RejectWrites(_ => "Ninja palette initialization wrote the bus.");
 }

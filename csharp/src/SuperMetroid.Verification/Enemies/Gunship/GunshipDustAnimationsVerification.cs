@@ -31,7 +31,7 @@ internal static class GunshipDustAnimationsVerification
             var guard = new MutableCartridgeReadGuard(rom);
             guard.Forbid(address => address is >= ListsStart and < ListsEnd,
                 address => $"Production read a native gunship dust list at ${address:X6}.");
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Projectiles.SpawnGunshipLiftoffDustCloud(parameter, new SamusState());
             RoomEnemyProjectileSlot dust = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.GunshipLiftoffDustCloud);
             GunshipDustProgram program = GunshipDustDefinitions.ForParameter(parameter).Program;

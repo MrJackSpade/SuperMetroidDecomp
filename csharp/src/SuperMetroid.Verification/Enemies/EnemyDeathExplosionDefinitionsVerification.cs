@@ -28,7 +28,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
                 $"enemy death explosion program {animation}");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             enemy.Bind(EnemyDefinitionId.Sciser, enemy.Definition);
             enemy.Position = enemy.Position.WithWhole(new(unchecked((ushort)(0xfff0 + animation)), unchecked((ushort)(0x0100 + animation))));
@@ -47,7 +47,7 @@ internal static class EnemyDeathExplosionDefinitionsVerification
         }
 
         var clamped = new RoomEnemySystem();
-        clamped.BindFixtureBus(guarded);
+        clamped.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot clampedEnemy = clamped.SlotTable.Slots[0];
         clampedEnemy.Bind(EnemyDefinitionId.Sciser, clampedEnemy.Definition);
         clamped.DeathsAndDrops.StartGenericEnemyDeath(clampedEnemy, 5);

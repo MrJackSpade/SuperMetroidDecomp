@@ -105,7 +105,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewDraygonIntroDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         Action<DraygonEnemyState, SamusState?, byte> run = enemies.DraygonBehavior.RunDraygonIntroDance;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
@@ -186,7 +186,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
         // duration. Exercise the production dispatcher so this cannot regress into an
         // arbitrary bank-$A5 read hidden behind a catalog-only unit test.
         var malformedEnemies = new RoomEnemySystem();
-        malformedEnemies.BindFixtureBus(NewDraygonIntroDefinitionReadGuard(rom));
+        malformedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<DraygonEnemyState, SamusState?, byte> malformedRun = malformedEnemies.DraygonBehavior.RunDraygonIntroDance;
         var malformedState = new DraygonEnemyState(malformedEnemies.SlotTable.Slots[0])
         {
@@ -201,15 +201,6 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Production Draygon intro rejects malformed restored movement without a ROM fallback");
     }
 
-    /// <summary>Rejects runtime reads from the compiled Evir latency and movement ranges.</summary>
-    private static CartridgeReadGuard NewDraygonIntroDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address =>
-                    address is >= 0xa5a19f and < 0xa5a1a7 ||
-                    address >= DraygonIntroDanceDefinitions.NativeMovementStreamAddress &&
-                    address <= DraygonIntroDanceDefinitions.NativeMovementStreamAddress +
-                        DraygonIntroDanceDefinitions.LastMovementStreamOffset + 1,
-                address => $"Draygon intro attempted migrated definition read ${address:X6}.");
 
     /// <summary>Runs the Draygon intro dance suite through the verification command dispatcher.</summary>
     [VerificationCommand("--draygon-intro-dance-definitions")]

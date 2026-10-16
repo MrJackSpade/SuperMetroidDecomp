@@ -65,13 +65,13 @@ internal sealed class EnemyPopulationLoader
 
     /// <summary>Stages selected enemy tiles and OBJ palettes in bank-$B4 record order while retaining native size arithmetic.</summary>
     internal void LoadGraphicsSet(
-        ISnesAddressSpace bus,
+        IRoomEnemyDefinitionSource definitions,
         ushort tilesetPointer,
         SnesVram vram,
         SnesCgram cgram)
     {
         RoomEnemyGraphicsSetDefinition graphicsSet =
-            ResolveRoomEnemyGraphicsSet(bus, tilesetPointer);
+            definitions.ReadEnemyGraphicsSet(tilesetPointer);
         int nextEnemyTileIndex = 0;
         int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;
 
@@ -88,7 +88,7 @@ internal sealed class EnemyPopulationLoader
             // Retail enemy headers are immutable gameplay definitions. Graphics uploads
             // use the selected extracted artwork, but
             // the header itself must not be re-read from the cartridge on room entry.
-            RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(bus, definitionPointer);
+            RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(definitionPointer);
 
             // ProcessEnemyTilesets copies one complete sixteen-color OBJ palette from the
             // enemy's selected code/data bank. Its assembly masks the entire low byte before
@@ -130,7 +130,7 @@ internal sealed class EnemyPopulationLoader
 
     /// <summary>Initializes each bank-$A1 population slot, runs its AI, and publishes count and kill quota for nonempty populations.</summary>
     internal void LoadPopulation(
-        ISnesAddressSpace bus,
+        IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
         RoomLevelData? level,
         SamusState? samus,
@@ -148,7 +148,7 @@ internal sealed class EnemyPopulationLoader
                     $"Enemy population $A1:{populationDefinition.Pointer:X4} has more than 32 records.");
             }
 
-            RoomEnemyDefinition definition = ResolveRoomEnemyDefinition(bus, definitionPointer);
+            RoomEnemyDefinition definition = definitions.ReadEnemyDefinition(definitionPointer);
             RoomEnemySlot slot = _slotTable._slots[slotIndex];
             _dispatch.InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
@@ -195,29 +195,4 @@ internal sealed class EnemyPopulationLoader
         // enemies without synthesizing an asset association.
         return (0, 2560);
     }
-
-    /// <summary>Uses compiled retail definitions unless a constructed test bus explicitly supplies fixtures.</summary>
-    internal static RoomEnemyDefinition ResolveRoomEnemyDefinition(
-        ISnesAddressSpace bus, EnemyDefinitionId pointer)
-    {
-        if (bus is IRoomEnemyFixtureSource fixture)
-            return fixture.ReadEnemyDefinition(pointer);
-        return RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition auxiliary)
-            ? auxiliary
-            : RoomEnemyDefinitionCatalog.Get(pointer);
-    }
-
-    /// <summary>Uses constructed bus fixtures when present, otherwise the compiled bank-$A1 population catalog.</summary>
-    internal static RoomEnemyPopulationDefinition ResolveRoomEnemyPopulation(
-        ISnesAddressSpace bus, ushort pointer) =>
-        bus is IRoomEnemyFixtureSource fixture
-            ? fixture.ReadEnemyPopulation(pointer)
-            : RoomEnemyPopulationDefinitions.Get(pointer);
-
-    /// <summary>Uses a constructed graphics-set fixture when present, otherwise the compiled bank-$B4 room set.</summary>
-    private static RoomEnemyGraphicsSetDefinition ResolveRoomEnemyGraphicsSet(
-        ISnesAddressSpace bus, ushort pointer) =>
-        bus is IRoomEnemyFixtureSource fixture
-            ? fixture.ReadEnemyGraphicsSet(pointer)
-            : RoomEnemyGraphicsSetDefinitions.Get(pointer);
 }

@@ -33,7 +33,7 @@ internal static class AtomicMovementDefinitionsVerification
         Suite(nameof(VerifyAtomicInitialProgramSelection), () => VerifyAtomicInitialProgramSelection(rom));
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewAtomicInstructionReadGuard(new TestAddressSpace()));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Atomic, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = AtomicFrameToolingDefinitions.Bank });
@@ -67,10 +67,6 @@ internal static class AtomicMovementDefinitionsVerification
             "spinning loops pass with the selector table forbidden.");
     }
 
-    /// <summary>Rejects initializer reads from the migrated four-entry direction table.</summary>
-    private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,
-            address => $"Atomic initializer attempted migrated instruction read ${address:X6}.");
 
     /// <summary>Runs the retail-backed Atomic movement checks and program oracle.</summary>
     [VerificationCommand("--atomic-instruction-mechanics")]

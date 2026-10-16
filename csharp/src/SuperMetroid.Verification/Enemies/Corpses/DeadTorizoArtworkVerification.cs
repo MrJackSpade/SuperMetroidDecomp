@@ -165,7 +165,7 @@ internal static class DeadTorizoArtworkVerification
         RoomEnemySystem installed = InitializeDeadTorizoArtwork(installedBus, stock);
         var nativeTransfers = new List<VramWriteEntry>();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        installed.BindFixtureBus(NewFrontendCartridgeReadGuard(installedBus));
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         Action<DeadTorizoEnemyState> buildInstalled =
             new Action<DeadTorizoEnemyState>(installed.DeadTorizoBehavior.BuildDeadTorizoVramTransfers);
@@ -239,7 +239,7 @@ internal static class DeadTorizoArtworkVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         ISnesAddressSpace source = NewDeadTorizoArtworkReadGuard(bus);
-        enemies.BindFixtureBus(source);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         new Action<RoomEnemySlot>(enemies.DeadTorizoBehavior.InitializeDeadTorizo)(enemies.SlotTable.Slots[0]);
         return enemies;
     }
@@ -258,7 +258,7 @@ internal static class DeadTorizoArtworkVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySystem enemies = InitializeDeadTorizoArtwork(bus, artwork);
-        enemies.BindFixtureBus(NewDeadTorizoOamReadGuard(bus));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var oam = new OamBuffer();
         new Action<OamBuffer, Position16<RoomPixels>>(enemies.DeadTorizoBehavior.DrawDeadTorizoHook)(
                 oam, camera);
@@ -283,12 +283,4 @@ internal static class DeadTorizoArtworkVerification
         return guard;
     }
 
-    /// <summary>Blocks the native corpse spritemap interval so rendering must use installed parts.</summary>
-    private static MutableCartridgeReadGuard NewDeadTorizoOamReadGuard(ISnesAddressSpace source)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is >= 0xa9d761 and < 0xa9d77c,
-            address => $"Dead Torizo drew native OAM from ROM at ${address:X6}.");
-        return guard;
-    }
 }

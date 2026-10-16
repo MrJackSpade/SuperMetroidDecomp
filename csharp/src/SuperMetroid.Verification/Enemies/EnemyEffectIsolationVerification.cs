@@ -156,7 +156,7 @@ internal static class EnemyEffectIsolationVerification
     private static RoomEnemySystem CorpseRamEnemies(SnesVram vram)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(SuperMetroidAddressSpace.CreateWithoutCartridge());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         return enemies;
     }

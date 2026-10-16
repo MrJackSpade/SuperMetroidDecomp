@@ -21,7 +21,7 @@ internal static class KraidFootCollisionDefinitionsVerification
             Path.GetFullPath("Super Metroid.smc"));
         var denied = NewKraidFootCollisionNoReadBus();
         var installed = new RoomEnemySystem();
-        installed.BindFixtureBus(denied);
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];
         installedFoot.Bind(installedFoot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });

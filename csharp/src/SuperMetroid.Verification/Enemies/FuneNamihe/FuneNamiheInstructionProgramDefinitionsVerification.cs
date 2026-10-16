@@ -53,7 +53,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         {
             AssertEqual(program.Entry, FuneNamiheDefinitions.InstructionList(program.SelectorCursor),
                 $"Fune/Namihe selector $A8:{program.SelectorCursor:X4} names {program.Entry}");
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(rom, program);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(program);
             int activeProjectiles = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
             AssertEqual(program.Active ? 1 : 0, activeProjectiles, $"Fune/Namihe {program.Entry} projectile count");
 
@@ -78,7 +78,6 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
 
     /// <summary>Seeds one variant and direction into an enemy slot, then advances enough updates to observe projectile and AI handoff behavior.</summary>
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
-        ISnesAddressSpace bus,
         FuneNamiheProgramCase program)
     {
         var enemies = new RoomEnemySystem();
@@ -100,7 +99,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             Program = AnimationProgramCursor<FuneNamiheProgram>.Start(program.Entry),
         };
         enemies.SlotTable.Slots[0].SetSpeciesState(state);
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         int frames = program.Active ? 140 : 4;

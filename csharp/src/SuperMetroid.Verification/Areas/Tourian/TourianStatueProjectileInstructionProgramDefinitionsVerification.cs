@@ -45,7 +45,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         var executedOperands = new HashSet<ushort>();
         var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(guard);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
 

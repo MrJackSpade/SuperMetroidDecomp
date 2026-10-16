@@ -28,7 +28,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
         ushort nextRandom = 0;
         int advances = 0;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewNorfairLavaJumpReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() =>
             {
                 advances++;
@@ -62,9 +62,4 @@ internal static class NorfairLavaJumpDefinitionsVerification
             "Norfair lava-jump definitions: four native velocities and all 65,536 real RNG selections pass with the source table forbidden.");
     }
 
-    /// <summary>Rejects reads of the four authored velocities at $A2:BE86-BE8D.</summary>
-    private static CartridgeReadGuard NewNorfairLavaJumpReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2be86 and < 0xa2be8e,
-                address => $"Norfair lava jumper attempted migrated velocity read ${address:X6}.");
 }

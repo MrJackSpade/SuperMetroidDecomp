@@ -120,7 +120,7 @@ internal static class EnemyRomTablePointersVerification
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            system.BindFixtureBus(guarded);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation._cgram = new SnesCgram();
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = parameter };
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
@@ -134,7 +134,7 @@ internal static class EnemyRomTablePointersVerification
         foreach (bool facingRight in new[] { false, true })
         {
             var system = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            system.BindFixtureBus(guarded);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var torizo = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0,

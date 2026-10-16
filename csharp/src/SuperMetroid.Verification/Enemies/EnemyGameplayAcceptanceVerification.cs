@@ -154,7 +154,7 @@ internal static class EnemyGameplayAcceptanceVerification
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var vram = new SnesVram(); var colors = new SnesCgram();
-            enemies.Load(new RoomEnemyLoadRequest(memory, state.EnemyPopulationPointer, state.EnemyTilesetPointer, vram, colors, new StandaloneRoomEnemyServices(() => 1)));
+            enemies.Load(new RoomEnemyLoadRequest(CompiledRoomEnemyDefinitions.Instance, state.EnemyPopulationPointer, state.EnemyTilesetPointer, vram, colors, new StandaloneRoomEnemyServices(() => 1)));
             return (enemies, vram, colors);
         }
 

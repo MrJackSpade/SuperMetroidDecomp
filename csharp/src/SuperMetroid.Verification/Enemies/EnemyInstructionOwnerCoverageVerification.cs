@@ -60,7 +60,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             foreach (RoomEnemyPopulationRecord population in records)
             {
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(rom);
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 enemies.Presentation._vram = new SnesVram();
                 enemies.Presentation._cgram = new SnesCgram();
                 enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
@@ -151,7 +151,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             string.Join(", ", unresolved.Distinct()));
 
         var unknownEnemies = new RoomEnemySystem();
-        unknownEnemies.BindFixtureBus(rom);
+        unknownEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
         unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
         unknown.Bind(unknown.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });

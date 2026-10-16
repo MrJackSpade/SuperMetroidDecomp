@@ -23,7 +23,7 @@ internal static class SparkMovementDefinitionsVerification
     internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(new TestAddressSpace());
+        enemies.BindFixtureDefinitions(new TestAddressSpace());
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
@@ -52,16 +52,16 @@ internal static class SparkMovementDefinitionsVerification
 
         foreach (SparkProgram loop in new[] { SparkProgram.Active, SparkProgram.Emitter })
         {
-            (RoomEnemySystem loopSystem, RoomEnemySlot loopSlot, _) = Start(rom, loop, intangible: false);
+            (RoomEnemySystem loopSystem, RoomEnemySlot loopSlot, _) = Start(loop, intangible: false);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Programs, loop, SparkFrameDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Programs, loop)), $"Spark {loop} loop");
         }
-        (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(rom, SparkProgram.FlickerOn, intangible: true);
+        (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(SparkProgram.FlickerOn, intangible: true);
         EnemyInstructionRunner.ShownFrames(on, 1);
         AssertTrue(!on.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-on makes the actor tangible before its first flash");
         EnemyInstructionRunner.ShownFrames(on, 40);
         AssertEqual(SparkProgram.Active, onState.Program?.Program, "Spark flicker-on runs into the active loop");
-        (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(rom, SparkProgram.FlickerOut, intangible: false);
+        (RoomEnemySystem outSystem, RoomEnemySlot off, SparkEnemyState offState) = Start(SparkProgram.FlickerOut, intangible: false);
         EnemyInstructionRunner.ShownFrames(off, 40);
         AssertTrue(off.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Spark flicker-out makes the actor intangible");
         AssertEqual(SparkProgram.FlickerOut, offState.Program?.Program, "Spark flicker-out holds");
@@ -69,10 +69,10 @@ internal static class SparkMovementDefinitionsVerification
     }
 
     /// <summary>A Spark running <paramref name="program"/> from its first step.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, SparkEnemyState) Start(SuperMetroidAddressSpace rom, SparkProgram program, bool intangible)
+    private static (RoomEnemySystem, RoomEnemySlot, SparkEnemyState) Start(SparkProgram program, bool intangible)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);

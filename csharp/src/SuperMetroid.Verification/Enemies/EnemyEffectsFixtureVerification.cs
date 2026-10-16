@@ -43,7 +43,7 @@ internal static class EnemyEffectsFixtureVerification
             Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);
-            Enemies.BindFixtureBus(Memory);
+            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Enemies.Presentation._vram = Vram;
             Enemies.CrocomireBehavior.Crocomire = Actor;
             Enemies.CrocomireBehavior.CrocomireDeath = Effect;

@@ -86,7 +86,7 @@ internal static class CrocomireRumbleDefinitionsVerification
             DeathSequenceIndex = CrocomireDeathPhase.RumbleHiddenWall,
             RumbleTableOffset = 4,
         };
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.CrocomireBehavior.CrocomireDeath = death;
 

@@ -96,7 +96,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.Presentation._vram = new SnesVram();
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

@@ -26,9 +26,7 @@ internal static class FuneNamiheDefinitionsVerification
             bool namihe = (variant & 2) != 0;
             bool right = (variant & 1) != 0;
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(new CartridgeReadGuard(new TestAddressSpace()).Forbid(
-                    address => address is >= 0xa896d3 and < 0xa896e3,
-                    address => $"Fune/Namihe attempted migrated selector read ${address:X6}."));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = FuneNamiheBehavior.InitializeFuneNamihe;
             Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

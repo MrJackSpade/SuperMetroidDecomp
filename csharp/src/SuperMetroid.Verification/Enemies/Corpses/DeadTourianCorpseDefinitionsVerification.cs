@@ -102,7 +102,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = LookupStream5CorpseFixtureArtwork(rom) };
-        enemies.BindFixtureBus(NewDeadTourianCorpseDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadTourianBehavior.InitializeDeadTourianCorpse;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(enemyDefinition, slot.Definition);
@@ -142,18 +142,6 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
-    /// <summary>Blocks the migrated species selectors, configurations, and rotation offsets during setup.</summary>
-    private static CartridgeReadGuard NewDeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address =>
-                    address is >= 0xa9d86a and < 0xa9d876 or
-                    >= 0xa9d897 and < 0xa9d89f or
-                    >= 0xa9d8c0 and < 0xa9d8cc or
-                    >= 0xa9dd88 and < 0xa9de08 or
-                    >= 0xa9e24e and < 0xa9e250 or
-                    >= 0xa9e254 and < 0xa9e256 or
-                    >= 0xa9e25a and < 0xa9e25c,
-                address => $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.");
 
     /// <summary>Runs the corpse definition comparison against the retail ROM.</summary>
     [VerificationCommand("--dead-tourian-corpse-definitions")]

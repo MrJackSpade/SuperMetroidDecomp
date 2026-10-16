@@ -26,7 +26,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)index);
             AssertEqual(native, MiscDustProjectileNativeListAddresses.Entry(program), $"misc-dust instruction selector {index}");
 
-            var enemies = CreateMiscDustEnemySystem(rom);
+            var enemies = CreateMiscDustEnemySystem();
             var spawn = new Action<Position16<RoomPixels>, MiscDustAnimation>(enemies.Projectiles.SpawnRoomGraphicsDustExplosion);
             spawn(new(0x1234, 0x5678), (MiscDustAnimation)index);
             RoomEnemyProjectileSlot roomSlot = enemies.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive);
@@ -50,7 +50,7 @@ internal static class MiscDustProjectileDefinitionsVerification
 
             const ushort random = 0x5aad;
             int advances = 0;
-            var enemies = CreateMiscDustEnemySystem(rom);
+            var enemies = CreateMiscDustEnemySystem();
             enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return 0xbeef; });
             Action<RoomEnemyProjectileSlot, ushort, Position16<RoomBlocks>> initialize = enemies.EyeDoorBehavior.InitializeEyeDoorSmoke;
@@ -67,14 +67,14 @@ internal static class MiscDustProjectileDefinitionsVerification
             AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
         }
 
-        var ridley = CreateMiscDustEnemySystem(rom);
+        var ridley = CreateMiscDustEnemySystem();
         Action<Position16<RoomPixels>, ushort> spawnRidley = ridley.RidleyBehavior.SpawnRidleyDust;
         spawnRidley(new(0x1234, 0x5678), ushort.MaxValue);
         AssertTrue(ridley.Projectiles.EnemyProjectiles.Single(slot => slot.IsActive).Animation is
                 MiscDustProjectileAnimation { Cursor.Program: MiscDustProjectileProgram.BigExplosion },
             "Ridley production dust clamps oversized variants to native selector 29");
 
-        var invalidRoom = CreateMiscDustEnemySystem(rom);
+        var invalidRoom = CreateMiscDustEnemySystem();
         var spawnInvalidRoom = new Action<Position16<RoomPixels>, MiscDustAnimation>(invalidRoom.Projectiles.SpawnRoomGraphicsDustExplosion);
         AssertThrows<ArgumentOutOfRangeException>(
             () => spawnInvalidRoom(Position16<RoomPixels>.Zero, (MiscDustAnimation)30),
@@ -90,17 +90,12 @@ internal static class MiscDustProjectileDefinitionsVerification
     }
 
     /// <summary>Builds an enemy fixture that forbids runtime access to compiled misc-dust tables.</summary>
-    private static RoomEnemySystem CreateMiscDustEnemySystem(SuperMetroidAddressSpace source)
+    private static RoomEnemySystem CreateMiscDustEnemySystem()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewMiscDustDefinitionReadGuard(source));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 
-    /// <summary>Rejects reads of the native instruction-selector and smoke-placement regions.</summary>
-    private static CartridgeReadGuard NewMiscDustDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x86e42c and < 0x86e468 or >= 0x86e47e and < 0x86e4a6,
-                address => $"Misc dust attempted migrated definition read ${address:X6}.");
 }

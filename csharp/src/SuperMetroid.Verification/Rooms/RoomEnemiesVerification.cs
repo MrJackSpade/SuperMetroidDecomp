@@ -247,7 +247,7 @@ internal static void VerifyRoomEnemyLoading()
 /// </summary>
 [CpuBusBoundary("exact bus test: enemy fixture source that forwards fixture tables and forbids the native enemy tile-upload ROM ranges")]
 internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
-    ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
+    ISnesAddressSpace, IRoomEnemyDefinitionSource, IImportCartridgeSource,
     ISnesMutableMemory
 {
     /// <summary>Forwards a compiled enemy header from the fixture source.</summary>
@@ -261,6 +261,10 @@ internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     /// <summary>Forwards the fixture's enemy graphics-set definition.</summary>
     public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
         source.ReadEnemyGraphicsSet(pointer);
+
+    /// <summary>Uses the compiled falling-tube placement; this fixture constructs none.</summary>
+    public RoomEnemyPopulationRecord ReadFallingTubePopulation(SuperMetroid.Core.Bosses.MotherBrain.MotherBrainTubePiece piece) =>
+        CompiledRoomEnemyDefinitions.Instance.ReadFallingTubePopulation(piece);
 
     /// <summary>Rejects tile-source reads before forwarding other memory bytes.</summary>
     public byte ReadByte(int address)
@@ -920,7 +924,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.VariableB = 1;
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
     enemies.RidleyEncounter.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
-    enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(bus));
+    enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {

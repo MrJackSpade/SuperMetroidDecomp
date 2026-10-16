@@ -1442,9 +1442,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             return;
         state.DeathBreakupSpawned = true;
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(
-            _room.LoadedBus,
-            EnemyDefinitionId.RidleyExplosion);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.RidleyExplosion);
         RidleyExplosionDefinitions.SpawnInNativeOrder(SpawnPart);
 
         void SpawnPart(ushort parameter)

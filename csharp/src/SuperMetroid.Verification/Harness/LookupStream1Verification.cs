@@ -199,7 +199,7 @@ internal static class LookupStream1Verification
         {
             var guard = new CartridgeReadGuard(rom).Forbid(address => address is >= 0xb3e964 and < 0xb3eaa8,
                 address => $"Production read a native escape-Dachora list byte ${address:X6}.");
-            var enemies = CreateEscapeDachoraProgramSystem(guard);
+            var enemies = CreateEscapeDachoraProgramSystem();
             var slot = enemies.SlotTable.Slots[0];
             // The typed programs (#641) replacing the native lists at $B3:E964, $B3:E9D0 and $B3:EA34.
             EscapeDachoraEnemyState state = enemies.EscapeDachoraStates[0] ?? throw new InvalidOperationException("The Dachora fixture has no state.");
@@ -244,10 +244,10 @@ internal static class LookupStream1Verification
     }
 
     /// <summary>A room enemy system holding one initialized escape Dachora in slot zero.</summary>
-    private static RoomEnemySystem CreateEscapeDachoraProgramSystem(ISnesAddressSpace bus)
+    private static RoomEnemySystem CreateEscapeDachoraProgramSystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
         dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
@@ -269,7 +269,7 @@ internal static class LookupStream1Verification
         {
             bool isBody = root < 0xc183;
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = enemies.PowampBehavior.InitializePowamp;
             var balloon = enemies.SlotTable.Slots[0];
             balloon.Bind(EnemyDefinitionId.Powamp, balloon.Definition);
@@ -344,7 +344,7 @@ internal static class LookupStream1Verification
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
             int records = chasing ? 20 : 5, randomCalls = 0, calls = 0;
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 5; };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);

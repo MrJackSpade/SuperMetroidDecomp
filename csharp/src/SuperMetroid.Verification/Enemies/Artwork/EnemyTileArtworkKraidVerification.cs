@@ -282,7 +282,7 @@ internal static class EnemyTileArtworkKraidVerification
             Presentation = { HudTileArtwork = hud },
         };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         Action<RoomEnemySlot, KraidEnemyState, int,
                 KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.AdvanceKraidDeathBg3Transfer;
@@ -366,7 +366,7 @@ internal static class EnemyTileArtworkKraidVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         Action upload = enemies.KraidBehavior.UploadKraidRoomBackgroundTiles;
         upload();
@@ -380,7 +380,7 @@ internal static class EnemyTileArtworkKraidVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         Action<KraidEnemyState, ushort> transfer = enemies.KraidBehavior.TransferKraidHeadTilemap;
         var state = new KraidEnemyState();
@@ -393,7 +393,7 @@ internal static class EnemyTileArtworkKraidVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        enemies.BindFixtureBus(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<KraidEnemyState> initialize = enemies.KraidBehavior.InitializeKraidBackground;
         var state = new KraidEnemyState();
         initialize(state);

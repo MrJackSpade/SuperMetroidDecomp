@@ -27,7 +27,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     /// </summary>
     internal static void VerifyYardInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateYardInstructionSystem(rom, out RoomEnemySlot yard);
+        RoomEnemySystem enemies = CreateYardInstructionSystem(out RoomEnemySlot yard);
         YardEnemyState state = (enemies.SlotTable.Slots[0].Entity as YardEntity)?.State ?? throw new InvalidOperationException("The Yard has no state.");
         foreach (YardProgram program in Enum.GetValues<YardProgram>())
         {
@@ -65,11 +65,10 @@ internal static class YardInstructionProgramDefinitionsVerification
 
     /// <summary>Creates a bank A3 Yard slot with deterministic random input and its behavior state installed.</summary>
     internal static RoomEnemySystem CreateYardInstructionSystem(
-        ISnesAddressSpace bus,
         out RoomEnemySlot yard)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
         yard = enemies.SlotTable.Slots[0];

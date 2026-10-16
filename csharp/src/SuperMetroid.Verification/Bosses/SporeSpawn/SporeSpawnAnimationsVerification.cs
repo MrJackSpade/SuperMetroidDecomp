@@ -162,7 +162,7 @@ internal static class SporeSpawnAnimationsVerification
         int updates = 0;
         foreach ((SporeSpawnProjectileProgram program, ushort entry) in ProjectileEntries)
         {
-            RoomEnemySystem enemies = NewProjectileSystem(rom);
+            RoomEnemySystem enemies = NewProjectileSystem();
             enemies.SporeSpawnBehavior.SpawnSporeSpawnSpore(new(128, 256));
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.First(item => item.Kind == RoomEnemyProjectileKind.SporeSpawnSpore);
             AssertTrue(projectile.Animation is SporeSpawnProjectileAnimation started &&
@@ -190,10 +190,10 @@ internal static class SporeSpawnAnimationsVerification
     }
 
     /// <summary>A projectile system whose spore drops have a Samus to read.</summary>
-    private static RoomEnemySystem NewProjectileSystem(SuperMetroidAddressSpace rom)
+    private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSporeSpawnInstructionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState();
         return enemies;
@@ -201,7 +201,6 @@ internal static class SporeSpawnAnimationsVerification
 
     /// <summary>Runs <paramref name="program"/> on an initialized Spore Spawn fixture for a fixed number of enemy frames.</summary>
     internal static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
-        MutableCartridgeReadGuard bus,
         SporeSpawnBodyProgram program,
         int frames,
         EnemyTileArtworkCatalog? artwork = null,
@@ -224,7 +223,7 @@ internal static class SporeSpawnAnimationsVerification
             AngleDelta = 1,
             BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
         };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };

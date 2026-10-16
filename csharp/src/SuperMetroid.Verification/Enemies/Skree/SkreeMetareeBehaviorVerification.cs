@@ -19,19 +19,19 @@ internal static class SkreeMetareeBehaviorVerification
     /// 16 and 8 updates and then flags the attack ready; the dive switches off-screen processing on and loops; and the
     /// unused stop animation switches it off again.
     /// </summary>
-    internal static void VerifySkreeMetareeBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifySkreeMetareeBehavior()
     {
         foreach (bool metaree in new[] { false, true })
         {
             string species = metaree ? "Metaree" : "Skree";
             Func<SkreeMetareeAnimationPhase, SkreeMetareeProgram> program = metaree ? SkreeMetareeAnimationDefinitions.MetareeProgram : SkreeMetareeAnimationDefinitions.SkreeProgram;
             SkreeMetareeProgram idle = program(SkreeMetareeAnimationPhase.Idling);
-            (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationProgramCursor<SkreeMetareeProgram>> current, Action<SkreeMetareeProgram> start, Func<bool> attackReady) = Create(rom, metaree);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, Func<AnimationProgramCursor<SkreeMetareeProgram>> current, Action<SkreeMetareeProgram> start, Func<bool> attackReady) = Create(metaree);
             AssertEqual(AnimationProgramCursor<SkreeMetareeProgram>.Start(idle), current(), $"{species} starts idling");
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(SkreeMetareeAnimations.Programs, idle, SkreeMetareeFrameDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(SkreeMetareeAnimations.Programs, idle)), $"{species} idle loop");
 
-            (enemies, slot, current, start, attackReady) = Create(rom, metaree);
+            (enemies, slot, current, start, attackReady) = Create(metaree);
             SkreeMetareeProgram windUp = program(SkreeMetareeAnimationPhase.PreparingAttack);
             start(windUp);
             int[] holds = [16, 8];
@@ -41,7 +41,7 @@ internal static class SkreeMetareeBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertTrue(attackReady(), $"{species} wind-up flags the attack ready");
 
-            (enemies, slot, current, start, _) = Create(rom, metaree);
+            (enemies, slot, current, start, _) = Create(metaree);
             SkreeMetareeProgram dive = program(SkreeMetareeAnimationPhase.Diving);
             SkreeMetareeProgram diveLoop = SkreeMetareeAnimations.Programs.Steps(dive).Single(step => step.Kind == AnimationProgramStepKind.FallInto).Target;
             start(dive);
@@ -57,10 +57,10 @@ internal static class SkreeMetareeBehaviorVerification
     }
 
     /// <summary>A freshly initialized Skree or Metaree and accessors for its typed animation and attack-ready flag.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, Func<AnimationProgramCursor<SkreeMetareeProgram>>, Action<SkreeMetareeProgram>, Func<bool>) Create(SuperMetroidAddressSpace rom, bool metaree)
+    private static (RoomEnemySystem, RoomEnemySlot, Func<AnimationProgramCursor<SkreeMetareeProgram>>, Action<SkreeMetareeProgram>, Func<bool>) Create(bool metaree)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(metaree ? EnemyDefinitionId.Metaree : EnemyDefinitionId.Skree, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SkreeMetareeFrameToolingDefinitions.Bank });
@@ -90,7 +90,7 @@ internal static class SkreeMetareeBehaviorVerification
     internal static int SkreeMetareeBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifySkreeMetareeBehavior), () => VerifySkreeMetareeBehavior(rom));
+        Suite(nameof(VerifySkreeMetareeBehavior), () => VerifySkreeMetareeBehavior());
         Suite(nameof(SkreeMetareeAnimationsVerification.VerifySkreeMetareeAnimations), () => SkreeMetareeAnimationsVerification.VerifySkreeMetareeAnimations(rom));
         return 0;
     }

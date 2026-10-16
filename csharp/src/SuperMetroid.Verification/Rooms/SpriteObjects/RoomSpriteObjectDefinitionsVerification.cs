@@ -43,7 +43,7 @@ internal static class RoomSpriteObjectDefinitionsVerification
                 $"room sprite object selector ${objectNumber:X2}");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomSpriteObjectSlot? slot = spawn(
                 enemies,
                 new(unchecked((ushort)(0x1000 + objectNumber)), unchecked((ushort)(0x2000 + objectNumber))),

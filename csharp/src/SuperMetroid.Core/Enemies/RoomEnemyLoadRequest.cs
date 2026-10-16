@@ -9,10 +9,10 @@ namespace SuperMetroid.Core.Enemies;
 public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
 {
     /// <summary>Creates a load of the population at <paramref name="populationPointer"/> with <paramref name="services"/>.</summary>
-    public RoomEnemyLoadRequest(ISnesAddressSpace bus, ushort populationPointer, ushort tilesetPointer,
+    public RoomEnemyLoadRequest(IRoomEnemyDefinitionSource definitions, ushort populationPointer, ushort tilesetPointer,
         SnesVram vram, SnesCgram cgram, IRoomEnemyServices services)
     {
-        Bus = Ensure.NotNull(bus);
+        Definitions = Ensure.NotNull(definitions);
         PopulationPointer = populationPointer;
         TilesetPointer = tilesetPointer;
         Vram = Ensure.NotNull(vram);
@@ -21,7 +21,7 @@ public sealed record RoomEnemyLoadRequest : IRoomEnemyLoad
     }
 
     /// <inheritdoc />
-    public ISnesAddressSpace Bus { get; }
+    public IRoomEnemyDefinitionSource Definitions { get; }
 
     /// <inheritdoc />
     public ushort PopulationPointer { get; }

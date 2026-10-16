@@ -21,7 +21,7 @@ internal static class RoomShakeDefinitionsVerification
 
         var guarded = NewRoomShakeReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (ushort type = 0; type < renderedTypeCount; type++)
         {

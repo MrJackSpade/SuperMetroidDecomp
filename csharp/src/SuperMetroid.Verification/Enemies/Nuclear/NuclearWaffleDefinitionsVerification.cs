@@ -45,7 +45,7 @@ internal static class NuclearWaffleDefinitionsVerification
                 $"Nuclear Waffle first turn threshold {direction}");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewNuclearWaffleDefinitionReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initialize = enemies.NuclearWaffleBehavior.InitializeNuclearWaffle;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Puromi, slot.Definition);
@@ -87,11 +87,6 @@ internal static class NuclearWaffleDefinitionsVerification
             "initializers pass with runtime ROM reads forbidden.");
     }
 
-    /// <summary>Rejects live reads from the migrated bank-$A6 sweep endpoint, spacing, and threshold tables.</summary>
-    private static CartridgeReadGuard NewNuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa695f6 and < 0xa6960e,
-                address => $"Nuclear Waffle attempted migrated geometry read ${address:X6}.");
 
     /// <summary>Runs the Nuclear Waffle geometry and body-animation verification command.</summary>
     [VerificationCommand("--nuclear-waffle-instruction-mechanics")]

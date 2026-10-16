@@ -142,7 +142,7 @@ internal static class CrocomireSkeletonArtworkVerification
             ISnesAddressSpace bus, SnesVram vram)
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-            system.BindFixtureBus(bus);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.Presentation._vram = vram;
         }
 

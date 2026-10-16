@@ -71,7 +71,7 @@ internal static class BombTorizoDroolSineVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewBombTorizoDroolSineReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue);
 
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
@@ -110,10 +110,6 @@ internal static class BombTorizoDroolSineVerification
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
     }
 
-    /// <summary>Rejects gameplay reads from the migrated signed-sine and negative-cosine cartridge range.</summary>
-    private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0b3c3 and < 0xa0b643,
-            address => $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.");
 
     /// <summary>Runs the two signed-sine consumer checks against the retail cartridge image.</summary>
     [VerificationCommand("--remaining-signed-sine-consumers")]

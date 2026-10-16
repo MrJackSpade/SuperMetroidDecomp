@@ -18,7 +18,7 @@ internal static class MorphBallEyeBehaviorVerification
     /// eyelid closes over 8, 48 and 5 updates and then holds the closed pose; the tracking loop runs its sixteen ten-update poses, and
     /// a tracking cursor placed at an angle's pose shows that pose first.
     /// </summary>
-    internal static void VerifyMorphBallEyeBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMorphBallEyeBehavior()
     {
         foreach ((ushort parameter1, MorphBallEyeProgram closed) in new[]
                  {
@@ -26,19 +26,19 @@ internal static class MorphBallEyeBehaviorVerification
                      ((ushort)1, MorphBallEyeProgram.FacingLeftClosed),
                  })
         {
-            (_, _, MorphBallEyeEnemyState body) = Create(rom, parameter1, parameter2: 0);
+            (_, _, MorphBallEyeEnemyState body) = Create(parameter1, parameter2: 0);
             AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(closed), body.Program, $"eye body parameter {parameter1} starts closed");
         }
         MorphBallEyeProgram[] mounts = [MorphBallEyeProgram.MountFacingLeft, MorphBallEyeProgram.MountFacingRight, MorphBallEyeProgram.MountFacingUp, MorphBallEyeProgram.MountFacingDown];
         for (ushort direction = 0; direction < mounts.Length; direction++)
         {
-            (_, _, MorphBallEyeEnemyState mount) = Create(rom, parameter1: 0, parameter2: (ushort)(MorphBallEyeNativeValues.MountParameter | direction));
+            (_, _, MorphBallEyeEnemyState mount) = Create(parameter1: 0, parameter2: (ushort)(MorphBallEyeNativeValues.MountParameter | direction));
             AssertEqual(AnimationProgramCursor<MorphBallEyeProgram>.Start(mounts[direction]), mount.Program, $"eye mount direction {direction}");
         }
 
         foreach (MorphBallEyeProgram closing in new[] { MorphBallEyeProgram.FacingRightDeactivating, MorphBallEyeProgram.FacingLeftDeactivating })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, MorphBallEyeEnemyState state) = Create(rom, parameter1: 0, parameter2: 0);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, MorphBallEyeEnemyState state) = Create(parameter1: 0, parameter2: 0);
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(closing);
             MorphBallEyeProgram closed = closing == MorphBallEyeProgram.FacingRightDeactivating ? MorphBallEyeProgram.FacingRightClosed : MorphBallEyeProgram.FacingLeftClosed;
             ushort shut = MorphBallEyeAnimationsConstants.Spritemaps(closed).Single();
@@ -47,7 +47,7 @@ internal static class MorphBallEyeBehaviorVerification
                 EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"eye {closing} closes and holds");
         }
 
-        (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(rom, parameter1: 0, parameter2: 0);
+        (RoomEnemySystem tracker, RoomEnemySlot eye, MorphBallEyeEnemyState tracking) = Create(parameter1: 0, parameter2: 0);
         tracking.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(MorphBallEyeProgram.Active);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active, MorphBallEyeFrameDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(eye, EnemyInstructionRunner.LoopUpdates(MorphBallEyeAnimations.Programs, MorphBallEyeProgram.Active)),
@@ -64,10 +64,10 @@ internal static class MorphBallEyeBehaviorVerification
     }
 
     /// <summary>An eye body or mount after its real initializer.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, MorphBallEyeEnemyState State) Create(SuperMetroidAddressSpace rom, ushort parameter1, ushort parameter2)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, MorphBallEyeEnemyState State) Create(ushort parameter1, ushort parameter2)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank });
@@ -82,7 +82,7 @@ internal static class MorphBallEyeBehaviorVerification
     internal static int MorphBallEyeBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMorphBallEyeBehavior), () => VerifyMorphBallEyeBehavior(rom));
+        Suite(nameof(VerifyMorphBallEyeBehavior), () => VerifyMorphBallEyeBehavior());
         Suite(nameof(MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations), () => MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations(rom));
         return 0;
     }

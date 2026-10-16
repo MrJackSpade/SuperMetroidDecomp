@@ -19,7 +19,7 @@ internal static class CrawlerBehaviorVerification
     /// installs the movement function (vertical crawling on the side walls, horizontal on floors and ceilings, with the
     /// orange Zoomer's own functions) and its poses then loop on time. Every pose has installed artwork when supplied.
     /// </summary>
-    internal static void VerifyCrawlerBehavior(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyCrawlerBehavior(EnemyTileArtworkCatalog? artwork = null)
     {
         (CrawlerAnimationFamily Family, EnemyDefinitionId Definition, ushort? SpeciesOffset)[] families =
         [
@@ -33,7 +33,7 @@ internal static class CrawlerBehaviorVerification
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });
@@ -72,7 +72,7 @@ internal static class CrawlerBehaviorVerification
     internal static int CrawlerBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyCrawlerBehavior), () => VerifyCrawlerBehavior(rom));
+        Suite(nameof(VerifyCrawlerBehavior), () => VerifyCrawlerBehavior());
         Suite(nameof(CrawlerAnimationsVerification.VerifyCrawlerAnimations), () => CrawlerAnimationsVerification.VerifyCrawlerAnimations(rom));
         return 0;
     }

@@ -67,7 +67,7 @@ internal static class YardTurnDefinitionsVerification
             () => YardTurnDefinitions.ForMovement(YardMovementFunction.Airborne, false),
             "Yard airborne state has no surface-turn definition");
 
-        Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(rom, records));
+        Suite(nameof(VerifyYardTurnProductionBranches), () => VerifyYardTurnProductionBranches(records));
         Console.WriteLine(
             "Yard turn definitions: all 48 native words, four suppression aliases, and " +
             "all 24 real outside/inside crawl branches pass with the complete turn table forbidden.");
@@ -75,7 +75,6 @@ internal static class YardTurnDefinitionsVerification
 
     /// <summary>Runs Yard crawling movement against empty and solid level data for each turn record.</summary>
     private static void VerifyYardTurnProductionBranches(
-        SuperMetroidAddressSpace rom,
         IReadOnlyList<(YardMovementFunction Movement, bool Disabled, int Address)> records)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -89,10 +88,10 @@ internal static class YardTurnDefinitionsVerification
             YardTurnDefinition definition =
                 YardTurnDefinitions.ForMovement(movement, disabled);
             VerifyYardTurnProductionBranch(
-                rom, movement, disabled, empty, definition.OutsideTurnProgram,
+                movement, disabled, empty, definition.OutsideTurnProgram,
                 $"Yard outside turn {movement}/{disabled}");
             VerifyYardTurnProductionBranch(
-                rom, movement, disabled, solid, definition.InsideTurnProgram,
+                movement, disabled, solid, definition.InsideTurnProgram,
                 $"Yard inside turn {movement}/{disabled}");
         }
 
@@ -100,7 +99,6 @@ internal static class YardTurnDefinitionsVerification
             new(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
 
         static void VerifyYardTurnProductionBranch(
-            SuperMetroidAddressSpace rom,
             YardMovementFunction movement,
             bool disabled,
             RoomLevelData level,
@@ -108,7 +106,7 @@ internal static class YardTurnDefinitionsVerification
             string context)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewYardTurnReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, YardEnemyState, RoomLevelData> run = enemies.YardBehavior.RunYardCrawlingMovement;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(new(0x0200, 0x0200));
@@ -133,10 +131,6 @@ internal static class YardTurnDefinitionsVerification
         }
     }
 
-    /// <summary>Forbids the bank-$A3 Yard turn table during production branch checks.</summary>
-    private static CartridgeReadGuard NewYardTurnReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3cce2 and < 0xa3cd42,
-            address => $"Yard attempted migrated turn-definition read ${address:X6}.");
 
     /// <summary>Runs the Yard turn definition and production branch suite.</summary>
     [VerificationCommand("--yard-turn-definitions")]

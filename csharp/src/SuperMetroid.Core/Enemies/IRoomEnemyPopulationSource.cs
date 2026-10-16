@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>Where a room's enemy population and its graphics come from.</summary>
 public interface IRoomEnemyPopulationSource
 {
-    /// <summary>The bus the population, definitions and tile graphics are read through.</summary>
-    ISnesAddressSpace Bus { get; }
+    /// <summary>The source of the population, its enemy headers and its graphics set.</summary>
+    IRoomEnemyDefinitionSource Definitions { get; }
 
     /// <summary>The room state's enemy population pointer.</summary>
     ushort PopulationPointer { get; }

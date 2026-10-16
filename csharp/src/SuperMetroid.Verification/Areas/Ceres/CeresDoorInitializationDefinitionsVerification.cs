@@ -37,7 +37,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
                 $"Ceres door instruction selector {variant}");
 
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._vram = new SnesVram();
             enemies.Presentation._cgram = new SnesCgram();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];

@@ -30,7 +30,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     {
         foreach (EtecoonProgram program in Enum.GetValues<EtecoonProgram>())
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon(rom);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
             AssertEqual(AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Initial), state.Program, "real Etecoon initializer");
             if (EtecoonAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
                 continue;
@@ -43,7 +43,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
 
         {
             // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
-            (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon(rom);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Flexing);
             slot.InstructionTimer = NativeCountdown.Start(1);
             _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
@@ -63,10 +63,10 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
     }
 
     /// <summary>An initialized Etecoon in the first enemy slot.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, EtecoonEnemyState State) NewEtecoon(ISnesAddressSpace bus)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, EtecoonEnemyState State) NewEtecoon()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });

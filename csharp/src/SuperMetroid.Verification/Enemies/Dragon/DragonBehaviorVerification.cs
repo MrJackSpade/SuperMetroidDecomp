@@ -18,12 +18,12 @@ internal static class DragonBehaviorVerification
     /// pose shows once and holds, the wings loop on time, and the attack shows its five poses for 32, 3, 7, 3 and 1
     /// updates before its cue marks the attack complete for main AI.
     /// </summary>
-    internal static void VerifyDragonBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyDragonBehavior()
     {
         foreach (DragonAnimationSelector selector in Enum.GetValues<DragonAnimationSelector>().Where(selector => selector != DragonAnimationSelector.ForceReinstall))
         {
             DragonProgram program = DragonAnimationDefinitions.Program(selector);
-            (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(rom, selector);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, DragonEnemyState state) = Install(selector);
             ushort[] poses = DragonAnimationsConstants.Spritemaps(program).ToArray();
             switch (selector)
             {
@@ -45,17 +45,17 @@ internal static class DragonBehaviorVerification
             AssertEqual(attacks, state.AnimationFinished, $"Dragon {program} attack-completion cue");
         }
         Console.WriteLine("  Dragon behavior: both idles, both wing loops and both attacks with their completion cue pass.");
-        VerifyDragonsAttackingTogether(rom);
+        VerifyDragonsAttackingTogether();
     }
 
     /// <summary>
     /// `$A2:E70F` queues the fireball sound at every attack. Two Dragons firing in one frame queue it twice;
     /// the contributed lowc movie's second queued sound makes the next door's sound wait (update 118,158).
     /// </summary>
-    private static void VerifyDragonsAttackingTogether(SuperMetroidAddressSpace rom)
+    private static void VerifyDragonsAttackingTogether()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         foreach (int bodySlot in new[] { 0, 2 })
         {
             for (int part = 0; part < 2; part++)
@@ -83,10 +83,10 @@ internal static class DragonBehaviorVerification
     }
 
     /// <summary>A Dragon body, or a wing for the wing selectors, with <paramref name="selector"/> freshly installed.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, DragonEnemyState State) Install(SuperMetroidAddressSpace rom, DragonAnimationSelector selector)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, DragonEnemyState State) Install(DragonAnimationSelector selector)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dragon, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DragonFrameToolingDefinitions.Bank });
@@ -105,7 +105,7 @@ internal static class DragonBehaviorVerification
     internal static int DragonBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyDragonBehavior), () => VerifyDragonBehavior(rom));
+        Suite(nameof(VerifyDragonBehavior), () => VerifyDragonBehavior());
         Suite(nameof(DragonAnimationsVerification.VerifyDragonAnimations), () => DragonAnimationsVerification.VerifyDragonAnimations(rom));
         return 0;
     }

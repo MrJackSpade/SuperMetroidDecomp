@@ -76,8 +76,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             }
             writeCount += native.Count;
             AssertTrue(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameDefinitions.Bank, frame.Pointer, true)
-                    .SequenceEqual(DrawDraygonBg2(stock, noCartridge,
-                        frame.Pointer, true)),
+                    .SequenceEqual(DrawDraygonBg2(stock, frame.Pointer, true)),
                 $"Draygon {frame.Name} stock VRAM matches native without cartridge reads");
         }
         AssertEqual(34, DraygonBg2FrameDefinitions.Frames.Length,
@@ -118,11 +117,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         int vramByte = (EnemyBg2FrameLayout.VramBase +
             editedFrame.Span[0].DestinationWord) * 2;
         AssertEqual((ushort)changedTile,
-            BitConverter.ToUInt16(DrawDraygonBg2(edited, noCartridge,
-                editedIdentity.Pointer, true), vramByte),
+            BitConverter.ToUInt16(DrawDraygonBg2(edited, editedIdentity.Pointer, true), vramByte),
             "Draygon visual override changes the live BG2 tile word");
-        AssertTrue(DrawDraygonBg2(edited, noCartridge,
-                editedIdentity.Pointer, false).All(value => value == 0),
+        AssertTrue(DrawDraygonBg2(edited, editedIdentity.Pointer, false).All(value => value == 0),
             "Draygon override preserves the native new-frame producer gate");
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
@@ -198,7 +195,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         // denied. This checks the actual dispatch, not just a matching table.
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -229,12 +226,12 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
-        ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)
+        ushort pointer, bool newInstructionFrame)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = art };
         var vram = new SnesVram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._vram = vram;
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

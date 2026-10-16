@@ -94,7 +94,7 @@ internal static class CeresRidleyColorsVerification
         };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         Action<RoomEnemySlot> initialize = enemies.CeresRidleyBehavior.InitializeCeresRidley;
@@ -244,7 +244,7 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.BindFixtureBus(addressSpace);
+                owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation._cgram = palette;
             }
             var nativeTick = new Action<RidleyEnemyState, ushort>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
@@ -302,7 +302,7 @@ internal static class CeresRidleyColorsVerification
                     (editedEnemy, guarded, editedCgram),
                 })
             {
-                owner.BindFixtureBus(addressSpace);
+                owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation._cgram = palette;
             }
             var nativeTick = new Action<RoomEnemySlot, RidleyEnemyState>(nativeEnemy.RidleyBehavior.UpdateNorfairRidleyHealthPalette);

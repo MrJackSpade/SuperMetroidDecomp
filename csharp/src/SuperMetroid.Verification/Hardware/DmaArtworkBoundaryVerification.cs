@@ -39,7 +39,7 @@ internal static class DmaArtworkBoundaryVerification
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(memory);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var background = new SnesVram();
         enemies.Presentation._vram = background;
         Action upload = new Action(enemies.KraidBehavior.UploadKraidRoomBackgroundTiles);

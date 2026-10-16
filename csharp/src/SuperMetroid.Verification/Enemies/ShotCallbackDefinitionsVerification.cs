@@ -110,7 +110,7 @@ internal static class ShotCallbackDefinitionsVerification
         {
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
-                CreateLiteralNoOpCombatSystem(guard);
+                CreateLiteralNoOpCombatSystem();
             enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = (byte)(callback >> 16),
@@ -135,7 +135,7 @@ internal static class ShotCallbackDefinitionsVerification
         {
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
-                CreateLiteralNoOpCombatSystem(guard);
+                CreateLiteralNoOpCombatSystem();
             enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
                 Bank = (byte)(callback >> 16),
@@ -159,11 +159,10 @@ internal static class ShotCallbackDefinitionsVerification
                 $"literal shot no-op ${callback:X6} requires no executable read");
         }
 
-        static (RoomEnemySystem System, RoomEnemySlot Enemy) CreateLiteralNoOpCombatSystem(
-            ISnesAddressSpace bus)
+        static (RoomEnemySystem System, RoomEnemySlot Enemy) CreateLiteralNoOpCombatSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(bus);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var interactive = (List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes;
             RoomEnemySlot enemy = enemies.SlotTable.Slots[0];
             interactive.Add(enemy.NativeIndex);

@@ -17,9 +17,7 @@ internal static class FallingSparkLaunchDefinitionsVerification
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        enemies.BindFixtureBus(new CartridgeReadGuard(rom)
-            .Forbid(address => address is >= 0x86f3d4 and < 0x86f3f4, _ => "Unexpected migrated falling-spark launch read.")
-            .RejectWrites(_ => "Unexpected falling-spark bus write."));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ushort random = 0;
         int advances = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });

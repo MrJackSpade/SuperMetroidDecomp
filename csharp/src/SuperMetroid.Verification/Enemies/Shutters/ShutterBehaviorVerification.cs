@@ -19,7 +19,7 @@ internal static class ShutterBehaviorVerification
     /// shutters the shared forty-pixel pose, the horizontal shutter its pose, and Kamer its four-frame platform loop. A
     /// pose shows once and holds; the update that reaches the native sleep still reports it as new.
     /// </summary>
-    internal static void VerifyShutterBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyShutterBehavior()
     {
         VerifyPose(EnemyDefinitionId.ShutterGrowing, ShutterProgram.GrowingTenPixels,
             (enemies, slot) => ShuttersBehavior.InitializeGrowingShutter(slot),
@@ -60,7 +60,7 @@ internal static class ShutterBehaviorVerification
         RoomEnemySystem NewSystem()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             return enemies;
         }
     }
@@ -157,7 +157,7 @@ internal static class ShutterBehaviorVerification
     internal static int ShutterBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyShutterBehavior), () => VerifyShutterBehavior(rom));
+        Suite(nameof(VerifyShutterBehavior), () => VerifyShutterBehavior());
         Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(rom));
         Suite(nameof(VerifyShutterExportFrames), () => VerifyShutterExportFrames(rom));
         return 0;

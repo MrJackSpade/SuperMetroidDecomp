@@ -48,7 +48,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(NewDeadTorizoCorpseDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.DeadTorizoBehavior.InitializeDeadTorizo;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 
@@ -80,11 +80,6 @@ internal static class DeadTorizoCorpseDefinitionsVerification
             "Dead Torizo corpse definitions: all eight native configuration words, the derived wrap offset, and the real initializer pass with migrated metadata reads forbidden.");
     }
 
-    /// <summary>Rejects live rereads of the compiled corpse configuration and row-offset word.</summary>
-    private static CartridgeReadGuard NewDeadTorizoCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa9dd58 and < 0xa9dd68 or >= 0xa9e228 and < 0xa9e22a,
-                address => $"Dead Torizo attempted migrated corpse metadata read ${address:X6}.");
 
     /// <summary>Runs the Dead Torizo corpse metadata and initializer checks.</summary>
     [VerificationCommand("--dead-torizo-corpse-definitions")]

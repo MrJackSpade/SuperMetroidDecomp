@@ -127,7 +127,7 @@ internal sealed class EnemyDeathsAndDrops
     {
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
-        enemy.Bind(EnemyDefinitionId.Respawn, EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, EnemyDefinitionId.Respawn));
+        enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
         enemy.AiBank = enemy.Definition.Bank;
     }
 
@@ -415,7 +415,7 @@ internal sealed class EnemyDeathsAndDrops
             return projectile.ItemDropChancesPointerOverride;
         if (projectile.EnemyHeaderPointer == 0)
             return EnemyDropChanceDefinitions.ClearedHeaderPointer;
-        return EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+        return _room.LoadedDefinitions.ReadEnemyDefinition(projectile.EnemyHeaderPointer).ItemDropChancesPointer;
     }
 
     /// <summary>Decrements pickup lifetime, then tests Grapple endpoint and strict Samus body overlap.</summary>
@@ -580,9 +580,7 @@ internal sealed class EnemyDeathsAndDrops
                 $"Enemy slot ${nativeIndex:X4} has no surviving population snapshot to respawn.");
         }
 
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(
-            _room.LoadedBus,
-            spawn.Population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionPointer);
         // Unlike Initialise_Enemies ($A0:8B93) and Spawn_Enemy ($A0:93D9), Respawn_Enemy
         // ($86:F264) never writes the spritemap: the actor keeps EnemyDeath's cleared word,
         // or what its init AI wrote, until its first instruction. A zero spritemap is also

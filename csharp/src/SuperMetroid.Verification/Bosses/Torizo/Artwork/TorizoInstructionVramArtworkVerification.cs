@@ -31,7 +31,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "installed Torizo instruction tile pages exist");
         var installedEnemies = new RoomEnemySystem { TileArtwork = stock };
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        installedEnemies.BindFixtureBus(NewForbiddenTorizoRomBus());
+        installedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedVram = new SnesVram();
         installedEnemies.Presentation._vram = installedVram;
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
@@ -128,7 +128,7 @@ internal static class TorizoInstructionVramArtworkVerification
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
-        editedEnemies.BindFixtureBus(NewForbiddenTorizoRomBus());
+        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedVram = new SnesVram();
         editedEnemies.Presentation._vram = editedVram;
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
@@ -165,9 +165,4 @@ internal static class TorizoInstructionVramArtworkVerification
                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenInitial0)) is null,
             $"Torizo tile transfer {transfer} runs on");
 
-    /// <summary>Rejects cartridge reads and CPU bus writes by installed Torizo tile transfers.</summary>
-    private static CartridgeReadGuard NewForbiddenTorizoRomBus() =>
-        CartridgeReadGuard.Unbacked()
-            .ForbidAll(address => $"Installed Torizo transfer reread cartridge byte ${address:X6}.")
-            .RejectWrites(address => $"Installed Torizo transfer wrote CPU bus byte ${address:X6}.");
 }

@@ -50,7 +50,7 @@ internal static class DraygonBurialEvirDefinitionsVerification
 
         var guarded = NewDraygonBurialEvirReadGuard(rom);
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         for (int entry = 5; entry >= 0; entry--)
         {

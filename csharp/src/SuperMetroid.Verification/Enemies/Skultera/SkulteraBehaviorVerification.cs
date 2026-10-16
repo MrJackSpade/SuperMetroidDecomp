@@ -17,7 +17,7 @@ internal static class SkulteraBehaviorVerification
     /// The real initializer starts the swim its parameter faces; the left swim draws on layer two and the right on
     /// layer six, each looping on time; each turn shows its eight mirrored poses and then flags the turn finished.
     /// </summary>
-    internal static void VerifySkulteraBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifySkulteraBehavior()
     {
         foreach ((bool startsLeft, SkulteraProgram swim, SkulteraProgram loop, ushort layer, SkulteraProgram turn) in new[]
                  {
@@ -26,7 +26,7 @@ internal static class SkulteraBehaviorVerification
                  })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Skultera, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SkulteraFrameToolingDefinitions.Bank });
@@ -57,7 +57,7 @@ internal static class SkulteraBehaviorVerification
     internal static int SkulteraBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifySkulteraBehavior), () => VerifySkulteraBehavior(rom));
+        Suite(nameof(VerifySkulteraBehavior), () => VerifySkulteraBehavior());
         Suite(nameof(SkulteraAnimationsVerification.VerifySkulteraAnimations), () => SkulteraAnimationsVerification.VerifySkulteraAnimations(rom));
         return 0;
     }

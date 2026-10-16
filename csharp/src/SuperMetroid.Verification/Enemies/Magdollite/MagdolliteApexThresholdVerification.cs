@@ -42,7 +42,7 @@ internal static class MagdolliteApexThresholdVerification
         {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewMagdolliteApexGuard(new TestAddressSpace()));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
             Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
             for (int part = 0; part < 3; part++)
@@ -71,10 +71,6 @@ internal static class MagdolliteApexThresholdVerification
         }
     }
 
-    /// <summary>Blocks live reads of the migrated Magdollite threshold range during the apex reproduction.</summary>
-    private static CartridgeReadGuard NewMagdolliteApexGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8b717 - 0xa8af55,
-            address => $"Magdollite attempted a migrated threshold read ${address:X6}.");
 
     /// <summary>Runs the focused slot-indexed Magdollite apex comparison.</summary>
     [VerificationCommand("--magdollite-apex-threshold")]

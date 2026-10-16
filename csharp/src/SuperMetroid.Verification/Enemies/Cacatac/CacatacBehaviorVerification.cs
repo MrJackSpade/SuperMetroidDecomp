@@ -19,21 +19,21 @@ internal static class CacatacBehaviorVerification
     /// poses loop on time; each attack plays the spike sound, spits its five spikes in their authored directions and
     /// returns to the idle loop with patrol restored.
     /// </summary>
-    internal static void VerifyCacatacBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyCacatacBehavior()
     {
         foreach (bool upsideUp in new[] { true, false })
         {
             string orientation = upsideUp ? "upright" : "inverted";
             CacatacProgram idle = upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdle;
             CacatacProgram loop = upsideUp ? CacatacProgram.UpsideUpIdle : CacatacProgram.UpsideDownIdleLoop;
-            (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) = Create(rom, upsideUp);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, CacatacEnemyState state) = Create(upsideUp);
             AssertEqual(AnimationProgramCursor<CacatacProgram>.Start(idle), state.Program, $"Cacatac {orientation} starts idling");
             state.Function = CacatacEnemyFunction.Stopped;
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(CacatacAnimations.Programs, loop, CacatacFrameDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CacatacAnimations.Programs, loop)), $"Cacatac {orientation} idle loop");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} idle restores patrol");
 
-            (enemies, slot, state) = Create(rom, upsideUp);
+            (enemies, slot, state) = Create(upsideUp);
             state.Function = CacatacEnemyFunction.Stopped;
             CacatacBehavior.SetCacatacProgram(slot, state, upsideUp ? CacatacProgram.UpsideUpAttack : CacatacProgram.UpsideDownAttack);
             EnemyInstructionRunner.ShownFrames(slot, 53);
@@ -52,10 +52,10 @@ internal static class CacatacBehaviorVerification
     }
 
     /// <summary>A Cacatac initialized upright or inverted.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, CacatacEnemyState State) Create(SuperMetroidAddressSpace rom, bool upsideUp)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, CacatacEnemyState State) Create(bool upsideUp)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank });
@@ -69,7 +69,7 @@ internal static class CacatacBehaviorVerification
     internal static int CacatacBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyCacatacBehavior), () => VerifyCacatacBehavior(rom));
+        Suite(nameof(VerifyCacatacBehavior), () => VerifyCacatacBehavior());
         Suite(nameof(CacatacAnimationsVerification.VerifyCacatacAnimations), () => CacatacAnimationsVerification.VerifyCacatacAnimations(rom));
         return 0;
     }

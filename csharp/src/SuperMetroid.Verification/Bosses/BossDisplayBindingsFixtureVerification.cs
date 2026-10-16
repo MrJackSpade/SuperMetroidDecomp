@@ -37,7 +37,7 @@ internal static class BossDisplayBindingsFixtureVerification
         {
             _slot = slot;
             Enemies = new RoomEnemySystem { TileArtwork = artwork };
-            Enemies.BindFixtureBus(Memory); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
+            Enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance); Enemies.Presentation._vram = Vram; Enemies.Presentation._cgram = new SnesCgram();
             Actor.Bind(definition, Actor.Definition);
             Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.AiBank = Actor.Definition.Bank;

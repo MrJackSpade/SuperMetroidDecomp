@@ -26,7 +26,7 @@ internal static class HibashiDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewHibashiDefinitionGuard(new TestAddressSpace()));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = HibashiBehavior.InitializeHibashi;
         Action<RoomEnemySlot, int> applyFrame = enemies.HibashiBehavior.ApplyHibashiActivityFrame;
 
@@ -68,7 +68,7 @@ internal static class HibashiDefinitionsVerification
 
         var shownSpritemaps = new HashSet<ushort>();
         var programSystem = new RoomEnemySystem();
-        programSystem.BindFixtureBus(rom);
+        programSystem.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initializeProgram = HibashiBehavior.InitializeHibashi;
 
         RoomEnemySlot programGraphics = programSystem.SlotTable.Slots[0];
@@ -151,10 +151,6 @@ internal static class HibashiDefinitionsVerification
             "eruption, cues and sleeps pass.");
     }
 
-    /// <summary>Rejects fallback reads from the cartridge hitbox tables after their values have been compiled.</summary>
-    private static CartridgeReadGuard NewHibashiDefinitionGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(0xa68dbb, 0xa68e13 - 0xa68dbb,
-            address => $"Hibashi attempted migrated hitbox read ${address:X6}.");
 
     /// <summary>Runs the Hibashi migration check against the local retail cartridge image.</summary>
     [VerificationCommand("--hibashi-instruction-mechanics")]

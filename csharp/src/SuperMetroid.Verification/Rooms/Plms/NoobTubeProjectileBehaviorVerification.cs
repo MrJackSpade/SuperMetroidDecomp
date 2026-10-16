@@ -79,7 +79,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem();
-            system.BindFixtureBus(guard);
+            system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             system.VerificationServices().NextRandom = (Func<ushort>)(() => 16448);
             return system;
         }

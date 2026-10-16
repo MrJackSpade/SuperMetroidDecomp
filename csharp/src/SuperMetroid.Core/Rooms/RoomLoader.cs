@@ -107,8 +107,7 @@ internal sealed class RoomLoader
     private readonly VramWriteQueue _vramWrites;
     /// <summary>Resets Wrecked Ship's animated treadmill tiles on entry.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
-    /// <summary>Reads remaining native tables needed for room construction.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+
 
     /// <summary>Captures the owners of room, player, graphics, and door state used by the loader.</summary>
     internal RoomLoader(RoomLoaderDependencies dependencies)
@@ -148,7 +147,7 @@ internal sealed class RoomLoader
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
         _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
-        _addressSpace = dependencies.AddressSpace;
+
     }
     /// <summary>
     /// Whether the active door IRQ requests the native NMI-counter reset while state
@@ -1007,7 +1006,7 @@ internal sealed class RoomLoader
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, _plms, _display, _backgroundScroll, room.AreaIndex);
         var plmServices = new RoomPlmRuntimeServices(_enemies, _player, _room, _system);
         _plms.PopulationLoader.LoadRoomPopulation(
-            new PlmRoom(_addressSpace, _room.LevelData, _room.BackgroundStreamer, _vram, _system, room.AreaIndex),
+            new PlmRoom(_room.LevelData, _room.BackgroundStreamer, _vram, _system, room.AreaIndex),
             RoomPlmPopulationDefinition.FromCompiled(room.State.PlmPointer),
             new RoomPlmServices
             {
@@ -1054,7 +1053,7 @@ internal sealed class RoomLoader
         _artwork.UpdateBeamTilesAndPalette(_cgram, _player.Samus?.EquippedBeams ?? 0);
 
         _enemies.Load(new RoomEnemyLoadRequest(
-            _addressSpace,
+            CompiledRoomEnemyDefinitions.Instance,
             room.State.EnemyPopulationPointer,
             room.State.EnemyTilesetPointer,
             _vram,

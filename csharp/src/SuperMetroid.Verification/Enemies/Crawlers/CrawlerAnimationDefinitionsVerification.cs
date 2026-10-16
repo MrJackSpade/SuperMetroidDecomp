@@ -57,7 +57,7 @@ internal static class CrawlerAnimationDefinitionsVerification
         for (ushort orientation = 0; orientation < 4; orientation++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewCrawlerAnimationReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(family == CrawlerAnimationFamily.HZoomer ? EnemyDefinitionId.HZoomer : EnemyDefinitionId.Zoomer, slot.Definition);
             slot.CurrentInstruction = orientation;
@@ -131,14 +131,4 @@ internal static class CrawlerAnimationDefinitionsVerification
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
 
-    /// <summary>Forbids crawler animation-selector table reads while exercising production behavior.</summary>
-    private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa396db and < 0xa396e3 or
-                >= 0xa3992b and < 0xa39933 or
-                >= 0xa3b667 and < 0xa3b66f or
-                >= 0xa3e03b and < 0xa3e043 or
-                >= 0xa3e2cc and < 0xa3e2d4 or
-                >= 0xa3e630 and < 0xa3e660,
-                address => $"Crawler attempted migrated animation-selector read ${address:X6}.");
 }

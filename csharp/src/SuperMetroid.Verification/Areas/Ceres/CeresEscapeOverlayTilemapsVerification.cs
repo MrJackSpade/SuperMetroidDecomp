@@ -43,7 +43,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem { TileArtwork = stock };
-        installed.BindFixtureBus(guarded);
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
         installed.CeresRidleyBehavior.QueueCeresEmergencyText(installedQueue);
         installed.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay, installedQueue);
@@ -100,7 +100,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         AssertTrue(stockWords.Span[1..].SequenceEqual(editedWords.Span[1..]),
             "edited Ceres title leaves other tilemap bytes unchanged");
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
-        editedEnemies.BindFixtureBus(guarded);
+        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedQueue = new VramWriteQueue();
         editedEnemies.CeresRidleyBehavior.QueueCeresEmergencyText(editedQueue);
         var editedVram = new SnesVram();
@@ -126,7 +126,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         {
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
-        missing.BindFixtureBus(guarded);
+        missing.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresEmergencyText(new VramWriteQueue()),
             "missing installed English title");
         ExpectMissing(() => missing.CeresRidleyBehavior.QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,

@@ -13,10 +13,10 @@ using SuperMetroid.Verification.Harness;
 internal static class PolypBehaviorVerification
 {
     /// <summary>The real initializer starts the stationary program, which shows its one frame and then holds it.</summary>
-    internal static void VerifyPolypBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyPolypBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
@@ -37,7 +37,7 @@ internal static class PolypBehaviorVerification
     internal static int PolypInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior(rom));
+        Suite(nameof(VerifyPolypBehavior), () => VerifyPolypBehavior());
         Suite(nameof(PolypAnimationsVerification.VerifyPolypAnimations), () => PolypAnimationsVerification.VerifyPolypAnimations(rom));
         return 0;
     }

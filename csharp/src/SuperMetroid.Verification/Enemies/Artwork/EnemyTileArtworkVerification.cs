@@ -210,7 +210,7 @@ internal static class EnemyTileArtworkVerification
                 CrocomireBodyProgram.MeltingTwoTopRow);
             foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
             {
-                byte[] actual = VerifyInstalledCrocomireMeltingPass(bus, stock, pass);
+                byte[] actual = VerifyInstalledCrocomireMeltingPass(stock, pass);
                 byte[] expected = ReadNativeCrocomireMeltingPassScratch(bus, pass);
                 AssertTrue(actual.SequenceEqual(expected),
                     $"installed Crocomire melt pass ${pass.HeaderOffset:X4} preserves native scratch bytes");
@@ -267,18 +267,17 @@ internal static class EnemyTileArtworkVerification
             }
             EnemyTileArtworkCatalog editedMelt = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);
-            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+            byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(editedMelt,
                 CrocomireMeltingTransferDefinitions.Passes[0]);
             AssertEqual((byte)(stockMeltImages[0][0] ^ 0x80), changedMelt[0],
                 "Crocomire melt PNG edit changes the live first planar pixel");
             AssertTrue(changedMelt.AsSpan(1).SequenceEqual(stockMeltImages[0].AsSpan(1)),
                 "Crocomire melt PNG edit leaves all other scratch bytes unchanged");
-            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus, editedMelt,
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(editedMelt,
                     CrocomireMeltingTransferDefinitions.Passes[1])
                 .SequenceEqual(stockMeltImages[1]),
                 "first-melt PNG edit does not change the second pass");
-            AssertTrue(VerifyInstalledCrocomireMeltingPass(bus,
-                    EnemyTileArtworkFiles.Load(directory, overrideDirectory),
+            AssertTrue(VerifyInstalledCrocomireMeltingPass(EnemyTileArtworkFiles.Load(directory, overrideDirectory),
                     CrocomireMeltingTransferDefinitions.Passes[0])
                 .SequenceEqual(changedMelt),
                 "Crocomire melt override survives catalog reload");

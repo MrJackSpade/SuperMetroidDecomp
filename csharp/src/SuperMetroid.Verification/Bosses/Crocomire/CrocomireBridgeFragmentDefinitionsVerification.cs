@@ -34,7 +34,7 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
         var enemies = new RoomEnemySystem();
         var death = new CrocomireDeathState();
         var state = new CrocomireEnemyState(enemies.SlotTable.Slots[0]);
-        enemies.BindFixtureBus(NewCrocomireBridgeFragmentReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         enemies.CrocomireBehavior.CrocomireDeath = death;
@@ -67,11 +67,6 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             "Crocomire bridge fragments: all eleven native positions, eleven real allocations and the cursor cutoff pass with the source table forbidden.");
     }
 
-    /// <summary>Rejects live reads of the compiled bridge fragment position table.</summary>
-    private static CartridgeReadGuard NewCrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa49156 and < 0xa4916c,
-                address => $"Crocomire bridge fragment attempted migrated position read ${address:X6}.");
 
     /// <summary>Runs the Crocomire bridge fragment position and spawn checks.</summary>
     [VerificationCommand("--crocomire-bridge-fragment-definitions")]

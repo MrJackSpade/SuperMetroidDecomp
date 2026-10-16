@@ -89,7 +89,7 @@ internal static class BombTorizoMovementDefinitionsVerification
         var guarded = NewBombTorizoMovementReadGuard(rom);
         var enemies = new RoomEnemySystem();
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(64, 64), new RoomLevelPlanes(new ushort[4096], new byte[4096], new ushort[4096]), new byte[8]);
 
         for (ushort tableOffset = 0; tableOffset < 40; tableOffset += 2)

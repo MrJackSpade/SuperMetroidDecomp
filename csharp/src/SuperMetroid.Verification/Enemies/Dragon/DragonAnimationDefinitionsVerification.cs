@@ -38,8 +38,8 @@ internal static class DragonAnimationDefinitionsVerification
         }
 
         Suite(nameof(VerifyAllDragonAnimationInstalls), () => VerifyAllDragonAnimationInstalls());
-        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: false));
-        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(rom, facingLeft: true));
+        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: false));
+        Suite(nameof(VerifyLiveDragonAnimationHandoffs), () => VerifyLiveDragonAnimationHandoffs(facingLeft: true));
 
         AssertThrows<InvalidDataException>(
             () => DragonAnimationDefinitions.Program(
@@ -71,11 +71,10 @@ internal static class DragonAnimationDefinitionsVerification
 
     /// <summary>Runs body and wing through idle, rise, and attack transitions for one Samus-facing direction.</summary>
     private static void VerifyLiveDragonAnimationHandoffs(
-        SuperMetroidAddressSpace rom,
         bool facingLeft)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewDragonAnimationReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot wing = enemies.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Dragon, body.Definition);
@@ -159,9 +158,4 @@ internal static class DragonAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer.RawValue, $"{context} loop timer");
     }
 
-    /// <summary>Rejects live access to the migrated Dragon selector pointer table.</summary>
-    private static CartridgeReadGuard NewDragonAnimationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2e5ef and < 0xa2e5fb,
-                address => $"Dragon attempted migrated animation-selector read ${address:X6}.");
 }

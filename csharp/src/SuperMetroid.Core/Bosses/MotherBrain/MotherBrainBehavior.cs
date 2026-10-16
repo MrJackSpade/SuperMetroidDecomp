@@ -90,9 +90,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _roomStatus = dependencies.RoomStatus;
     }
 
-    /// <summary>Recognizes the two enemy definitions that share the encounter state.</summary>
-    private static bool IsMotherBrainDefinition(EnemyDefinitionId definition) =>
-        definition is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead;
 
     /// <summary>Discards the prior room's shared body/head state before enemy initialization.</summary>
     internal void ResetMotherBrainRoomState() => _motherBrainEncounter.MotherBrain = null;
@@ -2237,11 +2234,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slotIndex < 0)
             return; // SpawnEnemy silently fails when all 32 native records are occupied.
 
-        // Authored verifier buses may supply constructed records. A retail runtime
-        // instead resolves the fixed cutscene placement without touching bank $A9.
-        RoomEnemyPopulationRecord population = _room.Bus is IRoomEnemyFallingTubeFixtureSource fixture
-            ? fixture.ReadFallingTubePopulation(piece)
-            : MotherBrainFallingTubePopulationDefinitions.Get(piece);
+        // The bound source supplies the fixed cutscene placement; retail rooms resolve it without touching bank $A9.
+        RoomEnemyPopulationRecord population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
         if (population.DefinitionPointer != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(
@@ -2250,7 +2244,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         RoomEnemySlot tube = _slotTable._slots[slotIndex];
-        RoomEnemyDefinition definition = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(tube, population, definition);
         _dispatch.RunInitializationAi(tube);
         tube.SpritemapPointer = tube.Properties.HasAny(EnemyProperties.ProcessInstructions)

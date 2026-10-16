@@ -26,7 +26,7 @@ internal static class SbugMovementDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSbugMovementReadGuard(new TestAddressSpace()));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = SbugBehavior.InitializeSbug;
         Action<RoomEnemySlot, SamusState, RoomLevelData?> runMain = enemies.SbugBehavior.RunSbugMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
@@ -101,10 +101,6 @@ internal static class SbugMovementDefinitionsVerification
             "with the selector tables forbidden.");
     }
 
-    /// <summary>Rejects reads of the two migrated Sbug movement-selector tables.</summary>
-    private static CartridgeReadGuard NewSbugMovementReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3a111 and < 0xa3a12f,
-            address => $"Sbug movement attempted migrated selector read ${address:X6}.");
 
     /// <summary>Runs the retail-backed Sbug movement checks and program oracle.</summary>
     [VerificationCommand("--sbug-instruction-mechanics")]

@@ -43,7 +43,7 @@ internal static class EvirVisualsVerification
             "every exported Evir frame is shown by a program");
         foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
         {
-            RoomEnemySystem enemies = NewEvirInstructionSystem(rom);
+            RoomEnemySystem enemies = NewEvirInstructionSystem();
             enemies.TileArtwork = stock;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
@@ -54,8 +54,4 @@ internal static class EvirVisualsVerification
         Console.WriteLine(
             "  Evir visuals: 24 editable OAM frames match the cartridge and every installed loop shows its authored poses.");
     }
-
-    /// <summary>Reads a cartridge byte solely for the native Evir frame and OAM comparison.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Evir visuals")]
-    private static byte InstalledEvirVisualsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

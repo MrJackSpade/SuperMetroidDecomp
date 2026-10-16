@@ -17,10 +17,10 @@ internal static class KagoBehaviorVerification
     /// The initializer starts the slow loop, which shows its four frames ten updates apiece; the first accepted shot
     /// starts the fast loop on the next update, three updates apiece, while keeping its bug-spawning side effect.
     /// </summary>
-    internal static void VerifyKagoBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyKagoBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Kago, slot.Definition);
@@ -48,7 +48,7 @@ internal static class KagoBehaviorVerification
     internal static int KagoInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyKagoBehavior), () => VerifyKagoBehavior(rom));
+        Suite(nameof(VerifyKagoBehavior), () => VerifyKagoBehavior());
         Suite(nameof(KagoAnimationsVerification.VerifyKagoAnimations), () => KagoAnimationsVerification.VerifyKagoAnimations(rom));
         return 0;
     }

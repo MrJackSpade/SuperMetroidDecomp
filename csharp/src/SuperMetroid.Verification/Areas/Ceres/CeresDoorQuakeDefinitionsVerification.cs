@@ -52,7 +52,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(guarded);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
@@ -76,7 +76,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
                 $"Ceres private door production OAM phase {phase}");
         }
 
-        enemies.BindFixtureBus(NewCeresDoorQuakeReadGuard(rom, blockOverlay: true));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
         var nativeOverlay = new OamBuffer();
         nativeOverlay.BeginFrame();

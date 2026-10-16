@@ -14,10 +14,10 @@ using SuperMetroid.Verification.Harness;
 internal static class WreckedShipGhostBehaviorVerification
 {
     /// <summary>The real initializer starts the floating loop, which shows its three poses sixteen updates apiece.</summary>
-    internal static void VerifyWreckedShipGhostBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyWreckedShipGhostBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = new SnesCgram();
         RoomEnemySlot ghost = enemies.SlotTable.Slots[0];
         ghost.Bind(EnemyDefinitionId.Coven, ghost.Definition);
@@ -37,7 +37,7 @@ internal static class WreckedShipGhostBehaviorVerification
     internal static int WreckedShipGhostInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyWreckedShipGhostBehavior), () => VerifyWreckedShipGhostBehavior(rom));
+        Suite(nameof(VerifyWreckedShipGhostBehavior), () => VerifyWreckedShipGhostBehavior());
         Suite(nameof(WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations),
             () => WreckedShipGhostAnimationsVerification.VerifyWreckedShipGhostAnimations(rom));
         return 0;

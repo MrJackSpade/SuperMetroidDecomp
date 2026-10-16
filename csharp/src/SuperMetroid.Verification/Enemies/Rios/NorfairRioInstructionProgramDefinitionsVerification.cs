@@ -42,7 +42,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         foreach ((NorfairRioProgram entry, int calls, ushort offset, bool signal, string name) in programs)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, NorfairRioEnemyState state) =
-                NewNorfairRioInstructionSystem(rom, entry);
+                NewNorfairRioInstructionSystem(entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             RunNorfairRioInstructionFrames(arguments,
@@ -54,7 +54,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
                 $"Norfair Rio {name} animation signal");
         }
 
-        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections(rom));
+        Suite(nameof(VerifyNorfairRioInitializerSelections), () => VerifyNorfairRioInitializerSelections());
         Suite(nameof(NorfairRioAnimationsVerification.VerifyNorfairRioAnimations), () => NorfairRioAnimationsVerification.VerifyNorfairRioAnimations(rom));
 
         Console.WriteLine(
@@ -64,10 +64,10 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
 
     /// <summary>Checks that parent and follower initialization choose idle and ascending-flames programs respectively.</summary>
     private static void VerifyNorfairRioInitializerSelections(
-        ISnesAddressSpace bus)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Geruta, parent.Definition);
@@ -92,12 +92,11 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
         NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
-            ISnesAddressSpace bus,
             NorfairRioProgram entry,
             EnemyTileArtworkCatalog? art = null)
     {
         var enemies = new RoomEnemySystem { TileArtwork = art };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });

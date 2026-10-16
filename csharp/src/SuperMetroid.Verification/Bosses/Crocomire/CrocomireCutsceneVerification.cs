@@ -25,7 +25,7 @@ internal static class CrocomireCutsceneVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewCrocomireTongueNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa4 });
@@ -105,7 +105,7 @@ internal static class CrocomireCutsceneVerification
         enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
         enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
         enemies.Presentation._cgram = new SnesCgram();
-        enemies.BindFixtureBus(NewCrocomireTongueNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         Action<RoomEnemySlot, SamusState?, ushort> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };

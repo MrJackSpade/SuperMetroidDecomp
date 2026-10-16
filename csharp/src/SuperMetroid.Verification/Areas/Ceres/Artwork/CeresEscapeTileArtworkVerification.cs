@@ -52,7 +52,7 @@ internal static class CeresEscapeTileArtworkVerification
             Presentation = { EscapeTimerArtwork = timer },
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        installed.BindFixtureBus(guarded);
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var installedQueue = new VramWriteQueue();
         foreach (ushort start in new[]
                  {
@@ -129,7 +129,7 @@ internal static class CeresEscapeTileArtworkVerification
             TileArtwork = edited,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        editedEnemies.BindFixtureBus(guarded);
+        editedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var editedState = new RidleyEnemyState
         {
             CeresEscapeTransferListPointer =
@@ -164,7 +164,7 @@ internal static class CeresEscapeTileArtworkVerification
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
             Presentation = { EscapeTimerArtwork = timer },
         };
-        missing.BindFixtureBus(guarded);
+        missing.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         try
         {
             missing.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState

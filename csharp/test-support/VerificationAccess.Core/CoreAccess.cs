@@ -251,10 +251,11 @@ internal static class CoreAccess
     extension(RoomEnemySystem enemies)
     {
         /// <summary>
-        /// Binds a fixture's address space without loading a population, so a focused check can run one enemy
-        /// routine against constructed memory.
+        /// Binds an enemy definition source without loading a population, so a focused check can run one enemy
+        /// routine against constructed records.
         /// </summary>
-        internal void BindFixtureBus(ISnesAddressSpace bus) => enemies.Room.Bus = Ensure.NotNull(bus);
+        internal void BindFixtureDefinitions(IRoomEnemyDefinitionSource definitions) =>
+            enemies.Room.Definitions = Ensure.NotNull(definitions);
 
         /// <summary>Room PLM requests emitted by Chozo statue AI in their publication order.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>

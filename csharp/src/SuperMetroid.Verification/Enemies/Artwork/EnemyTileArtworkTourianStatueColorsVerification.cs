@@ -217,7 +217,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemy = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
-            enemy.BindFixtureBus(source);
+            enemy.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemy.Presentation._cgram = cgram;
             return (enemy, cgram);
         }

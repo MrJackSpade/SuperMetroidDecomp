@@ -17,10 +17,10 @@ internal static class DeadTorizoBehaviorVerification
     /// The real initializer starts the stationary pose; it shows once and holds (the update that reaches the native
     /// sleep still reports the one-update pose as new).
     /// </summary>
-    internal static void VerifyDeadTorizoBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadTorizoBehavior()
     {
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameToolingDefinitions.Bank });
@@ -38,7 +38,7 @@ internal static class DeadTorizoBehaviorVerification
     internal static int DeadTorizoBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyDeadTorizoBehavior), () => VerifyDeadTorizoBehavior(rom));
+        Suite(nameof(VerifyDeadTorizoBehavior), () => VerifyDeadTorizoBehavior());
         Suite(nameof(DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations), () => DeadTorizoAnimationsVerification.VerifyDeadTorizoAnimations(rom));
         return 0;
     }

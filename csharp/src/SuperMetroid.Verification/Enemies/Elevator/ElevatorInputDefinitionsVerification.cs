@@ -34,7 +34,7 @@ internal static class ElevatorInputDefinitionsVerification
             SnesButton native = (SnesButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewElevatorInputReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, SnesButton,
@@ -83,9 +83,5 @@ internal static class ElevatorInputDefinitionsVerification
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
             AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
-    /// <summary>Allows fixture cartridge access except for the elevator input table now owned by compiled definitions.</summary>
-    private static CartridgeReadGuard NewElevatorInputReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa394e2 and < 0xa394e6,
-                address => $"Elevator actor attempted migrated input-mask read ${address:X6}.");
+
 }

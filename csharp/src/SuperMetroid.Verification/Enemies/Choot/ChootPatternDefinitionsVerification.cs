@@ -53,7 +53,7 @@ internal static class ChootPatternDefinitionsVerification
             foreach (byte loopCount in new byte[] { 0, 1, 2, 3 })
             {
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(NewChootPatternReadGuard(rom));
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 var initialize = new Action<RoomEnemySlot>(enemies.ChootBehavior.InitializeChoot);
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
@@ -76,7 +76,7 @@ internal static class ChootPatternDefinitionsVerification
             }
 
             var fallEnemies = new RoomEnemySystem();
-            fallEnemies.BindFixtureBus(NewChootPatternReadGuard(rom));
+            fallEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var initializeFall = new Action<RoomEnemySlot>(fallEnemies.ChootBehavior.InitializeChoot);
             RoomEnemySlot fallSlot = fallEnemies.SlotTable.Slots[0];
             fallSlot.Bind(EnemyDefinitionId.Choot, fallSlot.Definition);
@@ -140,11 +140,6 @@ internal static class ChootPatternDefinitionsVerification
             "Choot pattern definitions: five selectors/distances, all 450 physical path frames, twenty initializers, and five complete fall loops pass with every source read forbidden.");
     }
 
-    /// <summary>Forbids Choot's bank-$A2 falling paths and pattern selector tables during live behavior.</summary>
-    private static CartridgeReadGuard NewChootPatternReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2d84c and < 0xa2df74,
-                address => $"Choot attempted migrated pattern-definition read ${address:X6}.");
 
     /// <summary>Runs the Choot pattern definition verification suite.</summary>
     [VerificationCommand("--choot-pattern-definitions")]

@@ -14,10 +14,10 @@ using SuperMetroid.Verification.Harness;
 internal static class FirefleaBehaviorVerification
 {
     /// <summary>The real initializer starts the Loop program, which the runtime then plays through once and back.</summary>
-    internal static void VerifyFirefleaBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyFirefleaBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = FirefleaFrameToolingDefinitions.Bank });
@@ -38,7 +38,7 @@ internal static class FirefleaBehaviorVerification
     internal static int FirefleaBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyFirefleaBehavior), () => VerifyFirefleaBehavior(rom));
+        Suite(nameof(VerifyFirefleaBehavior), () => VerifyFirefleaBehavior());
         Suite(nameof(FirefleaAnimationsVerification.VerifyFirefleaAnimations), () => FirefleaAnimationsVerification.VerifyFirefleaAnimations(rom));
         return 0;
     }

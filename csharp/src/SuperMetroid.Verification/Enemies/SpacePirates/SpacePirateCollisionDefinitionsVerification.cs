@@ -228,7 +228,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             bool compiledPirate)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(bus);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             bool wallFrame = pointer != EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap &&
                 !ninjaFramePointers.Contains(pointer) &&

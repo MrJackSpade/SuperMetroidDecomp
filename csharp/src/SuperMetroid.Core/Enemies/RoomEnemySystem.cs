@@ -764,8 +764,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     public void Load(IRoomEnemyLoad request)
     {
         Ensure.NotNull(request);
-        ISnesAddressSpace bus = request.Bus;
-        Room.Bus = bus;
+        IRoomEnemyDefinitionSource definitions = request.Definitions;
+        Room.Definitions = definitions;
         GunshipBehavior._gunshipLoadScenario = request.GunshipScenario;
         FrameContext._deferLoaderTimeCameraReads = request.DeferLoaderTimeCameraReads;
         GunshipBehavior._samusAtEnemyInitialization = request.Samus;
@@ -817,11 +817,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // word is the terminator. This is observable: an empty room must not overwrite
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         RoomEnemyPopulationDefinition population =
-            EnemyPopulationLoader.ResolveRoomEnemyPopulation(bus, request.PopulationPointer);
+            definitions.ReadEnemyPopulation(request.PopulationPointer);
         if (!population.Records.IsEmpty)
-            PopulationLoader.LoadGraphicsSet(bus, request.TilesetPointer, request.Vram, request.Cgram);
+            PopulationLoader.LoadGraphicsSet(definitions, request.TilesetPointer, request.Vram, request.Cgram);
         PopulationLoader.LoadPopulation(
-            bus,
+            definitions,
             population,
             request.Level,
             request.Samus,

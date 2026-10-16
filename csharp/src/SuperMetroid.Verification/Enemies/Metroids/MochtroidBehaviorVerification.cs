@@ -17,10 +17,10 @@ internal static class MochtroidBehaviorVerification
     /// The real initializer installs the free-flight loop, which pulses on time; switching to the attached loop starts
     /// it, while re-requesting the installed loop leaves the running animation alone, as the native change detector does.
     /// </summary>
-    internal static void VerifyMochtroidBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMochtroidBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Mochtroid, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MochtroidFrameToolingDefinitions.Bank });
@@ -48,7 +48,7 @@ internal static class MochtroidBehaviorVerification
     internal static int MochtroidBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMochtroidBehavior), () => VerifyMochtroidBehavior(rom));
+        Suite(nameof(VerifyMochtroidBehavior), () => VerifyMochtroidBehavior());
         Suite(nameof(MochtroidAnimationsVerification.VerifyMochtroidAnimations), () => MochtroidAnimationsVerification.VerifyMochtroidAnimations(rom));
         return 0;
     }

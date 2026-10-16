@@ -73,9 +73,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        enemies.BindFixtureBus(CartridgeReadGuard.Unbacked()
-                .ForbidAll(address => $"Installed Magdollite palette hook read ROM ${address:X6}.")
-                .RejectWrites(address => $"Installed Magdollite palette hook wrote ROM ${address:X6}."));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);

@@ -20,7 +20,7 @@ internal static class GunshipDustDefinitionsVerification
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        enemies.BindFixtureBus(NewGunshipDustGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var spawn = new Action<ushort, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
         var samus = new SamusState();
         var slot = enemies.Projectiles.EnemyProjectiles[^1];
@@ -75,9 +75,4 @@ internal static class GunshipDustDefinitionsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Gunship dust")]
     private static byte CompiledGunshipDustRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    /// <summary>Allows cartridge oracle reads while rejecting migrated dust-table reads and every bus write from the spawn path.</summary>
-    private static CartridgeReadGuard NewGunshipDustGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .ForbidRange(0x86a2d6, 0x86a2ee - 0x86a2d6, _ => "Unexpected migrated gunship dust table read.")
-            .RejectWrites(_ => "Unexpected gunship dust bus write.");
 }

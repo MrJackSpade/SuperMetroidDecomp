@@ -58,7 +58,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         for (ushort parameter = 0; parameter < 6; parameter++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
@@ -102,7 +102,7 @@ internal static class EscapeEtecoonDefinitionsVerification
     internal static void VerifyEscapeEtecoonProgramBehavior(SuperMetroidAddressSpace rom)
     {
         CartridgeReadGuard guard = NewEscapeEtecoonDefinitionGuard(rom);
-        RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem(guard);
+        RoomEnemySystem enemies = CreateEscapeEtecoonProgramSystem();
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
             throw new InvalidDataException("Escape Etecoon test lost typed state.");
@@ -147,10 +147,10 @@ internal static class EscapeEtecoonDefinitionsVerification
 
     /// <summary>Initializes an Etecoon in a guarded bank-$B3 enemy system.</summary>
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
-        ISnesAddressSpace bus)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);

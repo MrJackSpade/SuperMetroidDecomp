@@ -19,7 +19,7 @@ internal static class CacatacProjectileDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewCacatacProjectileReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, ushort> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
@@ -71,9 +71,4 @@ internal static class CacatacProjectileDefinitionsVerification
             "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");
     }
 
-    /// <summary>Rejects runtime reads of the compiled bank $86 spike selector table.</summary>
-    private static CartridgeReadGuard NewCacatacProjectileReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x86d96a and < 0x86d97e,
-                address => $"Cacatac spike spawn attempted migrated selector read ${address:X6}.");
 }

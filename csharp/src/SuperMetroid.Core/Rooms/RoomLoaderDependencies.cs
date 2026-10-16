@@ -125,6 +125,4 @@ internal sealed record RoomLoaderDependencies
     /// <summary>Wrecked ship treadmill.</summary>
     public required WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; init; }
 
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
 }

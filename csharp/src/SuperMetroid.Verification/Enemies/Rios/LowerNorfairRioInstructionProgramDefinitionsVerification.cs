@@ -39,7 +39,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         ];
         foreach ((LowerNorfairRioProgram entry, int calls, bool visible, bool signal, string name) in programs)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(rom, entry);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, LowerNorfairRioEnemyState state) = NewLowerNorfairRioInstructionSystem(entry);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int call = 0; call < calls; call++)
             {
@@ -50,7 +50,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
             AssertEqual(signal, state.AnimationSignal, $"Lower Norfair Rio {name} animation signal");
         }
 
-        Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections(rom));
+        Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections());
         Suite(nameof(LowerNorfairRioAnimationsVerification.VerifyLowerNorfairRioAnimations), () => LowerNorfairRioAnimationsVerification.VerifyLowerNorfairRioAnimations(rom));
         Console.WriteLine(
             "Lower Norfair Rio: all seven parent and flame programs with their flame visibility and finished handshakes, " +
@@ -58,10 +58,10 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     }
 
     /// <summary>Confirms that the parent starts idle while its follower starts the flame program.</summary>
-    private static void VerifyLowerNorfairRioInitializerSelections(ISnesAddressSpace bus)
+    private static void VerifyLowerNorfairRioInitializerSelections()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
@@ -81,11 +81,10 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
 
     /// <summary>Creates a Lower Norfair Rio running <paramref name="entry"/> in the first enemy slot.</summary>
     internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot, LowerNorfairRioEnemyState State) NewLowerNorfairRioInstructionSystem(
-        ISnesAddressSpace bus,
         LowerNorfairRioProgram entry)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });

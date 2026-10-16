@@ -45,7 +45,7 @@ internal static class SpeedBoosterStageFiveResidueVerification
         };
         enemies.Presentation._vram = new SnesVram();
         enemies.Presentation._cgram = new SnesCgram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Room.Mode7QueueResidue = residue;
         var state = new RidleyEnemyState { Mode7TableByteIndex = 2 };
 

@@ -24,7 +24,7 @@ internal static class PipeBugAnimationDefinitionsVerification
         foreach (bool strong in new[] { false, true })
         {
             var initializedEnemies = new RoomEnemySystem();
-            initializedEnemies.BindFixtureBus(guarded);
+            initializedEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot initializedSlot = initializedEnemies.SlotTable.Slots[0];
             initializedSlot.Bind(strong
                 ? EnemyDefinitionId.Zebbo
@@ -47,7 +47,7 @@ internal static class PipeBugAnimationDefinitionsVerification
                     $"{(strong ? "strong" : "normal")} Pipe Bug {selector}");
 
                 var enemies = new RoomEnemySystem();
-                enemies.BindFixtureBus(guarded);
+                enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
                     Parameter1 = strong ? (ushort)1 : (ushort)0,

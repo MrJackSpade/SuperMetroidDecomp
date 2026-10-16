@@ -16,13 +16,13 @@ internal static class PipeBugBehaviorVerification
     /// The Zeb, Zebbo, Gamet and Geega initializers start their native first loops, and every loop installed through
     /// <see cref="PipeBugsBehavior.InstallPipeBugProgram"/> runs one pass and returns to its first pose on time.
     /// </summary>
-    internal static void VerifyPipeBugBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyPipeBugBehavior()
     {
-        AssertEqual(PipeBugProgram.ZebRisingLeft, Initialized(rom, EnemyDefinitionId.Zeb, 0).Program.Program, "Zeb starts rising left");
-        AssertEqual(PipeBugProgram.ZebboRisingLeft, Initialized(rom, EnemyDefinitionId.Zebbo, 1).Program.Program, "Zebbo starts rising left");
-        AssertEqual(PipeBugProgram.GametRisingLeft, Initialized(rom, EnemyDefinitionId.Gamet, 0).Program.Program, "Gamet starts rising left");
-        AssertEqual(PipeBugProgram.GeegaFlyingLeft, Initialized(rom, EnemyDefinitionId.Geega, 1).Program.Program, "Geega with parameter one starts flying left");
-        AssertEqual(PipeBugProgram.GeegaFlyingRight, Initialized(rom, EnemyDefinitionId.Geega, 0).Program.Program, "Geega with parameter zero starts flying right");
+        AssertEqual(PipeBugProgram.ZebRisingLeft, Initialized(EnemyDefinitionId.Zeb, 0).Program.Program, "Zeb starts rising left");
+        AssertEqual(PipeBugProgram.ZebboRisingLeft, Initialized(EnemyDefinitionId.Zebbo, 1).Program.Program, "Zebbo starts rising left");
+        AssertEqual(PipeBugProgram.GametRisingLeft, Initialized(EnemyDefinitionId.Gamet, 0).Program.Program, "Gamet starts rising left");
+        AssertEqual(PipeBugProgram.GeegaFlyingLeft, Initialized(EnemyDefinitionId.Geega, 1).Program.Program, "Geega with parameter one starts flying left");
+        AssertEqual(PipeBugProgram.GeegaFlyingRight, Initialized(EnemyDefinitionId.Geega, 0).Program.Program, "Geega with parameter zero starts flying right");
 
         foreach (PipeBugProgram program in Enum.GetValues<PipeBugProgram>())
         {
@@ -34,7 +34,7 @@ internal static class PipeBugBehaviorVerification
                 _ => (EnemyDefinitionId.Geega, (ushort)0),
             };
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PipeBugEnemyState state = Initialize(enemies, slot, definition, parameter);
             PipeBugsBehavior.InstallPipeBugProgram(slot, state, program);
@@ -46,10 +46,10 @@ internal static class PipeBugBehaviorVerification
     }
 
     /// <summary>A freshly initialized Pipe Bug's state.</summary>
-    private static PipeBugEnemyState Initialized(SuperMetroidAddressSpace rom, EnemyDefinitionId definition, ushort parameter)
+    private static PipeBugEnemyState Initialized(EnemyDefinitionId definition, ushort parameter)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return Initialize(enemies, enemies.SlotTable.Slots[0], definition, parameter);
     }
 
@@ -79,7 +79,7 @@ internal static class PipeBugBehaviorVerification
     internal static int PipeBugBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyPipeBugBehavior), () => VerifyPipeBugBehavior(rom));
+        Suite(nameof(VerifyPipeBugBehavior), () => VerifyPipeBugBehavior());
         Suite(nameof(PipeBugAnimationsVerification.VerifyPipeBugAnimations), () => PipeBugAnimationsVerification.VerifyPipeBugAnimations(rom));
         return 0;
     }

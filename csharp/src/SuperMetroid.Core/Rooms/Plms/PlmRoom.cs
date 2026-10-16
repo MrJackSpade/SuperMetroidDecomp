@@ -11,10 +11,10 @@ namespace SuperMetroid.Core.Rooms.Plms;
 public sealed record PlmRoom
 {
     /// <summary>Creates the room binding; every member is required.</summary>
-    public PlmRoom(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram,
+    public PlmRoom(RoomLevelData level, BackgroundTilemapStreamer streamer, SnesVram vram,
         Bank80SystemState system, AreaId areaIndex)
     {
-        Bus = Ensure.NotNull(bus);
+
         Level = Ensure.NotNull(level);
         Streamer = Ensure.NotNull(streamer);
         Vram = Ensure.NotNull(vram);
@@ -22,8 +22,6 @@ public sealed record PlmRoom
         AreaIndex = areaIndex;
     }
 
-    /// <summary>Address space PLM programs and definitions read.</summary>
-    public ISnesAddressSpace Bus { get; }
 
     /// <summary>Room collision and tilemap data PLMs edit.</summary>
     public RoomLevelData Level { get; }

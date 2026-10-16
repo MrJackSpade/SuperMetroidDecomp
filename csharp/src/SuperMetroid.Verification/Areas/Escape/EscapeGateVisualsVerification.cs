@@ -104,7 +104,7 @@ internal static class EscapeGateVisualsVerification
         RoomLevelData closedLevel = CreateLevel();
         BackgroundTilemapStreamer closedStreamer = closedLevel.CreateBackgroundStreamer();
         var closed = new RoomPlmSystem { Drawing = { EscapeGateVisuals = edited } };
-        AssertEqual(1, closed.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, closed.PopulationLoader.LoadRoomPopulation(new PlmRoom(closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
         closed.Step(closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
@@ -120,7 +120,7 @@ internal static class EscapeGateVisualsVerification
         RoomLevelData closingLevel = CreateLevel();
         BackgroundTilemapStreamer closingStreamer = closingLevel.CreateBackgroundStreamer();
         var closing = new RoomPlmSystem { Drawing = { EscapeGateVisuals = edited } };
-        AssertEqual(1, closing.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
+        AssertEqual(1, closing.PopulationLoader.LoadRoomPopulation(new PlmRoom(closingLevel, closingStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape closure loads resident gate");
         var enteringDoor = new CartridgeDoorHeader(
             Pointer: 0xaa8c,

@@ -32,7 +32,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
                 $"Shaktool collision list {index}");
         }
 
-        RoomEnemySystem enemies = CreateCompiledShaktoolGroup(rom);
+        RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
         RoomEnemySlot center = enemies.SlotTable.Slots[3];
         ShaktoolSegmentState centerState = (enemies.ShaktoolSegments[3] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[3]."));
         ShaktoolSegmentState nextState = (enemies.ShaktoolSegments[4] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[4]."));
@@ -88,7 +88,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
     /// <summary>Runs every steady and collision program on the real seven-segment group; the program oracle matches bank $AA.</summary>
     internal static void VerifyShaktoolInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
-        RoomEnemySystem enemies = CreateCompiledShaktoolGroup(rom);
+        RoomEnemySystem enemies = CreateCompiledShaktoolGroup();
         ShaktoolProgram[] steadyPrograms =
         [
             ShaktoolProgram.SawHandPrimaryPiece,
@@ -140,11 +140,10 @@ internal static class ShaktoolInstructionDefinitionsVerification
 
     /// <summary>Creates and initializes all seven Shaktool segments with the selector tables forbidden.</summary>
     private static RoomEnemySystem CreateCompiledShaktoolGroup(
-        ISnesAddressSpace rom)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(new CartridgeReadGuard(rom).Forbid(address => address is >= 0xaadd15 and < 0xaadd25 or >= 0xaadf13 and < 0xaadf2f,
-            address => $"Shaktool attempted migrated animation-selector read ${address:X6}."));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.ShaktoolBehavior.InitializeShaktool;
         for (int index = 0; index < 7; index++)
         {

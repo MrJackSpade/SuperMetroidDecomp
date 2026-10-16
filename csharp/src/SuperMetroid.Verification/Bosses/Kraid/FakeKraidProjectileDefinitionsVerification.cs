@@ -34,7 +34,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
 
         foreach (bool movingRight in new[] { false, true })
         {
-            var enemies = NewFakeKraidProjectileSystem(guarded);
+            var enemies = NewFakeKraidProjectileSystem();
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
@@ -72,7 +72,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
         foreach (short facingDelta in new short[] { -4, 4 })
         for (int row = 0; row < 3; row++)
         {
-            var enemies = NewFakeKraidProjectileSystem(guarded);
+            var enemies = NewFakeKraidProjectileSystem();
             var source = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
@@ -124,10 +124,10 @@ internal static class FakeKraidProjectileDefinitionsVerification
 
     /// <summary>Binds a fresh projectile pool to a bus that rejects migrated definition reads.</summary>
     private static RoomEnemySystem NewFakeKraidProjectileSystem(
-        ISnesAddressSpace bus)
+)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         return enemies;
     }
 }

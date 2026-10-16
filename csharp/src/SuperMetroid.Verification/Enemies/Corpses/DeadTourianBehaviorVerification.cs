@@ -19,10 +19,10 @@ internal static class DeadTourianBehaviorVerification
     /// update that reaches the native sleep still reports the one-update pose as new); the hop shows its eight frames and
     /// its landing cue hands the Sidehopper back to main AI's post-landing delay.
     /// </summary>
-    internal static void VerifyDeadSidehopperBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadSidehopperBehavior()
     {
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
         corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank });
@@ -55,7 +55,7 @@ internal static class DeadTourianBehaviorVerification
     internal static int DeadSidehopperBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyDeadSidehopperBehavior), () => VerifyDeadSidehopperBehavior(rom));
+        Suite(nameof(VerifyDeadSidehopperBehavior), () => VerifyDeadSidehopperBehavior());
         Suite(nameof(DeadTourianAnimationsVerification.VerifyDeadTourianAnimations), () => DeadTourianAnimationsVerification.VerifyDeadTourianAnimations(rom));
         return 0;
     }

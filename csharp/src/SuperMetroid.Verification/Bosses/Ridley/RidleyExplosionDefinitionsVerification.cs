@@ -137,7 +137,7 @@ internal static class RidleyExplosionDefinitionsVerification
         for (int selectedIndex = 0; selectedIndex < 10; selectedIndex++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewRidleyExplosionDefinitionReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot, RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnSmallExplosionNearNorfairRidley;
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -174,7 +174,7 @@ internal static class RidleyExplosionDefinitionsVerification
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewRidleyExplosionDefinitionReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);
         Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyExplosion;
 
@@ -257,18 +257,6 @@ internal static class RidleyExplosionDefinitionsVerification
         AssertEqual(32, cases, "Ridley breakup production initializer case count");
     }
 
-    /// <summary>Rejects runtime reads of migrated Ridley fragment and death-scatter definition tables.</summary>
-    private static CartridgeReadGuard NewRidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is
-                >= 0xa6c6ce and < 0xa6c6fe or
-                >= 0xa6c66e and < 0xa6c696 or
-                >= 0xa6c7ba and < 0xa6c7da or
-                >= 0xa6c804 and < 0xa6c80c or
-                >= 0xa6c836 and < 0xa6c83e or
-                >= 0xa6c868 and < 0xa6c870 or
-                >= 0xa6c89a and < 0xa6c8a2 or
-                >= 0xa6c8cc and < 0xa6c8d4,
-            address => $"Ridley breakup attempted migrated definition read ${address:X6}.");
 
     /// <summary>Runs the standalone Ridley explosion definition verification command.</summary>
     [VerificationCommand("--ridley-explosion-definitions")]

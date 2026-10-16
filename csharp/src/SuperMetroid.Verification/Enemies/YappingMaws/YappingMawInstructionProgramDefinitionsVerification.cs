@@ -30,7 +30,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         {
             YappingMawProgram entry = YappingMawAnimationDefinitions.AttackForDirection(direction);
             (RoomEnemySystem enemies, RoomEnemySlot slot, _) =
-                NewYappingMawInstructionSystem(rom, entry);
+                NewYappingMawInstructionSystem(entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameDefinitions.Spritemap),
@@ -52,7 +52,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         foreach ((YappingMawProgram entry, YappingMawProgram loop, int calls, short x, short y, string name) in cooldowns)
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, YappingMawEnemyState state) =
-                NewYappingMawInstructionSystem(rom, entry);
+                NewYappingMawInstructionSystem(entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             RunYappingMawInstructionFrames(arguments, slot, count: 1);
@@ -69,7 +69,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 $"Yapping Maw {name} cooldown publishes its sound");
         }
 
-        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections(rom));
+        Suite(nameof(VerifyYappingMawInitializerSelections), () => VerifyYappingMawInitializerSelections());
         Suite(nameof(YappingMawAnimationsVerification.VerifyYappingMawAnimations), () => YappingMawAnimationsVerification.VerifyYappingMawAnimations(rom));
 
         Console.WriteLine(
@@ -79,7 +79,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
 
     /// <summary>Checks native parameter-two facing selection and linked body projectile setup.</summary>
     private static void VerifyYappingMawInitializerSelections(
-        ISnesAddressSpace bus)
+)
     {
         foreach ((ushort parameter2, YappingMawProgram expected, string name) in new[]
         {
@@ -88,7 +88,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(bus);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
@@ -113,11 +113,10 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
         YappingMawEnemyState State) NewYappingMawInstructionSystem(
-            ISnesAddressSpace bus,
             YappingMawProgram entry)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.YappingMaw, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });

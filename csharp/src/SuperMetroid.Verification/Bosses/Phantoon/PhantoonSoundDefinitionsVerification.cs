@@ -29,7 +29,7 @@ internal static class PhantoonSoundDefinitionsVerification
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewPhantoonSoundReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.PhantoonBody, body.Definition);
         var state = new PhantoonEnemyState(body)
@@ -56,10 +56,6 @@ internal static class PhantoonSoundDefinitionsVerification
             "Phantoon sound definitions: all three native selections and two complete production callback cycles pass with the source table forbidden.");
     }
 
-    /// <summary>Forbids production reads of the compiled materialization sound table.</summary>
-    private static CartridgeReadGuard NewPhantoonSoundReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa7cded and < 0xa7cdf3,
-            address => $"Phantoon attempted migrated materialization sound read ${address:X6}.");
 
     /// <summary>Runs the Phantoon sound definition check with a retail cartridge oracle.</summary>
     [VerificationCommand("--phantoon-sound-definitions")]

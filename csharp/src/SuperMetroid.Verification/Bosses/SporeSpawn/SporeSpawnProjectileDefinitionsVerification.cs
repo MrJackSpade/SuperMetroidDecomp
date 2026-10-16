@@ -37,7 +37,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSporeSpawnProjectileReadGuard(rom));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, ushort> spawnStalk = enemies.SporeSpawnBehavior.SpawnSporeSpawnStalk;
         Action<RoomEnemySlot, ushort> spawnSpawner = enemies.SporeSpawnBehavior.SpawnSporeSpawnSpawner;
         Action<RoomEnemyProjectileSlot> move = SporeSpawnBehavior.RunSporeSpawnSporePreInstruction;
@@ -92,10 +92,4 @@ internal static class SporeSpawnProjectileDefinitionsVerification
             "Spore Spawn projectile definitions: eight geometry words, 256 movement bytes, all real spawns and 512 movement/mirroring handoffs pass with source tables forbidden.");
     }
 
-    /// <summary>Blocks the migrated stalk, emitter, and spore-motion tables during production behavior checks.</summary>
-    private static CartridgeReadGuard NewSporeSpawnProjectileReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address => address is >= 0x86dcb9 and < 0x86dcc1 or
-                >= 0x86dce6 and < 0x86dcee or
-                >= 0x86dd6c and < 0x86de6c,
-            address => $"Spore Spawn attempted migrated projectile-definition read ${address:X6}.");
 }

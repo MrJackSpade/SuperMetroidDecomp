@@ -36,7 +36,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
         foreach (ushort parameter in new ushort[] { 0, 2, 4 })
         {
             var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = new SnesCgram();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);

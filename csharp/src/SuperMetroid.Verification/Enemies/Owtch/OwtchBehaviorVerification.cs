@@ -17,7 +17,7 @@ internal static class OwtchBehaviorVerification
     /// The initializer starts the left animation for even states and the right one for odd states; each animation's cue
     /// sets main AI's walking direction, and its three-pose shell loop runs on time.
     /// </summary>
-    internal static void VerifyOwtchBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyOwtchBehavior()
     {
         foreach ((OwtchBehaviorState initial, OwtchProgram program, OwtchProgram loop, OwtchBehaviorState walking) in new[]
                  {
@@ -26,7 +26,7 @@ internal static class OwtchBehaviorVerification
                  })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = OwtchFrameToolingDefinitions.Bank });
@@ -49,7 +49,7 @@ internal static class OwtchBehaviorVerification
     internal static int OwtchBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyOwtchBehavior), () => VerifyOwtchBehavior(rom));
+        Suite(nameof(VerifyOwtchBehavior), () => VerifyOwtchBehavior());
         Suite(nameof(OwtchAnimationsVerification.VerifyOwtchAnimations), () => OwtchAnimationsVerification.VerifyOwtchAnimations(rom));
         return 0;
     }

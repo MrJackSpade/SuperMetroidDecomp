@@ -151,7 +151,7 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(1, exposed.System.LoadedItemCount, "exposed item setup increments saved counter");
         AssertEqual(1, shot.System.LoadedItemCount, "collected shot-block setup increments saved counter");
         shot.System.LoadedItemCount = ushort.MaxValue;
-        shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(fixtureBus, shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        shot.Plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(shot.Level, shot.Streamer, new SnesVram(), shot.System, AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(fixtureBus, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => shot.Samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(0, shot.System.LoadedItemCount, "saved item-load counter wraps as a native word");
         ram.SelectSlot(0);
     }

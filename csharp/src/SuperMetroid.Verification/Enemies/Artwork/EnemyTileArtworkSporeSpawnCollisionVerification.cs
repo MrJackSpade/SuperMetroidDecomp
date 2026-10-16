@@ -25,7 +25,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var installed = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
-        installed.BindFixtureBus(NewFrontendCartridgeReadGuard(rom));
+        installed.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
         installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {

@@ -21,7 +21,7 @@ internal static class YappingMawBodyProjectileBehaviorVerification
                  { (0, YappingMawBodyProjectileProgram.FacingDown), (1, YappingMawBodyProjectileProgram.FacingUp) })
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guard);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot owner = enemies.SlotTable.Slots[0];
             owner.Bind(EnemyDefinitionId.YappingMaw, owner.Definition);
             owner.Bind(owner.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = YappingMawFrameToolingDefinitions.Bank });

@@ -44,7 +44,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
 
         foreach (MaridiaLargeSnailProgram attack in new[] { MaridiaLargeSnailProgram.FacingLeftAttacking, MaridiaLargeSnailProgram.FacingRightAttacking })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, MaridiaLargeSnailEnemyState state) = Create(rom);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, MaridiaLargeSnailEnemyState state) = Create();
             AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailProgram.FacingLeftIdle), state.Program, "Oum starts left-facing idle");
             Start(slot, state, attack);
             int[] holds = [16, 16, 16, 2, 3, 4, 2, 3, 1, 3, 2, 1, 18];
@@ -62,7 +62,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                      (MaridiaLargeSnailProgram.FacingLeftRollingBackwards, 7), (MaridiaLargeSnailProgram.FacingRightRollingBackwards, 7),
                  })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot, MaridiaLargeSnailEnemyState state) = Create(rom);
+            (RoomEnemySystem enemies, RoomEnemySlot slot, MaridiaLargeSnailEnemyState state) = Create();
             Start(slot, state, roll);
             EnemyInstructionRunner.ShownFrames(slot, 7 * windowPose + 1);
             AssertTrue(state.AttackAllowsRotation, $"Oum {roll} opens the attack-rotation window");
@@ -76,10 +76,10 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     }
 
     /// <summary>An Oum after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, MaridiaLargeSnailEnemyState) Create(SuperMetroidAddressSpace rom)
+    private static (RoomEnemySystem, RoomEnemySlot, MaridiaLargeSnailEnemyState) Create()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Oum, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MaridiaLargeSnailFrameToolingDefinitions.Bank });

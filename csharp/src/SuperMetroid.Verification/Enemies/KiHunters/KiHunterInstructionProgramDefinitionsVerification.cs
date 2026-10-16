@@ -132,7 +132,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
             KiHunterEnemyState BodyState, KiHunterEnemyState WingState) CreatePair()
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(rom);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Action<RoomEnemySlot> initializeBody = KiHunterBehavior.InitializeKiHunter;
             Action<RoomEnemySlot> initializeWings = enemies.KiHunterBehavior.InitializeKiHunterWings;
 

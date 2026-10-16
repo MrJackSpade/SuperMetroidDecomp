@@ -28,14 +28,14 @@ internal static class MotherBrainRoomColorsVerification
         Seed(installedCgram);
         // Independently import the cartridge colors for the comparison path;
         // the gameplay palette runner has no runtime ROM fallback.
-        var native = CreateEnemy(rom, nativeCgram, extracted);
-        var installed = CreateEnemy(NewPaletteReadForbiddenBus(), installedCgram,
+        var native = CreateEnemy(nativeCgram, extracted);
+        var installed = CreateEnemy(installedCgram,
             original.MotherBrainRoomColors);
         native.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
         installed.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
         AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
             "installed Mother Brain room-entry glass and tube palettes match full native CGRAM");
-        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(rom, original.MotherBrainRoomColors, extracted));
+        Suite(nameof(VerifyMotherBrainRecoveryLights), () => VerifyMotherBrainRecoveryLights(original.MotherBrainRoomColors, extracted));
         var nativeState = new MotherBrainEnemyState(native.SlotTable.Slots[0])
         {
             RoomFlashFrame = 0,
@@ -191,16 +191,15 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Compares all seven two-slice recovery transfers with retail CGRAM and rejects a nonnative source before copying colors.</summary>
-    private static void VerifyMotherBrainRecoveryLights(ISnesAddressSpace rom,
-        MotherBrainRoomColorPresentation installed,
+    private static void VerifyMotherBrainRecoveryLights(MotherBrainRoomColorPresentation installed,
         MotherBrainRoomColorPresentation extracted)
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
         Seed(nativeCgram);
         Seed(installedCgram);
-        var native = CreateEnemy(rom, nativeCgram, extracted);
-        var runtime = CreateEnemy(NewPaletteReadForbiddenBus(), installedCgram, installed);
+        var native = CreateEnemy(nativeCgram, extracted);
+        var runtime = CreateEnemy(installedCgram, installed);
         for (ushort frame = 0; frame < MotherBrainRoomColorRomData.RecoveryLightsFrames; frame++)
         {
             var request = RecoveryRequest(frame);
@@ -228,9 +227,9 @@ internal static class MotherBrainRoomColorsVerification
     {
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        var stock = CreateEnemy(NewPaletteReadForbiddenBus(), stockCgram,
+        var stock = CreateEnemy(stockCgram,
             original.MotherBrainRoomColors);
-        var replacement = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
+        var replacement = CreateEnemy(editedCgram,
             edited.MotherBrainRoomColors);
         var request = RecoveryRequest(0);
         stock.BabyMetroidCutsceneBehavior.LoadMotherBrainRecoveryLights(request);
@@ -259,9 +258,9 @@ internal static class MotherBrainRoomColorsVerification
     {
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        var stockEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), stockCgram,
+        var stockEnemy = CreateEnemy(stockCgram,
             original.MotherBrainRoomColors);
-        var editedEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
+        var editedEnemy = CreateEnemy(editedCgram,
             edited.MotherBrainRoomColors);
         stockEnemy.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
         editedEnemy.MotherBrainBehavior.LoadMotherBrainRoomEntryColors();
@@ -284,9 +283,9 @@ internal static class MotherBrainRoomColorsVerification
     {
         var stockCgram = new SnesCgram();
         var editedCgram = new SnesCgram();
-        var stockEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), stockCgram,
+        var stockEnemy = CreateEnemy(stockCgram,
             original.MotherBrainRoomColors);
-        var editedEnemy = CreateEnemy(NewPaletteReadForbiddenBus(), editedCgram,
+        var editedEnemy = CreateEnemy(editedCgram,
             edited.MotherBrainRoomColors);
         var stockState = new MotherBrainEnemyState(stockEnemy.SlotTable.Slots[0]);
         var editedState = new MotherBrainEnemyState(editedEnemy.SlotTable.Slots[0]);
@@ -313,11 +312,11 @@ internal static class MotherBrainRoomColorsVerification
     }
 
     /// <summary>Binds one installed room-color catalog and CGRAM destination to a fresh Mother Brain enemy system.</summary>
-    private static RoomEnemySystem CreateEnemy(ISnesAddressSpace bus, SnesCgram cgram,
+    private static RoomEnemySystem CreateEnemy(SnesCgram cgram,
         MotherBrainRoomColorPresentation? colors)
     {
         var enemies = new RoomEnemySystem { Presentation = { MotherBrainRoomColors = colors } };
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.Presentation._vram = new SnesVram();
         return enemies;

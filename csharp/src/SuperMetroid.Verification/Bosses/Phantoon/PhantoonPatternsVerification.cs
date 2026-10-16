@@ -32,7 +32,7 @@ internal static class PhantoonPatternsVerification
         for (int pattern = 0; pattern < 8; pattern++)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewPhantoonPatternReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
@@ -71,7 +71,7 @@ internal static class PhantoonPatternsVerification
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem();
-        eyeEnemies.BindFixtureBus(NewPhantoonPatternReadGuard(rom));
+        eyeEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, PhantoonEnemyState, SamusState> pointEye = PhantoonBehavior.PointPhantoonEyeAtSamus;
         RoomEnemySlot eyeBody = eyeEnemies.SlotTable.Slots[0];
         RoomEnemySlot trackingEye = eyeEnemies.SlotTable.Slots[1];
@@ -114,12 +114,4 @@ internal static class PhantoonPatternsVerification
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
-    /// <summary>Blocks migrated Phantoon pattern ranges and unintended writes during behavior checks.</summary>
-    internal static CartridgeReadGuard NewPhantoonPatternReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa7cda5 and < 0xa7cded or
-                >= 0xa7cfc2 and < 0xa7cfca or
-                >= 0xa7d40d and < 0xa7d41f,
-                address => $"Migrated Phantoon pattern ROM read at {address:X6}.")
-            .RejectWrites(_ => "Unexpected rain initialization bus write.");
 }

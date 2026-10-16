@@ -17,10 +17,10 @@ internal static class MetroidBehaviorVerification
     /// The real initializer starts the chasing pulse; the chasing loop's cue advances the RNG once for a random cry and
     /// the draining loop's cue plays the draining sound without touching the RNG; both loops run on time.
     /// </summary>
-    internal static void VerifyMetroidBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMetroidBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank });
@@ -49,7 +49,7 @@ internal static class MetroidBehaviorVerification
     internal static int MetroidBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMetroidBehavior), () => VerifyMetroidBehavior(rom));
+        Suite(nameof(VerifyMetroidBehavior), () => VerifyMetroidBehavior());
         Suite(nameof(MetroidAnimationsVerification.VerifyMetroidAnimations), () => MetroidAnimationsVerification.VerifyMetroidAnimations(rom));
         return 0;
     }

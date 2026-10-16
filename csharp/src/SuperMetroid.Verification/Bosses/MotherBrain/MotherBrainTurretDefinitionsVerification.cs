@@ -46,7 +46,7 @@ internal static class MotherBrainTurretDefinitionsVerification
             }
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
             enemies.MotherBrainBehavior.SpawnMotherBrainTurret(parameter);
 
@@ -120,7 +120,7 @@ internal static class MotherBrainTurretDefinitionsVerification
                 $"Mother Brain turret bullet Y velocity {direction}");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(guarded);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             var turret = new RoomEnemyProjectileSlot(0)
             {
                 Position = new(new(0x0400, 0), new(0x0200, direction)),

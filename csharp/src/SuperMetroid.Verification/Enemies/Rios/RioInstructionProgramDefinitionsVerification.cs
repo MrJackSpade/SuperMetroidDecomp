@@ -29,7 +29,7 @@ internal static class RioInstructionProgramDefinitionsVerification
     internal static void VerifyRioInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rio = enemies.SlotTable.Slots[0];
         rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
         rio.Bind(rio.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RioFrameToolingDefinitions.Bank });

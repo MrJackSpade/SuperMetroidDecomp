@@ -281,17 +281,11 @@ internal static class DownwardGatePlmsVerification
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { Drawing = { DownwardGateVisuals = visuals } };
-        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(NewDownwardGateHeaderReadGuard(bus), level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
+        int parsed = plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Brinstar), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
         AssertEqual(2, parsed, $"{trigger} synthetic population parses both records");
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
-    /// <summary>Forbids runtime rereads of the two compiled gate-header instruction words.</summary>
-    private static CartridgeReadGuard NewDownwardGateHeaderReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            // The resident and shot-block gate headers' first-instruction words.
-            .Forbid(address => address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839,
-                address => $"Gate population read compiled header word ${address:X6}.");
 
     /// <summary>Advances one gate PLM frame with stationary view and no scroll, enemy-death, or controller events.</summary>
     internal static void StepDownwardGatePlm(

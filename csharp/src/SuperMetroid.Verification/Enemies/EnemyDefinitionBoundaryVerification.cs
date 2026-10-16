@@ -50,7 +50,7 @@ internal static class EnemyDefinitionBoundaryVerification
         {
             AssertTrue((artwork.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
-            OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoFrameDefinitions.Bank, frame, new(x, y));
+            OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
@@ -66,8 +66,7 @@ internal static class EnemyDefinitionBoundaryVerification
             AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");
             drawCases++;
         }
-        AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, memory,
-                TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),
+        AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),
             "missing enemy artwork cannot recover an address decoder");
         Console.WriteLine($"Enemy definitions: all 106 Torizo physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }

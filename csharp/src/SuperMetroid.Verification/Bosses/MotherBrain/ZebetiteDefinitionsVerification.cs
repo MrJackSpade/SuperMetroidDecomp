@@ -93,7 +93,6 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(
-                guarded,
                 generation);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = linkedHalf ? (ushort)2 : (ushort)0;
@@ -127,7 +126,7 @@ internal static class ZebetiteDefinitionsVerification
 
         foreach (bool linkedHalf in new[] { false, true })
         {
-            var enemies = NewZebetiteDefinitionSystem(guarded, 0);
+            var enemies = NewZebetiteDefinitionSystem(0);
             RoomEnemySlot slot = (RoomEnemySlot)enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf);
             AssertEqual(ZebetiteDefinitions.SpawnPopulation(linkedHalf), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
@@ -141,11 +140,10 @@ internal static class ZebetiteDefinitionsVerification
 
     /// <summary>Supplies event bits selecting one Zebetite generation in an isolated enemy runtime.</summary>
     private static RoomEnemySystem NewZebetiteDefinitionSystem(
-        ISnesAddressSpace bus,
         ushort generation)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(eventNumber => eventNumber switch
             {
                 EventNumber.ZebetiteDestroyedBit2 => (generation & 4) != 0,

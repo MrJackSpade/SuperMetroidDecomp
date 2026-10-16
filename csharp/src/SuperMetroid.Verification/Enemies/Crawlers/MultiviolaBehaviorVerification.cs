@@ -14,10 +14,10 @@ using SuperMetroid.Verification.Harness;
 internal static class MultiviolaBehaviorVerification
 {
     /// <summary>The real initializer starts the Flying program, which the runtime then plays through once and back.</summary>
-    internal static void VerifyMultiviolaBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyMultiviolaBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Multiviola, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MultiviolaFrameToolingDefinitions.Bank });
@@ -36,7 +36,7 @@ internal static class MultiviolaBehaviorVerification
     internal static int MultiviolaBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyMultiviolaBehavior), () => VerifyMultiviolaBehavior(rom));
+        Suite(nameof(VerifyMultiviolaBehavior), () => VerifyMultiviolaBehavior());
         Suite(nameof(MultiviolaAnimationsVerification.VerifyMultiviolaAnimations), () => MultiviolaAnimationsVerification.VerifyMultiviolaAnimations(rom));
         return 0;
     }

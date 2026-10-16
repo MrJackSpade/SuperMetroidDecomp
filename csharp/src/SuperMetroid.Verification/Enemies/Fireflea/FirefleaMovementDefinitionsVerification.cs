@@ -18,9 +18,7 @@ internal static class FirefleaMovementDefinitionsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(new CartridgeReadGuard(new TestAddressSpace()).Forbid(
-                address => address is >= 0xa38d1d and < 0xa38d2d,
-                address => $"Fireflea initializer attempted migrated radius read ${address:X6}."));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = enemies.FirefleaBehavior.InitializeFireflea;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fireflea, slot.Definition);

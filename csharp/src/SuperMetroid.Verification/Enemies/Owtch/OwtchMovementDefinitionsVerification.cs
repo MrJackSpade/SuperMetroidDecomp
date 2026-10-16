@@ -21,7 +21,7 @@ internal static class OwtchMovementDefinitionsVerification
         Suite(nameof(VerifyOwtchUndergroundTimerAlgorithm), () => VerifyOwtchUndergroundTimerAlgorithm(rom));
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewOwtchMovementReadGuard(new TestAddressSpace()));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot> initialize = OwtchBehavior.InitializeOwtch;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
@@ -85,9 +85,4 @@ internal static class OwtchMovementDefinitionsVerification
         }
     }
 
-    /// <summary>Rejects runtime access to the compiled bank A2 timer and distance interval.</summary>
-    private static CartridgeReadGuard NewOwtchMovementReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0xa2a3dd and < 0xa2a3f9,
-                address => $"Owtch movement attempted migrated definition read ${address:X6}.");
 }

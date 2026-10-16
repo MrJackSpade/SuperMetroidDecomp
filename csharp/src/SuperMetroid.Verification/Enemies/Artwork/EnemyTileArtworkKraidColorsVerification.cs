@@ -33,7 +33,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
         var colorReaderOwner = new RoomEnemySystem { TileArtwork = stock };
-        colorReaderOwner.BindFixtureBus(guardForAllColors);
+        colorReaderOwner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
@@ -59,7 +59,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         {
             ushort[] expected = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = NewKraidPaletteSourceGuard(rom);
-            Bgr555[] actual = CaptureKraidPaletteConsumer(guard, stock, consumer);
+            Bgr555[] actual = CaptureKraidPaletteConsumer(stock, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"installed Kraid {consumer} avoids all palette ROM sources");
             AssertTrue(actual.SequenceEqual(ToColors(expected)),
@@ -101,17 +101,16 @@ internal static class EnemyTileArtworkKraidColorsVerification
         {
             ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);
             var guard = NewKraidPaletteSourceGuard(rom);
-            Bgr555[] changed = CaptureKraidPaletteConsumer(guard, edited, consumer);
+            Bgr555[] changed = CaptureKraidPaletteConsumer(edited, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"edited Kraid {consumer} avoids palette ROM reads");
             AssertEqual((ushort)(baseline[cgramIndex] ^ 1), changed[cgramIndex],
                 $"edited Kraid {consumer} changes CGRAM {cgramIndex}");
         }
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(directory, overrides);
-        AssertTrue(CaptureKraidPaletteConsumer(NewKraidPaletteSourceGuard(rom), reloaded,
+        AssertTrue(CaptureKraidPaletteConsumer(reloaded,
                 KraidPaletteConsumer.HealthNormal)
-            .SequenceEqual(CaptureKraidPaletteConsumer(NewKraidPaletteSourceGuard(rom),
-                edited, KraidPaletteConsumer.HealthNormal)),
+            .SequenceEqual(CaptureKraidPaletteConsumer(edited, KraidPaletteConsumer.HealthNormal)),
             "Kraid RGB5 override survives catalog reload");
 
         File.WriteAllBytes(stockPath, [0]);
@@ -195,13 +194,13 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>Runs one Kraid palette consumer and captures the resulting complete CGRAM image.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static Bgr555[] CaptureKraidPaletteConsumer(
-        ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
+        EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         var cgram = new SnesCgram();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Health = 1000;

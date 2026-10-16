@@ -36,7 +36,7 @@ internal static class EnemyLinearSpeedsVerification
         var enemies = new RoomEnemySystem();
         // Only family-specific distance/timer data can be read. No speed bytes
         // are present; Stoke and Ripper do not need any bus for their speed setup.
-        enemies.BindFixtureBus(new TestAddressSpace());
+        enemies.BindFixtureDefinitions(new TestAddressSpace());
         var cacatac = new Action<RoomEnemySlot>(CacatacBehavior.InitializeCacatac);
         var owtch = new Action<RoomEnemySlot>(OwtchBehavior.InitializeOwtch);
         var stoke = new Action<RoomEnemySlot>(StokeBehavior.InitializeStoke);

@@ -67,7 +67,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         for (int offset = 0; offset < 256; offset += 8)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewBotwoonNavigationReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState(head) { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoiceOffset = (ushort)offset, Speed = 0 };
@@ -154,7 +154,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 $"Botwoon path {byteOffset:X2} alignment word");
 
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewBotwoonNavigationReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             var state = new BotwoonEnemyState(head)
             {
@@ -177,7 +177,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         }
 
         var movementEnemies = new RoomEnemySystem();
-        movementEnemies.BindFixtureBus(NewBotwoonNavigationReadGuard(rom));
+        movementEnemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot movementHead = movementEnemies.SlotTable.Slots[0];
         int movementSampleCount = 0;
         for (int pointer = BotwoonNavigationDefinitions.MovementDataStart;
@@ -262,7 +262,7 @@ internal static class BotwoonNavigationDefinitionsVerification
         {
             BotwoonHoleDefinition hole = holes[byteOffset >> 3];
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewBotwoonNavigationReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot head = enemies.SlotTable.Slots[0];
             head.Position = head.Position.WithWhole(hole.Target);
             var state = new BotwoonEnemyState(head)
@@ -332,13 +332,6 @@ internal static class BotwoonNavigationDefinitionsVerification
             "targets and rectangle boundaries pass with fixed definition reads forbidden.");
     }
 
-    /// <summary>Blocks runtime rereads of native hole, movement-stream and descriptor regions after compilation.</summary>
-    private static CartridgeReadGuard NewBotwoonNavigationReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(address =>
-                address is >= 0xb3949b and < 0xb394bb or
-                    >= 0xb3a058 and < 0xb3e150 or
-                    >= 0xb3e150 and < 0xb3e250,
-            address => $"Botwoon attempted migrated navigation-definition read ${address:X6}.");
 
     /// <summary>Runs Botwoon navigation definition verification against the retail cartridge.</summary>
     [VerificationCommand("--botwoon-navigation-definitions")]

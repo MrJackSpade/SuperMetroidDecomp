@@ -127,7 +127,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             SnesCgram cgram = SeedColors();
-            enemies.BindFixtureBus(source);
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             enemies.Presentation._cgram = cgram;
             return (enemies, cgram);
         }

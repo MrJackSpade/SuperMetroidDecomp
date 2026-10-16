@@ -32,7 +32,7 @@ internal static class MagdollitePhaseDefinitionsVerification
         }
 
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewMagdollitePhaseGuard(new TestAddressSpace()));
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, SamusState?> initialize = enemies.MagdolliteBehavior.InitializeMagdollite;
         Action<RoomEnemySlot, MagdolliteEnemyState, SamusState?> rise = enemies.MagdolliteBehavior.RunMagdolliteBodyRising;
         Action<RoomEnemySlot, MagdolliteEnemyState> fall = enemies.MagdolliteBehavior.RunMagdolliteBodyFalling;
@@ -128,8 +128,4 @@ internal static class MagdollitePhaseDefinitionsVerification
     internal static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>Rejects live reads from Magdollite's migrated phase tables.</summary>
-    private static CartridgeReadGuard NewMagdollitePhaseGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8af8b - 0xa8af55,
-            address => $"Magdollite attempted migrated phase read ${address:X6}.");
 }

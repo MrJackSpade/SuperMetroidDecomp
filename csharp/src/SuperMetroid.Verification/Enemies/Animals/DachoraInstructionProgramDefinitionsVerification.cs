@@ -39,7 +39,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         ];
         foreach ((ushort parameter, DachoraProgram expected) in initializerCases)
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, parameter);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(parameter);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
             AssertEqual(AnimationProgramCursor<DachoraProgram>.Start(expected), (enemies.SlotTable.Slots[0].Entity as DachoraEntity)?.State?.Program,
@@ -50,7 +50,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
         {
             if (DachoraAnimations.Programs.Steps(program)[^1] is not { Kind: AnimationProgramStepKind.GoTo } last || last.Target != program)
                 continue;
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, 0);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = (enemies.SlotTable.Slots[0].Entity as DachoraEntity)?.State ?? throw new InvalidOperationException("The Dachora has no state.");
@@ -67,7 +67,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
                      (DachoraProgram.RunningRight, DachoraProgram.RunningRightFast, DachoraProgram.RunningRightVeryFast),
                  })
         {
-            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(rom, 0);
+            (RoomEnemySystem enemies, RoomEnemySlot slot) = NewDachora(0);
             slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
             DachoraBehavior.InitializeDachora(slot);
             DachoraEnemyState state = (enemies.SlotTable.Slots[0].Entity as DachoraEntity)?.State ?? throw new InvalidOperationException("The Dachora has no state.");
@@ -97,10 +97,10 @@ internal static class DachoraInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Dachora with spawn parameter <paramref name="parameter"/> in the first enemy slot.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) NewDachora(ISnesAddressSpace bus, ushort parameter)
+    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot) NewDachora(ushort parameter)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Dachora, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });

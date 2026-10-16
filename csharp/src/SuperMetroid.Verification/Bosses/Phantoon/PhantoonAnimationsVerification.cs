@@ -26,10 +26,10 @@ using SuperMetroid.Core;
 internal static class PhantoonAnimationsVerification
 {
     /// <summary>Creates the four linked Phantoon parts and a deterministic random source.</summary>
-    internal static RoomEnemySystem CreatePhantoonSystem(ISnesAddressSpace bus)
+    internal static RoomEnemySystem CreatePhantoonSystem()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(bus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
@@ -150,7 +150,7 @@ internal static class PhantoonAnimationsVerification
     /// </summary>
     private static void VerifyEyeOpening()
     {
-        RoomEnemySystem enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot eye = state.Eye;
         state.PartProgram(eye) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.EyeOpen);
@@ -172,7 +172,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>The mouth's flame program spawns one casual flame and runs on into its initial frame.</summary>
     private static void VerifyMouthFlame()
     {
-        RoomEnemySystem enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        RoomEnemySystem enemies = CreatePhantoonSystem();
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot mouth = state.Mouth;
         state.PartProgram(mouth) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.MouthSpawnFlame);
@@ -231,7 +231,7 @@ internal static class PhantoonAnimationsVerification
     /// <summary>A projectile system whose drops have a Samus to read.</summary>
     private static RoomEnemySystem NewFlameSystem()
     {
-        RoomEnemySystem enemies = CreatePhantoonSystem(NewSlopeHeightNoReadBus());
+        RoomEnemySystem enemies = CreatePhantoonSystem();
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 128);
         enemies.DeathsAndDrops._samusForEnemyDrops = new SamusState { Health = 99, MaxHealth = 99 };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
@@ -268,7 +268,7 @@ internal static class PhantoonAnimationsVerification
     private static void VerifyPrePhantoonRoomAnimation(IImportCartridgeSource cartridge)
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(NewSlopeHeightNoReadBus());
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         var scroll = new BackgroundScrollState();
         enemies.PrePhantoonRoomBehavior.SpawnPrePhantoonRoomProjectile(scroll);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.PrePhantoonRoom);

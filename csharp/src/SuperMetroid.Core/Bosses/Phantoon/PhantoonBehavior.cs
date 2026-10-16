@@ -2195,7 +2195,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Projectile {flame.Kind} reached Phantoon drop opcode $980E.");
         }
 
-        RoomEnemyDefinition eye = EnemyPopulationLoader.ResolveRoomEnemyDefinition(_room.LoadedBus, EnemyDefinitionId.PhantoonEye);
+        RoomEnemyDefinition eye = _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.PhantoonEye);
         _phantoonFlameDropRequests.Add(new PhantoonFlameDropRequest());
         _deathsAndDrops.SpawnEnemyDropFromChanceTable(
             flame.Position.Whole,

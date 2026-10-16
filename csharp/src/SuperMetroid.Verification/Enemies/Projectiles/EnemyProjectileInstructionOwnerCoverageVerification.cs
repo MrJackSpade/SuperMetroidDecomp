@@ -23,7 +23,7 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
         var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(forbiddenBus);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
 
         int definitionCount = 0;
         int reactionCount = 0;

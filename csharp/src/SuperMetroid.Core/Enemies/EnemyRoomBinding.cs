@@ -5,16 +5,16 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The loaded room's bindings that <see cref="RoomEnemySystem"/> shares with the owners it composes: the room's
-/// address space, the cartridge-state services its AI calls (including the enemy random source), and the
+/// enemy definition source, the cartridge-state services its AI calls (including the enemy random source), and the
 /// host-installed enemy artwork.
 /// </summary>
 internal sealed class EnemyRoomBinding
 {
-    /// <summary>The address space <see cref="RoomEnemySystem.Load"/> bound; null until a population loads.</summary>
-    internal ISnesAddressSpace? Bus { get; set; }
+    /// <summary>The enemy definition source <see cref="RoomEnemySystem.Load"/> bound; null until a population loads.</summary>
+    internal IRoomEnemyDefinitionSource? Definitions { get; set; }
 
-    /// <summary>Whether a room population (or a verification fixture bus) is bound.</summary>
-    internal bool IsLoaded => Bus is not null;
+    /// <summary>Whether a room population (or a verification fixture source) is bound.</summary>
+    internal bool IsLoaded => Definitions is not null;
 
     /// <summary>
     /// The cartridge-state services the current room's AI calls; installed by <see cref="RoomEnemySystem.Load"/>. A
@@ -55,10 +55,10 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's Mode 7 transfer queue residue, which Ceres Ridley's getaway writes; the runtime binds it.</summary>
     internal SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? Mode7QueueResidue { get; set; }
 
-    /// <summary>The bound address space; enemy work requires a loaded room population.</summary>
-    internal ISnesAddressSpace LoadedBus =>
-        Bus ?? throw new InvalidOperationException("A room enemy population must be loaded first.");
+    /// <summary>The bound enemy definition source; enemy work requires a loaded room population.</summary>
+    internal IRoomEnemyDefinitionSource LoadedDefinitions =>
+        Definitions ?? throw new InvalidOperationException("A room enemy population must be loaded first.");
 
     /// <summary>Rejects enemy work before a population is bound.</summary>
-    internal void EnsureLoaded() => _ = LoadedBus;
+    internal void EnsureLoaded() => _ = LoadedDefinitions;
 }

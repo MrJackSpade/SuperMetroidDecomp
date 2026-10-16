@@ -29,7 +29,7 @@ internal static class PhantoonFlameSpawnsVerification
         foreach (ushort parameter in parameters)
         {
             var enemies = new RoomEnemySystem();
-            enemies.BindFixtureBus(NewPhantoonFlameSpawnReadGuard(rom));
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
             Func<RoomEnemySlot, PhantoonFlameSpawnType, byte, bool> spawn = enemies.PhantoonBehavior.SpawnPhantoonDestroyableFlame;
             var body = enemies.SlotTable.Slots[0];
             body.Position = body.Position.WithWhole(new(origin, origin));
@@ -70,10 +70,4 @@ internal static class PhantoonFlameSpawnsVerification
         Console.WriteLine("Phantoon flame spawns: 33 native bytes and 507 real initializers reject migrated table reads.");
     }
 
-    /// <summary>Forbids runtime reads of the three compiled flame spawn tables and all bus writes.</summary>
-    private static CartridgeReadGuard NewPhantoonFlameSpawnReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source)
-            .Forbid(address => address is >= 0x8698b4 and < 0x8698c4 or >= 0x8698f7 and < 0x869900 or >= 0x869979 and < 0x869981,
-                address => $"Migrated Phantoon spawn table read at {address:X6}.")
-            .RejectWrites(_ => "Unexpected flame initialization bus write.");
 }

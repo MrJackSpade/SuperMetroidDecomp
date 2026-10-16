@@ -18,9 +18,9 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// The real initializer starts the fast grounded loop; each grounded loop runs on time and each airborne program
     /// shows its pose once and holds. With installed artwork supplied, every pose has an installed composition.
     /// </summary>
-    internal static void VerifyPuyoInstructionProgramDefinitions(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyPuyoInstructionProgramDefinitions(EnemyTileArtworkCatalog? artwork = null)
     {
-        (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(rom, artwork);
+        (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
         AssertEqual(AnimationProgramCursor<PuyoProgram>.Start(PuyoProgram.GroundedFast), state.Program, "Puyo starts on its fast grounded loop");
         foreach (PuyoProgram loop in new[] { PuyoProgram.GroundedFast, PuyoProgram.GroundedMedium, PuyoProgram.GroundedSlow })
         {
@@ -43,10 +43,10 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Puyo after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork)
+    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(EnemyTileArtworkCatalog? artwork)
     {
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank });
@@ -67,7 +67,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     internal static int PuyoInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(rom));
+        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
         Suite(nameof(PuyoAnimationsVerification.VerifyPuyoAnimations), () => PuyoAnimationsVerification.VerifyPuyoAnimations(rom));
         return 0;
     }

@@ -17,10 +17,10 @@ internal static class BullBehaviorVerification
     /// The initializer starts the normal loop (four frames, ten updates apiece). An immune shot starts the shot program,
     /// which plays its four three-update frames five times on the native repeat timer and then returns to the normal loop.
     /// </summary>
-    internal static void VerifyBullBehavior(SuperMetroidAddressSpace rom)
+    internal static void VerifyBullBehavior()
     {
         var enemies = new RoomEnemySystem();
-        enemies.BindFixtureBus(rom);
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BullFrameToolingDefinitions.Bank });
@@ -46,7 +46,7 @@ internal static class BullBehaviorVerification
     internal static int BullInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        Suite(nameof(VerifyBullBehavior), () => VerifyBullBehavior(rom));
+        Suite(nameof(VerifyBullBehavior), () => VerifyBullBehavior());
         Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));
         return 0;
     }

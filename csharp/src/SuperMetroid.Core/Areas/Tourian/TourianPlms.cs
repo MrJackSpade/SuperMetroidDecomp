@@ -79,7 +79,7 @@ internal sealed class TourianPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -130,7 +130,7 @@ internal sealed class TourianPlms
         {
             var slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = level.GetBlockIndex(new(6, 12));

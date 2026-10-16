@@ -43,7 +43,7 @@ internal sealed class GatePlms
     /// <summary>Marks the gate's five vertical BTS cells and requests its initial closed projectile.</summary>
     internal void SetupDownwardGateSlot(RoomLevelData level, PlmSlot slot)
     {
-        slot.Gate = new DownwardGatePlmState();
+        slot.Family = new DownwardGatePlmState();
         slot.StartAnimation(new DownwardGatePlmAnimation(DownwardGateProgram.Closed));
 
         // Setup $C784 writes BTS $10 to the five vertically adjacent gate cells without
@@ -106,7 +106,7 @@ internal sealed class GatePlms
             if (_slotTable._slots[index].Active)
                 continue;
             temporary = _slotTable._slots[index];
-            PlmPopulationLoader.ClearSlot(temporary);
+            temporary.Clear();
             temporary.Active = true;
             temporary.HeaderPointer = HeaderForGateTrigger(trigger);
             temporary.BlockIndex = blockIndex;
@@ -128,7 +128,7 @@ internal sealed class GatePlms
                         DownwardGatePlmRomData.RejectedShotSound),
                     MaximumQueued: 6));
             }
-            PlmPopulationLoader.ClearSlot(temporary);
+            temporary.Clear();
             return true;
         }
 
@@ -137,7 +137,7 @@ internal sealed class GatePlms
         for (int index = _slotTable._slots.Length - 1; index >= 0; index--)
         {
             PlmSlot candidate = _slotTable._slots[index];
-            if (candidate.Active && candidate.Gate is not null &&
+            if (candidate.Active && candidate.Family is DownwardGatePlmState &&
                 candidate.BlockIndex == gateBlockIndex)
             {
                 gate = candidate;
@@ -146,7 +146,7 @@ internal sealed class GatePlms
         }
         if (gate is null)
         {
-            PlmPopulationLoader.ClearSlot(temporary);
+            temporary.Clear();
             throw new InvalidDataException(
                 $"Downward gate trigger block {blockIndex} has no adjacent resident gate at {gateBlockIndex}.");
         }
@@ -155,7 +155,7 @@ internal sealed class GatePlms
         // resident pre-instruction runs do not accumulate extra close cycles.
         if (gate.LoopTimer == 0)
             gate.LoopTimer = 1;
-        PlmPopulationLoader.ClearSlot(temporary);
+        temporary.Clear();
         return true;
     }
 
@@ -181,7 +181,7 @@ internal sealed class GatePlms
     /// <summary>Wakes a resident gate when shot or when Samus occupies the column for the appropriate pre-instruction.</summary>
     internal void RunDownwardGatePreInstruction(PlmSlot slot)
     {
-        if (slot.Gate is null)
+        if (slot.Family is not DownwardGatePlmState)
             return;
 
         DownwardGatePreInstruction preInstruction = ClosedNativeWords.Decode<DownwardGatePreInstruction>(
@@ -258,5 +258,9 @@ internal sealed class GatePlms
     }
 
     /// <summary>Marker attached to the resident PLM slot so adjacent shot triggers can find its gate.</summary>
-    internal sealed class DownwardGatePlmState;
+    internal sealed class DownwardGatePlmState : PlmFamilyState
+    {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.DownwardGate;
+    }
 }

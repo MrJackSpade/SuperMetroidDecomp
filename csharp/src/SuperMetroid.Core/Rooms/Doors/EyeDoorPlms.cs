@@ -53,7 +53,7 @@ internal sealed class EyeDoorPlms
             _ => throw new ArgumentOutOfRangeException(
                 nameof(slot), slot.HeaderPointer, "Not an eye-door PLM header."),
         };
-        slot.EyeDoor = new EyeDoorPlmState(component);
+        slot.Family = new EyeDoorPlmState(component);
         slot.StartAnimation(new EyeDoorPlmAnimation(orientation, component,
             component == EyeDoorComponent.Eye ? EyeDoorPlmProgram.EyeStart : EyeDoorPlmProgram.ComponentStart));
 
@@ -84,7 +84,7 @@ internal sealed class EyeDoorPlms
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
     internal void RunEyeDoorPreInstruction(PlmSlot slot)
     {
-        if (slot.EyeDoor is null || slot.PreInstruction == 0)
+        if (slot.Family is not EyeDoorPlmState eyeDoor || slot.PreInstruction == 0)
             return;
 
         Bank80SystemState system = _bindings.System ??
@@ -103,16 +103,16 @@ internal sealed class EyeDoorPlms
                 return;
 
             case EyeDoorPreInstruction.MissileHit:
-                if (!slot.EyeDoor.HasPendingHit)
+                if (!eyeDoor.HasPendingHit)
                     return;
 
                 SamusProjectileFamily family = new SamusProjectileTypeWord(slot.LoopTimer).Family;
                 slot.LoopTimer = 0;
-                slot.EyeDoor.HasPendingHit = false;
+                eyeDoor.HasPendingHit = false;
                 if (family == SamusProjectileFamily.SuperMissile)
                 {
                     // $BD50 seeds the counter so the next increment meets the threshold.
-                    slot.EyeDoor.HitCounter = EyeDoorPlmProgramDefinitions.SuperMissileHitCounter;
+                    eyeDoor.HitCounter = EyeDoorPlmProgramDefinitions.SuperMissileHitCounter;
                 }
                 else if (family != SamusProjectileFamily.Missile)
                 {
@@ -171,7 +171,7 @@ internal sealed class EyeDoorPlms
     /// <summary><c>$84:8A91</c>: counts a hit on the eye; true when it opens the door.</summary>
     internal static bool CountEyeHit(PlmSlot slot, DoorPlms doors)
     {
-        EyeDoorPlmState eye = slot.EyeDoor
+        EyeDoorPlmState eye = (slot.Family as EyeDoorPlmState)
             ?? throw new InvalidOperationException("An eye's hit reached a slot without its eye-door state.");
         eye.HitCounter = unchecked((byte)(eye.HitCounter + 1));
         if (eye.HitCounter < EyeDoorPlmProgramDefinitions.HitThreshold)
@@ -224,8 +224,11 @@ internal sealed class EyeDoorPlms
     }
 
     /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>
-    internal sealed class EyeDoorPlmState(EyeDoorComponent component)
+    internal sealed class EyeDoorPlmState(EyeDoorComponent component) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.EyeDoor;
+
         /// <summary>Identifies whether this slot is the eye, middle, or bottom component.</summary>
         public EyeDoorComponent Component { get; } = component;
         /// <summary>Missile-hit count used by the door's threshold instruction.</summary>

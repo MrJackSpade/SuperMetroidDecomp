@@ -53,7 +53,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -103,7 +103,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -154,7 +154,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = blockIndex;
@@ -206,7 +206,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
@@ -249,7 +249,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = level.GetBlockIndex(block);
@@ -327,7 +327,7 @@ internal sealed class BossRoomMutationPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = level.GetBlockIndex(block);
             slot.RestoreLevelWord = 0;

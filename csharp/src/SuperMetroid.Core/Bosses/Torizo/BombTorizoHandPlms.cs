@@ -57,7 +57,7 @@ internal sealed class BombTorizoHandPlms
         if (bosses.IsDefeated(BossBits.AreaTorizo))
         {
             // Setup deletes synchronously, so the next population record may reuse this ID.
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 

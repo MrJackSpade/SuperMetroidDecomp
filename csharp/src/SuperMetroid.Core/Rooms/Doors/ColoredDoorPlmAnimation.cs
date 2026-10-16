@@ -43,7 +43,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
             case ColoredDoorCue.BranchIfOpened:
                 if (doors.IsDoorOpened(slot))
                 {
-                    slot.ColoredDoor = null;
+                    slot.Family = null;
                     slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Orientation)));
                 }
                 return null;

@@ -26,7 +26,7 @@ internal sealed class EnemyBreakableTerrainPlms
         {
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
             slot.BlockIndex = blockIndex;

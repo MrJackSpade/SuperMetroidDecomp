@@ -47,7 +47,7 @@ internal sealed class CollectiblePlms
         get
         {
             foreach (PlmSlot slot in _slotTable._slots)
-                if (slot.Active && slot.Item?.Phase == CollectiblePhase.AwaitingMessage)
+                if (slot.Active && (slot.Family as CollectiblePlmState)?.Phase == CollectiblePhase.AwaitingMessage)
                     return true;
             return false;
         }
@@ -63,9 +63,9 @@ internal sealed class CollectiblePlms
         _drawing._tilemapUpdates.Clear();
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.Item?.Phase != CollectiblePhase.AwaitingMessage)
+            if (!slot.Active || slot.Family is not CollectiblePlmState { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
-            slot.Item.Phase = CollectiblePhase.ResumeAfterMessage;
+            item.Phase = CollectiblePhase.ResumeAfterMessage;
             FinishCollectiblePickup(bus, level, streamer, slot, view);
         }
         CompleteSpeedBoosterPickupContinuation();
@@ -106,7 +106,7 @@ internal sealed class CollectiblePlms
     /// <summary>Every currently allocated permanent-item PLM in native slot order.</summary>
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable._slots
         .Where(slot => slot.Active)
-        .SelectMany(slot => slot.Item is { } item
+        .SelectMany(slot => slot.Family is CollectiblePlmState { } item
             ? [new CollectiblePlmSnapshot(slot.HeaderPointer, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
             : Array.Empty<CollectiblePlmSnapshot>())
         .ToArray();
@@ -120,20 +120,20 @@ internal sealed class CollectiblePlms
     {
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Item is null)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectiblePlmState item)
                 continue;
             // The pickup message retains both the visible block and its physical owner.
             // On message return, movement can touch that block before PLM_Handler runs
             // the pending empty draw/delete. Native $EEAB matches the block index without
             // filtering the instruction phase; acknowledge this owner without collecting
             // again or disturbing its message-return continuation.
-            if (slot.Item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
+            if (item.Phase is CollectiblePhase.AwaitingMessage or CollectiblePhase.ResumeAfterMessage or
                 CollectiblePhase.EmptyAwaitingDelete)
                 return true;
-            if (slot.Item.Phase is not (
+            if (item.Phase is not (
                     CollectiblePhase.Visible or CollectiblePhase.ShotBlockVisible))
                 return false;
-            slot.Item.Triggered = true;
+            item.Triggered = true;
             return true;
         }
         return false;
@@ -150,17 +150,17 @@ internal sealed class CollectiblePlms
     {
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Item is null)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not CollectiblePlmState item)
                 continue;
-            if (slot.Item.Phase is not (
+            if (item.Phase is not (
                     CollectiblePhase.ChozoOrb or
                     CollectiblePhase.ShotBlock or
                     CollectiblePhase.CollectedShotBlock))
             {
                 return false;
             }
-            slot.Item.LastTriggerProjectileType = projectileType;
-            slot.Item.Triggered = true;
+            item.LastTriggerProjectileType = projectileType;
+            item.Triggered = true;
             return true;
         }
         return false;
@@ -222,7 +222,7 @@ internal sealed class CollectiblePlms
             };
         // Both native item setup paths increment the saved load counter, even for collected items.
         system.LoadedItemCount = unchecked((ushort)(system.LoadedItemCount + 1));
-        slot.Item = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
+        slot.Family = new CollectiblePlmState(kind, presentation, graphicsSlot, phase);
     }
 
     /// <summary>
@@ -320,7 +320,7 @@ internal sealed class CollectiblePlms
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
     internal bool TryStepCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
-        CollectiblePlmState? item = slot.Item;
+        CollectiblePlmState? item = slot.Family as CollectiblePlmState;
         if (item is null)
             return false;
 
@@ -509,7 +509,7 @@ internal sealed class CollectiblePlms
     /// <summary>Sets persistence and inventory before publishing the synchronous message and fanfare request.</summary>
     private void AcquireCollectible(PlmSlot slot)
     {
-        CollectiblePlmState item = slot.Item
+        CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException(
@@ -542,7 +542,7 @@ internal sealed class CollectiblePlms
     /// <summary>Draws the empty item after message return or begins the shot block's delayed respawn.</summary>
     private void FinishCollectiblePickup(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
-        CollectiblePlmState item = slot.Item
+        CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM resumed a pickup message.");
         if (item.Presentation == CollectiblePresentation.ShotBlock)
         {
@@ -693,8 +693,11 @@ internal sealed class CollectiblePlms
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
         int graphicsSlot,
-        CollectiblePhase phase)
+        CollectiblePhase phase) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.Collectible;
+
         /// <summary>Inventory or capacity item granted when this PLM is acquired.</summary>
         public InWorldCollectibleKind Kind { get; } = kind;
         /// <summary>Exposed, Chozo orb, or shot-block reveal behavior.</summary>

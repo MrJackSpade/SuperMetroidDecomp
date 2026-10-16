@@ -40,7 +40,7 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
             case GreyDoorCue.BranchIfOpened:
                 if (context.Plms.DoorPlms.IsDoorOpened(slot))
                 {
-                    slot.GreyDoor = null;
+                    slot.Family = null;
                     slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Variant.Orientation)));
                 }
                 return null;
@@ -49,7 +49,7 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
                 return null;
             case GreyDoorCue.ArmCondition:
                 slot.PreInstruction = (ushort)GreyDoorPlmProgramDefinitions.UnlockCheckOf(
-                    (slot.GreyDoor ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition);
+                    ((slot.Family as GreyDoorPlmState) ?? throw new InvalidOperationException("A grey cap's program ran without its door state.")).Condition);
                 return null;
             case GreyDoorCue.LinkHit:
                 SetLink(GreyDoorProgram.Hit);

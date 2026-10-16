@@ -62,7 +62,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>Every resident colored-door actor in the shared native PLM pool.</summary>
         internal IReadOnlyList<ColoredDoorPlmSnapshot> ColoredDoors =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.ColoredDoor))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as ColoredDoorPlmState))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new ColoredDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
@@ -77,7 +77,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
         internal IReadOnlyList<GreyDoorPlmSnapshot> GreyDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.GreyDoor))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as GreyDoorPlmState))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new GreyDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
@@ -92,7 +92,7 @@ internal static class RoomPlmSystemAccess
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
         internal IReadOnlyList<EyeDoorPlmSnapshot> EyeDoorSnapshots =>
         [
-            .. ActiveSlots(self).Select(slot => (slot, door: slot.EyeDoor))
+            .. ActiveSlots(self).Select(slot => (slot, door: slot.Family as EyeDoorPlms.EyeDoorPlmState))
                 .Where(entry => entry.door is not null)
                 .Select(entry => new EyeDoorPlmSnapshot(
                     entry.slot.HeaderPointer,
@@ -114,7 +114,7 @@ internal static class RoomPlmSystemAccess
                 return true;
             foreach (var slot in ActiveSlots(self))
             {
-                if (slot.BlockIndex != blockIndex || (slot.ColoredDoor is null && slot.GreyDoor is null))
+                if (slot.BlockIndex != blockIndex || slot.Family is not (ColoredDoorPlmState or GreyDoorPlmState))
                     continue;
                 if (slot.PreInstruction == 0)
                     return false;
@@ -212,7 +212,7 @@ internal static class RoomPlmSystemAccess
             foreach (var slot in self.SlotTable._slots)
             {
                 if (!slot.Active || slot.BlockIndex != blockIndex ||
-                    slot.EyeDoor is not { } door ||
+                    slot.Family is not EyeDoorPlms.EyeDoorPlmState door ||
                     door.Component != EyeDoorComponent.Eye)
                 {
                     continue;
@@ -229,7 +229,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => self.SlotTable._slots[snapshot.NativeSlotIndex].IsElevatorPlatform)
+            .Where(snapshot => self.SlotTable._slots[snapshot.NativeSlotIndex].HeaderPointer == PlmHeaderId.ElevatorPlatform)
             .ToArray();
 
         /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -402,7 +402,7 @@ internal static class RoomPlmSystemAccess
                     continue;
 
                 RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-                PlmPopulationLoader.ClearSlot(slot);
+                slot.Clear();
                 slot.Active = true;
                 slot.BlockIndex = blockIndex;
                 slot.InstructionTimer = NativeCountdown.Start(1);

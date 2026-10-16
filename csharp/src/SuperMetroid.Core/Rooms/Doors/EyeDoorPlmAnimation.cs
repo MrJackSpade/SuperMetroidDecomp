@@ -78,7 +78,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
                 EyeDoorPlms.ConvertEyeToBlueDoor(context.Level, slot, Orientation);
                 return null;
             case EyeDoorPlmCue.BecomeBlueDoor:
-                slot.EyeDoor = null;
+                slot.Family = null;
                 slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Closed(Orientation switch
                 {
                     EyeDoorOrientation.Left => ColoredDoorOrientation.Left,

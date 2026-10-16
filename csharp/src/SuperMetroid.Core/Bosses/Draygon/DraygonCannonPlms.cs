@@ -43,7 +43,7 @@ internal sealed class DraygonCannonPlms
                 $"word ${variablePointer:X4}.");
         }
 
-        slot.DraygonCannon = new DraygonCannonPlmState(variablePointer);
+        slot.Family = new DraygonCannonPlmState(variablePointer);
         if (slot.HeaderPointer == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
@@ -68,7 +68,7 @@ internal sealed class DraygonCannonPlms
     /// <summary>Accepts pending missile hits, treating a Super Missile as enough damage to reach the destruction threshold.</summary>
     internal static void RunDraygonCannonPreInstruction(PlmSlot slot)
     {
-        DraygonCannonPlmState? state = slot.DraygonCannon;
+        DraygonCannonPlmState? state = slot.Family as DraygonCannonPlmState;
         if (state is null || slot.PreInstruction == 0)
             return;
         if (slot.PreInstruction != DraygonCannonRomData.MissileHitPreInstruction)
@@ -113,7 +113,7 @@ internal sealed class DraygonCannonPlms
         RoomLevelData level,
         PlmSlot slot)
     {
-        DraygonCannonPlmState state = slot.DraygonCannon
+        DraygonCannonPlmState state = (slot.Family as DraygonCannonPlmState)
             ?? throw new InvalidOperationException("Draygon cannon damage reached a slot without cannon state.");
         (_bindings.Enemies ?? throw new InvalidOperationException(
             "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
@@ -144,8 +144,11 @@ internal sealed class DraygonCannonPlms
 
     /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
-        ushort variablePointer)
+        ushort variablePointer) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.DraygonCannon;
+
         /// <summary>Bank-$A5 word written when this physical cannon stops firing.</summary>
         public ushort VariablePointer { get; } = variablePointer;
         /// <summary>Marks that this cannon's terrain and firing control have been disabled.</summary>

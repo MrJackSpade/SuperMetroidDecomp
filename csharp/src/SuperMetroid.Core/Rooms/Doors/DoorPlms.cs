@@ -89,7 +89,7 @@ internal sealed class DoorPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = fallback.Header;
             slot.BlockIndex = blockIndex;
@@ -143,7 +143,7 @@ internal sealed class DoorPlms
         ColoredDoorOrientation orientation)
     {
         ApplyColoredDoorSetup(level, slot.BlockIndex);
-        slot.ColoredDoor = new ColoredDoorPlmState(color);
+        slot.Family = new ColoredDoorPlmState(color);
         slot.StartAnimation(new ColoredDoorPlmAnimation(color, orientation, ColoredDoorProgram.Waiting));
     }
 
@@ -153,7 +153,7 @@ internal sealed class DoorPlms
     /// </summary>
     internal void RunColoredDoorPreInstruction(PlmSlot slot)
     {
-        if (slot.ColoredDoor is not { } door)
+        if (slot.Family is not ColoredDoorPlmState door)
             return;
         ColoredDoorPreInstruction preInstruction = ClosedNativeWords.Decode<ColoredDoorPreInstruction>(
             slot.PreInstruction, "coloured-door pre-instruction");
@@ -216,7 +216,7 @@ internal sealed class DoorPlms
     /// <summary><c>$84:8A91</c>: counts a hit on a coloured cap; true when it opens the door.</summary>
     internal bool CountColoredDoorHit(PlmSlot slot)
     {
-        ColoredDoorPlmState door = slot.ColoredDoor
+        ColoredDoorPlmState door = (slot.Family as ColoredDoorPlmState)
             ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
         door.HitCounter = unchecked((byte)(door.HitCounter + 1));
         if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholdOf(door.Color))
@@ -318,7 +318,7 @@ internal sealed class DoorPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = headerPointer;
             slot.BlockIndex = blockIndex;
@@ -328,7 +328,7 @@ internal sealed class DoorPlms
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
-            slot.Item = null;
+            slot.Family = null;
 
             // `$84:C7D3-$C7DD` is a direct LevelData write, not a PLM draw. The first
             // animated draw occurs on this actor's next handler pass and owns the VRAM

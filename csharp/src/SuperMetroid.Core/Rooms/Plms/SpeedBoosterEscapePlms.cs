@@ -30,7 +30,7 @@ internal sealed class SpeedBoosterEscapePlms
         }
 
         if (_bindings.Events.Has(EventNumber.OutranSpeedBoosterLavaquake))
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
         else
             slot.StartAnimation(new SpeedBoosterEscapePlmAnimation());
     }
@@ -91,14 +91,14 @@ internal sealed class SpeedBoosterEscapePlms
                 timer: 0);
             (_bindings.Earthquake ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 
         // BMI at $84:B80D treats any $8000-$FFFF target as disabled and deletes the actor.
         if (unchecked((short)fx.TargetYPosition) < 0)
         {
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 

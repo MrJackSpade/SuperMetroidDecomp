@@ -60,13 +60,13 @@ internal sealed class WreckedShipTreadmillPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = origin;
             slot.InstructionPointer = instructionList;
             slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.Treadmill = new WreckedShipTreadmillPlmState(
+            slot.Family = new WreckedShipTreadmillPlmState(
                 direction,
                 areaBossDefeated);
 
@@ -103,7 +103,7 @@ internal sealed class WreckedShipTreadmillPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
             slot.BlockIndex = blockIndex;
@@ -121,7 +121,7 @@ internal sealed class WreckedShipTreadmillPlms
         BackgroundTilemapStreamer streamer,
         PlmSlot slot)
     {
-        if (slot.Treadmill is not WreckedShipTreadmillPlmState state)
+        if (slot.Family is not WreckedShipTreadmillPlmState state)
             return false;
 
         if (state.AreaBossDefeated)
@@ -152,7 +152,7 @@ internal sealed class WreckedShipTreadmillPlms
 
         // Both branches terminate in $84:86BC during this same handler pass.
         slot.Active = false;
-        slot.Treadmill = null;
+        slot.Family = null;
         return true;
     }
 

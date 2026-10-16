@@ -316,7 +316,7 @@ internal static class CoreAccess
                     .Select((slot, index) => (slot, index))
                     .Where(entry => entry.slot.Active)
                     .OrderByDescending(entry => entry.index)
-                    .SelectMany(entry => entry.slot.Station is { } station
+                    .SelectMany(entry => entry.slot.Family is StationPlms.StationPlmState station
                         ? [new StationPlmSnapshot(entry.index, entry.slot.BlockIndex, entry.slot.RoomArgument,
                             station.Kind, station.Triggered, station.SavePhase, lockedOut)]
                         : Array.Empty<StationPlmSnapshot>())
@@ -429,7 +429,7 @@ internal static class CoreAccess
         {
             ScrollPlms.ScrollPlmState[] owners = [.. plms.SlotTable._slots
                 .Where(slot => slot.Active && slot.BlockIndex == blockIndex)
-                .Select(slot => slot.Scroll)
+                .Select(slot => slot.Family as ScrollPlms.ScrollPlmState)
                 .OfType<ScrollPlms.ScrollPlmState>()];
             if (owners.Length != 1)
                 throw new InvalidOperationException(
@@ -529,7 +529,7 @@ internal static class CoreAccess
 
     /// <summary>Extracts live collectible state from the active PLM slots.</summary>
     private static IEnumerable<CollectiblePlms.CollectiblePlmState> Group4CollectibleItems(RoomPlmSystem plms) =>
-        Group4ActivePlmSlots(plms).Select(slot => slot.Item).OfType<CollectiblePlms.CollectiblePlmState>();
+        Group4ActivePlmSlots(plms).Select(slot => slot.Family).OfType<CollectiblePlms.CollectiblePlmState>();
 
     /// <summary>Reads the mailbox generation used to reject stale frame publications.</summary>
     extension(LatestRenderFrameMailbox mailbox)

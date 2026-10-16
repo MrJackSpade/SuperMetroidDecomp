@@ -51,7 +51,7 @@ internal sealed class EscapeAnimalPlms
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active)
                 continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = level.GetBlockIndex(
                 new(CrateriaMainstreetEscapePassagePlmDefinitions.BlockX, CrateriaMainstreetEscapePassagePlmDefinitions.BlockY));
@@ -77,7 +77,7 @@ internal sealed class EscapeAnimalPlms
         {
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionPointer = EscapeAnimalPlmRomData.ReactionList;

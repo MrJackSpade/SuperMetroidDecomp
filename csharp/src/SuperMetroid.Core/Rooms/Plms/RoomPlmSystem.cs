@@ -165,29 +165,7 @@ public sealed class RoomPlmSystem
         ChozoStatue._chozoEnemies = null;
         ChozoStatue._chozoRoomFx = null;
         foreach (PlmSlot slot in SlotTable._slots)
-        {
-            slot.Active = false;
-            slot.PlantHeldPosition = Position16<RoomPixels>.Zero;
-            slot.HeaderPointer = 0;
-            slot.BlockIndex = 0;
-            slot.RestoreLevelWord = 0;
-            slot.InstructionPointer = 0;
-            slot.InstructionTimer = NativeCountdown.Start(0);
-            slot.PreInstruction = 0;
-            slot.RoomArgument = 0;
-            slot.LoopTimer = 0;
-            slot.LinkInstruction = 0;
-            slot.Item = null;
-            slot.Scroll = null;
-            slot.ColoredDoor = null;
-            slot.GreyDoor = null;
-            slot.Station = null;
-            slot.IsElevatorPlatform = false;
-            slot.Treadmill = null;
-            slot.Gate = null;
-            slot.EyeDoor = null;
-            slot.DraygonCannon = null;
-        }
+            slot.Clear();
         Sounds._soundRequests.Clear();
         Gates._pendingDownwardGateSounds.Clear();
         Gates._downwardGateProjectileRequests.Clear();
@@ -479,10 +457,10 @@ public sealed class RoomPlmSystem
         // Semantic family references are discriminators, not retained debug
         // history. A later allocation can reuse this physical native slot and
         // must never inherit door-only pre-handler behavior.
-        slot.ColoredDoor = null;
-        slot.GreyDoor = null;
-        slot.EyeDoor = null;
-        slot.DraygonCannon = null;
+        slot.Family = null;
+        slot.Family = null;
+        slot.Family = null;
+        slot.Family = null;
     }
 
     /// <summary>Reads a wrapped PLM instruction word through the low-bank live WRAM alias.</summary>

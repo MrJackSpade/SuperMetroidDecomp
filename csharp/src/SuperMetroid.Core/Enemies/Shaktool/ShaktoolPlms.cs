@@ -26,7 +26,7 @@ internal sealed class ShaktoolPlms
         {
             PlmSlot slot = _slotTable._slots[index];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
             slot.BlockIndex = 0;

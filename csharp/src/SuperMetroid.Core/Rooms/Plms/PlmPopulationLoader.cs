@@ -103,7 +103,7 @@ recordIndex,
                 // Do not leave the preallocated but untranslated actor resident. The load is
                 // intentionally loud and includes every value needed to locate the exact ROM
                 // record without relying on a room-name special case.
-                ClearSlot(slot);
+                slot.Clear();
                 ushort setupPointer = placement.Header.Setup;
                 ushort instructionList = placement.Header.InitialInstruction;
                 throw new NotSupportedException(
@@ -132,7 +132,7 @@ recordIndex,
             if (slot.Active)
                 continue;
 
-            ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = record.HeaderPointer;
             slot.BlockIndex = blockIndex;
@@ -143,37 +143,6 @@ recordIndex,
         }
 
         return null;
-    }
-
-    /// <summary>Clears both native scalar state and C# family references so a recycled slot cannot execute its former handler.</summary>
-    internal static void ClearSlot(PlmSlot slot)
-    {
-        // Native PLM arrays contain only scalar words, so allocating an inactive ID
-        // inherently replaces every prior family discriminator. The C# translation adds
-        // semantic references for debugger clarity; every population and runtime spawn
-        // must pass through this reset or a recycled bomb/door block can execute the old
-        // item's handler before its own instruction stream.
-        slot.Active = false;
-        slot.PlantHeldPosition = Position16<RoomPixels>.Zero;
-        slot.HeaderPointer = 0;
-        slot.BlockIndex = 0;
-        slot.RestoreLevelWord = 0;
-        slot.InstructionPointer = 0;
-        slot.InstructionTimer = NativeCountdown.Start(0);
-        slot.PreInstruction = 0;
-        slot.RoomArgument = 0;
-        slot.LoopTimer = 0;
-        slot.LinkInstruction = 0;
-        slot.Item = null;
-        slot.Scroll = null;
-        slot.ColoredDoor = null;
-        slot.GreyDoor = null;
-        slot.Station = null;
-        slot.IsElevatorPlatform = false;
-        slot.Treadmill = null;
-        slot.Gate = null;
-        slot.EyeDoor = null;
-        slot.DraygonCannon = null;
     }
 
     /// <summary>Dispatches translated room-population headers to their family setup; returns false for an unsupported header so loading can fail with record context.</summary>

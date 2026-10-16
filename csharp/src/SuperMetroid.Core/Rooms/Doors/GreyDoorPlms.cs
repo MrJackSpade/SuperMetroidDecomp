@@ -34,7 +34,7 @@ internal sealed class GreyDoorPlms
     /// </summary>
     internal void RunGreyDoorPreInstruction(PlmSlot slot, ushort enemyDeaths, byte enemyDeathQuota)
     {
-        if (slot.GreyDoor is null)
+        if (slot.Family is not GreyDoorPlmState)
             return;
         GreyDoorPreInstruction preInstruction = ClosedNativeWords.Decode<GreyDoorPreInstruction>(
             slot.PreInstruction, "grey-door pre-instruction");
@@ -86,7 +86,7 @@ internal sealed class GreyDoorPlms
     /// <summary><c>$84:8A91</c>: counts a hit on a grey cap; true when it opens the door.</summary>
     internal bool CountGreyDoorHit(PlmSlot slot)
     {
-        GreyDoorPlmState door = slot.GreyDoor
+        GreyDoorPlmState door = (slot.Family as GreyDoorPlmState)
             ?? throw new InvalidOperationException("A grey cap's hit reached a slot without its door state.");
         door.HitCounter = unchecked((byte)(door.HitCounter + 1));
         if (door.HitCounter < GreyDoorPlmProgramDefinitions.HitThreshold)
@@ -146,7 +146,7 @@ internal sealed class GreyDoorPlms
         GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(conditionOffset >> 1);
         slot.RoomArgument = GreyDoorRoomArgumentDefinitions.DoorBitArgument(rawRoomArgument);
         ApplyGreyDoorSetup(level, slot.BlockIndex);
-        slot.GreyDoor = new GreyDoorPlmState(condition);
+        slot.Family = new GreyDoorPlmState(condition);
         var variant = new GreyDoorVariant(orientation, BombTorizo: slot.HeaderPointer == PlmHeaderId.BombTorizoGreyDoor);
         slot.StartAnimation(new GreyDoorPlmAnimation(variant, GreyDoorProgram.Waiting));
     }

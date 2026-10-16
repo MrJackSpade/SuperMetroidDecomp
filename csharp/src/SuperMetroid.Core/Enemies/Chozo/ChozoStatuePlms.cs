@@ -57,7 +57,7 @@ internal sealed class ChozoStatuePlms
         {
             PlmSlot reaction = _slotTable._slots[i];
             if (reaction.Active) continue;
-            PlmPopulationLoader.ClearSlot(reaction);
+            reaction.Clear();
             reaction.Active = true;
             reaction.HeaderPointer = wreckedShip ? PlmHeaderId.CollisionWreckedShipChozoHandCheck
                 : PlmHeaderId.CollisionLowerNorfairChozoHandCheck;
@@ -70,7 +70,7 @@ internal sealed class ChozoStatuePlms
                 // The nested hardcoded spawn occurs while the reaction slot is occupied.
                 enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(level, this);
             }
-            PlmPopulationLoader.ClearSlot(reaction);
+            reaction.Clear();
             return;
         }
     }
@@ -85,7 +85,7 @@ internal sealed class ChozoStatuePlms
         {
             PlmSlot slot = _slotTable._slots[i];
             if (slot.Active) continue;
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = index;

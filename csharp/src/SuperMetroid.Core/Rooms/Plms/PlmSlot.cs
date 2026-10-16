@@ -1,8 +1,3 @@
-using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Scrolling;
-
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>One of the forty native PLM slots: header, block, instruction state and the family state it carries.</summary>
@@ -50,28 +45,31 @@ internal sealed class PlmSlot
     /// <summary>Native extra PLM link-instruction word used by sleeping coroutines.</summary>
     public ushort LinkInstruction { get; set; }
     /// <summary>
-    /// Semantic state for one of bank $84's 63 permanent-item headers. A null value
-    /// leaves this physical slot under the ordinary instruction interpreter.
+    /// The semantic state of the family this slot belongs to, or null while the slot runs only its native words under the
+    /// shared pre-instruction, timer and instruction interpreter.
     /// </summary>
-    public CollectiblePlms.CollectiblePlmState? Item { get; set; }
-    /// <summary>Semantic state for resident bank-$84 scroll trigger header $B703.</summary>
-    public ScrollPlms.ScrollPlmState? Scroll { get; set; }
-    /// <summary>Semantic state for resident yellow/green/red door-cap PLMs.</summary>
-    public ColoredDoorPlmState? ColoredDoor { get; set; }
-    /// <summary>Semantic state for condition-gated grey door-cap PLMs.</summary>
-    public GreyDoorPlmState? GreyDoor { get; set; }
-    /// <summary>Semantic owner for map/resource/save station instruction families.</summary>
-    public StationPlms.StationPlmState? Station { get; set; }
-    /// <summary>Marks header $B70B while its animation remains generic list execution.</summary>
-    public bool IsElevatorPlatform { get; set; }
-    /// <summary>Marks the resident five-block downward gate coroutine.</summary>
-    public GatePlms.DownwardGatePlmState? Gate { get; set; }
-    /// <summary>Semantic owner for one component of a mirrored eye-door assembly.</summary>
-    public EyeDoorPlms.EyeDoorPlmState? EyeDoor { get; set; }
-    /// <summary>Semantic owner for one of Draygon's three retail cannon headers.</summary>
-    public DraygonCannonPlms.DraygonCannonPlmState? DraygonCannon { get; set; }
-    /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
-    public WreckedShipTreadmillPlmState? Treadmill { get; set; }
+    internal PlmFamilyState? Family { get; set; }
+
+    /// <summary>
+    /// Clears every native word and the family reference, so a recycled slot cannot run its former family. Native PLM
+    /// arrays hold only scalar words, so allocating an inactive slot replaces every prior discriminator; every population
+    /// and runtime spawn passes through this reset before writing its own words.
+    /// </summary>
+    internal void Clear()
+    {
+        Active = false;
+        PlantHeldPosition = Position16<RoomPixels>.Zero;
+        HeaderPointer = 0;
+        BlockIndex = 0;
+        RestoreLevelWord = 0;
+        InstructionPointer = 0;
+        InstructionTimer = NativeCountdown.Start(0);
+        PreInstruction = 0;
+        RoomArgument = 0;
+        LoopTimer = 0;
+        LinkInstruction = 0;
+        Family = null;
+    }
 
     /// <summary>Runs <paramref name="animation"/> in place of any native list; the caller keeps the slot's timer.</summary>
     internal void StartAnimation(PlmAnimation animation)

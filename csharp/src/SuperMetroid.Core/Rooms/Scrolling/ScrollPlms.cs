@@ -16,7 +16,7 @@ internal sealed class ScrollPlms
     }
     /// <summary>Every live cartridge-authored scroll trigger, in native slot order.</summary>
     public IReadOnlyList<ScrollPlmSnapshot> Snapshots => _slotTable._slots
-        .Where(slot => slot.Active && slot.Scroll is not null)
+        .Where(slot => slot.Active && slot.Family is ScrollPlmState)
         .Select(slot => new ScrollPlmSnapshot(
             slot.BlockIndex))
         .ToArray();
@@ -31,14 +31,14 @@ internal sealed class ScrollPlms
     {
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Scroll is null)
+            if (!slot.Active || slot.BlockIndex != blockIndex || slot.Family is not ScrollPlmState scroll)
                 continue;
 
             // Native PLM_Vars bit 15 prevents multiple collision probes in one frame from
             // repeatedly advancing the sleeping instruction pointer.
-            if (!slot.Scroll.Triggered)
+            if (!scroll.Triggered)
             {
-                slot.Scroll.Triggered = true;
+                scroll.Triggered = true;
                 slot.RestoreLevelWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
                 slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerActivated;
                 slot.InstructionTimer = NativeCountdown.Start(1);
@@ -54,21 +54,21 @@ internal sealed class ScrollPlms
         RoomScrollGrid? scrolls,
         PlmSlot slot)
     {
-        if (slot.Scroll is null)
+        if (slot.Family is not ScrollPlmState scroll)
             return false;
-        if (!slot.Scroll.Triggered)
+        if (!scroll.Triggered)
             return true; // $86B4 sleep leaves this resident trigger dormant.
         if (scrolls is null)
             throw new InvalidOperationException("A triggered scroll PLM requires the active scroll grid.");
 
         // Retail and historical identity-only states execute ordered writes without a decoded cache.
-        if (slot.Scroll.Program is null)
+        if (scroll.Program is null)
         {
-            RoomPlmScrollProgramDefinitions.Apply(slot.Scroll.CompiledSource ?? slot.RoomArgument, scrolls.SetStorage);
+            RoomPlmScrollProgramDefinitions.Apply(scroll.CompiledSource ?? slot.RoomArgument, scrolls.SetStorage);
             FinishScrollMutation(level, slot);
             return true;
         }
-        ReadOnlyMemory<byte> program = slot.Scroll.Program;
+        ReadOnlyMemory<byte> program = scroll.Program;
         for (int pairIndex = 0; pairIndex < RoomScrollGrid.StorageByteCount; pairIndex++)
         {
             int offset = pairIndex * 2;
@@ -102,7 +102,7 @@ internal sealed class ScrollPlms
     {
         // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
         // the list loops to Sleep. BTS $46 remains unchanged and can wake it again.
-        (slot.Scroll ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
+        ((slot.Family as ScrollPlmState) ?? throw new InvalidOperationException("A scroll PLM slot owns scroll trigger state.")).Triggered = false;
         slot.RestoreLevelWord = 0;
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         ushort triggerWord = level.GetCollisionBlockByIndex(slot.BlockIndex).LevelWord;
@@ -135,12 +135,12 @@ internal sealed class ScrollPlms
 
             // Every extension setup ends in DeletePLM. Clearing this preallocated slot is
             // what permits the following ROM record to reuse the same highest native ID.
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             return;
         }
 
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
-        slot.Scroll = new ScrollPlmState
+        slot.Family = new ScrollPlmState
         {
             UseCompiledRetailProgram = true,
             Program = compiledSource.HasValue ? null : program.ToArray(),
@@ -154,8 +154,11 @@ internal sealed class ScrollPlms
     }
 
     /// <summary>Per-PLM scroll trigger latch and its bound retail or constructed write program.</summary>
-    internal sealed class ScrollPlmState
+    internal sealed class ScrollPlmState : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.Scroll;
+
         /// <summary>Latched on first touch until ordered scroll writes finish.</summary>
         public bool Triggered { get; set; }
         /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>

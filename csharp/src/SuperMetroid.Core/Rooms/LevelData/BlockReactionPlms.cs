@@ -43,7 +43,7 @@ internal sealed class BlockReactionPlms
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = block.LevelWord;
@@ -86,7 +86,7 @@ internal sealed class BlockReactionPlms
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
 
@@ -136,7 +136,7 @@ internal sealed class BlockReactionPlms
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer =
                 RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
@@ -204,7 +204,7 @@ internal sealed class BlockReactionPlms
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.HeaderPointer = definition.HeaderPointer;
             slot.BlockIndex = blockIndex;
@@ -256,7 +256,7 @@ internal sealed class BlockReactionPlms
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = NativeCountdown.Start(1);
@@ -343,7 +343,7 @@ internal sealed class BlockReactionPlms
                 continue;
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.InstructionTimer = NativeCountdown.Start(1);
@@ -497,7 +497,7 @@ internal sealed class BlockReactionPlms
             if (slot.Active)
                 continue;
 
-            PlmPopulationLoader.ClearSlot(slot);
+            slot.Clear();
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;

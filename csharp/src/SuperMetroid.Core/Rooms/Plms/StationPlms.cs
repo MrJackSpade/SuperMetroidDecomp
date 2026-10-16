@@ -52,7 +52,7 @@ internal sealed class StationPlms
         {
             // Unpause can arrive before the final access-art hold expires. Keep that
             // remaining animation; only a station waiting for the map returns to idle.
-            if (slot.Active && slot.Station is { Kind: StationKind.Map } station &&
+            if (slot.Active && slot.Family is StationPlmState { Kind: StationKind.Map } station &&
                 station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
                 station.OperationPhase = StationOperationPhase.Idle;
         }
@@ -137,7 +137,7 @@ internal sealed class StationPlms
     {
         StationPlmState[] matches = _slotTable._slots
             .Where(slot => slot.Active && slot.RoomArgument == activation.StationIndex)
-            .Select(slot => slot.Station)
+            .Select(slot => slot.Family as StationPlmState)
             .OfType<StationPlmState>()
             .Where(station => station.Kind == StationKind.Save && station.AreaIndex == activation.AreaIndex)
             .ToArray();
@@ -173,7 +173,6 @@ internal sealed class StationPlms
                 ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
                 level.SetForegroundEntry(slot.BlockIndex, deactivated);
                 streamer.SetLevelEntry(slot.BlockIndex, deactivated);
-                slot.IsElevatorPlatform = true;
                 return true;
             }
 
@@ -215,7 +214,7 @@ internal sealed class StationPlms
                 new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
             StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
                 slot.InstructionPointer, "save-station animation list");
-            slot.Station = new StationPlmState(
+            slot.Family = new StationPlmState(
                 kind,
                 area,
                 saveList,
@@ -253,7 +252,7 @@ internal sealed class StationPlms
         StationAnimationList initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
-        slot.Station = new StationPlmState(
+        slot.Family = new StationPlmState(
             kind,
             area,
             initialAnimationList,
@@ -343,7 +342,7 @@ internal sealed class StationPlms
 
         foreach (PlmSlot slot in _slotTable._slots)
         {
-            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Station is null)
+            if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Family is not StationPlmState station)
                 continue;
 
             bool setupAccepted = bypassSetupGate || access switch
@@ -369,27 +368,27 @@ internal sealed class StationPlms
                     IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
                 _ => throw new InvalidOperationException($"Undefined station access {access}."),
             };
-            if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle &&
-                (slot.Station.Kind != StationKind.Save ||
-                    (slot.Station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
+            if (setupAccepted && station.OperationPhase == StationOperationPhase.Idle &&
+                (station.Kind != StationKind.Save ||
+                    (station.SavePhase == SaveStationPhase.Idle && !_saveStationLockedOut)))
             {
                 // Recharge setup rejects an already-full resource before command six
                 // takes control. Rejecting it later leaves a locked Samus with no access
                 // animation running to release her. Collision itself remains solid.
-                if (slot.Station.Kind is StationKind.Energy or StationKind.Missile)
+                if (station.Kind is StationKind.Energy or StationKind.Missile)
                 {
                     SamusState samus = _bindings.Samus?.Current
                         ?? throw new InvalidOperationException("Recharge setup has no live Samus owner.");
-                    if (slot.Station.Kind == StationKind.Energy
+                    if (station.Kind == StationKind.Energy
                         ? samus.Health == samus.MaxHealth
                         : samus.Missiles == samus.MaxMissiles)
                     {
                         return true;
                     }
                 }
-                slot.Station.Triggered = true;
-                slot.Station.AccessBlockIndex = accessBlockIndex;
-                slot.Station.AccessBehavior = access;
+                station.Triggered = true;
+                station.AccessBlockIndex = accessBlockIndex;
+                station.AccessBehavior = access;
 
                 // ActivateStationIfSamusArmCannonLinedUp runs command six in setup,
                 // before the common PLM handler advances the resident access list. This
@@ -397,11 +396,11 @@ internal sealed class StationPlms
                 // or finish the animation, but Samus is already movement-locked and the
                 // station therefore softlocks. Save trigger $B590 only advances its
                 // resident list and does not execute command six at this setup seam.
-                if (slot.Station.Kind != StationKind.Save)
+                if (station.Kind != StationKind.Save)
                 {
                     SamusState samus = _bindings.Samus?.Current
                         ?? throw new InvalidOperationException(
-                            $"{slot.Station.Kind} station setup has no live Samus owner.");
+                            $"{station.Kind} station setup has no live Samus owner.");
                     samus.ScriptLocks.LockIntoRefillStation();
                 }
             }
@@ -423,7 +422,7 @@ internal sealed class StationPlms
     /// <summary>Advances station draw timers, access-arm phases, and activation messages during the PLM pass.</summary>
     internal bool TryStepStation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
-        StationPlmState? station = slot.Station;
+        StationPlmState? station = slot.Family as StationPlmState;
         if (station is null)
             return false;
 
@@ -674,8 +673,11 @@ internal sealed class StationPlms
         AreaId area,
         StationAnimationList animationList,
         StationAnimationList completedAnimationList,
-        int animationFrameCount)
+        int animationFrameCount) : PlmFamilyState
     {
+        /// <inheritdoc/>
+        internal override PlmFamily Family => PlmFamily.Station;
+
         /// <summary>Determines whether activation opens the map, refills a resource, or starts a save.</summary>
         public StationKind Kind { get; } = kind;
         /// <summary>Area whose map-acquired or save-station state is affected.</summary>

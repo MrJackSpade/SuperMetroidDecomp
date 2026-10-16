@@ -575,16 +575,11 @@ public sealed class SuperMetroidRuntime
         SuspendedGameplayFrameTail? frameTail = null;
         if (Player.Samus is not null && Room.Camera is not null)
         {
-            SamusPhases.RunAlphaHead(frame, Player.Samus, Room.Camera, samusCameraPointAtFrameStart);
-            if (Player.GroundedSamusMovementEnabled)
-            {
-                SamusPhases.RunAlphaTail(frame, DispatchGameState, Player.Samus, Room.Camera);
-                if (!frame.EnemyMainAlreadyRan)
-                    EnemyPhase.RunEnemyMainPhase(processingListPrepared: true, frame.PreviousCameraPoint);
-                SamusPhases.RunPostEnemyMainResample(frame, Player.Samus);
-                SamusPhases.RunBetaMovement(frame, Player.Samus, Room.Camera);
-            }
-            SamusPhases.RunBetaTail(frame, Player.Samus, frameRequest.Audio);
+            SamusPhases.RunAlpha(frame, DispatchGameState, Player.Samus, Room.Camera, samusCameraPointAtFrameStart);
+            if (frame.MovementEnabled && !frame.EnemyMainAlreadyRan)
+                EnemyPhase.RunEnemyMainPhase(processingListPrepared: true, frame.PreviousCameraPoint);
+            SamusPhases.RunPostEnemyMainResample(frame, Player.Samus);
+            SamusPhases.RunBeta(frame, Player.Samus, Room.Camera, frameRequest.Audio);
 
             if (!frame.DeathOwnsSamus)
                 DoorTransition.RunEnemyProjectileHandler();

@@ -48,6 +48,12 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether horizontal momentum remained when the fallback pose was selected.</summary>
     internal bool DeceleratingFallbackHasMomentum;
 
+    /// <summary>
+    /// Whether Samus movement was enabled when alpha's head finished; alpha's tail, the post-EnemyMain resample and beta
+    /// movement run only then.
+    /// </summary>
+    internal bool MovementEnabled;
+
     /// <summary>Whether EnemyMain ran before Samus because this frame has no movement to wait for.</summary>
     internal bool EnemyMainAlreadyRan;
 

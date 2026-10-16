@@ -247,10 +247,34 @@ internal sealed class SamusFramePhases
         }
     }
     /// <summary>
+    /// Runs the frame handler's alpha (SamusCurrentStateHandler, $0A42): the head, then, when Samus movement is enabled,
+    /// the tail. The enable flag is captured once here for every later gate of the frame.
+    /// </summary>
+    internal void RunAlpha(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
+        ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart)
+    {
+        RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart);
+        frame.MovementEnabled = _player.GroundedSamusMovementEnabled;
+        if (frame.MovementEnabled)
+            RunAlphaTail(frame, gameState, samus, camera);
+    }
+
+    /// <summary>
+    /// Runs the frame handler's beta (SamusNewStateHandler, $0A44): beta movement when Samus movement is enabled, then
+    /// the tail.
+    /// </summary>
+    internal void RunBeta(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera, ISamusFrameAudio audio)
+    {
+        if (frame.MovementEnabled)
+            RunBetaMovement(frame, samus, camera);
+        RunBetaTail(frame, samus, audio);
+    }
+
+    /// <summary>
     /// Runs alpha's tail once movement is enabled: environment gravity, terrain hazards, inside-block reactions, HUD
     /// selection, X-ray admission, bombs, grapple and projectiles, then the end-of-alpha movement snapshot ($90:EB30).
     /// </summary>
-    internal void RunAlphaTail(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
+    private void RunAlphaTail(SamusHandlerFrame frame, SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusState samus,
         ScrollBoundaryCamera camera)
     {
         if (_room.LevelData is null)
@@ -388,6 +412,8 @@ internal sealed class SamusFramePhases
     /// </summary>
     internal void RunPostEnemyMainResample(SamusHandlerFrame frame, SamusState samus)
     {
+        if (!frame.MovementEnabled)
+            return;
         // A carry-set Samus command issued by enemy AI cleared alpha's prospective
         // poses and commands ($90:F093), so nothing pending is committed this frame.
         if (samus.ConsumePendingPoseTransitionCancellation())
@@ -410,7 +436,7 @@ internal sealed class SamusFramePhases
     /// Runs beta's movement ($90:E725): clears the frame's movement results, runs the grapple-release mover, publishes
     /// grapple's corrected camera point and the dispatch pose, then runs the installed movement owner.
     /// </summary>
-    internal void RunBetaMovement(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera)
+    private void RunBetaMovement(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -1054,7 +1080,7 @@ internal sealed class SamusFramePhases
     /// Runs alpha's head: X-ray's beam object, the frame's camera point, the frame-start captures, the live radius
     /// refresh, pose-input lookup and the lookup-failure pose ($91:82D9).
     /// </summary>
-    internal void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
+    private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
         FixedPosition<RoomPixels>? cameraPointAtFrameStart)
     {
         // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
@@ -1176,7 +1202,7 @@ internal sealed class SamusFramePhases
     /// ($90:E738) with Draygon's escape, animation or the death sequence, the pose transitions, and periodic damage with
     /// the low-energy check.
     /// </summary>
-    internal void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio)
+    private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio)
     {
         // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
         // function and before animation/pose transitions. Every fourth gameplay frame

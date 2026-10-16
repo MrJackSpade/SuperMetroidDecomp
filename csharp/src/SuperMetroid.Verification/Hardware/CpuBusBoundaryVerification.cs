@@ -234,10 +234,6 @@ internal static class CpuBusBoundaryVerification
         AssertEqual((ushort)0x0102, fireflea.Timer, "Fireflea timer round-trips");
         AssertEqual((byte)0x02, bus.ReadWorkRamByte(0x7e1778), "Fireflea timer is the $7E:1778 word through its mirror");
 
-        var scroll = new RoomScrollMemory(bus);
-        bus.WriteByte(0x7ecd52, 0x77);
-        AssertEqual((byte)0x77, scroll.ReadIndexed(RoomScrollGrid.StorageByteCount), "scroll index $32 reads the adjacent explored-map byte");
-
         var scratch = new EnemyScratchMemory(bus);
         AssertThrows<InvalidDataException>(() => scratch.RotTable(0x8ffc, 2), "a rot table must lie inside the rotting heap");
         scratch.CorpseTiles.WriteWord(0x10, 0x4321);

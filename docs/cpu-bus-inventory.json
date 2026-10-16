@@ -320,7 +320,8 @@
       "encoding": "RoomScrollState[] (u8)",
       "aliasOf": null,
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollMemory.cs"
+        "csharp/src/SuperMetroid.Core/Rooms/Scrolling/RoomScrollMemory.cs",
+        "csharp/src/SuperMetroid.Verification/Rooms/Scrolling/ImplicitScrollResidueVerification.cs"
       ]
     },
     {

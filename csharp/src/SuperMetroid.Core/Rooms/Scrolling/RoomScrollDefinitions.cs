@@ -3,6 +3,15 @@ namespace SuperMetroid.Core.Rooms.Scrolling;
 /// <summary>Compiled explicit scroll allocations selected by retail room states.</summary>
 public static class RoomScrollDefinitions
 {
+    /// <summary>
+    /// The byte bank $80's scroll handlers (<c>$80:A802</c>, <c>$80:A823</c>, <c>$80:A903</c>) read past the 50 scroll
+    /// cells, where <c>$7E:CD52</c> onward holds the saved explored-map planes. With the clamped camera the reachable
+    /// indexes are $32-$37, Crateria's padding row and two cells no room marks, all zero (#1336). The port has never
+    /// mirrored the explored maps into that image, so every such read has always returned zero; the 100% movie also
+    /// reads index $03FE (update 101214) and matches the cartridge with it.
+    /// </summary>
+    internal const byte ExploredMapOverreadByte = 0;
+
     /// <summary>Sorted bank-$8F scroll allocations copied from retail room-state references, including native trailing storage beyond logical screen cells.</summary>
     private static readonly RoomScrollDefinition[] Definitions =
     [

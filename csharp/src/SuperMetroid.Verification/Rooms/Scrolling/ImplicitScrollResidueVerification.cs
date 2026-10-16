@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Scrolling;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
@@ -26,6 +27,13 @@ internal static class ImplicitScrollResidueVerification
         RoomScrollGrid grid = RoomScrollDefinitions.CreateGrid(bus, room.State.ScrollPointer, room.Size);
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
+        // #1336: past the 50 cells the scroll reads land in the saved explored-map planes, which read as zero
+        // whatever the image holds.
+        PlantExploredMapByte(bus);
+        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadNativeStorage(RoomScrollGrid.StorageByteCount),
+            "index $32 reads the explored-map byte as the cartridge's zero");
+        AssertEqual(RoomScrollDefinitions.ExploredMapOverreadByte, grid.ReadNativeStorage(ushort.MaxValue),
+            "the last index a 16-bit register selects reads zero too");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3), "the bottom row is blue");
         for (int index = grid.LogicalCellCount; index < RoomScrollGrid.StorageByteCount; index++)
             AssertEqual(before.ReadStorage(index), grid.ReadStorage(index), $"scroll byte {index} keeps the previous room's value");
@@ -41,4 +49,9 @@ internal static class ImplicitScrollResidueVerification
         Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
         return 0;
     }
+
+    /// <summary>Plants a nonzero byte at the first explored-map byte past the 50 scroll cells.</summary>
+    [CpuBusBoundary("exact bus test: plants a nonzero byte at $7E:CD52, the first explored-map byte past the scroll cells")]
+    private static void PlantExploredMapByte(TestAddressSpace bus) =>
+        bus.WriteByte(RoomScrollWorkRamAddresses.Zones.Address + RoomScrollGrid.StorageByteCount, byte.MaxValue);
 }

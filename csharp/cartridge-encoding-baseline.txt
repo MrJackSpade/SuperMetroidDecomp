@@ -899,7 +899,7 @@ csharp/src/SuperMetroid.Verification/Hardware/Bgr555DomainVerification.cs	SME634
 csharp/src/SuperMetroid.Verification/Hardware/ColorWindowSnapshotTestsVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6340	55
 csharp/src/SuperMetroid.Verification/Hardware/CompressionVerification.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	85
+csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6340	82
 csharp/src/SuperMetroid.Verification/Hardware/CpuBusBoundaryVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Hardware/CpuOperandOpenBusVerification.cs	SME6340	12
 csharp/src/SuperMetroid.Verification/Hardware/DmaSourceRoutingVerification.cs	SME6340	25

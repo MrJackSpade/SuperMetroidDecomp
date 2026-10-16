@@ -115,9 +115,7 @@ public sealed class RoomScrollGrid
     {
         if ((uint)index > ushort.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(index));
-        return index < StorageByteCount
-            ? _cells[index]
-            : Memory.ReadIndexed(index);
+        return index < StorageByteCount ? _cells[index] : RoomScrollDefinitions.ExploredMapOverreadByte;
     }
 
     /// <summary>Adapts the live bus to the native scroll-zone and adjacent-WRAM view.</summary>

@@ -164,7 +164,6 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             layer1: camera,
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: _room.Random.Read());
-        state.LastBabyMetroidStep = step;
         // Both outcomes of the native heal helper call the sound helper after the
         // energy write. Use the phase that ran, including its final full-health call.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&

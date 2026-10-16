@@ -107,7 +107,7 @@ internal static class CollectibleVisualsVerification
             fixture.Plms.Drawing.CollectibleVisuals = stock;
             if (header == 0xef7f)
                 AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(
-                        fixture.BlockIndex, 0x0500),
+                        fixture.BlockIndex),
                     "shot-block collectible accepts its native trigger");
             fixture.Plms.Step(NewCollectibleDrawReadGuard(bus), fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, fixture.Plms.CollectiblePlms.Collectibles.Count,

@@ -307,8 +307,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Extended cutscene AI state attached to the dynamically allocated baby slot; its independent turn owns latch, draining, healing, and death handshakes.</summary>
     public BabyMetroidCutsceneState? BabyMetroid { get; internal set; }
 
-    /// <summary>Debugger witness from the Baby's most recent physical enemy turn.</summary>
-    public BabyMetroidCutsceneStepResult? LastBabyMetroidStep { get; internal set; }
 
     /// <summary>
     /// Last Baby program copied into its physical slot. The slot's cursor advances
@@ -340,8 +338,6 @@ public sealed class MotherBrainEnemyState
     public ushort RainbowBeamAngularWidth { get; internal set; }
     /// <summary>Whether this body-function call requested a rainbow palette step; cleared at the beginning of every enemy frame.</summary>
     public bool RainbowBeamPaletteRequested { get; internal set; }
-    /// <summary>The current frame's optional beam-impact dust/explosion request, published by continuing beam effects and cleared before the next frame.</summary>
-    public MotherBrainRainbowExplosionRequest? LastRainbowBeamExplosion { get; internal set; }
 
     /// <summary>
     /// Last brain program copied from the rainbow state machine into the brain.
@@ -359,12 +355,6 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     internal uint RainbowAppliedSmallPurpleBreathWrites { get; set; }
 
-    /// <summary>
-    /// Last drop request emitted when an exploding Samus bomb destroys Mother Brain's bomb.
-    /// Pickup selection remains owned by the common enemy-drop seam; retaining the head
-    /// definition and exact coordinate makes that request inspectable in the debugger.
-    /// </summary>
-    public MotherBrainBombDropRequest? LastBombDropRequest { get; internal set; }
 
     /// <summary>
     /// Clamped byte-angle written by head opcode <c>$A9:9E5B</c> and consumed by the next
@@ -395,11 +385,8 @@ public sealed class MotherBrainEnemyState
         LastSoundEffect = null;
         LastSoundEffectLibrary1 = null;
         LastSoundEffectLibrary3 = null;
-        LastBombDropRequest = null;
         LastRainbowBeamStep = null;
-        LastBabyMetroidStep = null;
         RainbowBeamPaletteRequested = false;
-        LastRainbowBeamExplosion = null;
     }
 
     /// <summary>Queues one typed music command with its authored delay for this frame.</summary>

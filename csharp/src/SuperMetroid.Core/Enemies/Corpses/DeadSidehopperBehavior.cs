@@ -461,7 +461,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, move),
-            entryIndex => FinishDeadSidehopperCorpseRow(slot, state, entryIndex));
+            entryIndex => FinishDeadSidehopperCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
         BuildDeadSidehopperVramTransfers(state);
@@ -525,11 +525,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Records a completed row, spawns dust at its randomized X offset, and conditionally requests sound.</summary>
     private void FinishDeadSidehopperCorpseRow(
         RoomEnemySlot slot,
-        DeadSidehopperEnemyState state,
-        ushort entryIndex)
+        DeadSidehopperEnemyState state)
     {
         state.FinishedEntryCount++;
-        state.LastFinishedEntryIndex = entryIndex;
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),

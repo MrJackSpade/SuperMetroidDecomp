@@ -31,7 +31,7 @@ internal static class SpeedBoosterPickupVerification
             if (chozo)
             {
                 // The orb must be shot open before its item can be touched.
-                AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(fixture.BlockIndex, 0x0100),
+                AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(fixture.BlockIndex),
                     "Speed Booster orb accepts a projectile");
                 StepUntil(
                     () => fixture.Plms.CollectiblePhases[0] == CollectiblePhase.Visible,

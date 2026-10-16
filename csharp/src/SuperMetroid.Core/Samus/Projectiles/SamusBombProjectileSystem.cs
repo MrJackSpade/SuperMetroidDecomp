@@ -900,7 +900,7 @@ public sealed class SamusBombProjectileSystem
         if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger &&
             block.CollisionType is RoomCollisionType.SpecialBlock or RoomCollisionType.ShootableBlock)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, projectileType);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return;
         }
 

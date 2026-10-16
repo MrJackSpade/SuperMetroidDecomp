@@ -73,8 +73,6 @@ public sealed class PhantoonEnemyState
 
     /// <summary>Last library-two combat sound and exact post-vulnerability damage.</summary>
     public ushort? LastCombatSoundEffect { get; internal set; }
-    /// <summary>Gets the actual health removed by the latest accepted projectile hit after native vulnerability arithmetic and lethal-health clamping.</summary>
-    public ushort LastProjectileDamage { get; internal set; }
     /// <summary>Gets the count of projectile collisions accepted by the vulnerable body path, including hits whose vulnerability produces zero damage.</summary>
     public int AcceptedProjectileHits { get; internal set; }
 

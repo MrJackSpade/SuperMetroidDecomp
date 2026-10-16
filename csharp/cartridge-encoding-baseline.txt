@@ -1036,8 +1036,8 @@ csharp/src/SuperMetroid.Verification/Rooms/LookupRoomStateSettingsVerification.c
 csharp/src/SuperMetroid.Verification/Rooms/MoatFirstEntryVerification.cs	SME6340	4
 csharp/src/SuperMetroid.Verification/Rooms/PillarFirstEntryVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Rooms/Plms/CollectibleMessageTimingVerification.cs	SME6340	3
-csharp/src/SuperMetroid.Verification/Rooms/Plms/CollectibleVisualsVerification.cs	SME6340	28
-csharp/src/SuperMetroid.Verification/Rooms/Plms/CollectiblesVerification.cs	SME6340	80
+csharp/src/SuperMetroid.Verification/Rooms/Plms/CollectibleVisualsVerification.cs	SME6340	27
+csharp/src/SuperMetroid.Verification/Rooms/Plms/CollectiblesVerification.cs	SME6340	79
 csharp/src/SuperMetroid.Verification/Rooms/Plms/CollectiblesVerification.cs	SME6342	4
 csharp/src/SuperMetroid.Verification/Rooms/Plms/CompiledDynamicCollectibleGraphicsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Rooms/Plms/CompiledScrollPlmProgramsVerification.cs	SME6340	4
@@ -1148,7 +1148,7 @@ csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerificat
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerification.cs	SME6342	29
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterCollisionBlocksVerification.cs	SME6340	33
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterEchoStopVerification.cs	SME6340	9
-csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPickupVerification.cs	SME6340	9
+csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPickupVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPlmProgramsVerification.cs	SME6340	40
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterVisualsVerification.cs	SME6340	21
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedPaletteOverrunVerification.cs	SME6340	8

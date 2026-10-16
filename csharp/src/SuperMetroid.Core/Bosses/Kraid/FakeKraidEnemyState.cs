@@ -57,8 +57,6 @@ public sealed class FakeKraidEnemyState
     /// <summary>Byte offset zero/two/four selecting the spike clock visited this frame.</summary>
     public ushort SpikeTimerByteOffset { get; internal set; }
 
-    /// <summary>Most recently selected spike row, or <c>null</c> before the first spawn.</summary>
-    public int? LastSpikeRow { get; internal set; }
 
     /// <summary>Number of spike projectiles successfully allocated by this actor.</summary>
     public int SpawnedSpikeCount { get; internal set; }

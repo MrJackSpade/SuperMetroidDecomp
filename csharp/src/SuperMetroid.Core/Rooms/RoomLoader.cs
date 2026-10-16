@@ -1098,14 +1098,12 @@ internal sealed class RoomLoader
             // or column. An eager destination fill destroys the circular-map seam before
             // the opening IRQ and visibly offsets door/elevator arrivals.
             _pendingDoorOpeningPpuScroll = doorOpeningPpuScroll;
-            _room.LastBackgroundUpdateCount = 0;
             return new InitialViewportResult();
         }
 
         _pendingDoorOpeningPpuScroll = null;
         _backgroundScroll.Layer1Position = _room.Camera.PixelPosition;
         IReadOnlyList<BackgroundUpdateRequest> requests = _backgroundScroll.BuildInitialViewportRequests();
-        _room.LastBackgroundUpdateCount = requests.Count;
         int segmentCount = 0;
         foreach (BackgroundUpdateRequest request in requests)
         {

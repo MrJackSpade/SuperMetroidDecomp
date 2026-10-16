@@ -232,9 +232,6 @@ internal sealed class DoorTransitionRunner
     {
         _sprites.BeginFrame();
         _actorDrawing.LastSamusBodyDrawn = false;
-        _actorDrawing.LastShinesparkCrashDrawingHandlerActive = false;
-        _actorDrawing.LastGrappleDrawingHandlerActive = false;
-        _actorDrawing.LastGrappleBeamSpecificDrawingPath = false;
         _actorDrawing.LastGrappleFlareDrawn = false;
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.

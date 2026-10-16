@@ -89,8 +89,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Delayed music publication from the current Crocomire frame.</summary>
     public CrocomireMusicRequest? LastCrocomireMusicRequest { get; private set; }
 
-    /// <summary>The boss-specific item-drop request emitted after the skeleton collapses.</summary>
-    public CrocomireDropRequest? LastCrocomireDropRequest { get; private set; }
 
     /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
     public Position16<Bg2Pixels> CrocomireBg2Scroll { get; private set; }
@@ -110,7 +108,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         _crocomireCameraX = 0;
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
-        LastCrocomireDropRequest = null;
         CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
         CrocomireBridgeCollapseStarted = false;
     }
@@ -1318,7 +1315,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Body.Position += new Offset16<RoomPixels>(64, 21);
         state.Body.Radius = new(40, 28);
         PublishCrocomirePlm(new Position16<RoomBlocks>(48, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
-        LastCrocomireDropRequest = new CrocomireDropRequest();
 
         // $A0:B995 emits sixteen independent $F337 projectiles across Crocomire's
         // authored arena rectangle. These are not a single pickup at the corpse position:
@@ -2338,7 +2334,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
-        LastCrocomireDropRequest = null;
         _crocomirePlmRequests.Clear();
     }
 

@@ -295,7 +295,7 @@ internal sealed class ProjectileTerrainCollision
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
 

@@ -193,7 +193,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, move),
-            entryIndex => FinishDeadTourianCorpseRow(slot, state, entryIndex));
+            entryIndex => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             slot.VariableA = DeadTourianCorpseProfileDefinitions.NoOperationFunction;
         _deadMonsters.AppendVramTransfers(state.VramTablePointer);
@@ -248,11 +248,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns randomized dust for a completed rot row and gates its sound on the enemy counter.</summary>
     private void FinishDeadTourianCorpseRow(
         RoomEnemySlot slot,
-        DeadTourianCorpseEnemyState state,
-        ushort entryIndex)
+        DeadTourianCorpseEnemyState state)
     {
         state.FinishedEntryCount++;
-        state.LastFinishedEntryIndex = entryIndex;
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(slot.Position.X.Whole + (random & CorpseDustDefinitions.SpreadBits) - 14)), unchecked((ushort)(slot.Position.Y.Whole + 16))),

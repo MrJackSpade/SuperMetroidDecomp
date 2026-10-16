@@ -1876,7 +1876,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake.EarthquakeType = 7;
 
         state.TailWhipHits++;
-        state.LastTailWhipDamage = damage;
         _spriteObjects.SpawnRoomSpriteObject(
             new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + 16))),
             RoomSpriteObjectKind.DustCloud,

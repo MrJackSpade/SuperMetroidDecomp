@@ -61,8 +61,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last library-two sound selected by Botwoon in the current enemy frame.</summary>
     public ushort? LastBotwoonSoundEffect { get; internal set; }
 
-    /// <summary>Specialized drop request published when all body pieces have landed.</summary>
-    public BotwoonDropRequest? LastBotwoonDropRequest { get; private set; }
 
     /// <summary>
     /// Hardcoded bank-$84 PLM requested by Botwoon. $B797 is the already-defeated wall;
@@ -78,7 +76,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _botwoonState = null;
         LastBotwoonSoundEffect = null;
-        LastBotwoonDropRequest = null;
         _botwoonDropRequests.Clear();
         LastBotwoonWallPlm = null;
         LastBotwoonMusicRequest = null;
@@ -770,7 +767,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128))),
                 ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
             _botwoonDropRequests.Add(request);
-            LastBotwoonDropRequest = request;
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
                 request.Position,
                 request.ItemDropChancesPointer);
@@ -1140,14 +1136,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ResetBotwoonRoomState();
         LastBotwoonSoundEffect = null;
-        LastBotwoonDropRequest = null;
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastBotwoonSoundEffect = null;
-        LastBotwoonDropRequest = null;
         LastBotwoonWallPlm = null;
         LastBotwoonMusicRequest = null;
     }

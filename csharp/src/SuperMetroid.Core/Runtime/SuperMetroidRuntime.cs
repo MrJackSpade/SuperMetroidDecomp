@@ -541,21 +541,19 @@ public sealed class SuperMetroidRuntime
                     System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Nmi.NmiFrameCounter }, BombProjectiles.PowerBombExplosion);
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
-        Player.LastHyperBeamPaletteFxStep = RoomPaletteFx.HandlerEnabled
-            ? Player.Samus?.Drained.HyperBeamPaletteFx.Step(
+        if (RoomPaletteFx.HandlerEnabled)
+        {
+            Player.Samus?.Drained.HyperBeamPaletteFx.Step(
                 _addressSpace,
                 Cgram,
-                Artwork.BeamArtwork?.HyperBeamFxColors)
-            : null;
+                Artwork.BeamArtwork?.HyperBeamFxColors);
+        }
 
         // The bank-$82 main loop clears high OAM and resets its stack before dispatching
         // game state, then finalizes unused entries afterward. Samus is emitted before the
         // escape timer so lower OAM indices retain their normal overlap precedence.
         Sprites.BeginFrame();
         ActorDrawing.LastSamusBodyDrawn = false;
-        ActorDrawing.LastShinesparkCrashDrawingHandlerActive = false;
-        ActorDrawing.LastGrappleDrawingHandlerActive = false;
-        ActorDrawing.LastGrappleBeamSpecificDrawingPath = false;
         ActorDrawing.LastGrappleFlareDrawn = false;
 
         EnemyPhase.PrepareEnemyFrame();
@@ -581,7 +579,6 @@ public sealed class SuperMetroidRuntime
             // ordinary pose and handler pair before this frame samples pose input. The
             // revealed-block BG2 copies/window table remain a separate renderer boundary.
             Player.LastXrayBeamStep = null;
-            Player.LastXrayPoseInput = null;
             Player.LastDeathSequenceStep = null;
             if (Player.Samus.Xray.IsActive && !Player.Samus.DeathSequence.IsActive)
             {
@@ -648,7 +645,7 @@ public sealed class SuperMetroidRuntime
             frame.MovementBeforeXrayAdmission = Player.Samus.PoseMetadata.ReadMovementType(_addressSpace);
             if (xrayOwnsPoseInput)
             {
-                Player.LastXrayPoseInput = Player.Samus.Xray.HandlePoseInput(
+                Player.Samus.Xray.HandlePoseInput(
                     _addressSpace,
                     Player.Samus,
                     Controller1.Current);
@@ -680,7 +677,6 @@ public sealed class SuperMetroidRuntime
             frame.DeceleratingFallbackHasMomentum = Player.Samus.HorizontalSpeed.BaseFixed != 0;
             Player.ProspectiveSamusFallbackPose = null;
             Player.ProspectiveSamusWallCollisionPose = null;
-            Player.LastRanIntoWallProbe = null;
 
             // Zero input and an unmatched nonzero table chord both reach `$91:82D9`; a matched
             // same-pose record does not. Native writes the prospective pose slot in alpha and

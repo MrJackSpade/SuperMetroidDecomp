@@ -1215,7 +1215,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             ushort y = bomb.Position.Y.Whole;
             DeleteMotherBrainBomb(bomb, state);
             _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallDustCloud);
-            state.LastBombDropRequest = new MotherBrainBombDropRequest();
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
                 new(x, y),
                 state.Head.EnemyDefinitionPointer);
@@ -4167,7 +4166,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState >= 2)
             MotherBrainHealthPalette.Apply(_presentation.Cgram, state.Head.Health, _presentation.MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
-        state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
             // stops the same looping voice. Preserve the command selected by the sequence.

@@ -64,8 +64,6 @@ public sealed class DeadTourianCorpseEnemyState
     public uint FinishedEntryCount { get; internal set; }
     /// <summary>Port diagnostic count of dust spawn requests from completed rows; each uses animation 10 at corpse Y plus 16 pixels and a native RNG-masked horizontal offset.</summary>
     public uint DustSpawnCount { get; internal set; }
-    /// <summary>Zero-based index of the most recently completed rotting-table entry, or $FFFF before any entry finishes.</summary>
-    public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
 
     /// <summary>Assembly-internal callback profile; debugger state exposes the stable ROM-derived words instead.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }

@@ -997,7 +997,7 @@ public static class SamusGrappleMovement
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
                     }
                     else if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
-                        plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, projectileType: 0);
+                        plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
                     else
                     {
                         try

@@ -80,8 +80,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
     public ushort? LastMetroidSoundEffectLibrary2 { get; private set; }
 
-    /// <summary>Most recent library-three Metroid sound requested during this enemy frame.</summary>
-    public ushort? LastMetroidSoundEffectLibrary3 { get; private set; }
 
     /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
     internal void InitializeMetroid(RoomEnemySlot slot)
@@ -360,7 +358,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (new SamusProjectileTypeWord(collisionProjectileType).BeamCombination.HasIce)
         {
-            LastMetroidSoundEffectLibrary3 = EnemySoundEffectDefinitions.MetroidIceSoundEffect;
             slot.FlashTimer = NativeCountdown.Start(4);
             if (collisionProjectileDamage >= slot.Parameter2)
             {
@@ -536,7 +533,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastMetroidSoundEffectLibrary2 = null;
-        LastMetroidSoundEffectLibrary3 = null;
         _metroidDropRequests.Clear();
     }
 
@@ -544,7 +540,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastMetroidSoundEffectLibrary2 = null;
-        LastMetroidSoundEffectLibrary3 = null;
     }
 
     /// <summary>Applies frozen missile damage or unfrozen recoil and Ice accumulation after the shared projectile prelude.</summary>

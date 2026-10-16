@@ -79,8 +79,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Last library-two sound requested by Fake Kraid during this enemy frame.</summary>
     public ushort? LastFakeKraidSoundEffect { get; private set; }
 
-    /// <summary>Last specialized Mini-Kraid death/drop request.</summary>
-    public FakeKraidDropRequest? LastFakeKraidDropRequest { get; private set; }
 
     /// <summary>Ports <c>FakeKraid_Init</c> at <c>$A6:9A58</c>.</summary>
     internal void InitializeFakeKraid(RoomEnemySlot slot, SamusState? samus)
@@ -145,7 +143,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.SpikeTimers[timerIndex] = unchecked((ushort)(
             (ReadFakeKraidRandomNumber() & 0x003f) + 16));
-        state.LastSpikeRow = timerIndex;
         if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
@@ -352,7 +349,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Scatters four Mini-Kraid pickups around the position saved before death clears its slot.</summary>
     private void SpawnFakeKraidDeathDrops(Position16<RoomPixels> origin)
     {
-        LastFakeKraidDropRequest = new FakeKraidDropRequest();
         _deathsAndDrops.SpawnEnemyDropScatterAround(
             EnemyDefinitionId.MiniKraid,
             count: 4,
@@ -465,14 +461,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastFakeKraidSoundEffect = null;
-        LastFakeKraidDropRequest = null;
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
         LastFakeKraidSoundEffect = null;
-        LastFakeKraidDropRequest = null;
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

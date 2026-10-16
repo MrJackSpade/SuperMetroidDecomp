@@ -192,7 +192,7 @@ internal static class CollectiblesVerification
         CollectibleFixture shot = LoadCollectible(bus, header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)), roomArgument: 123, precollected: false);
         AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
             "shot-item setup installs type-C concealed block");
-        AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(shot.BlockIndex, 0x0100),
+        AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(shot.BlockIndex),
             "concealed shot item accepts projectile reaction");
         StepUntil(
             () => shot.Plms.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,

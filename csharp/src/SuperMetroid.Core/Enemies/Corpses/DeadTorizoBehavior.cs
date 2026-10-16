@@ -162,7 +162,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
-            entryIndex => FinishDeadTorizoCorpseRow(state, entryIndex));
+            _ => FinishDeadTorizoCorpseRow(state));
         if (!stillRotting)
             slot.VariableA = (ushort)DeadTorizoFunction.NoOperation;
     }
@@ -303,10 +303,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Records a finished rot row, spawns dust from shared RNG, and optionally publishes sound.</summary>
-    private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state, ushort entryIndex)
+    private void FinishDeadTorizoCorpseRow(DeadTorizoEnemyState state)
     {
         state.FinishedEntryCount++;
-        state.LastFinishedEntryIndex = entryIndex;
         ushort random = _room.Random.Read();
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)((random & CorpseDustDefinitions.TorizoSpreadBits) + 272)), 188),

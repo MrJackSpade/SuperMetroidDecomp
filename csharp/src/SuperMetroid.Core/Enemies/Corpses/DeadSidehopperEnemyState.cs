@@ -87,6 +87,4 @@ public sealed class DeadSidehopperEnemyState
     public uint FinishedEntryCount { get; internal set; }
     /// <summary>Host diagnostic count of dust effects requested by completed corpse entries; increments once per completion hook invocation.</summary>
     public uint DustSpawnCount { get; internal set; }
-    /// <summary>Most recently completed zero-based rotting entry index, or $FFFF before any entry has completed; retained as host diagnostic state.</summary>
-    public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
 }

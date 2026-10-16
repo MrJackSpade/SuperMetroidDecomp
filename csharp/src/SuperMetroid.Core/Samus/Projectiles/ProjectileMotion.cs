@@ -516,7 +516,7 @@ internal sealed class ProjectileMotion
         if (block.CollisionType == RoomCollisionType.ShootableBlock &&
             block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
         {
-            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index, slot.Type);
+            _ = roomPlms?.CollectiblePlms.TryNotifyCollectibleProjectileHit(block.Index);
             return true;
         }
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)

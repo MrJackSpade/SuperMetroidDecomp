@@ -97,7 +97,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
                 // `$A3:C70F` queues library-two sound $5B on the exact frame the wind-up
                 // instruction releases the dive. Publishing it as a frame event retains
                 // native timing without coupling enemy AI to a particular audio backend.
-                LastSkreeSoundEffect = EnemySoundEffectDefinitions.DiveSound;
                 _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeDive, maximumQueued: 6);
                 return;
 
@@ -134,7 +133,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             slot.Timer = NativeCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
-            LastSkreeSoundEffect = EnemySoundEffectDefinitions.BurrowSound;
             _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeBurrow, maximumQueued: 6);
             return;
         }
@@ -205,19 +203,15 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = cursor;
     }
 
-    /// <summary>Last library-two Skree dive ($5B) or burrow-impact ($5C) sound this enemy pass, also queued by its AI through Max6; cleared before the next pass.</summary>
-    public ushort? LastSkreeSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        LastSkreeSoundEffect = null;
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastSkreeSoundEffect = null;
     }
 
     // $A3:C7F5 adds Skree's four debris actors after the shared normal shot handler reports death, before the

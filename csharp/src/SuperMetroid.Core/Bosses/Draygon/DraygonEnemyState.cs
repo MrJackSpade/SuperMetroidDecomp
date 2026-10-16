@@ -126,8 +126,6 @@ public sealed class DraygonEnemyState
     /// <summary>Number of ROM tail-hit opcodes that actually damaged grabbed Samus.</summary>
     public int TailWhipHits { get; internal set; }
 
-    /// <summary>Suit-scaled damage dealt by the most recent tail-hit instruction.</summary>
-    public ushort LastTailWhipDamage { get; internal set; }
 
     /// <summary>
     /// Native byte offset <c>$7E:781C</c> into the eight health-palette bands. It advances

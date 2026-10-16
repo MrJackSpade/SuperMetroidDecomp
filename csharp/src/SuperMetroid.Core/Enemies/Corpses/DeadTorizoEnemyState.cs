@@ -57,6 +57,4 @@ public sealed class DeadTorizoEnemyState
     public uint DustSpawnCount { get; internal set; }
     /// <summary>Host diagnostic count of sand lines copied into the live $7E:9500 heap surface, incremented once for each descending nonzero line selector.</summary>
     public uint SandLineCopyCount { get; internal set; }
-    /// <summary>Most recently completed zero-based row-entry index, or $FFFF before any completion; retained as host diagnostic state.</summary>
-    public ushort LastFinishedEntryIndex { get; internal set; } = ushort.MaxValue;
 }

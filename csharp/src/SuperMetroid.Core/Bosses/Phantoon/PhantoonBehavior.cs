@@ -713,7 +713,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 PhantoonEnemyState phantoon = Phantoon ??
                     throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
                 ushort appliedDamage = unchecked((ushort)(c.HealthBefore - c.Enemy.Health));
-                phantoon.LastProjectileDamage = appliedDamage;
                 phantoon.AcceptedProjectileHits++;
                 ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
             },
@@ -921,7 +920,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             }
 
             ushort appliedDamage = unchecked((ushort)(healthBefore - body.Health));
-            state.LastProjectileDamage = appliedDamage;
             state.AcceptedProjectileHits++;
             ResolvePhantoonShotReaction(
                 body,

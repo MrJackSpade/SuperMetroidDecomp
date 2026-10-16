@@ -135,7 +135,6 @@ internal sealed class GameplayActorDrawing
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 _player.Samus.Drained.UpdatePalette(_addressSpace, _cgram, _player.Samus.EquippedItems,
                     _artwork.MapPresentation?.SamusSuitColors);
-            LastHurtFlashPaletteStep = default;
             LastVisorPaletteStep = default;
             bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
@@ -204,7 +203,7 @@ internal sealed class GameplayActorDrawing
                 SamusSpecialSuperPalette.Update(_cgram, _player.Samus);
             if (!deathOwnsSamus && !drainedOwnsSamusPalette && !metroidOwnsSamusPalette)
             {
-                LastHurtFlashPaletteStep = SamusHurtFlashPalette.Update(
+                SamusHurtFlashPalette.Update(
                     _addressSpace,
                     _cgram,
                     _player.Samus,
@@ -233,8 +232,7 @@ internal sealed class GameplayActorDrawing
             // drawing handler. HUD-selection stability, cover transition, and the
             // pose-authored before/after-body mode must therefore settle before charge
             // flare, atmospheric, or body OAM is appended.
-            LastArmCannonUpdate = _player.Samus.ArmCannon.Update(_addressSpace, _player.Samus);
-            LastArmCannonDraw = default;
+            _player.Samus.ArmCannon.Update(_addressSpace, _player.Samus);
 
             // `$90:EB86` replaces the ordinary `$90:EB52` display handler while an
             // elevator owns a front-facing body. It still arrives after `$90:C5C4`, so
@@ -269,7 +267,6 @@ internal sealed class GameplayActorDrawing
                 // paths, ordinary departing speed echoes, and grapple graphics. It
                 // draws the live body first, then crash slot one before slot zero on
                 // odd NMIs. The shared projectile/trail tail below still follows.
-                LastShinesparkCrashDrawingHandlerActive = true;
                 LastSamusBodyDrawn = _player.Samus.Presentation.Draw(
                     _addressSpace,
                     _sprites,
@@ -288,8 +285,6 @@ internal sealed class GameplayActorDrawing
                     SamusGrappleMovement.UsesGrappleDrawingHandler(_player.Samus.Grapple.Phase);
                 bool grappleBeamSpecificPath = grappleHandlerInstalled &&
                     SamusGrappleMovement.UsesBeamSpecificDrawingPath(_player.Samus.Grapple.Phase);
-                LastGrappleDrawingHandlerActive = grappleHandlerInstalled;
-                LastGrappleBeamSpecificDrawingPath = grappleBeamSpecificPath;
 
                 if (grappleBeamSpecificPath)
                 {
@@ -345,7 +340,7 @@ internal sealed class GameplayActorDrawing
                 if (_player.Samus.ArmCannon.EffectiveDrawingMode is not 0 and
                     not 2)
                 {
-                    LastArmCannonDraw = _player.Samus.ArmCannon.Draw(
+                    _player.Samus.ArmCannon.Draw(
                         _addressSpace,
                         _sprites,
                         _player.Samus,
@@ -360,7 +355,7 @@ internal sealed class GameplayActorDrawing
                     _display.ActiveSamusMode7Transform);
                 if (_player.Samus.ArmCannon.EffectiveDrawingMode == 2)
                 {
-                    LastArmCannonDraw = _player.Samus.ArmCannon.Draw(
+                    _player.Samus.ArmCannon.Draw(
                         _addressSpace,
                         _sprites,
                         _player.Samus,
@@ -490,17 +485,8 @@ internal sealed class GameplayActorDrawing
     /// <summary>Most recent ordinary `$91:D83F` visor color-cycle step.</summary>
     public SamusVisorPaletteStepResult LastVisorPaletteStep { get; internal set; }
 
-    /// <summary>
-    /// Most recent call of the final-priority ordinary hurt palette handler. The result
-    /// exposes both visible palette cadence and counter-forty audio recovery to a debugger.
-    /// </summary>
-    public SamusHurtFlashPaletteStepResult LastHurtFlashPaletteStep { get; internal set; }
 
-    /// <summary>Most recent `$90:C5C4` arm-cannon cover state update.</summary>
-    public SamusArmCannonUpdateResult LastArmCannonUpdate { get; internal set; }
 
-    /// <summary>Most recent optional cannon OBJ and tile-$1F DMA publication.</summary>
-    public SamusArmCannonDrawResult LastArmCannonDraw { get; internal set; }
 
     /// <summary>
     /// Whether the current main-loop frame actually appended Samus's body spritemaps.
@@ -509,25 +495,8 @@ internal sealed class GameplayActorDrawing
     /// </summary>
     public bool LastSamusBodyDrawn { get; internal set; }
 
-    /// <summary>
-    /// True only when the current frame dispatched `$90:EBF3`, the deliberately minimal
-    /// shinespark-crash body-plus-two-echo renderer. Exposed separately from phase state so
-    /// a debugger can verify that handler installation and presentation agree on a frame.
-    /// </summary>
-    public bool LastShinesparkCrashDrawingHandlerActive { get; internal set; }
 
-    /// <summary>
-    /// True when this frame dispatched grapple's replacement `$90:EB86` Samus handler.
-    /// Teardown phases remain true for their one pending frame even though the handler's
-    /// signed range test selects ordinary body/cannon/echo rendering inside that routine.
-    /// </summary>
-    public bool LastGrappleDrawingHandlerActive { get; internal set; }
 
-    /// <summary>
-    /// True when `$90:EB86` took its beam-specific flare/body/rope half rather than the
-    /// teardown fallback. This is intentionally narrower than handler installation.
-    /// </summary>
-    public bool LastGrappleBeamSpecificDrawingPath { get; internal set; }
 
     /// <summary>Whether grapple's bank-$93 flare passed its unsigned screen-Y gate.</summary>
     public bool LastGrappleFlareDrawn { get; internal set; }

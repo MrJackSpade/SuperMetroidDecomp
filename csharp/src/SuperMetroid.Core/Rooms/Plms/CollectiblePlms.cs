@@ -153,8 +153,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// collision producer generically and reduces it to the same $00FF trigger word.
     /// </summary>
     public bool TryNotifyCollectibleProjectileHit(
-        int blockIndex,
-        SamusProjectileTypeWord projectileType)
+        int blockIndex)
     {
         foreach (PlmSlot slot in _slotTable._slots)
         {
@@ -167,7 +166,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             {
                 return false;
             }
-            item.LastTriggerProjectileType = projectileType;
             item.Triggered = true;
             return true;
         }
@@ -724,7 +722,5 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         public bool Triggered { get; set; }
         /// <summary>Distinguishes a previously acquired concealed item during its reveal list.</summary>
         public bool WasCollectedBeforeReveal { get; set; }
-        /// <summary>Projectile family that last activated an orb or concealed block, retained for diagnostics.</summary>
-        public SamusProjectileTypeWord LastTriggerProjectileType { get; set; }
     }
 }

@@ -396,10 +396,8 @@ internal sealed class SamusFramePhases
             _player.LastMorphBallMovement = null;
             _player.LastBombJumpMovement = null;
             _player.LastKnockbackMovement = null;
-            _player.LastCeresRidleyEjection = null;
             _player.LastShinesparkMovement = null;
             _player.LastCrystalFlashMovement = null;
-            _player.LastXrayAnimationFrame = null;
             // X-ray publishes its pose-input and beam results above because both run
             // outside the normal movement-type dispatcher. Its movement result is the
             // directly inspectable frame returned by `StepMovement` below.
@@ -480,7 +478,7 @@ internal sealed class SamusFramePhases
             {
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
-                _player.LastXrayAnimationFrame = samus.Xray.StepMovement(_addressSpace, samus);
+                samus.Xray.StepMovement(_addressSpace, samus);
             }
             // `$90:E119` installs a separate movement/gamma-handler pair for Ceres
             // Ridley's retreat. It must precede ordinary damage knockback because pose
@@ -507,7 +505,7 @@ internal sealed class SamusFramePhases
                         SamusPoseId.DamageBoostLeftPose or SamusPoseId.DamageBoostRightPose)
                         _player.ProspectiveSamusFallbackPose = null;
                 }
-                _player.LastCeresRidleyEjection = samus.CeresRidleyEjection.Step(
+                samus.CeresRidleyEjection.Step(
                     _addressSpace,
                     _room.LevelData,
                     samus,
@@ -1306,7 +1304,6 @@ Landed: true, HitCeiling: false);
                         currentRunHitWall,
                         out BlockMoveResult? onePixelProbe,
                         _plms);
-                _player.LastRanIntoWallProbe = onePixelProbe;
             }
 
             if (!animationTransitionApplied &&

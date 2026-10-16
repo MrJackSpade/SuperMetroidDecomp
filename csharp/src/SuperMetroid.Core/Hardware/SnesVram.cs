@@ -237,6 +237,25 @@ public sealed class SnesVram
         }
     }
 
+    /// <summary>Reads back the bytes an upload of <paramref name="byteCount"/> bytes to <paramref name="encodedDestination"/> wrote, in upload order.</summary>
+    /// <param name="encodedDestination">The upload's native VMADD/VMAIN destination.</param>
+    /// <param name="byteCount">Bytes uploaded.</param>
+    public byte[] ReadUploaded(ushort encodedDestination, int byteCount)
+    {
+        if (byteCount is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(byteCount));
+        VramDmaDestination destination = VramDmaDestination.FromNative(encodedDestination);
+        int destinationWord = destination.Word;
+        int increment = destination.WordIncrement;
+        var bytes = new byte[byteCount];
+        for (int i = 0; i < byteCount; i++)
+        {
+            bool high = (i & 1) != 0;
+            bytes[i] = _bytes[destinationWord * 2 + (high ? 1 : 0)];
+            if (high) destinationWord = (destinationWord + increment) & WordAddressMask;
+        }
+        return bytes;
+    }
+
     /// <summary>
     /// Clears all VRAM. This is a host-side convenience for resets and isolated tests;
     /// the original game normally clears memory through explicit PPU/DMA operations.

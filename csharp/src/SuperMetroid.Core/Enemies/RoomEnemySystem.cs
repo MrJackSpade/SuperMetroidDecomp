@@ -145,6 +145,13 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>The <see cref="EnemyPresentation"/> owner of this RoomEnemySystem.</summary>
     internal EnemyPresentation Presentation { get; }
 
+    /// <summary>The gameplay OBJ character table's bindings that enemy-format sprites draw from.</summary>
+    public ObjCharacterUploads ObjCharacters
+    {
+        get => Presentation.ObjCharacters;
+        internal set => Presentation.ObjCharacters = value;
+    }
+
     /// <summary>The <see cref="EnemySlotTable"/> owner of this RoomEnemySystem.</summary>
     internal EnemySlotTable SlotTable { get; }
 

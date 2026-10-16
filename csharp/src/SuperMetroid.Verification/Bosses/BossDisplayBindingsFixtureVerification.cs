@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -62,7 +63,7 @@ internal static class BossDisplayBindingsFixtureVerification
         internal OamBuffer Draw()
         {
             var result = new OamBuffer(); result.BeginFrame();
-            Enemies.Drawing.DrawLayers(result, new(0, 0), 0, 0);
+            Enemies.Drawing.DrawLayersAsOam(result, new(0, 0), 0, 0);
             return result;
         }
 

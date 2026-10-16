@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -82,7 +83,7 @@ internal static class DraygonTilemapProductionVerification
                 staging.AsSpan(0, boss.Bg2TilemapSize / 2).CopyTo(expectedVram);
                 transfers++;
             }
-            oam.BeginFrame(); enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
+            oam.BeginFrame(); enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 7); oam.FinalizeFrame();
             for (int word = 0; word < expectedVram.Length; word++)
             {
                 ushort actual = vram.ReadWord(0x4800 + word);

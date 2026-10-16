@@ -90,7 +90,12 @@ public sealed class VramWriteQueue
     /// Executes every queued transfer in insertion order, then clears the table just as
     /// the NMI consumer does at <c>$80:8CC9</c>.
     /// </summary>
-    public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null)
+    /// <param name="vram">VRAM receiving the transfers.</param>
+    /// <param name="memory">Game memory that bus-sourced transfers read.</param>
+    /// <param name="assets">Resolves installed artwork transfers.</param>
+    /// <param name="objects">Records what each transfer that reaches the OBJ character table shows, when gameplay draws from it.</param>
+    public void DrainTo(SnesVram vram, ISnesMutableMemory memory, IVramAssetProvider? assets = null,
+        ObjCharacterUploads? objects = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(memory);
@@ -105,10 +110,19 @@ public sealed class VramWriteQueue
                 if (assets is IInstalledArtworkTransferSource artwork &&
                     artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes,
                         out ReadOnlyMemory<byte> selected))
+                {
                     vram.ExecuteQueuedAssetWrite(selected.Span, entry.EncodedVramDestination);
+                    objects?.RecordQueuedUpload(entry.EncodedVramDestination, entry.SizeInBytes,
+                        ObjCharacterSource.FromTransfer(entry.SourceAddress, entry.SizeInBytes));
+                }
                 else
+                {
                     vram.ExecuteQueuedMemoryWrite(memory, entry.SourceAddress, entry.SizeInBytes,
                         entry.EncodedVramDestination);
+                    // No installed artwork names game-memory bytes; the binding keeps the bytes the upload wrote.
+                    objects?.RecordQueuedUpload(entry.EncodedVramDestination, entry.SizeInBytes,
+                        ObjCharacterSource.FromMemory(vram.ReadUploaded(entry.EncodedVramDestination, entry.SizeInBytes)));
+                }
             }
             else
             {
@@ -117,6 +131,8 @@ public sealed class VramWriteQueue
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
                 vram.ExecuteQueuedAssetWrite(data.Span, entry.EncodedVramDestination);
+                objects?.RecordQueuedUpload(entry.EncodedVramDestination, entry.SizeInBytes,
+                    ObjCharacterSource.FromAsset(entry.AssetId));
             }
         }
 

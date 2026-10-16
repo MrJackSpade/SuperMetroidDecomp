@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -29,7 +30,7 @@ internal static class FirefleaEyeVerification
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         var oam = new OamBuffer();
         oam.BeginFrame();
-        runtime.Enemies.Drawing.DrawLayers(oam, new(cameraX, cameraY), 0, 7);
+        runtime.Enemies.Drawing.DrawLayersAsOam(oam, new(cameraX, cameraY), 0, 7);
         oam.FinalizeFrame();
         AssertTrue(oam.LastFinalizedSpriteCount > 0, "retail rock eye emits sprites");
         var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, oam);

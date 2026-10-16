@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -31,7 +32,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         int Breaths() => runtime.Enemies.Projectiles.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
-        void Draw() => runtime.Enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 5, 5);
+        void Draw() => runtime.Enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 5, 5);
 
         runtime.System.SetRandomNumber(0x8000);
         Draw();

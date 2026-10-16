@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -343,9 +344,9 @@ internal static class RoomEnemySystemAccess
             Ensure.NotNull(oam);
             self.Room.EnsureLoaded();
 
-            self.SpriteObjects.DrawRoomSpriteObjects(oam, camera);
-            self.Projectiles.DrawEnemyProjectilePass(oam, camera, EnemyProjectileDrawPriority.High, timeIsFrozen);
-            self.Projectiles.DrawEnemyProjectilePass(oam, camera, EnemyProjectileDrawPriority.Low, timeIsFrozen);
+            self.SpriteObjects.DrawRoomSpriteObjectsAsOam(oam, camera);
+            self.Projectiles.DrawEnemyProjectilePassAsOam(oam, camera, EnemyProjectileDrawPriority.High, timeIsFrozen);
+            self.Projectiles.DrawEnemyProjectilePassAsOam(oam, camera, EnemyProjectileDrawPriority.Low, timeIsFrozen);
         }
 
         /// <summary>Standalone contact probe; runtime dispatches body before AI and tail during tail update.</summary>

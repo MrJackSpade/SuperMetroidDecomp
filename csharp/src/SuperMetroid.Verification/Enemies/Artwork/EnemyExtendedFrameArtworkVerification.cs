@@ -1431,7 +1431,9 @@ internal static class EnemyExtendedFrameArtworkVerification
             if (((componentX + 128) & 0xfe00) != 0 ||
                 ((componentY + 128) & 0xfe00) != 0)
                 continue;
-            DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = bank, Pointer = sprite, Origin = new(componentX, componentY), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(componentY)) == 0 });
+            // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
+            // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
+            DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = bank, Pointer = sprite, Origin = new(componentX, componentY), PaletteBits = 0, BaseTileIndex = 0 });
         }
         return oam;
     }
@@ -1469,7 +1471,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.InstructionTimer = NativeCountdown.Start(7);
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
-        enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 0);
+        enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);
         inspect?.Invoke(slot);
         return oam;
     }

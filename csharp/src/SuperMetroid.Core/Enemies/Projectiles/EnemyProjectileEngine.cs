@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;
@@ -353,41 +354,56 @@ internal sealed class EnemyProjectileEngine
     /// Ports <c>Draw_HighPriority_EnemyProjectile</c> at <c>$86:8390</c>, including the
     /// preceding room-sprite-object phase at <c>$A0:8855</c>.
     /// </summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawHighPriorityEnemyProjectiles(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(objects);
         _room.EnsureLoaded();
 
         // Sprite objects precede only the high pass. Repeating them in the low pass would
-        // duplicate explosions, dust, and Spark's trail in the same hardware OAM image.
-        _spriteObjects.DrawRoomSpriteObjects(oam, camera);
+        // duplicate explosions, dust, and Spark's trail in the same frame.
+        _spriteObjects.DrawRoomSpriteObjects(sprites, objects, camera);
         DrawEnemyProjectilePass(
-            oam,
+            sprites,
+            objects,
             camera,
             EnemyProjectileDrawPriority.High, timeIsFrozen);
     }
 
     /// <summary>Ports <c>Draw_LowPriority_EnemyProjectile</c> at <c>$86:83B2</c>.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    /// <param name="timeIsFrozen">Whether time is frozen, which stops the earthquake displacement.</param>
     public void DrawLowPriorityEnemyProjectiles(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         bool timeIsFrozen = false)
     {
-        Ensure.NotNull(oam);
+        Ensure.NotNull(sprites);
+        Ensure.NotNull(objects);
         _room.EnsureLoaded();
 
         DrawEnemyProjectilePass(
-            oam,
+            sprites,
+            objects,
             camera,
             EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
-    /// <summary>Draws one priority class in descending slot order so earlier OAM entries win overlaps.</summary>
+    /// <summary>Publishes one priority class in descending slot order so earlier entries win overlaps.</summary>
     internal void DrawEnemyProjectilePass(
-        OamBuffer oam,
+        SpriteFrameBuffer sprites,
+        SpriteArtwork objects,
         Position16<RoomPixels> camera,
         EnemyProjectileDrawPriority priority,
         bool timeIsFrozen)
@@ -415,10 +431,9 @@ internal sealed class EnemyProjectileEngine
             ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
                 ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
                 : artwork.Get(projectile.SpritemapPointer);
-            oam.AddEnemySpritemap(parts.Span, screen.ToOam(),
-                new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
-                unchecked((byte)projectile.GraphicsIndex),
-                clipVerticalWrap: true, originYIsOnScreen: (SnesLittleEndian.HighByte(screen.Y)) == 0);
+            ushort paletteBits = new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits;
+            EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.EnemyProjectile, projectileIndex),
+                EnemySpriteFrames.Frame(parts, unchecked((byte)projectile.GraphicsIndex), paletteBits), screen, paletteBits);
         }
     }
 

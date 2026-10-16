@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Ripper;
@@ -153,6 +154,13 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
     AssertEqual(2, specialGraphics.VramTilesIndex,
         "second enemy tile index includes first definition size");
+    // Room load stages the tiles; they reach VRAM, and the OBJ characters' record, through the NMI queue.
+    var tileQueue = new VramWriteQueue();
+    enemies.PopulationLoader.QueueGraphicsUploads(tileQueue);
+    tileQueue.DrainTo(vram, SuperMetroid.TestSupport.VerificationOracles.ReferenceMutableMemory.From(bus),
+        new SuperMetroid.TestSupport.VerificationOracles.EnemyTileTransfers(enemies.TileArtwork
+            ?? throw new InvalidOperationException("The fixture binds no enemy artwork.")), enemies.ObjCharacters);
+    AssertEqual(2, enemies.ObjCharacters.Uploads.Count, "both enemy tile uploads are recorded for the OBJ page");
     AssertEqual(0x80, vram.ReadByte(0xe000), "ordinary enemy first tile byte");
     AssertEqual(0xbf, vram.ReadByte(0xe03f), "ordinary enemy final tile byte");
     AssertEqual(0xc0, vram.ReadByte(0xda00), "special enemy first tile byte");
@@ -573,7 +581,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = NativeCountdown.Start(2);
     shakenOam.BeginFrame();
-    enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(89, shakenOam.GetEntry(0).X,
         "enemy shake frame-counter bit one clear adds one X pixel");
@@ -582,7 +590,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     ripper.FrameCounter = 2;
     ripper.ShakeTimer = NativeCountdown.Start(2);
     shakenOam.BeginFrame();
-    enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
+    enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
     AssertEqual(87, shakenOam.GetEntry(0).X,
         "enemy shake frame-counter bit one set subtracts one X pixel");

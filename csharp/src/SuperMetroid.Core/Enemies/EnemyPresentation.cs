@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -52,6 +53,11 @@ internal sealed class EnemyPresentation
         throw new InvalidOperationException("Enemy presentation has no bound CGRAM; the room's video memory must be bound first.");
     /// <summary>VRAM shared with room and enemy artwork transfers.</summary>
     internal SnesVram? _vram;
+    /// <summary>
+    /// The gameplay OBJ character table's bindings, which enemy-format sprites draw from. Uploads that bypass the NMI
+    /// queue (Draygon's Evir sheet, Crocomire's skeleton chunks) record themselves here; the runtime shares its table.
+    /// </summary>
+    internal ObjCharacterUploads ObjCharacters { get; set; } = new();
     /// <summary>CGRAM backing boss and enemy palette views.</summary>
     internal SnesCgram? _cgram;
 
@@ -76,6 +82,39 @@ internal sealed class EnemyPresentation
     /// <summary>Installed standard BG3 characters shared with Kraid's death restoration.</summary>
     [field: NonSerialized]
     public HudTileAtlas? HudTileArtwork { get; set; }
+
+    /// <summary>Publishes an installed enemy composition over the OBJ page, or accepts the compiled common empty frame.</summary>
+    /// <remarks>A nonempty pointer without installed display art is an asset error rather than a cartridge fallback.</remarks>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="source">The enemy shown.</param>
+    /// <param name="draw">The composition, its origin on screen, palette bits and packed tile base.</param>
+    internal void PublishEnemySpritemap(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source, EnemySpritemapDraw draw)
+    {
+        if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Bank, draw.Pointer, out EnemySpritemapParts installed) == true)
+        {
+            PublishParts(sprites, objects, source, EnemySpriteFrames.Frame(installed, draw.BaseTileIndex, draw.PaletteBits),
+                new Position16<ScreenPixels>(draw.Origin.X, draw.Origin.Y), draw.PaletteBits);
+            return;
+        }
+        // The common empty frame is compiled definition data, not missing artwork.
+        if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(draw.Bank, draw.Pointer))
+            return;
+        throw new InvalidDataException(
+            $"Enemy sprite ${draw.Bank:X2}:{draw.Pointer:X4} requires an installed display composition.");
+    }
+
+    /// <summary>Publishes one enemy-format frame over the OBJ page.</summary>
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="source">The actor shown.</param>
+    /// <param name="frame">The whole frame, its parts' palettes and tiles already formed.</param>
+    /// <param name="origin">The frame origin on screen.</param>
+    /// <param name="paletteBits">The palette selection the frame was formed with.</param>
+    internal static void PublishParts(SpriteFrameBuffer sprites, SpriteArtwork objects, SpriteSource source,
+        SpriteFrame frame, Position16<ScreenPixels> origin, ushort paletteBits) =>
+        sprites.Add(new SpriteDraw(source, frame, objects, origin, default,
+            (byte)SnesObjAttributeWord.FromPaletteBits(paletteBits).PaletteIndex, 0));
 
     /// <summary>Draws an installed enemy composition or accepts the compiled common empty frame.</summary>
     /// <remarks>A nonempty pointer without installed display art is an asset error rather than a cartridge fallback.</remarks>

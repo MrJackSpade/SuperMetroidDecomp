@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Tooling;
 using System.Reflection;
 using System.Text.Json;
@@ -262,7 +263,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 EnemyExtraProperties.NewInstructionFrame);
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
-        enemies.Drawing.DrawLayers(new OamBuffer(), new(0, 0), 0, 0);
+        enemies.Drawing.DrawLayersAsOam(new OamBuffer(), new(0, 0), 0, 0);
         return vram.Bytes.ToArray();
     }
 }

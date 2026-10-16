@@ -817,7 +817,7 @@ csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMapPositionVerification
 csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMapPositionVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMemory.cs	SME6340	16
 csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMenuFixtureVerification.cs	SME6340	7
-csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMenuVerification.cs	SME6340	70
+csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMenuVerification.cs	SME6340	68
 csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseMomentumVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseReserveAnchorsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Frontend/Pause/PauseReserveArrowVerification.cs	SME6340	20

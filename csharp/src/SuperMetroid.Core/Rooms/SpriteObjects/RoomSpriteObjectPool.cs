@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Artwork;
 
@@ -157,7 +159,10 @@ internal sealed class RoomSpriteObjectPool
     }
 
     /// <summary>Ports <c>DrawSpriteObjects</c> at <c>$B4:BD32</c>.</summary>
-    internal void DrawRoomSpriteObjects(OamBuffer oam, Position16<RoomPixels> camera)
+    /// <param name="sprites">The frame's sprite description.</param>
+    /// <param name="objects">The gameplay OBJ character page.</param>
+    /// <param name="camera">Layer-one camera position in whole room pixels.</param>
+    internal void DrawRoomSpriteObjects(SpriteFrameBuffer sprites, SpriteArtwork objects, Position16<RoomPixels> camera)
     {
         for (int index = _roomSpriteObjects.Length - 1; index >= 0; index--)
         {
@@ -190,8 +195,8 @@ internal sealed class RoomSpriteObjectPool
                     $"Installed room sprite-object artwork lacks " +
                     $"$B4:{slot.SpritemapPointer:X4} for {slot.Kind}.");
             }
-            oam.AddEnemySpritemap(installed, screen.ToOam(),
-                paletteBits, baseTileIndex);
+            EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
+                EnemySpriteFrames.Frame(installed, baseTileIndex, paletteBits), screen, paletteBits);
         }
     }
 }

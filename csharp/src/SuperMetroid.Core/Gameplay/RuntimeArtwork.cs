@@ -17,8 +17,30 @@ namespace SuperMetroid.Core.Gameplay;
 /// Host-installed artwork catalogs (room tiles, palettes, layouts, sky, Samus, beams, grapple, map presentation)
 /// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
 /// </summary>
-internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource
+internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver
 {
+    /// <summary>The page cache for the gameplay OBJ character table; artwork, never saved.</summary>
+    [NonSerialized] private ObjCharacterTablePage? gameplayObjectPage;
+
+    /// <summary>The gameplay OBJ character page enemy-format sprites draw from: the table's uploads over current artwork.</summary>
+    /// <param name="uploads">The OBJ character table's uploads.</param>
+    internal SpriteArtwork GameplayObjectPage(ObjCharacterUploads uploads) =>
+        (gameplayObjectPage ??= new ObjCharacterTablePage()).Page(uploads, this);
+
+    /// <summary>Resolves an OBJ binding's installed VRAM asset.</summary>
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveAsset(VramAssetId asset) => ResolveVramAsset(asset);
+
+    /// <summary>Resolves an OBJ binding's native upload through the installed artwork that served it.</summary>
+    /// <exception cref="InvalidOperationException">No bound artwork serves the upload any more.</exception>
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveTransfer(int sourceAddress, int byteCount) =>
+        TryResolveInstalledArtwork(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
+            : throw new InvalidOperationException($"No bound artwork serves the OBJ upload from ${sourceAddress:X6} ({byteCount} bytes).");
+
+    /// <summary>Resolves an OBJ binding's Crocomire skeleton chunk.</summary>
+    ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveCrocomireSkeletonChunk(int entry) =>
+        (_enemies.TileArtwork?.CrocomireSkeleton ?? throw new InvalidOperationException(
+            "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(entry);
+
     /// <summary>Resolves a legacy native-source DMA record from currently installed artwork.</summary>
     bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
         TryResolveInstalledArtwork(sourceAddress, byteCount, out data);

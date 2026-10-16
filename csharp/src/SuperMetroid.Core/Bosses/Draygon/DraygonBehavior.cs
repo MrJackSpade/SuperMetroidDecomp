@@ -302,6 +302,9 @@ internal sealed class DraygonBehavior : IEnemySpecies
                     throw new InvalidDataException(
                         "Installed Evir graphics are missing for Draygon's opening transfer.");
                 new EnemyVram(_presentation.Vram).DraygonEvirTiles.Load(installedTiles.Span);
+                _presentation.ObjCharacters.RecordUpload(EnemyVram.DraygonEvirTilesDma,
+                    DraygonIntroPresentationDefinitions.EvirTilesByteCount,
+                    ObjCharacterSource.FromTransfer(evir.TileDataAddress, DraygonIntroPresentationDefinitions.EvirTilesByteCount));
                 state.IntroEvirGraphicsLoaded = true;
 
                 // CreateSpriteAtPos searches descending, so these become native indexes

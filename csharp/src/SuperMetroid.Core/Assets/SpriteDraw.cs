@@ -49,6 +49,10 @@ public sealed record SpriteDraw
     /// <summary>Priority against the backgrounds for parts that do not choose their own.</summary>
     public byte Priority { get; }
 
+    /// <summary>The same draw over other artwork of the same layout, which must hold every character the frame reads.</summary>
+    /// <param name="artwork">The artwork the draw now reads.</param>
+    public SpriteDraw WithArtwork(SpriteArtwork artwork) => new(Source, Frame, artwork, Origin, Flip, Palette, Priority);
+
     /// <summary>Names the draw for debugger watches: source, frame and signed origin.</summary>
     public override string ToString() =>
         $"{Source.Kind}#{Source.Instance} {Frame.Name} at ({unchecked((short)Origin.X)}, {unchecked((short)Origin.Y)})";

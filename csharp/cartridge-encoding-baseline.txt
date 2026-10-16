@@ -608,7 +608,7 @@ csharp/src/SuperMetroid.Core/Samus/SamusDraygonGrabbedState.cs	SME6347	1
 csharp/src/SuperMetroid.Core/Samus/SamusFrameState.cs	SME6347	1
 csharp/src/SuperMetroid.Core/Samus/SamusInputSnapshot.cs	SME6347	2
 csharp/src/SuperMetroid.Core/Samus/SamusSoundRequest.cs	SME6347	1
-csharp/src/SuperMetroid.Core/Samus/SamusState.cs	SME6347	35
+csharp/src/SuperMetroid.Core/Samus/SamusState.cs	SME6347	32
 csharp/src/SuperMetroid.Core/Saves/GameSaveJsonCodec.cs	SME6346	1
 csharp/src/SuperMetroid.Core/Saves/GameSaveSlotJsonDocument.cs	SME6347	6
 csharp/src/SuperMetroid.Core/Saves/SaveCheckpointJsonDocument.cs	SME6347	1
@@ -1805,7 +1805,7 @@ csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerificat
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SamusSpecialStatesVerification.cs	SME6342	29
 csharp/src/SuperMetroid.Verification/Samus/Abilities/ShinesparkEnemyStopVerification.cs	SME6346	1
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterCollisionBlocksVerification.cs	SME6340	33
-csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterEchoStopVerification.cs	SME6340	9
+csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterEchoStopVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPickupVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterPlmProgramsVerification.cs	SME6340	40
 csharp/src/SuperMetroid.Verification/Samus/Abilities/SpeedBoosterVisualsVerification.cs	SME6340	21
@@ -1906,11 +1906,11 @@ csharp/src/SuperMetroid.Verification/Samus/Palettes/FullBodyPalettePointerListsV
 csharp/src/SuperMetroid.Verification/Samus/Palettes/HyperBeamFxColorArtworkVerification.cs	SME6340	24
 csharp/src/SuperMetroid.Verification/Samus/Palettes/NormalSuitPalettePointersVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Samus/Palettes/NormalSuitPalettePointersVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusChargeColorsVerification.cs	SME6340	39
+csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusChargeColorsVerification.cs	SME6340	38
 csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusFullBodyCycleColorsVerification.cs	SME6340	161
 csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusFullBodyCycleColorsVerification.cs	SME6342	2
 csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusHurtColorsVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusHyperBeamColorsVerification.cs	SME6340	52
+csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusHyperBeamColorsVerification.cs	SME6340	51
 csharp/src/SuperMetroid.Verification/Samus/Palettes/SamusSuitColorsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Samus/Palettes/SpeedBoostPalettePointersVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Samus/Palettes/SpeedBoostPalettePointersVerification.cs	SME6342	1
@@ -1979,7 +1979,7 @@ csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileTrailDefinition
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/ProjectileVisualPartsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectileRomDataVerification.cs	SME6340	2
-csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	476
+csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6340	475
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SamusProjectilesVerification.cs	SME6342	7
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SpacetimeBeamVerification.cs	SME6340	31
 csharp/src/SuperMetroid.Verification/Samus/Projectiles/SuperMissileDeathAnimationVerification.cs	SME6340	5
@@ -1992,14 +1992,14 @@ csharp/src/SuperMetroid.Verification/Samus/SamusAimVerification.cs	SME6340	863
 csharp/src/SuperMetroid.Verification/Samus/SamusAimVerification.cs	SME6342	81
 csharp/src/SuperMetroid.Verification/Samus/SamusAtmosphereArtworkBoundaryVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Samus/SamusContentIdentityVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6340	441
+csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6340	440
 csharp/src/SuperMetroid.Verification/Samus/SamusDamageAndGrabVerification.cs	SME6342	26
 csharp/src/SuperMetroid.Verification/Samus/SamusImpulseDefinitionsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Samus/SamusImpulseDefinitionsVerification.cs	SME6346	2
 csharp/src/SuperMetroid.Verification/Samus/SamusIndexedSpeedsVerification.cs	SME6340	6
 csharp/src/SuperMetroid.Verification/Samus/SamusMotionCoreVerification.cs	SME6340	116
 csharp/src/SuperMetroid.Verification/Samus/SamusMotionCoreVerification.cs	SME6342	5
-csharp/src/SuperMetroid.Verification/Samus/SamusTurnsAndKnockbackVerification.cs	SME6340	284
+csharp/src/SuperMetroid.Verification/Samus/SamusTurnsAndKnockbackVerification.cs	SME6340	283
 csharp/src/SuperMetroid.Verification/Samus/SamusTurnsAndKnockbackVerification.cs	SME6342	33
 csharp/src/SuperMetroid.Verification/Saves/GameSaveJsonVerification.cs	SME6346	1
 csharp/src/SuperMetroid.Verification/Saves/SaveSchemaTranslationVerification.cs	SME6340	6

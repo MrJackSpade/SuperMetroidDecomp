@@ -94,7 +94,7 @@ internal static class SamusChargeColorsVerification
             }
         }
         AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "six charge phases wrap");
-        samus.HyperBeam = 0x8000;
+        samus.HyperBeamEnabled = true;
         projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.Start((ushort)0x8014);
         for (int call = 0; call < 20; call++)
         {

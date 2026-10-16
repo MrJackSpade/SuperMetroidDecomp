@@ -95,7 +95,7 @@ internal static class ChargeFlarePlacementVerification
             AssertEqual(original.GetEntry(i).Y, changed.GetEntry(i).Y, "X-only flare edit preserves Y");
         }
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
-        foreach (ushort hyper in new ushort[] { 0, 1 })
+        foreach (bool hyper in new[] { false, true })
         {
             var originalSystem = new SamusProjectileSystem(); var editedSystem = new SamusProjectileSystem();
             foreach (var target in new[] { originalSystem, editedSystem })
@@ -104,7 +104,7 @@ internal static class ChargeFlarePlacementVerification
                 var frames = target.Charge._flareFrames;
                 Array.Fill(frames, (ushort)2);
             }
-            subject.HyperBeam = hyper;
+            subject.HyperBeamEnabled = hyper;
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
             original = SpriteFrameBuffer.DrawnOam(frame => originalSystem.DrawChargeFlare(frame, subject, new(0, 0),
                 originalSystem.AdvanceChargeFlare(subject), null,

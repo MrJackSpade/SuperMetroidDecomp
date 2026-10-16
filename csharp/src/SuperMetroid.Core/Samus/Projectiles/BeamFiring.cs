@@ -92,7 +92,7 @@ internal sealed class BeamFiring
         // `$90:B80D` gives the Hyper flag priority over Charge equipment. It still uses
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
         // desktop-held button from allocating more frequently than the cartridge.
-        if (samus.HyperBeam != 0)
+        if (samus.HyperBeamEnabled)
         {
             (int? slot, ushort sound) = (controllerInput & shoot) != 0
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)

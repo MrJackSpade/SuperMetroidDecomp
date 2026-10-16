@@ -343,7 +343,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertEqual(7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
     AssertEqual(5, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
-    AssertEqual(0x0240, enemyEligible.EnemyIndexToShake,
+    AssertEqual(9, enemyEligible.EnemySlotToShake ?? -1,
         "enemy wall jump publishes contacted slot for shake");
 
     // Bank $91:F2D3 clears only base speed; bank $90:9949 installs Y launch speed and

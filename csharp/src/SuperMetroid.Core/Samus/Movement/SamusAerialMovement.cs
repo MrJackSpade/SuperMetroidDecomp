@@ -779,11 +779,11 @@ public static class SamusAerialMovement
             // the runtime to install the wall-jump pose explicitly.
             samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.WallJump;
 
-            if (probe.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+            if (probe.EnemyCollision is { EnemySlot: int enemySlot })
             {
                 // `$90:9E64-$90:9E66` publishes only enemy-backed launches. Terrain wall
                 // jumps intentionally leave the previous `$0E18` value alone.
-                samus.EnemyIndexToShake = enemyIndex;
+                samus.EnemySlotToShake = enemySlot;
             }
         }
         return new WallJumpCheckResult(triggered, Contact: true, distance);

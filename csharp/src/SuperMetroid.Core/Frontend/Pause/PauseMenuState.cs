@@ -409,7 +409,7 @@ internal sealed class PauseMenuState
             .PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
         mapPresentation.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
             samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-            samus.EquippedItems, samus.HyperBeam != 0);
+            samus.EquippedItems, samus.HyperBeamEnabled);
 
         plasmaLabelOverrunActive = false;
 
@@ -801,7 +801,7 @@ internal sealed class PauseMenuState
     /// <summary>Scans collected items in one category and moves the selector to the first eligible item.</summary>
     private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
     {
-        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeam != 0)
+        if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeamEnabled)
             return false;
         var category = PauseEquipmentCategories.Get(categoryIndex);
         for (int item = start; item >= 0 && item < category.ItemCount; item += step)
@@ -933,7 +933,7 @@ internal sealed class PauseMenuState
             catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
             catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
                 samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
-                samus.EquippedItems, samus.HyperBeam != 0);
+                samus.EquippedItems, samus.HyperBeamEnabled);
             if (plasmaLabelOverrunActive)
                 catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
                     PauseEquipmentCategory.Beams, PauseEquipmentCategories.PlasmaItem,

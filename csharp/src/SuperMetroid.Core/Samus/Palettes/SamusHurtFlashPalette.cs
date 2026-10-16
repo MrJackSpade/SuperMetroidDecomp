@@ -119,7 +119,7 @@ public static class SamusHurtFlashPalette
     public static bool ConsumeResumeChargingBeamSound(SamusState samus, SnesButton controllerInput)
     {
         Ensure.NotNull(samus);
-        if (samus.ResumeChargingBeamSoundFlag == 0)
+        if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.Clear)
             return false;
 
         bool queued = (controllerInput & SnesButton.X) != 0;
@@ -128,7 +128,7 @@ public static class SamusHurtFlashPalette
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ResumeChargingBeam, maximumQueued: 9);
         }
 
-        samus.ResumeChargingBeamSoundFlag = 0;
+        samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.Clear;
         return queued;
     }
 
@@ -155,7 +155,7 @@ public static class SamusHurtFlashPalette
             if (samus.ProjectileFlareCounter >= 16 &&
                 (controllerInput & SnesButton.X) != 0)
             {
-                samus.ResumeChargingBeamSoundFlag = 1;
+                samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
                 return SamusHurtFlashRecoveryAction.ResumeChargingBeamRequested;
             }
 

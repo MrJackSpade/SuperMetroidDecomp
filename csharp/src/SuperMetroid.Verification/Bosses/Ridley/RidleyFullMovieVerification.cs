@@ -39,6 +39,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Focused Ridley fight checks and the full recorded-movie gameplay comparison.</summary>
 internal static class RidleyFullMovieVerification
@@ -1459,8 +1460,9 @@ internal static class RidleyFullMovieVerification
                     "Movie now activates a power bomb; add its full live-state mapping");
                 Check("BombSpreadChargeTimeoutCounter", samus.BombSpreadChargeTimeoutCounter, NativeSnapshotMemory.BombSpreadChargeTimeout);
                 Check("PoseTransitionShotDirection", samus.PoseTransitionShotDirection, NativeSnapshotMemory.PoseShotDirection);
-                Check("HyperBeam", samus.HyperBeam, NativeSnapshotMemory.HyperBeam);
-                Check("ResumeChargingBeamSoundFlag", samus.ResumeChargingBeamSoundFlag, NativeSnapshotMemory.ResumeChargeSound);
+                Check("HyperBeam", SamusSnapshotWords.EncodeHyperBeam(samus.HyperBeamEnabled), NativeSnapshotMemory.HyperBeam);
+                if (samus.ResumeChargingBeamSound != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))
+                    mismatches.Add($"ResumeChargingBeamSound: native={W(NativeSnapshotMemory.ResumeChargeSound):X4} port={samus.ResumeChargingBeamSound}");
 
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)

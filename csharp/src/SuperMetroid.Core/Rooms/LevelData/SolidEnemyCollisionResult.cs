@@ -9,4 +9,8 @@ public readonly record struct SolidEnemyCollisionResult(
     bool Collided,
     ushort Distance,
     ushort? EnemyIndex,
-    bool WasTouching);
+    bool WasTouching)
+{
+    /// <summary>The selected enemy's slot on collision, or null on failure.</summary>
+    public int? EnemySlot => EnemyIndex / SuperMetroid.Core.Enemies.RoomEnemySystem.NativeSlotSize;
+}

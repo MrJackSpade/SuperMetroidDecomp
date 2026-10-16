@@ -228,7 +228,7 @@ public sealed class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        if (samus.HyperBeam == 0)
+        if (!samus.HyperBeamEnabled)
         {
             // `$91:D799` decrements before its BEQ. Starting at four therefore produces
             // white on timers 3, 2, and 1. Timer 1 -> 0 takes carry-set `$D7AE`, causing
@@ -528,7 +528,7 @@ public sealed class SamusProjectileSystem
         if (Charge.FlareCounter == 0)
             return default;
 
-        if (samus.HyperBeam != 0)
+        if (samus.HyperBeamEnabled)
         {
             // Hyper Beam replaces the ordinary count-up flare with `$90:BAFC`'s descending
             // three-component program. Native iteration is fast spark -> slow spark -> main

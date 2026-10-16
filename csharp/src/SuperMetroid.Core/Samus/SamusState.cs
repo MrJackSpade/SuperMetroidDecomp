@@ -306,8 +306,8 @@ public sealed class SamusState
     /// </remarks>
     public ushort PoseTransitionShotDirection { get; internal set; }
 
-    /// <summary>WRAM `$0A76`; `$8000` marks Mother Brain's hyper beam as enabled.</summary>
-    public ushort HyperBeam { get; set; }
+    /// <summary>WRAM `$0A76`: whether Mother Brain's hyper beam is enabled (native `$8000`).</summary>
+    public bool HyperBeamEnabled { get; set; }
 
     /// <summary>
     /// Equipped-item bitfield corresponding to WRAM <c>$09A2</c>. Bit two ($0004) is Morph
@@ -383,7 +383,7 @@ public sealed class SamusState
     /// when a non-spinning Samus is still holding a sufficiently charged beam; the native
     /// post-draw sound handler consumes and clears it later in the same gameplay pass.
     /// </summary>
-    public ushort ResumeChargingBeamSoundFlag { get; internal set; }
+    public ResumeChargingBeamSoundLatch ResumeChargingBeamSound { get; internal set; }
 
     /// <summary>
     /// WRAM `$18A8`, the general Samus invincibility timer tested by enemy, projectile,
@@ -434,10 +434,11 @@ public sealed class SamusState
     /// launches from a solid/frozen enemy instead of room terrain.
     /// </summary>
     /// <remarks>
-    /// Enemy AI owns consumption of this word. Retaining the slot index now makes the
-    /// movement result complete even before the general live-enemy update loop is translated.
+    /// Holds the enemy slot, or null for the native `$FFFF` none. Enemy AI owns consumption.
+    /// Retaining the slot now makes the movement result complete even before the general
+    /// live-enemy update loop is translated.
     /// </remarks>
-    public ushort EnemyIndexToShake { get; set; } = ushort.MaxValue;
+    public int? EnemySlotToShake { get; set; }
 
     /// <summary>
     /// Host-visible equivalent of movement-handler pointer `$90:DF38`. It is separate from

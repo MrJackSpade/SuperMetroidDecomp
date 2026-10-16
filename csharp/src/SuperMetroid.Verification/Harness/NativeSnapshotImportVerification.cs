@@ -28,6 +28,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>
 /// Constructs a replay's initial production state from native WRAM and SRAM while
@@ -143,8 +144,8 @@ internal static class NativeSnapshotImportVerification
         runtime.BombProjectiles.BombCounter = W(NativeSnapshotMemory.BombCount);
         samus.BombSpreadChargeTimeoutCounter = W(NativeSnapshotMemory.BombSpreadChargeTimeout);
         samus.PoseTransitionShotDirection = W(NativeSnapshotMemory.PoseShotDirection);
-        samus.HyperBeam = W(NativeSnapshotMemory.HyperBeam);
-        samus.ResumeChargingBeamSoundFlag = W(NativeSnapshotMemory.ResumeChargeSound);
+        samus.HyperBeamEnabled = SamusSnapshotWords.DecodeHyperBeam(W(NativeSnapshotMemory.HyperBeam));
+        samus.ResumeChargingBeamSound = SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound));
         samus.InputSnapshot.PreviousDrawHeldInput = (SnesButton)W(NativeSnapshotMemory.SamusFilteredHeld);
         samus.InputSnapshot.PreviousDrawNewInput = (SnesButton)W(NativeSnapshotMemory.SamusFilteredNew);
         samus.InputSnapshot.AutoJumpTimer = W(NativeSnapshotMemory.SamusAutoJumpTimer);

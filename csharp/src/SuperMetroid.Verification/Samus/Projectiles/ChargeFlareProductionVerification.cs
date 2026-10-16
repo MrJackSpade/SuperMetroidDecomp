@@ -39,9 +39,9 @@ internal static class ChargeFlareProductionVerification
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
-        foreach (ushort hyper in new ushort[] { 0, 1 })
+        foreach (bool hyper in new[] { false, true })
         {
-            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeam = hyper };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeamEnabled = hyper };
             samus.Presentation.TileTransfers.BindArtwork(body);
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
             for (int tick = 0; tick < 160 && native.Charge.FlareCounter != 0; tick++)

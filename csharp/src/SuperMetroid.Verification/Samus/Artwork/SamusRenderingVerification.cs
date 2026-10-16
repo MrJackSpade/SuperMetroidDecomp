@@ -854,12 +854,12 @@ internal static void VerifySamusHurtFlashPalette()
         cgram, charging, SnesButton.X);
     AssertEqual(0, charging.LiquidPhysics.SoundRequests.Count,
         "counter forty arms charging-beam recovery without an immediate sound");
-    AssertEqual(1, charging.ResumeChargingBeamSoundFlag,
+    AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, charging.ResumeChargingBeamSound,
         "charging recovery publishes native flag one");
     AssertTrue(SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
             charging, SnesButton.X),
         "post-draw handler queues held charging sound");
-    AssertEqual(0, charging.ResumeChargingBeamSoundFlag,
+    AssertEqual(ResumeChargingBeamSoundLatch.Clear, charging.ResumeChargingBeamSound,
         "post-draw handler clears charging recovery flag");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), 9),
         charging.LiquidPhysics.SoundRequests[^1],
@@ -881,7 +881,7 @@ internal static void VerifySamusHurtFlashPalette()
     cancelledGrapple.Grapple.Phase = GrapplePhase.CancelPending;
     SamusHurtFlashPalette.Update(
         cgram, cancelledGrapple, controllerInput: 0);
-    AssertEqual(0, cancelledGrapple.ResumeChargingBeamSoundFlag,
+    AssertEqual(ResumeChargingBeamSoundLatch.Clear, cancelledGrapple.ResumeChargingBeamSound,
         "grapple cancel cutoff suppresses recovery sound and charging latch");
     AssertEqual(0, cancelledGrapple.LiquidPhysics.SoundRequests.Count,
         "cancelled grapple leaves sound queue empty");

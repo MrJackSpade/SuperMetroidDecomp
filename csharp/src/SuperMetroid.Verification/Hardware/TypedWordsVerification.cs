@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.VerificationImporters;
 
 /// <summary>Exercises semantic native-word views while checking that unnamed cartridge bits survive typed operations.</summary>
 internal static class TypedWordsVerification
@@ -31,6 +32,16 @@ internal static void VerifyTypedNativeWords()
         "typed equipment flags set independently");
     equipment &= ~SamusEquipmentFlags.GravitySuit;
     AssertEqual(0x1080, equipment.ToNativeWord(), "equipment flags preserve unnamed bits");
+
+    // The snapshot boundary decodes $0A76 and $0DC0 into typed state and rejects undefined words.
+    AssertEqual(true, SamusSnapshotWords.DecodeHyperBeam(SamusSnapshotWords.HyperBeamEnabledWord), "hyper beam $8000 imports as enabled");
+    AssertEqual(false, SamusSnapshotWords.DecodeHyperBeam(0), "hyper beam zero imports as disabled");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeHyperBeam(1), "undefined hyper beam word is rejected");
+    AssertEqual(SamusSnapshotWords.HyperBeamEnabledWord, SamusSnapshotWords.EncodeHyperBeam(true), "enabled hyper beam encodes as $8000");
+    AssertEqual(ResumeChargingBeamSoundLatch.Clear, SamusSnapshotWords.DecodeResumeChargingBeamSound(0), "resume latch zero is clear");
+    AssertEqual(ResumeChargingBeamSoundLatch.ResumeNextPass, SamusSnapshotWords.DecodeResumeChargingBeamSound(1), "resume latch one resumes next pass");
+    AssertEqual(ResumeChargingBeamSoundLatch.SignedLatch, SamusSnapshotWords.DecodeResumeChargingBeamSound(ushort.MaxValue), "resume latch $FFFF is the signed latch");
+    AssertThrows<InvalidDataException>(() => SamusSnapshotWords.DecodeResumeChargingBeamSound(2), "undefined resume latch word is rejected");
 
     // Suit palette tables use byte offsets rather than enum ordinals. Verify all three
     // branches plus the native Gravity-over-Varia priority that motivated centralization.

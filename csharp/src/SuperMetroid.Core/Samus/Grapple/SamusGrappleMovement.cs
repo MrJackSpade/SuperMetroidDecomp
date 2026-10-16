@@ -680,11 +680,11 @@ public static class SamusGrappleMovement
         bool jumpNew = (newlyPressedInput & SnesButton.A) != 0;
         if (wall.Collided && jumpNew)
         {
-            if (wall.EnemyCollision is { EnemyIndex: ushort enemyIndex })
+            if (wall.EnemyCollision is { EnemySlot: int enemySlot })
             {
                 // `$90:9D24-$90:9D26` requests the contacted enemy's shake only when the
                 // fresh Jump edge actually accepts the grapple wall jump.
-                samus.EnemyIndexToShake = enemyIndex;
+                samus.EnemySlotToShake = enemySlot;
             }
             grapple.Phase = GrapplePhase.WallJumping;
             return new GrappleMovementResult(

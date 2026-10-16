@@ -635,7 +635,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         Pose = rightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = (SamusBeamFlags)0x1009,
-        HyperBeam = 0x8000,
+        HyperBeamEnabled = true,
     };
     BindSyntheticSamusRendering(bus, hyperSamus);
     hyperSamus.Presentation.ChargeColors = fixtureChargeColors;

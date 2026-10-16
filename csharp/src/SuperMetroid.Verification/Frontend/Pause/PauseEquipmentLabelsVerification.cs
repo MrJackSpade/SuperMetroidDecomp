@@ -34,7 +34,7 @@ internal static class PauseEquipmentLabelsVerification
             new(),
             new() { CollectedBeams = (SamusBeamFlags)0x100f, EquippedBeams = (SamusBeamFlags)0x1005,
                 CollectedItems = (SamusEquipmentFlags)0xf32f, EquippedItems = (SamusEquipmentFlags)0x3205, MaxReserveEnergy = 100 },
-            new() { HyperBeam = 1, CollectedBeams = (SamusBeamFlags)ushort.MaxValue, EquippedBeams = (SamusBeamFlags)ushort.MaxValue,
+            new() { HyperBeamEnabled = true, CollectedBeams = (SamusBeamFlags)ushort.MaxValue, EquippedBeams = (SamusBeamFlags)ushort.MaxValue,
                 CollectedItems = (SamusEquipmentFlags)ushort.MaxValue, EquippedItems = (SamusEquipmentFlags)ushort.MaxValue },
         ];
         foreach (SamusState inventory in inventories)
@@ -126,7 +126,7 @@ internal static class PauseEquipmentLabelsVerification
             EquippedBeams = value.EquippedBeams,
             CollectedItems = value.CollectedItems,
             EquippedItems = value.EquippedItems,
-            HyperBeam = value.HyperBeam,
+            HyperBeamEnabled = value.HyperBeamEnabled,
             MaxReserveEnergy = value.MaxReserveEnergy,
         };
     }

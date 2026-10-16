@@ -349,7 +349,7 @@ internal static class SamusHyperBeamColorsVerification
                     "Shot edits cannot mutate the separate full-body asset");
             }
         }
-        var shotSamus = new SamusState { HyperBeam = 0x8000, Presentation = { ChargeColors = shot } };
+        var shotSamus = new SamusState { HyperBeamEnabled = true, Presentation = { ChargeColors = shot } };
         var projectiles = new SamusProjectileSystem();
         projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.Start((ushort)0x8014);
         var shotGuard = NewForbiddenHyperBeamColorBus(rom);

@@ -204,7 +204,7 @@ level, right, unchecked((ushort)(frame + 1))),
     left.Drained.EnableHyperBeam(left);
     AssertEqual(0x1009, left.EquippedBeams.ToNativeWord(),
         "controller three installs exact hyper beam equipment word");
-    AssertEqual(0x8000, left.HyperBeam,
+    AssertTrue(left.HyperBeamEnabled,
         "controller three sets hyper beam flag");
     AssertTrue(left.Drained.HyperBeamPaletteFxRequested,
         "controller three spawns Hyper Beam palette-FX object");

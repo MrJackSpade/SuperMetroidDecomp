@@ -18,9 +18,9 @@ public static class SamusPostDrawAudio
     {
         // The signed latch takes native's direct branch to rearming positive one. It
         // must not play a charge sound or run the spin-stop test on this frame.
-        if (unchecked((short)samus.ResumeChargingBeamSoundFlag) < 0)
+        if (samus.ResumeChargingBeamSound == ResumeChargingBeamSoundLatch.SignedLatch)
         {
-            samus.ResumeChargingBeamSoundFlag = 1;
+            samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
             return;
         }
 
@@ -41,6 +41,6 @@ public static class SamusPostDrawAudio
         // supplies normalized controls, so X here is the configured Shoot action.
         if (samus.ProjectileFlareCounter >= SamusProjectileRomData.Beams.ChargeSoundStartCounter &&
             (controllerInput & SnesButton.X) != 0)
-            samus.ResumeChargingBeamSoundFlag = 1;
+            samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.ResumeNextPass;
     }
 }

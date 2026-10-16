@@ -69,12 +69,20 @@ internal static class RetailDeathCaptureTests
         {
             Step(0, true);
             states.Add(legacy.GameState);
-            var expectedSamus = legacy.GameplayRuntimeForVerification.Player.IntroducedSamus;
-            var actualSamus = captured.GameplayRuntimeForVerification.Player.IntroducedSamus;
-            if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
-                expectedSamus.InputLocked != actualSamus.InputLocked ||
-                legacy.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen != captured.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen)
-                throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
+            // The dispatch that enters the game-over menu releases the runtime; both owners must release it together.
+            var expectedRuntime = legacy.RuntimeForVerification;
+            var actualRuntime = captured.RuntimeForVerification;
+            if ((expectedRuntime is null) != (actualRuntime is null))
+                throw new InvalidOperationException("Death/recovery runtime release diverged between captured and legacy owners.");
+            if (expectedRuntime is not null && actualRuntime is not null)
+            {
+                var expectedSamus = expectedRuntime.Player.IntroducedSamus;
+                var actualSamus = actualRuntime.Player.IntroducedSamus;
+                if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
+                    expectedSamus.InputLocked != actualSamus.InputLocked ||
+                    expectedRuntime.Freeze.GameplayTimeFrozen != actualRuntime.Freeze.GameplayTimeFrozen)
+                    throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
+            }
             if (reserveRecovery && states.Contains(SuperMetroidGameState.ReserveTanksAuto) &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay) break;
             if (legacy.GameState == SuperMetroidGameState.GameOverMenu) break;

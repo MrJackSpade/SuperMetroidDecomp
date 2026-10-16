@@ -75,6 +75,18 @@ public sealed class VramWriteQueue
         Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination.Encoded) { Staging = staging, StagingOffset = offset });
     }
 
+    /// <summary>
+    /// Queues a transfer of the first <paramref name="sizeInBytes"/> bytes of an owned word table that stands for the WRAM
+    /// at <paramref name="nativeSourceAddress"/>. The table is read when the queue drains, low byte first.
+    /// </summary>
+    public void EnqueueWords(ushort sizeInBytes, int nativeSourceAddress, ushort[] words, VramDmaDestination destination)
+    {
+        Ensure.NotNull(words);
+        if (sizeInBytes == 0 || (sizeInBytes & 1) != 0 || sizeInBytes > words.Length * sizeof(ushort))
+            throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, $"Transfer must be a nonzero whole number of the table's {words.Length} words.");
+        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination.Encoded) { StagingWords = words });
+    }
+
     /// <summary>Queues a transfer of <paramref name="sizeInBytes"/> zero bytes, for a source the port does not model.</summary>
     public void EnqueueZeroFill(ushort sizeInBytes, VramDmaDestination destination)
     {
@@ -123,6 +135,8 @@ public sealed class VramWriteQueue
             VramWriteEntry entry = _entries[index];
             if (entry.Staging is { } staging)
                 vram.ExecuteQueuedAssetWrite(staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes), entry.EncodedVramDestination);
+            else if (entry.StagingWords is { } words)
+                vram.ExecuteQueuedAssetWrite(LittleEndianBytes(words, entry.SizeInBytes), entry.EncodedVramDestination);
             else if (entry.ZeroFill)
                 vram.ExecuteQueuedAssetWrite(new byte[entry.SizeInBytes], entry.EncodedVramDestination);
             else if (entry.AssetId == VramAssetId.None)
@@ -149,5 +163,17 @@ public sealed class VramWriteQueue
         // typed records at the same point prevents stale transfers on the next frame.
         _entries.Clear();
         TailInBytes = 0;
+    }
+
+    /// <summary>The first <paramref name="byteCount"/> bytes of <paramref name="words"/>, low byte first.</summary>
+    private static byte[] LittleEndianBytes(ushort[] words, int byteCount)
+    {
+        var bytes = new byte[byteCount];
+        for (int index = 0; index < byteCount; index += sizeof(ushort))
+        {
+            bytes[index] = SnesLittleEndian.LowByte(words[index / sizeof(ushort)]);
+            bytes[index + 1] = SnesLittleEndian.HighByte(words[index / sizeof(ushort)]);
+        }
+        return bytes;
     }
 }

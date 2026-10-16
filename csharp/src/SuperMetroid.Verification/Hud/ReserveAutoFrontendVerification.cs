@@ -96,7 +96,7 @@ internal static class ReserveAutoFrontendVerification
         // pass queues its HUD update for the next accepted NMI, including while
         // automatic recovery freezes movement. Inspect presentation, not just HP.
         runtime.Hud.UpdateGameplayCounters(bus, samus);
-        runtime.Hud.QueueUpload(bus, runtime.VramWrites);
+        runtime.Hud.QueueUpload(runtime.VramWrites);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var digitImages = new Dictionary<int, Rgba32[]>();
         recovery.Begin(samus); runtime.Freeze.GameplayTimeFrozen = true;

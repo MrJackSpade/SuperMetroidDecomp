@@ -40,7 +40,7 @@ internal static class PauseHudLocationVerification
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");
             AssertEqual(phase == 0 ? 7 : 2, (center >> 10) & 7,
                 "native $90:AB4A blink selects palette seven only in its on phase");
-            runtime.Hud.QueueUpload(bus, runtime.VramWrites);
+            runtime.Hud.QueueUpload(runtime.VramWrites);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = runtime.Vram });
             var nativeVram = new SnesVram();

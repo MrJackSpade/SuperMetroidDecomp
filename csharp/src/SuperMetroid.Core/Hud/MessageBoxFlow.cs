@@ -169,7 +169,7 @@ internal sealed class MessageBoxFlow
             _hud.UpdateGameplayCounters(_addressSpace, _player.Samus, _freeze.TimeIsFrozen,
                 soundSuppressed: _bombProjectiles.PowerBombExplosion.IsActive);
         if (!frameSuspended)
-            _hud.QueueUpload(_addressSpace, _vramWrites);
+            _hud.QueueUpload(_vramWrites);
 
         // The routine returns directly to the suspended item-PLM instruction list.
         // Varia/Gravity immediately call their shared setup routine; for other items the

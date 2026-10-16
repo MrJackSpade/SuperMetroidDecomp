@@ -917,7 +917,7 @@ public sealed class SuperMetroidRuntime
             if (Player.Samus is not null && !Plms.CollectiblePlms.HasPendingCollectibleMessage)
                 Hud.UpdateGameplayCounters(_addressSpace, Player.Samus, Freeze.TimeIsFrozen,
                     soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
-            Hud.QueueUpload(_addressSpace, VramWrites);
+            Hud.QueueUpload(VramWrites);
         }
     }
 

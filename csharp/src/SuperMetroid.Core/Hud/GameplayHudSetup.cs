@@ -97,6 +97,6 @@ internal sealed class GameplayHudSetup
                 GameplayVram.HudTilemapDma());
 
         _hud.Initialize(_addressSpace, snapshot);
-        _hud.QueueUpload(_addressSpace, _vramWrites);
+        _hud.QueueUpload(_vramWrites);
     }
 }

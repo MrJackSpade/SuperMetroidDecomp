@@ -17,6 +17,12 @@ public static class GameplayHudDefinitions
     public static Extent16<TilemapCells> Size => new(Width, Height);
     /// <summary>Immutable top row copied directly to BG3 from $80:988B.</summary>
     public const int TopRowAddress = 0x80988b;
+
+    /// <summary>
+    /// <c>$7E:C608</c>, where the cartridge keeps the three mutable HUD tilemap rows that the
+    /// <c>$80:9CC3-$80:9CE9</c> VRAM queue entry uploads; the port's rows are <c>HudState</c>'s own.
+    /// </summary>
+    public const int MutableTilemapNativeAddress = 0x7ec608;
     /// <summary>Thirty-two tile cells in the static minimap-border row at $80:988B..98CA.</summary>
     public const int TopRowCellCount = Width;
     /// <summary>Sixty-four little-endian bytes transferred for the thirty-two words of the static top row.</summary>

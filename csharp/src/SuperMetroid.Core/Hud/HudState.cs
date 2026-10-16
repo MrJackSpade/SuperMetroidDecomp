@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
@@ -305,22 +306,15 @@ public sealed class HudState
     }
 
     /// <summary>
-    /// Writes the typed words into their authentic WRAM buffer and appends the seven-byte
-    /// VRAM queue entry constructed at <c>$80:9CC3-$80:9CE9</c>.
+    /// Appends the seven-byte VRAM queue entry constructed at <c>$80:9CC3-$80:9CE9</c>. It reads these
+    /// rows when the queue drains, as the cartridge's NMI DMA reads them at <c>$7E:C608</c>.
     /// </summary>
-    public void QueueUpload(ISnesAddressSpace bus, VramWriteQueue queue)
+    public void QueueUpload(VramWriteQueue queue)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(queue);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before queueing its tilemap.");
-
-        WorkRamWordTable buffer = new HudMemory(
-            SnesMemoryBusRequirement.Require(bus, "The HUD tilemap upload requires live WRAM.")).MutableTilemap;
-        for (int tile = 0; tile < MutableTileCount; tile++)
-            buffer[tile] = _tiles[tile];
-
-        HudMemory.EnqueueMutableTilemapUpload(queue);
+        queue.EnqueueWords(MutableByteCount, GameplayHudDefinitions.MutableTilemapNativeAddress, _tiles, RoomFxVram.HudMutableRowsDma);
     }
 
     /// <summary>Updates energy digits and tanks through the installed HUD artwork.</summary>

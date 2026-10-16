@@ -27,4 +27,10 @@ public readonly record struct VramWriteEntry(
 
     /// <summary>The first byte of <see cref="Staging"/> the transfer reads.</summary>
     public int StagingOffset { get; init; }
+
+    /// <summary>
+    /// The owned little-endian word table the transfer reads when the queue drains, in place of the WRAM its native
+    /// <see cref="SourceAddress"/> names; null for every other transfer.
+    /// </summary>
+    public ushort[]? StagingWords { get; init; }
 }

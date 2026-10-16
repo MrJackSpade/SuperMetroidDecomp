@@ -85,7 +85,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
             session.GameplayRuntime.Player.IntroducedSamus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
             session.GameplayRuntime.Hud.ClearAutoReserveIndicator();
         session.GameplayRuntime.Hud.UpdateGameplayCounters(session.bus, session.GameplayRuntime.Player.IntroducedSamus, timeIsFrozen: true);
-        session.GameplayRuntime.Hud.QueueUpload(session.bus, session.GameplayRuntime.VramWrites);
+        session.GameplayRuntime.Hud.QueueUpload(session.GameplayRuntime.VramWrites);
         session.display.PublishMenu(session.ActivePauseMenu);
         if (unpauseRequested)
         {

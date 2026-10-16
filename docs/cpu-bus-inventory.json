@@ -104,18 +104,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Hud.HudWorkRamAddresses",
-      "name": "MutableTilemap",
-      "region": "WorkRam",
-      "address": "$7E:C608",
-      "byteCount": 192,
-      "encoding": "BG3 tilemap words (u16[] little-endian)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hud/HudMemory.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCorruptionLayout",
       "name": "SpritePaletteSix",
       "region": "WorkRam",

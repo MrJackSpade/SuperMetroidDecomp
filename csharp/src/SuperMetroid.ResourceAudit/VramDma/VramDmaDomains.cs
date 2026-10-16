@@ -57,11 +57,6 @@ internal static class VramDmaDomains
                 return Native(CeresEscapeVramTransferDefinitionsTooling.All.Where(frame =>
                     frame.Pointer is >= CeresEscapeVramTransferDefinitions.JapaneseOverlay and
                     < CeresEscapeVramTransferDefinitions.TimerSprites).Select(frame => (frame.SourceAddress, (int)frame.ByteCount)));
-            case "corpse":
-                return Native(DeadMonsterRottingDefinitionsTooling.AllTransfers.Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
-            case "dead-torizo":
-                return Native(DeadTorizoVramTransferDefinitions.ForPhase(0).Concat(
-                    DeadTorizoVramTransferDefinitions.ForPhase(1).ToArray()).Select(frame => (frame.SourceAddress, (int)frame.SizeInBytes)));
             case "kraid":
                 return Typed(Enumerable.Range(0, KraidBackgroundRomData.StandardBg3TransferCount).Select(index =>
                     (KraidBackgroundRomData.StandardBg3AssetForQuarter(index), (int)KraidBackgroundRomData.StandardBg3TransferBytes)));

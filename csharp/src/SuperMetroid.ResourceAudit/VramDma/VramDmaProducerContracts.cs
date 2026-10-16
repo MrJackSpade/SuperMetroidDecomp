@@ -16,8 +16,6 @@ internal static class VramDmaProducerContracts
             "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior.QueueCeresEmergencyText" => "emergency",
             "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior.QueueNextCeresEscapeTransfer" => "ceres",
             "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior.QueueCeresTransferList" => "ceres-japanese",
-            "SuperMetroid.Core.Enemies.Corpses.DeadSidehopperBehavior.QueueDeadSidehopperFrameVramTransfers" => "corpse",
-            "SuperMetroid.Core.Enemies.Corpses.DeadTorizoBehavior.QueueDeadTorizoFrameVramTransfers" => "dead-torizo",
             "SuperMetroid.Core.Bosses.Kraid.KraidBehavior.AdvanceKraidDeathBg3Transfer" => "kraid",
             "SuperMetroid.Core.Enemies.EnemyPopulationLoader.QueueGraphicsUploads" => "enemies",
             "SuperMetroid.Core.Enemies.Gunship.GunshipBehavior.QueueGunshipTakeoffTiles" => "gunship",

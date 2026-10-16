@@ -143,6 +143,11 @@ Core's layers, lowest first, are Geometry (`Spatial`), Hardware, Foundation (`In
 Code below the frontend reads frontend-owned content through narrow contracts that the frontend implements, never
 through the frontend's types; documentation crefs are not dependencies.
 
+**SME6407** (#1315) keeps species behind the enemy system. Outside the `Enemies` and `Bosses` modules, Core reads and
+commands species only through `RoomEnemySystem`'s capability interfaces (`Elevator`, `Gunship`, `Ceres`,
+`RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `PlmSpawns`, `TourianStatue`, `DisplaySources`), never through a
+`*Behavior` or `*Encounter` property.
+
 `SuperMetroid.BuildPolicyVerification` checks what an analyzer cannot: every directory under `csharp/src`,
 `csharp/test-support` and `csharp/tools` is registered; each project's `ProjectReference` and `.projitems` imports
 equal the map's lists; production projects reference only production projects; and no build or tool output sits in

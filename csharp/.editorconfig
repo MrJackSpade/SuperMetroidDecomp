@@ -93,3 +93,6 @@ dotnet_diagnostic.SME6202.severity = error
 dotnet_diagnostic.SME6350.severity = error
 dotnet_diagnostic.SME6392.severity = error
 dotnet_diagnostic.SME6393.severity = error
+
+# #1315: outside the enemy-owning modules, species are reached through the enemy system's capability interfaces.
+dotnet_diagnostic.SME6407.severity = error

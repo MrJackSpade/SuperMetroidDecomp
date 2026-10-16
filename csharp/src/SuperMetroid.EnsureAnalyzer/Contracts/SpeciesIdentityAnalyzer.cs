@@ -90,9 +90,11 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
                 if (type.BaseList?.Types.Any(baseType => baseType.Type.ToString() == FactoryInterfaceName) != true)
                     continue;
                 foreach (PropertyDeclarationSyntax property in type.Members.OfType<PropertyDeclarationSyntax>()
-                             .Where(property => property.Identifier.Text == "Definitions" && property.Initializer is not null))
+                             .Where(property => property.Identifier.Text == "Definitions"))
                 {
-                    foreach (MemberAccessExpressionSyntax member in property.Initializer!.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
+                    if (property.Initializer is not { } initializer)
+                        continue;
+                    foreach (MemberAccessExpressionSyntax member in initializer.DescendantNodes().OfType<MemberAccessExpressionSyntax>()
                                  .Where(member => member.Expression.ToString() == DefinitionTypeName))
                     {
                         string name = member.Name.Identifier.Text;

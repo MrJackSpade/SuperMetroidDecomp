@@ -13,6 +13,7 @@ using static SuperMetroid.EnsureVerification.Contracts.AdapterChainAnalyzerTests
 using static SuperMetroid.EnsureVerification.SourceLayout.OneTypePerFileAnalyzerTests;
 using static SuperMetroid.EnsureVerification.SourceLayout.PartialTypeAnalyzerTests;
 using static SuperMetroid.EnsureVerification.Hardware.WordReadAnalyzerTests;
+using SuperMetroid.EnsureVerification.Contracts;
 using SuperMetroid.EnsureVerification.Harness;
 using SuperMetroid.EnsureVerification.Modules;
 
@@ -56,6 +57,7 @@ internal static class Program
             VerifyAdapterChainAnalyzer();
             VerifyOneTypePerFileAnalyzer();
             ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers();
+            SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer();
             VerifyOwnedReflectionAnalyzer();
             VerifyParameterContracts();
             VerifyCartridgeEncodingAnalyzer();

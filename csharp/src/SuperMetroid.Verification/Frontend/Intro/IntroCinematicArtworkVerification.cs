@@ -598,8 +598,8 @@ internal static class IntroCinematicArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus);
         var nativeVram = new SnesVram();
         var installedVram = new SnesVram();
-        var native = new IntroCinematicObjectSystem(bus, nativeVram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
-        var installed = new IntroCinematicObjectSystem(guarded, installedVram,
+        var native = new IntroCinematicObjectSystem(nativeVram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var installed = new IntroCinematicObjectSystem(installedVram,
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         native.Step(0);
         installed.Step(0);
@@ -758,8 +758,8 @@ internal static class IntroCinematicArtworkVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(bus, new SnesVram(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
-        var installedBlink = new IntroCinematicObjectSystem(guarded, new SnesVram(),
+        var nativeBlink = new IntroCinematicObjectSystem(new SnesVram(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var installedBlink = new IntroCinematicObjectSystem(new SnesVram(),
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();

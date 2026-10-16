@@ -51,7 +51,7 @@ internal static class CeresElevatorArrivalVerification
         var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
-        var arrival = new CeresElevatorArrivalState(bus, samus, artwork);
+        var arrival = new CeresElevatorArrivalState(samus, artwork);
         arrival.Step(samus);
 
         var oam = new OamBuffer();

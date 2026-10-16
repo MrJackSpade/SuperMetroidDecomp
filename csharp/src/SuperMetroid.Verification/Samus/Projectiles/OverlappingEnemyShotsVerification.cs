@@ -53,7 +53,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.InstructionTimer = NativeCountdown.Start(1);
         shot.PreInstruction = SamusProjectilePreInstruction.Missile;
 
-        AssertEqual(3, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
+        AssertEqual(3, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus),
             "one missile reaches all three overlapping Beetoms in the same pass");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
@@ -68,7 +68,7 @@ internal static class OverlappingEnemyShotsVerification
             enemy.FlashTimer = NativeCountdown.Start(0);
             enemy.InvincibilityTimer = NativeCountdown.Start(0);
         }
-        AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
+        AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus),
             "removed projectile cannot damage the stack on the next pass");
         Console.WriteLine("Overlapping Beetoms: all three receive one shot's damage; deferred removal prevents a later hit.");
     }

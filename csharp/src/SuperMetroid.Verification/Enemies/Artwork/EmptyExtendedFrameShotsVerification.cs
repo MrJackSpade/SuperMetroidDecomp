@@ -44,7 +44,7 @@ internal static class EmptyExtendedFrameShotsVerification
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
-        int hits = runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        int hits = runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
 
         AssertEqual(0, hits, "the empty extended frame takes no projectile hit");

@@ -22,9 +22,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMenuState
 {
-
-    /// <summary>Supplies native pose and menu data to the cartridge-backed presentation.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
@@ -60,7 +57,6 @@ public sealed class FileSelectMenuState
     public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.mapPresentation = mapPresentation;
         ppu = new MenuPpuState(mapPresentation?.Tiles, mapPresentation?.Palettes,

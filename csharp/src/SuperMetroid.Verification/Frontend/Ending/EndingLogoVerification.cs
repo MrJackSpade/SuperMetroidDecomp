@@ -32,7 +32,7 @@ internal static class EndingLogoVerification
         int landings = 0;
         EndingPaletteCatalog palettes = RepositoryInstallation.Installation.LoadEndingPalettes();
         EndingLogoSpritePresentation logoSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().LogoSprites;
-        var logo = new EndingLogo(guarded, cgram, () => landings++, palettes);
+        var logo = new EndingLogo(cgram, () => landings++, palettes);
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)

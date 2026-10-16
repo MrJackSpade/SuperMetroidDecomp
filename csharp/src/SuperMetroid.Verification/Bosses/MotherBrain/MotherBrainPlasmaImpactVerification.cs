@@ -80,7 +80,7 @@ internal static class MotherBrainPlasmaImpactVerification
         Console.WriteLine("Mother Brain Plasma: one charged impact/damage event, no later-frame repeats, recoil and first-form restriction passed.");
         return 0;
 
-        int Hit() => enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus);
+        int Hit() => enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus);
         void SeedChargedPlasma()
         {
             shot.Type = 0x8018; shot.Damage = 450; shot.Direction = 2;

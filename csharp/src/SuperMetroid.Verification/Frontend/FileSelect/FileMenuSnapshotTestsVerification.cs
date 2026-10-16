@@ -49,7 +49,7 @@ internal static class FileMenuSnapshotTestsVerification
             Tick();
         }
 
-        var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
+        var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture());
         void OptionTick(SnesButton input = 0) => Check(options.Render, options.CaptureRenderSnapshot,
             () => options.Step(input));
         void OptionPress(SnesButton input) { OptionTick(); OptionTick(input); }

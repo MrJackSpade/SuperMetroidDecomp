@@ -57,7 +57,7 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var options = new GameOptionsMenuState(bus, mapPresentation: maps);
+        var options = new GameOptionsMenuState(mapPresentation: maps);
         options.Phase = GameOptionsPhase.StartGame;
         game.Session.options = options;
         game.Session.loadingExistingSave = true;
@@ -120,7 +120,7 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var reloadOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
+        var reloadOptions = new GameOptionsMenuState(mapPresentation: maps);
         reloadOptions.Phase = GameOptionsPhase.StartGame;
         reload.Session.options = reloadOptions;
         reload.Session.loadingExistingSave = true;
@@ -149,7 +149,7 @@ internal static class CeresSaveStartupVerification
             RoomPlmBlueDoorVisuals = installation.LoadRoomPlmBlueDoorVisuals(),
             RoomPlmElevatorPlatformVisuals = installation.LoadRoomPlmElevatorPlatformVisuals(),
         });
-        var probeOptions = new GameOptionsMenuState(reloadBus, mapPresentation: maps);
+        var probeOptions = new GameOptionsMenuState(mapPresentation: maps);
         probeOptions.Phase = GameOptionsPhase.StartGame;
         gameOverProbe.Session.options = probeOptions;
         gameOverProbe.Session.loadingExistingSave = true;
@@ -217,7 +217,7 @@ internal static class CeresSaveStartupVerification
         {
             MapPresentation = maps,
         });
-        var oldOptions = new GameOptionsMenuState(bus, mapPresentation: maps);
+        var oldOptions = new GameOptionsMenuState(mapPresentation: maps);
         oldOptions.Phase = GameOptionsPhase.StartGame;
         unmodified.Session.options = oldOptions;
         unmodified.Session.loadingExistingSave = true;

@@ -356,7 +356,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
 
         var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
         var installedArrival = new CeresElevatorArrivalState(
-            NewEnemyProjectileVisualGuard(bus), installedSamus, installed);
+            installedSamus, installed);
         for (int frame = 0; frame < 3; frame++)
         {
             installedArrival.Step(installedSamus);

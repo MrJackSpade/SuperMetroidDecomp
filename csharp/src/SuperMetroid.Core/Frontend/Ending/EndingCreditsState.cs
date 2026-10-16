@@ -23,9 +23,6 @@ internal sealed class EndingCreditsState
 {
     /// <summary>The <see cref="EndingCreditsPresentation"/> owner of this EndingCreditsState.</summary>
     internal EndingCreditsPresentation Presentation { get; }
-
-    /// <summary>Cartridge source for remaining cinematic palette-FX definitions.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Queues the authored ending music transitions.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Saved clear-time hour used to select the post-credits reward.</summary>
@@ -121,10 +118,9 @@ internal sealed class EndingCreditsState
     [NonSerialized] internal EndingObjectArtworkCatalog? objectArtwork;
 
     /// <summary>Initializes state-$27 from the saved clear-time and ending setup snapshot.</summary>
-    public EndingCreditsState(ISnesAddressSpace bus, CartridgeAudioState audio, EndingCreditsSetup setup)
+    public EndingCreditsState(CartridgeAudioState audio, EndingCreditsSetup setup)
     {
         Presentation = new EndingCreditsPresentation(this);
-        this.bus = Ensure.NotNull(bus);
         this.audio = Ensure.NotNull(audio);
         this.gameTimeHours = setup.GameTimeHours;
         this.gameTimeMinutes = setup.GameTimeMinutes;
@@ -377,7 +373,7 @@ internal sealed class EndingCreditsState
                     // E342 replaces the idle actors with the cartridge gesture lists.
                     // BG1/BG2 are disabled during this OBJ-only animation.
                     sprites.Clear();
-                    rewardGesture = new EndingRewardGesture(bus, EndingReward);
+                    rewardGesture = new EndingRewardGesture(EndingReward);
                     Phase = EndingCreditsPhase.PostCreditsGesture;
                 }
                 break;
@@ -388,7 +384,7 @@ internal sealed class EndingCreditsState
                 {
                     rewardGesture = null;
                     rewardGraphics = new EndingRewardGraphicsUpload(mode7Artwork?.RewardIcon);
-                    rewardJump = new EndingRewardJump(bus, EndingReward, UploadRewardGraphic);
+                    rewardJump = new EndingRewardJump(EndingReward, UploadRewardGraphic);
                     Phase = EndingCreditsPhase.PostCreditsJump;
                 }
                 break;
@@ -397,7 +393,7 @@ internal sealed class EndingCreditsState
                 RewardJump.Step();
                 if (RewardJump.ShotRequested)
                 {
-                    postShot = new EndingPostShot(bus, cgram, ResolveEndingFont(), objectArtwork);
+                    postShot = new EndingPostShot(cgram, ResolveEndingFont(), objectArtwork);
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
                     Phase = EndingCreditsPhase.PostCreditsShot;
                 }
@@ -449,7 +445,7 @@ internal sealed class EndingCreditsState
                 postCreditsVerticalScroll = unchecked((ushort)(postCreditsVerticalScroll - 2));
                 if (--phaseTimer <= 0)
                 {
-                    postCreditsText = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = postCreditsUploadWord, Presentation = endingText, InstalledSequence = endingText is null ? null : EndingTextSequence.FinalMessage });
+                    postCreditsText = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = postCreditsUploadWord, Presentation = endingText, InstalledSequence = endingText is null ? null : EndingTextSequence.FinalMessage });
                     Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -1538,7 +1534,7 @@ internal sealed class EndingCreditsState
         new EndingVram(vram).PostShotLowerTilemap.Write(postCreditsTilemap);
         rewardJump = null;
         sprites.Clear();
-        endingLogo = new EndingLogo(bus, cgram,
+        endingLogo = new EndingLogo(cgram,
             () => paletteFx.SpawnDefinition(EndingLogoDefinitions.LandingPaletteFx, 0),
             paletteArtwork);
         Phase = EndingCreditsPhase.PostCreditsLogo;
@@ -1549,7 +1545,7 @@ internal sealed class EndingCreditsState
     {
         EndingLogo.Step(cgram);
         if (!EndingLogo.Completed) return;
-        postCreditsText = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.ItemPercentageText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = EndingPostShotDefinitions.FinalTextTilemapWord, Presentation = endingText, InstalledSequence = endingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage });
+        postCreditsText = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.ItemPercentageText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = EndingPostShotDefinitions.FinalTextTilemapWord, Presentation = endingText, InstalledSequence = endingText is null ? null : SuperMetroid.Core.Frontend.Ending.Artwork.EndingTextSequence.ItemPercentage });
         Phase = EndingCreditsPhase.ItemPercentage;
     }
 }

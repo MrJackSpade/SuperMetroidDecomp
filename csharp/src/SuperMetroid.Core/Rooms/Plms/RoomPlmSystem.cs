@@ -191,9 +191,8 @@ public sealed class RoomPlmSystem
     /// Executes the PLM handler with the accepted NMI's newly pressed controller bits.
     /// Resident programs such as the n00b tube consume edges, not held input.
     /// </summary>
-    public IReadOnlyList<PlmTilemapUpdate> Step(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view, PlmFrameInputs frame)
+    public IReadOnlyList<PlmTilemapUpdate> Step(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view, PlmFrameInputs frame)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(level);
         Ensure.NotNull(streamer);
         Sounds._soundRequests.Clear();
@@ -204,7 +203,7 @@ public sealed class RoomPlmSystem
         CollectiblePlms.BeginCollectibleFrame();
         BombTorizoHand.BeginBombTorizoHandFrame();
 
-        var context = new PlmStepContext(this, bus, level, streamer, view, frame);
+        var context = new PlmStepContext(this, level, streamer, view, frame);
         for (int slotIndex = SlotTable._slots.Length - 1; slotIndex >= 0; slotIndex--)
         {
             PlmSlot slot = SlotTable._slots[slotIndex];

@@ -82,8 +82,7 @@ internal static void VerifyCeresDestructionCinematic()
     var artwork = IntroCinematicArtworkFiles.Load(
         RepositoryInstallation.Installation.IntroCinematicDirectory, overrideRoot);
     var presentation = RetailPresentationFixture();
-    var state = new CeresDestructionCinematicState(fixtureBus,
-        fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
+    var state = new CeresDestructionCinematicState(fixedColors: presentation.PowerBombFixedColors, artwork: artwork,
         paletteFxColors: presentation.RoomPaletteFx);
     // $8B:C11B's first dispatch waits for nine NMIs; the ninth resume sets the scene up.
     for (int wait = 0; wait < CeresDestructionRomData.InitialNmiWaits; wait++)

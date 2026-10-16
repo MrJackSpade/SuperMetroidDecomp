@@ -15,10 +15,10 @@ internal static class GameOverMenuIndexesVerification
     /// draws the selection missile. On a Yes answer, loading state $1F publishes the
     /// Ceres loader on the accepting frame; other saves fade into the area map.
     /// </summary>
-    internal static void VerifyGameOverMenuNativeIndexes(ISnesAddressSpace bus, AreaMapPresentationCatalog presentation)
+    internal static void VerifyGameOverMenuNativeIndexes(AreaMapPresentationCatalog presentation)
     {
         var audio = new CartridgeAudioState();
-        var menu = new GameOverMenuState(bus, audio, presentation);
+        var menu = new GameOverMenuState(audio, presentation);
         (GameOverMenuPhase Phase, bool Resumes)[] expected =
         [
             (GameOverMenuPhase.ConfigureGraphics, true),
@@ -50,7 +50,7 @@ internal static class GameOverMenuIndexesVerification
 
         foreach (bool ceres in new[] { true, false })
         {
-            var answered = new GameOverMenuState(bus, new CartridgeAudioState(), presentation, continueLoadsCeresArrival: ceres);
+            var answered = new GameOverMenuState(new CartridgeAudioState(), presentation, continueLoadsCeresArrival: ceres);
             answered.Phase = GameOverMenuPhase.Main;
             answered.Step(0);
             answered.Step(SnesButton.A);

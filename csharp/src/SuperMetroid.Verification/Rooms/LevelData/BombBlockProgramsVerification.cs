@@ -185,8 +185,8 @@ internal static class BombBlockProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                native.Plms.Step(rom, native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                native.Plms.Step(native.Level, native.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(native.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"bomb BTS {behavior}/{producer} active count, frame {frame}");
                 AssertEqual(native.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
@@ -248,7 +248,7 @@ internal static class BombBlockProgramsVerification
             var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
-            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first bomb-break frame publishes one immediate tile upload");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
@@ -286,7 +286,7 @@ internal static class BombBlockProgramsVerification
             var streamer = level.CreateBackgroundStreamer();
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,

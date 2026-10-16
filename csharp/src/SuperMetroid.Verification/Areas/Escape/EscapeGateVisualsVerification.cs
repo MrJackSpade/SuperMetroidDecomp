@@ -106,7 +106,7 @@ internal static class EscapeGateVisualsVerification
         var closed = new RoomPlmSystem { Drawing = { EscapeGateVisuals = edited } };
         AssertEqual(1, closed.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, closedLevel, closedStreamer, new SnesVram(), system, AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "edited escape gate loads its real resident header");
-        closed.Step(guarded, closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        closed.Step(closedLevel, closedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
             closedLevel.GetCollisionBlockByIndex(origin).LevelWord,
             "edited closed gate preserves native physical collision");
@@ -134,7 +134,7 @@ internal static class EscapeGateVisualsVerification
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)
-            closing.Step(guarded, closingLevel, closingStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            closing.Step(closingLevel, closingStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x830f,
             closingLevel.GetCollisionBlockByIndex(origin).LevelWord,
             "edited half-closed gate preserves native physical collision");

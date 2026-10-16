@@ -770,7 +770,7 @@ internal static class LookupStream4Verification
         foreach (bool fast in new[] { true, false })
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
-            var state = new EndingCreditsState(NewFrontendCartridgeReadGuard(rom), new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
+            var state = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
             state.mode7 = state.mode7.WithWholeX(100).WithFractionX(0xC000);
             state.mode7Zoom = 0xC00; state.phaseTimer = 100;
             state.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
@@ -1223,7 +1223,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
-            var state = new EndingBackgroundTextState(NewFrontendCartridgeReadGuard(rom), new EndingBackgroundTextSetup { Tilemap = tilemap, InstructionPointer = EndingTextDefinitions.Native.ItemPercentage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
+            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, InstructionPointer = EndingTextDefinitions.Native.ItemPercentage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             state.installedInitialMarkerPending = false;
             state.installedCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;

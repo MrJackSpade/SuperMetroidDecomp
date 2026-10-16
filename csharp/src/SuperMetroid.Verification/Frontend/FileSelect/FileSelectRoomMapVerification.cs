@@ -50,7 +50,7 @@ internal static class FileSelectRoomMapVerification
             for (int x = 0; x < 64; x++)
                 if ((x + y) % 7 == 0) system.MarkExploredMapTile(area, new(checked((ushort)x), checked((ushort)y)));
             if (downloaded) system.SetAreaMapAcquired(area);
-            var graphics = new FileSelectRoomMapGraphics(bus, system, area, mapPresentation: RetailPresentationFixture());
+            var graphics = new FileSelectRoomMapGraphics(system, area, mapPresentation: RetailPresentationFixture());
             byte[] pause = AreaMapTilemapBuilder.Build(map, system, MapTileWords.PauseBlank);
             for (int y = 0; y < 32; y++)
             for (int x = 0; x < 64; x++)
@@ -127,9 +127,9 @@ internal static class FileSelectRoomMapVerification
             "room cancel must retain the map/icons drawn before input until next coroutine call");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
-        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: RetailPresentationFixture()).RenderFrameOnly();
         var maps = RetailPresentationFixture();
-        var areaGraphics = new FileSelectAreaMapGraphics(bus, 4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        var areaGraphics = new FileSelectAreaMapGraphics(4, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
         areaGraphics.BindLabels(maps.Labels);
         Rgba32[] area = areaGraphics.Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
         for (int tick = 1; tick <= 4; tick++)
@@ -389,7 +389,7 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SnesButton confirm in new SnesButton[] { SnesButton.Start, SnesButton.A })
         {
-            var navigation = new FileSelectMapNavigation(bus, 4, confirm);
+            var navigation = new FileSelectMapNavigation(4, confirm);
             navigation.BindLabels(RetailPresentationFixture().Labels);
             navigation.Step(confirm);
             AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
@@ -413,7 +413,7 @@ internal static class FileSelectRoomMapVerification
             navigation.Step(SnesButton.B);
             AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
         }
-        var cancel = new FileSelectMapNavigation(bus, 4);
+        var cancel = new FileSelectMapNavigation(4);
         cancel.BindLabels(RetailPresentationFixture().Labels);
         cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.Right | SnesButton.A));
         AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
@@ -421,7 +421,7 @@ internal static class FileSelectRoomMapVerification
         cancel.Step(0);
         cancel.Step((SnesButton.B | SnesButton.Start | SnesButton.A));
         AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
-        var back = new FileSelectMapNavigation(bus, 4);
+        var back = new FileSelectMapNavigation(4);
         back.BindLabels(RetailPresentationFixture().Labels);
         back.Step(SnesButton.Start);
         for (int frame = 0; frame < 54; frame++) back.Step(0);

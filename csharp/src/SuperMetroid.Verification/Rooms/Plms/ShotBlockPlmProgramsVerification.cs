@@ -26,7 +26,7 @@ internal static class ShotBlockPlmProgramsVerification
         // was absent from the compiled program. Exercise the actual interpreter
         // against RAM-only memory, not the old import-capable reference guard.
         ShotBlockFixture reported = NewShotBlockFixture(4);
-        reported.Plms.Step(new SuperMetroidAddressSpace(), reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        reported.Plms.Step(reported.Level, reported.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual((ushort)0x0053,
             reported.Level.GetCollisionBlockByIndex(27).LevelWord,
             "reported permanent shot block draws its first break frame without a cartridge read");
@@ -38,12 +38,12 @@ internal static class ShotBlockPlmProgramsVerification
         {
             ShotBlockFixture fixture = NewShotBlockFixture(behavior);
             var memory = new SuperMetroidAddressSpace();
-            fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0x0053,
                 fixture.Level.GetCollisionBlockByIndex(27).LevelWord,
                 $"shot-block BTS {behavior} first physical break frame");
             for (int frame = 1; frame < 420; frame++)
-                fixture.Plms.Step(memory, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             ushort expected = behavior switch
             {
                 0 => 0xc052,
@@ -176,8 +176,8 @@ internal static class ShotBlockPlmProgramsVerification
             var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                stock.Plms.Step(rom, stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                stock.Plms.Step(stock.Level, stock.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                compiled.Plms.Step(compiled.Level, compiled.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(stock.Plms.SlotTable.ActiveCount, compiled.Plms.SlotTable.ActiveCount,
                     $"shot-block BTS {behavior} active slots at frame {frame}");
                 AssertEqual(stock.Plms.Sounds.SoundRequests.Count, compiled.Plms.Sounds.SoundRequests.Count,
@@ -194,7 +194,7 @@ internal static class ShotBlockPlmProgramsVerification
                 $"shot-block BTS {behavior} completes within the retail timer window");
         }
 
-        Suite(nameof(VerifyShotBlockVisualSeparation), () => VerifyShotBlockVisualSeparation(rom, forbidden));
+        Suite(nameof(VerifyShotBlockVisualSeparation), () => VerifyShotBlockVisualSeparation());
         Suite(nameof(VerifyShotBlockVisualInstallation), () => VerifyShotBlockVisualInstallation(rom));
 
         Console.WriteLine($"Shot-block PLMs: {wordCount} control words, {byteCount} sound bytes and {drawListCount} draw lists match ROM; all eight programs execute with source bytes forbidden.");
@@ -348,7 +348,7 @@ internal static class ShotBlockPlmProgramsVerification
 
     /// <summary>Checks that edited shot-block art reaches both immediate and streamed tiles without changing collision bits or compiled mechanics.</summary>
     private static void VerifyShotBlockVisualSeparation(
-        ISnesAddressSpace rom, HashSet<int> forbidden)
+)
     {
         RoomPlmShotBlockVisualCatalog stock = RoomPlmShotBlockVisualCatalog.Stock();
         RoomPlmShotBlockVisualEntry[] editedEntries = RoomPlmShotBlockDrawDefinitions.All
@@ -387,7 +387,7 @@ internal static class ShotBlockPlmProgramsVerification
             var plms = new RoomPlmSystem { Drawing = { ShotBlockVisuals = visuals } };
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
-            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "visual-only edit publishes one immediate PLM tilemap update");
             return (level.GetCollisionBlockByIndex(block).LevelWord,

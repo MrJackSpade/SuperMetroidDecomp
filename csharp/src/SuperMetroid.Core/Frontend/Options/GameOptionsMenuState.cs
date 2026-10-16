@@ -11,9 +11,6 @@ namespace SuperMetroid.Core.Frontend.Options;
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
 public sealed class GameOptionsMenuState
 {
-
-    /// <summary>Supplies menu PPU setup data.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Owns the options menu tilemaps, palette, and PPU registers.</summary>
@@ -50,7 +47,6 @@ public sealed class GameOptionsMenuState
     private int missileFrame;
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
-    /// <param name="bus">Address space used by the menu PPU resource loader.</param>
     /// <param name="audio">Optional cartridge audio queues for cursor and confirmation sounds.</param>
     /// <param name="controllerBindings">Initial retail controller-button permutation.</param>
     /// <param name="iconCancelEnabled">Initial state of the automatic item-cancel option.</param>
@@ -58,7 +54,6 @@ public sealed class GameOptionsMenuState
     /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
     /// <param name="mapPresentation">Required installed menu presentation assets.</param>
     public GameOptionsMenuState(
-        ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         ControllerBindings? controllerBindings = null,
         bool iconCancelEnabled = false,
@@ -66,7 +61,6 @@ public sealed class GameOptionsMenuState
         bool japaneseText = false,
         AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Options menu requires installed presentation assets.");

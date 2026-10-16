@@ -31,7 +31,7 @@ internal static class CeresDestructionActorDefinitionsVerification
 
 
         var guard = NewCeresDestructionActorDefinitionReadGuard(retail);
-        var state = CreateRetailDestructionFixture(guard);
+        var state = CreateRetailDestructionFixture();
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
         AssertTrue(state.Finished,

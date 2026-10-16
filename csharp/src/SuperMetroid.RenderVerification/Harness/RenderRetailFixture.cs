@@ -19,11 +19,11 @@ internal static class RenderRetailFixture
         InstalledFixtures.CreateGame(bus, gameOptions, renderGameplayFrames);
 
     /// <summary>Creates the title sequence from the shared retail fixture installation.</summary>
-    internal static TitleSequenceState CreateTitle(ISnesAddressSpace bus) => InstalledFixtures.CreateTitle(bus);
+    internal static TitleSequenceState CreateTitle() => InstalledFixtures.CreateTitle();
 
     /// <summary>Creates the Ceres destruction sequence from the shared retail fixture installation.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(ISnesAddressSpace bus) =>
-        InstalledFixtures.CreateDestruction(bus);
+    internal static CeresDestructionCinematicState CreateDestruction() =>
+        InstalledFixtures.CreateDestruction();
 
     /// <summary>Creates the intro cinematic from the shared retail fixture installation.</summary>
     internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus) => InstalledFixtures.CreateIntro(bus);

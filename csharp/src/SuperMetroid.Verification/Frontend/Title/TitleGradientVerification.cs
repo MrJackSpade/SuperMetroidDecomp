@@ -21,12 +21,11 @@ using SuperMetroid.Verification.Harness;
 internal static class TitleGradientVerification
 {
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
-    private static TitleSequenceState CreateTitlePresentationFixture(ISnesAddressSpace bus,
-        TitleGradientPresentation? titleGradientPresentation = null,
+    private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
  =>
-        InstalledFixtures.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
+        InstalledFixtures.CreateTitle(titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
     /// <summary>Checks native gradient band boundaries and all 256 zoom selections after artwork and schema suites.</summary>
     internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
@@ -88,9 +87,8 @@ internal static class TitleGradientVerification
         var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
-        var stock = CreateTitlePresentationFixture(bus, titleGradientPresentation: gradient);
-        var installed = CreateTitlePresentationFixture(guardedBus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var stock = CreateTitlePresentationFixture(titleGradientPresentation: gradient);
+        var installed = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 140; frame++)
         {
             stock.Step(0);
@@ -153,10 +151,8 @@ internal static class TitleGradientVerification
             new MemoryStream(editedMap),
             new MemoryStream(files[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(files[TitleGraphicsFormat.BabyTilesFile]));
-        var originalTitle = CreateTitlePresentationFixture(bus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
-        var editedTitle = CreateTitlePresentationFixture(bus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
+        var originalTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var editedTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: editedPresentation);
         bool editVisible = false;
         bool pixelChanged = false;
         for (int frame = 0; frame < 100; frame++)
@@ -176,8 +172,7 @@ internal static class TitleGradientVerification
             throw new InvalidDataException("Editing the Year composition did not alter production OAM.");
         if (!pixelChanged)
             throw new InvalidDataException("Editing the Year composition did not alter visible title pixels.");
-        var reboundTitle = CreateTitlePresentationFixture(bus,
-            titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
+        var reboundTitle = CreateTitlePresentationFixture(titleGradientPresentation: gradient, titleGraphicsPresentation: presentation);
         for (int frame = 0; frame < 64; frame++) reboundTitle.Step(0);
         byte[] beforeRebind = reboundTitle.CaptureRenderSnapshot().Memory.Oam.ToArray();
         reboundTitle.BindTitleGraphics(editedPresentation);
@@ -243,15 +238,15 @@ internal static class TitleGradientVerification
             TitleSequenceRomData.Assets.PaletteAddress,
             CgramPalettes.ByteCount).ToHashSet();
         var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
-        var title = CreateTitlePresentationFixture(guardedBus, titlePalettePresentation: presentation);
+        var title = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
         if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
             throw new InvalidDataException(
                 "Production title initialization did not use the installed palette exclusively.");
         }
-        var nativeSkip = CreateTitlePresentationFixture(bus);
-        var installedSkip = CreateTitlePresentationFixture(bus, titlePalettePresentation: presentation);
+        var nativeSkip = CreateTitlePresentationFixture();
+        var installedSkip = CreateTitlePresentationFixture(titlePalettePresentation: presentation);
         nativeSkip.Step(SnesButton.Start);
         installedSkip.Step(SnesButton.Start);
         for (int frame = 0; frame < 18; frame++)
@@ -424,7 +419,7 @@ internal static class TitleGradientVerification
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.ObjectTilesFile]),
             new MemoryStream(graphicsFiles[TitleGraphicsFormat.BabyTilesFile]));
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
-            guardedBus, presentation, palette, graphics);
+            presentation, palette, graphics);
         if (!rendered.SequenceEqual(presentation.Resolve(selectedZoom)) ||
             guardedBus.ForbiddenReadAttempts != 0)
         {
@@ -477,12 +472,11 @@ internal static class TitleGradientVerification
 
     /// <summary>Steps the installed title through Start's skip fade and captures the first visible gradient and Mode 7 zoom.</summary>
     internal static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
-        ISnesAddressSpace bus,
         TitleGradientPresentation presentation,
         TitlePalettePresentation palette,
         TitleGraphicsPresentation graphics)
     {
-        var title = CreateTitlePresentationFixture(bus, titleGradientPresentation: presentation,
+        var title = CreateTitlePresentationFixture(titleGradientPresentation: presentation,
             titlePalettePresentation: palette, titleGraphicsPresentation: graphics);
         title.Step(SnesButton.Start);
         for (int frame = 0; frame < 16; frame++)

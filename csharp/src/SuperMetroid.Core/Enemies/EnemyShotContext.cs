@@ -7,7 +7,6 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Enemy">The enemy whose shot callback runs.</param>
 /// <param name="Projectile">The overlapping beam or missile slot.</param>
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
-/// <param name="Bus">Address space for native-compatible projectile side effects.</param>
 /// <param name="Samus">Samus, when the pass has one.</param>
 /// <param name="ProjectileType">The incoming projectile type word, sampled before any impact rewrites it.</param>
 /// <param name="ProjectileDamage">The incoming projectile damage.</param>
@@ -21,7 +20,6 @@ internal readonly record struct EnemyShotContext(
     RoomEnemySlot Enemy,
     SamusProjectileSlot Projectile,
     SamusProjectileSystem Projectiles,
-    ISnesAddressSpace Bus,
     SamusState? Samus,
     ushort ProjectileType,
     ushort ProjectileDamage,

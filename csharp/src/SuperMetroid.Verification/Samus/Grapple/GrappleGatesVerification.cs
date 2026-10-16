@@ -54,7 +54,7 @@ internal static class GrappleGatesVerification
                     var result = SamusGrappleMovement.StepFiring(bus, level, samus, SnesButton.X, plms);
                     AssertEqual(GrapplePhase.CancelPending, result.Phase, "green gate rejects grapple attachment");
                 }
-                StepDownwardGatePlm(plms, bus, level, streamer);
+                StepDownwardGatePlm(plms, level, streamer);
                 AssertEqual(0, plms.Gates.TakeDownwardGateProjectileRequests().Count, "rejected grapple does not wake or replace gate actor");
                 enemies.StepEnemyProjectiles(level, null);
                 enemies.DrawEnemyProjectiles(oam, Position16<RoomPixels>.Zero);

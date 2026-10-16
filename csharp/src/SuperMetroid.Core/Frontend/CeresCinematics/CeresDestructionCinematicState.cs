@@ -26,8 +26,6 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics;
 /// </remarks>
 internal sealed class CeresDestructionCinematicState
 {
-    /// <summary>Supplies the scene's native instruction and color-math source words.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Retains scene tilemaps and OBJ characters across native phase transfers.</summary>
@@ -88,7 +86,6 @@ internal sealed class CeresDestructionCinematicState
     /// <summary>State $25 route when the escape timer expires while Samus remains aboard Ceres.</summary>
     private readonly bool withSamus;
 
-    /// <param name="bus">Cartridge address space read by the scene's actors and transfers.</param>
     /// <param name="audio">The shared music and sound queue.</param>
     /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
@@ -98,14 +95,12 @@ internal sealed class CeresDestructionCinematicState
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
     public CeresDestructionCinematicState(
-        ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         PowerBombFixedColorCatalog? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,
         bool withSamus = false)
     {
-        this.bus = Ensure.NotNull(bus);
         this.withSamus = withSamus;
         this.audio = audio;
         this.paletteFxColors = paletteFxColors;

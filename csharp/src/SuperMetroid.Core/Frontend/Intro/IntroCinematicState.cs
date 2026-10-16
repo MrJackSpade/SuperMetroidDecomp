@@ -559,7 +559,7 @@ public sealed class IntroCinematicState
                     // brightness owner: the narration has just deliberately reached
                     // INIDISP zero, while $8B:BDE4 restores full brightness only after
                     // the fourteen-frame delayed music command has completed.
-                    ceresFlight = new IntroCeresFlightState(bus, audio
+                    ceresFlight = new IntroCeresFlightState(audio
                         ?? throw new InvalidOperationException("The Ceres flight waits on the cartridge music queue."),
                         characterArtwork?.CeresFlight, subtitles.Enabled);
                     Phase = IntroCinematicPhase.CeresFlight;
@@ -1324,7 +1324,6 @@ public sealed class IntroCinematicState
 
         new IntroVram(vram).NarrationTilemap.Write(textTilemap);
         objects = new IntroCinematicObjectSystem(
-            bus,
             vram,
             textTilemap,
             subtitles,

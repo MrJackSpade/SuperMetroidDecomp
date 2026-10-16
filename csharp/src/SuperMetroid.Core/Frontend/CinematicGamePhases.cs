@@ -89,7 +89,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         // counts $05B5/$05B6 and latches input; without one the frontend counted it.
         session.runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ceresDestruction ??= new CeresDestructionCinematicState(
-            session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
+            session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
             session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);
         session.ceresDestruction.Step();
         session.display.PublishCeresDestruction(session.ceresDestruction);
@@ -140,7 +140,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
             return;
         }
         session.ceresDestruction = new CeresDestructionCinematicState(
-            session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
+            session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
             session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, withSamus: true);
         session.GameState = SuperMetroidGameState.CeresGoesBoomWithSamus;
     }

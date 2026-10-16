@@ -26,7 +26,7 @@ internal static class EndingDmaVerification
         Suite(nameof(VerifyEndingExplosionSlotOrder), () => VerifyEndingExplosionSlotOrder());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(audio, 0, 0);
         ending.Step();
         var projection = ending.Presentation.CaptureRenderSnapshot().LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");

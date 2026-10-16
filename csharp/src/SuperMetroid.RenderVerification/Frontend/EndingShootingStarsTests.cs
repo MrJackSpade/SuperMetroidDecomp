@@ -68,7 +68,7 @@ internal static class EndingShootingStarsTests
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
+        var scene = new EndingCreditsState(new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.BindObjectArtwork(installed.LoadEndingObjectArt());
         scene.BindPaletteArtwork(installed.LoadEndingPalettes());
         scene.BindPaletteFxColors(maps.RoomPaletteFx);
@@ -100,7 +100,7 @@ internal static class EndingShootingStarsTests
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
         var cgram = scene.cgram;
-        var logo = new EndingLogo(installed.OpenRuntimeAddressSpace(), cgram, () => { }, installed.LoadEndingPalettes());
+        var logo = new EndingLogo(cgram, () => { }, installed.LoadEndingPalettes());
         scene.endingLogo = logo;
         scene.Phase = EndingCreditsPhase.PostCreditsLogo;
         logo.PaletteStep = 16;

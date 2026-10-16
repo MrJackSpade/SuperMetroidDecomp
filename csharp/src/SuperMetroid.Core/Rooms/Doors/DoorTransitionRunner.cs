@@ -59,8 +59,6 @@ internal sealed class DoorTransitionRunner
     private readonly Bank80SystemState _system;
     /// <summary>Starts Wrecked Ship treadmill animation at a door entrance.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
-    /// <summary>Address space used for door setup and projectile drawing.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Captures the runtime services used by native-order door setup and wait dispatch.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
@@ -84,7 +82,6 @@ internal sealed class DoorTransitionRunner
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _system = dependencies.System;
         _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>
     /// Runs the setup routine named by the active bank-$83 door header after PLM creation.

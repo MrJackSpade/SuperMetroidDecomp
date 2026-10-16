@@ -21,7 +21,7 @@ internal static class EndingCloudPlacementVerification
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: false));
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.FadeInEscapeSceneB; frame++)
         {
             ending.Step();
@@ -86,7 +86,7 @@ internal static class EndingCloudPlacementVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
-        var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
+        var ending = CreateRetailEndingFixture(audio, 0, 0);
         for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.EscapeSceneA; frame++)
         {
             ending.Step();

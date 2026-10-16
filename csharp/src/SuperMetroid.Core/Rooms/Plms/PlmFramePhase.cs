@@ -118,7 +118,7 @@ internal sealed class PlmFramePhase
                 "The PLM handler requires an active room, camera, and Samus.");
         }
 
-        IReadOnlyList<PlmTilemapUpdate> updates = _plms.Step(_addressSpace, _room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
+        IReadOnlyList<PlmTilemapUpdate> updates = _plms.Step(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }, new PlmFrameInputs { Scrolls = _room.Camera.Scrolls, EnemyDeaths = _enemies.RoomStatus.EnemiesKilled, EnemyDeathQuota = _enemies.PopulationLoader.DeathQuota, ControllerNewInput = controllerNewInput, CollectedItems = _player.Samus.CollectedItems, PowerBombExplosionStatus = _bombProjectiles.PowerBombExplosion.Status });
         foreach (PlmTilemapUpdate update in updates)
             update.ExecuteTo(_vram);
         _enemyRoomEffects.ApplyPendingDownwardGateProjectileRequests();

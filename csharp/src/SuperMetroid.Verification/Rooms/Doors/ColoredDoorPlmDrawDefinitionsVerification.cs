@@ -107,7 +107,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
             AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
                 $"resident colored-door header ${(int)header:X4} selects compiled art");
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
             int stride = vertical ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -137,7 +137,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 $"resident colored door ${(int)header:X4} selects its native closing list");
             for (int frame = 0; frame < 20 &&
                  plms.ColoredDoors.Single().Phase == ColoredDoorPhase.Closing; frame++)
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(ColoredDoorPhase.Waiting, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} finishes closing and resumes its owner");
 
@@ -154,12 +154,12 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             {
                 AssertTrue(plms.TryNotifyColoredDoorHit(origin, accepted),
                     $"resident colored door ${(int)header:X4} accepts hit {hit + 1}");
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             }
             AssertEqual(ColoredDoorPhase.Opening, plms.ColoredDoors.Single().Phase,
                 $"resident colored door ${(int)header:X4} reaches opening threshold");
             for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"resident colored door ${(int)header:X4} completes opening and deletes");
             AssertTrue(system.HasOpenedDoorBit(0),
@@ -174,10 +174,10 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 $"opened colored door ${(int)header:X4} reloads");
             // $84:8A72 hands the opened cap to the closed blue list, which shows the blue cap for one frame and then
             // deletes on the next pass.
-            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            reopened.Step(reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(reopened.PopulationSlots.Single().Animation is BlueDoorPlmAnimation,
                 $"opened colored door ${(int)header:X4} converts to a blue cap");
-            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            reopened.Step(reopenedLevel, reopenedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, reopened.SlotTable.ActiveCount,
                 $"opened colored door ${(int)header:X4} deletes after its blue frame");
             AssertEqual(0, guarded.ForbiddenReadAttempts,

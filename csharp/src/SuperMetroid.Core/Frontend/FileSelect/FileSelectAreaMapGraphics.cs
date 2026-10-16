@@ -14,8 +14,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {
-    /// <summary>Runtime address space retained for menu PPU setup.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Owns the map's VRAM, CGRAM, and installed tile and sprite resources.</summary>
     internal readonly MenuPpuState ppu;
     /// <summary>The installed area-map world colors, rebound when presentation content changes.</summary>
@@ -32,18 +30,17 @@ public sealed class FileSelectAreaMapGraphics
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
-    public static FileSelectAreaMapGraphics FromPresentation(ISnesAddressSpace bus, int selectedArea,
+    public static FileSelectAreaMapGraphics FromPresentation(int selectedArea,
         AreaMapPresentationCatalog presentation)
     {
         Ensure.NotNull(presentation);
-        var graphics = new FileSelectAreaMapGraphics(bus, selectedArea, presentation.Tiles, presentation.Palettes,
+        var graphics = new FileSelectAreaMapGraphics(selectedArea, presentation.Tiles, presentation.Palettes,
             presentation.Screens, presentation.WorldArtwork, presentation.Sprites);
         graphics.BindLabels(presentation.Labels);
         return graphics;
     }
 
     /// <summary>Initializes the unmasked world-map BG/palette owners from installed artwork and selects the requested Zebes area; labels must be bound separately or through <see cref="FromPresentation"/>.</summary>
-    /// <param name="bus">Runtime address space used by menu PPU setup.</param>
     /// <param name="selectedArea">Game-area identity 0..5, not the file-select label display-order ordinal.</param>
     /// <param name="mapTiles">Required installed map-character atlas.</param>
     /// <param name="mapPalettes">Required world-map palettes, including area-specific selections.</param>
@@ -52,10 +49,9 @@ public sealed class FileSelectAreaMapGraphics
     /// <param name="mapSprites">Required map-label OBJ artwork.</param>
     /// <exception cref="InvalidOperationException">Any required presentation resource is absent despite its optional parameter default.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The selected area is outside the six Zebes identities.</exception>
-    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
+    public FileSelectAreaMapGraphics(int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
         MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {
-        this.bus = Ensure.NotNull(bus);
         if (mapTiles is null || mapPalettes is null || mapScreens is null ||
             worldArtwork is null || mapSprites is null)
             throw new InvalidOperationException("Area-map graphics require installed presentation assets.");

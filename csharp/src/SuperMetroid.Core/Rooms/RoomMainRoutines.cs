@@ -41,8 +41,6 @@ internal sealed class RoomMainRoutines
     private readonly VramWriteQueue _vramWrites;
     /// <summary>Wrecked Ship treadmill animation gated by Phantoon's boss bit.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
-    /// <summary>Memory context supplied to the room animated-tile handlers.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the room, enemy, tile, and memory owners used by room-main callbacks.</summary>
     internal RoomMainRoutines(RoomMainRoutinesDependencies dependencies)
@@ -59,7 +57,6 @@ internal sealed class RoomMainRoutines
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
         _wreckedShipTreadmill = dependencies.WreckedShipTreadmill;
-        _addressSpace = dependencies.AddressSpace;
     }
     /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking at $8F:E8CD/$E942.</summary>
     internal void RunCrocomireComebackRoomMain()

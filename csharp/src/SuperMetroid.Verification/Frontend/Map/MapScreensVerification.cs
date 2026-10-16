@@ -42,9 +42,9 @@ internal static class MapScreensVerification
             installed.SelectArea(index);
             AssertTrue(native.RenderBackgrounds().SequenceEqual(installed.RenderBackgrounds()), "reselection reloads authored world background without ROM reads");
             var area = (AreaId)index;
-            var nativeRoom = new FileSelectRoomMapGraphics(bus, system, area,
+            var nativeRoom = new FileSelectRoomMapGraphics(system, area,
                 mapPresentation: original);
-            var installedRoom = new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original);
+            var installedRoom = new FileSelectRoomMapGraphics(system, area, mapPresentation: original);
             AssertTrue(nativeRoom.Vram.ImageEquals(installedRoom.Vram), "stock resolved frame/footer/area label matches full native VRAM");
             AssertTrue(nativeRoom.RenderFrameOnly().SequenceEqual(installedRoom.RenderFrameOnly()), "native frame-only transition pixels match");
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
@@ -63,9 +63,9 @@ internal static class MapScreensVerification
             var oneEdit = AreaMapPresentationCatalog.Load(stock, overrides);
             bool room = page.Key.StartsWith("Room.", StringComparison.Ordinal);
             var area = page.Key == MapScreenDefinitions.WorldForeground ? AreaId.Crateria : Enum.Parse<AreaId>(page.Key.Split('.')[1]);
-            Rgba32[] before = room ? new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: original).RenderFrameOnly()
+            Rgba32[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original).RenderFrameOnly()
                 : World(guard, original, (int)area).RenderBackgrounds();
-            Rgba32[] after = room ? new FileSelectRoomMapGraphics(guard, system, area, mapPresentation: oneEdit).RenderFrameOnly()
+            Rgba32[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit).RenderFrameOnly()
                 : World(guard, oneEdit, (int)area).RenderBackgrounds();
             AssertTrue(!before.SequenceEqual(after), $"independent {page.Key} JSON edit reaches its composed pixels");
         }
@@ -77,8 +77,8 @@ internal static class MapScreensVerification
         var worldBefore = World(guard, original, (int)AreaId.Maridia);
         var worldAfter = World(guard, edited, (int)AreaId.Maridia);
         AssertTrue(!worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "JSON world layer edits change composed pixels");
-        var roomBefore = new FileSelectRoomMapGraphics(guard, system, AreaId.Maridia, mapPresentation: original);
-        var roomAfter = new FileSelectRoomMapGraphics(guard, system, AreaId.Maridia, mapPresentation: edited);
+        var roomBefore = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: original);
+        var roomAfter = new FileSelectRoomMapGraphics(system, AreaId.Maridia, mapPresentation: edited);
         AssertTrue(!roomBefore.RenderFrameOnly().SequenceEqual(roomAfter.RenderFrameOnly()), "JSON room frame edits change transition pixels");
         using var captured = new MemoryStream(); DebuggerObjectGraphSerializer.Serialize(captured, worldAfter); captured.Position = 0;
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
@@ -143,7 +143,7 @@ internal static class MapScreensVerification
         Console.WriteLine("Map screen resources: six native world/room VRAM and pixel comparisons, guarded full menu, independent JSON/PNG edits, restored content and strict failures pass.");
 
         static FileSelectAreaMapGraphics World(ISnesAddressSpace addressSpace, AreaMapPresentationCatalog catalog, int area) =>
-            new(addressSpace, area, catalog.Tiles, catalog.Palettes, catalog.Screens,
+            new(area, catalog.Tiles, catalog.Palettes, catalog.Screens,
                 catalog.WorldArtwork, catalog.Sprites);
     }
 

@@ -16,16 +16,13 @@ internal sealed class TesterTools
     private readonly SamusFrameState _player;
     /// <summary>Persistent item, event, boss, and door bits adjusted by tester options.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Source used to reload the granted suit's presentation palette.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Connects tester options to the current player, system state, and palette owners.</summary>
-    internal TesterTools(SnesCgram cgram, SamusFrameState player, Bank80SystemState system, ISnesAddressSpace addressSpace)
+    internal TesterTools(SnesCgram cgram, SamusFrameState player, Bank80SystemState system)
     {
         _cgram = cgram;
         _player = player;
         _system = system;
-        _addressSpace = addressSpace;
     }
     /// <summary>Clears saved boss, Shaktool, and eye-door progression after save restoration and before room selection.</summary>
     internal void ResetSavedEncounters()

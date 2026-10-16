@@ -30,8 +30,8 @@ internal static class GameOverPresentationVerification
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new GameOverMenuState(bus, nativeAudio, original);
-        var installed = new GameOverMenuState(NewForbiddenMapBus(), installedAudio, original);
+        var native = new GameOverMenuState(nativeAudio, original);
+        var installed = new GameOverMenuState(installedAudio, original);
         bool choseNo = false;
         bool released = false;
         int comparedFrames = 0;
@@ -108,9 +108,9 @@ internal static class GameOverPresentationVerification
         var originalEditAudio = new CartridgeAudioState();
         var editedAudio = new CartridgeAudioState();
         var originalMenu = new GameOverMenuState(
-            NewForbiddenMapBus(), originalEditAudio, original);
+            originalEditAudio, original);
         var editedMenu = new GameOverMenuState(
-            NewForbiddenMapBus(), editedAudio, edited);
+            editedAudio, edited);
         for (int frame = 0; frame < 40; frame++)
         {
             originalMenu.Step(0);

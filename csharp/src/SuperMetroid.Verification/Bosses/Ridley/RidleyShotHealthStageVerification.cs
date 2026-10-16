@@ -54,7 +54,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Radius = new(8, 8);
             shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
         }
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: ridley.NativeIndex);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");

@@ -96,7 +96,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         roomSlot.Clear();
 
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
-        var elevator = new CeresElevatorArrivalState(memory, samus, projectileArtwork);
+        var elevator = new CeresElevatorArrivalState(samus, projectileArtwork);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();
         elevator.Draw(elevatorActual, Position16<RoomPixels>.Zero);

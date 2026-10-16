@@ -93,7 +93,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
         GameOptionsRomData.TilemapByteCount,
         0);
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-    var options = new GameOptionsMenuState(bus, mapPresentation: RetailPresentationFixture());
+    var options = new GameOptionsMenuState(mapPresentation: RetailPresentationFixture());
     StepOptionsUntil(options, GameOptionsPhase.Main);
 
     for (int row = 0; row < 3; row++)
@@ -379,7 +379,7 @@ internal static void VerifyEndingCreditsState()
 
     var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
     var audio = new SuperMetroid.Core.Audio.CartridgeAudioState();
-    var ending = CreateRetailEndingFixture(bus, audio, gameTimeHours: 2, gameTimeMinutes: 59);
+    var ending = CreateRetailEndingFixture(audio, gameTimeHours: 2, gameTimeMinutes: 59);
     ending.BindStaffCredits(CreditsPresentation.Load(new MemoryStream(
         SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus))));
     EndingCreditsPhase previous = ending.Phase;
@@ -414,15 +414,15 @@ internal static void VerifyEndingCreditsState()
     AssertTrue(renderedTransitions >= 20,
         "ending renders each materially different cartridge phase");
 
-    var middle = CreateRetailEndingFixture(bus, audio, gameTimeHours: 3, gameTimeMinutes: 0);
-    var slow = CreateRetailEndingFixture(bus, audio, gameTimeHours: 10, gameTimeMinutes: 0);
+    var middle = CreateRetailEndingFixture(audio, gameTimeHours: 3, gameTimeMinutes: 0);
+    var slow = CreateRetailEndingFixture(audio, gameTimeHours: 10, gameTimeMinutes: 0);
     AssertEqual(EndingReward.Suitless, ending.EndingReward, "under-three-hour ending branch");
     AssertEqual(EndingReward.Helmetless, middle.EndingReward, "three-to-ten-hour ending branch");
     AssertEqual(EndingReward.Armored, slow.EndingReward, "ten-hour ending branch");
 
     var percentageTilemap = new ushort[0x400];
     Array.Fill(percentageTilemap, (ushort)0x007f);
-    var percentage = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = percentageTilemap, InstructionPointer = 0xdfdb, Inventory = new EndingInventorySnapshot(
+    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = percentageTilemap, InstructionPointer = 0xdfdb, Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
             MaxMissiles: 230,

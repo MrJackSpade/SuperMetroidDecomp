@@ -128,9 +128,8 @@ internal static class InstalledFixtures
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
     /// <summary>Creates Ceres destruction with installed cinematic art, fixed colors, and palette FX.</summary>
-    internal static CeresDestructionCinematicState CreateDestruction(ISnesAddressSpace bus,
-        CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
-        new(bus, audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
+    internal static CeresDestructionCinematicState CreateDestruction(CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+        new(audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
 
     /// <summary>Creates an intro scene with installed character, projectile, narration, and hurt-color art.</summary>
     internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
@@ -150,10 +149,10 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates ending credits with installed flight, Mode 7, object, palette, and staff art.</summary>
-    internal static EndingCreditsState CreateEnding(ISnesAddressSpace bus, CartridgeAudioState audio,
+    internal static EndingCreditsState CreateEnding(CartridgeAudioState audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
-        var ending = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
+        var ending = new EndingCreditsState(audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
         ending.BindObjectArtwork(RepositoryInstallation.Installation.LoadEndingObjectArt());
@@ -165,15 +164,15 @@ internal static class InstalledFixtures
     }
 
     /// <summary>Creates a file-select area map from installed presentation resources.</summary>
-    internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(ISnesAddressSpace bus, int selectedArea) =>
-        FileSelectAreaMapGraphics.FromPresentation(bus, selectedArea, Maps);
+    internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(int selectedArea) =>
+        FileSelectAreaMapGraphics.FromPresentation(selectedArea, Maps);
 
     /// <summary>Creates the title sequence with installed gradient, palette, and graphics defaults.</summary>
-    internal static TitleSequenceState CreateTitle(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    internal static TitleSequenceState CreateTitle(CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null) =>
-        new(bus, audio, titleGradientPresentation ?? Maps.TitleGradient,
+        new(audio, titleGradientPresentation ?? Maps.TitleGradient,
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
     /// <summary>Creates a pause menu while retaining the supplied state and installed map presentation.</summary>

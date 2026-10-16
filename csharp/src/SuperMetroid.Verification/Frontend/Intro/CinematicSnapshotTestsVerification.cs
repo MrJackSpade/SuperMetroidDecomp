@@ -29,7 +29,7 @@ internal static class CinematicSnapshotTestsVerification
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
         Suite(nameof(VerifyIntroDisplayCapture), () => VerifyIntroDisplayCapture());
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var flight = new IntroCeresFlightState(bus, new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight);
+        var flight = new IntroCeresFlightState(new CartridgeAudioState(), InstalledFixtures.IntroArtwork.CeresFlight);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
         int flightSamples = 0;
         bool coloredRearView = false;
@@ -52,7 +52,7 @@ internal static class CinematicSnapshotTestsVerification
         AssertTrue(flight.Finished && coloredRearView, "flight fixture completes and exercises nonzero fixed color");
         AssertTrue(flightPhases.Contains(IntroCeresFlightPhase.SpaceColonyTitle), "flight caption captured");
         Console.WriteLine($"  Ceres flight snapshots: {flightSamples} samples across {flightPhases.Count} phases match, including fixed-color rear view.");
-        var destruction = CreateRetailDestructionFixture(bus);
+        var destruction = CreateRetailDestructionFixture();
         var phases = new HashSet<CeresDestructionPhase>();
         int samples = 0;
         bool mode1 = false, mode7 = false, explosionWindow = false, explosionCoversTop = false;
@@ -88,7 +88,7 @@ internal static class CinematicSnapshotTestsVerification
         foreach (bool chooseNo in new[] { false, true })
         {
             var audio = new CartridgeAudioState();
-            var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
+            var menu = new GameOverMenuState(audio, RetailPresentationFixture());
             bool toggled = false, released = false;
             for (int tick = 0; tick < 300 && !menu.ContinueRequested && !menu.TitleRequested; tick++)
             {

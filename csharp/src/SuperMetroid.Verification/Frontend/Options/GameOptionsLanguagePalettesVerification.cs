@@ -90,7 +90,7 @@ internal static class GameOptionsLanguagePalettesVerification
         for (int language = 0; language < 2; language++)
         {
             bool japanese = language != 0;
-            var menu = new GameOptionsMenuState(bus, japaneseText: japanese, mapPresentation: installed);
+            var menu = new GameOptionsMenuState(japaneseText: japanese, mapPresentation: installed);
             ReadOnlySpan<byte> vram = menu.CaptureRenderSnapshot().Memory.Vram;
             byte[] editablePage = presentation.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
             presentation.ApplyLanguage(editablePage, japanese);

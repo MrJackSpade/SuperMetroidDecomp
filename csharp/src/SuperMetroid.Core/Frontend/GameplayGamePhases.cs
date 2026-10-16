@@ -145,7 +145,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
             session.audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
             session.ceresDestruction = new CeresDestructionCinematicState(
-                session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
+                session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
                 session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);
             session.GameState = SuperMetroidGameState.CeresGoesBoom;
             session.display.PublishBlack();
@@ -195,7 +195,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             SamusState endingSamus = session.GameplayRuntime.Player.Samus ??
                 throw new InvalidOperationException(
                     "Ending inventory calculation requires the live Samus state.");
-            session.endingCredits = new EndingCreditsState(session.bus, session.audio, new EndingCreditsSetup { GameTimeHours = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
+            session.endingCredits = new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                     endingSamus.MaxHealth,
                     endingSamus.MaxReserveEnergy,
                     endingSamus.MaxMissiles,

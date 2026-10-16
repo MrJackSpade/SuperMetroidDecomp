@@ -152,7 +152,6 @@ internal static class ShotCallbackDefinitionsVerification
             projectile.InstructionTimer = NativeCountdown.Start(1);
 
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(
-                    guard,
                     projectiles,
                     new SamusBombProjectileSystem()),
                 $"literal shot no-op ${callback:X6} is admitted by production collision");

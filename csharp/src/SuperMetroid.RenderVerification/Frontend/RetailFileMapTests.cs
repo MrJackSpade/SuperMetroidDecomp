@@ -30,14 +30,14 @@ internal static class RetailFileMapTests
         }
         for (int area = 0; area < 6; area++)
         {
-            var graphics = InstalledFixtures.CreateFileSelectAreaMap(bus, area);
+            var graphics = InstalledFixtures.CreateFileSelectAreaMap(area);
             foreach (bool backdrop in new[] { false, true })
             foreach (ushort used in new ushort[] { 0, 1, ushort.MaxValue })
             {
                 ushort[] masks = Enumerable.Repeat(used, 6).ToArray();
                 Compare(graphics.Render(masks, backdrop), graphics.CaptureRenderSnapshot(masks, backdrop), $"area={area}, labels/backdrop");
             }
-            var room = new FileSelectRoomMapGraphics(bus, new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps);
+            var room = new FileSelectRoomMapGraphics(new Bank80SystemState(), (AreaId)area, mapPresentation: InstalledFixtures.Maps);
             Compare(room.RenderFrameOnly(), room.CaptureRenderSnapshot(frameOnly: true), "frame-only");
             foreach (ushort scroll in new ushort[] { 0, 255, 511, ushort.MaxValue })
                 Compare(room.RenderBackgrounds(new(scroll, scroll)), room.CaptureRenderSnapshot(new(scroll, scroll)), $"room={area}, scroll={scroll}");

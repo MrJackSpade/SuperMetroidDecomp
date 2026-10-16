@@ -112,7 +112,7 @@ internal static class MurderBeamVerification
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
 
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            combat.Bus, projectiles, shared, samus),
+            projectiles, shared, samus),
             "invisible Murder Beam point overlaps an ordinary enemy");
         AssertEqual((ushort)800, target.Health,
             "charged vulnerability applies one 200-point Murder Beam hit");
@@ -123,7 +123,7 @@ internal static class MurderBeamVerification
 
         target.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            combat.Bus, projectiles, shared, samus),
+            projectiles, shared, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual((ushort)600, target.Health,
             "second Murder Beam contact repeats the native damage");
@@ -132,7 +132,7 @@ internal static class MurderBeamVerification
         target.FrozenTimer = NativeCountdown.Start(0);
         target.Health = 100;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            combat.Bus, projectiles, shared, samus),
+            projectiles, shared, samus),
             "lethal Murder Beam contact reaches Ice substitution");
         AssertEqual((ushort)100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");

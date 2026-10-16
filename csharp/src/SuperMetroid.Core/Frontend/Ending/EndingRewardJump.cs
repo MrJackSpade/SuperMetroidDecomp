@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Native reward jump/landing actor owner, ending at F604's screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
-    /// <summary>Address space used when advancing the jump actors' instruction lists.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Selects the armored head offsets used during the launch animation.</summary>
     private readonly bool helmeted;
     /// <summary>Queues one ending graphics sheet per landing update until all sheets are installed.</summary>
@@ -28,9 +26,8 @@ internal sealed class EndingRewardJump
     public short BodyY => unchecked((short)body.WholePosition.Y);
 
     /// <summary>Spawns the body and, for suited rewards, its helmeted or helmetless head actor.</summary>
-    public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
+    public EndingRewardJump(EndingReward reward, Action<int> queueGraphicsUpload)
     {
-        this.bus = bus;
         this.queueGraphicsUpload = Ensure.NotNull(queueGraphicsUpload);
         helmeted = reward == EndingReward.Armored;
         if (reward != EndingReward.Suitless)

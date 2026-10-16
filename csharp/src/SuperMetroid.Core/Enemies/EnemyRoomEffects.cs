@@ -39,8 +39,6 @@ internal sealed class EnemyRoomEffects
     private readonly RoomPaletteFxSystem _roomPaletteFx;
     /// <summary>Records boss bits and the Zebes timebomb event requested by the encounter.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Address space supplied to palette FX definition setup.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the room systems needed to consume enemy publications immediately after their AI pass.</summary>
     internal EnemyRoomEffects(EnemyRoomEffectsDependencies dependencies)
@@ -55,7 +53,6 @@ internal sealed class EnemyRoomEffects
         _roomLayer3Fx = dependencies.RoomLayer3Fx;
         _roomPaletteFx = dependencies.RoomPaletteFx;
         _system = dependencies.System;
-        _addressSpace = dependencies.AddressSpace;
     }
 
     /// <summary>

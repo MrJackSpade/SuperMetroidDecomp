@@ -6,8 +6,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Native logo actors followed by E58A's sixteen palette transfers.</summary>
 internal sealed class EndingLogo
 {
-    /// <summary>Instruction source for the four native logo actors.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Scene callback fired when the top logo half reaches its landing point.</summary>
     private readonly Action landed;
     /// <summary>Two moving halves and two supporting logo sprites.</summary>
@@ -26,10 +24,9 @@ internal sealed class EndingLogo
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
     /// <summary>Creates four logo actors and loads the initial artwork palette into CGRAM.</summary>
-    public EndingLogo(ISnesAddressSpace bus, SnesCgram cgram, Action landed,
+    public EndingLogo(SnesCgram cgram, Action landed,
         EndingPaletteCatalog? paletteArtwork = null)
     {
-        this.bus = bus;
         this.landed = landed;
         this.paletteArtwork = paletteArtwork;
         for (int i = 0; i < actors.Length; i++)

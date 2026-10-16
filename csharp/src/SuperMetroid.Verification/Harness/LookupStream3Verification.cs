@@ -145,7 +145,7 @@ internal static class LookupStream3Verification
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
             var vram = new SnesVram();
-            var objects = new IntroCinematicObjectSystem(new TestAddressSpace(), vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
+            var objects = new IntroCinematicObjectSystem(vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
             for (int frame = 0; frame < expected.Length; frame++)
             {
                 objects.ProcessTileData((ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16));

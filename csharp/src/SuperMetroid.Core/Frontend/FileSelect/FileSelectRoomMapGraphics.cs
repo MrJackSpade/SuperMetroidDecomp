@@ -11,8 +11,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
-    /// <summary>Menu address space shared with the PPU presentation owner.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Separate file-select PPU memory and installed background artwork.</summary>
     internal readonly MenuPpuState ppu;
     /// <summary>Map landmarks, stations, and boss icons drawn around the saved-station marker.</summary>
@@ -27,20 +25,17 @@ public sealed class FileSelectRoomMapGraphics
     internal Bank80SystemState MapSystem => icons.MapSystem;
 
     /// <summary>Installs one area's revealed BG1 map and fixed BG2 frame into a separate menu PPU owner, following $81:A725/$82:9517 without choosing a load station or advancing menu timing.</summary>
-    /// <param name="bus">Required address-space context for menu PPU setup and drawing APIs.</param>
     /// <param name="system">Persistence owner supplying downloaded-map, explored-cell, boss, and station visibility state; it is not replaced or cleared.</param>
     /// <param name="area">One of the six Zebes map areas, excluding Ceres.</param>
     /// <param name="revealMode">Optional presentation reveal override when projecting installed map cells; ordinary selection uses persistence-driven visibility.</param>
     /// <param name="mapPresentation">Required installed map tiles, palettes, screens, and sprite/layout resources, despite the optional parameter syntax.</param>
-    public FileSelectRoomMapGraphics(ISnesAddressSpace bus, Bank80SystemState system, AreaId area,
+    public FileSelectRoomMapGraphics(Bank80SystemState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null)
     {
-        Ensure.NotNull(bus);
         Ensure.NotNull(system);
         if (mapPresentation is null)
             throw new InvalidOperationException(
                 "Room-map graphics require installed map presentation assets.");
-        this.bus = bus;
         icons = new FileSelectMapIcons(system, area);
         icons.BindStations(mapPresentation.Stations);
         icons.BindLandmarks(mapPresentation.Landmarks);

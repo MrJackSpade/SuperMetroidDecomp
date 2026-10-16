@@ -61,7 +61,7 @@ internal static class ElevatorPlatformVisualsVerification
             var plms = new RoomPlmSystem { Drawing = { ElevatorPlatformVisuals = visuals } };
             AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
                 "elevator visual fixture loads one real PLM");
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             int index = Enumerable.Range(0, 32 * 16).Single(block =>
                 level.GetCollisionBlockByIndex(block).LevelWord == 0x8085);
             return (level.GetCollisionBlockByIndex(index).LevelWord,

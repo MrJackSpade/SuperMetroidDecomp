@@ -115,7 +115,7 @@ internal static class FileSelectMapWindowVerification
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");
-        var graphics = new FileSelectRoomMapGraphics(bus, new SuperMetroid.Core.Progression.Bank80SystemState(),
+        var graphics = new FileSelectRoomMapGraphics(new SuperMetroid.Core.Progression.Bank80SystemState(),
             SuperMetroid.Core.Rooms.AreaId.Maridia, mapPresentation: RetailPresentationFixture());
         Rgba32[] frameOnly = graphics.RenderFrameOnly().ToArray();
         graphics.Vram.LoadBytes(0xa000, new byte[] { 0x34, 0x12 });
@@ -136,7 +136,7 @@ internal static class FileSelectMapWindowVerification
         int[] indices = [86, 107, 102, 81, 97, 118];
         int[] activeColors = [0x01db, 0x0bb1, 0x0013, 0x7fe0, 0x6400, 0x6417];
         var maps = RetailPresentationFixture();
-        var graphics = new FileSelectAreaMapGraphics(bus, 0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
+        var graphics = new FileSelectAreaMapGraphics(0, maps.Tiles, maps.Palettes, maps.Screens, maps.WorldArtwork, maps.Sprites);
         graphics.BindLabels(maps.Labels);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {

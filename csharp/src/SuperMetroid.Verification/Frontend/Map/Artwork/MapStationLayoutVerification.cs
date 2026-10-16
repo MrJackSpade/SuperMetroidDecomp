@@ -69,9 +69,9 @@ internal static class MapStationLayoutVerification
         AssertTrue(!Draw(baseIcons).SequenceEqual(Draw(editIcons)), "native discovery reveals relocated icon");
         var marker = new FileSelectStationMarker(AreaId.Brinstar, 0,
             original.SaveMarkers);
-        var nativeGraphics = new FileSelectRoomMapGraphics(bus, state, AreaId.Brinstar,
+        var nativeGraphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar,
             mapPresentation: original);
-        var graphics = new FileSelectRoomMapGraphics(guard, state, AreaId.Brinstar, mapPresentation: original);
+        var graphics = new FileSelectRoomMapGraphics(state, AreaId.Brinstar, mapPresentation: original);
         var nativePixels = nativeGraphics.Render(new(0, 0), marker);
         AssertTrue(nativePixels.SequenceEqual(graphics.Render(new(0, 0), marker)), "stock station full-menu pixels with ROM layout blocked");
         byte[] before = Enumerable.Range(0, Bank80SystemState.ExploredMapBytesPerArea)

@@ -15,8 +15,7 @@ internal static class CeresFlightSpriteArtworkVerification
 {
     /// <summary>Compares six retail frames, tests a visible star offset edit, and verifies rebind, validation, and stock repair.</summary>
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
-        SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
-        ISnesAddressSpace guardedBus)
+        SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock)
     {
         foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
         {
@@ -56,8 +55,8 @@ internal static class CeresFlightSpriteArtworkVerification
             CeresFlightSpritePresentation.Write(output, document);
 
         CeresFlightArtworkCatalog edited = installation.LoadIntroCinematicArt().CeresFlight;
-        var stockFlight = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), stock);
-        var editedFlight = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(), edited);
+        var stockFlight = new IntroCeresFlightState(new CartridgeAudioState(), stock);
+        var editedFlight = new IntroCeresFlightState(new CartridgeAudioState(), edited);
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
         {
             stockFlight.StepFrame();
@@ -92,7 +91,7 @@ internal static class CeresFlightSpriteArtworkVerification
             "a sprite override cannot hide corrupted stock Ceres sprites");
         GameInstallation repaired = GameAssetInstaller.EnsureInstalled(installation.Root)
             ?? throw new InvalidOperationException("Ceres sprites vanished during stock repair.");
-        var repairedFlight = new IntroCeresFlightState(guardedBus, new CartridgeAudioState(),
+        var repairedFlight = new IntroCeresFlightState(new CartridgeAudioState(),
             repaired.LoadIntroCinematicArt().CeresFlight);
         for (int frame = 0; frame < CeresFrontApproachTicks; frame++)
             repairedFlight.StepFrame();

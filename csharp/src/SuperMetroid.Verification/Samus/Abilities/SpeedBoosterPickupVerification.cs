@@ -27,7 +27,7 @@ internal static class SpeedBoosterPickupVerification
             RoomLayer3FxState fx = CreateRetailFxState(cartridge);
             fx.Load(vram, new SnesCgram(), 0x8600, 0, 0);
             CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
-            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (chozo)
             {
                 // The orb must be shot open before its item can be touched.
@@ -35,13 +35,13 @@ internal static class SpeedBoosterPickupVerification
                     "Speed Booster orb accepts a projectile");
                 StepUntil(
                     () => fixture.Plms.CollectiblePhases[0] == CollectiblePhase.Visible,
-                    _ => fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
+                    _ => fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
                     maximumFrames: 20,
                     context: "Speed Booster orb burst");
             }
             AssertTrue(fixture.Plms.CollectiblePlms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "Speed Booster pickup accepts contact");
-            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
             AssertEqual((ushort)0, fx.PackedYVelocity, "message has not yet armed lava");

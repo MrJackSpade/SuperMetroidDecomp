@@ -14,8 +14,6 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
-    /// <summary>Address space retained by the ending text host's scene contract.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Mutable 32-by-32 staging tilemap uploaded after each revealed glyph.</summary>
     private readonly ushort[] tilemap;
     /// <summary>Collected ammo and item counts used for the final item-percentage message.</summary>
@@ -47,9 +45,8 @@ internal sealed class EndingBackgroundTextState
     private bool installedHoldStarted;
 
     /// <summary>Binds installed typewriter art and an existing scene tilemap without advancing its pacing.</summary>
-    public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)
+    public EndingBackgroundTextState(EndingBackgroundTextSetup setup)
     {
-        this.bus = Ensure.NotNull(bus);
         this.tilemap = Ensure.NotNull(setup.Tilemap);
         Ensure.LengthEqual(setup.Tilemap, EndingCreditsRomData.Rendering.TilemapWords);
         this.instructionPointer = setup.InstructionPointer;

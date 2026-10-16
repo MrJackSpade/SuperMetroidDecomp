@@ -143,8 +143,8 @@ internal static class Program
                 {
                     using var device = new D3D11RenderDevice(kind);
                     using var renderer = new D3D11FrameRenderer(device);
-                    if (args[0] == "--reference-startup") StartupReferenceTests.Run(device, renderer, rom);
-                    else StartupReferenceTests.RunPan(device, renderer, rom);
+                    if (args[0] == "--reference-startup") StartupReferenceTests.Run(device, renderer);
+                    else StartupReferenceTests.RunPan(device, renderer);
                 }
                 return;
             }

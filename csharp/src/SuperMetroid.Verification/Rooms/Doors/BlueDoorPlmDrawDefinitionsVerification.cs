@@ -74,7 +74,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 $"{orientation} blue door allocates its native opening actor");
             var guarded = NewBlueDoorDrawReadGuard(rom, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             int stride = orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right
                 ? width : 1;
             for (int block = 0; block < 4; block++)
@@ -95,7 +95,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
 
             // Continue through every opening draw, the long air-cap hold and Delete.
             for (int frame = 0; frame < 128 && plms.SlotTable.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 $"{orientation} blue-door opening reaches its native Delete");
 
@@ -106,7 +106,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                     $"{orientation} allocates actor for {program}");
                 plms.StartSoleProgramForVerification(PlmProgramStart.Typed(program));
                 for (int frame = 0; frame < 20 && plms.SlotTable.ActiveCount != 0; frame++)
-                    plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+                    plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
                 AssertEqual(0, plms.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
                 AssertEqual((int)behavior.Value,

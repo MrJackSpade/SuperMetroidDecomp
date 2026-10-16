@@ -18,8 +18,6 @@ namespace SuperMetroid.Core.Areas.Ceres;
 /// </remarks>
 public sealed class CeresElevatorArrivalState
 {
-    /// <summary>Address space bound at arrival construction for the projectile lifecycle.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>First spawned projectile, which moves Samus before the platform checks landing.</summary>
     internal readonly CeresElevatorProjectile pad;
     /// <summary>Second spawned projectile, which waits behind the pad until touchdown.</summary>
@@ -29,11 +27,9 @@ public sealed class CeresElevatorArrivalState
 
     /// <summary>Installs both compiled definitions and performs their initialization AIs.</summary>
     public CeresElevatorArrivalState(
-        ISnesAddressSpace bus,
         SamusState samus,
         EnemyProjectileSpritemapCatalog? projectileSpritemaps = null)
     {
-        this.bus = Ensure.NotNull(bus);
         Ensure.NotNull(samus);
         this.projectileSpritemaps = projectileSpritemaps;
 

@@ -50,13 +50,13 @@ internal static class DownwardGateVisualsVerification
             (TestAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer,
                 RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
-            StepDownwardGatePlm(plms, bus, level, streamer);
+            StepDownwardGatePlm(plms, level, streamer);
             AssertEqual(visuals.GetWord(0xa55d, 0, 1) == 0x0053
                     ? (ushort)0x0053 : (ushort)0x000f,
                 streamer.BuildPlmLevelBlockUpdate(
                     gateBlockIndex + level.Size.X, 0).TopRow[0],
                 "first gate PLM step draws its selected second-column visual word");
-            StepDownwardGatePlm(plms, bus, level, streamer);
+            StepDownwardGatePlm(plms, level, streamer);
             int columnIndex = gateBlockIndex + level.Size.X;
             int triggerIndex = gateBlockIndex - 1;
             ushort streamed = level.CreateBackgroundStreamer()

@@ -879,7 +879,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 if (slot.Entity is IEnemyContactHooks hooks)
                     hooks.ResolveBeforeOrdinaryHits(Room.LoadedBus, frame);
                 if (frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
-                    Collision.ResolveOrdinaryProjectileHits(Room.LoadedBus, frame.SamusProjectiles, frame.SharedProjectiles,
+                    Collision.ResolveOrdinaryProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles,
                         frame.Samus, nativeIndex);
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.

@@ -57,7 +57,7 @@ internal static class MotherBrainGlassSuperMissileVerification
             shot.PreInstruction = pair[slot].Pre;
         }
 
-        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "the glass accepts one projectile per pass");
+        AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "the glass accepts one projectile per pass");
         AssertEqual((ushort)2700, head.Health, "one Super Missile deals 300 to the glass");
         AssertEqual(1, glassHits, "the hit advances the glass PLM argument once");
         AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.MotherBrainGlassHit),
@@ -70,7 +70,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.AiStates = EnemyAiStates.None;
         head.FlashTimer = NativeCountdown.Start(0);
         head.InvincibilityTimer = NativeCountdown.Start(0);
-        AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");
+        AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual((ushort)2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");
     }

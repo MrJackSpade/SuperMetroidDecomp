@@ -47,7 +47,7 @@ internal static class MapArrowsVerification
         var control = new FileSelectMapAnimations(bus, original.Arrows);
         changed.StepArrows(_ => true); control.StepArrows(_ => true);
         AssertTrue(!Draw(changed).SequenceEqual(Draw(control)), "edited anchor moves actual emitted arrow sprite coordinates");
-        var graphics = new FileSelectRoomMapGraphics(guard, new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
+        var graphics = new FileSelectRoomMapGraphics(new Bank80SystemState(), AreaId.Maridia, mapPresentation: original);
         var marker = new FileSelectStationMarker(AreaId.Maridia, 0, original.SaveMarkers);
         AssertTrue(!graphics.Render(new(0, 0), marker, changed).ToArray().SequenceEqual(graphics.Render(new(0, 0), marker, control)),
             "edited arrow anchor changes actual composed room-map pixels");

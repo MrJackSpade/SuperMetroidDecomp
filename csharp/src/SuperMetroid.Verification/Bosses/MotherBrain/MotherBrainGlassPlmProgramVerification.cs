@@ -53,10 +53,10 @@ internal static class MotherBrainGlassPlmProgramVerification
         // With no head hits, the first one-frame draw must loop at the $0002
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(plms.MotherBrainGlassAnimation is MotherBrainGlassPlmAnimation { Cursor: { Program: MotherBrainGlassPlmProgram.Stage0, Position: 1 } },
             "intact glass first draw advances to the hit threshold");
-        plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(plms.MotherBrainGlassAnimation is MotherBrainGlassPlmAnimation { Cursor: { Program: MotherBrainGlassPlmProgram.Stage0, Position: 1 } },
             "zero head hits loop at the first glass stage");
         AssertTrue(!eventSet && plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count == 0,
@@ -70,7 +70,7 @@ internal static class MotherBrainGlassPlmProgramVerification
         int emitted = 0;
         for (int frame = 0; frame < 128 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             emitted += plms.MotherBrainGlass.MotherBrainGlassProjectileRequests.Count;
         }
         AssertTrue(eventSet && !plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.MotherBrainGlass),

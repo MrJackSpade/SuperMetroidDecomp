@@ -32,7 +32,7 @@ internal static class GateBeamCollisionVerification
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
         var level = runtime.Room.LoadedLevelData;
         var plms = runtime.Plms;
-        for (int warm = 0; warm < 2; warm++) plms.Step(bus, level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
+        for (int warm = 0; warm < 2; warm++) plms.Step(level, (runtime.Room.BackgroundStreamer ?? throw new InvalidOperationException("Verification requires runtime.Room.BackgroundStreamer.")), new PlmView { Layer1Position = new(0, 224), Bg1XOffset = 0 });
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         SnesButton input = SnesButton.X;

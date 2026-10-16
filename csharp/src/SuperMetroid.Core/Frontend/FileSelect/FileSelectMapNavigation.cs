@@ -9,8 +9,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMapNavigation
 {
-    /// <summary>Installed address space used when the room-map window is prepared.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Saved area index retained while area-map directions are suppressed in normal mode.</summary>
     private readonly int area;
     /// <summary>Previous controller word used to detect new confirm and cancel edges.</summary>
@@ -21,12 +19,10 @@ public sealed class FileSelectMapNavigation
     internal void BindLabels(SuperMetroid.Core.Frontend.Map.Artwork.WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Creates normal area/room-map navigation for a saved area's native index.</summary>
-    /// <param name="bus">Installed address space used when constructing the room-map window.</param>
     /// <param name="area">Zero-based saved area index.</param>
     /// <param name="initialHeldInput">Controller state to latch so already-held buttons do not create edges.</param>
-    public FileSelectMapNavigation(ISnesAddressSpace bus, int area, SnesButton initialHeldInput = SnesButton.None)
+    public FileSelectMapNavigation(int area, SnesButton initialHeldInput = SnesButton.None)
     {
-        this.bus = Ensure.NotNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
         this.area = area;

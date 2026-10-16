@@ -128,7 +128,7 @@ internal static class TourianAccessPlmProgramsVerification
         int deletionFrame = -1;
         for (int frame = 0; frame < 120 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0 && !clear)
                 AssertEqual((ushort)0x0053,
                     level.GetCollisionBlockByIndex(12 * width + 6).LevelWord,

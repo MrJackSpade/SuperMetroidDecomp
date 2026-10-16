@@ -385,10 +385,10 @@ internal static class MapPresentationVerification
     {
         using var fixture = new MapCatalogFixture();
         var (bus, _, stock, overrides, original, fixtureAssets, initialPalettes) = fixture;
-        Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitleGraphicsOverride), () => VerifyTitleGraphicsOverride(stock, overrides, original));
         Suite(nameof(VerifyTitleSpriteCompositionOverride), () => VerifyTitleSpriteCompositionOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(bus, stock, overrides, original));
-        Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(bus, stock, overrides, original));
+        Suite(nameof(VerifyTitlePaletteOverride), () => VerifyTitlePaletteOverride(stock, overrides, original));
+        Suite(nameof(VerifyTitleGradientOverride), () => VerifyTitleGradientOverride(stock, overrides, original));
         Suite(nameof(VerifyRoomPaletteFxOverride), () => VerifyRoomPaletteFxOverride(bus, stock, overrides, original, initialPalettes));
         Suite(nameof(VerifyRoomFxAnimatedTileArtworkOverride), () => VerifyRoomFxAnimatedTileArtworkOverride(bus, stock, overrides, original, initialPalettes));
         Suite(nameof(VerifyRoomFxLayer3TilemapOverride), () => VerifyRoomFxLayer3TilemapOverride(stock, overrides, original));
@@ -439,7 +439,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyGameplayHudPresentationAssets), () => VerifyGameplayHudPresentationAssets(bus, stock,
             Path.Combine(root, "gameplay-hud-overrides"), original, initialPalettes));
         Suite(nameof(VerifyGameOverPresentationAssets), () => VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original));
-        Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(bus, original));
+        Suite(nameof(VerifyGameOverMenuNativeIndexes), () => VerifyGameOverMenuNativeIndexes(original));
         Suite(nameof(VerifyGameOptionsPresentationAssets), () => VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original));
         Suite(nameof(VerifyFileSelectPresentationAssets), () => VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original));
         Suite(nameof(VerifyGameplayMessagePanelAssets), () => VerifyGameplayMessagePanelAssets(bus, stock, Path.Combine(root, "gameplay-message-panel-overrides"), original));
@@ -1212,7 +1212,6 @@ internal static class MapPresentationVerification
 
     /// <summary>Checks that title gradient edits alter production output and installed identity, then restore on removal.</summary>
     private static void VerifyTitleGradientOverride(
-        ISnesAddressSpace bus,
         string stock,
         string overrides,
         AreaMapPresentationCatalog original)
@@ -1235,7 +1234,7 @@ internal static class MapPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title gradient override changes installed-content identity");
         (TitleGradientLine[] rendered, ushort selectedZoom) = CaptureInstalledTitleGradient(
-            bus, edited.TitleGradient, edited.TitlePalette, edited.TitleGraphics);
+            edited.TitleGradient, edited.TitlePalette, edited.TitleGraphics);
         AssertTrue(rendered.SequenceEqual(edited.TitleGradient.Resolve(selectedZoom)),
             "production title consumes selected gradient override");
         AssertTrue(!rendered.SequenceEqual(original.TitleGradient.Resolve(selectedZoom)),
@@ -1250,7 +1249,6 @@ internal static class MapPresentationVerification
 
     /// <summary>Checks that title palette edits alter production output and installed identity, then restore on removal.</summary>
     private static void VerifyTitlePaletteOverride(
-        ISnesAddressSpace bus,
         string stock,
         string overrides,
         AreaMapPresentationCatalog original)
@@ -1282,12 +1280,10 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title palette override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(bus,
-            titleGradientPresentation: original.TitleGradient,
+        var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
             titleGraphicsPresentation: original.TitleGraphics);
-        var editedTitle = new TitleSequenceState(bus,
-            titleGradientPresentation: edited.TitleGradient,
+        var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics);
         AssertTrue(editedTitle.PaletteColors.SequenceEqual(edited.TitlePalette.Colors),
@@ -1304,12 +1300,10 @@ internal static class MapPresentationVerification
         AssertTrue(!stockTitle.Render().SequenceEqual(editedTitle.Render()),
             "palette override visibly changes production title output");
 
-        var stockSkip = new TitleSequenceState(bus,
-            titleGradientPresentation: original.TitleGradient,
+        var stockSkip = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
             titleGraphicsPresentation: original.TitleGraphics);
-        var editedSkip = new TitleSequenceState(bus,
-            titleGradientPresentation: edited.TitleGradient,
+        var editedSkip = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics);
         stockSkip.Step(SnesButton.Start);
@@ -1350,7 +1344,6 @@ internal static class MapPresentationVerification
 
     /// <summary>Checks that edited title tiles reach production rendering and revert when the override is removed.</summary>
     private static void VerifyTitleGraphicsOverride(
-        ISnesAddressSpace bus,
         string stock,
         string overrides,
         AreaMapPresentationCatalog original)
@@ -1367,12 +1360,10 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title graphics override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(bus,
-            titleGradientPresentation: original.TitleGradient,
+        var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
             titleGraphicsPresentation: original.TitleGraphics);
-        var editedTitle = new TitleSequenceState(bus,
-            titleGradientPresentation: edited.TitleGradient,
+        var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics);
         stockTitle.Step(SnesButton.Start);
@@ -1415,12 +1406,10 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "title sprite override changes installed-content identity");
-        var stockTitle = new TitleSequenceState(bus,
-            titleGradientPresentation: original.TitleGradient,
+        var stockTitle = new TitleSequenceState(titleGradientPresentation: original.TitleGradient,
             titlePalettePresentation: original.TitlePalette,
             titleGraphicsPresentation: original.TitleGraphics);
-        var editedTitle = new TitleSequenceState(bus,
-            titleGradientPresentation: edited.TitleGradient,
+        var editedTitle = new TitleSequenceState(titleGradientPresentation: edited.TitleGradient,
             titlePalettePresentation: edited.TitlePalette,
             titleGraphicsPresentation: edited.TitleGraphics);
         bool changedOam = false;
@@ -1480,21 +1469,20 @@ internal static class MapPresentationVerification
         pause.BindMapPresentation(original);
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
         _ = pause.Render();
-        Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(bus, guard, original, edited));
+        Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(original, edited));
         Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, guard, original, edited));
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 
     /// <summary>Checks stock file-select map pixels, edited BG1 words, and restoration without stale override art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyFileSelectMapCatalog(ISnesAddressSpace bus, ISnesAddressSpace guard,
-        AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
+    private static void VerifyFileSelectMapCatalog(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
-        var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(bus, system,
+        var stock = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system,
             AreaId.Crateria, mapPresentation: original);
-        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(guard, system, AreaId.Crateria,
+        var installed = new SuperMetroid.Core.Frontend.FileSelect.FileSelectRoomMapGraphics(system, AreaId.Crateria,
             mapPresentation: original);
         AssertTrue(stock.RenderBackgrounds(new(0, 0)).SequenceEqual(installed.RenderBackgrounds(new(0, 0))),
             "file-select installed stock renders identical pixels without map ROM reads");

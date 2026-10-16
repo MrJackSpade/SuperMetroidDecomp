@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// </remarks>
 public sealed class FileSelectMapMenuState
 {
-    /// <summary>Shared menu address space for map owners and sound-triggering navigation.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
@@ -64,7 +62,6 @@ public sealed class FileSelectMapMenuState
     public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
         SuperMetroidSaveSlot slot, SnesButton initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = Ensure.NotNull(audio);
         Ensure.NotNull(slot);
         area = slot.Area;
@@ -80,12 +77,12 @@ public sealed class FileSelectMapMenuState
         var typedArea = (AreaId)area;
         if (mapPresentation is null)
             throw new InvalidOperationException("File-select map requires installed map presentation assets.");
-        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(bus, area, mapPresentation);
-        roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
+        areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation);
+        roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation);
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
-        navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
+        navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
         animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
         animations.BindPalette(mapPresentation?.HighlightCycle);

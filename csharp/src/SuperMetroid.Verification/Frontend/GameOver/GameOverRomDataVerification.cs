@@ -27,7 +27,7 @@ internal static class GameOverRomDataVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
-        var menu = new GameOverMenuState(bus, audio, RetailPresentationFixture());
+        var menu = new GameOverMenuState(audio, RetailPresentationFixture());
         const System.Reflection.BindingFlags flags =
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         // The Baby stream advances only in indexes one and three onward. A separate menu walks
@@ -35,7 +35,7 @@ internal static class GameOverRomDataVerification
         // enters the fade so every later update ticks the Baby; the music wait and index
         // one's continuation never touch it, so skipping them leaves the stream intact.
         var babyAudio = new CartridgeAudioState();
-        var babyMenu = new GameOverMenuState(bus, babyAudio, RetailPresentationFixture());
+        var babyMenu = new GameOverMenuState(babyAudio, RetailPresentationFixture());
         babyMenu.Step(0);
         babyMenu.Step(0);
         void StepBaby()

@@ -127,7 +127,7 @@ internal static class SporeSpawnCeilingPlmsVerification
         int soundFrame = -1;
         for (int frame = 0; frame < 32 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 16 * 16), Bg1XOffset = 0 });
             if (plms.Sounds.SoundRequests.Any(request =>
                     request.SoundEffect == SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,

@@ -49,7 +49,7 @@ internal static class CeresExplosionDefinitionsVerification
             "final explosion definition boundary");
 
         var guard = NewCeresExplosionDefinitionReadGuard(retail);
-        var state = CreateRetailDestructionFixture(guard);
+        var state = CreateRetailDestructionFixture();
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
         AssertTrue(state.Finished, "Ceres destruction completes through production actor paths");

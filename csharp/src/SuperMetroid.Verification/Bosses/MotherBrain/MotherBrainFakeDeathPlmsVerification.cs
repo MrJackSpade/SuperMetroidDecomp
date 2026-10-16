@@ -107,14 +107,14 @@ internal static class MotherBrainFakeDeathPlmsVerification
         }
         var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(1, plms.SlotTable.ActiveCount,
             $"Mother Brain mutation ${(int)header:X4} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
                 level.GetCollisionBlockByIndex(index).LevelWord,
                 $"Mother Brain mutation ${(int)header:X4} level block {index}");
-        plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, plms.SlotTable.ActiveCount,
             $"Mother Brain mutation ${(int)header:X4} deletes on the following frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,

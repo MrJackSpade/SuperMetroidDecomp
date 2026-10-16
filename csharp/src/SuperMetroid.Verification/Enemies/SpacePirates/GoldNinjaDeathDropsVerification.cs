@@ -44,7 +44,7 @@ internal static class GoldNinjaDeathDropsVerification
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
         AssertEqual((ushort)0, pirate.Health, "the shot kills the Gold Ninja Pirate");
 

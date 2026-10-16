@@ -151,8 +151,8 @@ internal static class DownwardGatePlmsVerification
         // The closed resident list first draws its collision state and then sleeps under
         // $BB6B. The Green Hill Zone fixture uses room argument zero, so an ordinary beam
         // must wake its blue-left gate exactly as it does in room $8F:9E52.
-        StepDownwardGatePlm(plms, bus, level, streamer);
-        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
         AssertEqual((ushort)0xc0ff,
             level.GetCollisionBlockByIndex(gateBlockIndex + level.Size.X).LevelWord,
             "compiled initial gate draw installs the second solid column word");
@@ -162,7 +162,7 @@ internal static class DownwardGatePlmsVerification
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
                 0x0004),
             "power beam reaches the sleeping blue gate");
-        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
         DownwardGateProjectileRequest wake = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
             "closed gate publishes a wake request");
@@ -177,7 +177,7 @@ internal static class DownwardGatePlmsVerification
         // This exercises all four 16-pixel movement segments and the list's final goto.
         for (int frame = 0; frame < 96; frame++)
         {
-            StepDownwardGatePlm(plms, bus, level, streamer);
+            StepDownwardGatePlm(plms, level, streamer);
             enemies.StepEnemyProjectiles(level, samus: null);
         }
         AssertEqual(0, enemies.ActiveEnemyProjectileCount,
@@ -199,7 +199,7 @@ internal static class DownwardGatePlmsVerification
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
-            StepDownwardGatePlm(plms, bus, level, streamer);
+            StepDownwardGatePlm(plms, level, streamer);
         DownwardGateProjectileRequest close = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, close.Operation,
             "open gate publishes a moving close actor");
@@ -232,8 +232,8 @@ internal static class DownwardGatePlmsVerification
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         AssertEqual(accepted ? 1 : 0, gate.LoopTimer,
             $"{trigger} projectile ${projectile:X4} acceptance matches cartridge");
-        StepDownwardGatePlm(plms, bus, level, streamer);
-        StepDownwardGatePlm(plms, bus, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
+        StepDownwardGatePlm(plms, level, streamer);
         int color = ((byte)trigger - (byte)DownwardGateTriggerBehavior.BlueLeft) / 2;
         ushort expectedTriggerWord = ((byte)trigger & 1) == 0
             ? checked((ushort)(0xc0db - color))
@@ -296,10 +296,9 @@ internal static class DownwardGatePlmsVerification
     /// <summary>Advances one gate PLM frame with stationary view and no scroll, enemy-death, or controller events.</summary>
     internal static void StepDownwardGatePlm(
         RoomPlmSystem plms,
-        TestAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer) =>
-        plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+        plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
     /// <summary>Seeds exact bank-$86 closed/moving actor definitions and their shared movement instruction span.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the downward-gate enemy projectile definitions and list")]

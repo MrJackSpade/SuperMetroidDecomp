@@ -27,8 +27,8 @@ internal static class EndingSnapshotTestsVerification
             var bus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var otherBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
             var audio = new CartridgeAudioState(); var otherAudio = new CartridgeAudioState();
-            var legacy = CreateRetailEndingFixture(bus, audio, hours, 59);
-            var captured = CreateRetailEndingFixture(otherBus, otherAudio, hours, 59);
+            var legacy = CreateRetailEndingFixture(audio, hours, 59);
+            var captured = CreateRetailEndingFixture(otherAudio, hours, 59);
             var credits = CreditsPresentation.Load(new MemoryStream(
                 SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor.Extract(bus)));
             legacy.BindStaffCredits(credits);
@@ -138,7 +138,7 @@ internal static class EndingSnapshotTestsVerification
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsJump)
                 {
                     if (firstPhaseFrame)
-                        referenceJump = new EndingRewardJump(bus, legacy.EndingReward, _ => { });
+                        referenceJump = new EndingRewardJump(legacy.EndingReward, _ => { });
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = legacy.Presentation.CaptureRenderSnapshot();

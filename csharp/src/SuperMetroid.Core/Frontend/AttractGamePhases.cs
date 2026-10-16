@@ -126,7 +126,6 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 {
                     if (session.demoCancelled)
                         session.title = TitleSequenceState.ReturnFromDemo(
-                            session.bus,
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitlePalette,
@@ -135,7 +134,6 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     {
                         session.audio.QueueMusicDelayed8(MusicCommand.Stop);
                         session.title = new TitleSequenceState(
-                            session.bus,
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitlePalette,

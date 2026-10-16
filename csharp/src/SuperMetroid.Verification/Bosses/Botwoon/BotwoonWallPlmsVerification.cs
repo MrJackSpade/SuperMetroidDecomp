@@ -84,7 +84,7 @@ internal static class BotwoonWallPlmsVerification
         int soundCount = 0;
         for (int frame = 0; frame < 220 && plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(guarded, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, scrolls);
             soundCount += plms.Sounds.SoundRequests.Count(request =>
                 request.SoundEffect == BotwoonWallPlmProgramDefinitions.CrumbleSound);
             if (clear && frame == 0)

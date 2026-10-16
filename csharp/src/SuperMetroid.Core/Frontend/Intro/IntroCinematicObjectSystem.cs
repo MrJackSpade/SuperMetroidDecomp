@@ -15,8 +15,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </remarks>
 internal sealed class IntroCinematicObjectSystem
 {
-    /// <summary>Supplies compiled cinematic instruction words through the active address space.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Receives eye-frame rectangles in the portrait tilemap.</summary>
@@ -63,7 +61,6 @@ internal sealed class IntroCinematicObjectSystem
 
     /// <summary>Binds eye, caret, narration, VRAM, subtitle, and optional audio owners.</summary>
     public IntroCinematicObjectSystem(
-        ISnesAddressSpace bus,
         SnesVram vram,
         ushort[] textTilemap,
         IntroJapaneseSubtitles subtitles,
@@ -71,7 +68,6 @@ internal sealed class IntroCinematicObjectSystem
         IntroNarrationPresentation? narrationPresentation = null,
         IntroEyeTilemapPresentation? eyeArtwork = null)
     {
-        this.bus = Ensure.NotNull(bus);
         this.subtitles = Ensure.NotNull(subtitles);
         this.vram = Ensure.NotNull(vram);
         this.textTilemap = Ensure.NotNull(textTilemap);

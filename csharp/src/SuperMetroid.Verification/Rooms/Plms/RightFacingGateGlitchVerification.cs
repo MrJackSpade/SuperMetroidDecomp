@@ -97,7 +97,7 @@ internal static class RightFacingGateGlitchVerification
             var streamer = level.CreateBackgroundStreamer(0);
             plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(bus, level, streamer, populationVram, new Bank80SystemState(), runtime.Room.LoadedRoom.AreaIndex), RoomPlmPopulationImporter.Read(bus, runtime.Room.LoadedRoom.State.PlmPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } });
             for (int warm = 0; warm < 2; warm++)
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             plms.Gates.TakeDownwardGateProjectileRequests();
 
             var shots = CreateProjectileFixture();
@@ -114,7 +114,7 @@ internal static class RightFacingGateGlitchVerification
                     actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                     break;
                 }
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new((ushort)cameraX, (ushort)cameraY), Bg1XOffset = 0 });
             }
         }
 

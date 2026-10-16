@@ -1252,7 +1252,6 @@ internal sealed class RoomLoader
         // arrival model owns that native post-initialization value; passing the transient
         // enemy word here previously recolored the level-data concealer teal.
         _room.CeresElevatorArrival = new CeresElevatorArrivalState(
-            _addressSpace,
             _player.Samus,
             _enemies.TileArtwork?.ProjectileSpritemaps);
 

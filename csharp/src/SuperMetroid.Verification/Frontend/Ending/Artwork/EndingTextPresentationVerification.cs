@@ -53,7 +53,7 @@ internal static class EndingTextPresentationVerification
                 ? EndingCreditsRomData.Instructions.ItemPercentageText
                 : EndingCreditsRomData.Instructions.SeeYouNextMissionText;
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingBackgroundTextState(installedBus, new EndingBackgroundTextSetup { Tilemap = installedTilemap, InstructionPointer = pointer, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
+            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = installedTilemap, InstructionPointer = pointer, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
             var installedVram = new SnesVram();
             for (int frame = 0; !installed.Completed; frame++)
             {
@@ -84,7 +84,7 @@ internal static class EndingTextPresentationVerification
             edited.Compile(EndingTextSequence.ItemPercentage)[0].TopWord,
             "edited percentage text reaches its live program");
 
-        var saved = new EndingBackgroundTextState(nativeBus, new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
+        var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
                 EndingCreditsRomData.Rendering.TilemapWords).ToArray(), InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new SnesVram());
         using var snapshot = new MemoryStream();

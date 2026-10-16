@@ -54,7 +54,7 @@ internal static class GrappleDoorsVerification
             bool heardOpening = false;
             for (int frame = 0; frame < 19; frame++)
             {
-                plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
+                plms.Step(level, streamer, new PlmView { Layer1Position = new(0x1000, 0x1000), Bg1XOffset = 0 });
                 heardOpening |= plms.Sounds.SoundRequests.Any(r => r == new PlmSoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }

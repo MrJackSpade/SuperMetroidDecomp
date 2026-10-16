@@ -19,15 +19,13 @@ internal static class RetailGameFixtureVerification
         InstalledFixtures.CreateGame(bus, gameOptions, renderGameplayFrames);
 
     /// <summary>Creates a Ceres destruction state with optional supplied audio and cinematic artwork.</summary>
-    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(ISnesAddressSpace bus,
-        CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
-        InstalledFixtures.CreateDestruction(bus, audio, artwork);
+    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
+        InstalledFixtures.CreateDestruction(audio, artwork);
 
     /// <summary>Creates an ending state with supplied game time, inventory, audio, and language selection.</summary>
-    internal static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
-        CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
+    internal static EndingCreditsState CreateRetailEndingFixture(CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
         EndingInventorySnapshot inventory = default, bool japaneseText = false) =>
-        InstalledFixtures.CreateEnding(bus, audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
+        InstalledFixtures.CreateEnding(audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
     /// <summary>Creates an intro state with optionally supplied audio and installed visual catalogs.</summary>
     internal static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,

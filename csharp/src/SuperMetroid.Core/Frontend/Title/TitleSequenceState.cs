@@ -18,9 +18,6 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// </remarks>
 public sealed class TitleSequenceState
 {
-
-    /// <summary>Runtime address space used by native title state and palette-FX paths.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Holds interleaved Mode 7 background and OBJ character data for title rendering.</summary>
@@ -74,25 +71,22 @@ public sealed class TitleSequenceState
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
     public TitleSequenceState(
-        ISnesAddressSpace bus,
         CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
-        : this(bus, audio, queueOpeningMusic: true, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
+        : this(audio, queueOpeningMusic: true, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
     {
     }
 
     /// <summary>Builds the initial title VRAM and palette state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
-        ISnesAddressSpace bus,
         CartridgeAudioState? audio,
         bool queueOpeningMusic,
         TitleGradientPresentation? titleGradientPresentation,
         TitlePalettePresentation? titlePalettePresentation,
         TitleGraphicsPresentation? titleGraphicsPresentation)
     {
-        this.bus = Ensure.NotNull(bus);
         this.audio = audio;
         this.titleGradientPresentation = titleGradientPresentation;
         this.titlePalettePresentation = titlePalettePresentation;
@@ -143,14 +137,12 @@ public sealed class TitleSequenceState
 
     /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
     internal static TitleSequenceState ReturnFromDemo(
-        ISnesAddressSpace bus,
         CartridgeAudioState audio,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
     {
         var title = new TitleSequenceState(
-            bus,
             audio,
             queueOpeningMusic: false,
             titleGradientPresentation,

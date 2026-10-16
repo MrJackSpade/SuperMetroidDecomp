@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// <summary>Initial native Mode 7 leg of Samus's flight toward Ceres station.</summary>
 internal sealed class IntroCeresFlightState
 {
-
-    /// <summary>Supplies cinematic instruction and palette data.</summary>
-    internal readonly ISnesAddressSpace bus;
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly CartridgeAudioState audio;
     /// <summary>Contains loaded Mode 7 and OBJ character data for this scene.</summary>
@@ -60,14 +57,12 @@ internal sealed class IntroCeresFlightState
     private int fadeDelay;
 
     /// <summary>Loads installed flight art into PPU memory and leaves the scene in forced blank for the setup dispatch.</summary>
-    /// <param name="bus">Address space the star and actor instruction lists step and draw through.</param>
     /// <param name="audio">The shared music queue that $8B:BDE4 waits on.</param>
     /// <param name="artwork">Installed cinematic artwork; the approach cannot start without it.</param>
     /// <param name="japaneseText">Native <c>AltText</c>, which adds the katakana SPACE COLONY caption.</param>
-    public IntroCeresFlightState(ISnesAddressSpace bus, CartridgeAudioState audio,
+    public IntroCeresFlightState(CartridgeAudioState audio,
         CeresFlightArtworkCatalog? artwork = null, bool japaneseText = false)
     {
-        this.bus = Ensure.NotNull(bus);
         this.japaneseText = japaneseText;
         this.audio = Ensure.NotNull(audio);
         spriteArtwork = artwork?.Sprites;

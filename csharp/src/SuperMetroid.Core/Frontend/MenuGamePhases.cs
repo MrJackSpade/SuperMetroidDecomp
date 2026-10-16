@@ -45,7 +45,6 @@ internal sealed class MenuGamePhases(FrontendSession session)
         // owner. The reseeded RNG and NMI counters already live in the menu owners.
         session.runtime = null;
         session.title = new TitleSequenceState(
-            session.bus,
             session.audio,
             session.Artwork.MapPresentation?.TitleGradient,
             session.Artwork.MapPresentation?.TitlePalette,
@@ -107,7 +106,6 @@ internal sealed class MenuGamePhases(FrontendSession session)
                 ? session.saveRam.ReadSlot(session.selectedSaveSlot)
                 : null;
             session.options = new GameOptionsMenuState(
-                session.bus,
                 session.audio,
                 optionSlot?.ControllerBindings,
                 optionSlot?.IconCancelEnabled ?? false,
@@ -200,7 +198,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.GameOverMenu"/>.</summary>
     internal void DispatchGameOverMenu(SnesButton controllerInput)
     {
-        session.gameOver ??= new GameOverMenuState(session.bus, session.audio, session.Artwork.MapPresentation,
+        session.gameOver ??= new GameOverMenuState(session.audio, session.Artwork.MapPresentation,
             continueLoadsCeresArrival: session.saveRam.ReadSlot(session.selectedSaveSlot)?.StartupRoute ==
                 SaveLoadingGameState.CeresElevatorArrival);
         session.gameOver.Step(controllerInput);
@@ -266,7 +264,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
             session.display.PublishFileMap(session.fileSelectMap);
             if (session.fileSelectMap.OptionsRequested)
             {
-                session.options = new GameOptionsMenuState(session.bus, session.audio, mapSlot.ControllerBindings,
+                session.options = new GameOptionsMenuState(session.audio, mapSlot.ControllerBindings,
                     mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
                     japaneseText: mapSlot.JapaneseText,
                     mapPresentation: session.Artwork.MapPresentation);
@@ -308,7 +306,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.runtime.FrameBoundary.PublishForcedBlankTransfers();
         session.ApplySelectedGameOptions();
         session.ceresDestruction = new CeresDestructionCinematicState(
-            session.bus, session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
+            session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
             session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);
         session.GameState = SuperMetroidGameState.CeresGoesBoom;
         session.display.PublishBlack();

@@ -52,8 +52,6 @@ internal sealed class GameplayActorDrawing
     private readonly ActiveRoomState _room;
     /// <summary>Receives actor graphics transfers requested during presentation.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Reads cartridge drawing tables and palette data used by native routines.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the shared runtime owners whose state determines each actor drawing pass.</summary>
     internal GameplayActorDrawing(GameplayActorDrawingDependencies dependencies)
@@ -74,7 +72,6 @@ internal sealed class GameplayActorDrawing
         _projectiles = dependencies.Projectiles;
         _room = dependencies.Room;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
 
     /// <summary>What Samus's projectile, bomb, flare and trail draws bind: compositions and the page of the beam last loaded.</summary>

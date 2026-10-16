@@ -63,7 +63,7 @@ internal static class EndingRewardGestureVerification
         EndingRewardSpritePresentation rewardSprites = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
-            var gesture = new EndingRewardGesture(rewardBus, reward);
+            var gesture = new EndingRewardGesture(reward);
             var maps = new HashSet<string>();
             int calls = 0;
             while (!gesture.JumpRequested && calls < 1000)
@@ -79,7 +79,7 @@ internal static class EndingRewardGestureVerification
                 "native ED2D/EDD3 gesture durations before jump spawn");
             Console.WriteLine($"  {reward}: {calls} gesture frames, {maps.Count} OAM poses, native jump handoff.");
             var uploads = new List<int>();
-            var jump = new EndingRewardJump(rewardBus, reward, uploads.Add);
+            var jump = new EndingRewardJump(reward, uploads.Add);
             bool switched = false, firstMotion = false;
             int minimumY = jump.BodyY;
             int jumpCalls = 0;

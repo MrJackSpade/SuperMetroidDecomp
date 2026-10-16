@@ -161,7 +161,7 @@ internal static class ChainsawFiringVerification
         target.SpritemapPointer = 0x8000;
         combat.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Samus = samus, Level = combat.Level });
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
-            combat.Bus, combatProjectiles, combatShared, samus),
+            combatProjectiles, combatShared, samus),
             "active Chainsaw overlaps one ordinary enemy");
         AssertEqual((ushort)850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
@@ -188,7 +188,7 @@ internal static class ChainsawFiringVerification
         var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
         AssertEqual(1, interferencePlms.PopulationLoader.LoadRoomPopulation(new PlmRoom(interferenceBus, interferenceLevel, interferenceStreamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), RoomPlmPopulationImporter.Read(interferenceBus, yellowDoorPopulation), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "Chainsaw interference fixture loads the resident yellow door");
-        interferencePlms.Step(interferenceBus, interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        interferencePlms.Step(interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
         var interferenceReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
@@ -207,7 +207,7 @@ internal static class ChainsawFiringVerification
             interferencePlms,
             AreaId.Crateria,
             0x800d);
-        interferencePlms.Step(interferenceBus, interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        interferencePlms.Step(interferenceLevel, interferenceStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
         AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
             "later Chainsaw hit suppresses yellow-door opening");
@@ -241,7 +241,7 @@ internal static class ChainsawFiringVerification
             "Chainsaw callback preserves the Power Bomb's synchronous break setup");
         AssertEqual(1, breakingPlms.SlotTable.ActiveCount,
             "Power Bomb terrain reaction remains owned after Chainsaw callback");
-        breakingPlms.Step(bus, breakingLevel, breakingLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        breakingPlms.Step(breakingLevel, breakingLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(RoomCollisionType.Air,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Power Bomb terrain completes its visible break after Chainsaw callback");

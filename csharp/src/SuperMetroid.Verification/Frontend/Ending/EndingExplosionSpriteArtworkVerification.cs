@@ -208,7 +208,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 EndingExplosionSpritePresentation.Write(output, document);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             var audio = new CartridgeAudioState();
-            var scene = CreateRetailEndingFixture(guard, audio, 0, 0);
+            var scene = CreateRetailEndingFixture(audio, 0, 0);
             scene.BindObjectArtwork(stock);
             for (int frame = 0; frame < 10000 &&
                 scene.Phase != EndingCreditsPhase.FadeInZebesExplosion; frame++)

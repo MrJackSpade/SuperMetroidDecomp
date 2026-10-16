@@ -55,7 +55,7 @@ internal static class SuperMissileDeathAnimationVerification
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
-        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus,
+        runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: enemy.NativeIndex);
 
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles

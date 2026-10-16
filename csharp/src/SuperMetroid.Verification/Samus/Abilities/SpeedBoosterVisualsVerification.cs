@@ -99,7 +99,7 @@ internal static class SpeedBoosterVisualsVerification
             AssertTrue(plms.BlockReactions.TrySpawnBombedSpecialBlock(level, blockIndex,
                     new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
                 "bomb triggers the production Speed Booster reveal PLM");
-            plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0xb0b6,
                 level.GetCollisionBlockByIndex(blockIndex).LevelWord,
                 "edited reveal retains compiled type-B physical level word");
@@ -113,7 +113,7 @@ internal static class SpeedBoosterVisualsVerification
                 level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                     blockIndex, 0).TopRow[0],
                 "edited reveal survives later camera streaming");
-            plms.Step(guard, level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, level.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(0, plms.SlotTable.ActiveCount,
                 "edited reveal retains native one-frame deletion");
             AssertEqual(0, guard.ForbiddenReadAttempts,

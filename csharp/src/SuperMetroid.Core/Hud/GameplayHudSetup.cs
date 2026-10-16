@@ -26,8 +26,6 @@ internal sealed class GameplayHudSetup
     private readonly SnesVram _vram;
     /// <summary>Preserves native DMA ordering for HUD, OBJ, trail, and enemy graphics.</summary>
     private readonly VramWriteQueue _vramWrites;
-    /// <summary>Provides native HUD setup data when installed presentation is absent.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
 
     /// <summary>Binds the runtime owners needed for initial BG3, OBJ, and HUD transfers.</summary>
     internal GameplayHudSetup(GameplayHudSetupDependencies dependencies)
@@ -39,7 +37,6 @@ internal sealed class GameplayHudSetup
         _player = dependencies.Player;
         _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
-        _addressSpace = dependencies.AddressSpace;
     }
 
     /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>

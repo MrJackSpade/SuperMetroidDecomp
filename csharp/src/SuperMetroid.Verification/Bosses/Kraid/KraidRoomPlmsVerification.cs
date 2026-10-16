@@ -72,7 +72,7 @@ internal static class KraidRoomPlmsVerification
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
              plms.SlotTable.ActiveCount != 0; frame++)
         {
-            plms.Step(guard, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (frame == 0 && header is
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground2 or

@@ -40,7 +40,7 @@ internal static class GenericSpriteArtworkVerification
 
         // Reference decoding is confined to this diagnostic. The production renderer
         // receives mutable memory only and the installed sprite composition catalog.
-        var title = new TitleSequenceState(memory, titleGradientPresentation: maps.TitleGradient,
+        var title = new TitleSequenceState(titleGradientPresentation: maps.TitleGradient,
             titlePalettePresentation: maps.TitlePalette, titleGraphicsPresentation: maps.TitleGraphics);
         var document = RequiredJson.Deserialize<TitleMode7MapDocument>(File.ReadAllBytes(
             Path.Combine(installation.MapDirectory, TitleGraphicsFormat.Mode7MapFile)),

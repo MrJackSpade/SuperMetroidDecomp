@@ -10,9 +10,6 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
 public sealed class GameOverMenuState
 {
-
-    /// <summary>Address-space context retained for menu PPU construction and rebinding.</summary>
-    private readonly ISnesAddressSpace bus;
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Owns the scene's VRAM, palette, and installed menu presentation state.</summary>
@@ -42,7 +39,6 @@ public sealed class GameOverMenuState
         throw new InvalidOperationException("No map presentation is installed for the game-over screen.");
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
-    /// <param name="bus">Address-space context passed to the menu PPU and later presentation rebinding.</param>
     /// <param name="audio">Shared cartridge-style music and sound queue used by menu updates.</param>
     /// <param name="mapPresentation">Required installed presentation bundle, despite the compatibility default of null.</param>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> or <paramref name="audio"/> is null.</exception>
@@ -52,13 +48,11 @@ public sealed class GameOverMenuState
     /// publishing the Ceres loader immediately instead of fading into the area map.
     /// </param>
     public GameOverMenuState(
-        ISnesAddressSpace bus,
         CartridgeAudioState audio,
         AreaMapPresentationCatalog? mapPresentation = null,
         bool continueLoadsCeresArrival = false)
     {
         this.continueLoadsCeresArrival = continueLoadsCeresArrival;
-        this.bus = Ensure.NotNull(bus);
         this.audio = Ensure.NotNull(audio);
         this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");

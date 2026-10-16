@@ -511,14 +511,13 @@ internal static class RoomPlmSystemAccess
         /// can inspect the exact block and destination before the runtime executes them.
         /// </remarks>
         internal IReadOnlyList<PlmTilemapUpdate> Step(
-            ISnesAddressSpace bus,
             RoomLevelData level,
             BackgroundTilemapStreamer streamer,
             PlmView view,
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
-            => self.Step(bus, level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
+            => self.Step(level, streamer, view, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = enemyDeaths, EnemyDeathQuota = enemyDeathQuota, ControllerNewInput = 0 });
     }
 
     /// <summary>Filters the physical PLM pool to slots whose active bit is set.</summary>

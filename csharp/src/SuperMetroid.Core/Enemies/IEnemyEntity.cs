@@ -5,4 +5,8 @@ namespace SuperMetroid.Core.Enemies;
 /// The behaviors it has are the participation interfaces it implements; the dispatcher keeps eligibility and order,
 /// and invokes each handler with the slot it resolved the entity from.
 /// </summary>
-internal interface IEnemyEntity;
+internal interface IEnemyEntity
+{
+    /// <summary>The collision paths the enemy takes beyond the common ones.</summary>
+    EnemyCapabilities Capabilities { get; }
+}

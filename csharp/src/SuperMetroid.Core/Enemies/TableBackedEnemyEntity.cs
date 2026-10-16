@@ -9,8 +9,15 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="dispatch">The enemy system whose handler table answers.</param>
 internal sealed class TableBackedEnemyEntity(RoomEnemySlot slot, IEnemyDispatch dispatch)
     : IEnemyInitialization, IEnemyMainAi, IEnemyHurtAi, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction,
-        IEnemyBombReaction, IEnemyPowerBombReaction, IEnemyTypedAnimation
+        IEnemyBombReaction, IEnemyPowerBombReaction, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
+    /// <inheritdoc/>
+    public EnemyCapabilities Capabilities { get; } = EnemyCapabilityCatalog.For(slot.EnemyDefinitionPointer);
+
+    /// <inheritdoc/>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        EnemyCapabilityCatalog.OwnsPrivateShotCallback(Slot, callback, callbackPointer);
+
     /// <summary>The slot the enemy occupies; the table's predicates read its live state.</summary>
     private RoomEnemySlot Slot { get; } = slot;
 

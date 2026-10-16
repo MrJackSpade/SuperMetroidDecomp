@@ -633,78 +633,9 @@ internal sealed class EnemyCollision
     /// </summary>
     private static bool IsTranslatedPrivateNormalBombShotAi(
         RoomEnemySlot enemy,
-        ushort callbackPointer)
-    {
-        EnemyInteractionCallback? callback = HitboxCallback(enemy, callbackPointer);
-        return enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle && callback == EnemyInteractionCallback.BabyTurtleShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch && callback == EnemyInteractionCallback.OwtchShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && callback == EnemyInteractionCallback.RinkaShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
-            callback == EnemyInteractionCallback.MaridiaLargeSnailShot ||
-        enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
-            callback == EnemyInteractionCallback.GRipperRipper2Shot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon && callback == EnemyInteractionCallback.DragonShot ||
-        enemy.EnemyDefinitionPointer is
-                EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
-            callback == EnemyInteractionCallback.ShootableVerticalShutterShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
-            callback == EnemyInteractionCallback.DestroyableVerticalShutterShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree && callback == EnemyInteractionCallback.MetareeShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea && callback == EnemyInteractionCallback.FirefleaShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper && callback == EnemyInteractionCallback.TripperShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid && callback == EnemyInteractionCallback.MochtroidShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree && callback == EnemyInteractionCallback.SkreeShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Yard && callback == EnemyInteractionCallback.YardShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir && callback == EnemyInteractionCallback.EvirShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw && callback == EnemyInteractionCallback.YappingMawShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago && callback == EnemyInteractionCallback.KagoShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite && callback == EnemyInteractionCallback.MagdolliteShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom && callback == EnemyInteractionCallback.BeetomShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Powamp && callback == EnemyInteractionCallback.PowampShot ||
-        WorkRobotBehavior.IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
-            callback is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull && callback == EnemyInteractionCallback.BullShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark && callback == EnemyInteractionCallback.SparkShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock &&
-            callback == EnemyInteractionCallback.BlueBrinstarFaceBlockShot ||
-        KiHunterBehavior.IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) && callback == EnemyInteractionCallback.KiHunterShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid && callback == EnemyInteractionCallback.FakeKraidShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite && callback == EnemyInteractionCallback.ZebetiteShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo &&
-            callback == EnemyInteractionCallback.DeadTorizoTouchAndShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
-            callback == EnemyInteractionCallback.DeadSidehopperShot ||
-        DeadTourianBehavior.HasDeadTourianCorpseShotCallback(enemy) &&
-            callbackPointer == enemy.Definition.ShotAiPointer ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
-            callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
-            callback is EnemyInteractionCallback.SporeSpawnShot or EnemyInteractionCallback.DudShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
-            callback == EnemyInteractionCallback.PhantoonShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
-            callback == EnemyInteractionCallback.MotherBrainBodyShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
-            callback == EnemyInteractionCallback.MotherBrainHeadShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo &&
-            callback is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo &&
-            callback is EnemyInteractionCallback.GoldenTorizoShot or EnemyInteractionCallback.BombTorizoShot or
-                EnemyInteractionCallback.TorizoStandUpSitDownShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool && callback == EnemyInteractionCallback.ShaktoolShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
-            callback == EnemyInteractionCallback.KraidArmShot ||
-        enemy.EnemyDefinitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley &&
-            callback == EnemyInteractionCallback.RidleyShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid && callback == EnemyInteractionCallback.ShitroidShot ||
-        enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon && callback == EnemyInteractionCallback.BotwoonShot ||
-        enemy.EnemyDefinitionPointer is EnemyDefinitionId.Crocomire or EnemyDefinitionId.CrocomireTongue &&
-            Enum.IsDefined((CrocomireHitboxShotCallback)callbackPointer) ||
-        WallSpacePirateBehavior.IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
-            callback is EnemyInteractionCallback.SpacePirateShot or
-                EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
-                EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot;
-    }
+        ushort callbackPointer) =>
+        enemy.Entity is IEnemyPrivateShotCallback owner &&
+        owner.OwnsPrivateShotCallback(HitboxCallback(enemy, callbackPointer), callbackPointer);
 
     /// <summary>
     /// Executes the family-$0500 branch of <c>NormalEnemyShotAiSkipDeathAnim</c> at
@@ -1382,19 +1313,7 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool UsesExtendedSamusHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
-        (WallSpacePirateBehavior.IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-         enemy.EnemyDefinitionPointer is
-            EnemyDefinitionId.Oum or
-            EnemyDefinitionId.BombTorizo or
-            EnemyDefinitionId.GoldenTorizo or
-            EnemyDefinitionId.Crocomire or
-            EnemyDefinitionId.CrocomireTongue or
-            EnemyDefinitionId.SporeSpawn or
-            EnemyDefinitionId.Steam or
-            EnemyDefinitionId.KraidArm or
-            EnemyDefinitionId.KraidFoot or
-            EnemyDefinitionId.PhantoonBody or
-            EnemyDefinitionId.DraygonBody);
+        (Capabilities(enemy) & EnemyCapabilities.ExtendedSamusHitboxes) != 0;
 
     /// <summary>
     /// Identifies actors whose ordinary projectile collision actually enters
@@ -1407,22 +1326,11 @@ internal sealed class EnemyCollision
     /// </summary>
     internal static bool UsesExtendedProjectileHitboxes(RoomEnemySlot enemy) =>
         enemy.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap) &&
-        (WallSpacePirateBehavior.IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) ||
-         enemy.EnemyDefinitionPointer is
-            EnemyDefinitionId.Oum or
-            EnemyDefinitionId.BombTorizo or
-            EnemyDefinitionId.GoldenTorizo or
-            EnemyDefinitionId.Crocomire or
-            EnemyDefinitionId.CrocomireTongue or
-            EnemyDefinitionId.SporeSpawn or
-            EnemyDefinitionId.Steam or
-            EnemyDefinitionId.Kraid or
-            EnemyDefinitionId.KraidArm or
-            EnemyDefinitionId.KraidFoot or
-            EnemyDefinitionId.Ridley or
-            EnemyDefinitionId.DraygonBody or
-            EnemyDefinitionId.MotherBrainBody or
-            EnemyDefinitionId.MotherBrainHead);
+        (Capabilities(enemy) & EnemyCapabilities.ExtendedProjectileHitboxes) != 0;
+
+    /// <summary>The bound occupant's collision capabilities; an empty slot has none.</summary>
+    private static EnemyCapabilities Capabilities(RoomEnemySlot enemy) =>
+        enemy.Entity?.Capabilities ?? EnemyCapabilities.None;
 
     /// <summary>
     /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the

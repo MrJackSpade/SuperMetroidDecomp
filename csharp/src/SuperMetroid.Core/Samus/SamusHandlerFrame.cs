@@ -45,6 +45,9 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether the input lookup fell through to the pose-definition fallback ($91:82D9).</summary>
     internal bool UsePoseDefinitionFallback;
 
+    /// <summary>The installed alpha and beta handlers; beta-handler gates read <see cref="SamusControlMode.Beta"/>.</summary>
+    internal SamusControlMode Mode;
+
     /// <summary>Whether horizontal momentum remained when the fallback pose was selected.</summary>
     internal bool DeceleratingFallbackHasMomentum;
 

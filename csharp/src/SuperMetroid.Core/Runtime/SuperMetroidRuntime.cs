@@ -581,10 +581,11 @@ public sealed class SuperMetroidRuntime
             SamusPhases.RunPostEnemyMainResample(frame, Player.Samus);
             SamusPhases.RunBeta(frame, Player.Samus, Room.Camera, frameRequest.Audio);
 
-            if (!frame.DeathOwnsSamus)
+            bool deathOwnsSamus = frame.Mode.Beta == SamusBetaHandler.Fatal;
+            if (!deathOwnsSamus)
                 DoorTransition.RunEnemyProjectileHandler();
 
-            PlmPhase.RunPlmPhase(frame.DeathOwnsSamus, Player.Samus);
+            PlmPhase.RunPlmPhase(deathOwnsSamus, Player.Samus);
 
             // $A2:AB1F calls the bank-$85 routine from inside EnemyMain, after this frame's
             // ship bob and earlier owners ran. The prompt exists only while Samus is locked
@@ -601,11 +602,7 @@ public sealed class SuperMetroidRuntime
                 MessageBox.Begin(_addressSpace, GameplayMessageIds.GunshipSaveConfirmation, Controller1.Current);
             }
 
-            frameTail = new SuspendedGameplayFrameTail(
-                frame.DeathOwnsSamus,
-                frame.PreviousCameraPoint,
-                frame.StationaryScriptControlLocked,
-                frame.SuitOwnsSamus);
+            frameTail = new SuspendedGameplayFrameTail(frame.Mode, frame.PreviousCameraPoint);
         }
 
         // Bank $85's message routine runs inside PLM_Handler: the rest of this gameplay
@@ -634,10 +631,8 @@ public sealed class SuperMetroidRuntime
     {
         if (frameTail is { } tail && Player.Samus is not null && Room.Camera is not null)
         {
-            bool deathOwnsSamus = tail.DeathOwnsSamus;
+            bool deathOwnsSamus = tail.Mode.Beta == SamusBetaHandler.Fatal;
             FixedPosition<RoomPixels> previousCameraPoint = tail.PreviousCameraPoint;
-            bool stationaryScriptControlLocked = tail.StationaryScriptControlLocked;
-            bool suitOwnsSamus = tail.SuitOwnsSamus;
             if (!deathOwnsSamus && !Freeze.TimeIsFrozen)
             {
                 Enemies.Projectiles.ResolveEnemyProjectileSamusHits(Player.Samus);
@@ -750,13 +745,13 @@ public sealed class SuperMetroidRuntime
                 // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
                 // palette effects. In particular, automatic Reserve recovery freezes a
                 // stored shine instead of consuming it while Samus is stationary.
-                advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlLocked);
+                advanceSamusPalette: tail.Mode.Beta is not (SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked));
         }
         // EnemyMain can install the gunship's $90:E902 beta handler on this frame.
         // It omits the normal $90:E738 timer-hack call: neither countdown nor OAM
         // survives boarding, even though timer status stays active. Decide after the
         // actor transition, before liftoff can repurpose the timer's OBJ tiles as dust.
-        bool runEscapeTimerHandler = !Enemies.Gunship.HealthHandlerActive;
+        bool runEscapeTimerHandler = frameTail?.Mode.Beta != SamusBetaHandler.Gunship;
         if (runEscapeTimerHandler && EscapeTimer.Process(Nmi.NmiFrameCounter, Options.PreventEscapeTimeout))
         {
             // `$90:E0E6`: the expired countdown publishes game state $23 for the
@@ -933,11 +928,11 @@ public sealed class SuperMetroidRuntime
     /// The bank-$85 message routine runs inside that handler, so a PLM that opens a box
     /// suspends the native frame; the port parks this state until the box closes.
     /// </summary>
+    /// <param name="Mode">The frame's installed alpha and beta handlers.</param>
+    /// <param name="PreviousCameraPoint">Samus's camera point carried to the frame tail.</param>
     internal readonly record struct SuspendedGameplayFrameTail(
-        bool DeathOwnsSamus,
-        FixedPosition<RoomPixels> PreviousCameraPoint,
-        bool StationaryScriptControlLocked,
-        bool SuitOwnsSamus);
+        SamusControlMode Mode,
+        FixedPosition<RoomPixels> PreviousCameraPoint);
 
     /// <summary>State-eight tail parked when a PLM opens a message box during a gameplay frame.</summary>
     internal SuspendedGameplayFrameTail? _suspendedFrameTail;

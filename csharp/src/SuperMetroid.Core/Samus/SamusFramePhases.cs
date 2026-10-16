@@ -109,13 +109,13 @@ internal sealed class SamusFramePhases
     /// connected and release functions own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
     /// </summary>
-    private bool RunGrappleBeamHandler(bool deathOwnsSamus, bool suitOwnsSamus)
+    private bool RunGrappleBeamHandler(SamusBetaHandler beta)
     {
         if (_player.Samus is null || _room.LevelData is null)
             throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
         _player.LastGrappleMovement = null;
         bool grappleOwnsMovement = false;
-        if (deathOwnsSamus || suitOwnsSamus)
+        if (beta is SamusBetaHandler.Fatal or SamusBetaHandler.SuitPickup)
         {
             // Game states `$15-$18` do not call the ordinary Samus alpha/beta
             // handlers. The death state advances later at the animation seam.
@@ -246,6 +246,39 @@ internal sealed class SamusFramePhases
                     $"uninitialized pose ${(int)_player.IntroducedSamus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
+    /// <summary>The alpha handler installed for this frame, from the movement, death and lock flags.</summary>
+    private SamusAlphaHandler DeriveAlphaHandler(SamusHandlerFrame frame, SamusState samus)
+    {
+        if (!_player.GroundedSamusMovementEnabled)
+            return SamusAlphaHandler.None;
+        if (frame.DeathOwnsSamus)
+            return SamusAlphaHandler.Fatal;
+        if (frame.AlphaInputLocked(samus))
+            return SamusAlphaHandler.Locked;
+        return _attractDemo.IsAttractDemo ? SamusAlphaHandler.Demo : SamusAlphaHandler.Normal;
+    }
+
+    /// <summary>
+    /// The beta handler installed for this beta: the first of death, the suit's empty beta, command zero, command six,
+    /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
+    /// </summary>
+    private SamusBetaHandler DeriveBetaHandler(SamusHandlerFrame frame, SamusState samus)
+    {
+        if (frame.DeathOwnsSamus)
+            return SamusBetaHandler.Fatal;
+        if (frame.SuitOwnsSamus)
+            return SamusBetaHandler.SuitPickup;
+        if (frame.StationaryScriptControlLocked)
+            return SamusBetaHandler.ScriptLocked;
+        if (frame.RefillStationLocked)
+            return SamusBetaHandler.RefillStation;
+        if (_attractDemo.IsAttractDemo)
+            return SamusBetaHandler.TitleDemo;
+        if (_enemies.Gunship.HealthHandlerActive)
+            return SamusBetaHandler.Gunship;
+        return samus.InputLocked ? SamusBetaHandler.Locked : SamusBetaHandler.Normal;
+    }
+
     /// <summary>
     /// Runs the frame handler's alpha (SamusCurrentStateHandler, $0A42): the head, then, when Samus movement is enabled,
     /// the tail. The enable flag is captured once here for every later gate of the frame.
@@ -366,7 +399,7 @@ internal sealed class SamusFramePhases
 
         }
 
-        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.DeathOwnsSamus, frame.SuitOwnsSamus);
+        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.Mode.Beta);
 
         if (frame.AlphaRuns)
         {
@@ -423,12 +456,13 @@ internal sealed class SamusFramePhases
         }
         // Actor commands replace beta before its dispatch in this same update.
         frame.StationaryScriptControlLocked = samus.ScriptLocks.StationaryScriptControlLocked;
+        frame.Mode = frame.Mode with { Beta = DeriveBetaHandler(frame, samus) };
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
             _enemyPhase.ResolveUpdatedBeamHits();
 
         // EnemyMain consumes the preceding frame's contact-damage index.
         // Only beta clears it, before movement republishes the current value.
-        if (!frame.SuitOwnsSamus)
+        if (frame.Mode.Beta != SamusBetaHandler.SuitPickup)
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
     }
 
@@ -506,7 +540,7 @@ internal sealed class SamusFramePhases
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
 
-        if (frame.DeathOwnsSamus || frame.SuitOwnsSamus)
+        if (frame.Mode.Beta is SamusBetaHandler.Fatal or SamusBetaHandler.SuitPickup)
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -515,7 +549,7 @@ internal sealed class SamusFramePhases
         // movement pointer that was active beforehand. Automatic Reserve can
         // therefore freeze an in-progress hurt launch; special owners such as
         // `$90:DF38` must not outrank this explicitly installed handler.
-        else if (frame.StationaryScriptControlLocked)
+        else if (frame.Mode.Beta == SamusBetaHandler.ScriptLocked)
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -1142,6 +1176,7 @@ internal sealed class SamusFramePhases
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.DeathOwnsSamus = samus.DeathSequence.IsActive;
+        frame.Mode = new SamusControlMode(DeriveAlphaHandler(frame, samus), DeriveBetaHandler(frame, samus));
         // Sound queues are global persistent engines on hardware, but this typed host
         // publication is scoped to one frame's Samus handler. It opened before the HDMA
         // pass, ahead of `$91:F046`'s landing sounds during collision.
@@ -1209,7 +1244,7 @@ internal sealed class SamusFramePhases
         // at boost stage four, it alternates between two exact world-position snapshots.
         // Keeping this producer here means the draw handler below consumes post-motion
         // coordinates with the same frame ordering as the cartridge.
-        if (!frame.SuitOwnsSamus && _player.LastShinesparkMovement is null)
+        if (frame.Mode.Beta != SamusBetaHandler.SuitPickup && _player.LastShinesparkMovement is null)
         {
             samus.HorizontalSpeed.CaptureSpeedEchoPosition(_gameTime.Frames, samus.Position.Whole);
         }
@@ -1245,10 +1280,10 @@ internal sealed class SamusFramePhases
         // `$90:E738` runs the timer/hack handler after movement and before animation.
         // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
         // method is a cheap no-op for every ordinary gameplay state.
-        if (!frame.SuitOwnsSamus)
+        if (frame.Mode.Beta != SamusBetaHandler.SuitPickup)
             samus.Drained.StepGetUpHandler(samus, _controller1.NewlyPressed);
 
-        if (!frame.SuitOwnsSamus && samus.DraygonGrabbed.IsActive)
+        if (frame.Mode.Beta != SamusBetaHandler.SuitPickup && samus.DraygonGrabbed.IsActive)
         {
             // `$90:E738` calls this installed hack handler after movement and before
             // animation. A locked grapple cancels the prospective pose chosen in alpha;
@@ -1272,7 +1307,7 @@ internal sealed class SamusFramePhases
         // Animation sees the same held-input word as movement. Ordinary Dash uses B
         // both to accumulate `$0B42.$0B44` and to intercept the running delay-list
         // command at `$90:852C`; passing a reconstructed input later would skew art.
-        if (frame.DeathOwnsSamus)
+        if (frame.Mode.Beta == SamusBetaHandler.Fatal)
         {
             _player.LastDeathSequenceStep = samus.DeathSequence.Step(
                 _addressSpace,
@@ -1281,7 +1316,7 @@ internal sealed class SamusFramePhases
                 _artwork.SamusBodyArt?.DeathPalettes);
         }
         // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
-        else if (!frame.StationaryScriptControlLocked && !frame.RefillStationLocked && !frame.SuitOwnsSamus)
+        else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
             samus.Presentation.AnimateNoFx(_addressSpace, new SamusAnimationStep { ControllerInput = _controller1.Current, NmiFrameCounter = _nmi.NmiFrameCounter, System = _system, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
             StepSamusLoadAppearance();
@@ -1289,7 +1324,7 @@ internal sealed class SamusFramePhases
 
         _transitions.Apply(frame, samus);
 
-        if (!frame.DeathOwnsSamus && !_attractDemo.IsAttractDemo && !frame.SuitOwnsSamus)
+        if (frame.Mode.Beta is not (SamusBetaHandler.Fatal or SamusBetaHandler.TitleDemo or SamusBetaHandler.SuitPickup))
         {
             // Normal beta ends with HandlePeriodicDamageToSamus ($90:E9CE), PauseCheck and
             // LowEnergyCheck, before the enemy-projectile and PLM handlers. Damage those
@@ -1306,8 +1341,7 @@ internal sealed class SamusFramePhases
             // Locked/elevator/appearance handlers omit LowEnergyCheck; gunship command
             // $1A installs a dedicated checker. Automatic reserves invoke their external
             // check in the frontend.
-            if ((!samus.InputLocked || _enemies.Gunship.HealthHandlerActive) &&
-                !samus.Xray.OwnsSamusControl)
+            if (frame.Mode.Beta is SamusBetaHandler.Normal or SamusBetaHandler.Gunship && !samus.Xray.OwnsSamusControl)
                 audio.CheckLowHealth?.Invoke();
         }
     }

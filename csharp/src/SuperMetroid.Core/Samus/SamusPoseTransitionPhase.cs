@@ -58,8 +58,8 @@ internal sealed class SamusPoseTransitionPhase
     /// <summary>Applies post-movement pose and animation transitions after the frame's selected Samus handler.</summary>
     internal void Apply(SamusHandlerFrame frame, SamusState samus)
     {
-        if (!_player.GroundedSamusMovementEnabled || frame.DeathOwnsSamus || frame.SuitOwnsSamus ||
-            frame.StationaryScriptControlLocked)
+        if (!_player.GroundedSamusMovementEnabled ||
+            frame.Mode.Beta is SamusBetaHandler.Fatal or SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked)
             return;
 
         // Hit interruption observes the old movement type before UpdateSamusPose.

@@ -490,7 +490,7 @@ public sealed class SuperMetroidRuntime
         // must not scroll or animate during DisplayMessageBox's NMI-only wait loop above.
         // Keeping this after that early-return seam reproduces that native suspension and
         // prevents rain/fog from advancing behind a station or item message.
-        if (Enemies.PhantoonBehavior.Phantoon is { } waveBoss)
+        if (Enemies.DisplaySources.Phantoon is { } waveBoss)
         {
             waveBoss.Wave.Step(waveBoss);
             waveBoss.Blending.Step(waveBoss, Display.LayerBlendingDefaultConfig);
@@ -1128,7 +1128,7 @@ public sealed class SuperMetroidRuntime
             throw new InvalidOperationException("A cartridge room and door must be loaded before publishing gameplay.");
         CrocomireDeathState? crocomireDeath = Enemies.RoomMainHooks.Crocomire is not null
             ? Enemies.RoomMainHooks.CrocomireDeath : null;
-        MotherBrainEnemyState? motherBrain = Enemies.MotherBrainEncounter.MotherBrain;
+        MotherBrainEnemyState? motherBrain = Enemies.DisplaySources.MotherBrain;
         ScrollingSkyState? sky = Room.ScrollingSky;
         var frameEnd = new GameplayFrameEndDisplayInputs(
             Room.DoorTransitionMainScreenLayers,

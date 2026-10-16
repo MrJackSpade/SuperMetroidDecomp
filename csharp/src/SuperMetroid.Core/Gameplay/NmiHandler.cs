@@ -183,7 +183,7 @@ internal sealed class NmiHandler
         // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
         _displayedSprites.LatchFrom(_sprites);
         _gameplayWindows.Cache.LatchNmi(mainLoopRequestedNmi: true);
-        var bg2Window = _enemies.DraygonBehavior.Draygon is { } boss
+        var bg2Window = _enemies.DisplaySources.Draygon is { } boss
             ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, _backgroundScroll.Layer1Position,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
@@ -193,8 +193,8 @@ internal sealed class NmiHandler
             _backgroundScroll.Bg2Scroll,
             _enemies.Earthquake.LastRoomShake, bg2Window.First, bg2Window.End);
         RoomLayer3FxRenderSnapshot? roomLayer3Fx = _roomLayer3Fx.CaptureForDisplay();
-        _enemies.PhantoonBehavior.Phantoon?.Wave.LatchDisplay();
-        if (_enemies.PhantoonBehavior.Phantoon is { } phantoonDisplay)
+        _enemies.DisplaySources.Phantoon?.Wave.LatchDisplay();
+        if (_enemies.DisplaySources.Phantoon is { } phantoonDisplay)
             phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
         _tourianStatues.LatchDisplay();
         _display.Latched = new GameplayNmiDisplayLatch(
@@ -203,7 +203,7 @@ internal sealed class NmiHandler
             _display.ActiveSamusMode7Transform,
             roomLayer3Fx,
             CaptureMorphBallEyeBeamForDisplay(),
-            _enemies.PhantoonBehavior.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
+            _enemies.DisplaySources.Phantoon is { } phantoon ? PhantoonDisplaySnapshot.Capture(phantoon) : null,
             _tourianStatues.DisplayedVerticalOffset,
             CaptureSceneRegisters(),
             CaptureBossBackgrounds(),
@@ -244,12 +244,12 @@ internal sealed class NmiHandler
     /// </summary>
     private GameplayLatchedBossBackgrounds CaptureBossBackgrounds()
     {
-        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(_enemies.RidleyEncounter.CeresRidley);
-        var motherBrain = _enemies.MotherBrainEncounter.MotherBrain;
+        CeresRidleyMode7Snapshot? ridley = CeresRidleyMode7Snapshot.Capture(_enemies.DisplaySources.CeresRidley);
+        var motherBrain = _enemies.DisplaySources.MotherBrain;
         return new(
             ridley,
-            _enemies.KraidBehavior.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
-            _enemies.RoomMainHooks.Crocomire is not null ? _enemies.CrocomireBehavior.CrocomireBg2Scroll : null,
+            _enemies.DisplaySources.Kraid is { OwnsBg2Tilemap: true } kraid ? kraid.Bg2Scroll : null,
+            _enemies.DisplaySources.CrocomireBg2Scroll,
             motherBrain is { HasBg2ScrollOverride: true },
             motherBrain is { DeathBg2Hidden: true });
     }
@@ -262,7 +262,7 @@ internal sealed class NmiHandler
             FixedColorRegisterSnapshot.Capture(new FixedColorMemory(RuntimeMemory.RequireBus(_addressSpace))),
             new FixedColorRegisterSnapshot(explosion.FixedColorRed, explosion.FixedColorGreen, explosion.FixedColorBlue),
             new FixedColorRegisterSnapshot(_suitPickup.FixedColorRed, _suitPickup.FixedColorGreen, _suitPickup.FixedColorBlue),
-            _enemies.MotherBrainEncounter.MotherBrain?.RainbowBeamHdma.Color);
+            _enemies.DisplaySources.MotherBrain?.RainbowBeamHdma.Color);
     }
 
     /// <summary>
@@ -281,14 +281,14 @@ internal sealed class NmiHandler
     /// </summary>
     internal MorphBallEyeBeamRenderSnapshot? CaptureMorphBallEyeBeamForDisplay()
     {
-        MorphBallEyeBeamState beam = _enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
+        MorphBallEyeBeamState beam = _enemies.DisplaySources.MorphBallEyeBeam;
         if (beam.Phase == MorphBallEyeBeamPhase.Inactive)
             return null;
 
         int bodyIndex = beam.BodySlotIndex;
         if ((uint)bodyIndex >= _enemies.SlotTable.Slots.Count ||
-            (uint)bodyIndex >= _enemies.MorphBallEyeBehavior.MorphBallEyeStates.Count ||
-            _enemies.MorphBallEyeBehavior.MorphBallEyeStates[bodyIndex] is not { } eyeState)
+            (uint)bodyIndex >= _enemies.DisplaySources.MorphBallEyeStates.Count ||
+            _enemies.DisplaySources.MorphBallEyeStates[bodyIndex] is not { } eyeState)
         {
             throw new InvalidDataException(
                 $"Active Morph Ball eye beam names invalid body slot {bodyIndex}.");

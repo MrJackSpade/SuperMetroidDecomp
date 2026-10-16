@@ -72,7 +72,7 @@ internal sealed class GameplayWindowRegisters
         // Seed the same shared byte before a Chainsaw slot-four word store can corrupt it.
         SnesMainScreenLayers mainScreen = _room.DoorTransitionMainScreenLayers ??
             (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj |
-                (_enemies.MotherBrainEncounter.MotherBrain?.DeathBg2Hidden == true
+                (_enemies.DisplaySources.MotherBrain?.DeathBg2Hidden == true
                     ? SnesMainScreenLayers.None
                     : SnesMainScreenLayers.Bg2));
         registers.MainScreen = mainScreen;

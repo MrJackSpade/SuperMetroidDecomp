@@ -445,7 +445,7 @@ internal sealed class GameplayActorDrawing
         if (!deathOwnsSamus && _enemies.IsLoaded)
             _enemies.Drawing.DrawLayers(_oam, _room.Camera.PixelPosition, 6, 7);
 
-        if (!deathOwnsSamus && _enemies.IsLoaded && _enemies.DraygonBehavior.Draygon is { } draygon)
+        if (!deathOwnsSamus && _enemies.IsLoaded && _enemies.DisplaySources.Draygon is { } draygon)
         {
             // Native $A5:9342 runs AFTER drawing enemies. Camera scrolling has already
             // run, so BG2 must use the same final camera as the appendage OAM above.
@@ -460,7 +460,7 @@ internal sealed class GameplayActorDrawing
 
         // Room scrolling must not replace the persistent body-owned register shadows.
         // Mother Brain moves BG2 inversely to her physical posture in bank $A9.
-        if (!deathOwnsSamus && _enemies.MotherBrainEncounter.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
+        if (!deathOwnsSamus && _enemies.DisplaySources.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
             _backgroundScroll.SetBg2ScrollRegisters(motherBrain.Bg2Scroll);
 
         if (!deathOwnsSamus && _enemies.IsLoaded)

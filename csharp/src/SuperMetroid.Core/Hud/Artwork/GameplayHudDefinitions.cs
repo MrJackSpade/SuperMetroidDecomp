@@ -69,18 +69,18 @@ public static class GameplayHudDefinitions
 
     /// <summary><c>HandleHUDTilemap_PausedAndRunning.etankIconOffsets</c> at $80:9CCE: two seven-cell rows, bottom first.</summary>
     /// <param name="tank">Zero-based tank cell 0..13, counting across the lower row before the upper row.</param>
-    /// <returns>Byte offset from the start of the mutable HUD tilemap, not a tile index or VRAM address.</returns>
+    /// <returns>Cell index in the 32-by-3 mutable HUD tilemap (the native table holds twice this, a byte offset).</returns>
     /// <exception cref="IndexOutOfRangeException"><paramref name="tank"/> is outside the fourteen tank cells.</exception>
-    public static ushort EnergyTankByteOffset(int tank) => (uint)tank < EnergyTankCount
-        ? (ushort)(2 * (1 + tank % 7 + (tank < 7 ? Width : 0)))
+    public static int EnergyTankCell(int tank) => (uint)tank < EnergyTankCount
+        ? 1 + tank % 7 + (tank < 7 ? Width : 0)
         : throw new IndexOutOfRangeException();
 
     /// <summary><c>ToggleHUDItemHighlight.HUDItemOffsets</c> at $80:9D6E: three-cell missiles, then two-cell icons, each with a blank gap.</summary>
     /// <param name="item">Zero-based icon index 0..4 in <see cref="IconNames"/> order, rather than the live selection's one-based item code.</param>
-    /// <returns>Byte offset of the icon's upper-left word in the mutable HUD tilemap.</returns>
+    /// <returns>Cell index of the icon's upper-left word in the mutable HUD tilemap (the native table holds twice this).</returns>
     /// <exception cref="IndexOutOfRangeException"><paramref name="item"/> is outside the five item icons.</exception>
-    public static ushort ItemByteOffset(int item) => (uint)item < ItemCount
-        ? (ushort)(2 * (10 + item * 3 + (item > 0 ? 1 : 0)))
+    public static int ItemCell(int item) => (uint)item < ItemCount
+        ? 10 + item * 3 + (item > 0 ? 1 : 0)
         : throw new IndexOutOfRangeException();
 
     /// <summary>Native AUTO stores at $80:9B64..9B87 occupy columns eight/nine across all three mutable HUD rows.</summary>

@@ -40,7 +40,7 @@ public sealed class GameplayHudPresentation
         FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
         EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
         energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, GameplayHudDefinitions.EnergyTankCount, "energy tank",
-            tank => GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort));
+            tank => GameplayHudDefinitions.EnergyTankCell(tank));
         healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
         ammoDigits = CompileDigitOverrides(document.Digits.Ammo, "ammo digits");
         HealthAnchor = ValidateAnchor(document.Digits.HealthAnchor, new(2, 1), "health digits");
@@ -346,7 +346,7 @@ public sealed class GameplayHudPresentation
 
     /// <summary>Uses an edited tank position when present, otherwise the native HUD offset.</summary>
     private int EnergyTankCell(int tank) => energyTankAnchors.TryGetValue(tank, out int cell)
-        ? cell : GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort);
+        ? cell : GameplayHudDefinitions.EnergyTankCell(tank);
 
     /// <summary>Uses an edited AUTO position when present, otherwise its stock cell.</summary>
     private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
@@ -408,7 +408,7 @@ public sealed class GameplayHudPresentation
         /// <summary>Converts the native item offset into a 32-column tile coordinate.</summary>
         private static Position16<TilemapCells> StockAnchor(int item)
         {
-            int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
+            int index = GameplayHudDefinitions.ItemCell(item);
             return new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
         }
         /// <summary>Validates the icon rectangle and stores only non-stock placement or art.</summary>

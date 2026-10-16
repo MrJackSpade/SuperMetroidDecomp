@@ -3549,12 +3549,12 @@ internal static class LookupStream4Verification
         for (int tank = 0; tank < 14; tank++)
         {
             int native = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809cce + tank * 2));
-            AssertEqual((ushort)native, GameplayHudDefinitions.EnergyTankByteOffset(tank), "native HUD tank offset");
+            AssertEqual(native / 2, GameplayHudDefinitions.EnergyTankCell(tank), "native HUD tank offset");
             AssertEqual(native / 2, document.EnergyTanks.Anchors[tank].Y * 32 + document.EnergyTanks.Anchors[tank].X,
                 "extracted native HUD tank anchor");
         }
         for (int item = 0; item < 5; item++)
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809d6e + item * 2)), GameplayHudDefinitions.ItemByteOffset(item), "native HUD item offset");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x809d6e + item * 2) / 2, GameplayHudDefinitions.ItemCell(item), "native HUD item offset");
         for (int cell = 0; cell < 6; cell++)
         {
             int native = (CartridgeImportSource.Require(rom).ReadCartridgeWord((0x809b65 + cell * 7)) - 0xc608) / 2;
@@ -3594,9 +3594,9 @@ internal static class LookupStream4Verification
         AssertThrows<InvalidDataException>(() => GameplayHudPresentation.Write(new MemoryStream(), document),
             "sparse HUD anchor compilation preserves overlap rejection");
         foreach (int invalid in new[] { -1, 14, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.EnergyTankByteOffset(invalid), "tank exact domain");
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.EnergyTankCell(invalid), "tank exact domain");
         foreach (int invalid in new[] { -1, 5, int.MinValue, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.ItemByteOffset(invalid), "item exact domain");
+            AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.ItemCell(invalid), "item exact domain");
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveCellIndex(invalid), "AUTO exact domain");
     }

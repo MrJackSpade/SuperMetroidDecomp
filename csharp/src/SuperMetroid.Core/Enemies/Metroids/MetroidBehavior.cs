@@ -569,8 +569,8 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
-                    ? (ushort)0
-                    : unchecked((ushort)(enemy.Health - frozenDamage));
+                    ? 0
+                    : enemy.Health - frozenDamage;
             }
 
             if (enemy.Health == 0)

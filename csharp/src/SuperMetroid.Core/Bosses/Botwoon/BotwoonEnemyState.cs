@@ -80,13 +80,13 @@ public sealed class BotwoonEnemyState
     /// <summary>Even byte offset 0 through 14 selecting the next health threshold/palette; offset 16 marks completion of all eight palette steps.</summary>
     public ushort PalettePhaseByteOffset { get; internal set; }
     /// <summary>Head health retained from initialization, independently of subsequent damage and the palette threshold table.</summary>
-    public ushort MaximumHealth { get; internal set; }
+    public int MaximumHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right one, used as the strict threshold for movement health phase 1.</summary>
     public ushort HalfHealth { get; internal set; }
     /// <summary>Initial maximum health shifted right two, used as the strict threshold for the fastest movement health phase.</summary>
     public ushort QuarterHealth { get; internal set; }
     /// <summary>Native previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
-    public ushort PreviousHealth { get; internal set; }
+    public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
     public byte HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>

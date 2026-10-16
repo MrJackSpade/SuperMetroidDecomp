@@ -22,7 +22,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required Position16<RoomPixels> Brain { get; init; }
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
-    public required ushort BrainHealth { get; init; }
+    public required int BrainHealth { get; init; }
 
     /// <summary>Exact brain enemy property word; death/rotting sets raw bits `$0400/$0100`.</summary>
     public required SuperMetroid.Core.Enemies.EnemyPropertyWord BrainProperties { get; init; }

@@ -116,7 +116,7 @@ public sealed class BullEnemyState
     }
 
     /// <summary>Native parallel $7E:8800 health snapshot taken before projectile damage, retained so unchanged health can select the actor's immune-shot kick instead of treating it as ordinary damage.</summary>
-    public ushort PreviousHealth
+    public int PreviousHealth
     {
         get => _words.PreviousHealth;
         internal set => _words.PreviousHealth = value;

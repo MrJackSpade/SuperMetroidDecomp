@@ -81,7 +81,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
         const int destination = (0x100 >> 1) + MagdollitePaletteRomData.FirstAnimatedColor;
         RoomEnemySlot untouched = enemies.SlotTable.Slots[0];
-        ushort healthBefore = untouched.Health;
+        int healthBefore = untouched.Health;
         ushort xBefore = untouched.Position.X.Whole;
         for (int tick = 0; tick < 32; tick++)
         {

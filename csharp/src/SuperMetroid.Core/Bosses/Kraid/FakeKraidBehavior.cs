@@ -450,7 +450,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FakeKraidTouch,
             context =>
             {
-                ushort healthBefore = context.Slot.Health;
+                int healthBefore = context.Slot.Health;
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
                 if (healthBefore != 0 && context.Slot.Health == 0)
                     KillFakeKraid(context.Slot);

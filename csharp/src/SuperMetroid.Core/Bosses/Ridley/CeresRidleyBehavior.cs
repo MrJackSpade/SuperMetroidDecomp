@@ -231,7 +231,7 @@ internal sealed class CeresRidleyBehavior
         VramWriteQueue? vramWriteQueue)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireCeresRidley(slot);
-        slot.Health = (ushort)short.MaxValue;
+        slot.Health = short.MaxValue;
 
         // $A6:A29F runs after the boss dispatcher and before movement. None of the
         // translated dispatcher branches mutate the flash timer, so selecting the two

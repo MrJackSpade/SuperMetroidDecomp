@@ -21,11 +21,11 @@ public sealed class KraidEnemyState
     /// <summary>Gets the native mouth-reopen word: low bits retain collision/reopen state and the high byte counts pending reopen continuations.</summary>
     public KraidMouthFlags MouthFlags { get; internal set; }
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
-    public ushort InitialHealth { get; internal set; }
+    public int InitialHealth { get; internal set; }
     /// <summary>Returns the cartridge threshold for the selected eighth of the initializer's captured health.</summary>
     /// <param name="index">A zero-based table index from zero through seven, selecting one through eight eighths.</param>
     /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
-    public ushort HealthEighthThreshold(int index) => KraidHealthThresholdDefinitions.Eighth(InitialHealth, index);
+    public int HealthEighthThreshold(int index) => KraidHealthThresholdDefinitions.Eighth(InitialHealth, index);
     /// <summary>Gets the second-phase whole-pixel walking target; the native unused move-right instruction also reuses this word as a countdown.</summary>
     public ushort TargetX { get; internal set; }
     /// <summary>Gets the hurt-palette countdown phase, normally started at six by a vulnerable mouth hit and decremented by its frame timer.</summary>

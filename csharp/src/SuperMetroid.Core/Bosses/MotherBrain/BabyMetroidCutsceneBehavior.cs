@@ -166,7 +166,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         // Both outcomes of the native heal helper call the sound helper after the
         // energy write. Use the phase that ran, including its final full-health call.
         if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
-            unchecked((short)(target.Health - MotherBrainHealthSounds.MinimumEnergy)) >= 0 &&
+            target.Health >= MotherBrainHealthSounds.MinimumEnergy &&
             (_frameContext._randomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
             _audio.QueueEnemySound(MotherBrainHealthSounds.IncrementalEnergy, maximumQueued: 3);
 

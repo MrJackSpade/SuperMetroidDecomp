@@ -91,7 +91,7 @@ internal static class PhantoonPatternsVerification
         var shotEnemies = new RoomEnemySystem();
         var shotBody = shotEnemies.SlotTable.Slots[0];
         var shotState = new PhantoonEnemyState(shotBody) { Eye = shotEnemies.SlotTable.Slots[1], Tentacles = shotEnemies.SlotTable.Slots[2], Mouth = shotEnemies.SlotTable.Slots[3] };
-        Action<RoomEnemySlot, PhantoonEnemyState, ushort, ushort> shot = shotEnemies.PhantoonBehavior.ResolvePhantoonShotReaction;
+        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = shotEnemies.PhantoonBehavior.ResolvePhantoonShotReaction;
         ushort shotRandom = 0;
         int shotCalls = 0;
         shotEnemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { shotCalls++; return shotRandom; }));

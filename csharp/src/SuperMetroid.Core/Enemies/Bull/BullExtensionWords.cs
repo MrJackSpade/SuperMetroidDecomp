@@ -29,5 +29,5 @@ internal sealed class BullExtensionWords
     internal ushort ShotReactionDisableTimer { get; set; }
 
     /// <summary>Health captured before common hit processing for immune-hit detection.</summary>
-    internal ushort PreviousHealth { get; set; }
+    internal int PreviousHealth { get; set; }
 }

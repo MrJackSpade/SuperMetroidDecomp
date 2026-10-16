@@ -165,7 +165,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Shitroid's private shot handler applies recoil but no health loss. The main AI
         // redundantly restores $7FFF every processed frame, exactly as the cartridge does.
-        slot.Health = (ushort)short.MaxValue;
+        slot.Health = short.MaxValue;
         DispatchShitroidState(slot, state, samus, sharedProjectiles);
         DeadTorizoBehavior.MoveBankA9EnemyWithVelocity(slot);
         if (_zebetiteBehavior.PaletteChangeNumber == 0)

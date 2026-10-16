@@ -54,7 +54,7 @@ internal static class KraidSuperMissileDamageVerification
         // Kraid's arm swipes reach this standing position from its sixth frame; contact knockback would move Samus off
         // the mouth's height before the second missile. Contact protection keeps the check on the missiles alone.
         samus.InvincibilityTimer = NativeCountdown.Start(60);
-        ushort oldHealth=body.Health;
+        int oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
         {
             var result=game.Step(frame is 0 or 24 ? SnesButton.X : (ushort)0);

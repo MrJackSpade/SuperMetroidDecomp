@@ -172,9 +172,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (slot.Health != 0)
         {
-            slot.Health = unchecked((ushort)Math.Min(
-                ZebetiteMaximumHealth,
-                slot.Health + 1));
+            slot.Health = Math.Min(ZebetiteMaximumHealth, slot.Health + 1);
             return;
         }
 

@@ -23,7 +23,7 @@ internal static class DraygonHealthPaletteDefinitions
     /// in the higher band. The max describes the top band, not input clamping.
     /// The unreachable $FFFF terminator is not a ninth threshold.
     /// </remarks>
-    public static ushort ByteIndexForHealth(ushort health)
+    public static ushort ByteIndexForHealth(int health)
     {
         if (health > MaximumAuthoredHealth)
         {

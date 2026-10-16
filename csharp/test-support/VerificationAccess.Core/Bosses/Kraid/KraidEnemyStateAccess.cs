@@ -8,6 +8,6 @@ internal static class KraidEnemyStateAccess
     extension(KraidEnemyState self)
     {
         /// <summary>Derives a quarter-health threshold from Kraid's captured initial health.</summary>
-        internal ushort HealthQuarterThreshold(int index) => KraidHealthThresholdDefinitions.Quarter(self.InitialHealth, index);
+        internal int HealthQuarterThreshold(int index) => KraidHealthThresholdDefinitions.Quarter(self.InitialHealth, index);
     }
 }

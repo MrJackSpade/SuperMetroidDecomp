@@ -36,7 +36,7 @@ internal static class EmptyExtendedFrameShotsVerification
         pirate.Position = pirate.Position.WithWhole(new(0x01f4, 0x00a0));
         pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
         pirate.InstructionTimer = NativeCountdown.Start(0x7fff);
-        ushort health = pirate.Health;
+        int health = pirate.Health;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];

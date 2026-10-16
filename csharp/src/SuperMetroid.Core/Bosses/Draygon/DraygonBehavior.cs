@@ -1168,8 +1168,8 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         body.Health = body.Health <= 256
-            ? (ushort)0
-            : unchecked((ushort)(body.Health - 256));
+            ? 0
+            : body.Health - 256;
         ResolveDraygonReaction(body, samus);
     }
 

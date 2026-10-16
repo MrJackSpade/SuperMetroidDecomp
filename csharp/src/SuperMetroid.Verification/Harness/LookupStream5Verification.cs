@@ -1068,7 +1068,7 @@ internal static class LookupStream5Verification
         {
             Eye = enemies.SlotTable.Slots[1], Tentacles = enemies.SlotTable.Slots[2], Mouth = enemies.SlotTable.Slots[3],
         };
-        Action<RoomEnemySlot, PhantoonEnemyState, ushort, ushort> shot = enemies.PhantoonBehavior.ResolvePhantoonShotReaction;
+        Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = enemies.PhantoonBehavior.ResolvePhantoonShotReaction;
         ushort random = 0;
         int calls = 0;
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });

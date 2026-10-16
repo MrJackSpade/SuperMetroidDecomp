@@ -248,12 +248,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             transition.SetTargetColor(TorizoPaletteDefinitions.FirstBodyColor + color, colors[color]);
     }
     /// <summary>Selects Golden Torizo's body and belly gradient row from health bits 11 through 14.</summary>
-    private void LoadGoldenTorizoHealthPalette(ushort health)
+    private void LoadGoldenTorizoHealthPalette(int health)
     {
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
         // the upper half to row seven. Deriving the row start algebraically preserves the
         // original descending copy while keeping the loop natural for debugger inspection.
-        int selector = (SnesLittleEndian.HighByte(health)) & TorizoCombatDefinitions.HealthPaletteRowBits;
+        int selector = SnesLittleEndian.HighByte(checked((ushort)health)) & TorizoCombatDefinitions.HealthPaletteRowBits;
         if ((selector & TorizoCombatDefinitions.HealthPaletteUpperHalf) != 0)
             selector = 56;
         int sourceWord = selector * 2;

@@ -28,7 +28,7 @@ internal readonly record struct EnemyShotContext(
     bool UsesExtendedHitboxes,
     EnemyInteractionCallback? HitboxShotAi,
     ushort HitboxShotAiPointer,
-    ushort HealthBefore = 0)
+    int HealthBefore = 0)
 {
     /// <summary>
     /// The bank-$A0 rule for marking the projectile as collided: a non-plasma shot, or any shot when the enemy

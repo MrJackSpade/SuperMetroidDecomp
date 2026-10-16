@@ -199,7 +199,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public ushort BombCounter { get; private set; }
 
     /// <summary>Brain-slot health rewritten to 36,000 when corpse state one is published.</summary>
-    public ushort BrainHealth { get; internal set; } = 3000;
+    public int BrainHealth { get; internal set; } = 3000;
 
     /// <summary>Earthquake type word written by the one-frame delay and drain initializer.</summary>
     public ushort EarthquakeType { get; private set; }

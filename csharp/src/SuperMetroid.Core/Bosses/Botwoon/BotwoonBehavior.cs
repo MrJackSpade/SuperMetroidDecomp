@@ -369,9 +369,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         byte phase = 0;
-        if (head.Health != 0 && unchecked((short)(head.Health - state.HalfHealth)) < 0)
+        if (head.Health != 0 && head.Health < state.HalfHealth)
         {
-            phase = unchecked((short)(head.Health - state.QuarterHealth)) < 0
+            phase = head.Health < state.QuarterHealth
                 ? (byte)2
                 : (byte)1;
         }

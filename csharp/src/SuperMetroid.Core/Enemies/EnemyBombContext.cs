@@ -20,4 +20,4 @@ internal readonly record struct EnemyBombContext(
     EnemyInteractionCallback? SelectedShotAi,
     ushort SelectedShotAiPointer,
     bool UsesExtendedHitboxes,
-    ushort HealthBefore = 0);
+    int HealthBefore = 0);

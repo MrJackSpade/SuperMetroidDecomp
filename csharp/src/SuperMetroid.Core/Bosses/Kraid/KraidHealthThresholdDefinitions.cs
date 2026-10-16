@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal static class KraidHealthThresholdDefinitions
 {
     /// <summary>$A7:AA02-AA16: truncate health/8, then accumulate eight multiples.</summary>
-    public static ushort Eighth(ushort initialHealth, int index)
+    public static int Eighth(int initialHealth, int index)
     {
         if ((uint)index >= 8) throw new IndexOutOfRangeException();
-        return (ushort)((initialHealth >> 3) * (index + 1));
+        return (initialHealth >> 3) * (index + 1);
     }
 }

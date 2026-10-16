@@ -477,7 +477,7 @@ internal static class FullMovieReplayVerification
             Check(owner + " X fraction", actor.Position.X.Fraction, address + MovieDesyncMemory.EnemyXFractionOffset);
             Check(owner + " Y", actor.Position.Y.Whole, address + MovieDesyncMemory.EnemyYOffset);
             Check(owner + " Y fraction", actor.Position.Y.Fraction, address + MovieDesyncMemory.EnemyYFractionOffset);
-            Check(owner + " health", actor.Health, address + MovieDesyncMemory.EnemyHealthOffset);
+            Check(owner + " health", checked((ushort)actor.Health), address + MovieDesyncMemory.EnemyHealthOffset);
         }
         return mismatches;
     }

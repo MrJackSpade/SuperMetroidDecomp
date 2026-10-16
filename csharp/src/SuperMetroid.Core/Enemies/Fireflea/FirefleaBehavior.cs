@@ -124,7 +124,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
         if (slot.EnemyDefinitionPointer != 0)
-            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: slot.Health);
+            _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: checked((ushort)slot.Health));
         else
         {
             // Common attacking contact already ran EnemyDeath ($A0:A48F), which returns A = 0

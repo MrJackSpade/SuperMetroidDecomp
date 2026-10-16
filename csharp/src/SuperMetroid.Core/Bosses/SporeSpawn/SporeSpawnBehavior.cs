@@ -492,7 +492,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
             // Below 400 health the native code doubles angular speed while preserving its
             // current sign. At exactly 400 it leaves the existing delta untouched.
-            if (unchecked((short)(body.Health - 400)) < 0)
+            if (body.Health < 400)
             {
                 state.AngleDelta = unchecked((short)state.AngleDelta) < 0
                     ? unchecked((ushort)-2)

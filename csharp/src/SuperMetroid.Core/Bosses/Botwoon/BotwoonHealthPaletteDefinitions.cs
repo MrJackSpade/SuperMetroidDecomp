@@ -32,7 +32,7 @@ internal static class BotwoonHealthPaletteDefinitions
     /// supported, including wrapped differences. Offset 16 is caller-owned completion,
     /// not an extrapolated threshold; odd offsets remain invalid.
     /// </remarks>
-    public static bool ShouldAdvance(ushort phaseByteOffset, ushort health)
+    public static bool ShouldAdvance(ushort phaseByteOffset, int health)
     {
         if ((phaseByteOffset & 1) != 0 || phaseByteOffset >= CompletePhaseByteOffset)
         {

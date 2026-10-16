@@ -103,7 +103,7 @@ public sealed class BabyMetroidCutsceneState
     /// Native enemy health. Header <c>$A0:ECBF</c> supplies 3,200; Mother Brain later drains
     /// this word after the healing hold, so it belongs to actor state rather than rendering.
     /// </summary>
-    public ushort Health { get; internal set; }
+    public int Health { get; internal set; }
 
     /// <summary>
     /// Extra enemy word <c>$7E:7806,x</c>. Mother Brain's onion-ring collision handler
@@ -797,7 +797,7 @@ public sealed class BabyMetroidCutsceneState
     /// <remarks>Zero health leaves all state unchanged. The caller must establish overlap and owns the Baby cry request, physical enemy-slot synchronization, and ring explosion/deletion.</remarks>
     public BabyMetroidOnionRingHitResult ApplyMotherBrainOnionRingHit(ushort damage = 80)
     {
-        ushort healthBefore = Health;
+        int healthBefore = Health;
         if (healthBefore == 0)
             return new BabyMetroidOnionRingHitResult();
 

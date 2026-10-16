@@ -59,7 +59,7 @@ internal static class WrapShotEnemiesVerification
             var shots = CreateProjectileFixture();
             var bombs = CreateBombFixture();
             var plms = new RoomPlmSystem();
-            ushort health = enemy.Health;
+            int health = enemy.Health;
             for (int frame = 0; frame <= (left ? 3 : 4); frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;

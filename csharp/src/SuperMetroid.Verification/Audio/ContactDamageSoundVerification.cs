@@ -29,7 +29,7 @@ internal static class ContactDamageSoundVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
         RoomEnemySlot sciser = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Sciser);
-        ushort healthBefore = sciser.Health;
+        int healthBefore = sciser.Health;
 
         runtime.Enemies.Collision.ResolveNormalEnemyTouch(sciser, samus, false);
 

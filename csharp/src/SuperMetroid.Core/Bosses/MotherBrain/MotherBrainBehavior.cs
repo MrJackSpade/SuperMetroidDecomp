@@ -1477,8 +1477,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
         head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         head.Health = damage >= head.Health
-            ? (ushort)0
-            : unchecked((ushort)(head.Health - damage));
+            ? 0
+            : head.Health - damage;
     }
 
     /// <summary>
@@ -1560,8 +1560,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (projectileType.BeamCombination.HasPlasma)
             head.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
         head.Health = damage >= head.Health
-            ? (ushort)0
-            : unchecked((ushort)(head.Health - damage));
+            ? 0
+            : head.Health - damage;
     }
 
     /// <summary>

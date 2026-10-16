@@ -415,8 +415,8 @@ internal sealed class EnemyCollision
                     else
                     {
                         enemy.Health = lethal
-                            ? (ushort)0
-                            : unchecked((ushort)(enemy.Health - damage));
+                            ? 0
+                            : enemy.Health - damage;
                     }
                     if (enemy.Health == 0 && !reaction.ExemptFromGenericDeath)
                     {
@@ -648,8 +648,8 @@ internal sealed class EnemyCollision
         enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         enemy.Health = damage >= enemy.Health
-            ? (ushort)0
-            : unchecked((ushort)(enemy.Health - damage));
+            ? 0
+            : enemy.Health - damage;
         if (enemy.Health != 0 || !runGenericDeath)
             return;
 
@@ -747,8 +747,8 @@ internal sealed class EnemyCollision
                     enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     enemy.Health = damage >= enemy.Health
-                        ? (ushort)0
-                        : unchecked((ushort)(enemy.Health - damage));
+                        ? 0
+                        : enemy.Health - damage;
                     if (enemy.Health == 0 && reaction?.ExemptFromGenericDeath != true)
                     {
                         reaction?.BeforeGenericDeath?.Invoke(enemy, samus);
@@ -1016,8 +1016,8 @@ internal sealed class EnemyCollision
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
         enemy.Health = damage >= enemy.Health
-            ? (ushort)0
-            : unchecked((ushort)(enemy.Health - damage));
+            ? 0
+            : enemy.Health - damage;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.EnemyContactDamaged, maximumQueued: 1);
         if (enemy.Health != 0)
             return;

@@ -46,7 +46,7 @@ public sealed class SporeSpawnEnemyState
     /// <summary>Native $7E:801E one-hit guard for an open phase; nonzero prevents repeated direction reversal and close-list installation until the clear-damaged opcode resets it.</summary>
     public ushort DamagedFlag { get; internal set; }
     /// <summary>Health value last recorded by the guarded damaging-hit palette update, native $7E:8800; used to avoid reloading an unchanged health palette.</summary>
-    public ushort PreviousHealth { get; internal set; }
+    public int PreviousHealth { get; internal set; }
     /// <summary>Fixed byte-sized death-drift direction toward (128,624), stored at $7E:8806; zero is right, $40 up, $80 left, and $C0 down.</summary>
     public ushort DeathAngle { get; internal set; }
     /// <summary>

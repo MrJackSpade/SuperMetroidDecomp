@@ -954,7 +954,7 @@ internal static class RidleyFullMovieVerification
                     words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
                 words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.Position.X.Whole, actor.Position.X.Fraction,
-                    actor.Position.Y.Whole, actor.Position.Y.Fraction, actor.Health, actor.SpritemapPointer,
+                    actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
                     actor.CurrentInstruction, actor.InstructionTimer.RawValue]);
             return words.ToArray();
         }
@@ -1289,7 +1289,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
                 Check(owner + " Y", actor.Position.Y.Whole, address + 6);
                 Check(owner + " Y fraction", actor.Position.Y.Fraction, address + 8);
-                Check(owner + " health", actor.Health, address + 20);
+                Check(owner + " health", checked((ushort)actor.Health), address + 20);
                 Check(owner + " spritemap", actor.SpritemapPointer, address + 22);
                 Check(owner + " instruction", pointers.Enemy(runtime.Enemies, actor), address + 26);
                 Check(owner + " instruction timer", actor.InstructionTimer.RawValue, address + 28);

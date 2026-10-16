@@ -2951,7 +2951,7 @@ internal static class LookupStream4Verification
                     update(head, state);
                     AssertEqual((ushort)(band * 2), state.PalettePhaseByteOffset, "exact threshold does not advance");
                     for (int color = 0; color < 256; color++) AssertEqual((ushort)0x1234, cgram.Colors[color], "exact threshold preserves CGRAM");
-                    head.Health = NativeWordCounter.Decrement(head.Health).Value;
+                    head.Health--;
                     update(head, state);
                     AssertEqual((ushort)(band * 2 + 2), state.PalettePhaseByteOffset, "below threshold advances exactly one band");
                     for (int color = 0; color < 256; color++)

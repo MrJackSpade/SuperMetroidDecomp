@@ -90,7 +90,7 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.AI at +$12: native handler-selection bits for ordinary, hurt, frozen, and other AI dispatch states.</summary>
     public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Enemy.health at +$14: mutable remaining enemy health, initialized from the definition and reduced by weapon damage.</summary>
-    public ushort Health { get; internal set; }
+    public int Health { get; internal set; }
     /// <summary>Enemy.spritemap at +$16: current bank-relative drawing frame or extended-map identity selected by the actor.</summary>
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>Enemy.loopCounter at +$18: actor/instruction-owned loop or delay word; it is not a universal elapsed-frame counter.</summary>
@@ -186,7 +186,7 @@ public sealed class RoomEnemySlot
         EnemyDataField.Properties => Properties.ToNativeWord(),
         EnemyDataField.ExtraProperties => ExtraProperties.ToNativeWord(),
         EnemyDataField.AiHandler => AiStates.NativeWord,
-        EnemyDataField.Health => Health,
+        EnemyDataField.Health => checked((ushort)Health),
         EnemyDataField.Spritemap => SpritemapPointer,
         EnemyDataField.Timer => Timer.RawValue,
         EnemyDataField.Instruction => CurrentInstruction,

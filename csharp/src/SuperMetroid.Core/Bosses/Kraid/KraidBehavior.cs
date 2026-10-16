@@ -827,8 +827,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (damage != 0)
                 {
                     body.Health = damage >= body.Health
-                        ? (ushort)0
-                        : unchecked((ushort)(body.Health - damage));
+                        ? 0
+                        : body.Health - damage;
                     body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)((body.HurtAiTime == 0 ? 4 : body.HurtAiTime) + 8)));
                     body.AiStates = body.AiStates | EnemyAiStates.Hurt;
                     if ((shot.Type & 8) != 0)
@@ -855,7 +855,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.HurtFrameTimer = NativeCountdown.Start(2);
             if ((state.MouthFlags & KraidMouthFlags.ReopenArmed) != 0)
                 state.MouthFlags |= KraidMouthFlags.ReopenPending;
-            if (unchecked((short)(body.Health - 1)) < 0 &&
+            if (body.Health < 1 &&
                 (KraidAiFunction)body.VariableA < KraidAiFunction.DeathInitialize)
                 BeginKraidDeath(body, state);
         }
@@ -1589,7 +1589,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts growth only after the small-form transition requirements are met.</summary>
     internal bool TryBeginKraidGrowth(RoomEnemySlot body, KraidEnemyState state)
     {
-        if (unchecked((short)(body.Health - state.HealthEighthThreshold(6))) >= 0)
+        if (body.Health >= state.HealthEighthThreshold(6))
             return false;
 
         body.VariableA = (ushort)KraidAiFunction.ProcessHeadInstructionAndTimer;
@@ -1769,8 +1769,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot body = _slotTable._slots[0];
         RoomEnemySlot arm = _slotTable._slots[1];
-        ushort halfHealth = RequireKraidState(body).HealthEighthThreshold(3);
-        return unchecked((short)(body.Health - halfHealth)) < 0 && KraidPartResidentProgram(arm) < KraidPartProgram.ArmSlow
+        int halfHealth = RequireKraidState(body).HealthEighthThreshold(3);
+        return body.Health < halfHealth && KraidPartResidentProgram(arm) < KraidPartProgram.ArmSlow
             ? KraidPartProgram.ArmSlow
             : null;
     }
@@ -2600,7 +2600,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // The callback passes the common routine's remaining-health accumulator
                 // to EnemyDeath; its bounded animation selector normalizes values >= 5.
                 if (context.Slot.EnemyDefinitionPointer != 0)
-                    _deathsAndDrops.StartGenericEnemyDeath(context.Slot, context.Slot.Health);
+                    _deathsAndDrops.StartGenericEnemyDeath(context.Slot, checked((ushort)context.Slot.Health));
             });
     }
 

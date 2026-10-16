@@ -712,7 +712,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 PhantoonEnemyState phantoon = Phantoon ??
                     throw new InvalidOperationException("Phantoon shot callback has no encounter state.");
-                ushort appliedDamage = unchecked((ushort)(c.HealthBefore - c.Enemy.Health));
+                int appliedDamage = c.HealthBefore - c.Enemy.Health;
                 phantoon.AcceptedProjectileHits++;
                 ResolvePhantoonShotReaction(c.Enemy, phantoon, c.Bomb.Type, appliedDamage);
             },
@@ -887,7 +887,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
                 !new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma));
 
-            ushort healthBefore = body.Health;
+            int healthBefore = body.Health;
             // Phantoon calls common normal-shot damage, including its charged-beam
             // override. SBA particles retain that bit; reading only the uncharged
             // combination row made Wave Shield disappear without damaging the boss.
@@ -912,12 +912,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     if (new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma))
                         body.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
                     body.Health = damage >= body.Health
-                        ? (ushort)0
-                        : unchecked((ushort)(body.Health - damage));
+                        ? 0
+                        : body.Health - damage;
                 }
             }
 
-            ushort appliedDamage = unchecked((ushort)(healthBefore - body.Health));
+            int appliedDamage = healthBefore - body.Health;
             state.AcceptedProjectileHits++;
             ResolvePhantoonShotReaction(
                 body,
@@ -935,7 +935,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         PhantoonEnemyState state,
         ushort projectileType,
-        ushort damage)
+        int damage)
     {
         if (body.Health == 0)
         {

@@ -183,6 +183,12 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   `awaiting-player-validation` label to its GitHub issue. Remove that label if
   player validation fails, and close the issue when the player confirms the fix.
   An open issue without this label must not be assumed to be awaiting validation.
+- A ticket with an unanswered question for the owner is blocked on the owner, not
+  awaiting validation. Never label it `awaiting-player-validation`; label it
+  `question` so the owner can see it needs input, and implement neither option
+  until the owner answers. Remove `question` when the answer is applied; only then
+  can the ticket move to `awaiting-player-validation`. Before labeling any ticket,
+  check its comments for unanswered owner questions.
 
 ## Single ticket development
 

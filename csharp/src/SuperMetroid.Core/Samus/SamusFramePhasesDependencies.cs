@@ -63,8 +63,6 @@ internal sealed record SamusFramePhasesDependencies
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 
     /// <summary>Suit pickup.</summary>
     public required SamusSuitPickupState SuitPickup { get; init; }

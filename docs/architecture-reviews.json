@@ -330,14 +330,6 @@
       "reason": "Compiled cartridge definitions: data tables with lookup, no behaviour or mutable state."
     },
     {
-      "type": "SuperMetroid.Core.Samus.SamusFramePhases",
-      "flags": [
-        "large"
-      ],
-      "disposition": "frame-phase",
-      "reason": "Samus's per-frame handler phases (alpha, beta, animation transitions) in native order over a SamusHandlerFrame."
-    },
-    {
       "type": "SuperMetroid.Core.Samus.SamusInputSnapshot",
       "flags": [
         "back-reference:SuperMetroid.Core.Samus.SamusState"

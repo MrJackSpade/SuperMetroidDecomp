@@ -92,4 +92,7 @@ committed inventory to list exactly the catalog cells:
   or a cell that covers it (overlap is judged on physical bytes, so `$00:0123` and `$7E:0123`
   are the same WRAM byte). Staging surfaces that the cartridge reuses under several meanings are
   owned buffers with views (#1319), so no mutable cell aliases another;
+- Core gameplay catalogs declare WRAM cells only from the shrinking allowlist in
+  `CpuBusBoundaryVerification.AllowedCoreWorkRamCells` (#1319); each entry names the ticket that removes it, and
+  both a new Core WRAM cell and a stale entry fail the check;
 - representative typed round trips, mapping/mirror/wrap and side-effect tests cover the primitives.

@@ -22,6 +22,7 @@ internal static class CpuBusBoundaryVerification
         IReadOnlyList<CpuBusCatalogEntry> entries = CpuBusCatalogInventory.Enumerate(CpuBusCatalogInventory.ProductionAssemblies);
         Suite(nameof(VerifyCpuBusCatalogIdentities), () => VerifyCpuBusCatalogIdentities(entries));
         Suite(nameof(VerifyCpuBusInventoryCurrent), () => VerifyCpuBusInventoryCurrent(entries));
+        Suite(nameof(VerifyCoreWorkRamRatchet), () => VerifyCoreWorkRamRatchet(entries));
         Suite(nameof(VerifyWramWordBankWrap), VerifyWramWordBankWrap);
         Suite(nameof(VerifyCpuBusTableBounds), VerifyCpuBusTableBounds);
         Suite(nameof(VerifyCpuBusCellShapeRejection), VerifyCpuBusCellShapeRejection);
@@ -42,6 +43,44 @@ internal static class CpuBusBoundaryVerification
             "every (owner, name) cell identity is unique");
         IReadOnlyList<string> violations = CpuBusCatalogInventory.Violations(entries);
         AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
+    }
+
+    /// <summary>
+    /// The WRAM cells Core gameplay catalogs may still declare (#1319). Gameplay state lives in its owning systems;
+    /// each remaining entry names the ticket that removes it. The list only shrinks: a new Core WRAM cell fails, and so
+    /// does an entry whose cell is gone.
+    /// </summary>
+    private static readonly (string Owner, string Cell, string Ticket)[] AllowedCoreWorkRamCells =
+    [
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "BossBits", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "CollectedItemBits", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "Events", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "LoadedItemCount", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "LoadingGameState", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "MapStations", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "OpenedDoorBits", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "RoomChozoBits", "#1330"),
+        ("SuperMetroid.Core.Saves.SaveMirrorWorkRamAddresses", "UsedSaveStations", "#1330"),
+        // #1318 kept SpaceTime's progression overwrite, which addresses the progression mirror through this cell.
+        ("SuperMetroid.Core.Samus.Projectiles.SpacetimeBeamCorruptionLayout", "SpritePaletteSix", "#1330"),
+    ];
+
+    /// <summary>Core gameplay catalogs declare WRAM cells only from <see cref="AllowedCoreWorkRamCells"/>, and every entry is still declared.</summary>
+    [CpuBusBoundary("exact bus test: Core gameplay WRAM-cell ratchet over the catalog inventory")]
+    private static void VerifyCoreWorkRamRatchet(IReadOnlyList<CpuBusCatalogEntry> entries)
+    {
+        var declared = entries
+            .Where(entry => entry.Cell.Region == CpuBusRegion.WorkRam &&
+                entry.Owner.Assembly == typeof(CpuBusRegion).Assembly)
+            .Select(entry => (Owner: entry.Owner.FullName ?? entry.Owner.Name, entry.Cell.Name))
+            .ToHashSet();
+        var allowed = AllowedCoreWorkRamCells.Select(cell => (cell.Owner, Name: cell.Cell)).ToHashSet();
+        string[] added = declared.Except(allowed).Select(cell => $"{cell.Owner}.{cell.Name}").Order().ToArray();
+        string[] retired = allowed.Except(declared).Select(cell => $"{cell.Owner}.{cell.Name}").Order().ToArray();
+        AssertTrue(added.Length == 0, "Core gameplay WRAM cells outside the #1319 allowlist; move the state into its owning system:" +
+            Environment.NewLine + string.Join(Environment.NewLine, added));
+        AssertTrue(retired.Length == 0, "retired Core WRAM allowlist entries; remove them from AllowedCoreWorkRamCells:" +
+            Environment.NewLine + string.Join(Environment.NewLine, retired));
     }
 
     /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>

@@ -209,7 +209,7 @@ internal static class PauseMenuVerification
         colors[1] = Enumerable.Range(0, 16).Select(color => (ushort)(0x3200 + color)).ToArray();
         var beamPalettes = new BeamPaletteCatalog(ToColors(colors));
         resumeRuntime.Artwork.BeamArtwork = BeamTileCatalog.Load(beamFiles, beamPalettes);
-        resumeRuntime.SamusPhases.LoadGameplayBeamPalette(samus.EquippedBeams);
+        resumeRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
         resumeRuntime.NmiHandler.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         // The newly equipped Wave characters are bound on the projectile page (#1342), not uploaded.
         ReadOnlySpan<byte> wavePage = (resumeRuntime.Artwork.ProjectileObjects

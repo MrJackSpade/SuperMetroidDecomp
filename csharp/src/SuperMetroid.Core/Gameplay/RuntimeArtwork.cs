@@ -291,6 +291,23 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     }
 
     /// <summary>
+    /// The equipped-beam word whose characters <c>Update_Beam_Tiles_and_Palette</c> ($90:AC8D) last loaded. The
+    /// projectile pages show this beam's characters until the next update, even when code changes the equipment in
+    /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
+    /// </summary>
+    public ushort LoadedBeams { get; private set; }
+
+    /// <summary>
+    /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile pages
+    /// show and loads its palette.
+    /// </summary>
+    internal void UpdateBeamTilesAndPalette(ISnesAddressSpace bus, SnesCgram cgram, ushort equippedBeams)
+    {
+        LoadedBeams = equippedBeams;
+        SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(bus, cgram, equippedBeams, BeamArtwork?.Palettes);
+    }
+
+    /// <summary>
     /// Loads a newly bound beam artwork's palette for the equipped beams at an accepted NMI. The characters need no
     /// publication: the projectile pages bind them.
     /// </summary>

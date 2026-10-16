@@ -77,9 +77,9 @@ internal sealed class GameplayActorDrawing
         _addressSpace = dependencies.AddressSpace;
     }
 
-    /// <summary>What Samus's projectile, bomb, flare and trail draws bind: compositions and the page her equipped beams select.</summary>
+    /// <summary>What Samus's projectile, bomb, flare and trail draws bind: compositions and the page of the beam last loaded.</summary>
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileCompositions, _artwork.ProjectileObjects,
-        _player.Samus?.EquippedBeams ?? 0);
+        _artwork.LoadedBeams);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
     internal void DrawGameplayActors(bool deathOwnsSamus, bool advanceSamusPalette = true)
     {

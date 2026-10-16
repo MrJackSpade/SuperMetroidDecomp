@@ -31,13 +31,11 @@ internal static class GoldenTorizoCodeEntryVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
         AssertEqual(GoldenTorizoCodeDefinitions.Beams, runtime.Player.IntroducedSamus.EquippedBeams, "GT code retains exact native beam grant");
         AssertEqual(GoldenTorizoCodeDefinitions.Items, runtime.Player.IntroducedSamus.EquippedItems, "GT code retains exact native equipment grant");
-        AssertTrue(runtime.VramWrites.Entries.Any(entry => entry.AssetId == VramAssetId.BeamWaveTiles),
-            "room transition queued the entering Wave artwork before code changed the beam word");
+        AssertEqual((ushort)SamusBeamFlags.Wave, runtime.Artwork.LoadedBeams,
+            "the room transition loaded the entering Wave beam before the code changed the beam word");
         for (int frame = 0; frame < 3; frame++) game.Step(0);
-        AssertTrue(runtime.Vram.Bytes.Slice(SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.DestinationWord * 2,
-            SuperMetroid.Core.Samus.Artwork.BeamTileAtlasDefinitions.ByteCount).SequenceEqual(
-                (runtime.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires runtime.Artwork.BeamArtwork.")).Resolve(VramAssetId.BeamWaveTiles).Span),
-            "accepted NMI retains the entering beam artwork after enemy graphics uploads");
+        AssertEqual((ushort)SamusBeamFlags.Wave, runtime.Artwork.LoadedBeams,
+            "the projectile pages keep showing the entering Wave beam until the next beam update");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "GT room entry resumes gameplay after code");
         Console.WriteLine("Golden Torizo code: real room initialization and three continuation frames succeed with the native grant.");
     }

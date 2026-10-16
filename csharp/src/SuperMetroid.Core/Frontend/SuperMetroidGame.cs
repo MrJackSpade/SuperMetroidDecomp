@@ -1041,7 +1041,7 @@ public sealed class SuperMetroidGame
                 // `$11` reruns `$90:AC8D` before its accepted NMI; omitting that handoff
                 // made the new damage/type word immediate while art stayed stale until the
                 // next room load happened to invoke the same routine.
-                GameplayRuntime.SamusPhases.LoadGameplayBeamPalette(resumedSamus.EquippedBeams);
+                GameplayRuntime.SamusPhases.UpdateGameplayBeamTilesAndPalette(resumedSamus.EquippedBeams);
                 resumedSamus.ReconcilePauseBallEquipment(bus);
                 // The native teardown also reconciles equipment-dependent momentum.
                 // Keep the speed pair until the next gameplay frame, as the cartridge does.

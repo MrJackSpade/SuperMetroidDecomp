@@ -449,7 +449,7 @@ public sealed class SuperMetroidGame
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber++;
         if (Session.runtime is null)
-            Session.menuNmi.Advance();
+            Session.frameClock.AdvanceAcceptedFrame();
         AdvanceMenuRandom();
         if (Session.runtime is not null)
             Session.runtime.DispatchGameState = Session.GameState;
@@ -790,7 +790,8 @@ public sealed class SuperMetroidGame
                 // Only the reset vector reseeds. A continued save must keep the word
                 // produced by gameplay and the game-over/file-map waiting frames.
                 Session.menuRandom = new Bank80SystemState();
-                Session.menuNmi.Reset();
+                Session.frameClock.Reset();
+                Session.menuLayer1.Reset();
                 // State zero is itself dispatched by MainGameLoop after its first
                 // GenerateRandomNumber call; it is not the reset vector's seed store.
                 Session.menuRandom.NextRandom();

@@ -32,6 +32,9 @@ internal sealed class FrameClock
     /// </summary>
     internal void ClearCounter8ForDoorIrq() => Counter8 = 0;
 
+    /// <summary>Clears both counters, as the reset vector's bank-$7E wipe does.</summary>
+    internal void Reset() => Import(0, 0);
+
     /// <summary>
     /// Takes over the counters another owner kept, such as the frontend that counted before this runtime existed or a
     /// native snapshot import. The cartridge has one pair of words; allocation never resets it.

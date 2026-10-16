@@ -171,7 +171,7 @@ internal static class CeresSaveStartupVerification
         for (int update = 0; update < 3; update++)
             gameOverProbe.Step(0);
         AssertEqual(unchecked((ushort)(nmiBeforeDeath + 4)),
-            gameOverProbe.Session.menuNmi.FrameCounter,
+            gameOverProbe.Session.frameClock.Counter,
             "#1275 accepted NMIs keep counting through the game-over menu");
         var probeMenu = gameOverProbe.Session.gameOver;
         (probeMenu ?? throw new InvalidOperationException("Verification requires probeMenu.")).Phase = GameOverMenuPhase.Main;

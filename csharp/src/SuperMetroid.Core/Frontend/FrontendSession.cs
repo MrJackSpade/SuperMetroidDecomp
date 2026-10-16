@@ -51,7 +51,10 @@ internal sealed class FrontendSession
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
     internal readonly ScreenFadeTimer screenFade = new();
     /// <summary>Accepted menu NMI counters used by frontend animation and input timing.</summary>
-    internal readonly MenuNmiFrameCounters menuNmi = new();
+    internal readonly MenuLayer1Retention menuLayer1 = new();
+
+    /// <summary>The session's accepted-frame counters <c>$05B5/$05B6</c>: every runtime it creates counts on them.</summary>
+    internal readonly FrameClock frameClock = new();
     /// <summary>The installed catalogs currently bound; <see cref="GameArtwork.Unbound"/> until a host binds them.</summary>
     [field: NonSerialized]
     public GameArtwork Artwork { get => field ?? GameArtwork.Unbound; internal set; }
@@ -332,13 +335,13 @@ internal sealed class FrontendSession
     {
         ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         if (runtime is not null)
-            menuNmi.RetainFrom(runtime);
-        runtime = new SuperMetroidRuntime(bus, ConfiguredOptions.RuntimeOverrides(forAttractDemo), initialPaletteArt: Artwork.GameplayBasePalettes);
+            menuLayer1.RetainFrom(runtime);
+        runtime = new SuperMetroidRuntime(bus, ConfiguredOptions.RuntimeOverrides(forAttractDemo), Artwork.GameplayBasePalettes, frameClock);
         // Runtime allocation is a managed ownership change, not Vector_RESET.
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
         runtime.System.MainGameLoopCarry = bootMainLoopCarry;
-        menuNmi.PublishTo(runtime);
+        menuLayer1.PublishTo(runtime);
         runtime.Artwork.MapPresentation = Artwork.MapPresentation;
         runtime.Artwork.StandardObjectArt = Artwork.StandardObjectArt;
         runtime.Artwork.SamusBodyArt = Artwork.SamusBodyArt;
@@ -595,13 +598,13 @@ internal sealed class FrontendSession
     /// <summary>Uses gameplay RNG when live and otherwise retains the frontend RNG word.</summary>
     internal Bank80SystemState FrontendRandomOwner =>
         runtime?.System ?? (menuRandom ??= new Bank80SystemState());
-    /// <summary>Transfers RNG and NMI counters back to the frontend before dropping gameplay state.</summary>
+    /// <summary>Transfers RNG and the layer-one position back to the frontend before dropping gameplay state.</summary>
     internal void ReleaseRuntimePreservingRandom()
     {
         (menuRandom ??= new()).SetRandomNumber(FrontendRandomOwner.RandomNumber);
         // File-map selection may release when no runtime was ever created.
         if (runtime is not null)
-            menuNmi.RetainFrom(runtime);
+            menuLayer1.RetainFrom(runtime);
         runtime = null;
     }
 

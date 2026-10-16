@@ -20,6 +20,8 @@ occurrences, and a file absent from the baseline may hold none.
 | SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |
 | SME6348 | A hand-written sign-bit test on a countdown-named primitive (#1324): `& 0x8000`, `& 0x80`, a comparison with `0x8000` or `0x80`, or `(short)t < 0`/`(sbyte)t >= 0` where the operand is one member or local whose name ends in a timer, counter, delay, cooldown, countdown, ticks or frames word (`FunctionTimer`, not `TargetCounterClockwiseAngle`). The constant must be the operand's own sign bit: `0x80` for a byte, `0x8000` for a word (a word compared with `0x80` is a threshold). Signed comparisons of differences, velocities and packed flags are not timer idioms. |
 | SME6349 | A wrapping self-decrement of narrow storage (#1324): `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
+| SME6346 | A value of a `[Flags]` enum cast to an integral primitive in functional code (#1323): the flags leave their type before the encoding boundary. Codecs convert with the type's `ToNativeWord`; a catalog, `[SnesEncodingOwner]` type or reviewed allowance is exempt. |
+| SME6347 | A `byte` or `ushort` (or nullable) instance field, property or positional record parameter in functional code (#1323): gameplay state stored at the cartridge register width. Constants, statics, locals, parameters and arrays are not counted; catalogs, `[SnesEncodingOwner]` types and reviewed allowances are exempt. |
 | SME6343 | A file now holds fewer occurrences than its baseline: lower the count so the gain is kept. |
 | SME6344 | The baseline names a file the project no longer compiles: remove the entry. |
 

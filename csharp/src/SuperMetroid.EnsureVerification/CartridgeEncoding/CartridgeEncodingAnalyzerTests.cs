@@ -150,11 +150,48 @@ internal static class CartridgeEncodingAnalyzerTests
             "[SnesEncodingOwner] struct Countdown { ushort timer; bool M() { timer--; return (timer & 32768) != 0; } }")]);
         ExpectEncoding($"{functional}\tSME6349\t2\n", [(functional, countdown + "void M() => FunctionTimer--; }")],
             (CartridgeEncodingAnalyzer.StaleCountId, "now holds 1 SME6349 occurrence(s) but the baseline allows 2"));
+
+        // SME6346 (#1323): a [Flags] value cast to an integral primitive leaves its type before the encoding boundary.
+        const string items = "[System.Flags] enum Items : ushort { Morph = 4, Bombs = 4096 } enum Mode : ushort { Auto = 1 } ";
+        ExpectEncoding("", [(functional, items + "class C { ushort M() => (ushort)Items.Morph; }")],
+            (CartridgeEncodingAnalyzer.FlagsPrimitiveCastId, "casts [Flags] Items to ushort"));
+        ExpectEncoding("", [(functional, items + "class C { int M(Items held) => unchecked((int)held); }")],
+            (CartridgeEncodingAnalyzer.FlagsPrimitiveCastId, "'(int)held'"));
+        // A plain enum, a primitive-to-flags conversion, an owner and a reviewed allowance are not reported.
+        ExpectEncoding("", [(functional, items + "class C { ushort M(ushort word) => (ushort)Mode.Auto; Items N(ushort word) => (Items)word; }")]);
+        ExpectEncoding("", [(functional,
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " + items +
+            "[SnesEncodingOwner] static class ItemWords { public static ushort Native(Items items) => (ushort)items; }")]);
+        ExpectEncoding("", [(functional, items + "class C { ushort M(Items held) => (ushort)held; // cartridge-encoding: allow(Codec) - SRAM word\n }")]);
+        ExpectEncoding($"{functional}\tSME6346\t1\n", [(functional, items + "class C { ushort M() => (ushort)Items.Bombs; }")]);
+
+        // SME6347 (#1323): byte and ushort instance fields, properties and positional record parameters.
+        ExpectEncoding("", [(functional, "class C { ushort health; public byte Mode { get; set; } }")],
+            (CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'health' stores ushort instance state"),
+            (CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Mode' stores byte instance state"));
+        ExpectEncoding("", [(functional, "class C { ushort a, b; ushort? sentinel; }")],
+            (CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'a'"),
+            (CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'b'"),
+            (CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'sentinel' stores ushort? instance state"));
+        ExpectEncoding("", [(functional, "record Slot(ushort Health, int Area);")],
+            (CartridgeEncodingAnalyzer.NarrowStorageMemberId, "'Health' stores ushort instance state"));
+        // Constants, statics, wide members, locals, parameters, catalogs, owners and reviewed allowances are not reported.
+        ExpectEncoding("", [(functional, "class C { const ushort Limit = 99; static ushort shared; int wide; ushort[] words = new ushort[2]; " +
+            "int M(ushort argument) { ushort local = argument; return local + Limit + shared; } }")]);
+        ExpectEncoding("", [(catalog, "static class WalkerInstructionLists { } sealed class WalkerRecord { public ushort Word { get; init; } }")]);
+        ExpectEncoding("", [(functional,
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
+            "[SnesEncodingOwner] readonly struct Word(ushort raw) { readonly ushort value = raw; }")]);
+        ExpectEncoding("", [(functional, "class C { ushort frameCounter; // cartridge-encoding: allow(Wrap) - wraps by design\n }")]);
+        ExpectEncoding($"{functional}\tSME6347\t2\n", [(functional, "class C { ushort a; byte b; }")]);
+        ExpectEncoding($"{functional}\tSME6347\t3\n", [(functional, "class C { ushort a; byte b; }")],
+            (CartridgeEncodingAnalyzer.StaleCountId, "now holds 2 SME6347 occurrence(s) but the baseline allows 3"));
     }
 
     /// <summary>
     /// Runs <see cref="CartridgeEncodingAnalyzer"/> over repository-relative sources with an optional baseline
-    /// (null omits the additional file) and requires exactly the expected diagnostics, in order.
+    /// (null omits the additional file) and requires exactly the expected diagnostics, in order. SME6347 is checked only
+    /// by the cases that expect it: the other rules' fixtures declare narrow members to exercise those rules.
     /// </summary>
     private static void ExpectEncoding(
         string? baseline,
@@ -177,6 +214,8 @@ internal static class CartridgeEncodingAnalyzerTests
             .OrderBy(diagnostic => diagnostic.Location.SourceTree?.FilePath, StringComparer.Ordinal)
             .ThenBy(diagnostic => diagnostic.Location.SourceSpan.Start)
             .ToArray();
+        if (!expected.Any(item => item.Id == CartridgeEncodingAnalyzer.NarrowStorageMemberId))
+            diagnostics = diagnostics.Where(diagnostic => diagnostic.Id != CartridgeEncodingAnalyzer.NarrowStorageMemberId).ToArray();
         string Describe() => $"[{string.Join("; ", diagnostics.Select(d => d.ToString()))}] in {string.Join(" | ", files.Select(f => f.Source))}";
         if (diagnostics.Length != expected.Length)
             throw new InvalidOperationException($"Expected {expected.Length} cartridge-encoding diagnostic(s), got {Describe()}");

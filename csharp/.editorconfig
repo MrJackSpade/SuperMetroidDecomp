@@ -83,6 +83,9 @@ dotnet_diagnostic.SME6343.severity = error
 dotnet_diagnostic.SME6344.severity = error
 # #223: shifts and masks by a storage width name their meaning.
 dotnet_diagnostic.SME6345.severity = error
+# #1323: [Flags] casts to a primitive and byte/ushort instance members are ratcheted per file.
+dotnet_diagnostic.SME6346.severity = error
+dotnet_diagnostic.SME6347.severity = error
 # #1324: countdowns use NativeCountdown, not hand-written DEC wraparound and sign-bit tests.
 dotnet_diagnostic.SME6348.severity = error
 dotnet_diagnostic.SME6349.severity = error

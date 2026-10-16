@@ -34,6 +34,12 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <summary>A hand-written wrapping self-decrement of narrow storage (#1324).</summary>
     public const string CountdownSelfDecrementId = "SME6349";
 
+    /// <summary>A <c>[Flags]</c> enum value cast to its storage primitive in functional code (#1323).</summary>
+    public const string FlagsPrimitiveCastId = "SME6346";
+
+    /// <summary>A <c>byte</c> or <c>ushort</c> instance member in functional code (#1323).</summary>
+    public const string NarrowStorageMemberId = "SME6347";
+
     /// <summary>A file holds fewer occurrences than its baseline: lower the reviewed count.</summary>
     public const string StaleCountId = "SME6343";
 
@@ -113,6 +119,27 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
         description: "'x = unchecked((ushort)(x - 1))', its byte form and '--' on ushort or byte storage hide the native " +
             "wraparound and leave the branch to a hand-written sign or zero test. The countdown type keeps the exact word.");
 
+    private static readonly DiagnosticDescriptor FlagsPrimitiveCastRule = new(
+        FlagsPrimitiveCastId,
+        "[Flags] enum cast to a primitive word",
+        "{0}; keep the typed flags and convert only at the encoding boundary, with the type's ToNativeWord ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Gameplay state holds [Flags] enums as their type. Casting one to ushort or byte moves the bits back " +
+            "into an untyped word; only codecs and [SnesEncodingOwner] types convert to the native word.");
+
+    private static readonly DiagnosticDescriptor NarrowStorageMemberRule = new(
+        NarrowStorageMemberId,
+        "Narrow CPU-word storage in functional code",
+        "{0}; store the domain type (an int quantity, bool, enum, flags, nullable value or logical index) and convert at " +
+            "the codec, or make a load-bearing wrap explicit ({1})",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A byte or ushort field or property stores gameplay state at the cartridge register width. Widen " +
+            "quantities whose wrap does not matter and name the wrap that does (#1323, docs/cartridge-encoding.md).");
+
     /// <summary>Reports when a file's occurrence count drops below its reviewed baseline allowance.</summary>
     private static readonly DiagnosticDescriptor StaleCountRule = new(
         StaleCountId,
@@ -135,7 +162,7 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         [RawHexRule, PointerDispatchRule, OpaqueWordArrayRule, RawWidthRule, CountdownSignTestRule, CountdownSelfDecrementRule,
-            StaleCountRule, StaleFileRule];
+            FlagsPrimitiveCastRule, NarrowStorageMemberRule, StaleCountRule, StaleFileRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -192,6 +219,8 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
                 RawWidthId => RawWidthRule,
                 CountdownSignTestId => CountdownSignTestRule,
                 CountdownSelfDecrementId => CountdownSelfDecrementRule,
+                FlagsPrimitiveCastId => FlagsPrimitiveCastRule,
+                NarrowStorageMemberId => NarrowStorageMemberRule,
                 null => null,
                 var id => throw new InvalidOperationException($"Unmapped cartridge-encoding rule id {id}."),
             };

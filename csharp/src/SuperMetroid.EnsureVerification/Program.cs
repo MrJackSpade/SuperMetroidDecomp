@@ -42,30 +42,52 @@ internal static class Program
             }
             if (args.Length != 0)
                 throw new ArgumentException("Unknown verification arguments.", nameof(args));
-            VerifyEnsure();
-            VerifyAnalyzer();
-            VerifyMemberDocumentationAnalyzer();
-            VerifyPrimitiveDomainAnalyzer();
-            VerifySpatialClumpAnalyzer();
-            VerifyCpuBusAccessAnalyzer();
-            VerifyCpuBusAccessCodeFix();
-            VerifyCpuBusDeclarationAnalyzer();
-            VerifyPpuLayoutAccessAnalyzer();
-            VerifyDspRegisterAccessAnalyzer();
-            VerifySpcMemoryAccessAnalyzer();
-            VerifyParameterListAnalyzer();
-            VerifyPartialTypeAnalyzer();
-            VerifyNullForgivingAnalyzer();
-            VerifyAdapterChainAnalyzer();
-            VerifyOneTypePerFileAnalyzer();
-            ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers();
-            SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer();
-            VerifyOwnedReflectionAnalyzer();
-            VerifyParameterContracts();
-            VerifyCartridgeEncodingAnalyzer();
-            VerifyEnsureCallsAndCodeFix();
-            VerifyWordReadAnalyzer();
-            VerifyPaletteFxDependencyContract();
+            // Every suite runs even after one fails, so a single run reports every failure in full.
+            (string Name, Action Run)[] suites =
+            [
+                (nameof(VerifyEnsure), VerifyEnsure),
+                (nameof(VerifyAnalyzer), VerifyAnalyzer),
+                (nameof(VerifyMemberDocumentationAnalyzer), VerifyMemberDocumentationAnalyzer),
+                (nameof(VerifyPrimitiveDomainAnalyzer), VerifyPrimitiveDomainAnalyzer),
+                (nameof(VerifySpatialClumpAnalyzer), VerifySpatialClumpAnalyzer),
+                (nameof(VerifyCpuBusAccessAnalyzer), VerifyCpuBusAccessAnalyzer),
+                (nameof(VerifyCpuBusAccessCodeFix), VerifyCpuBusAccessCodeFix),
+                (nameof(VerifyCpuBusDeclarationAnalyzer), VerifyCpuBusDeclarationAnalyzer),
+                (nameof(VerifyPpuLayoutAccessAnalyzer), VerifyPpuLayoutAccessAnalyzer),
+                (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
+                (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
+                (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),
+                (nameof(VerifyPartialTypeAnalyzer), VerifyPartialTypeAnalyzer),
+                (nameof(VerifyNullForgivingAnalyzer), VerifyNullForgivingAnalyzer),
+                (nameof(VerifyAdapterChainAnalyzer), VerifyAdapterChainAnalyzer),
+                (nameof(VerifyOneTypePerFileAnalyzer), VerifyOneTypePerFileAnalyzer),
+                (nameof(ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers), ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers),
+                (nameof(SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer), SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer),
+                (nameof(VerifyOwnedReflectionAnalyzer), VerifyOwnedReflectionAnalyzer),
+                (nameof(VerifyParameterContracts), VerifyParameterContracts),
+                (nameof(VerifyCartridgeEncodingAnalyzer), VerifyCartridgeEncodingAnalyzer),
+                (nameof(VerifyEnsureCallsAndCodeFix), VerifyEnsureCallsAndCodeFix),
+                (nameof(VerifyWordReadAnalyzer), VerifyWordReadAnalyzer),
+                (nameof(VerifyPaletteFxDependencyContract), VerifyPaletteFxDependencyContract),
+            ];
+            var failed = new List<string>();
+            foreach ((string name, Action run) in suites)
+            {
+                try
+                {
+                    run();
+                }
+                catch (Exception exception)
+                {
+                    Console.Error.WriteLine($"FAIL {name}: {exception}");
+                    failed.Add(name);
+                }
+            }
+            if (failed.Count > 0)
+            {
+                Console.Error.WriteLine($"{failed.Count} of {suites.Length} suite(s) failed: {string.Join(", ", failed)}");
+                return 1;
+            }
             Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;
         }

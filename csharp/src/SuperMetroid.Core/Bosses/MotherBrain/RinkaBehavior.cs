@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Fx;
@@ -11,8 +13,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Rinka species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class RinkaBehavior : IEnemySpecies
+internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Rinka];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RinkaEntity(this, slot, common);
+
     /// <summary>Retained enemy dispatcher supplied by the species composition root.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Locates special Rinkas whose spawn choice was deferred during door loading.</summary>
@@ -76,9 +84,6 @@ internal sealed class RinkaBehavior : IEnemySpecies
     internal static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
         new(RinkaSpawnPoints[index], (ushort)(2 * (index + 1)));
 
-    /// <summary>Maps enemy slots to their current aim delay, velocity, and spawn ownership.</summary>
-    internal readonly RinkaEnemyState?[] _rinkaStates =
-        new RinkaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Marks which of the eleven authored spawn points are currently reserved.</summary>
     private readonly bool[] _rinkaOccupiedSpawnResources =
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
@@ -97,7 +102,6 @@ internal sealed class RinkaBehavior : IEnemySpecies
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
     internal void ResetRinkaRoomState(Position16<RoomPixels> camera)
     {
-        Array.Clear(_rinkaStates);
         Array.Clear(_rinkaOccupiedSpawnResources);
         _deferredRinkaSpawnSlots.Clear();
         _rinkaActiveCount = 0;
@@ -118,7 +122,8 @@ internal sealed class RinkaBehavior : IEnemySpecies
     private void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState(slot);
-        _rinkaStates[slot.SlotIndex] = state;
+        (slot.Entity as RinkaEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Rinka.")).State = state;
 
         // Both branches first clear the four native lifecycle/collision bits. The special
         // Mother Brain variant is always processed off-screen but never uses generic death
@@ -209,7 +214,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         {
             int slotIndex = _deferredRinkaSpawnSlots[0];
             _deferredRinkaSpawnSlots.RemoveAt(0);
-            RinkaEnemyState state = _rinkaStates[slotIndex] ?? throw new InvalidOperationException(
+            RinkaEnemyState state = (_slotTable._slots[slotIndex].Entity as RinkaEntity)?.State ?? throw new InvalidOperationException(
                 $"Deferred Rinka spawn slot {slotIndex} no longer holds a Rinka.");
             SetRinkaCamera(camera);
             ReserveSpecialRinkaSpawn(_slotTable._slots[slotIndex], state);
@@ -499,8 +504,8 @@ internal sealed class RinkaBehavior : IEnemySpecies
     private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Parameter1 != 0;
 
     /// <summary>Requires an initialized per-slot Rinka state before running its lifecycle.</summary>
-    private RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
-        _rinkaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
+        (slot.Entity as RinkaEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rinka state.");
 
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
@@ -514,39 +519,29 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Installs Rinka initialization for both ordinary and special enemy slots.</summary>
-    internal void RegisterRinkaInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Rinka's initialization AI.</summary>
+    internal void RunRinkaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Rinka, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeRinka(slot);
-        });
+        InitializeRinka(slot);
     }
 
-    /// <summary>Advances aiming, flight, viewport recycling, and the special respawn delay.</summary>
-    internal void RegisterRinkaMainAi(EnemyAiTable table)
+    /// <summary>Ports Rinka's main AI.</summary>
+    internal void RunRinkaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Rinka, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunRinkaMain(slot, RequireRinkaState(slot), frame.Samus);
-        });
+        RunRinkaMain(slot, RequireRinkaState(slot), frame.Samus);
     }
 
-    /// <summary>Runs the Rinkas' animations as typed programs (#641).</summary>
-    internal void RegisterRinkaTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireRinkaState(slot);
-            AnimationProgramCursor<RinkaProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, RinkaAnimations.Programs, ref cursor, RinkaFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyRinkaCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Rinka's typed animation.</summary>
+    internal void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireRinkaState(slot);
+        AnimationProgramCursor<RinkaProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, RinkaAnimations.Programs, ref cursor, RinkaFrameDefinitions.Spritemap,
+                (cue, _) => ApplyRinkaCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     internal void RegisterRinkaPowerBombReactions(EnemyAiTable table)
@@ -637,7 +632,8 @@ internal sealed class RinkaBehavior : IEnemySpecies
         // 64-byte target. Preserve it even for a non-respawning special Rinka so debugger
         // state remains structurally faithful after the common record disappears.
         slot.Spawn = survivingSpawnSnapshot;
-        _rinkaStates[slotIndex] = null;
+        if (_slotTable._slots[slotIndex].Entity is RinkaEntity cleared)
+            cleared.State = null;
         if (respawns)
         {
             _deathsAndDrops.InstallRespawnPlaceholder(slot);

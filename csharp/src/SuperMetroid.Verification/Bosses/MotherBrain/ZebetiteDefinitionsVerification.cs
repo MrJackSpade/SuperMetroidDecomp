@@ -97,6 +97,7 @@ internal static class ZebetiteDefinitionsVerification
                 generation);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = linkedHalf ? (ushort)2 : (ushort)0;
+            slot.Bind(EnemyDefinitionId.Zebetite, slot.Definition);
             enemies.ZebetiteBehavior.InitializeZebetite(slot);
             ZebetiteEnemyState state = enemies.ZebetiteStates[0] ??
                 throw new InvalidDataException("Zebetite initializer omitted typed state.");

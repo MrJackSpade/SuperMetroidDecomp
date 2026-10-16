@@ -71,8 +71,8 @@ internal static class RinkaInstructionProgramDefinitionsVerification
             Function = RinkaEnemyFunction.WatchForLeavingViewport,
             Program = AnimationProgramCursor<RinkaProgram>.Start(program),
         };
-        var states = (RinkaEnemyState?[])enemies.RinkaBehavior._rinkaStates;
-        states[0] = state;
+        (enemies.SlotTable.Slots[0].Entity as RinkaEntity ?? throw new InvalidOperationException(
+            "The fixture slot is not bound to a Rinka.")).State = state;
         enemies.BindFixtureBus(bus);
 
         object?[] arguments = [rinka, null, null, Position16<RoomPixels>.Zero, SnesButton.None];

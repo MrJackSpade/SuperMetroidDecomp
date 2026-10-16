@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -12,8 +13,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>The mama turtle species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MamaTurtleBehavior : IEnemySpecies
+internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MamaTurtleEntity(this, slot, common);
+
     /// <summary>Provides the live Samus address space for baby-turtle facing decisions.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
@@ -870,64 +877,57 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers parent and baby setup routines for their respective native definitions.</summary>
-    internal void RegisterMamaTurtleInitializationAi(EnemyAiTable table)
+    /// <summary>Ports MamaTurtle's initialization AI.</summary>
+    internal void RunMamaTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MamaTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMamaTurtle(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_BabyTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBabyTurtle(slot);
-        });
+        InitializeMamaTurtle(slot);
     }
 
-    /// <summary>Dispatches parent and baby lifecycle functions with the active Samus and terrain context.</summary>
-    internal void RegisterMamaTurtleMainAi(EnemyAiTable table)
+    /// <summary>Ports BabyTurtle's initialization AI.</summary>
+    internal void RunBabyTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_MamaTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMamaTurtleMain(
-                slot,
-                RequireMamaTurtleState(slot),
-                frame.Samus,
-                frame.Level,
-                nmiFrameCounter8);
-        });
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_BabyTurtle, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), frame.Samus, frame.Level);
-        });
+        InitializeBabyTurtle(slot);
     }
 
-    /// <summary>Runs the Mama Turtle's and baby turtles' animations as typed programs (#641).</summary>
-    internal void RegisterMamaTurtleTypedAnimations(EnemyAiTable table)
+    /// <summary>Ports MamaTurtle's main AI.</summary>
+    internal void RunMamaTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte nmiFrameCounter8)
     {
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            MamaTurtleEnemyState state = RequireMamaTurtleState(slot);
-            AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
-                (cue, _) => ApplyMamaTurtleCue(slot, cue));
-            state.Program = cursor;
-        });
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            BabyTurtleEnemyState state = RequireBabyTurtleState(slot);
-            AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
-                (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
-            state.Program = cursor;
-        });
+        RunMamaTurtleMain(
+            slot,
+            RequireMamaTurtleState(slot),
+            frame.Samus,
+            frame.Level,
+            nmiFrameCounter8);
+    }
+
+    /// <summary>Ports BabyTurtle's main AI.</summary>
+    internal void RunBabyTurtleMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), frame.Samus, frame.Level);
+    }
+
+    /// <summary>Advances MamaTurtle's typed animation.</summary>
+    internal void AdvanceMamaTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        MamaTurtleEnemyState state = RequireMamaTurtleState(slot);
+        AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
+            (cue, _) => ApplyMamaTurtleCue(slot, cue));
+        state.Program = cursor;
+    }
+
+    /// <summary>Advances BabyTurtle's typed animation.</summary>
+    internal void AdvanceBabyTurtleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        BabyTurtleEnemyState state = RequireBabyTurtleState(slot);
+        AnimationProgramCursor<MamaTurtleProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MamaTurtleAnimations.Programs, ref cursor, MamaTurtleFrameDefinitions.Spritemap,
+            (cue, _) => ApplyBabyTurtleCue(slot, cue, context.Samus, context.Level));
+        state.Program = cursor;
     }
 
     /// <summary>Runs the baby wake callback after common projectile damage.</summary>

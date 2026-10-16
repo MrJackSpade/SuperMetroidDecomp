@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using SuperMetroid.Core.Fx;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.PipeBugs;
 
 /// <summary>The pipe bugs species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PipeBugsBehavior : IEnemySpecies
+internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PipeBugsEntity(this, slot, common);
+
     /// <summary>Provides the consecutive physical slots used by Norfair's five-bug formation.</summary>
     private readonly EnemySlotTable _slotTable;
 
@@ -705,57 +713,43 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
     }
 
-    /// <summary>Runs the Pipe Bugs' loops as typed programs (#641).</summary>
-    internal void RegisterPipeBugTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo or EnemyDefinitionId.Gamet or EnemyDefinitionId.Geega, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequirePipeBugState(slot);
-            AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Registers initialization callbacks for Brinstar Zeb/Zebbo, Norfair Gamet, and yellow Geega.</summary>
-    internal void RegisterPipeBugsInitializationAi(EnemyAiTable table)
+    /// <summary>Advances PipeBugs's typed animation.</summary>
+    internal void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zeb_Zebbo, slot => IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeBrinstarPipeBug(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Gamet, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNorfairPipeBug(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Geega, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeYellowPipeBug(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequirePipeBugState(slot);
+        AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Routes the three pipe-bug definition families through their shared function dispatcher.</summary>
-    internal void RegisterPipeBugsMainAi(EnemyAiTable table)
+    /// <summary>Ports Zeb's initialization AI.</summary>
+    internal void RunZebInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeBrinstarPipeBug(slot);
+    }
 
-        EnemyMainAiHandler shared88 = (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPipeBugMain(
-                slot,
-                RequirePipeBugState(slot),
-                frame.Samus,
-                frame.Camera);
-        };
+    /// <summary>Ports Gamet's initialization AI.</summary>
+    internal void RunGametInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeNorfairPipeBug(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Zeb_Zebbo, slot => IsBrinstarPipeBugDefinition(slot.EnemyDefinitionPointer), shared88);
+    /// <summary>Ports Geega's initialization AI.</summary>
+    internal void RunGeegaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeYellowPipeBug(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Gamet, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Gamet, shared88);
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Geega, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geega, shared88);
+    /// <summary>Ports PipeBugs's main AI.</summary>
+    internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunPipeBugMain(
+            slot,
+            RequirePipeBugState(slot),
+            frame.Samus,
+            frame.Camera);
     }
 
     /// <inheritdoc/>

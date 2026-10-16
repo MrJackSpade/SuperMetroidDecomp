@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Evir;
 
 /// <summary>The Evir species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class EvirBehavior : IEnemySpecies
+internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new EvirEntity(this, slot, common);
+
     /// <summary>Physical body, arms, and projectile slots used by Evir's relative aliases.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Runs normal touch handling before Evir's shared combat tail.</summary>
@@ -518,53 +526,46 @@ internal sealed class EvirBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Registers distinct body/arms and projectile initialization by definition.</summary>
-    internal void RegisterEvirInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Evir's initialization AI.</summary>
+    internal void RunEvirInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Evir, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeEvir(slot, samus);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_EvirProjectile, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.EvirProjectile, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeEvirProjectile(slot);
-        });
+        InitializeEvir(slot, samus);
     }
 
-    /// <summary>Dispatches body/arms movement and spit flight through separate native routines.</summary>
-    internal void RegisterEvirMainAi(EnemyAiTable table)
+    /// <summary>Ports EvirProjectile's initialization AI.</summary>
+    internal void RunEvirProjectileInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Evir, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunEvirMain(slot, RequireEvirState(slot), frame.Samus);
-        });
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_EvirProjectile, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.EvirProjectile, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunEvirProjectileMain(
-                slot,
-                RequireEvirState(slot),
-                frame.Samus,
-                frame.Camera);
-        });
+        InitializeEvirProjectile(slot);
     }
 
-    /// <summary>Runs the Evir body's, arms' and projectile's animations as typed programs (#641).</summary>
-    internal void RegisterEvirTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.Evir or EnemyDefinitionId.EvirProjectile, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireEvirState(slot);
-            AnimationProgramCursor<EvirProgram> cursor = state.Program ??
-                throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
-            EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyEvirCue(slot, state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Ports Evir's main AI.</summary>
+    internal void RunEvirMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunEvirMain(slot, RequireEvirState(slot), frame.Samus);
+    }
+
+    /// <summary>Ports EvirProjectile's main AI.</summary>
+    internal void RunEvirProjectileMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunEvirProjectileMain(
+            slot,
+            RequireEvirState(slot),
+            frame.Samus,
+            frame.Camera);
+    }
+
+    /// <summary>Advances Evir's typed animation.</summary>
+    internal void AdvanceEvirTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireEvirState(slot);
+        AnimationProgramCursor<EvirProgram> cursor = state.Program ??
+            throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
+        EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.Spritemap,
+                (cue, _) => ApplyEvirCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Preserves power-bomb callbacks on both body and arms, including native relative aliases.</summary>
     internal void RegisterEvirPowerBombReactions(EnemyAiTable table)

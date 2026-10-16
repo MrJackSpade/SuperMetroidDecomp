@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
@@ -11,8 +14,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Zebetite species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ZebetiteBehavior : IEnemySpecies
+internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Zebetite];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZebetiteEntity(this, slot, common);
+
     /// <summary>Initializes newly spawned Zebetite slots through the common enemy dispatch path.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Supplies room artwork, cartridge data, and event services used by Zebetites.</summary>
@@ -53,10 +62,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     /// <summary>Library-three sound selected by the Zebetite shot reaction.</summary>
     private const ushort ZebetiteShotSound = 9;
 
-    /// <summary>Per-slot Zebetite state, cleared when a half dies or a new room loads.</summary>
-    internal readonly ZebetiteEnemyState?[] _zebetiteStates =
-        new ZebetiteEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-three sound requested by Zebetite shot AI.</summary>
     public ushort? LastZebetiteSoundEffect { get; private set; }
 
@@ -76,7 +81,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     internal void InitializeZebetite(RoomEnemySlot slot)
     {
         var state = new ZebetiteEnemyState(slot);
-        _zebetiteStates[slot.SlotIndex] = state;
+        (slot.Entity as ZebetiteEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Zebetite.")).State = state;
 
         // $8000 is still unnamed globally: its wider engine meaning is not proven. Keep it
         // raw while naming only the independently verified instruction-processing bit.
@@ -283,7 +289,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         int slotIndex = slot.SlotIndex;
         slot.Clear();
         slot.Spawn = survivingSpawn;
-        _zebetiteStates[slotIndex] = null;
+        if (_slotTable._slots[slotIndex].Entity is ZebetiteEntity cleared)
+            cleared.State = null;
         _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
     }
 
@@ -308,20 +315,21 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
     }
 
     /// <summary>Gets the initialized state for a Zebetite slot and rejects a missing binding.</summary>
-    private ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
-        _zebetiteStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
+        (slot.Entity as ZebetiteEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Zebetite state.");
 
-    /// <summary>Binds the Zebetites' typed health programs (#641) to the enemy instruction stage.</summary>
-    internal void RegisterZebetiteTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite,
-            (slot, context) => AdvanceZebetiteAnimation(slot));
+    /// <summary>Advances Zebetite's typed animation.</summary>
+    internal static void AdvanceZebetiteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceZebetiteAnimation(slot);
+    }
 
     /// <summary>
     /// Runs a half's health program where the enemy instruction interpreter would: its pose shows on the update the
     /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
     /// </summary>
-    internal void AdvanceZebetiteAnimation(RoomEnemySlot slot)
+    internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
         ZebetiteEnemyState state = RequireZebetiteState(slot);
         ushort oldTimer = slot.InstructionTimer.RawValue;
@@ -364,24 +372,16 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Binds the native Zebetite initialization routine to matching enemy slots.</summary>
-    internal void RegisterZebetiteInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Zebetite's initialization AI.</summary>
+    internal void RunZebetiteInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Zebetite, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeZebetite(slot);
-        });
+        InitializeZebetite(slot);
     }
 
-    /// <summary>Binds the native main routine to each initialized Zebetite state.</summary>
-    internal void RegisterZebetiteMainAi(EnemyAiTable table)
+    /// <summary>Ports Zebetite's main AI.</summary>
+    internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Zebetite, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunZebetiteMain(slot, RequireZebetiteState(slot));
-        });
+        RunZebetiteMain(slot, RequireZebetiteState(slot));
     }
 
     /// <summary>Registers shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
@@ -402,7 +402,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies
         LastZebetiteSoundEffect = null;
         PaletteChangeNumber = 0;
         CameraDistanceIndex = CameraDistanceMode.NormalTracking;
-        Array.Clear(_zebetiteStates);
     }
 
     /// <inheritdoc/>

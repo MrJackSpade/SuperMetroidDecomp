@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Shutters.Artwork;
@@ -10,18 +11,25 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Enemies.Shutters;
 
 /// <summary>The Shutters species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ShuttersBehavior : IEnemySpecies
+internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterHorizShootable, EnemyDefinitionId.ShutterShootable];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShuttersEntity(this, slot, common);
+
     /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
     private const ushort GrowingShutterSectionLength = 16;
     /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
     private const ushort GrowingShutterIntermediateInset = 7;
 
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
-    internal void InitializeGrowingShutter(RoomEnemySlot slot)
+    internal static void InitializeGrowingShutter(RoomEnemySlot slot)
     {
         var state = new GrowingShutterEnemyState(slot);
-        _growingShutterStates[slot.SlotIndex] = state;
+        (slot.Entity as ShuttersEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Shutters.")).GrowingShutterState = state;
 
         // The initializer consumes init0 and the low extra-property word as a two-bit table
         // selector before clearing the latter. Keep native dispatch ordering independent
@@ -226,10 +234,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     private const short HorizontalShutterManualPushPixels = 4;
 
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
-    internal void InitializeHorizontalShutter(RoomEnemySlot slot, SamusState? samus)
+    internal static void InitializeHorizontalShutter(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new HorizontalShutterEnemyState(slot);
-        _horizontalShutterStates[slot.SlotIndex] = state;
+        (slot.Entity as ShuttersEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Shutters.")).HorizontalShutterState = state;
 
         ushort packedSpeedAndDirection = slot.CurrentInstruction;
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
@@ -276,7 +285,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     }
 
     /// <summary>Ports <c>HorizontalShutter_Main</c> at $A2:F1DE.</summary>
-    private void RunHorizontalShutterMain(
+    private static void RunHorizontalShutterMain(
         RoomEnemySlot slot,
         HorizontalShutterEnemyState state,
         SamusState? samus,
@@ -479,7 +488,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             samus.Kinematics.Radius);
 
     /// <summary>Ports the stationary/manual ejection portion of touch AI $A2:F3D8.</summary>
-    private void TouchHorizontalShutter(
+    private static void TouchHorizontalShutter(
         RoomEnemySlot slot,
         SamusState samus,
         SnesButton controllerInput)
@@ -500,7 +509,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     }
 
     /// <summary>Ports the movement-trigger tail shared by shot and power-bomb AI $A2:F41A.</summary>
-    private void ReactHorizontalShutter(RoomEnemySlot slot)
+    private static void ReactHorizontalShutter(RoomEnemySlot slot)
     {
         HorizontalShutterEnemyState state = RequireHorizontalShutterState(slot);
         if (state.InitialFunctionTableOffset < 6)
@@ -533,12 +542,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     /// <summary>Rest-time sentinel selecting a permanent stop at an endpoint.</summary>
     private const ushort PermanentStopRestTime = 4080;
 
-    /// <summary>Per-slot growth state for room-loaded expanding shutters.</summary>
-    internal readonly GrowingShutterEnemyState?[] _growingShutterStates = new GrowingShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot movement state for shootable, destroyable, and Kamer vertical shutters.</summary>
-    internal readonly VerticalShutterEnemyState?[] _verticalShutterStates = new VerticalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Per-slot movement state for horizontal shootable shutters.</summary>
-    internal readonly HorizontalShutterEnemyState?[] _horizontalShutterStates = new HorizontalShutterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Frame camera used to admit activation sound only for on-screen shutters.</summary>
     private Position16<RoomPixels> _shutterCamera;
 
@@ -548,9 +551,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     /// <summary>Clears every shutter slot state and sound request on room change.</summary>
     internal void ResetShutterRoomState(Position16<RoomPixels> camera)
     {
-        Array.Clear(_growingShutterStates);
-        Array.Clear(_verticalShutterStates);
-        Array.Clear(_horizontalShutterStates);
         _shutterCamera = camera;
         LastShutterSoundEffect = null;
     }
@@ -627,18 +627,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies
     }
 
     /// <summary>Finds a growing shutter's room state by its physical enemy slot.</summary>
-    private GrowingShutterEnemyState RequireGrowingShutterState(RoomEnemySlot slot) =>
-        _growingShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static GrowingShutterEnemyState RequireGrowingShutterState(RoomEnemySlot slot) =>
+        (slot.Entity as ShuttersEntity)?.GrowingShutterState ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized growing-shutter state.");
 
     /// <summary>Finds a vertical shutter's room state by its physical enemy slot.</summary>
-    private VerticalShutterEnemyState RequireVerticalShutterState(RoomEnemySlot slot) =>
-        _verticalShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static VerticalShutterEnemyState RequireVerticalShutterState(RoomEnemySlot slot) =>
+        (slot.Entity as ShuttersEntity)?.VerticalShutterState ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized vertical-shutter state.");
 
     /// <summary>Finds a horizontal shutter's room state by its physical enemy slot.</summary>
-    private HorizontalShutterEnemyState RequireHorizontalShutterState(RoomEnemySlot slot) =>
-        _horizontalShutterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    private static HorizontalShutterEnemyState RequireHorizontalShutterState(RoomEnemySlot slot) =>
+        (slot.Entity as ShuttersEntity)?.HorizontalShutterState ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized horizontal-shutter state.");
 
     /// <summary>Lets bombs trigger shootable vertical shutters without ordinary damage AI.</summary>
@@ -661,92 +661,85 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Runs every shutter's pose and Kamer's platform loop as typed programs (#641).</summary>
-    internal void RegisterShuttersTypedAnimations(EnemyAiTable table)
+    /// <summary>Advances ShutterGrowing's typed animation.</summary>
+    internal static void AdvanceShutterGrowingTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            GrowingShutterEnemyState state = RequireGrowingShutterState(slot);
-            AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-        table.AddTypedAnimation(slot => IsVerticalShutterDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            VerticalShutterEnemyState state = RequireVerticalShutterState(slot);
-            AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            HorizontalShutterEnemyState state = RequireHorizontalShutterState(slot);
-            AnimationProgramCursor<ShutterProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        GrowingShutterEnemyState state = RequireGrowingShutterState(slot);
+        AnimationProgramCursor<ShutterProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Binds growing, vertical, Kamer, and horizontal shutter room-load routines.</summary>
-    internal void RegisterShuttersInitializationAi(EnemyAiTable table)
+    /// <summary>Advances ShutterShootable's typed animation.</summary>
+    internal static void AdvanceShutterShootableTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_ShutterGrowing, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeGrowingShutter(slot);
-        });
-
-        EnemyInitializationAiHandler shared24 = (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeVerticalShutter(slot);
-        };
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_ShutterShootable_ShutterDestroyable, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable, shared24);
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Kamer, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer, shared24);
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_ShutterHorizShootable, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeHorizontalShutter(slot, samus);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        VerticalShutterEnemyState state = RequireVerticalShutterState(slot);
+        AnimationProgramCursor<ShutterProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Binds each shutter family to its native per-frame state machine.</summary>
-    internal void RegisterShuttersMainAi(EnemyAiTable table)
+    /// <summary>Advances ShutterHorizShootable's typed animation.</summary>
+    internal static void AdvanceShutterHorizShootableTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        HorizontalShutterEnemyState state = RequireHorizontalShutterState(slot);
+        AnimationProgramCursor<ShutterProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.Spritemap);
+        state.Program = cursor;
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_ShutterGrowing, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterGrowing, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunGrowingShutterMain(
-                slot,
-                RequireGrowingShutterState(slot),
-                frame.Samus,
-                frame.Camera);
-        });
+    /// <summary>Ports ShutterGrowing's initialization AI.</summary>
+    internal static void RunShutterGrowingInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeGrowingShutter(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_ShutterShootable_ShutterDestroyable_Kamer, slot => IsVerticalShutterDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunVerticalShutterMain(
-                slot,
-                RequireVerticalShutterState(slot),
-                frame.Samus,
-                frame.Camera);
-        });
+    /// <summary>Ports ShutterShootable's initialization AI.</summary>
+    internal static void RunShutterShootableInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeVerticalShutter(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_ShutterHorizShootable, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunHorizontalShutterMain(
-                slot,
-                RequireHorizontalShutterState(slot),
-                frame.Samus,
-                frame.ControllerInput);
-        });
+    /// <summary>Ports ShutterHorizShootable's initialization AI.</summary>
+    internal static void RunShutterHorizShootableInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    {
+        InitializeHorizontalShutter(slot, samus);
+    }
+
+    /// <summary>Ports ShutterGrowing's main AI.</summary>
+    internal void RunShutterGrowingMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunGrowingShutterMain(
+            slot,
+            RequireGrowingShutterState(slot),
+            frame.Samus,
+            frame.Camera);
+    }
+
+    /// <summary>Ports ShutterShootable's main AI.</summary>
+    internal void RunShutterShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunVerticalShutterMain(
+            slot,
+            RequireVerticalShutterState(slot),
+            frame.Samus,
+            frame.Camera);
+    }
+
+    /// <summary>Ports ShutterHorizShootable's main AI.</summary>
+    internal static void RunShutterHorizShootableMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunHorizontalShutterMain(
+            slot,
+            RequireHorizontalShutterState(slot),
+            frame.Samus,
+            frame.ControllerInput);
     }
 
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
@@ -820,7 +813,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies
             });
     }
     /// <summary>Ports $A2:EE05/$A2:EE12 and their shared tail at $A2:EE1F.</summary>
-    internal void InitializeVerticalShutter(RoomEnemySlot slot)
+    internal static void InitializeVerticalShutter(RoomEnemySlot slot)
     {
         if (!IsVerticalShutterDefinition(slot.EnemyDefinitionPointer))
         {
@@ -829,7 +822,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies
         }
 
         var state = new VerticalShutterEnemyState(slot);
-        _verticalShutterStates[slot.SlotIndex] = state;
+        (slot.Entity as ShuttersEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Shutters.")).VerticalShutterState = state;
 
         ushort packedSpeedAndDirection = slot.CurrentInstruction;
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);

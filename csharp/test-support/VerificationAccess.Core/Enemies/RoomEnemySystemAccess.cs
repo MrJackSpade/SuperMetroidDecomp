@@ -150,7 +150,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as RioEntity)?.State)];
 
         /// <summary>Typed state for each live or previously allocated physical enemy slot.</summary>
-        internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates => self.ZebetiteBehavior._zebetiteStates;
+        internal IReadOnlyList<ZebetiteEnemyState?> ZebetiteStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ZebetiteEntity)?.State)];
 
         /// <summary>
         /// Per-physical-slot Shaktool state. A live retail group occupies seven consecutive
@@ -249,7 +250,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as CacatacEntity)?.State)];
 
         /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
-        internal IReadOnlyList<RinkaEnemyState?> RinkaStates => self.RinkaBehavior._rinkaStates;
+        internal IReadOnlyList<RinkaEnemyState?> RinkaStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as RinkaEntity)?.State)];
 
         /// <summary>Walking Space Pirate extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
@@ -342,7 +344,8 @@ internal static class RoomEnemySystemAccess
             self.BombTorizoBehavior._torizoState is { IsGolden: false } ? self.BombTorizoBehavior._torizoState : null;
 
         /// <summary>Growing shutter extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates => self.ShuttersBehavior._growingShutterStates;
+        internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ShuttersEntity)?.GrowingShutterState)];
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
         internal IReadOnlyList<TorizoOrbDropRequest> TorizoOrbDropRequests =>

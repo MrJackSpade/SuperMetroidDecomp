@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -11,8 +12,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.KiHunters;
 
 /// <summary>The Ki-Hunter species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class KiHunterBehavior : IEnemySpecies
+internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRed, EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KiHunterEntity(this, slot, common);
+
     /// <summary>Provides the active room state used by Ki-Hunter movement.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Checks the flying and wingless body's block collisions.</summary>
@@ -885,48 +892,35 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.KiHunterAcid_Right);
     }
 
-    /// <summary>Registers separate bank-$A8 initializers for body and wing records.</summary>
-    internal void RegisterKiHunterInitializationAi(EnemyAiTable table)
+    /// <summary>Ports KihunterGreen's initialization AI.</summary>
+    internal void RunKihunterGreenInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Kihunter, slot => IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKiHunter(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_KihunterWings, slot => IsKiHunterWingDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeKiHunterWings(slot);
-        });
+        InitializeKiHunter(slot);
     }
 
-    /// <summary>Routes both body and wing main addresses through the shared per-record dispatcher.</summary>
-    internal void RegisterKiHunterMainAi(EnemyAiTable table)
+    /// <summary>Ports KihunterGreenWings's initialization AI.</summary>
+    internal void RunKihunterGreenWingsInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        EnemyMainAiHandler shared85 = (slot, frame, nmiFrameCounter8) =>
-        {
-            RunKiHunterMain(slot, RequireKiHunterState(slot), frame.Samus, frame.Level);
-        };
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Kihunter, slot => IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer), shared85);
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_KihunterWings, slot => IsKiHunterWingDefinition(slot.EnemyDefinitionPointer), shared85);
+        InitializeKiHunterWings(slot);
     }
 
-    /// <summary>Runs the Ki-Hunter body's and wings' animations as typed programs (#641).</summary>
-    internal void RegisterKiHunterTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsKiHunterBodyDefinition(slot.EnemyDefinitionPointer) || IsKiHunterWingDefinition(slot.EnemyDefinitionPointer), (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireKiHunterState(slot);
-            AnimationProgramCursor<KiHunterProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, KiHunterAnimations.Programs, ref cursor, KiHunterFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyKiHunterCue(slot, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Ports KiHunter's main AI.</summary>
+    internal void RunKiHunterMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunKiHunterMain(slot, RequireKiHunterState(slot), frame.Samus, frame.Level);
+    }
 
+    /// <summary>Advances KiHunter's typed animation.</summary>
+    internal void AdvanceKiHunterTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireKiHunterState(slot);
+        AnimationProgramCursor<KiHunterProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, KiHunterAnimations.Programs, ref cursor, KiHunterFrameDefinitions.Spritemap,
+                (cue, _) => ApplyKiHunterCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
     internal void RegisterKiHunterPowerBombReactions(EnemyAiTable table)

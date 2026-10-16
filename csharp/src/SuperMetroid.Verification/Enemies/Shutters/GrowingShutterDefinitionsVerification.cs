@@ -17,8 +17,9 @@ internal static class GrowingShutterDefinitionsVerification
         Suite(nameof(VerifyGrowingShutterFractionalSpeed), () => VerifyGrowingShutterFractionalSpeed(rom));
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGrowingShuttersRomByte(rom, address), CompiledGrowingShuttersRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();
-        Action<RoomEnemySlot> initialize = enemies.ShuttersBehavior.InitializeGrowingShutter;
+        Action<RoomEnemySlot> initialize = ShuttersBehavior.InitializeGrowingShutter;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.ShutterGrowing, slot.Definition);
         for (ushort selector = 0; selector < 4; selector++)
         {
             for (int high = 0; high < 256; high++)

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
@@ -43,7 +41,7 @@ public sealed class SuperMetroidSaveRam
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
 
-    /// <summary>Provides bounded byte and word access to the native SRAM image.</summary>
+    /// <summary>Provides bounded byte access to the native SRAM image.</summary>
     private SramBytes Image => new(bus, SaveRamLayout.Image);
 
     /// <summary>Installs map metadata after restoring a codec that did not serialize its catalog.</summary>
@@ -55,119 +53,17 @@ public sealed class SuperMetroidSaveRam
     /// </summary>
     public bool IsSlotValid(int slot)
     {
-        int slotOffset = GetSlotOffset(slot);
-        ushort checksum = CalculateChecksum(slotOffset);
-        ushort complement = unchecked((ushort)~checksum);
-        bool primaryValid =
-            ReadSramWord(SaveRamLayout.PrimaryChecksumOffset + slot * 2) == checksum &&
-            ReadSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2) == complement;
-        bool backupValid =
-            ReadSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2) == checksum &&
-            ReadSramWord(SaveRamLayout.BackupComplementOffset + slot * 2) == complement;
-        return primaryValid || backupValid;
+        SaveRamCodec.ValidateSlot(slot);
+        return SaveRamCodec.IsSlotValid(ReadImage(), slot);
     }
 
     /// <summary>Returns a decoded slot only when either redundant checksum pair is valid.</summary>
     public SuperMetroidSaveSlot? ReadSlot(int slot)
     {
-        if (!IsSlotValid(slot))
-            return null;
-        int slotOffset = GetSlotOffset(slot);
-
-        return new SuperMetroidSaveSlot(
-            Slot: slot,
-            EquippedItems: ReadSramWord(slotOffset + SaveRamLayout.EquippedItemsOffset),
-            CollectedItems: ReadSramWord(slotOffset + SaveRamLayout.CollectedItemsOffset),
-            EquippedBeams: ReadSramWord(slotOffset + SaveRamLayout.EquippedBeamsOffset),
-            CollectedBeams: ReadSramWord(slotOffset + SaveRamLayout.CollectedBeamsOffset),
-            ReserveMode: ReadSramWord(slotOffset + SaveRamLayout.ReserveModeOffset),
-            Health: ReadSramWord(slotOffset + SaveRamLayout.HealthOffset),
-            MaxHealth: ReadSramWord(slotOffset + SaveRamLayout.MaxHealthOffset),
-            Missiles: ReadSramWord(slotOffset + SaveRamLayout.MissilesOffset),
-            MaxMissiles: ReadSramWord(slotOffset + SaveRamLayout.MaxMissilesOffset),
-            SuperMissiles: ReadSramWord(slotOffset + SaveRamLayout.SuperMissilesOffset),
-            MaxSuperMissiles: ReadSramWord(slotOffset + SaveRamLayout.MaxSuperMissilesOffset),
-            PowerBombs: ReadSramWord(slotOffset + SaveRamLayout.PowerBombsOffset),
-            MaxPowerBombs: ReadSramWord(slotOffset + SaveRamLayout.MaxPowerBombsOffset),
-            HudItem: ReadSramWord(slotOffset + SaveRamLayout.HudItemOffset),
-            MaxReserveEnergy: ReadSramWord(slotOffset + SaveRamLayout.MaxReserveEnergyOffset),
-            ReserveEnergy: ReadSramWord(slotOffset + SaveRamLayout.ReserveEnergyOffset),
-            GameTimeFrames: ReadSramWord(slotOffset + SaveRamLayout.GameTimeFramesOffset),
-            GameTimeSeconds: ReadSramWord(slotOffset + SaveRamLayout.GameTimeSecondsOffset),
-            GameTimeMinutes: ReadSramWord(slotOffset + SaveRamLayout.GameTimeMinutesOffset),
-            GameTimeHours: ReadSramWord(slotOffset + SaveRamLayout.GameTimeHoursOffset),
-            EventBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.EventsOffset,
-                Bank80SystemState.EventByteCount),
-            BossBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.BossBitsOffset,
-                Bank80SystemState.AreaCount),
-            RoomChozoBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.RoomChozoBitsOffset,
-                Bank80SystemState.RoomChozoBitByteCount),
-            CollectedItemBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.CollectedItemBitsOffset,
-                Bank80SystemState.ItemBitByteCount),
-            OpenedDoorBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.OpenedDoorBitsOffset,
-                Bank80SystemState.DoorBitByteCount),
-            UsedSaveStationBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.UsedSaveStationsOffset,
-                Bank80SystemState.UsedSaveStationByteCount),
-            MapStationBytes: ReadSramBytes(
-                slotOffset + SaveRamLayout.MapStationsOffset,
-                Bank80SystemState.MapStationByteCount),
-            ExploredMapBytes: UnpackExploredMap(ReadSramBytes(
-                slotOffset + SaveRamLayout.CompressedMapDataOffset,
-                SaveRamLayout.CompressedMapDataByteCount)),
-            LoadingGameState: ReadSramWord(
-                slotOffset + SaveRamLayout.LoadingGameStateOffset),
-            SaveStation: ReadSramWord(slotOffset + SaveRamLayout.SaveStationOffset),
-            Area: ReadSramWord(slotOffset + SaveRamLayout.AreaOffset))
-        {
-            ControllerBindings = ReadControllerBindings(slotOffset).RequireRetailPermutation(),
-            MoonwalkEnabled = ReadSramWord(slotOffset + SaveRamLayout.MoonwalkOffset) != 0,
-            DebugFlag = ReadSramWord(slotOffset + SaveRamLayout.DebugFlagOffset),
-            NewFileMarker = ReadSramWord(slotOffset + SaveRamLayout.NewFileMarkerOffset),
-            IconCancelEnabled = ReadSramWord(slotOffset + SaveRamLayout.IconCancelOffset) != 0,
-            ReserveMissiles = ReadSramWord(slotOffset + SaveRamLayout.ReserveMissilesOffset),
-            JapaneseText = ReadSramWord(slotOffset + SaveRamLayout.JapaneseTextOffset) != 0,
-            LoadedItemCount = ReadSramWord(slotOffset + SaveRamLayout.LoadedItemCountOffset),
-        };
+        SaveRamCodec.ValidateSlot(slot);
+        byte[] image = ReadImage();
+        return SaveRamCodec.IsSlotValid(image, slot) ? SaveRamCodec.DecodeSlot(image, slot, mapPresentation) : null;
     }
-
-    /// <summary>
-    /// A slot's seven configurable bindings. They follow the four immutable D-pad words and are laid out by WRAM
-    /// address rather than by the options-screen row order: cancel precedes select and aim-down precedes aim-up.
-    /// The words are taken unchecked so <see cref="ControllerBindings.RequireRetailPermutation"/> reports a corrupt
-    /// permutation verbatim.
-    /// </summary>
-    [ControllerWordBoundary("SRAM stores each binding as its controller word")]
-    private ControllerBindings ReadControllerBindings(int slotOffset) => new(
-        Shoot: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.ShootButtonOffset),
-        Jump: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.JumpButtonOffset),
-        Dash: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.DashButtonOffset),
-        ItemSelect: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.SelectButtonOffset),
-        ItemCancel: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.CancelButtonOffset),
-        AimUp: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.AimUpButtonOffset),
-        AimDown: (SnesButton)ReadSramWord(slotOffset + SaveRamLayout.AimDownButtonOffset));
-
-    /// <summary>The eleven controller words a slot stores: the four D-pad directions, then the bindings in WRAM order.</summary>
-    [ControllerWordBoundary("SRAM stores the button configuration as controller words")]
-    private static ushort[] ButtonConfigurationWords(ControllerBindings bindings) =>
-    [
-        (ushort)SnesButton.Up,
-        (ushort)SnesButton.Down,
-        (ushort)SnesButton.Left,
-        (ushort)SnesButton.Right,
-        (ushort)bindings.Shoot,
-        (ushort)bindings.Jump,
-        (ushort)bindings.Dash,
-        (ushort)bindings.ItemCancel,
-        (ushort)bindings.ItemSelect,
-        (ushort)bindings.AimDown,
-        (ushort)bindings.AimUp,
-    ];
 
     /// <summary>
     /// Ports <c>SaveToSRAM</c> for the translated state currently owned by C# objects.
@@ -176,118 +72,15 @@ public sealed class SuperMetroidSaveRam
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
     {
         Ensure.NotNull(snapshot);
-        int slotOffset = GetSlotOffset(slot);
-        byte[] payload = new byte[SlotByteCount];
-
-        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems);
-        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems);
-        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams);
-        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams);
-
-        // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
-        // Later saves copy the live configurable action words, so do not silently restore
-        // defaults every time the player reaches a save station.
-        ControllerBindings bindings = snapshot.ControllerBindings.RequireRetailPermutation();
-        ushort[] buttons = ButtonConfigurationWords(bindings);
-        for (int index = 0; index < buttons.Length; index++)
-            WriteWord(payload, SaveRamLayout.ButtonConfigOffset + index * 2, buttons[index]);
-
-        WriteWord(payload, SaveRamLayout.ReserveModeOffset, snapshot.ReserveMode);
-        WriteWord(payload, SaveRamLayout.HealthOffset, snapshot.Health);
-        WriteWord(payload, SaveRamLayout.MaxHealthOffset, snapshot.MaxHealth);
-        WriteWord(payload, SaveRamLayout.MissilesOffset, snapshot.Missiles);
-        WriteWord(payload, SaveRamLayout.MaxMissilesOffset, snapshot.MaxMissiles);
-        WriteWord(payload, SaveRamLayout.SuperMissilesOffset, snapshot.SuperMissiles);
-        WriteWord(payload, SaveRamLayout.MaxSuperMissilesOffset, snapshot.MaxSuperMissiles);
-        WriteWord(payload, SaveRamLayout.PowerBombsOffset, snapshot.PowerBombs);
-        WriteWord(payload, SaveRamLayout.MaxPowerBombsOffset, snapshot.MaxPowerBombs);
-        WriteWord(payload, SaveRamLayout.HudItemOffset, snapshot.HudItem);
-        WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, snapshot.MaxReserveEnergy);
-        WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, snapshot.ReserveEnergy);
-        WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, snapshot.ReserveMissiles);
-        WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
-        WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, snapshot.LoadedItemCount);
-        WriteWord(payload, SaveRamLayout.GameTimeFramesOffset, snapshot.GameTimeFrames);
-        WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset, snapshot.GameTimeSeconds);
-        WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset, snapshot.GameTimeMinutes);
-        WriteWord(payload, SaveRamLayout.GameTimeHoursOffset, snapshot.GameTimeHours);
-        WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
-        WriteWord(payload, SaveRamLayout.DebugFlagOffset, snapshot.DebugFlag);
-        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset, snapshot.NewFileMarker);
-        WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
-
-        if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
-        if (snapshot.BossBytes.Length != Bank80SystemState.AreaCount)
-            throw new InvalidDataException("A save snapshot requires exactly eight area-boss bytes.");
-        snapshot.EventBytes.CopyTo(payload, SaveRamLayout.EventsOffset);
-        snapshot.BossBytes.CopyTo(payload, SaveRamLayout.BossBitsOffset);
-        if (snapshot.RoomChozoBytes.Length != Bank80SystemState.RoomChozoBitByteCount)
-        {
-            throw new InvalidDataException(
-                "A save snapshot requires exactly 64 room-Chozo bytes.");
-        }
-        snapshot.RoomChozoBytes.CopyTo(payload, SaveRamLayout.RoomChozoBitsOffset);
-        if (snapshot.CollectedItemBytes.Length != Bank80SystemState.ItemBitByteCount)
-        {
-            throw new InvalidDataException(
-                "A save snapshot requires exactly 64 collected-item bytes.");
-        }
-        snapshot.CollectedItemBytes.CopyTo(payload, SaveRamLayout.CollectedItemBitsOffset);
-        if (snapshot.OpenedDoorBytes.Length != Bank80SystemState.DoorBitByteCount)
-        {
-            throw new InvalidDataException(
-                "A save snapshot requires exactly 64 opened-door bytes.");
-        }
-        snapshot.OpenedDoorBytes.CopyTo(payload, SaveRamLayout.OpenedDoorBitsOffset);
-        if (snapshot.UsedSaveStationBytes.Length != Bank80SystemState.UsedSaveStationByteCount)
-        {
-            throw new InvalidDataException(
-                "A save snapshot requires exactly 16 used save/elevator bytes.");
-        }
-        snapshot.UsedSaveStationBytes.CopyTo(payload, SaveRamLayout.UsedSaveStationsOffset);
-        if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
-            throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
-        snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
-        WriteWord(payload, SaveRamLayout.LoadingGameStateOffset, snapshot.LoadingGameState);
-        WriteWord(payload, SaveRamLayout.SaveStationOffset, snapshot.SaveStation);
-        WriteWord(payload, SaveRamLayout.AreaOffset, snapshot.Area);
-        byte[] compressedMap = PackExploredMap(snapshot.ExploredMapBytes);
-        compressedMap.CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
-
-        for (int index = 0; index < payload.Length; index++)
-            WriteSramByte(slotOffset + index, payload[index]);
-
-        ushort checksum = CalculateChecksum(slotOffset);
-        ushort complement = unchecked((ushort)~checksum);
-        WriteSramWord(SaveRamLayout.PrimaryChecksumOffset + slot * 2, checksum);
-        WriteSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2, complement);
-        WriteSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2, checksum);
-        WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, complement);
+        SaveRamCodec.ValidateSlot(slot);
+        byte[] payload = SaveRamCodec.EncodePayload(snapshot, mapPresentation);
+        byte[] image = ReadImage();
+        SaveRamCodec.WriteSlot(image, slot, payload);
+        WriteImage(image);
     }
 
-    /// <summary>
-    /// The carry <c>DetermineNumberOfDemoSets</c> ($80:8261) returns at boot, which
-    /// <c>MainGameLoop</c> then preserves (<see cref="Bank80SystemState.MainGameLoopCarry"/>).
-    /// When all three slots fail <c>LoadFromSRAM</c>, its final carry-set return survives the
-    /// corrupt-marker loop. Otherwise the completion-marker words are compared from the last
-    /// down: a full match leaves the final comparison's carry set, and the first mismatch
-    /// leaves the unsigned comparison of that SRAM word against the marker word.
-    /// </summary>
-    public bool DetermineBootMainLoopCarry()
-    {
-        if (!IsSlotValid(0) && !IsSlotValid(1) && !IsSlotValid(2))
-            return true;
-        ReadOnlySpan<byte> marker = SaveRamLayout.CompletionMarker;
-        for (int offset = marker.Length - 2; offset >= 0; offset -= 2)
-        {
-            ushort sram = ReadSramWord(SaveRamLayout.CompletionMarkerOffset + offset);
-            ushort text = (ushort)(SnesLittleEndian.Word(marker[offset], marker[offset + 1]));
-            if (sram != text)
-                return sram >= text;
-        }
-        return true;
-    }
+    /// <summary>The carry <c>DetermineNumberOfDemoSets</c> ($80:8261) returns at boot (<see cref="SaveRamCodec"/>).</summary>
+    public bool DetermineBootMainLoopCarry() => SaveRamCodec.DetermineBootMainLoopCarry(ReadImage());
 
     /// <summary>
     /// Boot's <c>DetermineNumberOfDemoSets</c> ($80:8261), called once from $80:8564. When all
@@ -299,34 +92,33 @@ public sealed class SuperMetroidSaveRam
     /// <returns>The attract-demo set count fixed for the session.</returns>
     public int DetermineNumberOfDemoSets()
     {
-        if (!IsSlotValid(0) && !IsSlotValid(1) && !IsSlotValid(2))
+        byte[] image = ReadImage();
+        if (!SaveRamCodec.IsSlotValid(image, 0) && !SaveRamCodec.IsSlotValid(image, 1) && !SaveRamCodec.IsSlotValid(image, 2))
         {
-            ReadOnlySpan<byte> corrupt = SaveRamLayout.CorruptSramMarker;
-            for (int index = 0; index < corrupt.Length; index++)
-                WriteSramByte(SaveRamLayout.CompletionMarkerOffset + index, corrupt[index]);
+            SaveRamCodec.WriteMarker(image, SaveRamLayout.CorruptSramMarker);
+            WriteImage(image);
             return DemoSetUnlockRomData.DefaultSetCount;
         }
-        return HasCompletedGame ? DemoSetUnlockRomData.SetCount : DemoSetUnlockRomData.DefaultSetCount;
+        return SaveRamCodec.HasCompletedGame(image) ? DemoSetUnlockRomData.SetCount : DemoSetUnlockRomData.DefaultSetCount;
     }
 
     /// <summary>True for the native completed-game signature, independent of slot checksums.</summary>
-    public bool HasCompletedGame => ReadSramBytes(SaveRamLayout.CompletionMarkerOffset,
-        SaveRamLayout.CompletionMarker.Length).SequenceEqual(SaveRamLayout.CompletionMarker);
+    public bool HasCompletedGame => SaveRamCodec.HasCompletedGame(ReadImage());
 
     /// <summary>Encodes named completion state without retaining arbitrary signature bytes.</summary>
     public void SetGameCompleted(bool completed)
     {
-        for (int index = 0; index < SaveRamLayout.CompletionMarker.Length; index++)
-            WriteSramByte(SaveRamLayout.CompletionMarkerOffset + index,
-                completed ? SaveRamLayout.CompletionMarker[index] : (byte)0);
+        byte[] image = ReadImage();
+        SaveRamCodec.WriteCompletion(image, completed);
+        WriteImage(image);
     }
 
     /// <summary>Stores the menu's selected-slot word and complement at $1FEC/$1FEE.</summary>
     public void SelectSlot(int slot)
     {
-        ValidateSlot(slot);
-        WriteSramWord(SelectedSlotOffset, unchecked((ushort)slot));
-        WriteSramWord(SelectedSlotOffset + 2, unchecked((ushort)~slot));
+        byte[] image = ReadImage();
+        SaveRamCodec.WriteSelectedSlot(image, slot);
+        WriteImage(image);
     }
 
     /// <summary>
@@ -335,8 +127,8 @@ public sealed class SuperMetroidSaveRam
     /// </summary>
     public void CopySlot(int sourceSlot, int destinationSlot)
     {
-        int sourceOffset = GetSlotOffset(sourceSlot);
-        int destinationOffset = GetSlotOffset(destinationSlot);
+        SaveRamCodec.ValidateSlot(sourceSlot);
+        SaveRamCodec.ValidateSlot(destinationSlot);
         if (sourceSlot == destinationSlot)
             throw new ArgumentException("File copy requires two different SRAM slots.");
         if (ReadSlot(sourceSlot) is null)
@@ -344,12 +136,15 @@ public sealed class SuperMetroidSaveRam
 
         // Do not decode and re-encode here. The native menu copies all $65C bytes,
         // including untranslated/reserved fields which a domain snapshot cannot preserve.
-        for (int index = 0; index < SlotByteCount; index++)
-            WriteSramByte(destinationOffset + index, ReadSramByte(sourceOffset + index));
-        CopyDirectoryWord(SaveRamLayout.PrimaryChecksumOffset, sourceSlot, destinationSlot);
-        CopyDirectoryWord(SaveRamLayout.PrimaryComplementOffset, sourceSlot, destinationSlot);
-        CopyDirectoryWord(SaveRamLayout.BackupChecksumOffset, sourceSlot, destinationSlot);
-        CopyDirectoryWord(SaveRamLayout.BackupComplementOffset, sourceSlot, destinationSlot);
+        byte[] image = ReadImage();
+        image.AsSpan(SaveRamLayout.SlotOffset(sourceSlot), SlotByteCount)
+            .CopyTo(image.AsSpan(SaveRamLayout.SlotOffset(destinationSlot), SlotByteCount));
+        foreach (int directory in (ReadOnlySpan<int>)[SaveRamLayout.PrimaryChecksumOffset, SaveRamLayout.PrimaryComplementOffset,
+                     SaveRamLayout.BackupChecksumOffset, SaveRamLayout.BackupComplementOffset])
+        {
+            image.AsSpan(directory + sourceSlot * 2, 2).CopyTo(image.AsSpan(directory + destinationSlot * 2, 2));
+        }
+        WriteImage(image);
     }
 
     /// <summary>
@@ -358,142 +153,31 @@ public sealed class SuperMetroidSaveRam
     /// </summary>
     public void ClearSlot(int slot)
     {
-        int slotOffset = GetSlotOffset(slot);
-        for (int index = 0; index < SlotByteCount; index++)
-            WriteSramByte(slotOffset + index, 0);
-        WriteSramWord(SaveRamLayout.PrimaryChecksumOffset + slot * 2, 0);
-        WriteSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2, 0);
-        WriteSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2, 0);
-        WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, 0);
+        SaveRamCodec.ValidateSlot(slot);
+        byte[] image = ReadImage();
+        image.AsSpan(SaveRamLayout.SlotOffset(slot), SlotByteCount).Clear();
+        SaveRamCodec.WriteDirectory(image, slot, 0, 0);
+        WriteImage(image);
     }
 
-    /// <summary>
-    /// Reads the persistent menu selection with the cartridge's validity rule
-    /// (<c>$81:9B0C-9B24</c>, <c>$81:9ED8-9EF0</c>): the stored word must be a signed
-    /// 0-2 and share no bits with its complement word; otherwise slot A is selected.
-    /// The complement need not be the exact inverse, so imported noncanonical SRAM keeps
-    /// the slot the cartridge would preselect.
-    /// </summary>
-    public int ReadSelectedSlot()
+    /// <summary>Reads the persistent menu selection with the cartridge's validity rule (<see cref="SaveRamCodec"/>).</summary>
+    public int ReadSelectedSlot() => SaveRamCodec.ReadSelectedSlot(ReadImage());
+
+    /// <summary>Copies the whole SRAM image out, in address order.</summary>
+    private byte[] ReadImage()
     {
-        ushort slot = ReadSramWord(SelectedSlotOffset);
-        ushort complement = ReadSramWord(SelectedSlotOffset + 2);
-        // Unsigned "slot < SlotCount" also rejects the negative words the BMI excludes.
-        return slot < SlotCount && (slot & complement) == 0 ? slot : 0;
+        SramBytes sram = Image;
+        var image = new byte[sram.Length];
+        for (int index = 0; index < image.Length; index++)
+            image[index] = sram.Read(index);
+        return image;
     }
 
-    /// <summary>Sums the slot's native little-endian words with 16-bit wraparound.</summary>
-    private ushort CalculateChecksum(int slotOffset)
+    /// <summary>Writes <paramref name="image"/> over the whole SRAM window, in address order.</summary>
+    private void WriteImage(ReadOnlySpan<byte> image)
     {
-        ushort checksum = 0;
-        for (int offset = 0; offset < SlotByteCount; offset += 2)
-            checksum = unchecked((ushort)(checksum + ReadSramWord(slotOffset + offset)));
-        return checksum;
-    }
-
-    /// <summary>Copies one checksum or complement entry between slots in an SRAM directory.</summary>
-    private void CopyDirectoryWord(int directoryOffset, int sourceSlot, int destinationSlot) =>
-        WriteSramWord(
-            directoryOffset + destinationSlot * 2,
-            ReadSramWord(directoryOffset + sourceSlot * 2));
-
-    /// <summary>Validates a file-select slot and locates its native SRAM payload.</summary>
-    private static int GetSlotOffset(int slot)
-    {
-        ValidateSlot(slot);
-        return SaveRamLayout.SlotOffset(slot);
-    }
-
-    /// <summary>Rejects slot numbers outside the cartridge's A, B, and C directories.</summary>
-    private static void ValidateSlot(int slot)
-    {
-        if ((uint)slot >= SlotCount)
-            throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
-    }
-
-    /// <summary>Reads one byte at an offset in the bounded SRAM image.</summary>
-    private byte ReadSramByte(int offset) => Image.Read(offset);
-
-    /// <summary>Reads one little-endian word at an offset in the bounded SRAM image.</summary>
-    private ushort ReadSramWord(int offset) => Image.ReadWord(offset);
-
-    /// <summary>Copies a contiguous SRAM field into a detached byte array.</summary>
-    private byte[] ReadSramBytes(int offset, int count)
-    {
-        var bytes = new byte[count];
-        for (int index = 0; index < count; index++)
-            bytes[index] = ReadSramByte(offset + index);
-        return bytes;
-    }
-
-    /// <summary>Writes one byte at an offset in the bounded SRAM image.</summary>
-    private void WriteSramByte(int offset, byte value) => Image.Write(offset, value);
-
-    /// <summary>Writes one little-endian word at an offset in the bounded SRAM image.</summary>
-    private void WriteSramWord(int offset, ushort value) => Image.WriteWord(offset, value);
-
-    /// <summary>Packs each area's occupied explored-map bytes into the cartridge's fixed SRAM field.</summary>
-    private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
-    {
-        int expectedByteCount =
-            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea;
-        if (exploredMap.Length != expectedByteCount)
-        {
-            throw new InvalidDataException(
-                $"A save snapshot requires exactly {expectedByteCount} unpacked explored-map bytes.");
-        }
-
-        var compressed = new byte[SaveRamLayout.CompressedMapDataByteCount];
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
-        {
-            ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area, mapPresentation ??
-                    throw new InvalidOperationException("Save-map packing requires bound immutable stock map rules."));
-            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
-            for (int index = 0; index < areaByteIndexes.Count; index++)
-            {
-                int compressedIndex = definition.DestinationOffset + index;
-                if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
-                int areaByteIndex = areaByteIndexes[index];
-                compressed[compressedIndex] = exploredMap[
-                    area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex];
-            }
-        }
-        return compressed;
-    }
-
-    /// <summary>Expands the packed SRAM map field into area-major explored-map bytes using stock map rules.</summary>
-    private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
-    {
-        if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
-            throw new ArgumentException("Compressed map payload must contain exactly $500 bytes.", nameof(compressed));
-
-        var explored = new byte[
-            Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
-        {
-            ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area, mapPresentation ??
-                    throw new InvalidOperationException("Save-map packing requires bound immutable stock map rules."));
-            ExploredMapPackingDefinitions.OccupiedByteIndexes areaByteIndexes = definition.AreaByteIndexes;
-            for (int index = 0; index < areaByteIndexes.Count; index++)
-            {
-                int compressedIndex = definition.DestinationOffset + index;
-                if ((uint)compressedIndex >= compressed.Length)
-                    throw new InvalidDataException("Compiled packed-map table escapes the $500-byte SRAM field.");
-                int areaByteIndex = areaByteIndexes[index];
-                explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex] =
-                    compressed[compressedIndex];
-            }
-        }
-        return explored;
-    }
-
-    /// <summary>Encodes a native word into a detached slot buffer in SNES byte order.</summary>
-    private static void WriteWord(Span<byte> destination, int offset, ushort value)
-    {
-        destination[offset] = unchecked((byte)value);
-        destination[offset + 1] = SnesLittleEndian.HighByte(value);
+        SramBytes sram = Image;
+        for (int index = 0; index < image.Length; index++)
+            sram.Write(index, image[index]);
     }
 }

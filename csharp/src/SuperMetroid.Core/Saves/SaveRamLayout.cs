@@ -14,8 +14,11 @@ public static class SaveRamLayout
     /// directories, three slot payloads, the completion marker and the selected-slot word. Every
     /// offset in this catalog is relative to its first byte.
     /// </summary>
-    public static readonly CpuBusCell Image = CpuBusCell.SramBytes(nameof(Image), 0x700000, 0x2000,
+    public static readonly CpuBusCell Image = CpuBusCell.SramBytes(nameof(Image), 0x700000, ImageByteCount,
         "native SRAM image (u8[], little-endian words)");
+
+    /// <summary>The byte length of the complete SRAM image: 8 KiB.</summary>
+    public const int ImageByteCount = 0x2000;
 
     /// <summary>The number of independently checksummed save payloads in the retail SRAM image.</summary>
     public const int SlotCount = 3;

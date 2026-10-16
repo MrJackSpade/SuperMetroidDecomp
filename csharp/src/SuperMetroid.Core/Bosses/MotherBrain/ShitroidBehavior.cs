@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Corpses;
@@ -14,8 +16,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ShitroidBehavior : IEnemySpecies
+internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShitroidEntity(this, slot, common);
+
     /// <summary>Provides scratch WRAM, room scroll words, RNG, and installed encounter colors.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Locates the physical slot-one Sidehopper victim beside Shitroid's slot zero.</summary>
@@ -234,7 +242,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
                 return;
 
             case ShitroidAiFunction.ActivateSidehopperCorpse:
-                _deadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot), state);
+                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot), state);
                 state.Function = ShitroidAiFunction.RiseAfterFeeding;
                 state.StateTimer = NativeCountdown.Start(192);
                 goto case ShitroidAiFunction.RiseAfterFeeding;
@@ -848,30 +856,23 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.Slots[0]));
     }
 
-    /// <summary>Registers the slot-zero Baby Metroid initialization routine.</summary>
-    internal void RegisterShitroidInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Shitroid's initialization AI.</summary>
+    internal void RunShitroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort cameraX)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_BabyMetroid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeShitroid(slot, cameraX);
-        });
+        InitializeShitroid(slot, cameraX);
     }
 
-    /// <summary>Dispatches cutscene AI with current Samus, camera, and shared projectile context.</summary>
-    internal void RegisterShitroidMainAi(EnemyAiTable table)
+    /// <summary>Ports Shitroid's main AI.</summary>
+    internal void RunShitroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_BabyMetroid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunShitroidMain(slot, frame.Samus, frame.Camera, frame.SharedProjectiles);
-        });
+        RunShitroidMain(slot, frame.Samus, frame.Camera, frame.SharedProjectiles);
     }
 
-    /// <summary>Binds the Shitroid's typed program (#641) to the enemy instruction stage.</summary>
-    internal void RegisterShitroidTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid,
-            (slot, context) => AdvanceShitroidAnimation(slot));
+    /// <summary>Advances Shitroid's typed animation.</summary>
+    internal void AdvanceShitroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceShitroidAnimation(slot);
+    }
 
     /// <summary>
     /// Runs the Shitroid's program where the enemy instruction interpreter would: the frame expires on the update its

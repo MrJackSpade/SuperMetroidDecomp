@@ -282,7 +282,7 @@ internal static class LookupStream1Verification
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
-            PowampEnemyState slotState = enemies.PowampBehavior.RequirePowampState(slot);
+            PowampEnemyState slotState = PowampBehavior.RequirePowampState(slot);
             slotState.Program = AnimationProgramCursor<PowampProgram>.Start(root switch
             {
                 0xc163 => PowampProgram.BodyFast,
@@ -290,7 +290,7 @@ internal static class LookupStream1Verification
                 0xc183 => PowampProgram.BalloonInflate0,
                 _ => PowampProgram.BalloonStartSinking,
             });
-            var pair = new PowampBalloon(balloon, enemies.PowampBehavior.RequirePowampState(balloon));
+            var pair = new PowampBalloon(balloon, PowampBehavior.RequirePowampState(balloon));
             slot.InstructionTimer = NativeCountdown.Start(1);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             int calls = 0;
@@ -350,7 +350,7 @@ internal static class LookupStream1Verification
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
             slot.InstructionTimer = NativeCountdown.Start(1);
-            enemies.MetroidBehavior._metroidStates[0] = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
+            (enemies.SlotTable.Slots[0].Entity as MetroidEntity ?? throw new InvalidOperationException("The fixture slot is not bound to a Metroid.")).State = new MetroidEnemyState(slot, new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
                 Program = AnimationProgramCursor<MetroidProgram>.Start(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
             };

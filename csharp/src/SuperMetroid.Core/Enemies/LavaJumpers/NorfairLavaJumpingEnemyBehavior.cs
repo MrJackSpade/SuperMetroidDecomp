@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -6,8 +9,14 @@ using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
 namespace SuperMetroid.Core.Enemies.LavaJumpers;
 
 /// <summary>The Norfair lava-jumping enemy species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
+internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Squeept];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NorfairLavaJumpingEnemyEntity(this, slot, common);
+
     /// <summary>Supplies one random word per parent and follower AI frame.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Provides the preceding physical enemy record for follower WRAM aliases.</summary>
@@ -25,17 +34,12 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
     /// <summary>Unsigned rising-velocity threshold that switches to the visible jump list.</summary>
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = unchecked((ushort)-1024);
 
-    /// <summary>Per-slot parent or follower state cleared on each room load.</summary>
-    internal readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
-        new NorfairLavaJumpingEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
     public ushort? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
     /// <summary>Discards prior room state and its pending jump sound.</summary>
     internal void ResetNorfairLavaJumpingEnemyRoomState()
     {
-        Array.Clear(_norfairLavaJumpingEnemyStates);
         LastNorfairLavaJumpingEnemySoundEffect = null;
     }
 
@@ -47,7 +51,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
             AnimationFinished = false,
             InstalledProgram = null,
         };
-        _norfairLavaJumpingEnemyStates[slot.SlotIndex] = state;
+        (slot.Entity as NorfairLavaJumpingEnemyEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a NorfairLavaJumpingEnemy.")).State = state;
 
         if (state.IsFollower)
         {
@@ -232,44 +237,35 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
     }
 
     /// <summary>Returns the state initialized for this physical enemy slot.</summary>
-    private NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
-        _norfairLavaJumpingEnemyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
+        (slot.Entity as NorfairLavaJumpingEnemyEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair lava-jumping state.");
 
-    /// <summary>Registers Squeept's guarded parent and follower initialization routine.</summary>
-    internal void RegisterNorfairLavaJumpingEnemyInitializationAi(EnemyAiTable table)
+    /// <summary>Ports NorfairLavaJumpingEnemy's initialization AI.</summary>
+    internal void RunNorfairLavaJumpingEnemyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Squeept, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNorfairLavaJumpingEnemy(slot);
-        });
+        InitializeNorfairLavaJumpingEnemy(slot);
     }
 
-    /// <summary>Registers Squeept's guarded jump and follower frame routine.</summary>
-    internal void RegisterNorfairLavaJumpingEnemyMainAi(EnemyAiTable table)
+    /// <summary>Ports NorfairLavaJumpingEnemy's main AI.</summary>
+    internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Squeept, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunNorfairLavaJumpingEnemyMain(
-                slot,
-                RequireNorfairLavaJumpingEnemyState(slot));
-        });
+        RunNorfairLavaJumpingEnemyMain(
+            slot,
+            RequireNorfairLavaJumpingEnemyState(slot));
     }
 
-    /// <summary>Runs the lava jumper's animations as typed programs (#641); the jump's finishing cue goes back to main AI.</summary>
-    internal void RegisterNorfairLavaJumpingEnemyTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Squeept, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireNorfairLavaJumpingEnemyState(slot);
-            AnimationProgramCursor<NorfairLavaJumperProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, NorfairLavaJumperAnimations.Programs, ref cursor, NorfairLavaJumperFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyNorfairLavaJumperCue(state, cue));
-            state.Program = cursor;
-        });
+    /// <summary>Advances NorfairLavaJumpingEnemy's typed animation.</summary>
+    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireNorfairLavaJumpingEnemyState(slot);
+        AnimationProgramCursor<NorfairLavaJumperProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, NorfairLavaJumperAnimations.Programs, ref cursor, NorfairLavaJumperFrameDefinitions.Spritemap,
+                (cue, _) => ApplyNorfairLavaJumperCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

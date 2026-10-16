@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Dragon;
 
 /// <summary>The Dragon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class DragonBehavior : IEnemySpecies
+internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Dragon];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DragonEntity(this, slot, common);
+
     /// <summary>Allocates Dragon's three-shot fireball volleys from the room projectile pool.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Resolves the cosmetic wing in the physical enemy slot following its body.</summary>
@@ -29,7 +37,7 @@ internal sealed class DragonBehavior : IEnemySpecies
     }
 
     /// <summary>Carries out Dragon's animation cue: the attack body marks its animation complete for main AI.</summary>
-    private DragonProgram? ApplyDragonCue(RoomEnemySlot slot, DragonCue cue)
+    private static DragonProgram? ApplyDragonCue(RoomEnemySlot slot, DragonCue cue)
     {
         switch (cue.Kind)
         {
@@ -56,8 +64,6 @@ internal sealed class DragonBehavior : IEnemySpecies
     private readonly ushort[] _dragonInstalledInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Per-slot callback flags signaling completion of Dragon's attack animation.</summary>
     private readonly ushort[] _dragonAnimationFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
-    /// <summary>Body and wing state indexed by their native physical enemy slots.</summary>
-    internal readonly DragonEnemyState?[] _dragonStates = new DragonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Clears per-slot animation requests, completion flags and species state on room load.</summary>
     internal void ResetDragonRoomState()
@@ -65,7 +71,6 @@ internal sealed class DragonBehavior : IEnemySpecies
         Array.Clear(_dragonRequestedInstructionLists);
         Array.Clear(_dragonInstalledInstructionLists);
         Array.Clear(_dragonAnimationFinishedFlags);
-        Array.Clear(_dragonStates);
     }
 
     /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
@@ -239,7 +244,7 @@ internal sealed class DragonBehavior : IEnemySpecies
     }
 
     /// <summary>Ports instruction opcode $A2:E5FB.</summary>
-    private void FinishDragonAttackAnimation(RoomEnemySlot body)
+    private static void FinishDragonAttackAnimation(RoomEnemySlot body)
     {
         DragonEnemyState state = RequireDragonState(body);
         if (state.IsWing)
@@ -319,13 +324,14 @@ internal sealed class DragonBehavior : IEnemySpecies
             _dragonRequestedInstructionLists,
             _dragonInstalledInstructionLists,
             _dragonAnimationFinishedFlags);
-        _dragonStates[slot.SlotIndex] = state;
+        (slot.Entity as DragonEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Dragon.")).State = state;
         return state;
     }
 
     /// <summary>Rejects a Dragon callback that arrives before its physical slot has initialized state.</summary>
-    private DragonEnemyState RequireDragonState(RoomEnemySlot slot) =>
-        _dragonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static DragonEnemyState RequireDragonState(RoomEnemySlot slot) =>
+        (slot.Entity as DragonEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Dragon state.");
 
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot callback.</summary>
@@ -347,39 +353,29 @@ internal sealed class DragonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.DragonFireball);
     }
 
-    /// <summary>Registers body and wing initialization for Dragon definition slots.</summary>
-    internal void RegisterDragonInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Dragon's initialization AI.</summary>
+    internal void RunDragonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Dragon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeDragon(slot);
-        });
+        InitializeDragon(slot);
     }
 
-    /// <summary>Dispatches Dragon's wait, rise, attack, and sink phases through the species state.</summary>
-    internal void RegisterDragonMainAi(EnemyAiTable table)
+    /// <summary>Ports Dragon's main AI.</summary>
+    internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Dragon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunDragonMain(slot, RequireDragonState(slot), frame.Samus);
-        });
+        RunDragonMain(slot, RequireDragonState(slot), frame.Samus);
     }
 
-    /// <summary>Runs Dragon's body and wing animations as typed programs (#641).</summary>
-    internal void RegisterDragonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireDragonState(slot);
-            AnimationProgramCursor<DragonProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, DragonAnimations.Programs, ref cursor, DragonFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyDragonCue(slot, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Dragon's typed animation.</summary>
+    internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireDragonState(slot);
+        AnimationProgramCursor<DragonProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, DragonAnimations.Programs, ref cursor, DragonFrameDefinitions.Spritemap,
+                (cue, _) => ApplyDragonCue(slot, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal void RegisterDragonPowerBombReactions(EnemyAiTable table)

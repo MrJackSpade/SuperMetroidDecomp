@@ -100,7 +100,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Companion/corpse state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadSidehopperEnemyState?> DeadSidehoppers =>
-            self.DeadSidehopperBehavior._deadSidehopperStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as DeadSidehopperEntity)?.State)];
 
         /// <summary>The loaded Dead Torizo's typed extended-WRAM state.</summary>
         internal DeadTorizoEnemyState? DeadTorizo => self.DeadTorizoBehavior._deadTorizo;
@@ -126,7 +126,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as HibashiEntity)?.State)];
 
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
-        internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => self.ElevatorBehavior._elevatorStates;
+        internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as ElevatorEntity)?.State)];
 
         /// <summary>Kago extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<KagoEnemyState?> KagoStates =>
@@ -174,18 +175,20 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as OwtchEntity)?.State)];
 
         /// <summary>Typed state for all physical slots occupied by Fune or Namihe.</summary>
-        internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates => self.FuneNamiheBehavior._funeNamiheStates;
+        internal IReadOnlyList<FuneNamiheEnemyState?> FuneNamiheStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as FuneNamiheEntity)?.State)];
 
         /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
         internal IReadOnlyList<StokeEnemyState?> StokeStates =>
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as StokeEntity)?.State)];
 
         /// <summary>Fake Kraid extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => self.FakeKraidBehavior._fakeKraidStates;
+        internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as FakeKraidEntity)?.State)];
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
         internal IReadOnlyList<NorfairLavaJumpingEnemyState?> NorfairLavaJumpingEnemyStates =>
-            self.NorfairLavaJumpingEnemyBehavior._norfairLavaJumpingEnemyStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as NorfairLavaJumpingEnemyEntity)?.State)];
 
         /// <summary>Typed Fireflea state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<FirefleaEnemyState?> FirefleaStates =>
@@ -235,7 +238,7 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Dead Zoomer/Ripper/Skree state indexed by physical enemy slot.</summary>
         internal IReadOnlyList<DeadTourianCorpseEnemyState?> DeadTourianCorpses =>
-            self.DeadTourianBehavior._deadTourianCorpseStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as DeadTourianEntity)?.State)];
 
         /// <summary>Typed Atomic state for all 32 physical enemy slots.</summary>
         internal IReadOnlyList<AtomicEnemyState?> AtomicStates =>
@@ -250,17 +253,19 @@ internal static class RoomEnemySystemAccess
 
         /// <summary>Walking Space Pirate extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
-            self.WalkingSpacePirateBehavior._walkingSpacePirateStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WalkingSpacePirateEntity)?.State)];
 
         /// <summary>Wall Space Pirate extensions indexed by physical enemy slot.</summary>
         internal IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
-            self.WallSpacePirateBehavior._wallSpacePirateStates;
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as WallSpacePirateEntity)?.State)];
 
         /// <summary>Magdollite extensions indexed by physical enemy slot.</summary>
-        internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates => self.MagdolliteBehavior._magdolliteStates;
+        internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MagdolliteEntity)?.State)];
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
-        internal IReadOnlyList<MetroidEnemyState?> MetroidStates => self.MetroidBehavior._metroidStates;
+        internal IReadOnlyList<MetroidEnemyState?> MetroidStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as MetroidEntity)?.State)];
 
         /// <summary>Baby Metroid actor state during the Mother Brain encounter.</summary>
         internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior._shitroid;
@@ -280,7 +285,8 @@ internal static class RoomEnemySystemAccess
             [.. self.SlotTable.Slots.Select(slot => (slot.Entity as AlcoonEntity)?.State)];
 
         /// <summary>Typed Dragon state by physical enemy slot, including cosmetic wing slots.</summary>
-        internal IReadOnlyList<DragonEnemyState?> DragonStates => self.DragonBehavior._dragonStates;
+        internal IReadOnlyList<DragonEnemyState?> DragonStates =>
+            [.. self.SlotTable.Slots.Select(slot => (slot.Entity as DragonEntity)?.State)];
 
         /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
         internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader._graphicsSet;

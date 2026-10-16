@@ -62,13 +62,12 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
     {
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureBus(bus);
-        var states = (LowerNorfairRioEnemyState?[])enemies.LowerNorfairRioBehavior._lowerNorfairRioStates;
 
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
         parent.Bind(parent.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
-        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), states[0]?.Program,
+        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Idle), (enemies.SlotTable.Slots[0].Entity as LowerNorfairRioEntity)?.State?.Program,
             "Lower Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -76,7 +75,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         follower.Bind(follower.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         follower.Parameter1 = 0x8000;
         enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
-        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), states[1]?.Program,
+        AssertEqual(AnimationProgramCursor<LowerNorfairRioProgram>.Start(LowerNorfairRioProgram.Flames), (enemies.SlotTable.Slots[1].Entity as LowerNorfairRioEntity)?.State?.Program,
             "Lower Norfair Rio follower initializer selects flames");
     }
 
@@ -92,7 +91,7 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new LowerNorfairRioEnemyState(slot) { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
-        ((LowerNorfairRioEnemyState?[])enemies.LowerNorfairRioBehavior._lowerNorfairRioStates)[0] = state;
+        (slot.Entity as LowerNorfairRioEntity ?? throw new InvalidOperationException("The fixture slot is not bound to the species.")).State = state;
         return (enemies, slot, state);
     }
 

@@ -27,8 +27,8 @@ internal static class PowampDeathSequenceVerification
         runtime.LoadCartridgeRoomForDebug(0xd0b9);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
-            !((PowampEnemyState)runtime.Enemies.PowampBehavior.RequirePowampState(slot)).IsBalloon);
-        var state = (PowampEnemyState)runtime.Enemies.PowampBehavior.RequirePowampState(body);
+            !((PowampEnemyState)PowampBehavior.RequirePowampState(slot)).IsBalloon);
+        var state = (PowampEnemyState)PowampBehavior.RequirePowampState(body);
 
         body.Health = 0;
         state.Function = PowampEnemyFunction.DeathSequence;

@@ -123,6 +123,7 @@ internal static class EnemyRomTablePointersVerification
             system.BindFixtureBus(guarded);
             system.Presentation._cgram = new SnesCgram();
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Parameter1 = parameter };
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             system.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(
                 AnimationProgramCursor<TourianEntranceStatueProgram>.Start(TourianEntranceStatueAnimationDefinitions.InitialProgram(parameter)),

@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -12,8 +14,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead Torizo species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class DeadTorizoBehavior : IEnemySpecies
+internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseTorizo];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadTorizoEntity(this, slot, common);
+
     /// <summary>Supplies corpse scratch WRAM, installed tiles, and the shared random seed.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Supplies the enemy-frame counter used to cadence rotting sounds.</summary>
@@ -426,33 +434,24 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies
             c => TriggerDeadTorizoRotting(c.Enemy));
     }
 
-    /// <summary>Runs Dead Torizo's stationary corpse pose as a typed program (#641).</summary>
-    internal void RegisterDeadTorizoTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref _deadTorizoProgram, DeadTorizoFrameDefinitions.Spritemap);
-        });
-
-    /// <summary>Associates the corpse definition with slot-zero rotting setup.</summary>
-    internal void RegisterDeadTorizoInitializationAi(EnemyAiTable table)
+    /// <summary>Advances DeadTorizo's typed animation.</summary>
+    internal void AdvanceDeadTorizoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CorpseTorizo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeDeadTorizo(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref _deadTorizoProgram, DeadTorizoFrameDefinitions.Spritemap);
     }
 
-    /// <summary>Advances touch detection, rotting, and corpse DMA each enemy frame.</summary>
-    internal void RegisterDeadTorizoMainAi(EnemyAiTable table)
+    /// <summary>Ports DeadTorizo's initialization AI.</summary>
+    internal void RunDeadTorizoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeDeadTorizo(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_CorpseTorizo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseTorizo, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunDeadTorizoMain(slot, frame.Samus);
-        });
+    /// <summary>Ports DeadTorizo's main AI.</summary>
+    internal void RunDeadTorizoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunDeadTorizoMain(slot, frame.Samus);
     }
 
     /// <summary>Starts corpse rotting on a power bomb without common damage handling.</summary>

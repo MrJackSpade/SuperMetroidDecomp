@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
@@ -8,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Magdollite;
 
 /// <summary>The Magdollite species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MagdolliteBehavior : IEnemySpecies
+internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Magdollite];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MagdolliteEntity(this, slot, common);
+
     /// <summary>Supplies the room artwork used by the shared palette hook.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the lava shots emitted by the overlay's instruction list.</summary>
@@ -34,9 +42,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
-    /// <summary>Typed state indexed by the three physical enemy records of each composite.</summary>
-    internal readonly MagdolliteEnemyState?[] _magdolliteStates =
-        new MagdolliteEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
     internal NativeCountdown _magdollitePaletteAnimationTimer;
     /// <summary>Frame cursor masked into the four-frame palette cycle.</summary>
@@ -52,7 +57,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
     /// <summary>Clears room-lifetime state before a new enemy population is initialized.</summary>
     internal void ResetMagdolliteRoomState()
     {
-        Array.Clear(_magdolliteStates);
         LastMagdolliteSoundEffect = null;
         LastMagdolliteLavaDropRequest = null;
         _magdollitePaletteAnimationInstalled = false;
@@ -78,7 +82,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
 
         var state = new MagdolliteEnemyState(slot, (MagdollitePart)slot.Parameter1);
-        _magdolliteStates[slot.SlotIndex] = state;
+        (slot.Entity as MagdolliteEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Magdollite.")).State = state;
 
         switch (state.Part)
         {
@@ -532,8 +537,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a physical enemy slot that has no Magdollite state for the current room.</summary>
-    private MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
-        _magdolliteStates[slot.SlotIndex] ?? throw new InvalidDataException(
+    internal static MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
+        (slot.Entity as MagdolliteEntity)?.State ?? throw new InvalidDataException(
             $"Magdollite slot {slot.SlotIndex} has no typed state.");
 
     /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
@@ -759,39 +764,29 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         }
     }
 
-    /// <summary>Binds the bank-$A8 initialization address to the three-part species initializer.</summary>
-    internal void RegisterMagdolliteInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Magdollite's initialization AI.</summary>
+    internal void RunMagdolliteInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Magdollite, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMagdollite(slot, samus);
-        });
+        InitializeMagdollite(slot, samus);
     }
 
-    /// <summary>Binds the bank-$A8 main address to the per-component function dispatch.</summary>
-    internal void RegisterMagdolliteMainAi(EnemyAiTable table)
+    /// <summary>Ports Magdollite's main AI.</summary>
+    internal void RunMagdolliteMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Magdollite, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMagdolliteMain(slot, RequireMagdolliteState(slot), frame.Samus);
-        });
+        RunMagdolliteMain(slot, RequireMagdolliteState(slot), frame.Samus);
     }
 
-    /// <summary>Runs the Magdollite head's, body's and overlay's animations as typed programs (#641).</summary>
-    internal void RegisterMagdolliteTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMagdolliteState(slot);
-            AnimationProgramCursor<MagdolliteProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MagdolliteAnimations.Programs, ref cursor, MagdolliteFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Magdollite's typed animation.</summary>
+    internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMagdolliteState(slot);
+        AnimationProgramCursor<MagdolliteProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MagdolliteAnimations.Programs, ref cursor, MagdolliteFrameDefinitions.Spritemap,
+                (cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
+        state.Program = cursor;
+    }
 
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
     internal void RegisterMagdollitePowerBombReactions(EnemyAiTable table)

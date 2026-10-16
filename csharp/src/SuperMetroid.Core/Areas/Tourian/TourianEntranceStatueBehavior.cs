@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Areas.Tourian.Artwork;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,8 +10,14 @@ using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
+internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.TourianStatue];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, slot, common);
+
     /// <summary>Provides installed statue colors and room-owned state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the three fixed statue decoration actors in native reverse-slot order.</summary>
@@ -133,26 +142,21 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess, EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor);
     }
 
-    /// <summary>Runs the statue records' animations as typed programs (#641).</summary>
-    internal void RegisterTourianEntranceStatueTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _statuePrograms[slot.SlotIndex] ??
-                throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
-            EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.Spritemap);
-            _statuePrograms[slot.SlotIndex] = cursor;
-        });
-
-    /// <summary>Registers statue initialization only for the Tourian entrance enemy definition.</summary>
-    internal void RegisterTourianEntranceStatueInitializationAi(EnemyAiTable table)
+    /// <summary>Advances TourianEntranceStatue's typed animation.</summary>
+    internal void AdvanceTourianEntranceStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<TourianEntranceStatueProgram> cursor = _statuePrograms[slot.SlotIndex] ??
+            throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
+        EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.Spritemap);
+        _statuePrograms[slot.SlotIndex] = cursor;
+    }
 
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_TourianStatue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeTourianEntranceStatue(slot);
-        });
+    /// <summary>Ports TourianEntranceStatue's initialization AI.</summary>
+    internal void RunTourianEntranceStatueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeTourianEntranceStatue(slot);
     }
 
     /// <inheritdoc/>
@@ -167,14 +171,11 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     {
     }
 
-
-    /// <summary>Registers the native do-nothing main AI while statue animation remains instruction driven.</summary>
-    internal static void RegisterTourianStatueMainAi(EnemyAiTable table)
+    /// <summary>Ports TourianEntranceStatue's main AI.</summary>
+    internal static void RunTourianEntranceStatueMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
     {
-        table.RegisterMain(EnemyAiRoutine.MainAI_TourianStatue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, frame, nmiFrameCounter8) =>
-        {
-            // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
-            // three enemy records animate exclusively through their ROM lists.
-        });
+        // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
+        // three enemy records animate exclusively through their ROM lists.
     }
+
 }

@@ -99,7 +99,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
             VariantIndex = program.Namihe ? (ushort)1 : (ushort)0,
             Program = AnimationProgramCursor<FuneNamiheProgram>.Start(program.Entry),
         };
-        ((FuneNamiheEnemyState?[])enemies.FuneNamiheBehavior._funeNamiheStates)[0] = state;
+        (enemies.SlotTable.Slots[0].Entity as FuneNamiheEntity ?? throw new InvalidOperationException("The fixture slot is not bound to the species.")).State = state;
         enemies.BindFixtureBus(bus);
 
         object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -10,8 +11,14 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The walking space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
+internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldWalking, EnemyDefinitionId.PirateGreenWalking, EnemyDefinitionId.PirateGreyWalking, EnemyDefinitionId.PirateMagentaWalking, EnemyDefinitionId.PirateRedWalking, EnemyDefinitionId.PirateSilverWalking];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new WalkingSpacePirateEntity(this, slot, common);
+
     /// <summary>Supplies solid-ground and ledge probes for the patrol AI.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the shared Pirate/Mother Brain laser projectile.</summary>
@@ -71,10 +78,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     /// <summary>Fast laser's native whole-pixel movement per frame.</summary>
     private const int WalkingPirateFastLaserPixelsPerFrame = 4;
 
-    /// <summary>Physical-slot state shared by six palette/health tiers; definition identity still controls damage, drops, and artwork.</summary>
-    internal readonly WalkingSpacePirateEnemyState?[] _walkingSpacePirateStates =
-        new WalkingSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>
     /// Last library-two sound requested by the shared Pirate/Mother-Brain laser initializer
     /// or a Space Pirate instruction during this frame.
@@ -91,10 +94,11 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
         EnemyDefinitionId.PirateSilverWalking;
 
     /// <summary>Ports <c>InitAI_PirateWalking</c> at <c>$B2:FD02</c>.</summary>
-    internal void InitializeWalkingSpacePirate(RoomEnemySlot slot)
+    internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
         var state = new WalkingSpacePirateEnemyState(slot);
-        _walkingSpacePirateStates[slot.SlotIndex] = state;
+        (slot.Entity as WalkingSpacePirateEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a WalkingSpacePirate.")).State = state;
 
         // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
         // independent projectile-flinch option and must not accidentally select right art.
@@ -450,9 +454,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>Requires the physical slot to have been initialized as a walking pirate.</summary>
-    private WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
+    internal static WalkingSpacePirateEnemyState RequireWalkingSpacePirateState(
         RoomEnemySlot slot) =>
-        _walkingSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+        (slot.Entity as WalkingSpacePirateEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized walking Space Pirate state.");
 
     /// <summary>Registers laser movement and the opcode that immediately runs its installed pre-instruction.</summary>
@@ -485,49 +489,38 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies
             });
     }
 
-    /// <summary>Dispatches the shared initialization routine for all six walking variants.</summary>
-    internal void RegisterWalkingSpacePirateInitializationAi(EnemyAiTable table)
+    /// <summary>Ports WalkingSpacePirate's initialization AI.</summary>
+    internal static void RunWalkingSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_PirateWalking, slot => IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeWalkingSpacePirate(slot);
-        });
+        InitializeWalkingSpacePirate(slot);
     }
 
-    /// <summary>Dispatches the patrol/attack AI using the initialized physical-slot state.</summary>
-    internal void RegisterWalkingSpacePirateMainAi(EnemyAiTable table)
+    /// <summary>Ports WalkingSpacePirate's main AI.</summary>
+    internal void RunWalkingSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_PirateWalking, slot => IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunWalkingSpacePirateMain(
-                slot,
-                RequireWalkingSpacePirateState(slot),
-                frame.Samus,
-                frame.Level,
-                frame.SamusProjectiles);
-        });
+        RunWalkingSpacePirateMain(
+            slot,
+            RequireWalkingSpacePirateState(slot),
+            frame.Samus,
+            frame.Level,
+            frame.SamusProjectiles);
     }
 
-    /// <summary>Runs the walking Space Pirates' animations as typed programs (#641).</summary>
-    internal void RegisterWalkingSpacePirateTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsWalkingSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireWalkingSpacePirateState(slot);
-            AnimationProgramCursor<WalkingSpacePirateProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, WalkingSpacePirateAnimations.Programs, ref cursor, WalkingSpacePirateFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyWalkingSpacePirateCue(slot, cue, context.Samus));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances WalkingSpacePirate's typed animation.</summary>
+    internal void AdvanceWalkingSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireWalkingSpacePirateState(slot);
+        AnimationProgramCursor<WalkingSpacePirateProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, WalkingSpacePirateAnimations.Programs, ref cursor, WalkingSpacePirateFrameDefinitions.Spritemap,
+                (cue, _) => ApplyWalkingSpacePirateCue(slot, cue, context.Samus));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_walkingSpacePirateStates);
     }
 
     /// <inheritdoc/>

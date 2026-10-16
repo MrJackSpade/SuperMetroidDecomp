@@ -227,6 +227,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Parameter1 = parameter;
+            slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
             enemy.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
         }
 

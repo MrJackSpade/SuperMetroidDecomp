@@ -112,7 +112,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
-            enemies.WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
+            WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);
             var samus = new SamusState
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),

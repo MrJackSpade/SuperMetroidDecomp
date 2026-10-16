@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -11,8 +12,14 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Enemies.Elevator;
 
 /// <summary>The Elevator species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ElevatorBehavior : IEnemySpecies
+internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Elevator];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ElevatorEntity(this, slot, common);
+
     /// <summary>Provides the active room bus used when departure sets up Samus's elevator pose.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues the separate library-one and library-three departure sounds.</summary>
@@ -31,10 +38,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
 
     /// <summary>Native elevator travel advances one and a half pixels per enemy update.</summary>
     private const int ElevatorSpeedFixed = 98304;
-
-    /// <summary>Per-slot resting height and direction retained while a room's elevator runs.</summary>
-    internal readonly ElevatorEnemyState?[] _elevatorStates =
-        new ElevatorEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>WRAM $0E16. Collision with an elevator pseudo-door publishes value one.</summary>
     public ushort ElevatorFlags { get; private set; }
@@ -132,7 +135,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         // Do not clear flags/status/direction here. Unlike actor-private state, these words
         // intentionally survive destruction of the source room and initialization of the
         // destination room. Elevator_Init itself clears stale values unless status is two.
-        Array.Clear(_elevatorStates);
         _arrivalPlacementSlot = null;
         ElevatorDoorTransitionActive = false;
         BeginElevatorFrame();
@@ -149,15 +151,16 @@ internal sealed class ElevatorBehavior : IEnemySpecies
     }
 
     /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
-    private ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
-        _elevatorStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
+        (slot.Entity as ElevatorEntity)?.State ?? throw new InvalidOperationException(
             $"Elevator slot {slot.SlotIndex} was not initialized.");
 
     /// <summary>Ports <c>Elevator_Init</c> at $A3:94E6.</summary>
     internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
     {
         var state = new ElevatorEnemyState(slot);
-        _elevatorStates[slot.SlotIndex] = state;
+        (slot.Entity as ElevatorEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Elevator.")).State = state;
 
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -332,41 +335,32 @@ internal sealed class ElevatorBehavior : IEnemySpecies
         samus.Kinematics.YSubspeed = 0;
     }
 
-    /// <summary>Runs the elevator's two-frame loop as a typed program (#641).</summary>
-    internal void RegisterElevatorTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireElevatorState(slot);
-            AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-    /// <summary>Connects the elevator definition to its native room-load initializer.</summary>
-    internal void RegisterElevatorInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Elevator's typed animation.</summary>
+    internal static void AdvanceElevatorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Elevator, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeElevator(slot, samus);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireElevatorState(slot);
+        AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Advances the active elevator through input wait, departure, and return-to-rest states.</summary>
-    internal void RegisterElevatorMainAi(EnemyAiTable table)
+    /// <summary>Ports Elevator's initialization AI.</summary>
+    internal void RunElevatorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
     {
+        InitializeElevator(slot, samus);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_GrappleAI_FrozenAI_Elevator, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunElevatorMain(
-                slot,
-                RequireElevatorState(slot),
-                frame.Samus,
-                frame.NewlyPressedControllerInput,
-                frame.SamusProjectiles);
-        });
+    /// <summary>Ports Elevator's main AI.</summary>
+    internal void RunElevatorMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunElevatorMain(
+            slot,
+            RequireElevatorState(slot),
+            frame.Samus,
+            frame.NewlyPressedControllerInput,
+            frame.SamusProjectiles);
     }
 
     /// <inheritdoc/>

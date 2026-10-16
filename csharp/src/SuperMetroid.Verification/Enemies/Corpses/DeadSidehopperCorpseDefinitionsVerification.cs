@@ -83,6 +83,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         enemies.BindFixtureBus(NewDeadSidehopperCorpseDefinitionReadGuard(rom));
         Action<RoomEnemySlot> initialize = enemies.DeadSidehopperBehavior.InitializeDeadSidehopper;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.CorpseSidehopper, slot.Definition);
         slot.Parameter1 = parameter1;
 
         initialize(slot);

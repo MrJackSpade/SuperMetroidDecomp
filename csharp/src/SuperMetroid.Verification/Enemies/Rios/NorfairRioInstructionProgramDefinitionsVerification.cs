@@ -74,7 +74,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         parent.Bind(parent.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         enemies.NorfairRioBehavior.InitializeNorfairRio(parent);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.Idle),
-            ((NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates)[0]?.Program,
+            (enemies.SlotTable.Slots[0].Entity as NorfairRioEntity)?.State?.Program,
             "Norfair Rio parent initializer selects idle");
 
         RoomEnemySlot follower = enemies.SlotTable.Slots[1];
@@ -83,7 +83,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         follower.Parameter1 = 0x8000;
         enemies.NorfairRioBehavior.InitializeNorfairRio(follower);
         AssertEqual(AnimationProgramCursor<NorfairRioProgram>.Start(NorfairRioProgram.FlamesAscending),
-            ((NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates)[1]?.Program,
+            (enemies.SlotTable.Slots[1].Entity as NorfairRioEntity)?.State?.Program,
             "Norfair Rio follower initializer selects ascending flames");
     }
 
@@ -103,8 +103,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         slot.InstructionTimer = NativeCountdown.Start(1);
         var state = new NorfairRioEnemyState(slot) { Program = AnimationProgramCursor<NorfairRioProgram>.Start(entry) };
-        var states = (NorfairRioEnemyState?[])enemies.NorfairRioBehavior._norfairRioStates;
-        states[0] = state;
+        (slot.Entity as NorfairRioEntity ?? throw new InvalidOperationException("The fixture slot is not bound to the species.")).State = state;
         return (enemies, slot, state);
     }
 

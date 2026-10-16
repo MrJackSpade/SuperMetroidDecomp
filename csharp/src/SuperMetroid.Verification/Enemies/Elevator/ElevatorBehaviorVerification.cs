@@ -22,7 +22,7 @@ internal static class ElevatorBehaviorVerification
         slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank });
         enemies.ElevatorBehavior.InitializeElevator(slot, null);
-        AssertEqual(AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop), (enemies.ElevatorBehavior._elevatorStates[0] ?? throw new InvalidOperationException("The elevator has no state.")).Program,
+        AssertEqual(AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop), ((enemies.SlotTable.Slots[0].Entity as ElevatorEntity)?.State ?? throw new InvalidOperationException("The elevator has no state.")).Program,
             "elevator initializer animation");
         slot.InstructionTimer = NativeCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(ElevatorAnimations.Programs, ElevatorProgram.Loop, ElevatorFrameDefinitions.Spritemap),

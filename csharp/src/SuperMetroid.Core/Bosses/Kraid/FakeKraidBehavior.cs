@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>The Mini-Kraid species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class FakeKraidBehavior : IEnemySpecies
+internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MiniKraid];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new FakeKraidEntity(this, slot, common);
+
     /// <summary>Provides the existing random word sampled for Mini-Kraid's action decisions.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Checks the walk opcode's movement against room collision blocks.</summary>
@@ -69,10 +76,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
     /// <summary>Library-two cue used by Mini-Kraid's spike launch.</summary>
     private const ushort FakeKraidSpikeSound = 0x003f;
 
-    /// <summary>Per-slot movement direction, spit timer, and spawned-projectile counts.</summary>
-    internal readonly FakeKraidEnemyState?[] _fakeKraidStates =
-        new FakeKraidEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Last library-two sound requested by Fake Kraid during this enemy frame.</summary>
     public ushort? LastFakeKraidSoundEffect { get; private set; }
 
@@ -89,7 +92,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         }
 
         var state = new FakeKraidEnemyState(slot);
-        _fakeKraidStates[slot.SlotIndex] = state;
+        (slot.Entity as FakeKraidEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a FakeKraid.")).State = state;
 
         // The routine reads the already-published global random word; it does not advance
         // the RNG. Use the read callback when available and reserve NextRandom for older
@@ -328,8 +332,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
 
     /// <summary>Rejects a callback for a Mini-Kraid slot whose species state has not initialized.</summary>
-    private FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
-        _fakeKraidStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
+        (slot.Entity as FakeKraidEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
 
     /// <summary>
@@ -386,42 +390,32 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.MiniKraidSpikes);
     }
 
-    /// <summary>Initializes Mini-Kraid's facing and action state from its populated enemy slot.</summary>
-    internal void RegisterFakeKraidInitializationAi(EnemyAiTable table)
+    /// <summary>Ports FakeKraid's initialization AI.</summary>
+    internal void RunFakeKraidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MiniKraid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeFakeKraid(slot, samus);
-        });
+        InitializeFakeKraid(slot, samus);
     }
 
-    /// <summary>Runs the Mini-Kraid phase dispatcher with the current camera.</summary>
-    internal void RegisterFakeKraidMainAi(EnemyAiTable table)
+    /// <summary>Ports FakeKraid's main AI.</summary>
+    internal void RunFakeKraidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_MiniKraid, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunFakeKraidMain(
-                slot,
-                RequireFakeKraidState(slot),
-                frame.Camera);
-        });
+        RunFakeKraidMain(
+            slot,
+            RequireFakeKraidState(slot),
+            frame.Camera);
     }
 
-    /// <summary>Runs Mini-Kraid's animations as typed programs (#641).</summary>
-    internal void RegisterFakeKraidTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireFakeKraidState(slot);
-            AnimationProgramCursor<FakeKraidProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, FakeKraidAnimations.Programs, ref cursor, FakeKraidFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances FakeKraid's typed animation.</summary>
+    internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireFakeKraidState(slot);
+        AnimationProgramCursor<FakeKraidProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, FakeKraidAnimations.Programs, ref cursor, FakeKraidFrameDefinitions.Spritemap,
+                (cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
+        state.Program = cursor;
+    }
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal void RegisterFakeKraidPowerBombReactions(EnemyAiTable table)
@@ -473,7 +467,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies
     {
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
-        Array.Clear(_fakeKraidStates);
     }
 
     /// <inheritdoc/>

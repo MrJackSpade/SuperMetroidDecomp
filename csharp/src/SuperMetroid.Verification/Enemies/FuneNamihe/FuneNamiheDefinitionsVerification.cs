@@ -29,9 +29,10 @@ internal static class FuneNamiheDefinitionsVerification
             enemies.BindFixtureBus(new CartridgeReadGuard(new TestAddressSpace()).Forbid(
                     address => address is >= 0xa896d3 and < 0xa896e3,
                     address => $"Fune/Namihe attempted migrated selector read ${address:X6}."));
-            Action<RoomEnemySlot> initialize = enemies.FuneNamiheBehavior.InitializeFuneNamihe;
+            Action<RoomEnemySlot> initialize = FuneNamiheBehavior.InitializeFuneNamihe;
             Action<RoomEnemySlot, FuneNamiheEnemyState, SamusState?> runMain = FuneNamiheBehavior.RunFuneNamiheMain;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(namihe ? EnemyDefinitionId.Namihe : EnemyDefinitionId.Fune, slot.Definition);
             slot.Parameter1 = (ushort)((namihe ? 1 : 0) | (right ? 0x10 : 0));
             slot.Parameter2 = 0x1000;
             slot.Position = slot.Position.WithWholeY(0x0200);

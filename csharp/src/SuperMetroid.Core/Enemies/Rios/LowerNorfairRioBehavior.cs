@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Lower Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class LowerNorfairRioBehavior : IEnemySpecies
+internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Holtz];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new LowerNorfairRioEntity(this, slot, common);
+
     /// <summary>Supplies the shared random draw consumed before every parent and follower AI dispatch.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves wall and floor collisions during Rio dives and returns.</summary>
@@ -31,17 +38,12 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     /// <summary>Each flight update subtracts 32 units from the signed 8.8 vertical velocity.</summary>
     private const ushort LowerNorfairRioGravity = 32;
 
-    /// <summary>Per-slot flight and follower visibility state for the current room.</summary>
-    internal readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
-        new LowerNorfairRioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two return sound request produced during this frame.</summary>
     public ushort? LastLowerNorfairRioSoundEffect { get; private set; }
 
     /// <summary>Clears room-local Rio actors and their pending sound witness.</summary>
     internal void ResetLowerNorfairRioRoomState()
     {
-        Array.Clear(_lowerNorfairRioStates);
         LastLowerNorfairRioSoundEffect = null;
     }
 
@@ -53,7 +55,8 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
             AnimationSignal = false,
             FollowerVisible = false,
         };
-        _lowerNorfairRioStates[slot.SlotIndex] = state;
+        (slot.Entity as LowerNorfairRioEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a LowerNorfairRio.")).State = state;
 
         if (state.IsFollower)
         {
@@ -273,7 +276,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(
             unchecked((ushort)(state.Velocity.Y.RawValue - LowerNorfairRioGravity))));
 
-
     /// <summary>Restarts a different Rio animation list while leaving an unchanged list's timer intact.</summary>
     private static void InstallLowerNorfairRioInstructionList(
         RoomEnemySlot slot,
@@ -320,47 +322,37 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects a Holtz dispatch before species initialization populated its slot.</summary>
-    private LowerNorfairRioEnemyState RequireLowerNorfairRioState(RoomEnemySlot slot) =>
-        _lowerNorfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static LowerNorfairRioEnemyState RequireLowerNorfairRioState(RoomEnemySlot slot) =>
+        (slot.Entity as LowerNorfairRioEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Lower Norfair Rio state.");
 
-    /// <summary>Connects the Holtz definition to parent or follower initialization.</summary>
-    internal void RegisterLowerNorfairRioInitializationAi(EnemyAiTable table)
+    /// <summary>Ports LowerNorfairRio's initialization AI.</summary>
+    internal void RunLowerNorfairRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Holtz, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeLowerNorfairRio(slot);
-        });
+        InitializeLowerNorfairRio(slot);
     }
 
-    /// <summary>Runs the appropriate Holtz flight or follower function each enemy frame.</summary>
-    internal void RegisterLowerNorfairRioMainAi(EnemyAiTable table)
+    /// <summary>Ports LowerNorfairRio's main AI.</summary>
+    internal void RunLowerNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Holtz, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunLowerNorfairRioMain(
-                slot,
-                RequireLowerNorfairRioState(slot),
-                frame.Samus,
-                frame.Level);
-        });
+        RunLowerNorfairRioMain(
+            slot,
+            RequireLowerNorfairRioState(slot),
+            frame.Samus,
+            frame.Level);
     }
 
-    /// <summary>Runs the Lower Norfair Rio's and its flames' animations as typed programs (#641).</summary>
-    internal void RegisterLowerNorfairRioTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireLowerNorfairRioState(slot);
-            AnimationProgramCursor<LowerNorfairRioProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, LowerNorfairRioAnimations.Programs, ref cursor, LowerNorfairRioFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyLowerNorfairRioCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances LowerNorfairRio's typed animation.</summary>
+    internal static void AdvanceLowerNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireLowerNorfairRioState(slot);
+        AnimationProgramCursor<LowerNorfairRioProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, LowerNorfairRioAnimations.Programs, ref cursor, LowerNorfairRioFrameDefinitions.Spritemap,
+                (cue, _) => ApplyLowerNorfairRioCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

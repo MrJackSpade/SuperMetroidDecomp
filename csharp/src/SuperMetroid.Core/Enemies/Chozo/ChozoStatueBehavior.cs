@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Fx;
@@ -12,8 +13,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>The Chozo statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ChozoStatueBehavior : IEnemySpecies
+internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Chozo, EnemyDefinitionId.NoobTubeCrack];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ChozoStatueEntity(this, slot, common);
+
     /// <summary>Supplies installed palette art, room events, scroll grid and Samus-control service.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Clips walking-statue movement before the carried Samus position is written.</summary>
@@ -40,7 +47,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         _presentation = presentation;
         _roomFx = roomFx;
     }
-
 
     /// <summary>Per-slot statue phase and carry-motion state cleared on room load.</summary>
     internal readonly ChozoStatueState?[] _chozoStatueStates =
@@ -425,44 +431,35 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         level ?? throw new InvalidOperationException(
             "Chozo statue movement requires the active room level.");
 
-    /// <summary>Registers separate tube-crack palette and statue initialization entry points.</summary>
-    internal void RegisterChozoStatueInitializationAi(EnemyAiTable table)
+    /// <summary>Ports NoobTubeCrack's initialization AI.</summary>
+    internal void RunNoobTubeCrackInitializationAi(RoomEnemySlot _, RoomLevelData? _1, SamusState? _2, SnesButton _3, ushort _4)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_NoobTubeCrack, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.NoobTubeCrack, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeN00bTubeCracks();
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Chozo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeChozoStatue(slot);
-        });
+        InitializeN00bTubeCracks();
     }
 
-    /// <summary>Registers the common statue phase dispatcher for the Chozo enemy identity.</summary>
-    internal void RegisterChozoStatueMainAi(EnemyAiTable table)
+    /// <summary>Ports Chozo's initialization AI.</summary>
+    internal void RunChozoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Chozo, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunChozoStatueMain(slot, RequireChozoStatueState(slot));
-        });
+        InitializeChozoStatue(slot);
     }
 
-    /// <summary>Runs the Chozo statues' animations as typed programs (#641).</summary>
-    internal void RegisterChozoStatueTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Chozo, (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireChozoStatueState(slot);
-            AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
-            state.Program = cursor;
-        });
+    /// <summary>Ports ChozoStatue's main AI.</summary>
+    internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    {
+        RunChozoStatueMain(slot, RequireChozoStatueState(slot));
+    }
 
+    /// <summary>Advances ChozoStatue's typed animation.</summary>
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireChozoStatueState(slot);
+        AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.Spritemap,
+                (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

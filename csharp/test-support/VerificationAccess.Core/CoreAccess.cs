@@ -264,7 +264,7 @@ internal static class CoreAccess
             enemies.ChozoStatueBehavior._chozoStatueStates;
         /// <summary>Per-slot ninja pirate states for native slot-index verification.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
-            enemies.NinjaSpacePirateBehavior._ninjaSpacePirateStates;
+            [.. enemies.SlotTable.Slots.Select(slot => (slot.Entity as NinjaSpacePirateEntity)?.State)];
     }
 
     /// <summary>Reads Ceres pad and concealer positions and their projectile-slot activity.</summary>

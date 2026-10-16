@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -7,8 +9,14 @@ using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Core.Enemies.Shaktool;
 
 /// <summary>The Shaktool species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class ShaktoolBehavior : IEnemySpecies
+internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Shaktool];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShaktoolEntity(this, slot, common);
+
     /// <summary>Checks terrain collisions along each segment's orbit and attack path.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Allocates the linked Shaktool attack circles.</summary>
@@ -525,39 +533,29 @@ internal sealed class ShaktoolBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
     }
 
-    /// <summary>Routes the Shaktool definition to seven-segment initialization.</summary>
-    internal void RegisterShaktoolInitializationAi(EnemyAiTable table)
+    /// <summary>Ports Shaktool's initialization AI.</summary>
+    internal void RunShaktoolInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Shaktool, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeShaktool(slot);
-        });
+        InitializeShaktool(slot);
     }
 
-    /// <summary>Routes each segment's frame through its orbit and collision AI.</summary>
-    internal void RegisterShaktoolMainAi(EnemyAiTable table)
+    /// <summary>Ports Shaktool's main AI.</summary>
+    internal void RunShaktoolMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_Shaktool, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunShaktoolMain(slot, RequireShaktoolState(slot), frame.Level);
-        });
+        RunShaktoolMain(slot, RequireShaktoolState(slot), frame.Level);
     }
 
-    /// <summary>Runs the Shaktool segments' animations as typed programs (#641).</summary>
-    internal void RegisterShaktoolTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireShaktoolState(slot);
-            AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyShaktoolCue(slot, state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances Shaktool's typed animation.</summary>
+    internal void AdvanceShaktoolTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireShaktoolState(slot);
+        AnimationProgramCursor<ShaktoolProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, ShaktoolAnimations.Programs, ref cursor, ShaktoolFrameDefinitions.Spritemap,
+                (cue, _) => ApplyShaktoolCue(slot, state, cue));
+        state.Program = cursor;
+    }
 
     /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
     internal void RegisterShaktoolTouch(EnemyAiTable table)

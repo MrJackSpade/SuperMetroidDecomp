@@ -31,9 +31,9 @@ internal static class PowampBehaviorVerification
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PowampFrameToolingDefinitions.Bank });
         enemies.PowampBehavior.InitializePowamp(body);
-        AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BalloonDeflated), enemies.PowampBehavior.RequirePowampState(balloon).Program,
+        AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BalloonDeflated), PowampBehavior.RequirePowampState(balloon).Program,
             "the balloon starts deflated");
-        AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BodySlow), enemies.PowampBehavior.RequirePowampState(body).Program,
+        AssertEqual(AnimationProgramCursor<PowampProgram>.Start(PowampProgram.BodySlow), PowampBehavior.RequirePowampState(body).Program,
             "the body starts on its slow pulse");
 
         Dictionary<PowampProgram, ushort[]> steps = NativeEnemyProgramOracle.StepAddresses(CartridgeImportSource.Require(rom), PowampNativeListAddresses.Bank,

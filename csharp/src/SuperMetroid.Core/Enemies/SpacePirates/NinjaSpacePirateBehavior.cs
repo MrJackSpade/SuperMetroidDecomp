@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -11,8 +12,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>The ninja space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
+internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PirateGoldNinja, EnemyDefinitionId.PirateGreenNinja, EnemyDefinitionId.PirateGreyNinja, EnemyDefinitionId.PirateMagentaNinja, EnemyDefinitionId.PirateRedNinja, EnemyDefinitionId.PirateSilverNinja];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NinjaSpacePirateEntity(this, slot, common);
+
     /// <summary>Provides the shared RNG used by divekick selection and installed palette artwork.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves floor contact during divekick descent.</summary>
@@ -55,10 +62,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     /// <summary>Whole-pixel vertical step used by each spin-jump update.</summary>
     private const int NinjaPirateSpinVerticalPixels = 2;
 
-    /// <summary>Per-slot ninja state, including patrol posts and active instruction choice.</summary>
-    internal readonly NinjaSpacePirateEnemyState?[] _ninjaSpacePirateStates =
-        new NinjaSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Identifies all six ninja Space Pirate enemy definitions that share this AI.</summary>
     internal static bool IsNinjaSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyNinja or
@@ -72,7 +75,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     internal void InitializeNinjaSpacePirate(RoomEnemySlot slot)
     {
         var state = new NinjaSpacePirateEnemyState(slot);
-        _ninjaSpacePirateStates[slot.SlotIndex] = state;
+        (slot.Entity as NinjaSpacePirateEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a NinjaSpacePirate.")).State = state;
 
         bool startsAtLeft = ((NinjaSpacePirateParameterFlags)slot.Parameter1 &
             NinjaSpacePirateParameterFlags.StartsAtLeftPostFacingRight) != 0;
@@ -659,8 +663,8 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     }
 
     /// <summary>Gets the state attached to a ninja slot and rejects an uninitialized actor.</summary>
-    private NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
-        _ninjaSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
+        (slot.Entity as NinjaSpacePirateEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized ninja Space Pirate state.");
 
     /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
@@ -672,49 +676,38 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.PirateClaw_Left, EnemyProjectilePreInstruction.PirateClaw_Right);
     }
 
-    /// <summary>Registers initialization for the six ninja Space Pirate definitions.</summary>
-    internal void RegisterNinjaSpacePirateInitializationAi(EnemyAiTable table)
+    /// <summary>Ports NinjaSpacePirate's initialization AI.</summary>
+    internal void RunNinjaSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_PirateNinja, slot => IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNinjaSpacePirate(slot);
-        });
+        InitializeNinjaSpacePirate(slot);
     }
 
-    /// <summary>Registers the ninja function dispatcher for initialized actors.</summary>
-    internal void RegisterNinjaSpacePirateMainAi(EnemyAiTable table)
+    /// <summary>Ports NinjaSpacePirate's main AI.</summary>
+    internal void RunNinjaSpacePirateMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_PirateNinja, slot => IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, frame, nmiFrameCounter8) =>
-        {
-            RunNinjaSpacePirateMain(
-                slot,
-                RequireNinjaSpacePirateState(slot),
-                frame.Samus,
-                frame.Level,
-                frame.SamusProjectiles);
-        });
+        RunNinjaSpacePirateMain(
+            slot,
+            RequireNinjaSpacePirateState(slot),
+            frame.Samus,
+            frame.Level,
+            frame.SamusProjectiles);
     }
 
-    /// <summary>Runs the ninja Space Pirates' animations as typed programs (#641).</summary>
-    internal void RegisterNinjaSpacePirateTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsNinjaSpacePirateDefinition(slot.EnemyDefinitionPointer), (slot, context) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireNinjaSpacePirateState(slot);
-            AnimationProgramCursor<NinjaSpacePirateProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, NinjaSpacePirateAnimations.Programs, ref cursor, NinjaSpacePirateFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances NinjaSpacePirate's typed animation.</summary>
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireNinjaSpacePirateState(slot);
+        AnimationProgramCursor<NinjaSpacePirateProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, NinjaSpacePirateAnimations.Programs, ref cursor, NinjaSpacePirateFrameDefinitions.Spritemap,
+                (cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_ninjaSpacePirateStates);
     }
 
     /// <inheritdoc/>

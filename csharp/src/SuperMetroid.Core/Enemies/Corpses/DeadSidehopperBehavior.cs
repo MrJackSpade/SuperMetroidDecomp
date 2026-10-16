@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
@@ -11,8 +12,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>The dead sidehopper species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class DeadSidehopperBehavior : IEnemySpecies
+internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseSidehopper];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadSidehopperEntity(this, slot, common);
+
     /// <summary>Provides scratch tables, installed artwork, and the room random source for corpse decomposition.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Handles level collision after the scripted opening movement reaches the terrain boundary.</summary>
@@ -45,7 +52,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
     /// <summary>Carries out the dead Sidehopper's animation cue.</summary>
-    private DeadTourianProgram? ApplyDeadSidehopperCue(RoomEnemySlot slot, DeadTourianCue cue)
+    private static DeadTourianProgram? ApplyDeadSidehopperCue(RoomEnemySlot slot, DeadTourianCue cue)
     {
         switch (cue.Kind)
         {
@@ -58,14 +65,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         }
     }
 
-
     /// <summary>Each dead Sidehopper slot's typed animation (#641), started before its corpse state exists.</summary>
     internal readonly AnimationProgramCursor<DeadTourianProgram>[] _deadSidehopperPrograms =
         new AnimationProgramCursor<DeadTourianProgram>[RoomEnemySystem.MaximumEnemyCount];
 
-    /// <summary>Stores each room enemy slot's private hop, palette, and rotting state.</summary>
-    internal readonly DeadSidehopperEnemyState?[] _deadSidehopperStates =
-        new DeadSidehopperEnemyState?[RoomEnemySystem.MaximumEnemyCount];
     /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;
     /// <summary>Remembers the camera position for the private power-bomb AI dispatch.</summary>
@@ -74,7 +77,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     /// <summary>Discards prior room corpse state and its queued tile transfers.</summary>
     internal void ResetDeadSidehopperRoomState()
     {
-        Array.Clear(_deadSidehopperStates);
         Array.Clear(_deadSidehopperPrograms);
         _deadMonsters.Clear();
         _deadSidehopperLevel = null;
@@ -90,7 +92,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     /// <summary>Ports <c>DeadSidehopper_Init</c> at <c>$A9:D7B6</c>.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
     {
-        if (_deadSidehopperStates[slot.SlotIndex] is not null)
+        if ((slot.Entity as DeadSidehopperEntity)?.State is not null)
             throw new InvalidDataException($"Dead sidehopper slot {slot.SlotIndex} was initialized twice.");
 
         switch (slot.Parameter1)
@@ -159,7 +161,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
         var state = new DeadSidehopperEnemyState(slot, graphicsVariant, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset });
-        _deadSidehopperStates[slot.SlotIndex] = state;
+        (slot.Entity as DeadSidehopperEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a DeadSidehopper.")).State = state;
 
         CorpseRottingTableProcessor.Initialize(
             _room.Scratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
@@ -371,7 +374,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     /// palette-activation word. It is deliberately instruction-driven: replacing it with a
     /// main-AI timer would make animation length and movement cadence diverge.
     /// </summary>
-    private void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
+    private static void SelectDeadSidehopperPostAnimationState(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         state.Function = state.PaletteStage != 0
@@ -380,7 +383,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
     /// <summary>Writes Shitroid state 11's victim-owned extended word 08.</summary>
-    internal void ActivateDeadSidehopperVictim(RoomEnemySlot victim, ShitroidEnemyState state)
+    internal static void ActivateDeadSidehopperVictim(RoomEnemySlot victim, ShitroidEnemyState state)
     {
         DeadSidehopperEnemyState victimState = RequireDeadSidehopperState(victim);
         victimState.PaletteStage = 1;
@@ -388,7 +391,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
     /// <summary>Ports shot callback <c>$A9:DD1D</c>.</summary>
-    private void ResolveDeadSidehopperShot(RoomEnemySlot slot)
+    private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         if ((slot.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) != 0 ||
@@ -565,9 +568,9 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
     /// <summary>Rejects missing or mismatched private state before dispatching the slot's corpse AI.</summary>
-    private DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
+    internal static DeadSidehopperEnemyState RequireDeadSidehopperState(RoomEnemySlot slot)
     {
-        DeadSidehopperEnemyState state = _deadSidehopperStates[slot.SlotIndex] ??
+        DeadSidehopperEnemyState state = (slot.Entity as DeadSidehopperEntity)?.State ??
             throw new InvalidDataException(
                 $"Enemy slot {slot.SlotIndex} has no initialized dead-sidehopper state.");
         if (!ReferenceEquals(state.Slot, slot))
@@ -588,44 +591,35 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
     /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
-    internal void RegisterDeadSidehopperBombReactions(EnemyAiTable table)
+    internal static void RegisterDeadSidehopperBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                                            c.SelectedShotAi == EnemyInteractionCallback.DeadSidehopperShot,
             c => ResolveDeadSidehopperShot(c.Enemy));
     }
 
-    /// <summary>Registers the corpse's retail initialization routine for sidehopper slots.</summary>
-    internal void RegisterDeadSidehopperInitializationAi(EnemyAiTable table)
+    /// <summary>Ports DeadSidehopper's initialization AI.</summary>
+    internal void RunDeadSidehopperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CorpseSidehopper, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeDeadSidehopper(slot);
-        });
+        InitializeDeadSidehopper(slot);
     }
 
-    /// <summary>Runs corpse AI with the current Samus, level, and camera context.</summary>
-    internal void RegisterDeadSidehopperMainAi(EnemyAiTable table)
+    /// <summary>Ports DeadSidehopper's main AI.</summary>
+    internal void RunDeadSidehopperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_CorpseEnemies, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunDeadSidehopperMain(slot, frame.Samus, frame.Level, frame.Camera.X);
-        });
+        RunDeadSidehopperMain(slot, frame.Samus, frame.Level, frame.Camera.X);
     }
 
-    /// <summary>Runs the dead Sidehopper's animations as typed programs (#641); the landing cue goes back to main AI.</summary>
-    internal void RegisterDeadSidehopperTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            AnimationProgramCursor<DeadTourianProgram> cursor = _deadSidehopperPrograms[slot.SlotIndex];
-            EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Spritemap,
-                (cue, _) => ApplyDeadSidehopperCue(slot, cue));
-            _deadSidehopperPrograms[slot.SlotIndex] = cursor;
-        });
+    /// <summary>Advances DeadSidehopper's typed animation.</summary>
+    internal void AdvanceDeadSidehopperTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        AnimationProgramCursor<DeadTourianProgram> cursor = _deadSidehopperPrograms[slot.SlotIndex];
+        EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.Spritemap,
+            (cue, _) => ApplyDeadSidehopperCue(slot, cue));
+        _deadSidehopperPrograms[slot.SlotIndex] = cursor;
+    }
 
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>
     internal void RegisterDeadSidehopperPowerBombReactions(EnemyAiTable table)
@@ -638,7 +632,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies
     }
 
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
-    internal void RegisterDeadSidehopperShotReactions(EnemyAiTable table)
+    internal static void RegisterDeadSidehopperShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DeadSidehopperShot)

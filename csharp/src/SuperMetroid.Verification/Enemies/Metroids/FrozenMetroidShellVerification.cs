@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Metroids;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
@@ -21,6 +22,7 @@ internal static class FrozenMetroidShellVerification
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         slot.Position = slot.Position.WithWhole(new(120, 100));
+        slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         var state = enemies.MetroidStates[0];
         (state ?? throw new InvalidOperationException("Verification requires state.")).OuterBodyA.Position = state.OuterBodyA.Position.WithWholeX(500); // Isolate the shell from the electrical overlay.
@@ -42,7 +44,7 @@ internal static class FrozenMetroidShellVerification
         Require(expected.NextByteOffset > 0, "The frozen shell must contain visible sprite parts.");
         for (int frame = 0; frame < 3; frame++)
         {
-            enemies.MetroidBehavior.RunMetroidFrozen(slot);
+            MetroidBehavior.RunMetroidFrozen(slot);
             enemies.SpriteObjects.StepRoomSpriteObjects();
             Require(shell.SpritemapPointer == expectedPointer,
                 $"Frozen shell retained ${shell.SpritemapPointer:X4}, expected ${expectedPointer:X4}.");

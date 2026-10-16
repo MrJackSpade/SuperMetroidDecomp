@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
@@ -9,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>The Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class NorfairRioBehavior : IEnemySpecies
+internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Geruta];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new NorfairRioEntity(this, slot, common);
+
     /// <summary>Provides the shared RNG advanced by every parent and flame follower.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves horizontal and vertical contact during the dive and return.</summary>
@@ -31,17 +38,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
     /// <summary>Signed 8.8 vertical speed decrement applied during dive and return.</summary>
     private const ushort NorfairRioGravity = 32;
 
-    /// <summary>Per-slot Rio and flame-follower state, cleared at room load.</summary>
-    internal readonly NorfairRioEnemyState?[] _norfairRioStates =
-        new NorfairRioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
     public ushort? LastNorfairRioSoundEffect { get; private set; }
 
     /// <summary>Clears per-slot Rio state and the last dive sound when leaving a room.</summary>
     internal void ResetNorfairRioRoomState()
     {
-        Array.Clear(_norfairRioStates);
         LastNorfairRioSoundEffect = null;
     }
 
@@ -53,7 +55,8 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
             AnimationSignal = false,
             FollowerYOffset = 0,
         };
-        _norfairRioStates[slot.SlotIndex] = state;
+        (slot.Entity as NorfairRioEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a NorfairRio.")).State = state;
 
         if (state.IsFollower)
         {
@@ -329,47 +332,37 @@ internal sealed class NorfairRioBehavior : IEnemySpecies
     }
 
     /// <summary>Gets initialized AI state for a Rio slot or reports a missing binding.</summary>
-    private NorfairRioEnemyState RequireNorfairRioState(RoomEnemySlot slot) =>
-        _norfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static NorfairRioEnemyState RequireNorfairRioState(RoomEnemySlot slot) =>
+        (slot.Entity as NorfairRioEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair Rio state.");
 
-    /// <summary>Registers initialization for primary and follower Geruta records.</summary>
-    internal void RegisterNorfairRioInitializationAi(EnemyAiTable table)
+    /// <summary>Ports NorfairRio's initialization AI.</summary>
+    internal void RunNorfairRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Geruta, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeNorfairRio(slot);
-        });
+        InitializeNorfairRio(slot);
     }
 
-    /// <summary>Registers the Rio state machine and its shared-RNG update.</summary>
-    internal void RegisterNorfairRioMainAi(EnemyAiTable table)
+    /// <summary>Ports NorfairRio's main AI.</summary>
+    internal void RunNorfairRioMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Geruta, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunNorfairRioMain(
-                slot,
-                RequireNorfairRioState(slot),
-                frame.Samus,
-                frame.Level);
-        });
+        RunNorfairRioMain(
+            slot,
+            RequireNorfairRioState(slot),
+            frame.Samus,
+            frame.Level);
     }
 
-    /// <summary>Runs the Norfair Rio's and its flames' animations as typed programs (#641).</summary>
-    internal void RegisterNorfairRioTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Geruta, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireNorfairRioState(slot);
-            AnimationProgramCursor<NorfairRioProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, NorfairRioAnimations.Programs, ref cursor, NorfairRioFrameDefinitions.Spritemap,
-                    (cue, _) => ApplyNorfairRioCue(state, cue));
-            state.Program = cursor;
-        });
-
+    /// <summary>Advances NorfairRio's typed animation.</summary>
+    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireNorfairRioState(slot);
+        AnimationProgramCursor<NorfairRioProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, NorfairRioAnimations.Programs, ref cursor, NorfairRioFrameDefinitions.Spritemap,
+                (cue, _) => ApplyNorfairRioCue(state, cue));
+        state.Program = cursor;
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

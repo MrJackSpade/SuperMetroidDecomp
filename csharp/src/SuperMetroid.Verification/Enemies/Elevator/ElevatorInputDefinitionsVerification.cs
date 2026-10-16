@@ -41,6 +41,7 @@ internal static class ElevatorInputDefinitionsVerification
                     SamusProjectileSystem?> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
             slot.Parameter1 = direction;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0180));
             var samus = new SamusState();

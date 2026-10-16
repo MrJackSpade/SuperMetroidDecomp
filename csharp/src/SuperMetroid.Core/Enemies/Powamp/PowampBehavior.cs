@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
@@ -10,8 +11,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Enemies.Powamp;
 
 /// <summary>The Powamp species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PowampBehavior : IEnemySpecies
+internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Powamp];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PowampEntity(this, slot, common);
+
     /// <summary>Clips body rise and sink motion against room collision.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Spawns the eight radial spikes emitted at death.</summary>
@@ -44,15 +51,12 @@ internal sealed class PowampBehavior : IEnemySpecies
     /// <summary>Frames between successive shared body and balloon horizontal wiggle offsets.</summary>
     private const ushort PowampWiggleFramesPerOffset = 5;
 
-    /// <summary>Per-slot body or balloon state, including native paired movement words.</summary>
-    internal readonly PowampEnemyState?[] _powampStates =
-        new PowampEnemyState?[RoomEnemySystem.MaximumEnemyCount];
-
     /// <summary>Ports <c>InitAI_Powamp</c> at $A8:C1C9.</summary>
     internal void InitializePowamp(RoomEnemySlot slot)
     {
         var state = new PowampEnemyState(slot);
-        _powampStates[slot.SlotIndex] = state;
+        (slot.Entity as PowampEntity ?? throw new InvalidOperationException(
+            $"Enemy slot {slot.SlotIndex} is not bound to a Powamp.")).State = state;
 
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
@@ -496,8 +500,8 @@ internal sealed class PowampBehavior : IEnemySpecies
     }
 
     /// <summary>Requires the per-slot state installed by Powamp initialization.</summary>
-    internal PowampEnemyState RequirePowampState(RoomEnemySlot slot) =>
-        _powampStates[slot.SlotIndex] ?? throw new InvalidOperationException(
+    internal static PowampEnemyState RequirePowampState(RoomEnemySlot slot) =>
+        (slot.Entity as PowampEntity)?.State ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Powamp state.");
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
@@ -522,37 +526,27 @@ internal sealed class PowampBehavior : IEnemySpecies
         table.RegisterShotAnimation(RoomEnemyProjectileKind.PowampSpike, () => new PowampSpikeAnimation(PowampSpikeProgram.Delete));
     }
 
-    /// <summary>Runs Powamp's body and balloon animations as typed programs (#641).</summary>
-    internal void RegisterPowampTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequirePowampState(slot);
-            AnimationProgramCursor<PowampProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Registers initialization for both halves of a Powamp pair.</summary>
-    internal void RegisterPowampInitializationAi(EnemyAiTable table)
+    /// <summary>Advances Powamp's typed animation.</summary>
+    internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Powamp, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializePowamp(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequirePowampState(slot);
+        AnimationProgramCursor<PowampProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Routes Powamp main AI through its paired-body phase dispatcher.</summary>
-    internal void RegisterPowampMainAi(EnemyAiTable table)
+    /// <summary>Ports Powamp's initialization AI.</summary>
+    internal void RunPowampInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializePowamp(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Powamp, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPowampMain(slot, RequirePowampState(slot), frame.Level);
-        });
+    /// <summary>Ports Powamp's main AI.</summary>
+    internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunPowampMain(slot, RequirePowampState(slot), frame.Level);
     }
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
@@ -668,7 +662,6 @@ internal sealed class PowampBehavior : IEnemySpecies
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        Array.Clear(_powampStates);
     }
 
     /// <inheritdoc/>

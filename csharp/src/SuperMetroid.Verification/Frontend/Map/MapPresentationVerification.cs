@@ -452,7 +452,7 @@ internal static class MapPresentationVerification
         Suite(nameof(VerifyStaffCreditsAssets), () => VerifyStaffCreditsAssets(stock, Path.Combine(root, "staff-credits-overrides"), original));
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original, verifyCapturedRendering: true));
         Suite(nameof(VerifyMapLoadAnchors), () => VerifyMapLoadAnchors(bus, original));
         Suite(nameof(VerifyCompiledMapScrollControls), () => VerifyCompiledMapScrollControls(bus, original));
     }
@@ -1436,7 +1436,7 @@ internal static class MapPresentationVerification
         AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         using var withoutContent = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
         game.BindArtwork(game.Artwork with
@@ -1470,7 +1470,7 @@ internal static class MapPresentationVerification
         AssertEqual(scroll, pause.MapScroll, "pause content rebind retains map scroll");
         _ = pause.Render();
         Suite(nameof(VerifyFileSelectMapCatalog), () => VerifyFileSelectMapCatalog(original, edited));
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, original, edited));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, edited));
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 
@@ -1509,12 +1509,6 @@ internal static class MapPresentationVerification
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
 
-    /// <summary>Rejects every palette ROM read and every bus write during installed Mother Brain palette work.</summary>
-    internal static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
-        CartridgeReadGuard.Unbacked()
-            .ForbidAll(address =>
-                $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.")
-            .RejectWrites(address => $"Unexpected Mother Brain palette write ${address:X6}.");
 
     /// <summary>Guards imported map tilemaps, reveal masks, atlases, HUD art, and static or animated palette sources during live rendering.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]

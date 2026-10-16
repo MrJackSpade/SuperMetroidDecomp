@@ -29,7 +29,7 @@ internal static class FileSelectPresentationVerification
             "installed file-select JSON is the deterministic cartridge extraction");
         _ = FileSelectPresentation.Load(new MemoryStream(extracted));
 
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
         {
             Health = 45,
@@ -41,9 +41,8 @@ internal static class FileSelectPresentationVerification
 
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
-        var native = new FileSelectMenuState(bus, nativeAudio, original);
-        var installed = new FileSelectMenuState(
-            NewFileSelectPresentationGuard(bus), installedAudio, original);
+        var native = new FileSelectMenuState(saveRam, nativeAudio, original);
+        var installed = new FileSelectMenuState(saveRam, installedAudio, original);
         int comparedFrames = 0;
         Until(FileSelectPhase.Main);
         for (int row = 0; row < 3; row++) Press(SnesButton.Down);
@@ -101,10 +100,8 @@ internal static class FileSelectPresentationVerification
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "file-select override changes selected catalog identity");
 
-        var stockMenu = new FileSelectMenuState(
-            NewFileSelectPresentationGuard(bus), mapPresentation: original);
-        var editedMenu = new FileSelectMenuState(
-            NewFileSelectPresentationGuard(bus), mapPresentation: edited);
+        var stockMenu = new FileSelectMenuState(saveRam, mapPresentation: original);
+        var editedMenu = new FileSelectMenuState(saveRam, mapPresentation: edited);
         for (int frame = 0; frame < 16; frame++)
         {
             stockMenu.Step(0);
@@ -188,14 +185,6 @@ internal static class FileSelectPresentationVerification
         }
     }
 
-    /// <summary>Forbids presentation ROM reads by menu instances using installed artwork.</summary>
-    private static MutableCartridgeReadGuard NewFileSelectPresentationGuard(ISnesAddressSpace source)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(IsFileSelectPresentationAddress,
-            address => $"Installed file select read presentation ROM at ${address:X6}.");
-        return guard;
-    }
 
     /// <summary>Recognizes file-select tilemap, palette, atlas, sprite, and spritemap-pointer source ranges.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]

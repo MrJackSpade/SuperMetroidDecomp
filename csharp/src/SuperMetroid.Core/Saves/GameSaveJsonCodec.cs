@@ -11,7 +11,7 @@ using SuperMetroid.Core.Map;
 
 namespace SuperMetroid.Core.Saves;
 
-/// <summary>Strict deterministic conversion between named JSON saves and cartridge SRAM.</summary>
+/// <summary>Strict deterministic conversion between named JSON saves and the owned save store.</summary>
 public static class GameSaveJsonCodec
 {
     /// <summary>Known equipment bits accepted by the named save schema.</summary>
@@ -25,22 +25,21 @@ public static class GameSaveJsonCodec
         Enum.GetValues<BossBits>().Aggregate((left, right) => left | right);
 
     /// <summary>Captures all meaningful persistent state without a duplicate native-memory image.</summary>
-    public static GameSaveJsonDocument Capture(SuperMetroidAddressSpace addressSpace, IAreaMapSource maps)
+    public static GameSaveJsonDocument Capture(SaveSlotStore saves)
     {
-        Ensure.NotNull(addressSpace);
-        var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
-        var slots = new GameSaveSlotJsonDocument?[SuperMetroidSaveRam.SlotCount];
+        Ensure.NotNull(saves);
+        var slots = new GameSaveSlotJsonDocument?[SaveSlotStore.SlotCount];
         for (int slotIndex = 0; slotIndex < slots.Length; slotIndex++)
         {
-            SuperMetroidSaveSlot? slot = saveRam.ReadSlot(slotIndex);
+            SuperMetroidSaveSlot? slot = saves.ReadSlot(slotIndex);
             slots[slotIndex] = slot is null ? null : CaptureSlot(slot);
         }
 
         return new GameSaveJsonDocument
         {
-            SelectedSlot = saveRam.ReadSelectedSlot(),
+            SelectedSlot = saves.ReadSelectedSlot(),
             Slots = slots,
-            GameCompleted = saveRam.HasCompletedGame,
+            GameCompleted = saves.HasCompletedGame,
         };
     }
 
@@ -82,27 +81,23 @@ public static class GameSaveJsonCodec
     }
 
     /// <summary>
-    /// Rebuilds native SRAM from named persistent state, including the
-    /// cartridge checksum directories. Missing JSON slots are cleared explicitly.
+    /// Builds the save store named persistent state describes. A JSON slot that is absent is an empty slot.
     /// </summary>
-    public static void Apply(
-        GameSaveJsonDocument document,
-        SuperMetroidAddressSpace addressSpace, IAreaMapSource maps)
+    /// <param name="document">The validated named save.</param>
+    /// <param name="maps">Installed stock map rules; each slot keeps the explored bytes SRAM would.</param>
+    public static SaveSlotStore ToStore(GameSaveJsonDocument document, IAreaMapSource maps)
     {
-        Ensure.NotNull(addressSpace);
+        Ensure.NotNull(maps);
         Validate(document);
-        SaveRamImage.Clear(addressSpace);
-        var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
+        var saves = new SaveSlotStore(maps);
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {
-            GameSaveSlotJsonDocument? slot = document.Slots[slotIndex];
-            if (slot is null)
-                saveRam.ClearSlot(slotIndex);
-            else
-                saveRam.SaveSlot(slotIndex, ToSnapshot(slot));
+            if (document.Slots[slotIndex] is { } slot)
+                saves.SaveSlot(slotIndex, ToSnapshot(slot));
         }
-        saveRam.SelectSlot(document.SelectedSlot);
-        saveRam.SetGameCompleted(document.GameCompleted);
+        saves.SelectSlot(document.SelectedSlot);
+        saves.SetGameCompleted(document.GameCompleted);
+        return saves;
     }
 
     /// <summary>Projects one native save slot into named resources, flags, events, and explored map cells.</summary>
@@ -246,9 +241,9 @@ public static class GameSaveJsonCodec
                 $"schemaVersion {document.SchemaVersion} is unsupported; expected " +
                 $"{GameSaveJsonFormat.SchemaVersion}");
         }
-        if ((uint)document.SelectedSlot >= SuperMetroidSaveRam.SlotCount)
+        if ((uint)document.SelectedSlot >= SaveSlotStore.SlotCount)
             throw new InvalidDataException("selectedSlot must be 0, 1, or 2");
-        if (document.Slots is null || document.Slots.Length != SuperMetroidSaveRam.SlotCount)
+        if (document.Slots is null || document.Slots.Length != SaveSlotStore.SlotCount)
             throw new InvalidDataException("slots must contain exactly three entries");
 
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
@@ -471,7 +466,7 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException("Legacy preservedUntranslatedSram is required.");
         byte[] sram = DecodeLegacyPages(pages);
         JsonArray slots = root["slots"] as JsonArray ?? throw new InvalidDataException("slots is required");
-        if (slots.Count != SuperMetroidSaveRam.SlotCount)
+        if (slots.Count != SaveSlotStore.SlotCount)
             throw new InvalidDataException("slots must contain exactly three entries");
         for (int index = 0; index < slots.Count; index++)
         {

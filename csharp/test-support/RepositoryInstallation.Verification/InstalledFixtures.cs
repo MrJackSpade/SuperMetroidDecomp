@@ -57,13 +57,6 @@ internal static class InstalledFixtures
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
     internal static EnemyTileArtworkCatalog EnemyTiles => enemyTiles.Value;
 
-    /// <summary>A standalone enemy system bound to the installation's enemy artwork and presentation colors.</summary>
-    internal static RoomEnemySystem CreateEnemySystem()
-    {
-        var enemies = new RoomEnemySystem { TileArtwork = EnemyTiles };
-        enemies.BindMapPresentation(Maps);
-        return enemies;
-    }
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
@@ -188,11 +181,11 @@ internal static class InstalledFixtures
     /// <summary>Binds the host catalogs to a game restored from a save or debugger state.</summary>
     internal static void BindGame(SuperMetroidGame game) => gameBindings.Value(game);
 
-    /// <summary>A frontend game bound to the installation's presentation catalogs.</summary>
-    internal static SuperMetroidGame CreateGame(ISnesAddressSpace addressSpace,
+    /// <summary>A frontend game over <paramref name="saves"/>, bound to the installation's presentation catalogs.</summary>
+    internal static SuperMetroidGame CreateGame(ISnesAddressSpace addressSpace, SuperMetroid.Core.Saves.SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true)
     {
-        var game = new SuperMetroidGame(addressSpace, gameOptions, renderGameplayFrames);
+        var game = new SuperMetroidGame(addressSpace, saves, gameOptions, renderGameplayFrames);
         gameBindings.Value(game);
         return game;
     }

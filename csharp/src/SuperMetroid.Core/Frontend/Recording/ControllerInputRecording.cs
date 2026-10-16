@@ -292,7 +292,7 @@ public sealed record ControllerInputRecording
             ValidateDigest(contentIdentity.CompositeSha256, "composite");
             GameContentComponentFormat.Validate(contentIdentity.AdditionalContentSha256);
         }
-        if (InitialSaveRam.Length != Hardware.SuperMetroidAddressSpace.SaveRamByteCount)
+        if (InitialSaveRam.Length != Saves.SaveRamLayout.ImageByteCount)
         {
             throw new InvalidDataException(
                 $"A controller recording requires exactly " +

@@ -32,7 +32,7 @@ internal static class MapArrowsVerification
             AssertTrue(Draw(native).SequenceEqual(Draw(installed)), "all four extracted arrow sprites match native OAM");
             AssertTrue(Counters(native).SequenceEqual(Counters(installed)), "arrow phase/timer and visibility match native including hidden pauses");
         }
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, original, original));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapArrowDocument>(File.ReadAllBytes(Path.Combine(stock, MapArrowFormat.FileName)), options);
         var entries = new Dictionary<string, MapArrowEntry>(document.Arrows);

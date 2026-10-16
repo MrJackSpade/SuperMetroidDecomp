@@ -50,7 +50,7 @@ internal static class MapScreensVerification
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(new(scroll, scroll)).SequenceEqual(installedRoom.RenderBackgrounds(new(scroll, scroll))), "fixed room frame remains exact while map scrolls");
         }
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, original, original, verifyCapturedRendering: true));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original, verifyCapturedRendering: true));
         Directory.CreateDirectory(overrides);
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -84,7 +84,7 @@ internal static class MapScreensVerification
         worldAfter = DebuggerObjectGraphSerializer.Deserialize<FileSelectAreaMapGraphics>(captured);
         worldAfter.BindScreens(original.Screens, original.WorldArtwork);
         AssertTrue(worldBefore.RenderBackgrounds().SequenceEqual(worldAfter.RenderBackgrounds()), "restored world replaces stale edited page without changing selected area");
-        Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(bus, original, edited));
+        Suite(nameof(VerifyScreenMenuRebinding), () => VerifyScreenMenuRebinding(original, edited));
         // Test each PNG independently: a combined edit must not mask a disconnected resource.
         File.WriteAllBytes(jsonPath, File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)));
         foreach (var atlas in new[]
@@ -148,9 +148,9 @@ internal static class MapScreensVerification
     }
 
     /// <summary>Runs file-select transition and load phases with edited screens, then restores and rebinds the menu to stock art.</summary>
-    private static void VerifyScreenMenuRebinding(ISnesAddressSpace bus, AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
+    private static void VerifyScreenMenuRebinding(AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
     {
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var data = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         data.MapStationBytes[(int)AreaId.Maridia] = 1;
         data.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;

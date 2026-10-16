@@ -25,7 +25,7 @@ public sealed class FileSelectMenuState
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
-    private readonly SuperMetroidSaveRam saveRam;
+    private readonly SaveSlotStore saves;
     /// <summary>Owns the menu's VRAM, CGRAM, and installed presentation assets.</summary>
     internal readonly MenuPpuState ppu;
     /// <summary>Collects border, cursor, helmets, and copy-arrow sprites for the current frame.</summary>
@@ -54,7 +54,7 @@ public sealed class FileSelectMenuState
     private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
-    public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    public FileSelectMenuState(SaveSlotStore saves, CartridgeAudioState? audio = null,
         AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.audio = audio;
@@ -65,10 +65,10 @@ public sealed class FileSelectMenuState
         if (mapPresentation is not null)
             mapPresentation.FileSelect.LoadBackground(ppu.Vram);
 
-        saveRam = new SuperMetroidSaveRam(bus, mapPresentation);
+        this.saves = Ensure.NotNull(saves);
         for (int slot = 0; slot < saveSlots.Length; slot++)
-            saveSlots[slot] = saveRam.ReadSlot(slot);
-        SelectedItem = saveRam.ReadSelectedSlot();
+            saveSlots[slot] = saves.ReadSlot(slot);
+        SelectedItem = saves.ReadSelectedSlot();
 
         BuildSaveTilemap();
         new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
@@ -578,7 +578,7 @@ public sealed class FileSelectMenuState
                 if (pressed != SnesButton.None)
                 {
                     QueueCursorSound();
-                    SelectedItem = saveRam.ReadSelectedSlot();
+                    SelectedItem = saves.ReadSelectedSlot();
                     Phase = FileSelectPhase.FadeOutToMain;
                 }
                 break;
@@ -696,15 +696,15 @@ public sealed class FileSelectMenuState
 
         if (copy)
         {
-            saveRam.CopySlot(operationSourceSlot, operationDestinationSlot);
-            saveSlots[operationDestinationSlot] = saveRam.ReadSlot(operationDestinationSlot)
+            saves.CopySlot(operationSourceSlot, operationDestinationSlot);
+            saveSlots[operationDestinationSlot] = saves.ReadSlot(operationDestinationSlot)
                 ?? throw new InvalidDataException("Copied SRAM slot failed its copied checksums.");
             BuildCopyCompletedTilemap();
             Phase = FileSelectPhase.CopyCompleted;
         }
         else
         {
-            saveRam.ClearSlot(operationSourceSlot);
+            saves.ClearSlot(operationSourceSlot);
             saveSlots[operationSourceSlot] = null;
             BuildClearCompletedTilemap();
             Phase = FileSelectPhase.ClearCompleted;
@@ -937,7 +937,6 @@ public sealed class FileSelectMenuState
         if (catalog is null)
             throw new InvalidOperationException("File-select requires installed map presentation assets.");
         mapPresentation = catalog;
-        saveRam.BindMapPresentation(catalog);
         ppu.BindWorldArtwork(catalog.WorldArtwork);
         ppu.BindMapTiles(catalog.Tiles);
         ppu.BindMapSprites(catalog.Sprites);

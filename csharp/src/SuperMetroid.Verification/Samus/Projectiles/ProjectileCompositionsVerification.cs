@@ -184,7 +184,7 @@ internal static class ProjectileCompositionsVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         game.Session.runtime = runtime;
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)

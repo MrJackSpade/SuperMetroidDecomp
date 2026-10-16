@@ -31,7 +31,7 @@ internal static class AttractRuntimeBindingsVerification
         // without passing its already-installed palette catalog.
         AssertThrows<InvalidOperationException>(() => _ = new SuperMetroidRuntime(memory, HostGameplayOverrides.None),
             "omitting installed palettes reproduces the attract runtime construction failure");
-        var game = new SuperMetroidGame(memory, new SuperMetroidGameOptions
+        var game = new SuperMetroidGame(memory, new SuperMetroid.Core.Saves.SaveSlotStore(), new SuperMetroidGameOptions
             { Invincibility = true, InfiniteAmmo = true, PreventEscapeTimeout = true });
         game.BindArtwork(game.Artwork with
         {

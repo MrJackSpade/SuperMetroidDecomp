@@ -46,7 +46,7 @@ internal static class DoorAnimatedTilesVerification
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
 
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;

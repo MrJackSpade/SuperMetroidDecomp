@@ -67,7 +67,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         if (session.ActiveTitle.FileSelectRequested)
         {
             // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
-            session.fileSelect = new FileSelectMenuState(session.bus, session.audio, session.Artwork.MapPresentation);
+            session.fileSelect = new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation);
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.fileSelect);
         }
@@ -97,13 +97,13 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             session.selectedSaveSlot = session.ActiveFileSelect.SelectedSaveSlot;
             session.loadingExistingSave = session.ActiveFileSelect.SelectedSlotContainsSave;
-            session.saveRam.SelectSlot(session.selectedSaveSlot);
+            session.saves.SelectSlot(session.selectedSaveSlot);
             session.RaiseSaveRamChanged();
             // Existing slots restore the same seven controller words and two
             // special-settings words that SaveToSram copied from live WRAM. A new
             // slot begins with NewSaveFile's literal defaults.
             SuperMetroidSaveSlot? optionSlot = session.loadingExistingSave
-                ? session.saveRam.ReadSlot(session.selectedSaveSlot)
+                ? session.saves.ReadSlot(session.selectedSaveSlot)
                 : null;
             session.options = new GameOptionsMenuState(
                 session.audio,
@@ -127,7 +127,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         session.display.PublishMenu(session.ActiveOptions);
         if (session.ActiveOptions.FileSelectRequested)
         {
-            session.fileSelect = new FileSelectMenuState(session.bus, session.audio, session.Artwork.MapPresentation);
+            session.fileSelect = new FileSelectMenuState(session.saves, session.audio, session.Artwork.MapPresentation);
             session.GameState = SuperMetroidGameState.FileSelectMenus;
             session.display.PublishMenu(session.fileSelect);
         }
@@ -135,7 +135,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
         {
             if (session.loadingExistingSave)
             {
-                SuperMetroidSaveSlot selectedSlot = session.saveRam.ReadSlot(session.selectedSaveSlot)
+                SuperMetroidSaveSlot selectedSlot = session.saves.ReadSlot(session.selectedSaveSlot)
                     ?? throw new InvalidDataException(
                         "The selected save became invalid before startup dispatch.");
                 if (selectedSlot.StartupRoute ==
@@ -199,7 +199,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void DispatchGameOverMenu(SnesButton controllerInput)
     {
         session.gameOver ??= new GameOverMenuState(session.audio, session.Artwork.MapPresentation,
-            continueLoadsCeresArrival: session.saveRam.ReadSlot(session.selectedSaveSlot)?.StartupRoute ==
+            continueLoadsCeresArrival: session.saves.ReadSlot(session.selectedSaveSlot)?.StartupRoute ==
                 SaveLoadingGameState.CeresElevatorArrival);
         session.gameOver.Step(controllerInput);
         session.display.PublishMenu(session.gameOver);
@@ -234,7 +234,7 @@ internal sealed class MenuGamePhases(FrontendSession session)
     internal void DispatchFileSelectMap(SnesButton controllerInput)
     {
         session.loadingExistingSave = true;
-        SuperMetroidSaveSlot mapSlot = session.saveRam.ReadSlot(session.selectedSaveSlot)
+        SuperMetroidSaveSlot mapSlot = session.saves.ReadSlot(session.selectedSaveSlot)
             ?? throw new InvalidDataException("The selected save became invalid before map selection.");
         if (mapSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
         {

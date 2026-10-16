@@ -70,10 +70,7 @@ internal static class ExploredMapPackingDefinitionsVerification
             () => ExploredMapPackingDefinitions.Area(SaveRamLayout.PackedMapAreaCount, RetailPresentationFixture()),
             "packed map excludes native Ceres list");
 
-        var guard = new MutableCartridgeReadGuard(retail);
-        guard.Forbid(IsCompiledMapPackingByte,
-            address => $"Save-map codec reread compiled byte ${address:X6}.");
-        var saveRam = new SuperMetroidSaveRam(guard, RetailPresentationFixture());
+        var saveRam = new SaveSlotStore(RetailPresentationFixture());
         var explored = new byte[
             Bank80SystemState.ExploredMapAreaCount *
             Bank80SystemState.ExploredMapBytesPerArea];
@@ -99,8 +96,6 @@ internal static class ExploredMapPackingDefinitionsVerification
                 restored.ExploredMapBytes[index],
                 $"packed map production round trip byte {index}");
         }
-        AssertEqual(0, guard.ForbiddenReadAttempts,
-            "save/load avoids compiled explored-map codec tables");
 
         Suite(nameof(VerifyCalculatedMapPackingBindings), () => VerifyCalculatedMapPackingBindings(retail, explored));
 
@@ -139,18 +134,16 @@ internal static class ExploredMapPackingDefinitionsVerification
             var edited = AreaMapPresentationCatalog.Load(stock, edits);
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var snapshot = new SuperMetroidSaveSnapshot { ExploredMapBytes = explored };
-            var unbound = new SuperMetroidSaveRam(memory, null);
-            byte[] emptySram = memory.SaveRam.ToArray();
+            var unbound = new SaveSlotStore();
             AssertThrows<InvalidOperationException>(() => unbound.SaveSlot(0, snapshot),
                 "unbound map packing fails before persistence");
-            AssertTrue(emptySram.SequenceEqual(memory.SaveRam), "unbound save leaves SRAM unchanged");
-            var saves = new SuperMetroidSaveRam(memory, original);
+            AssertTrue(unbound.ReadSlot(0) is null, "unbound save leaves the slot empty");
+            var saves = new SaveSlotStore(original);
             saves.SaveSlot(0, snapshot);
-            byte[] expected = memory.SaveRam.ToArray();
-            AssertThrows<InvalidOperationException>(() => unbound.ReadSlot(0), "unbound map unpacking fails clearly");
-            var editedSaves = new SuperMetroidSaveRam(memory, edited);
+            byte[] expected = SaveRamCodec.Encode(saves, original);
+            var editedSaves = new SaveSlotStore(edited);
             editedSaves.SaveSlot(0, snapshot);
-            AssertTrue(expected.SequenceEqual(memory.SaveRam), "blank artwork overrides preserve exact SRAM format");
+            AssertTrue(expected.SequenceEqual(SaveRamCodec.Encode(editedSaves, edited)), "blank artwork overrides preserve exact SRAM format");
             for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
             {
                 var a = ExploredMapPackingDefinitions.Area(area, original);
@@ -161,7 +154,7 @@ internal static class ExploredMapPackingDefinitionsVerification
                 AssertThrows<ArgumentOutOfRangeException>(() => _ = a.AreaByteIndexes[a.AreaByteIndexes.Count], "packed index end rejected");
             }
 
-            var game = new SuperMetroidGame(memory);
+            var game = new SuperMetroidGame(memory, editedSaves);
             game.BindArtwork(game.Artwork with
             {
                 MapPresentation = original,
@@ -170,13 +163,13 @@ internal static class ExploredMapPackingDefinitionsVerification
             DebuggerObjectGraphSerializer.Serialize(graph, game);
             graph.Position = 0;
             var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(graph);
-            var restoredSaves = restored.Session.saveRam;
-            AssertThrows<InvalidOperationException>(() => restoredSaves.ReadSlot(0), "debugger graph omits installed map provider");
+            var restoredSaves = restored.Saves;
+            AssertThrows<InvalidOperationException>(() => restoredSaves.SaveSlot(0, snapshot), "debugger graph omits installed map provider");
             restored.BindArtwork(restored.Artwork with
             {
                 MapPresentation = edited,
             });
-            AssertTrue(restoredSaves.ReadSlot(0) is not null, "frontend rebind restores SRAM decoding");
+            AssertTrue(restoredSaves.ReadSlot(0) is not null, "the restored graph keeps the decoded slot");
             restoredSaves.SaveSlot(0, snapshot);
             AssertTrue((restoredSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires restoredSaves.ReadSlot(0).")).ExploredMapBytes.SequenceEqual((editedSaves.ReadSlot(0) ?? throw new InvalidOperationException("Verification requires editedSaves.ReadSlot(0).")).ExploredMapBytes),
                 "rebound debugger game preserves decoded exploration");
@@ -190,24 +183,6 @@ internal static class ExploredMapPackingDefinitionsVerification
         }
     }
 
-    /// <summary>Recognizes native count, offset, pointer, and sparse index bytes that production save/load must no longer read.</summary>
-    private static bool IsCompiledMapPackingByte(int address)
-    {
-        if (address is >= 0x818131 and < 0x818146 or
-            >= 0x8182d6 and < 0x8182e4)
-            return true;
-
-        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
-        {
-            ExploredMapPackingDefinition definition =
-                ExploredMapPackingDefinitions.Area(area, RetailPresentationFixture());
-            int start = 0x810000 | ExploredMapNativeSourcePointers[area];
-            if (address >= start &&
-                address < start + definition.AreaByteIndexes.Count)
-                return true;
-        }
-        return false;
-    }
 
     /// <summary>Runs the native explored-map packing comparison and production save/load check.</summary>
     [VerificationCommand("--explored-map-packing-definitions")]

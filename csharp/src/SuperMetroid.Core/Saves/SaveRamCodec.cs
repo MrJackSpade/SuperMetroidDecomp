@@ -29,7 +29,7 @@ public static class SaveRamCodec
         for (int slot = 0; slot < slots.Length; slot++)
             slots[slot] = IsSlotValid(image, slot) ? DecodeSlot(image, slot, maps) : null;
         return SaveSlotStore.Decoded(slots, ReadSelectedSlot(image), HasCompletedGame(image), HasCorruptMarker(image),
-            DetermineBootMainLoopCarry(image), maps);
+            MarkerCarry(image.Slice(SaveRamLayout.CompletionMarkerOffset, SaveRamLayout.CompletionMarker.Length)), maps);
     }
 
     /// <summary>Encodes the canonical SRAM image of <paramref name="store"/>.</summary>

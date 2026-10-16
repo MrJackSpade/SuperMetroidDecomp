@@ -61,13 +61,12 @@ internal static class BossMapMarkersVerification
 
                 // Exercise the production snapshot, SRAM checksum/slot codec, JSON
                 // format and restore path, entirely in disposable memory.
-                var source = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-                new SuperMetroidSaveRam(source, RetailPresentationFixture()).SaveSlot(0,
+                var source = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
+                source.SaveSlot(0,
                     SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (ushort)area, SaveStation = 0 }));
-                string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source, RetailPresentationFixture()));
+                string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-                GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());
-                var slot = new SuperMetroidSaveRam(restored, RetailPresentationFixture()).ReadSlot(0) ??
+                var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??
                     throw new InvalidDataException("Boss-marker fixture lost its save slot.");
                 var restoredSystem = new Bank80SystemState();
                 slot.ApplyTo(new SamusState(), restoredSystem);

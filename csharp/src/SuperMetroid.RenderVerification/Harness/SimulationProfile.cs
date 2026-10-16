@@ -42,7 +42,7 @@ internal static class SimulationProfile
     /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>
     private static object Measure(ushort room, bool paused)
     {
-        var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+        var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new SuperMetroid.Core.Saves.SaveSlotStore(),
             new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
         game.BindAudio(DesktopAccess.LoadAudioClips());
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];

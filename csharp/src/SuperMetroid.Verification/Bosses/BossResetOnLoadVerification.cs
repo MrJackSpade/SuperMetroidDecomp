@@ -44,7 +44,7 @@ internal static class BossResetOnLoadVerification
         // out of escape so room selection can demonstrate both Torizo encounters.
         snapshot.EventBytes[(int)EventNumber.ZebesTimebombSet >> 3] &=
             unchecked((byte)~(1 << ((int)EventNumber.ZebesTimebombSet & 7)));
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saves.SaveSlot(0, snapshot);
         var slot = saves.ReadSlot(0) ?? throw new InvalidDataException("Boss reset fixture save failed validation.");
         ushort[] eyeBits = [0x45, 0x5c, 0x85, 0x9b, 0xa8];

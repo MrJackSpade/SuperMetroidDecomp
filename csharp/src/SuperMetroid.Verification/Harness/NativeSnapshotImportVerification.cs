@@ -48,7 +48,7 @@ internal static class NativeSnapshotImportVerification
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        SaveRamImage.Load(bus, saveRam);
+        SaveSlotStore saves = SaveRamCodec.Decode(saveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps);
         var runtime = CreateRetailRuntimeFixture(bus);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
@@ -311,7 +311,7 @@ internal static class NativeSnapshotImportVerification
         samus.PowerBombs = W(NativeSnapshotMemory.PowerBombs); samus.MaxPowerBombs = W(NativeSnapshotMemory.MaxPowerBombs);
         samus.PreviousHealthForHurtCheck = samus.Health;
         runtime.Controller1.Latch((SnesButton)W(NativeSnapshotMemory.HeldInput));
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, saves, renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);

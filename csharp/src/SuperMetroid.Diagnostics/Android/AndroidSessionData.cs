@@ -49,9 +49,9 @@ internal sealed class AndroidSessionData : IDisposable
         Options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
         Bus = installation.OpenRuntimeAddressSpace();
         maps = installation.LoadMaps();
-        GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"), maps);
-        AndroidFileImport.ActivatePendingSave(root, Bus, savePath, maps);
-        Game = new SuperMetroidGame(Bus, Options);
+        SaveSlotStore saves = GameSaveFileStore.LoadOrMigrate(savePath, Path.Combine(root, "SuperMetroid.srm"), maps).Saves;
+        saves = AndroidFileImport.ActivatePendingSave(root, savePath, maps) ?? saves;
+        Game = new SuperMetroidGame(Bus, saves, Options);
         // A caller-provided cartridge has already passed through the importer;
         // the running session binds only the installed presentation catalog.
         projectiles = installation.LoadProjectiles();
@@ -93,8 +93,8 @@ internal sealed class AndroidSessionData : IDisposable
 
     /// <summary>Appends one consumed controller word to the active session recording.</summary>
     public void Record(SnesButton input) => recorder.RecordFrame(input);
-    /// <summary>Atomically writes the live SRAM through the installed map save format.</summary>
-    public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
+    /// <summary>Atomically writes the live saves as JSON.</summary>
+    public void PersistSave() => GameSaveFileStore.WriteAtomic(Game.Saves, savePath);
     /// <summary>Flushes accepted input frames after a worker failure.</summary>
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
@@ -162,11 +162,11 @@ internal sealed class AndroidSessionData : IDisposable
         FlushRecording();
     }
 
-    /// <summary>Begins an installed-content recording with a snapshot of the current SRAM.</summary>
+    /// <summary>Begins an installed-content recording seeded from the SRAM image of the current saves.</summary>
     private ControllerInputRecorder StartRecorder() =>
         ControllerInputRecorder.StartInstalled(
             root,
-            SaveRamImage.Capture(Bus),
+            SaveRamCodec.Encode(Game.Saves, maps),
             Options,
             ContentIdentity);
 

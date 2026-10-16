@@ -267,7 +267,7 @@ internal static class PauseMenuVerification
             "Secret pause map keeps entered secret cell visually distinct");
 
         SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(samus, revealSystem, new SaveSnapshotContext { Area = 0, SaveStation = 0 });
-        var revealSaveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var revealSaveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         revealSaveRam.SaveSlot(0, revealSnapshot);
         SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
             throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");

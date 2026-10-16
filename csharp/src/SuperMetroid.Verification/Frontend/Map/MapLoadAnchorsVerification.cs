@@ -110,6 +110,8 @@ internal static class MapLoadAnchorsVerification
     /// <summary>Compares native and compiled map scrolling, saved-station entry, and area rendering with cartridge access forbidden on the compiled path.</summary>
     internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
+        // One store for every saved-station fixture, as one SRAM held them.
+        var stationSaves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
         Suite(nameof(VerifyMapLoadAnchorY), () => VerifyMapLoadAnchorY(bus));
         Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(bus));
@@ -158,8 +160,8 @@ internal static class MapLoadAnchorsVerification
         AssertEqual(34, anchors, "all native valid saved-map anchors checked");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Ceres, 0), "Ceres has no file-select map anchor");
         AssertThrows<ArgumentOutOfRangeException>(() => FileSelectMapLoadAnchors.Get(AreaId.Maridia, 16), "invalid station index not clamped");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, catalog, catalog));
-        SuperMetroidSaveSlot savedSlot = new SuperMetroidSaveRam(bus, RetailPresentationFixture()).ReadSlot(0) ??
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(catalog, catalog));
+        SuperMetroidSaveSlot savedSlot = stationSaves.ReadSlot(0) ??
             throw new InvalidDataException("Verification requires the fixture's saved slot 0.");
         AssertThrows<InvalidOperationException>(() => new FileSelectMapMenuState(new CartridgeAudioState(), savedSlot, 0),
             "file-select map cannot construct a cartridge-backed fallback graph");
@@ -181,7 +183,7 @@ internal static class MapLoadAnchorsVerification
 
         void VerifyStationMenu(AreaId area, int station)
         {
-            var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+            var saves = stationSaves;
             var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)area, SaveStation = (ushort)station, Health = 99, MaxHealth = 99 };
             snapshot.MapStationBytes[(int)area] = 1;
             snapshot.UsedSaveStationBytes[(int)area * 2 + station / 8] = (byte)(1 << (station % 8));
@@ -203,7 +205,7 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(native.Render().SequenceEqual(compiled.Render()), "every saved station has exact composed room-map position");
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
-        byte[] ReadSram() => SaveRamImage.Capture(SnesMemoryBusRequirement.Require(bus, "Map load anchors compare the whole SRAM image before and after map entry."));
+        byte[] ReadSram() => SuperMetroid.Core.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
         static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.scroll;
         static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);

@@ -47,7 +47,7 @@ internal static class DoorEntryEnemySoundVerification
         // The spit cue, four poses into the right spit animation.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
         body.InstructionTimer = NativeCountdown.Start(1);
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;

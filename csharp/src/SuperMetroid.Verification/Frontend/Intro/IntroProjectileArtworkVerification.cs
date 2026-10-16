@@ -28,7 +28,7 @@ internal static class IntroProjectileArtworkVerification
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         var projectiles = intro.flashbackProjectiles;
-        var game = CreateRetailGameFixture(bus);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.intro = intro;
         game.GameState = SuperMetroidGameState.IntroCinematic;
         byte[] Draw(IntroCinematicState scene) => scene.PrepareMotherBrainOam().FinalizedAsOam().LowTable.ToArray();

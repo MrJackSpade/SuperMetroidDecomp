@@ -16,7 +16,7 @@ internal static class MainGameLoopCarryVerification
     internal static void VerifyMainGameLoopCarry()
     {
         var bus = new TestAddressSpace();
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         AssertTrue(saveRam.DetermineBootMainLoopCarry(), "blank SRAM: the third LoadFromSRAM's carry survives");
         saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot());
         saveRam.SetGameCompleted(false);

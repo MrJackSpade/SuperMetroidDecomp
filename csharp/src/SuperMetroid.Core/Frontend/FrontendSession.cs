@@ -31,21 +31,21 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>The frontend's shared state and its owners: the runtime, audio, display, save RAM, scenes, fades and demo counters that the game-state phases run against.</summary>
 internal sealed class FrontendSession
 {
-    /// <summary>Creates a reset-state session, reading the selected SRAM slot and capturing the native boot carry.</summary>
-    /// <param name="bus">Retained cartridge address space with <see cref="ISnesMutableMemory"/> support for WRAM and SRAM changes.</param>
+    /// <summary>Creates a reset-state session, reading the selected save slot and capturing the native boot carry.</summary>
+    /// <param name="bus">Retained cartridge address space with <see cref="ISnesMutableMemory"/> support for WRAM changes.</param>
+    /// <param name="saves">The battery-backed saves the session reads and writes for its whole lifetime.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
     /// <param name="renderGameplayFrames">Whether gameplay frames are composited; verification hosts may skip them.</param>
-    internal FrontendSession(ISnesAddressSpace bus, SuperMetroidGameOptions? gameOptions, bool renderGameplayFrames)
+    internal FrontendSession(ISnesAddressSpace bus, SaveSlotStore saves, SuperMetroidGameOptions? gameOptions, bool renderGameplayFrames)
     {
         this.bus = Ensure.NotNull(bus);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
         display = new FrontendDisplay(renderGameplayFrames);
-        // The host binds artwork after construction; BindArtwork then rebinds the save RAM's map presentation.
-        saveRam = new SuperMetroidSaveRam(bus, mapPresentation: null);
-        selectedSaveSlot = saveRam.ReadSelectedSlot();
-        // Construction is power-on: boot evaluates SRAM once before entering MainGameLoop.
-        bootMainLoopCarry = saveRam.DetermineBootMainLoopCarry();
-        bootDemoSetCount = saveRam.DetermineNumberOfDemoSets();
+        this.saves = Ensure.NotNull(saves);
+        selectedSaveSlot = saves.ReadSelectedSlot();
+        // Construction is power-on: boot evaluates the saves once before entering MainGameLoop.
+        bootMainLoopCarry = saves.DetermineBootMainLoopCarry();
+        bootDemoSetCount = saves.DetermineNumberOfDemoSets();
     }
 
     /// <summary>Shared fade clock for frontend transitions between rendered phases.</summary>
@@ -66,8 +66,8 @@ internal sealed class FrontendSession
     public SuperMetroidGameOptions ConfiguredOptions { get; internal set; }
     /// <summary>Owns scene capture and raster publication for the current frontend frame.</summary>
     internal readonly FrontendDisplay display;
-    /// <summary>Battery-backed save data and selected-slot operations.</summary>
-    internal readonly SuperMetroidSaveRam saveRam;
+    /// <summary>Battery-backed save slots and the menu selection; the host persists them.</summary>
+    internal readonly SaveSlotStore saves;
     /// <summary>Boot-time <see cref="Bank80SystemState.MainGameLoopCarry"/>; fixed for the session.</summary>
     internal readonly bool bootMainLoopCarry;
     /// <summary>Boot-time <c>NumberOfDemoSets</c> ($1F59); fixed for the session.</summary>
@@ -460,7 +460,7 @@ internal sealed class FrontendSession
             runtime.Tester.ApplyTesterInventory(restoredInventory: true);
             restartedSamus.SelectedHudItem = 0;
             restartedSamus.AutoCancelHudItemIndex = 0;
-            AutomaticCheckpointSaver.SaveCeresArrival(bus, runtime, selectedSaveSlot);
+            AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, selectedSaveSlot);
             RaiseSaveRamChanged();
             spacetimeIntroRestartSlot = null;
             loadingExistingSave = false;
@@ -469,7 +469,7 @@ internal sealed class FrontendSession
 
         if (loadingExistingSave)
         {
-            SuperMetroidSaveSlot slot = saveRam.ReadSlot(selectedSaveSlot)
+            SuperMetroidSaveSlot slot = saves.ReadSlot(selectedSaveSlot)
                 ?? throw new InvalidDataException(
                     $"Selected save slot {selectedSaveSlot} became invalid during startup.");
             InitializeSelectedGameHud(slot);
@@ -532,7 +532,7 @@ internal sealed class FrontendSession
         // and calls the ordinary `$81:8000` saver immediately before state $1F. Both the
         // full cinematic and host-configured skip converge here, so neither path can omit
         // the automatic checkpoint.
-        AutomaticCheckpointSaver.SaveCeresArrival(bus, runtime, selectedSaveSlot);
+        AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, selectedSaveSlot);
         RaiseSaveRamChanged();
         return true;
     }
@@ -553,7 +553,7 @@ internal sealed class FrontendSession
     internal void HandleGunshipLandingSave()
     {
         if (runtime is null ||
-            !AutomaticCheckpointSaver.TrySaveGunshipLanding(bus, runtime, selectedSaveSlot))
+            !AutomaticCheckpointSaver.TrySaveGunshipLanding(saves, runtime, selectedSaveSlot))
             return;
         RaiseSaveRamChanged();
     }

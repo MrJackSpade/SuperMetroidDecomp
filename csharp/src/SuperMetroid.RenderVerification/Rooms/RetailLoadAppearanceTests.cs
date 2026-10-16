@@ -20,15 +20,17 @@ internal static class RetailLoadAppearanceTests
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var left = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
         var right = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        foreach (var bus in new[] { left, right })
+        // In-memory saves only, matching the portable saved-file fixture.
+        SuperMetroid.Core.Saves.SaveSlotStore Saves(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus)
         {
-            // In-memory SRAM only, matching the portable saved-file fixture.
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
-            new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(0, save);
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(SaveMapPresentationFixture.Create(bus));
+            saves.SaveSlot(0, save);
+            return saves;
         }
-        var legacy = InstalledFixtures.CreateGame(left);
-        var captured = InstalledFixtures.CreateGame(right);
+        var legacy = InstalledFixtures.CreateGame(left, Saves(left));
+        var captured = InstalledFixtures.CreateGame(right, Saves(right));
         bool sawMap = false, sawAppearance = false, completed = false;
         int samples = 0;
         for (int tick = 0; tick < 2400; tick++)

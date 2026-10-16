@@ -2,9 +2,6 @@
 # Gameplay code receives owned state, not the bus. A file may only lose declarations; each entry names the ticket
 # that removes it.
 # path<TAB>rule<TAB>count
-# #1322: saves become an owned slot model; SRAM is only an import/export codec.
-csharp/src/SuperMetroid.Core/Frontend/FileSelect/FileSelectMenuState.cs	SME6292	1
-csharp/src/SuperMetroid.Core/Runtime/AutomaticCheckpointSaver.cs	SME6292	4
 # #1322 and #1327: the host-supplied address space, kept for the save and import paths until the session
 # composition root owns them.
 csharp/src/SuperMetroid.Core/Frontend/FrontendSession.cs	SME6292	2

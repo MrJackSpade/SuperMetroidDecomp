@@ -105,7 +105,7 @@ internal static class FileSelectRoomMapVerification
     internal static void VerifyMapCancelPresentation()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[4] = 1;
         snapshot.UsedSaveStationBytes[8] = 1;
@@ -306,7 +306,7 @@ internal static class FileSelectRoomMapVerification
     private static void VerifySavedGameMapFrontend(ushort savedArea)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
             LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
@@ -319,7 +319,7 @@ internal static class FileSelectRoomMapVerification
         }
         saves.SaveSlot(0, snapshot);
         saves.SelectSlot(0);
-        var game = CreateRetailGameFixture(bus, gameOptions: null, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, saves, gameOptions: null, renderGameplayFrames: false);
         game.BindArtwork(game.Artwork with
         {
             MapPresentation = RetailPresentationFixture(),

@@ -57,8 +57,8 @@ internal static class FrontendRomFreeVerification
             () => guardedBus.ReadByte(TitleSequenceRomData.Assets.Mode7CharactersAddress),
             "startup ROM guard rejects an otherwise valid title graphics source");
 
-        var native = CreateRetailGameFixture(nativeBus);
-        var installed = new SuperMetroidGame(guardedBus);
+        var native = CreateRetailGameFixture(nativeBus, new SuperMetroid.Core.Saves.SaveSlotStore());
+        var installed = new SuperMetroidGame(guardedBus, new SuperMetroid.Core.Saves.SaveSlotStore());
         Action<SuperMetroidGame, bool> bindInstalled = PrepareRomFreeBindings(installation);
         bindInstalled(installed, true);
         bool titleStartSent = false;

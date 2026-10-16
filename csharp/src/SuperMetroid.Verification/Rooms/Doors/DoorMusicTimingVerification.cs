@@ -49,7 +49,7 @@ internal static class DoorMusicTimingVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;

@@ -29,7 +29,7 @@ internal static class FileMapSnapshotTestsVerification
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
-            var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
             saves.SaveSlot(0, save);
@@ -61,13 +61,15 @@ internal static class FileMapSnapshotTestsVerification
         }
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var leftBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom); var rightBus = new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom);
-        foreach (var owner in new[] { leftBus, rightBus })
+        SuperMetroid.Core.Saves.SaveSlotStore Saves()
         {
             var save = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
             save.MapStationBytes[4] = 1; save.UsedSaveStationBytes[8] = 1;
-            new SuperMetroidSaveRam(owner, RetailPresentationFixture()).SaveSlot(0, save);
+            var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
+            saves.SaveSlot(0, save);
+            return saves;
         }
-        var game = CreateRetailGameFixture(leftBus); var capturedGame = CreateRetailGameFixture(rightBus);
+        var game = CreateRetailGameFixture(leftBus, Saves()); var capturedGame = CreateRetailGameFixture(rightBus, Saves());
         AreaMapPresentationCatalog presentation = RetailPresentationFixture();
         game.BindArtwork(game.Artwork with
         {

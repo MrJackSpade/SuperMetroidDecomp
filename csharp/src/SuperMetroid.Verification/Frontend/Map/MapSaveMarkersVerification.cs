@@ -113,7 +113,7 @@ internal static class MapSaveMarkersVerification
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Ceres, 0, original.SaveMarkers), "Ceres marker rejected");
         foreach (int invalid in new[] { -1, MapSaveMarkerDefinitions.SlotsPerArea })
             AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectStationMarker(AreaId.Crateria, invalid, original.SaveMarkers), "out-of-range marker rejected");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, original, original));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapSaveMarkerDocument>(File.ReadAllBytes(Path.Combine(stock, MapSaveMarkerFormat.FileName)), options);
         var points = new Dictionary<string, Position16<MapPixels>>(document.Markers);
@@ -124,7 +124,7 @@ internal static class MapSaveMarkersVerification
         byte[] bytes = File.ReadAllBytes(path);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "save marker edit changes content identity");
-        var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
         snapshot.MapStationBytes[(int)AreaId.Maridia] = 1;
         snapshot.UsedSaveStationBytes[(int)AreaId.Maridia * 2] = 1;

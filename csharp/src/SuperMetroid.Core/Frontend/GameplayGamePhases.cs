@@ -135,7 +135,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // GameState_33 saves the live area-six/station-zero slot only after
             // INIDISP reaches forced blank. This is the durable post-Ridley Ceres
             // checkpoint the retail loader later replaces with Zebes arrival.
-            AutomaticCheckpointSaver.SaveCeresDeparture(session.bus, session.GameplayRuntime, session.selectedSaveSlot);
+            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.selectedSaveSlot);
             session.RaiseSaveRamChanged();
             session.GameplayRuntime.Enemies.Ceres.CeresStatus = 0;
             session.GameplayRuntime.EscapeTimer.Clear();
@@ -364,7 +364,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         SamusState samus = session.runtime.Player.Samus
             ?? throw new InvalidOperationException(
                 "A confirmed save station has no live Samus state.");
-        session.saveRam.SaveSlot(
+        session.saves.SaveSlot(
             session.selectedSaveSlot,
             SuperMetroidSaveSnapshot.Capture(samus, session.runtime.System, new SaveSnapshotContext { Area = (ushort)request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.runtime.GameTime, ControllerBindings = session.runtime.Options.ControllerBindings, MoonwalkEnabled = session.runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.runtime.Options.IconCancelEnabled, JapaneseText = session.runtime.JapaneseText }));
         session.RaiseSaveRamChanged();

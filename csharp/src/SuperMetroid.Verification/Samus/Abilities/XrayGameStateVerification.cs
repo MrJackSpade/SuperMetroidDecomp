@@ -42,7 +42,7 @@ internal static class XrayGameStateVerification
             samus.Position = samus.Position.WithWhole(new(128, 139));
             samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
-            var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+            var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
             game.Session.runtime = runtime;
             game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
             game.GameState = SuperMetroidGameState.MainGameplay;

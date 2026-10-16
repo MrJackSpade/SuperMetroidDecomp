@@ -297,9 +297,9 @@ internal static partial class SwapchainTests
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         var options = new SuperMetroidGameOptions { SkipOpeningCinematic = true };
-        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
-        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), options);
+        var legacy = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var captured = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore(), options);
+        var headless = RenderRetailFixture.CreateGame(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom), new SuperMetroid.Core.Saves.SaveSlotStore(), options);
         // Each session synthesizes through its own Core audio session, as the desktop host does;
         // do not substitute a second hand-written queue-to-PCM implementation.
         var audioAssets = DesktopAccess.LoadAudioClips();

@@ -119,8 +119,8 @@ internal static class FullMovieReplayVerification
         else
         {
             var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-            movie.InitialSaveRam.CopyTo(bus.SaveRam);
-            game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+            game = CreateRetailGameFixture(bus, SuperMetroid.Core.Saves.SaveRamCodec.Decode(movie.InitialSaveRam, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+                renderGameplayFrames: false);
         }
 
         Console.WriteLine($"Native first input boundary: source frame {updates[0].SourceFrame}, " +
@@ -226,7 +226,7 @@ internal static class FullMovieReplayVerification
             bool consoleReset = update < updates.Count && updates[update].ConsoleReset;
             if (consoleReset)
             {
-                game = CreateRetailGameFixture(game.Session.bus, renderGameplayFrames: false);
+                game = CreateRetailGameFixture(game.Session.bus, game.Saves, renderGameplayFrames: false);
                 game.DoorMusicUploadNmis = uploadNmis;
                 game.DoorLoaderProgress = loaderProgress;
                 game.SoundAcknowledgements = soundAcknowledgements;

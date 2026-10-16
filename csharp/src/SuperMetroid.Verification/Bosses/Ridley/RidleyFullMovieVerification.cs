@@ -301,7 +301,7 @@ internal static class RidleyFullMovieVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         // The recorded pause enters an already-running room HDMA callback.
         runtime.RoomLayer3Fx.AdvanceHdmaSharedState(runtime.System, false);
@@ -702,7 +702,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(runtime.Cgram.Colors.Slice(192, 16).SequenceEqual(expected),
             "HUD handler restores all suit colors even when charge was zero");
         Console.WriteLine("HUD selection restores the complete suit palette without an active charge.");
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
@@ -762,7 +762,7 @@ internal static class RidleyFullMovieVerification
         samus.InputLocked = false;
         samus.Position = new(new(20, 0x2000), new(111, 0x5bff));
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
-        var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.runtime = runtime;
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
         game.GameState = SuperMetroidGameState.HitDoorBlock;

@@ -47,7 +47,7 @@ internal static class DoorTransitionAutosaveVerification
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
-            var game = CreateRetailGameFixture(bus, renderGameplayFrames: false);
+            var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             game.Session.runtime = runtime;
             var assets = RepositoryInstallation.Installation.LoadAudioClips();
@@ -100,7 +100,8 @@ internal static class DoorTransitionAutosaveVerification
                     "restored continuation acknowledgements");
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
-                AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
+                AssertSameBytes(SuperMetroid.Core.Saves.SaveRamCodec.Encode(game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps),
+                    SuperMetroid.Core.Saves.SaveRamCodec.Encode(loaded.Game.Saves, SuperMetroid.TestSupport.RepositoryInstallation.Verification.InstalledFixtures.Maps), "restored continuation saves");
                 AssertEqual(runtime.Player.IntroducedSamus.Position.X.Whole, loaded.Game.GameplayRuntimeForVerification.Player.IntroducedSamus.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.GameplayRuntimeForVerification.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.SequenceEqual(actualPcm), "restored continuation PCM");

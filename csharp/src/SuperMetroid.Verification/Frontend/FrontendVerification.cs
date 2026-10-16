@@ -267,7 +267,8 @@ internal static void VerifyFileSelectFreshSaveTilemap()
         SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(addressSpace));
     var fixturePresentation = AreaMapPresentationCatalog.Load(
         RepositoryInstallation.Installation.MapDirectory, overrideRoot);
-    var menu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
+    var menu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> tilemap = menu.BackgroundTilemap;
 
     // Native empty-slot origins are energy-field X plus one $40-byte row: rows 6, 11,
@@ -301,8 +302,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     // `$8B:C100` saves area six/station zero through the ordinary `$81:8000` encoder.
     // Verify both redundant checksum directories, the decoded player/checkpoint data, and
-    // the menu's subsequent ENERGY + HH:MM path against one shared physical SRAM image.
-    var saveRam = new SuperMetroidSaveRam(addressSpace, RetailPresentationFixture());
+    // the menu's subsequent ENERGY + HH:MM path against one shared save store.
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         Health = 99,
@@ -326,7 +326,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AssertEqual(0x80, saved.ExploredMapBytes[0x07], "unpacked explored-map first exported byte");
     AssertEqual(0x04, saved.ExploredMapBytes[0x84], "unpacked explored-map sparse byte");
 
-    var savedMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var savedMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     ReadOnlySpan<ushort> savedTilemap = savedMenu.BackgroundTilemap;
     AssertEqual(0x209d, savedTilemap[0x15c / 2], "saved slot ENERGY first tile");
     AssertEqual(0x2069, savedTilemap[(0x15c + 0x42) / 2], "saved slot energy tens");
@@ -341,7 +341,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     // Drive the real newly-pressed latch and fade states into COPY. Slot zero is the only
     // nonempty source, destination one is the first native choice, and YES is the default.
-    var copyMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var copyMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(copyMenu);
     PulseFileSelect(copyMenu, SnesButton.Down);
     PulseFileSelect(copyMenu, SnesButton.Down);
@@ -367,7 +367,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     // Re-enter the main screen from the copied SRAM image and clear slot A. This exercises
     // the actual confirmation default and the native four-directory invalidation, not a
     // host-only hidden flag.
-    var clearMenu = new FileSelectMenuState(addressSpace, mapPresentation: fixturePresentation);
+    var clearMenu = new FileSelectMenuState(saveRam, mapPresentation: fixturePresentation);
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
         PulseFileSelect(clearMenu, SnesButton.Down);
@@ -404,8 +404,10 @@ internal static void VerifyFileSelectFreshSaveTilemap()
 
     saveRam.SelectSlot(2);
     AssertEqual(2, saveRam.ReadSelectedSlot(), "SRAM selected-slot word and complement");
-    addressSpace.SaveRam[0x0010 + 0x20] ^= 1;
-    AssertTrue(saveRam.ReadSlot(0) is null, "SRAM payload corruption invalidates both directories");
+    byte[] image = SuperMetroid.Core.Saves.SaveRamCodec.Encode(saveRam, RetailPresentationFixture());
+    image[SuperMetroid.Core.Saves.SaveRamLayout.SlotOffset(1) + SuperMetroid.Core.Saves.SaveRamLayout.HealthOffset] ^= 1;
+    AssertTrue(SuperMetroid.Core.Saves.SaveRamCodec.Decode(image, RetailPresentationFixture()).ReadSlot(1) is null,
+        "SRAM payload corruption invalidates both directories");
 
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
 }
@@ -450,7 +452,7 @@ internal static void VerifySavedGameLoadAppearance()
     }
 
     var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-    var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+    var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         Health = 99,

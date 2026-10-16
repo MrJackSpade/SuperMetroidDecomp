@@ -169,7 +169,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
-        var game = CreateRetailGameFixture(bus);
+        var game = CreateRetailGameFixture(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.
         InstalledFixtures.BindProjectileArtwork(runtime);

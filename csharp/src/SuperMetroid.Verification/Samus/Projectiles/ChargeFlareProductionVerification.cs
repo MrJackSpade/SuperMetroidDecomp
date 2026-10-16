@@ -87,7 +87,7 @@ internal static class ChargeFlareProductionVerification
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = (ushort)30;
         Array.Fill(runtime.Projectiles.Charge._flareTimers, NativeCountdown.Start(100));
-        var game = new SuperMetroidGame(bus);
+        var game = new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.runtime = runtime;
         byte[] baseline = Draw(runtime);
         game.BindArtwork(game.Artwork with

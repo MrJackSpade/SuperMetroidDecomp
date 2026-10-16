@@ -19,10 +19,11 @@ public sealed class SaveSlotStore
     private int selectedSlot;
 
     /// <summary>
-    /// The boot carry of the SRAM image this store was decoded from, which depends on its raw marker words; null once
-    /// the store changes, or when it was never decoded.
+    /// The marker comparison's carry for the marker field of the SRAM image this store was decoded from, which depends
+    /// on its raw words; null once the marker is rewritten, or when the store was never decoded. Saving, copying or
+    /// clearing a slot leaves the field, as SRAM does.
     /// </summary>
-    private bool? decodedBootCarry;
+    private bool? decodedMarkerCarry;
 
     /// <summary>Installed stock map rules that pack and unpack explored maps; the host binds them with its artwork.</summary>
     [NonSerialized] private IAreaMapSource? mapPresentation;
@@ -33,7 +34,7 @@ public sealed class SaveSlotStore
 
     /// <summary>The store <see cref="SaveRamCodec.Decode"/> produces from an SRAM image.</summary>
     internal static SaveSlotStore Decoded(SuperMetroidSaveSlot?[] slots, int selectedSlot, bool gameCompleted,
-        bool corruptMarkerWritten, bool bootCarry, IAreaMapSource maps)
+        bool corruptMarkerWritten, bool markerCarry, IAreaMapSource maps)
     {
         Ensure.LengthEqual(slots, SlotCount);
         var store = new SaveSlotStore(maps)
@@ -41,7 +42,7 @@ public sealed class SaveSlotStore
             selectedSlot = selectedSlot,
             HasCompletedGame = gameCompleted,
             CorruptMarkerWritten = corruptMarkerWritten,
-            decodedBootCarry = bootCarry,
+            decodedMarkerCarry = markerCarry,
         };
         slots.CopyTo(store.slots, 0);
         return store;
@@ -75,7 +76,6 @@ public sealed class SaveSlotStore
     {
         SaveRamCodec.ValidateSlot(slot);
         slots[slot] = SaveRamCodec.DecodePayload(SaveRamCodec.EncodePayload(snapshot, mapPresentation), slot, mapPresentation);
-        Changed();
     }
 
     /// <summary>File-copy menu index 13 at <c>$81:9A2C</c>: the destination receives the source's save.</summary>
@@ -88,7 +88,6 @@ public sealed class SaveSlotStore
         SuperMetroidSaveSlot source = slots[sourceSlot] ??
             throw new InvalidOperationException($"Cannot copy empty save slot {sourceSlot}.");
         slots[destinationSlot] = Detached(source, destinationSlot);
-        Changed();
     }
 
     /// <summary>File-clear menu index 25 at <c>$81:9C9E</c>: the slot becomes empty.</summary>
@@ -96,7 +95,6 @@ public sealed class SaveSlotStore
     {
         SaveRamCodec.ValidateSlot(slot);
         slots[slot] = null;
-        Changed();
     }
 
     /// <summary>Stores the menu's selected slot.</summary>
@@ -104,7 +102,6 @@ public sealed class SaveSlotStore
     {
         SaveRamCodec.ValidateSlot(slot);
         selectedSlot = slot;
-        Changed();
     }
 
     /// <summary>The menu's selected slot.</summary>
@@ -118,20 +115,20 @@ public sealed class SaveSlotStore
     {
         HasCompletedGame = completed;
         CorruptMarkerWritten = false;
-        Changed();
+        MarkerRewritten();
     }
 
     /// <summary>
     /// The carry <c>DetermineNumberOfDemoSets</c> ($80:8261) returns at boot: set when no slot is valid, otherwise the
-    /// marker comparison's carry. A store decoded from SRAM compares that image's raw marker words; otherwise the
-    /// marker the codec would encode.
+    /// marker comparison's carry. Until the marker is rewritten, a store decoded from SRAM compares that image's raw
+    /// marker words; otherwise the marker the codec would encode.
     /// </summary>
     public bool DetermineBootMainLoopCarry()
     {
-        if (decodedBootCarry is { } decoded)
-            return decoded;
         if (!AnySlotValid)
             return true;
+        if (decodedMarkerCarry is { } decoded)
+            return decoded;
         ReadOnlySpan<byte> marker = HasCompletedGame ? SaveRamLayout.CompletionMarker
             : CorruptMarkerWritten ? SaveRamLayout.CorruptSramMarker
             : new byte[SaveRamLayout.CompletionMarker.Length];
@@ -151,7 +148,7 @@ public sealed class SaveSlotStore
         {
             HasCompletedGame = false;
             CorruptMarkerWritten = true;
-            Changed();
+            MarkerRewritten();
             return DemoSetUnlockRomData.DefaultSetCount;
         }
         return HasCompletedGame ? DemoSetUnlockRomData.SetCount : DemoSetUnlockRomData.DefaultSetCount;
@@ -160,8 +157,8 @@ public sealed class SaveSlotStore
     /// <summary>Whether any slot holds a save.</summary>
     private bool AnySlotValid => slots.Any(slot => slot is not null);
 
-    /// <summary>The store no longer equals the image it was decoded from.</summary>
-    private void Changed() => decodedBootCarry = null;
+    /// <summary>The marker field no longer holds the decoded image's words.</summary>
+    private void MarkerRewritten() => decodedMarkerCarry = null;
 
     /// <summary>A copy of <paramref name="saved"/> as slot <paramref name="slot"/>, sharing no array with it.</summary>
     private static SuperMetroidSaveSlot Detached(SuperMetroidSaveSlot saved, int slot) => saved with

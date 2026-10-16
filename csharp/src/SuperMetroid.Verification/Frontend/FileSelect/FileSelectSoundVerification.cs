@@ -19,7 +19,7 @@ internal static class FileSelectSoundVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
-        var menu = new FileSelectMenuState(bus, audio, RetailPresentationFixture());
+        var menu = new FileSelectMenuState(new SuperMetroid.Core.Saves.SaveSlotStore(), audio, RetailPresentationFixture());
         var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(ExtractedAudioAssetCatalog.Load(RepositoryInstallation.Installation.AudioDirectory));
         int writes = 0, nonzero = 0;
         bool accepted = false;
@@ -51,9 +51,10 @@ internal static class FileSelectSoundVerification
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         if (existingSave)
-            new SuperMetroidSaveRam(bus, RetailPresentationFixture()).SaveSlot(0, new SuperMetroidSaveSnapshot());
-        var game = CreateRetailGameFixture(bus);
+            saves.SaveSlot(0, new SuperMetroidSaveSnapshot());
+        var game = CreateRetailGameFixture(bus, saves);
         var assets = RepositoryInstallation.Installation.LoadAudioClips();
         game.BindAudio(assets);
         var pcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];

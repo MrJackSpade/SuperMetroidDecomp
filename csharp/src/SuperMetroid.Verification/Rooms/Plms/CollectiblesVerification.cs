@@ -443,7 +443,7 @@ internal static class CollectiblesVerification
             CollectedBeams = (ushort)(SamusBeamFlags.Charge | SamusBeamFlags.Ice),
             EquippedBeams = (ushort)SamusBeamFlags.Ice,
         };
-        var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+        var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         saveRam.SaveSlot(
             0,
             SuperMetroidSaveSnapshot.Capture(sourceSamus, sourceSystem, new SaveSnapshotContext { Area = 2, SaveStation = 7 }));

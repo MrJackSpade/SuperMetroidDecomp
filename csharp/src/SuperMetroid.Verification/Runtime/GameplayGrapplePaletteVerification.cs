@@ -27,7 +27,7 @@ internal static class GameplayGrapplePaletteVerification
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
         var bus=installation.OpenRuntimeAddressSpace();
-        var game=new SuperMetroidGame(bus);
+        var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
         var projectiles=installation.LoadProjectiles();
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(false);

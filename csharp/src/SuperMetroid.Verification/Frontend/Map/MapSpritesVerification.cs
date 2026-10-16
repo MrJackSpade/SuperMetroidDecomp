@@ -49,7 +49,7 @@ internal static class MapSpritesVerification
         var vram = new SnesVram(); original.Sprites.LoadArtworkTo(new VramStore(vram).All.Slice(MapSpriteFormat.FileSelectDestination / sizeof(ushort), MapSpriteFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(MapSpriteFormat.FileSelectDestination, MapSpriteFormat.ByteCount).SequenceEqual(
             RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount)), "map OBJ PNG round-trips native characters exactly");
-        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(bus, original, original));
+        Suite(nameof(VerifyInstalledFileSelectMenu), () => VerifyInstalledFileSelectMenu(original, original));
 
         Directory.CreateDirectory(overrides);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };

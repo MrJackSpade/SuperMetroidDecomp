@@ -271,11 +271,8 @@ public sealed class PlayableGameControl : UserControl
         audioAssets = selectedAudioAssets;
         if (gameOptions.AudioEnabled)
             audioDevice = CreateAudioDevice();
-        if (replay is null)
-            LoadSaveRamFromDisk();
-        else
-            LoadReplaySaveRam();
-        game = new SuperMetroidGame(addressSpace, gameOptions);
+        SaveSlotStore saves = replay is null ? LoadSavesFromDisk() : LoadReplaySaves();
+        game = new SuperMetroidGame(addressSpace, saves, gameOptions);
         // The session binds clips in every configuration so a debugger state always carries
         // its playback state; whether samples reach a device is the host's choice alone.
         game.BindAudio(selectedAudioAssets);
@@ -414,10 +411,10 @@ public sealed class PlayableGameControl : UserControl
             : "frontend/no active room";
 
     /// <summary>
-    /// Seeds replay from its cartridge-compatible SRAM image and rejects a different ROM
-    /// revision before the first input can produce a misleading divergence.
+    /// Decodes the replay's cartridge-compatible SRAM image into the session's saves and rejects a
+    /// different ROM revision before the first input can produce a misleading divergence.
     /// </summary>
-    private void LoadReplaySaveRam()
+    private SaveSlotStore LoadReplaySaves()
     {
         if (replay is null)
             throw new InvalidOperationException("Replay SRAM requested without a replay.");
@@ -428,7 +425,8 @@ public sealed class PlayableGameControl : UserControl
             throw new InvalidDataException(
                 "The replay was recorded from a different ROM image (SHA-256 mismatch).");
         }
-        SaveRamImage.Load(addressSpace, replay.InitialSaveRam);
+        return SaveRamCodec.Decode(replay.InitialSaveRam,
+            mapPresentation ?? throw new InvalidOperationException("Replay saves require installed maps."));
     }
 
     /// <summary>Creates a debugger-state store keyed to options and installed content identity.</summary>
@@ -441,12 +439,13 @@ public sealed class PlayableGameControl : UserControl
                 "Installed desktop session has no content identity."));
     }
 
-    /// <summary>Begins a replay recording seeded from the current battery-backed SRAM image.</summary>
+    /// <summary>Begins a replay recording seeded from the SRAM image of the session's current saves.</summary>
     private ControllerInputRecorder StartInputRecorder()
     {
         return ControllerInputRecorder.StartInstalled(
             playerDataDirectory,
-            SaveRamImage.Capture(addressSpace),
+            SaveRamCodec.Encode(game.Saves,
+                mapPresentation ?? throw new InvalidOperationException("Recording saves requires installed maps.")),
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));
@@ -468,14 +467,13 @@ public sealed class PlayableGameControl : UserControl
     }
 
     /// <summary>
-    /// Restores the same 8 KiB battery-backed image an emulator associates with the ROM.
-    /// A malformed file is rejected explicitly; silently padding/truncating it could turn
-    /// corruption into an apparently valid checksum pair.
+    /// Loads the JSON saves, or imports the 8 KiB battery-backed image an emulator associates
+    /// with the ROM. A malformed file is rejected explicitly; silently padding/truncating it
+    /// could turn corruption into an apparently valid checksum pair.
     /// </summary>
-    private void LoadSaveRamFromDisk()
+    private SaveSlotStore LoadSavesFromDisk()
     {
         GameSaveLoadResult result = GameSaveFileStore.LoadOrMigrate(
-            addressSpace,
             saveFilePath,
             legacySaveRamPath,
             mapPresentation ?? throw new InvalidOperationException("Save loading requires installed maps."));
@@ -485,16 +483,15 @@ public sealed class PlayableGameControl : UserControl
                 $"Migrated legacy save RAM '{legacySaveRamPath}' to human-readable " +
                 $"JSON '{result.JsonPath}'. The original .srm was retained unchanged.");
         }
+        return result.Saves;
     }
 
     /// <summary>
-    /// Flushes translated SRAM mutations synchronously. The cartridge call is infrequent,
-    /// and completing the write before the next frame preserves the save even if the host is
-    /// stopped at a breakpoint or closed immediately after the Ceres checkpoint.
+    /// Flushes changed saves synchronously. The cartridge call is infrequent, and completing
+    /// the write before the next frame preserves the save even if the host is stopped at a
+    /// breakpoint or closed immediately after the Ceres checkpoint.
     /// </summary>
-    private void PersistSaveRamToDisk() =>
-        GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath,
-            mapPresentation ?? throw new InvalidOperationException("Save persistence requires installed maps."));
+    private void PersistSaveRamToDisk() => GameSaveFileStore.WriteAtomic(game.Saves, saveFilePath);
 
     /// <summary>Defers simulation while the enabled audio output cannot accept another frame.</summary>
     private RecoveringAudioOutput CreateAudioDevice() => new(() => new WaveOutAudioDevice(

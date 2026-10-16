@@ -128,7 +128,7 @@ internal static void VerifyControllerBindingsAndOptionsSubmenus()
     PressOptions(options, SnesButton.Right);
     AssertTrue(options.MoonwalkEnabled, "special page toggles Moonwalk with Right");
 
-    var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
+    var saveRam = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
     saveRam.SaveSlot(0, new SuperMetroidSaveSnapshot
     {
         ControllerBindings = options.ControllerBindings,

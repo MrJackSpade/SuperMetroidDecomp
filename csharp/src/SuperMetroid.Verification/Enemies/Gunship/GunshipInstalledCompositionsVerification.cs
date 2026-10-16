@@ -91,7 +91,7 @@ internal static class GunshipInstalledCompositionsVerification
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var game = new SuperMetroidGame(bus);
+        var game = new SuperMetroidGame(bus, new SaveSlotStore());
         PrepareRomFreeBindings(installation, enemyArtwork)(game, true);
         game.BindArtwork(game.Artwork with
         {

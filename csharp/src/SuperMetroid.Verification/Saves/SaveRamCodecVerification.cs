@@ -56,6 +56,12 @@ internal static class SaveRamCodecVerification
             AssertEqual(expectedCarry, oldSram.DetermineBootMainLoopCarry(), "the bus implementation's boot carry for the marker");
             AssertEqual(expectedCarry, decoded.DetermineBootMainLoopCarry(), "the decoded boot carry compares the raw marker words");
             AssertTrue(!decoded.HasCompletedGame, "a noncanonical marker is not the completed-game signature");
+            // Saving a slot leaves SRAM's marker words, so the raw comparison still decides the next boot.
+            SuperMetroidSaveSnapshot later = Snapshot(health: 33, area: AreaId.Crateria);
+            oldSram.SaveSlot(2, later);
+            decoded.SaveSlot(2, later);
+            AssertEqual(oldSram.DetermineBootMainLoopCarry(), decoded.DetermineBootMainLoopCarry(),
+                "a later save keeps the raw marker comparison for the next boot");
         }
         Console.WriteLine("SRAM decode: an invalid slot decodes empty; noncanonical markers keep the bus implementation's boot carry.");
     }

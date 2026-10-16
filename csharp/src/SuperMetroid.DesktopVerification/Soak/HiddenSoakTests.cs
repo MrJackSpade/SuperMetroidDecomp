@@ -26,7 +26,7 @@ internal static class HiddenSoakTests
         var results = new List<object>();
         foreach (bool paused in new[] { false, true })
         {
-            var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
+            var game = InstalledFixtures.CreateGame(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), new SuperMetroid.Core.Saves.SaveSlotStore(),
                 new SuperMetroidGameOptions { SkipOpeningCinematic = true, Invincibility = true });
             game.BindAudio(DesktopAccess.LoadAudioClips());
             var audio = new short[CartridgeAudioSession.PcmSamplesPerFrame];

@@ -25,7 +25,7 @@ internal static class PauseDoorShinesparkVerification
             const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
             var installation=RepositoryInstallation.Installation;
             var bus=installation.OpenRuntimeAddressSpace();
-            var game=new SuperMetroidGame(bus);
+            var game=new SuperMetroidGame(bus, new SuperMetroid.Core.Saves.SaveSlotStore());
             InstalledFixtures.BindGame(game);
             game.Session.CreateGameplayRuntime(false);
             var runtime=game.Session.runtime;

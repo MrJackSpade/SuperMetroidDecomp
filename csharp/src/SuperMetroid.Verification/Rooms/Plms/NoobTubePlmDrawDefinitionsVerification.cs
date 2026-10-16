@@ -91,7 +91,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         var plms = new RoomPlmSystem { Drawing = { NoobTubeVisuals = visuals } };
         AssertEqual(1, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(guarded, level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
             $"n00b tube loads for draw ${selected.Pointer:X4}");
-        plms.DrawSolePlmFrameForVerification(guarded, level, streamer, selected.Pointer);
+        plms.DrawSolePlmFrameForVerification(level, streamer, selected.Pointer);
 
         int entryX = originX;
         int entryY = originY;

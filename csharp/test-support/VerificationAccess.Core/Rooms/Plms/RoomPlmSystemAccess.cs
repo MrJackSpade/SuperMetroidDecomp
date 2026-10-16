@@ -136,37 +136,16 @@ internal static class RoomPlmSystemAccess
         internal PlmAnimation? MotherBrainGlassAnimation => MotherBrainGlassSlot(self)?.Animation;
 
         /// <summary>
-        /// Places a constructed program in low work RAM, where the `$84` interpreter executes
-        /// wrapped instruction pointers, and redirects the sole live PLM to it.
-        /// </summary>
-        [CpuBusBoundary("exact bus test: places a constructed PLM program in the bank-$84 low-window WRAM mirror")]
-        internal void SetSoleWorkRamProgramForVerification(ISnesAddressSpace memory, ushort pointer,
-            params ReadOnlySpan<ushort> instructions)
-        {
-            if (memory is not ISnesMutableMemory)
-                throw new ArgumentException("A work-RAM program needs a live WRAM bus.", nameof(memory));
-            if (pointer + instructions.Length * 2 > RoomPlmMemoryLayout.WorkRamMirrorEnd)
-                throw new ArgumentOutOfRangeException(nameof(pointer), "The program must lie inside the low WRAM mirror.");
-            for (int index = 0; index < instructions.Length; index++)
-            {
-                int address = (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, (ushort)(pointer + index * 2));
-                memory.WriteByte(address, (byte)instructions[index]);
-                memory.WriteByte(address + 1, SnesLittleEndian.HighByte(instructions[index]));
-            }
-            self.SetSoleInstructionPointerForVerification(pointer);
-        }
-
-        /// <summary>
         /// Runs the production timed-frame draw for the sole live PLM, exactly as the `$84`
         /// interpreter dispatches a timer/draw pair, without injecting a synthetic program.
         /// </summary>
-        internal void DrawSolePlmFrameForVerification(ISnesAddressSpace bus, RoomLevelData level,
+        internal void DrawSolePlmFrameForVerification(RoomLevelData level,
             BackgroundTilemapStreamer streamer, ushort drawPointer)
         {
             PlmSlot[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.DrawPlmInstruction(bus, level, streamer, active[0].HeaderPointer, active[0].BlockIndex, drawPointer, default(PlmView));
+            self.Drawing.DrawPlmInstruction(level, streamer, active[0].HeaderPointer, active[0].BlockIndex, drawPointer, default(PlmView));
         }
 
         /// <summary>

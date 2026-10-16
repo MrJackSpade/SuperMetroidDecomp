@@ -268,14 +268,14 @@ csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidFootFrameGeometryVerifica
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidGrowthCommandCursorVerification.cs	SME6340	5
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidGrowthPlmMappingsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidHeadCommandMappingVerification.cs	SME6340	14
-csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidHeadInstructionsVerification.cs	SME6340	13
+csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidHeadInstructionsVerification.cs	SME6340	8
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidHealthThresholdsVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidInstalledPresentationHeadClockVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidInstalledPresentationOracleVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidInstalledPresentationResourcesVerification.cs	SME6340	1
-csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMouthHitboxesVerification.cs	SME6340	19
+csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMouthHitboxesVerification.cs	SME6340	14
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMouthHitboxesVerification.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMouthMappingsVerification.cs	SME6340	14
+csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMouthMappingsVerification.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidMovementChoicesVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidNailBounceVerification.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/Bosses/Kraid/KraidNailContourMappingsVerification.cs	SME6340	4
@@ -910,7 +910,7 @@ csharp/src/SuperMetroid.Verification/Hardware/HardwareVerification.cs	SME6342	8
 csharp/src/SuperMetroid.Verification/Hardware/HighlightTilePixelsVerification.cs	SME6340	13
 csharp/src/SuperMetroid.Verification/Hardware/HighlightTilePixelsVerification.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Hardware/ImportedSpritemapsVerification.cs	SME6340	6
-csharp/src/SuperMetroid.Verification/Hardware/MechanicsWorkRamBoundaryVerification.cs	SME6340	16
+csharp/src/SuperMetroid.Verification/Hardware/MechanicsWorkRamBoundaryVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Hardware/Mode7GameplaySnapshotTestsVerification.cs	SME6340	2
 csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs	SME6340	95
 csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs	SME6342	2
@@ -1082,7 +1082,7 @@ csharp/src/SuperMetroid.Verification/Rooms/Plms/NoobTubePlmVerification.cs	SME63
 csharp/src/SuperMetroid.Verification/Rooms/Plms/OldTourianEscapeShaftWallVerification.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmDrawCloneVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmPopulationInputBoundaryVerification.cs	SME6340	11
-csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmsAndPostureVerification.cs	SME6340	478
+csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmsAndPostureVerification.cs	SME6340	476
 csharp/src/SuperMetroid.Verification/Rooms/Plms/PlmsAndPostureVerification.cs	SME6342	38
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RechargeStationAdmissionVerification.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Rooms/Plms/RightFacingGateGlitchVerification.cs	SME6340	4

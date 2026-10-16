@@ -116,7 +116,7 @@ internal sealed class ChozoStatuePlms
     }
 
     /// <summary>Handles the hand's event branch, spike/slope changes, and lowered acid FX instruction.</summary>
-    internal bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, RoomPlmInstruction instruction)
+    internal bool TryExecuteChozoStatueInstruction(RoomLevelData level, PlmSlot slot, RoomPlmInstruction instruction)
     {
         // GotoIfEventSet belongs to this handler only for the Lower Norfair hand.
         if (instruction is not (
@@ -131,7 +131,7 @@ internal sealed class ChozoStatuePlms
         {
             case RoomPlmInstruction.GotoIfEventSet when
                 slot.HeaderPointer == PlmHeaderId.LowerNorfairChozoHand:
-                ushort eventNumber = RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
+                ushort eventNumber = RoomPlmSystem.ReadProgramWord(unchecked((ushort)(slot.InstructionPointer + 2)));
                 if (eventNumber != (ushort)EventNumber.LowerNorfairChozoLoweredAcid)
                     throw new InvalidDataException($"Lower Norfair hand referenced unexpected event ${eventNumber:X4}.");
                 // The same list initializes the intact hand or restores drained acid on
@@ -139,7 +139,7 @@ internal sealed class ChozoStatuePlms
                 slot.InstructionPointer = (_bindings.System ??
                     throw new InvalidOperationException("Chozo hand has no progression owner."))
                     .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)
-                    ? RoomPlmSystem.ReadProgramWord(bus, unchecked((ushort)(slot.InstructionPointer + 4)))
+                    ? RoomPlmSystem.ReadProgramWord(unchecked((ushort)(slot.InstructionPointer + 4)))
                     : unchecked((ushort)(slot.InstructionPointer + 6));
                 return true;
             case RoomPlmInstruction.TransformSpikesToSlopes:

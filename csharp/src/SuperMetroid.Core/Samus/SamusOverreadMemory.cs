@@ -36,22 +36,6 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
         return memory.ReadWorkRamWord(source);
     }
 
-    /// <summary>
-    /// The six words of a horizontal speed entry at a bank-$90 low-half <paramref name="address"/>,
-    /// each read low byte first with its high byte wrapping within the bank.
-    /// </summary>
-    internal SpeedTableEntry HorizontalSpeedEntry(int address)
-    {
-        ISnesMutableMemory memory = WorkRam("A wrapped speed table's live WRAM");
-        return new SpeedTableEntry(
-            memory.ReadWorkRamWordFixedBank(address + 0),
-            memory.ReadWorkRamWordFixedBank(address + 2),
-            memory.ReadWorkRamWordFixedBank(address + 4),
-            memory.ReadWorkRamWordFixedBank(address + 6),
-            memory.ReadWorkRamWordFixedBank(address + 8),
-            memory.ReadWorkRamWordFixedBank(address + 10));
-    }
-
     /// <summary>A projectile-trail program word at a bank-$90 low-half <paramref name="source"/>.</summary>
     internal ushort TrailProgramWord(SnesAddress source)
     {

@@ -161,7 +161,7 @@ internal sealed class MessageBoxFlow
 
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
-        foreach (PlmTilemapUpdate update in _plms.CollectiblePlms.CompleteCollectibleMessage(_addressSpace, _room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }))
+        foreach (PlmTilemapUpdate update in _plms.CollectiblePlms.CompleteCollectibleMessage(_room.LevelData, _room.BackgroundStreamer, new PlmView { Layer1Position = _room.Camera.PixelPosition, Bg1XOffset = unchecked((ushort)_backgroundScroll.Bg1Offset.X) }))
             update.ExecuteTo(_vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A
         // suspended frame tail does that itself; a capture without one updates it here.

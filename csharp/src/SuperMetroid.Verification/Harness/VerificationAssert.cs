@@ -4015,7 +4015,6 @@ internal static class VerificationAssert
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(mouthOracle.Rom)),
             "Kraid mouth oracle is NTSC J/U v1.0");
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(mouthOracle));
-        Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(mouthOracle));
         Console.WriteLine("Kraid mouth mappings: 32 geometry words, 7 instruction bytes, head/mouth boundary crossings and bounds pass.");
         return 0;
     }

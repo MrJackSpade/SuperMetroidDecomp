@@ -119,7 +119,7 @@ internal static class KraidHeadInstructionDefinitions
     /// $A7:AFB7-AFBF / B19C-B1A4: collision reads the hitbox word four or two
     /// bytes before the live next-instruction cursor, even when no frame ran yet.
     /// </summary>
-    public static ushort ReadCollisionHitbox(ISnesAddressSpace bus, ushort nextInstruction, bool innerMouth)
+    public static ushort ReadCollisionHitbox(ushort nextInstruction, bool innerMouth)
     {
         ushort address = unchecked((ushort)(nextInstruction - (innerMouth ? 2 : 4)));
         foreach (KraidHeadInstructionDefinition frame in All)
@@ -129,18 +129,14 @@ internal static class KraidHeadInstructionDefinitions
             if (address == frame.Pointer + 4) return frame.VulnerableHitbox;
             if (address == frame.Pointer + 6) return frame.InvulnerableHitbox;
         }
-        if (address < 0x8000)
-            return SnesLittleEndian.Word(ReadLiveByte(bus, address), ReadLiveByte(bus, unchecked((ushort)(address + 1))));
         throw new InvalidDataException($"Kraid collision selector $A7:{address:X4} is outside the compiled head frames.");
     }
 
     /// <summary>
     /// Reads the word at cursor + 2 used by HandleKraidPhase1 at $A7:C026.
     /// This is a tilemap only for timed frames; sound/terminal cursors read the next
-    /// record's first word without executing it. Authored upper-ROM records use the
-    /// compiled catalog. A restored low-half pointer still aliases live
-    /// SNES memory exactly as the cartridge does; the three possible bytes where that
-    /// low-half record crosses $7FFF are retained from the bank-$A7 LoROM boundary.
+    /// record's first word without executing it. Every authored record is compiled; any
+    /// other cursor is corrupt state.
     /// </summary>
     public static ushort ReadGrowthSelectionWord(ISnesAddressSpace bus, ushort pointer)
     {
@@ -161,15 +157,8 @@ internal static class KraidHeadInstructionDefinitions
                 : Resolve(following).Duration;
         }
 
-        if (pointer >= 0x8000)
-        {
-            throw new InvalidDataException(
-                $"Kraid head frame $A7:{pointer:X4} is outside the compiled private programs " +
-                "and is not a live bank-$A7 low-half alias.");
-        }
-
-        ushort tilemapPointer = unchecked((ushort)(pointer + 2));
-        return SnesLittleEndian.Word(ReadLiveByte(bus, tilemapPointer), ReadLiveByte(bus, unchecked((ushort)(tilemapPointer + 1))));
+        throw new InvalidDataException(
+            $"Kraid head frame $A7:{pointer:X4} is outside the compiled private programs.");
     }
 
     /// <summary>
@@ -207,18 +196,5 @@ internal static class KraidHeadInstructionDefinitions
     private static KraidHeadInstructionDefinition End(ushort pointer) =>
         new(pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0);
 
-    /// <summary>Reads a restored low-bank WRAM alias or one of the three compiled LoROM boundary bytes.</summary>
-    private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
-    {
-        // Bank $A7's low system window mirrors WRAM, not cartridge data.
-        if (pointer < KraidBackgroundRomData.HeadRomWindowStart)
-            return new KraidLowBankAliasMemory(bus).HeadInstructionByte(pointer);
 
-        int boundaryIndex = pointer - 0x8000;
-        if ((uint)boundaryIndex < 3)
-            return KraidMouthHitboxDefinitions.LowHalfBoundaryByte(boundaryIndex);
-
-        throw new InvalidDataException(
-            $"Kraid low-half head frame crossed into uncompiled cartridge address $A7:{pointer:X4}.");
-    }
 }

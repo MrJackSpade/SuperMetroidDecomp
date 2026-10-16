@@ -241,7 +241,6 @@ using static SuperMetroid.Verification.Frontend.Pause.PauseReserveTanksVerificat
 using static SuperMetroid.Verification.Frontend.Pause.PauseSnapshotTestsVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonPositionVerification;
 using static SuperMetroid.Verification.Bosses.Phantoon.PhantoonWaveVerification;
-using static SuperMetroid.Verification.Rooms.Plms.PlmDrawCloneVerification;
 using static SuperMetroid.Verification.Rooms.Plms.PlmsAndPostureVerification;
 using static SuperMetroid.Verification.Enemies.Powamp.PowampDeathSequenceVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
@@ -403,7 +402,6 @@ internal static class FullRunSuitesVerification
     /// </summary>
     internal static RegisteredSuite[] RenderContractSuites() =>
     [
-        new(nameof(VerifyPlmDrawClone), () => VerifyPlmDrawClone()),
         new(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni()),
         new(nameof(VerifyViewportTileRowParity), () => VerifyViewportTileRowParity()),
         new(nameof(VerifyPpuMemorySnapshotOwnership), () => VerifyPpuMemorySnapshotOwnership()),

@@ -18,10 +18,7 @@ internal static class KraidMouthHitboxesVerification
     internal static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
-        Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(rom));
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMouthHitboxesBusByte(rom, a), KraidMouthHitboxesBusByte(rom, a + 1)));
-        ushort PointerWord(ushort pointer) => (ushort)(
-            SnesLittleEndian.Word(KraidMouthHitboxesBusByte(rom, 0xa70000 | pointer), KraidMouthHitboxesBusByte(rom, 0xa70000 | unchecked((ushort)(pointer + 1)))));
         for (int cursor = 0x96d2; cursor < 0x9788;)
         {
             ushort command = Word(0xa70000 | cursor);
@@ -58,55 +55,12 @@ internal static class KraidMouthHitboxesVerification
             }
         }
 
-        for (int rawPointer = 0; rawPointer < 0x8000; rawPointer++)
-        {
-            ushort pointer = (ushort)rawPointer;
-            (short Left, short Top, short Bottom) expected = default;
-            (short Left, short Top, short Bottom) actual = default;
-            Exception? expectedFailure = null;
-            Exception? actualFailure = null;
-            try
-            {
-                expected = (
-                    unchecked((short)PointerWord(pointer)),
-                    unchecked((short)PointerWord(unchecked((ushort)(pointer + 2)))),
-                    unchecked((short)PointerWord(unchecked((ushort)(pointer + 6)))));
-            }
-            catch (Exception failure)
-            {
-                expectedFailure = failure;
-            }
-
-            try
-            {
-                actual = KraidMouthHitboxDefinitions.ResolveCollision(guarded, pointer);
-            }
-            catch (Exception failure)
-            {
-                actualFailure = failure;
-            }
-
-            AssertEqual(expectedFailure?.GetType(), actualFailure?.GetType(),
-                $"Kraid low-half failure type ${pointer:X4}");
-            AssertEqual(expectedFailure?.Message, actualFailure?.Message,
-                $"Kraid low-half first-failing access ${pointer:X4}");
-            if (expectedFailure is null)
-            {
-                AssertEqual(expected, actual,
-                    $"Kraid live low-half mouth geometry pointer ${pointer:X4}");
-            }
-        }
-
-        shot.Position = shot.Position.WithWhole(new(260, 256));
         foreach (ushort pointer in new ushort[] { 0, 2, 0x1ff8 })
         {
-            short left = unchecked((short)PointerWord(pointer));
-            short top = unchecked((short)PointerWord(unchecked((ushort)(pointer + 2))));
-            short bottom = unchecked((short)PointerWord(unchecked((ushort)(pointer + 6))));
-            bool expected = unchecked((short)(shot.Position.Y.Whole - shot.Radius.Y - 1 - body.Position.Y.Whole - bottom)) < 0 &&
-                unchecked((short)(shot.Position.Y.Whole + shot.Radius.Y - body.Position.Y.Whole - top)) >= 0 &&
-                unchecked((short)(shot.Position.X.Whole + shot.Radius.X - body.Position.X.Whole - left)) >= 0;
-            AssertEqual(expected, overlaps(body, pointer, shot), "Non-catalog pointers preserve address-space reads");
+            AssertThrows<InvalidDataException>(() => KraidMouthHitboxDefinitions.ResolveCollision(guarded, pointer),
+                $"Kraid low-half mouth pointer ${pointer:X4} has no compiled geometry");
+            AssertThrows<InvalidDataException>(() => overlaps(body, pointer, shot),
+                $"Kraid mouth collision rejects low-half pointer ${pointer:X4}");
         }
 
         foreach (ushort pointer in new ushort[] { 0x8000, 0x9787, 0x9789, 0x97c8, 0xffff })
@@ -116,7 +70,7 @@ internal static class KraidMouthHitboxesVerification
                 $"Kraid non-catalog cartridge pointer ${pointer:X4} rejects");
         }
 
-        Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words, seven low-half boundary bytes, 32768 live address-space starts and 1572864 authored collision probes match; unrelated cartridge pointers reject.");
+        Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words and low-half rejection agree.");
     }
 
     /// <summary>
@@ -142,41 +96,6 @@ internal static class KraidMouthHitboxesVerification
         guard.Forbid(address => SnesAddress.FromBusAddress(address) is { Bank: 0xa7, IsUpperLoRomWindow: true },
             address => $"Kraid mouth geometry attempted upper-ROM read {SnesAddress.FromBusAddress(address)}.");
         return guard;
-    }
-
-    /// <summary>Answers bank-A7 lower-window reads with address-derived bytes so boundary-crossing source selection is visible.</summary>
-    [CpuBusBoundary("exact bus test: synthetic bank-$A7 low-window WRAM/SRAM/peripheral responder witnessing which bus source each Kraid mouth and head boundary-crossing operand byte selects")]
-    internal sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
-        ISnesMutableMemory, ISnesCpuPeripheralSource
-    {
-        /// <summary>Returns the fixture byte for a lower-window WRAM read.</summary>
-        public byte ReadWorkRamByte(int address) => ReadByte(address);
-        /// <summary>Returns the fixture byte for a lower-window save-RAM read.</summary>
-        public byte ReadSaveRamByte(int address) => ReadByte(address);
-        /// <summary>Returns the fixture byte for a lower-window peripheral read.</summary>
-        public byte ReadPeripheralByte(int address) => ReadByte(address);
-
-        /// <summary>Derives a recognizable byte from the selected bank-relative offset.</summary>
-        public static byte Value(ushort pointer) => unchecked((byte)(pointer ^ 0x5a));
-
-        /// <summary>Routes cartridge-source attempts through the same lower-window validation.</summary>
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        /// <summary>Rejects upper-window and other-bank reads before returning the offset-derived fixture byte.</summary>
-        public static byte ReadByte(int address)
-        {
-            SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
-            if (sourceAddress.Bank != 0xa7 || sourceAddress.IsUpperLoRomWindow)
-            {
-                throw new InvalidOperationException(
-                    $"Kraid boundary fixture rejected unexpected read {sourceAddress}.");
-            }
-            return Value(sourceAddress.Offset);
-        }
-
-        /// <summary>Rejects writes because the mouth geometry fixture supplies only read behavior.</summary>
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException("Kraid mouth geometry is read-only.");
     }
 
     /// <summary>Runs the Kraid mouth geometry suite using the retail ROM oracle.</summary>

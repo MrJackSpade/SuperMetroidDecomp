@@ -109,7 +109,7 @@ internal static class CollectiblesVerification
 
             AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
                 $"{kind} retains pickup artwork during its message");
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
 
             // Returning from the message frees the native physical ID. Reuse that same highest slot for
@@ -176,7 +176,7 @@ internal static class CollectiblesVerification
 
         AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
             "Chozo pickup remains visible throughout message");
-        orb.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        orb.Plms.CollectiblePlms.CompleteCollectibleMessage(orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, orb.Plms.CollectiblePlms.Collectibles.Count, "Chozo pickup deletes after message");
 
@@ -207,7 +207,7 @@ internal static class CollectiblesVerification
         StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }));
         AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
             "shot pickup cannot clear or begin respawn countdown during message");
-        shot.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+        shot.Plms.CollectiblePlms.CompleteCollectibleMessage(shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         shot.Plms.Step(bus, shot.Level, shot.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
             shot.Plms.CollectiblePhases[0],
@@ -248,7 +248,7 @@ internal static class CollectiblesVerification
         AssertEqual(1, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
-        fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
+        fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
         AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Bus = bus, Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });

@@ -50,7 +50,7 @@ internal static class SpeedBoosterPickupVerification
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.PackedYVelocity,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(cartridge, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
@@ -71,7 +71,7 @@ internal static class SpeedBoosterPickupVerification
                     fx.BaseYPosition, "lava rises at native subpixel speed after delay");
             }
             fx.ApplyCartridgeMotionWrites(packedYVelocity: 0);
-            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
+            fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual((ushort)0, fx.PackedYVelocity, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");

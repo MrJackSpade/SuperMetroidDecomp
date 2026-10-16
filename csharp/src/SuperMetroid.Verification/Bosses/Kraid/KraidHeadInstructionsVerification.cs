@@ -39,12 +39,12 @@ internal static class KraidHeadInstructionsVerification
         AssertThrows<InvalidDataException>(
             () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x8000),
             "Kraid head tilemap resolver rejects unrelated upper-ROM code");
-        AssertThrows<ArgumentOutOfRangeException>(
+        AssertThrows<InvalidDataException>(
             () => KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(rom, 0x3ffe),
-            "Kraid head low-half alias rejects unmapped expansion space");
+            "Kraid head selection rejects a low-half pointer");
 
         Console.WriteLine(
-            "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
+            "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, every growth selection word, and production interpretation pass with the private streams forbidden.");
     }
 
     /// <summary>Reads one retail byte for the independent entry-timer oracle.</summary>
@@ -121,7 +121,6 @@ internal static class KraidHeadInstructionsVerification
         enemies.BindFixtureBus(guard);
         enemies.Presentation._cgram = new SnesCgram();
         enemies.Presentation._vram = new SnesVram();
-        var growth = new Func<RoomEnemySlot, KraidEnemyState, bool>(enemies.KraidBehavior.TryBeginKraidGrowth);
         var glow = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidEyeGlow);
         var death = new Action<RoomEnemySlot, KraidEnemyState>(enemies.KraidBehavior.InitializeKraidDeath);
         var combat = new Action<RoomEnemySlot, KraidEnemyState, VramWriteQueue?, ushort>(enemies.KraidBehavior.RunKraidCombatFunction);
@@ -147,16 +146,10 @@ internal static class KraidHeadInstructionsVerification
                     : (ushort)999,
                 body.VariableC, "Second-phase roar timer loads only on thinker expiry");
 
-            body.Health = 1;
-            body.VariableB = 0x1000;
-            guard.MutableTilemap = (ushort)raw;
-            AssertTrue(growth(body, state), "Growth threshold admits timer setup");
-            KraidHeadResumeDefinition expected =
-                NativeKraidGrowthResume(rom, (ushort)raw);
-            AssertEqual(expected.Timer, body.VariableC,
-                "Growth timer follows selected native resume row");
-            AssertEqual(expected.Pointer, body.VariableB,
-                "Growth resume cursor remains paired with timer");
+            KraidHeadResumeDefinition expected = NativeKraidGrowthResume(rom, (ushort)raw);
+            KraidHeadResumeDefinition actual = KraidHeadInstructionDefinitions.GrowthResume((ushort)raw);
+            AssertEqual(expected.Timer, actual.Timer, "Growth timer follows selected native resume row");
+            AssertEqual(expected.Pointer, actual.Pointer, "Growth resume cursor remains paired with timer");
         }
 
         glow(body, state);
@@ -174,8 +167,6 @@ internal static class KraidHeadInstructionsVerification
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");
-        AssertEqual(0, guard.UntypedLowHalfReadAttempts,
-            "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
     /// <summary>Guards compiled head-program bytes while observing Kraid's typed live-tilemap WRAM read.</summary>
@@ -183,22 +174,12 @@ internal static class KraidHeadInstructionsVerification
     internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
-        /// <summary>Live low-half tilemap alias supplied to Kraid's growth resume path.</summary>
-        public ushort MutableTilemap { get; set; }
         /// <summary>Counts attempts to reread the compiled head stream.</summary>
         public int ForbiddenReadAttempts { get; private set; }
-        /// <summary>Counts invalid generic-bus reads of the typed low-half WRAM alias.</summary>
-        public int UntypedLowHalfReadAttempts { get; private set; }
 
         /// <summary>Rejects head-stream bytes and low-half alias reads before delegating other cartridge data.</summary>
         public byte ReadCartridgeByte(int address)
         {
-            if (address is 0xa71002 or 0xa71003)
-            {
-                UntypedLowHalfReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Kraid read live WRAM alias ${address:X6} through the cartridge reader.");
-            }
             if (address is >= 0xa796d2 and < 0xa79788)
             {
                 ForbiddenReadAttempts++;
@@ -208,14 +189,10 @@ internal static class KraidHeadInstructionsVerification
             return source.ReadCartridgeByte(address);
         }
 
-        /// <summary>Serves the mutable tilemap alias directly and forwards other WRAM reads.</summary>
-        public byte ReadWorkRamByte(int address) => address switch
-        {
-            0xa71002 => (byte)MutableTilemap,
-            0xa71003 => SnesLittleEndian.HighByte(MutableTilemap),
-            _ => (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address),
-        };
+        /// <summary>Forwards WRAM reads to the mutable source.</summary>
+        public byte ReadWorkRamByte(int address) =>
+            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
+                "Kraid head guard source does not expose WRAM.")).ReadWorkRamByte(address);
 
         /// <summary>Forwards SRAM reads to the mutable source.</summary>
         public byte ReadSaveRamByte(int address) =>

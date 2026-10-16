@@ -642,22 +642,11 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void TransferKraidHeadTilemap(KraidEnemyState state, ushort sourcePointer)
     {
         ReadOnlySpan<ushort> source;
-        if (sourcePointer >= KraidBackgroundRomData.HeadRomWindowStart)
-        {
-            KraidBackgroundArtwork art = _room.Artwork?.KraidBackground
-                ?? throw new InvalidDataException("Installed enemy artwork has no Kraid BG2 tilemaps.");
-            source = art.HeadWords(sourcePointer);
-        }
-        else
-        {
-            // Supported native low-half pointers alias live WRAM, not immutable
-            // head art. Preserve that exceptional cartridge behavior exactly.
-            var alias = new ushort[KraidBackgroundRomData.HeadTilemapWords];
-            var lowBank = new KraidLowBankAliasMemory(_room.LoadedBus);
-            for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
-                alias[word] = lowBank.HeadTilemapWord(sourcePointer, word);
-            source = alias;
-        }
+        if (sourcePointer < KraidBackgroundRomData.HeadRomWindowStart)
+            throw new InvalidDataException($"Kraid head tilemap $A7:{sourcePointer:X4} is not an authored head record.");
+        KraidBackgroundArtwork art = _room.Artwork?.KraidBackground
+            ?? throw new InvalidDataException("Installed enemy artwork has no Kraid BG2 tilemaps.");
+        source = art.HeadWords(sourcePointer);
         // $A7:AF5D queues this source directly to VRAM. Mirroring it into the
         // body's WRAM map changes later growth/sink uploads and is not native behavior.
         new EnemyVram(_presentation.Vram).KraidTopPage.Write(source);
@@ -803,7 +792,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int lastSlot = shots.LastSlot;
         int mouthHits = 0;
         ushort innerMouth = lastSlot == 0 ? ushort.MaxValue :
-            KraidHeadInstructionDefinitions.ReadCollisionHitbox(_room.LoadedBus, body.VariableB, innerMouth: true);
+            KraidHeadInstructionDefinitions.ReadCollisionHitbox(body.VariableB, innerMouth: true);
         if (lastSlot != 0 && innerMouth != ushort.MaxValue)
         {
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, innerMouth);
@@ -888,7 +877,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int bodyHits = 0;
         if (lastSlot != 0)
         {
-            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(_room.LoadedBus, body.VariableB, innerMouth: false);
+            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(body.VariableB, innerMouth: false);
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {

@@ -774,29 +774,20 @@ public sealed class SamusHorizontalSpeedState
     {
         Ensure.NotNull(bus);
         int address = ResolveEntryAddress(movementType);
-        return ReadEntryAtAddress(bus, address);
+        return ReadEntryAtAddress(address);
     }
 
-    /// <summary>Resolves authored speed records first, then permits only bank-$90 low-window mutable-memory aliases.</summary>
-    internal static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
+    /// <summary>Resolves an authored speed record; any other address is corrupt state.</summary>
+    internal static SpeedTableEntry ReadEntryAtAddress(int address)
     {
         if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
             SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out compiled))
             return compiled;
 
-        // Bank $90's low half aliases live SNES memory rather than immutable cartridge ROM.
-        // Retain that native indirection for deliberately restored/corrupted pointer state,
-        // but never reinterpret unrelated high-bank code or presentation bytes as physics.
-        SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
-        if (sourceAddress.Bank != SnesLittleEndian.BankByte(SamusMovementRomData.Banks.Movement) ||
-            sourceAddress.IsUpperLoRomWindow)
-        {
-            throw new InvalidDataException(
-                $"Samus horizontal speed entry {sourceAddress} " +
-                "is not an authored mechanics record or mutable low-bank alias.");
-        }
-
-        return new SamusOverreadMemory(bus).HorizontalSpeedEntry(address);
+        // The cartridge writes $0A6C only with constants, and the port assigns only compiled tables, so any other
+        // address is corrupt state.
+        throw new InvalidDataException(
+            $"Samus horizontal speed entry {SnesAddress.FromBusAddress(address)} is not an authored mechanics record.");
     }
 
     /// <summary>
@@ -816,7 +807,7 @@ public sealed class SamusHorizontalSpeedState
     public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
     {
         Ensure.NotNull(bus);
-        return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
+        return CalculateBaseSpeed(ReadEntryAtAddress(address));
     }
 
     /// <summary>Applies the table's acceleration or deceleration using native split-word arithmetic and updates base speed.</summary>

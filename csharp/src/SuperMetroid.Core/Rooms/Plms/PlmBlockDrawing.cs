@@ -138,11 +138,11 @@ internal sealed class PlmBlockDrawing
     public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; set; }
 
     /// <summary>Draws a PLM without header-specific visual ownership using its block origin and instruction pointer.</summary>
-    internal void DrawPlmInstruction(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort drawPointer, PlmView view) =>
-        DrawPlmInstruction(bus, level, streamer, 0, blockIndex, drawPointer, view);
+    internal void DrawPlmInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, ushort drawPointer, PlmView view) =>
+        DrawPlmInstruction(level, streamer, 0, blockIndex, drawPointer, view);
 
     /// <summary>Resolves a compiled or cartridge draw list, selecting installed visuals by PLM owner while retaining physical collision words.</summary>
-    internal void DrawPlmInstruction(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer, PlmView view)
+    internal void DrawPlmInstruction(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer, PlmView view)
     {
         // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
         // level words. Bit 15 means a vertical column; a clear bit means a horizontal row.
@@ -456,45 +456,7 @@ internal sealed class PlmBlockDrawing
             return;
         }
 
-        Position16<RoomBlocks> entry = origin;
-        ushort cursor = drawPointer;
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-            throw new InvalidOperationException("A WRAM-authored PLM draw needs live mutable memory.");
-
-        // A pointer that wrapped into the low bank-$84 mirror may consume active WRAM.
-        // Every cartridge-resident draw must already have a compiled definition above;
-        // the explicit WRAM API rejects all cartridge and peripheral offsets.
-        for (int entryNumber = 0; entryNumber < 32; entryNumber++)
-        {
-            ushort directionAndCount = RoomPlmSystem.ReadPlmWorkRamWord(memory, cursor);
-            bool vertical = RoomPlmShotBlockDrawDefinitions.IsVerticalRun(directionAndCount);
-            int count = RoomPlmShotBlockDrawDefinitions.RunCount(directionAndCount);
-            if (count is <= 0 or > RoomPlmShotBlockDrawDefinitions.MaximumRunCount)
-            {
-                throw new InvalidDataException(
-                    $"PLM draw list ${drawPointer:X4} has invalid block count {count}.");
-            }
-            cursor = unchecked((ushort)(cursor + 2));
-
-            for (int blockOffset = 0; blockOffset < count; blockOffset++)
-            {
-                Position16<RoomBlocks> block = entry + new Offset16<RoomBlocks>(checked((short)(vertical ? 0 : blockOffset)), checked((short)(vertical ? blockOffset : 0)));
-                ushort levelWord = RoomPlmSystem.ReadPlmWorkRamWord(memory, cursor);
-                cursor = unchecked((ushort)(cursor + 2));
-                DrawPlmWordAt(level, streamer, drawPointer, block, levelWord, view);
-            }
-
-            byte relativeX = RoomPlmSystem.ReadPlmWorkRamByte(memory, cursor);
-            byte relativeY = RoomPlmSystem.ReadPlmWorkRamByte(memory, unchecked((ushort)(cursor + 1)));
-            if (relativeX == 0 && relativeY == 0)
-                return;
-
-            entry = origin + new Offset16<RoomBlocks>(unchecked((sbyte)relativeX), unchecked((sbyte)relativeY));
-            cursor = unchecked((ushort)(cursor + 2));
-        }
-
-        throw new InvalidDataException(
-            $"PLM draw list ${drawPointer:X4} did not reach its signed-offset terminator.");
+        throw new InvalidDataException($"PLM draw list ${drawPointer:X4} has no compiled definition.");
     }
 
     /// <summary>Walks signed-offset runs in a compiled PLM list and applies each authored physical word.</summary>

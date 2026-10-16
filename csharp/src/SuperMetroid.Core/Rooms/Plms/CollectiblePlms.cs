@@ -17,7 +17,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.Collectible, (slot, context) =>
-            TryStepCollectible(context.Bus, context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+            TryStepCollectible(context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
     /// <summary>Supplies Samus, persistence, and room-FX owners at pickup time.</summary>
@@ -66,7 +66,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// the empty block and deletes itself within the same PLM_Handler call. Returns that
     /// draw's tilemap updates.
     /// </summary>
-    internal IReadOnlyList<PlmTilemapUpdate> CompleteCollectibleMessage(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
+    internal IReadOnlyList<PlmTilemapUpdate> CompleteCollectibleMessage(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmView view)
     {
         _drawing._tilemapUpdates.Clear();
         foreach (PlmSlot slot in _slotTable._slots)
@@ -74,7 +74,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             if (!slot.Active || slot.Family is not CollectiblePlmState { Phase: CollectiblePhase.AwaitingMessage } item)
                 continue;
             item.Phase = CollectiblePhase.ResumeAfterMessage;
-            FinishCollectiblePickup(bus, level, streamer, slot, view);
+            FinishCollectiblePickup(level, streamer, slot, view);
         }
         CompleteSpeedBoosterPickupContinuation();
         return _drawing._tilemapUpdates;
@@ -324,7 +324,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Advances one item's reveal, pickup, message wait, or shot-block respawn list.</summary>
-    internal bool TryStepCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    internal bool TryStepCollectible(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         CollectiblePlmState? item = slot.Family as CollectiblePlmState;
         if (item is null)
@@ -353,7 +353,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 return true;
 
             case CollectiblePhase.ResumeAfterMessage:
-                FinishCollectiblePickup(bus, level, streamer, slot, view);
+                FinishCollectiblePickup(level, streamer, slot, view);
                 return true;
 
             case CollectiblePhase.EmptyAwaitingDelete:
@@ -363,7 +363,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 return true;
 
             case CollectiblePhase.CollectedEmpty:
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                 slot.Active = false;
                 slot.HeaderPointer = 0;
                 return true;
@@ -374,7 +374,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     AcquireCollectible(slot);
                     return true;
                 }
-                DrawCollectible(bus, level, streamer, slot, GetVisibleCollectibleDraw(item), view);
+                DrawCollectible(level, streamer, slot, GetVisibleCollectibleDraw(item), view);
                 item.AnimationIndex ^= 1;
                 item.Timer = 4;
                 return true;
@@ -385,7 +385,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     AcquireCollectible(slot);
                     return true;
                 }
-                DrawCollectible(bus, level, streamer, slot, GetVisibleCollectibleDraw(item), view);
+                DrawCollectible(level, streamer, slot, GetVisibleCollectibleDraw(item), view);
                 if (item.AnimationIndex == 1 && --item.VisibleFramePairsRemaining == 0)
                 {
                     item.Phase = CollectiblePhase.ShotBlockReconceal;
@@ -405,11 +405,11 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Triggered = false;
                     item.Phase = CollectiblePhase.ChozoOrbBurst;
                     item.AnimationIndex = 0;
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                     item.Timer = 3;
                     return true;
                 }
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbFrame(item.AnimationIndex), view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbFrame(item.AnimationIndex), view);
                 item.Timer = item.AnimationIndex is 0 or 2 ? 20 : 10;
                 item.AnimationIndex = (item.AnimationIndex + 1) & 3;
                 return true;
@@ -418,13 +418,13 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.AnimationIndex++;
                 if (item.AnimationIndex == 1)
                 {
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbBurst, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbBurst, view);
                     item.Timer = 3;
                     return true;
                 }
                 if (item.AnimationIndex == 2)
                 {
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                     item.Timer = 3;
                     return true;
                 }
@@ -440,7 +440,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.WasCollectedBeforeReveal = item.Phase == CollectiblePhase.CollectedShotBlock;
                 item.Phase = CollectiblePhase.ShotBlockReveal;
                 item.AnimationIndex = 0;
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0), view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0), view);
                 _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6));
                 item.Timer = 4;
                 return true;
@@ -449,7 +449,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.AnimationIndex++;
                 if (item.AnimationIndex < 3)
                 {
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
                     item.Timer = 4;
                     return true;
                 }
@@ -457,7 +457,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 {
                     item.Phase = CollectiblePhase.CollectedShotBlockEmpty;
                     item.AnimationIndex = 0;
-                    DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+                    DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
                     item.Timer = 8 * 22;
                     return true;
                 }
@@ -467,7 +467,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 goto case CollectiblePhase.ShotBlockVisible;
 
             case CollectiblePhase.ShotBlockReconceal:
-                DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
+                DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex), view);
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
@@ -481,7 +481,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case CollectiblePhase.CollectedShotBlockEmpty:
                 item.Phase = CollectiblePhase.CollectedShotBlockRespawn;
                 item.AnimationIndex = 2;
-                DrawCollectible(bus, level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
+                DrawCollectible(level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
                 item.Timer = 4;
                 return true;
 
@@ -489,7 +489,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
-                    DrawCollectible(bus, level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
+                    DrawCollectible(level, streamer, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)), view);
                     item.Timer = 4;
                     return true;
                 }
@@ -509,8 +509,8 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
     /// <summary>Executes a compiled item draw instruction against the level and background streamer.</summary>
-    private void DrawCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort drawPointer, PlmView view) =>
-        _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
+    private void DrawCollectible(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort drawPointer, PlmView view) =>
+        _drawing.DrawPlmInstruction(level, streamer, slot.BlockIndex, drawPointer, view);
 
     /// <summary>Sets persistence and inventory before publishing the synchronous message and fanfare request.</summary>
     private void AcquireCollectible(PlmSlot slot)
@@ -546,7 +546,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Draws the empty item after message return or begins the shot block's delayed respawn.</summary>
-    private void FinishCollectiblePickup(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    private void FinishCollectiblePickup(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM resumed a pickup message.");
@@ -558,14 +558,14 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             item.WasCollectedBeforeReveal = true;
             item.Phase = CollectiblePhase.CollectedShotBlockEmpty;
             item.AnimationIndex = 0;
-            DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+            DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
             item.Timer = 8 * 22;
             return;
         }
 
         // $84:DFA9: InstList_PLM_EmptyItem draws for one frame; its delete runs on the
         // following PLM_Handler pass.
-        DrawCollectible(bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
+        DrawCollectible(level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty, view);
         item.Phase = CollectiblePhase.EmptyAwaitingDelete;
         item.Timer = 1;
     }

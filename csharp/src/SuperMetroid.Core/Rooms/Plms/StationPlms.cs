@@ -16,7 +16,7 @@ internal sealed class StationPlms : IPlmFamilySource
     {
         Ensure.NotNull(table);
         table.Register(PlmFamily.Station, (slot, context) =>
-            TryStepStation(context.Bus, context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
+            TryStepStation(context.Level, context.Streamer, slot, context.View) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
     /// <summary>Provides the live Samus and persistent area state used by station activation.</summary>
@@ -118,7 +118,7 @@ internal sealed class StationPlms : IPlmFamilySource
         // `$84:AFF4` queues library-one sound $2E right after centring Samus.
         _sounds._soundRequests.Add(_sounds.CreateSoundRequest(SoundEffectLibrary1Sounds.Saving, MaximumQueued: 6));
         _drawing._tilemapUpdates.Clear();
-        DrawSaveStationFrame(bus, level, streamer, activation.BlockIndex, station, view);
+        DrawSaveStationFrame(level, streamer, activation.BlockIndex, station, view);
         return new SaveStationConfirmationResult(true, _drawing._tilemapUpdates.ToArray());
     }
 
@@ -428,7 +428,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>Advances station draw timers, access-arm phases, and activation messages during the PLM pass.</summary>
-    internal bool TryStepStation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
+    internal bool TryStepStation(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         StationPlmState? station = slot.Family as StationPlmState;
         if (station is null)
@@ -476,11 +476,11 @@ internal sealed class StationPlms : IPlmFamilySource
                 station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
                 _sounds._soundRequests.Add(_sounds.CreateSoundRequest(RoomPlmSounds.StationExtension, MaximumQueued: 6));
-                DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
+                DrawStationAccess(level, streamer, station, extended: false, view: view);
             }
         }
 
-        if (station.Kind == StationKind.Save && StepSaveStationAnimation(bus, level, streamer, slot, station, view))
+        if (station.Kind == StationKind.Save && StepSaveStationAnimation(level, streamer, slot, station, view))
         {
             return true;
         }
@@ -494,7 +494,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 switch (station.OperationPhase)
                 {
                     case StationOperationPhase.Extending:
-                        DrawStationAccess(bus, level, streamer, station, extended: true, view: view);
+                        DrawStationAccess(level, streamer, station, extended: true, view: view);
                         station.OperationPhase = StationOperationPhase.Extended;
                         station.OperationTimer = NativeCountdown.Start(StationAccessExtendedHoldFrames);
                         break;
@@ -514,7 +514,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.Retracting:
-                        DrawStationAccess(bus, level, streamer, station, extended: false, view: view);
+                        DrawStationAccess(level, streamer, station, extended: false, view: view);
                         station.OperationPhase = StationOperationPhase.FinalRetractionHold;
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
@@ -554,7 +554,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 $"{station.Kind} station animation $84:{(int)station.AnimationList:X4} " +
                 $"frame {station.AnimationFrame} does not begin with a timed draw.");
         }
-        _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, draw, view);
+        _drawing.DrawPlmInstruction(level, streamer, slot.BlockIndex, draw, view);
         station.AnimationTimer = timer;
         station.InitialDrawCompleted = true;
         station.AnimationFrame = (station.AnimationFrame + 1) % station.AnimationFrameCount;
@@ -562,7 +562,7 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>Runs the accepted save's two-frame loop until the saved-game message can be published.</summary>
-    private bool StepSaveStationAnimation(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
+    private bool StepSaveStationAnimation(RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, StationPlmState station, PlmView view)
     {
         if (station.SavePhase is SaveStationPhase.Idle or
             SaveStationPhase.AwaitingConfirmation)
@@ -595,12 +595,12 @@ internal sealed class StationPlms : IPlmFamilySource
                 slot.BlockIndex));
             return true;
         }
-        DrawSaveStationFrame(bus, level, streamer, slot.BlockIndex, station, view);
+        DrawSaveStationFrame(level, streamer, slot.BlockIndex, station, view);
         return true;
     }
 
     /// <summary>Draws the next of the two four-frame electricity frames (`$84:AFFA`/`$AFFE`).</summary>
-    private void DrawSaveStationFrame(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, StationPlmState station, PlmView view)
+    private void DrawSaveStationFrame(RoomLevelData level, BackgroundTilemapStreamer streamer, int blockIndex, StationPlmState station, PlmView view)
     {
         StationAnimationList list = station.AnimationFrame == 0
             ? StationAnimationList.SaveFirstFrame
@@ -612,7 +612,7 @@ internal sealed class StationPlms : IPlmFamilySource
             throw new InvalidDataException(
                 $"Save-station animation list $84:{(int)list:X4} has timer {frame.Duration}, expected 4.");
         }
-        _drawing.DrawPlmInstruction(bus, level, streamer, blockIndex, frame.DrawPointer, view);
+        _drawing.DrawPlmInstruction(level, streamer, blockIndex, frame.DrawPointer, view);
         station.AnimationTimer = NativeCountdown.FromRaw(frame.Duration);
         station.AnimationFrame ^= 1;
         if (station.AnimationFrame == 0)
@@ -665,14 +665,14 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
-    private void DrawStationAccess(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
+    private void DrawStationAccess(RoomLevelData level, BackgroundTilemapStreamer streamer, StationPlmState station, bool extended, PlmView view)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
         ushort drawPointer = definition.DrawPointer(extended);
-        _drawing.DrawPlmInstruction(bus, level, streamer, station.AccessBlockIndex, drawPointer, view);
+        _drawing.DrawPlmInstruction(level, streamer, station.AccessBlockIndex, drawPointer, view);
     }
 
     /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>

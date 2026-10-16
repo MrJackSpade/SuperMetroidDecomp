@@ -97,7 +97,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
             $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
-        plms.DrawSolePlmFrameForVerification(guarded, level, streamer, selected.Pointer);
+        plms.DrawSolePlmFrameForVerification(level, streamer, selected.Pointer);
 
         int entryX = originX;
         int entryY = originY;

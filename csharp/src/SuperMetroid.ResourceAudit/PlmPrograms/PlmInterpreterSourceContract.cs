@@ -11,11 +11,11 @@ internal static class PlmInterpreterSourceContract
     {
         "TryIdentifyPermanentCollectible/3",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "DrawPlmInstruction/7",
+        "DrawPlmInstruction/6",
         // #1269 adds the compiled escape-passage and shaft-wall clear draws; no program reads.
         // #142 reads the installed visuals through auto-properties; no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "DrawPlmInstruction/6",
+        "DrawPlmInstruction/5",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         "ConvertEyeToBlueDoor/3",
         // #1269 adds $84:BB25, a two-byte record with no operands (PlmInstructionFormats).
@@ -24,10 +24,10 @@ internal static class PlmInterpreterSourceContract
         // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         // #1296 moves Botwoon's scroll instruction to its typed wall program; the interpreter no longer takes the scroll grid.
-        "ExecuteInstructionStream/6",
+        "ExecuteInstructionStream/5",
         // #1273 drops the verification-only instruction source; the remaining sources are unchanged.
-        "ReadProgramByte/2",
-        "ReadProgramWord/2",
+        "ReadProgramByte/1",
+        "ReadProgramWord/1",
         // Saved item-load counter increment adds no program reads or operand-width changes;
         // #1269 Chozo orb phases change collectible state only.
         "SetupCollectibleSlot/5",
@@ -42,7 +42,7 @@ internal static class PlmInterpreterSourceContract
         "SpawnEyeDoorProjectile/3",
         // #627 typed handlers test membership, then throw on an unhandled member; no program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryExecuteChozoStatueInstruction/4",
+        "TryExecuteChozoStatueInstruction/3",
         // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
@@ -51,7 +51,7 @@ internal static class PlmInterpreterSourceContract
         // #1255 suspends before the existing Empty draw/delete continuation; no new program reads or operand widths;
         // #1269 releases an emptied Chozo slot without reading its program.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepCollectible/5",
+        "TryStepCollectible/4",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         // #1266 resets LoopTimer for a rejected shot; no program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
@@ -59,7 +59,7 @@ internal static class PlmInterpreterSourceContract
         // #1269 station lock timing; the unpause-release change drops the second lock; no
         // program reads or operand widths change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        "TryStepStation/5",
+        "TryStepStation/4",
         "TryStepWreckedShipTreadmill/3",
     };
 }

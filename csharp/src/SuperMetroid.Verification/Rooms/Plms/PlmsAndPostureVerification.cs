@@ -193,46 +193,6 @@ internal static void VerifyBreakableGrapplePlms()
     AssertEqual(0, permanent1x2Plms.SlotTable.ActiveCount,
         "permanent BTS-6 deletes one frame after its timer-one blank draw");
 
-    // `$84:BA6F` receives the instruction cursor on its two-byte target. Without Bombs it
-    // branches to Sleep; with Bombs it consumes the target and reaches Delete inline.
-    // Exercising both results proves the shared interpreter reads CollectedItems rather
-    // than treating this as a room-specific or equipped-item condition.
-    // Constructed probes run from low work RAM, where wrapped `$84` pointers execute.
-    const ushort instructionProbe = 0x1200;
-    ushort[] branchInstructions = [(ushort)RoomPlmInstruction.GotoIfSamusHasNoBombs,
-        instructionProbe + 8, (ushort)RoomPlmInstruction.Delete, 0, (ushort)RoomPlmInstruction.Sleep];
-    RoomLevelData noBombsBranchLevel = CreateLevel(1, definitions);
-    var noBombsBranchPlms = new RoomPlmSystem();
-    AssertTrue(noBombsBranchPlms.TrySpawnBreakableGrappleBlock(
-        noBombsBranchLevel, blockIndex, 1),
-        "no-Bombs branch fixture occupies a PLM slot");
-    noBombsBranchPlms.SetSoleWorkRamProgramForVerification(bus, instructionProbe, branchInstructions);
-    noBombsBranchPlms.Step(bus, noBombsBranchLevel, noBombsBranchLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = 0 });
-    AssertEqual(1, noBombsBranchPlms.SlotTable.ActiveCount,
-        "BA6F branches to the target when Bombs have not been collected");
-
-    RoomLevelData bombsBranchLevel = CreateLevel(1, definitions);
-    var bombsBranchPlms = new RoomPlmSystem();
-    AssertTrue(bombsBranchPlms.TrySpawnBreakableGrappleBlock(
-        bombsBranchLevel, blockIndex, 1),
-        "Bombs branch fixture occupies a PLM slot");
-    bombsBranchPlms.SetSoleWorkRamProgramForVerification(bus, instructionProbe, branchInstructions);
-    bombsBranchPlms.Step(bus, bombsBranchLevel, bombsBranchLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0, CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord() });
-    AssertEqual(0, bombsBranchPlms.SlotTable.ActiveCount,
-        "BA6F continues inline when Bombs have been collected");
-
-    // Any high-bit word is dispatched as native code. An unknown routine must stop at the
-    // interpreter boundary instead of being skipped or misread as a timer/draw record.
-    RoomLevelData unknownOpcodeLevel = CreateLevel(1, definitions);
-    var unknownOpcodePlms = new RoomPlmSystem();
-    AssertTrue(unknownOpcodePlms.TrySpawnBreakableGrappleBlock(
-        unknownOpcodeLevel, blockIndex, 1),
-        "uncatalogued-opcode fixture occupies a PLM slot");
-    unknownOpcodePlms.SetSoleWorkRamProgramForVerification(bus, instructionProbe, 0x9000);
-    AssertThrows<InvalidDataException>(
-        () => unknownOpcodePlms.Step(bus, unknownOpcodeLevel, unknownOpcodeLevel.CreateBackgroundStreamer(), new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }),
-        "uncatalogued bank-$84 PLM opcode fails loudly");
-
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
 

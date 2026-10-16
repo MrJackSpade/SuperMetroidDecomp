@@ -929,32 +929,6 @@ internal sealed class EnemyCollision
         if (enemy.Entity is IEnemyExtendedHitboxes owner && owner.FindHitboxCallback(target, out callback) is { } owned)
             return owned;
 
-        if (PhantoonBehavior.IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer))
-        {
-            // Phantoon's extended frame roots include hitbox-list pointers,
-            // but its editable BG2 tilemap writes must never become collision
-            // data. Preserve the native component and rectangle order from
-            // the compiled bank-$A7 definitions, including point no-ops.
-            foreach (PhantoonCollisionComponent component in
-                     PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                foreach (PhantoonCollisionHitbox hitbox in
-                         PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
         if (RidleyBehavior.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
             enemy.Definition.Bank == RidleyCollisionDefinitions.Bank &&
             (RidleyCollisionDefinitions.HasFrame(enemy.SpritemapPointer) ||
@@ -971,32 +945,6 @@ internal sealed class EnemyCollision
                 ushort componentY = componentOrigin.Y;
                 foreach (RidleyCollisionHitbox hitbox in
                          RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
-                {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
-                    if (!target.Overlaps(left, top, right, bottom))
-                        continue;
-                    callback = selectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        if (enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
-            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank)
-        {
-            // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
-            foreach (MotherBrainCollisionComponent component in
-                     MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
-            {
-                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-                ushort componentX = componentOrigin.X;
-                ushort componentY = componentOrigin.Y;
-                foreach (MotherBrainCollisionHitbox hitbox in
-                         MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
                     ushort left = unchecked((ushort)(componentX + hitbox.Left));
                     ushort top = unchecked((ushort)(componentY + hitbox.Top));

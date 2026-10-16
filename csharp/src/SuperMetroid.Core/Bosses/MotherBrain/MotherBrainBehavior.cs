@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
@@ -19,8 +20,14 @@ using SuperMetroid.Core.Enemies.Drawing;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>The Mother Brain species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MotherBrainBehavior : IEnemySpecies
+internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.MotherBrainBody, EnemyDefinitionId.MotherBrainHead, EnemyDefinitionId.MotherBrainTubes];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MotherBrainEntity(this, slot, common);
+
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
@@ -89,11 +96,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
     /// <summary>Where each falling tube's program resumes (#641), by enemy slot.</summary>
     internal readonly AnimationProgramCursor<MotherBrainTubePiece>[] FallingTubeCursors =
         new AnimationProgramCursor<MotherBrainTubePiece>[RoomEnemySystem.MaximumEnemyCount];
-
-    /// <summary>Binds the falling tubes' typed programs (#641) to the enemy instruction stage.</summary>
-    internal void RegisterMotherBrainTubeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes,
-            (slot, context) => AdvanceMotherBrainTubeAnimation(slot));
 
     /// <summary>
     /// Runs a falling tube's program where the enemy instruction interpreter would: its pose shows on the update the
@@ -625,10 +627,17 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         return advance.Frame.Spritemap;
     }
 
-    /// <summary>Binds the typed body and head-slot programs (#641) to the enemy instruction stage.</summary>
-    internal void RegisterMotherBrainTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsMotherBrainDefinition(slot.EnemyDefinitionPointer),
-            (slot, context) => AdvanceMotherBrainSlotAnimation(slot, context.Samus));
+    /// <summary>Advances MotherBrainTubes's typed animation.</summary>
+    internal void AdvanceMotherBrainTubesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceMotherBrainTubeAnimation(slot);
+    }
+
+    /// <summary>Advances MotherBrainBody's typed animation.</summary>
+    internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceMotherBrainSlotAnimation(slot, context.Samus);
+    }
 
     /// <summary>
     /// Runs the body's program, or the head slot's dummy, where the enemy instruction interpreter would: the frame
@@ -1034,50 +1043,45 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Binds body and head initialization to their native enemy definitions.</summary>
-    internal void RegisterMotherBrainInitializationAi(EnemyAiTable table)
+    /// <summary>Ports MotherBrainBody's initialization AI.</summary>
+    internal void RunMotherBrainBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MotherBrainBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainBody(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MotherBrainHead, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainHead(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_MotherBrainTubes, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMotherBrainFallingTube(slot);
-        });
+        InitializeMotherBrainBody(slot);
     }
 
-    /// <summary>Binds body and head frame updates to their native enemy definitions.</summary>
-    internal void RegisterMotherBrainMainAi(EnemyAiTable table)
+    /// <summary>Ports MotherBrainHead's initialization AI.</summary>
+    internal void RunMotherBrainHeadInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeMotherBrainHead(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_MotherBrainBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
-        });
+    /// <summary>Ports MotherBrainTubes's initialization AI.</summary>
+    internal void RunMotherBrainTubesInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    {
+        InitializeMotherBrainFallingTube(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_HurtAI_MotherBrainHead, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainHeadMain(slot, frame.Samus);
-        });
+    /// <summary>Ports MotherBrainBody's main AI.</summary>
+    internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunMotherBrainBodyMain(slot, frame.Samus, frame.SharedProjectiles);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_MotherBrainTubes, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMotherBrainFallingTubeMain(slot);
-        });
+    /// <summary>Ports MotherBrainHead's main AI.</summary>
+    internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunMotherBrainHeadMain(slot, frame.Samus);
+    }
+
+    /// <summary>Ports MotherBrainTubes's main AI.</summary>
+    internal void RunMotherBrainTubesMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
+    {
+        RunMotherBrainFallingTubeMain(slot);
     }
 
     /// <summary>Binds head and body shot responses for each combat phase.</summary>
     internal void RegisterMotherBrainShotReactions(EnemyAiTable table)
     {
-
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainBodyShot)
         {
@@ -4522,5 +4526,37 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainBodyShot,
             static _ => { });
+    }
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(enemy.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
+            enemy.Definition.Bank == MotherBrainCollisionDefinitions.Bank))
+            return null;
+
+        // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
+        foreach (MotherBrainCollisionComponent component in
+                 MotherBrainCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
+            foreach (MotherBrainCollisionHitbox hitbox in
+                     MotherBrainCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentX + hitbox.Left));
+                ushort top = unchecked((ushort)(componentY + hitbox.Top));
+                ushort right = unchecked((ushort)(componentX + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
     }
 }

@@ -109,20 +109,6 @@ internal sealed class EnemyInstructionInterpreter
             if (owner.FindBg2Frame(selected, _room) is { } lookup)
                 (family, found, writes) = lookup;
         }
-        else if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
-            slot.Definition.Bank == MotherBrainBodyVisualDefinitions.Bank &&
-            MotherBrainBodyVisualDefinitions.HasBg2(selected))
-        {
-            family = "Mother Brain body";
-            found = _room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
-        }
-        else if (PhantoonBehavior.IsPhantoonPartDefinition(slot.EnemyDefinitionPointer) &&
-            slot.Definition.Bank == PhantoonBg2FrameDefinitions.Bank &&
-            PhantoonBg2FrameDefinitions.IsFrame(selected))
-        {
-            family = "Phantoon";
-            found = _room.InstalledArtwork.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
-        }
         if (family is null)
             return;
         if (!found)

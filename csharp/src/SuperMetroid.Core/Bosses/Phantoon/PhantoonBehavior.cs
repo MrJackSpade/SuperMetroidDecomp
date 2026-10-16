@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -15,8 +16,14 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>The Phantoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class PhantoonBehavior : IEnemySpecies
+internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PhantoonEntity(this, slot, common);
+
     /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the starting, casual, rain, rage, and spiral flame actors.</summary>
@@ -776,29 +783,16 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         });
     }
 
-    /// <summary>Binds body and part initializers to their native enemy definitions.</summary>
-    internal void RegisterPhantoonInitializationAi(EnemyAiTable table)
+    /// <summary>Ports PhantoonBody's initialization AI.</summary>
+    internal void RunPhantoonBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_PhantoonBody, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializePhantoonBody(slot);
-        });
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Phantoon_Eye_Tentacles_Mouth, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializePhantoonPart(slot);
-        });
+        InitializePhantoonBody(slot);
     }
 
-    /// <summary>Binds the body frame update to its native AI routine.</summary>
-    internal void RegisterPhantoonMainAi(EnemyAiTable table)
+    /// <summary>Ports PhantoonEye's initialization AI.</summary>
+    internal void RunPhantoonEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_Phantoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunPhantoonMain(slot, frame.Samus, frame.Camera);
-        });
+        InitializePhantoonPart(slot);
     }
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
@@ -1767,10 +1761,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         eye.VariableE = unchecked((ushort)(numerator + 1));
         return false;
     }
-    /// <summary>Runs Phantoon's body, eye, tentacles and mouth as typed programs in place of their bank-$A7 lists (#641).</summary>
-    internal void RegisterPhantoonTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => IsPhantoonPartDefinition(slot.EnemyDefinitionPointer),
-            (slot, context) => AdvancePhantoonPartAnimation(slot));
+    /// <summary>Advances Phantoon's typed animation.</summary>
+    internal void AdvancePhantoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvancePhantoonPartAnimation(slot);
+    }
 
     /// <summary>
     /// Runs a Phantoon part's program where the enemy instruction interpreter would: the frame expires on the update
@@ -2282,24 +2277,24 @@ internal sealed class PhantoonBehavior : IEnemySpecies
         audio.QueueLegacyMusic(Phantoon?.MusicRequest, MusicCommandDelay.EightFrames);
     }
 
-    /// <summary>Binds the eye slot's frame callback to its native AI routine.</summary>
-    internal static void RegisterPhantoonEyeMainAi(EnemyAiTable table)
+    /// <summary>Ports PhantoonBody's main AI.</summary>
+    internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-        table.RegisterMain(EnemyAiRoutine.RTL_A7804C, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonEye, (slot, frame, nmiFrameCounter8) =>
-        {
-            // Phantoon's eye is positioned by the body and animated by its own list;
-            // the header main is the literal common RTL at the start of bank $A7.
-        });
+        RunPhantoonMain(slot, frame.Samus, frame.Camera);
     }
 
-    /// <summary>Binds mouth and tentacle frame callbacks to their native AI routine.</summary>
-    internal static void RegisterPhantoonMouthAndTentaclesMainAi(EnemyAiTable table)
+    /// <summary>Ports PhantoonEye's main AI.</summary>
+    internal static void RunPhantoonEyeMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
     {
-        table.RegisterMain(EnemyAiRoutine.RTL_A7E011, slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth, (slot, frame, nmiFrameCounter8) =>
-        {
-            // $A7:E011 is a literal RTL. These drawing parts animate entirely through
-            // their independent bank-$A7 instruction lists after the shared body main.
-        });
+        // Phantoon's eye is positioned by the body and animated by its own list;
+        // the header main is the literal common RTL at the start of bank $A7.
+    }
+
+    /// <summary>Ports PhantoonTentacles's main AI.</summary>
+    internal static void RunPhantoonTentaclesMainAi(RoomEnemySlot _, IEnemyAiFrame _1, byte _2)
+    {
+        // $A7:E011 is a literal RTL. These drawing parts animate entirely through
+        // their independent bank-$A7 instruction lists after the shared body main.
     }
 
     /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
@@ -2329,4 +2324,36 @@ internal sealed class PhantoonBehavior : IEnemySpecies
     internal void RegisterPhantoonHurtAi(EnemyAiTable table) =>
         table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));
+
+    /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
+    internal static bool? FindPhantoonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out ushort callback)
+    {
+        callback = 0;
+        if (!(PhantoonBehavior.IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer)))
+            return null;
+
+        // Phantoon's extended frame roots include hitbox-list pointers,
+        // but its editable BG2 tilemap writes must never become collision
+        // data. Preserve the native component and rectangle order from
+        // the compiled bank-$A7 definitions, including point no-ops.
+        foreach (PhantoonCollisionComponent component in
+                 PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
+        {
+            Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
+            foreach (PhantoonCollisionHitbox hitbox in
+                     PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            {
+                ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
+                if (!probe.Overlaps(left, top, right, bottom))
+                    continue;
+                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                return true;
+            }
+        }
+        return false;
+    
+    }
 }

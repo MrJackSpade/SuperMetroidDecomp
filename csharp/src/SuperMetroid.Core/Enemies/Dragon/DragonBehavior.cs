@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
@@ -278,7 +278,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         following.InvincibilityTimer = actor.InvincibilityTimer;
         following.FlashTimer = actor.FlashTimer;
         following.FrozenTimer = actor.FrozenTimer;
-        following.AiHandlerBits = actor.AiHandlerBits;
+        following.AiStates = actor.AiStates;
     }
 
     /// <summary>Installs a newly requested animation list once and resets its instruction and loop timers.</summary>

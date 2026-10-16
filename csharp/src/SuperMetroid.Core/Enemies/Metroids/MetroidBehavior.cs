@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies.Metroids.Artwork;
@@ -362,7 +362,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
             {
                 slot.Parameter2 = 0;
                 slot.FrozenTimer = NativeCountdown.Start(MetroidFrozenDuration);
-                slot.AiHandlerBits |= EnemyAiHandlerMasks.Frozen;
+                slot.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
             slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - collisionProjectileDamage));
@@ -579,7 +579,7 @@ internal sealed class MetroidBehavior : IEnemySpecies
             {
                 ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                 enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                enemy.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
+                enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? (ushort)0
                     : unchecked((ushort)(enemy.Health - frozenDamage));

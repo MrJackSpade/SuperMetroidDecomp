@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -541,7 +541,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies
         state.SporeGenerationFlag = 0;
         body.InvincibilityTimer = NativeCountdown.Start(0);
         body.FlashTimer = NativeCountdown.Start(0);
-        body.AiHandlerBits = 0;
+        body.AiStates = EnemyAiStates.None;
         // Literal property $0400 removes the dead body from the interactive-enemy list.
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 

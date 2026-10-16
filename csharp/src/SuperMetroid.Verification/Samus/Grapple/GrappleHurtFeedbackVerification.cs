@@ -81,7 +81,7 @@ internal static class GrappleHurtFeedbackVerification
         Console.WriteLine("Grapple hurt feedback: real enemy contact retains hanging/no knockback and starts one native counter-two gasp.");
     }
 
-    /// <summary>Checks pending health-loss history survives current saves and defaults safely in older captures.</summary>
+    /// <summary>Checks pending health-loss history survives current saves, and that an older capture layout is rejected (#1270).</summary>
     private static void VerifyHurtHealthHistoryRestoration()
     {
         var state = new SamusState { Health = 77, PreviousHealthForHurtCheck = 99 };
@@ -116,10 +116,9 @@ internal static class GrappleHurtFeedbackVerification
         using (var writer = new BinaryWriter(legacy, System.Text.Encoding.UTF8, leaveOpen: true))
             writer.Write(count - 1);
         legacy.Position = 0;
-        var migrated = DebuggerObjectGraphSerializer.Deserialize<SamusState>(legacy);
-        AssertEqual((ushort)77, migrated.PreviousHealthForHurtCheck, "legacy capture initializes missing history from saved health");
-        migrated.InputSnapshot.UpdateHurtFlashFromHealthLoss();
-        AssertEqual((ushort)0, migrated.HurtFlashCounter, "legacy load does not invent a damage event");
+        // Debugger states are build-pinned (#1270): an older layout fails loudly instead of being migrated.
+        AssertThrows<InvalidDataException>(() => DebuggerObjectGraphSerializer.Deserialize<SamusState>(legacy),
+            "a capture from before the health-history word is rejected, not migrated");
     }
 
     /// <summary>Runs the Grapple damage-feedback and save restoration regression.</summary>

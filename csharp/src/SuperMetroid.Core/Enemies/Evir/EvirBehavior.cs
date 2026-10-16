@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Fx;
@@ -500,12 +500,11 @@ internal sealed class EvirBehavior : IEnemySpecies
         if (actor.FrozenTimer.IsZero)
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
-        firstRelative.AiHandlerBits = unchecked((ushort)(firstRelative.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+        firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
         if (secondRelative.VariableC != (ushort)EvirAiFunction.ProjectileMoving)
         {
             secondRelative.FrozenTimer = actor.FrozenTimer;
-            secondRelative.AiHandlerBits = unchecked((ushort)(
-                secondRelative.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;
         }
     }
 

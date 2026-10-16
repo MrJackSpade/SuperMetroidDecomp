@@ -67,7 +67,7 @@ internal static class MotherBrainGlassSuperMissileVerification
 
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         shots.StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
-        head.AiHandlerBits = 0;
+        head.AiStates = EnemyAiStates.None;
         head.FlashTimer = NativeCountdown.Start(0);
         head.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");

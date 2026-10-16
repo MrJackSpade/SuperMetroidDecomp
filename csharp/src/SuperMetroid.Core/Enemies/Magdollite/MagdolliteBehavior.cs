@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Fx;
@@ -712,12 +712,12 @@ internal sealed class MagdolliteBehavior : IEnemySpecies
         if (following is not null)
         {
             following.FrozenTimer = current.FrozenTimer;
-            following.AiHandlerBits = unchecked((ushort)(following.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            following.AiStates = following.AiStates | EnemyAiStates.Frozen;
         }
         if (secondFollowing is not null)
         {
             secondFollowing.FrozenTimer = current.FrozenTimer;
-            secondFollowing.AiHandlerBits = unchecked((ushort)(secondFollowing.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            secondFollowing.AiStates = secondFollowing.AiStates | EnemyAiStates.Frozen;
         }
     }
 

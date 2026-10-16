@@ -398,7 +398,7 @@ internal sealed class EnemyCollision
                 {
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+                    enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
                     // explosion instructions retain their separate, later sound owner.
@@ -729,7 +729,7 @@ internal sealed class EnemyCollision
 
         ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
         enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         enemy.Health = damage >= enemy.Health
             ? (ushort)0
             : unchecked((ushort)(enemy.Health - damage));
@@ -830,7 +830,7 @@ internal sealed class EnemyCollision
                     enemy.InvincibilityTimer = NativeCountdown.Start(48);
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+                    enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     enemy.Health = damage >= enemy.Health
                         ? (ushort)0
                         : unchecked((ushort)(enemy.Health - damage));
@@ -928,7 +928,7 @@ internal sealed class EnemyCollision
         enemy.FrozenTimer = NativeCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400);
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
         enemy.InvincibilityTimer = NativeCountdown.Start(10);
     }
 
@@ -1576,7 +1576,7 @@ internal sealed class EnemyCollision
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
         enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
-        enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
         enemy.Health = damage >= enemy.Health

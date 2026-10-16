@@ -1449,7 +1449,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (vulnerability == byte.MaxValue)
         {
             head.FrozenTimer = NativeCountdown.Start(400);
-            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            head.AiStates = head.AiStates | EnemyAiStates.Frozen;
             head.InvincibilityTimer = NativeCountdown.Start(10);
             return;
         }
@@ -1463,7 +1463,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
         head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         head.Health = damage >= head.Health
             ? (ushort)0
             : unchecked((ushort)(head.Health - damage));
@@ -1528,7 +1528,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
         if (vulnerability.FreezeImmediately)
         {
             head.FrozenTimer = NativeCountdown.Start(400);
-            head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            head.AiStates = head.AiStates | EnemyAiStates.Frozen;
             head.InvincibilityTimer = NativeCountdown.Start(10);
             return;
         }
@@ -1542,7 +1542,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies
 
         ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
         head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-        head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         // The shared native no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.
         if (projectileType.BeamCombination.HasPlasma)

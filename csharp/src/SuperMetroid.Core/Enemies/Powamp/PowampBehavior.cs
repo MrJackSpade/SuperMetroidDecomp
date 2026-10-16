@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Fx;
@@ -169,7 +169,7 @@ internal sealed class PowampBehavior : IEnemySpecies
     {
         // The ordinary rise changes dispatch and executes the grappled routine immediately
         // on the frame common grapple AI publishes bit one.
-        bool grappleAiActive = (body.AiHandlerBits & EnemyAiHandlerMasks.Grappled) != 0;
+        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != 0;
         if (!grappled && grappleAiActive)
         {
             state.Function = PowampEnemyFunction.GrappledRiseToTargetHeight;
@@ -222,7 +222,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         RoomLevelData level,
         bool grappled)
     {
-        bool grappleAiActive = (body.AiHandlerBits & EnemyAiHandlerMasks.Grappled) != 0;
+        bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != 0;
         if (grappled && !grappleAiActive)
         {
             state.Function = PowampEnemyFunction.InflatedFinishWiggle;
@@ -252,7 +252,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         PowampEnemyState state,
         PowampBalloon balloon)
     {
-        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Grappled) == 0)
+        if ((body.AiStates & EnemyAiStates.Grappled) == 0)
             StartPowampDeflating(state, balloon);
         AlignPowampBalloonY(body, balloon);
     }
@@ -357,15 +357,15 @@ internal sealed class PowampBehavior : IEnemySpecies
     private void ResolvePowampShotAfterCommon(RoomEnemySlot body)
     {
         PowampBalloon balloon = RequirePowampBalloon(body);
-        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0)
+        if ((body.AiStates & EnemyAiStates.Frozen) != 0)
         {
             balloon.Slot.FrozenTimer = body.FrozenTimer;
-            balloon.Slot.AiHandlerBits = unchecked((ushort)(balloon.Slot.AiHandlerBits | EnemyAiHandlerMasks.Frozen));
+            balloon.Slot.AiStates = balloon.Slot.AiStates | EnemyAiStates.Frozen;
         }
-        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Hurt) != 0)
+        if ((body.AiStates & EnemyAiStates.Hurt) != 0)
         {
             balloon.Slot.FlashTimer = body.FlashTimer;
-            balloon.Slot.AiHandlerBits = unchecked((ushort)(balloon.Slot.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+            balloon.Slot.AiStates = balloon.Slot.AiStates | EnemyAiStates.Hurt;
         }
         if (body.Health == 0)
         {
@@ -389,7 +389,7 @@ internal sealed class PowampBehavior : IEnemySpecies
         balloon.Slot.InvincibilityTimer = body.InvincibilityTimer;
         balloon.Slot.FlashTimer = body.FlashTimer;
         balloon.Slot.FrozenTimer = body.FrozenTimer;
-        balloon.Slot.AiHandlerBits = body.AiHandlerBits;
+        balloon.Slot.AiStates = body.AiStates;
     }
 
     /// <summary>Advances both halves to the same authored X offset every five frames.</summary>

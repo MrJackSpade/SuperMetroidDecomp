@@ -35,7 +35,7 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.properties2 at +$10: mutable additional properties, including extended-spritemap selection.</summary>
     public ushort ExtraProperties { get; internal set; }
     /// <summary>Enemy.AI at +$12: native handler-selection bits for ordinary, hurt, frozen, and other AI dispatch states.</summary>
-    public ushort AiHandlerBits { get; internal set; }
+    public EnemyAiStates AiStates { get; internal set; }
     /// <summary>Enemy.health at +$14: mutable remaining enemy health, initialized from the definition and reduced by weapon damage.</summary>
     public ushort Health { get; internal set; }
     /// <summary>Enemy.spritemap at +$16: current bank-relative drawing frame or extended-map identity selected by the actor.</summary>
@@ -93,7 +93,8 @@ public sealed class RoomEnemySlot
         Spawn = default;
         Position = FixedPosition<RoomPixels>.Zero;
         Radius = Extent16<RoomPixels>.Zero;
-        Properties = ExtraProperties = AiHandlerBits = Health = 0;
+        Properties = ExtraProperties = Health = 0;
+        AiStates = EnemyAiStates.None;
         InstructionTimer = NativeCountdown.Start(0);
         CurrentInstruction = 0;
         Timer = NativeCountdown.Start(0);
@@ -129,7 +130,7 @@ public sealed class RoomEnemySlot
         EnemyDataField.YRadius => Radius.Y,
         EnemyDataField.Properties => Properties,
         EnemyDataField.ExtraProperties => ExtraProperties,
-        EnemyDataField.AiHandler => AiHandlerBits,
+        EnemyDataField.AiHandler => AiStates.NativeWord,
         EnemyDataField.Health => Health,
         EnemyDataField.Spritemap => SpritemapPointer,
         EnemyDataField.Timer => Timer.RawValue,

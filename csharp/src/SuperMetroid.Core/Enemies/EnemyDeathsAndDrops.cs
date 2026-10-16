@@ -82,7 +82,7 @@ internal sealed class EnemyDeathsAndDrops
         _enemyDeathRespawnScratch = RespawnScratchWord(enemy);
         // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
         // Equality is deliberate: this is not a general test for any set grapple bit.
-        if (enemy.AiHandlerBits == EnemyAiHandlerMasks.Grappled)
+        if (enemy.AiStates == EnemyAiStates.Grappled)
         {
             if (_samusForEnemyDrops is null)
                 throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");

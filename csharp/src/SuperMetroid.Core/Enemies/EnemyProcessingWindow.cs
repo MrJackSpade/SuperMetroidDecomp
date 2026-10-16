@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies.MorphBallEye;
+using SuperMetroid.Core.Enemies.MorphBallEye;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -67,7 +67,7 @@ internal sealed class EnemyProcessingWindow
 
             bool active = _frameContext._processAllEnemies ||
                 slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
-                (slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0 ||
+                (slot.AiStates & EnemyAiStates.Frozen) != 0 ||
                 EnemyIsWithinProcessingWindow(slot, camera);
             if (!active)
                 continue;

@@ -53,7 +53,7 @@ internal static class RespawnedEnemyContactVerification
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
         AssertTrue(runtime.Enemies.GrappleBehavior.ResolveGrappleEndpoint(enemy.Position.Whole).Reaction != GrappleEnemyReaction.None,
             "the next frame's prologue list lets the grapple reach the respawned actor");
-        enemy.AiHandlerBits = 0;
+        enemy.AiStates = EnemyAiStates.None;
         // $A0:A08C rejects Samus contact while this word is zero; the first instruction
         // then installs the actor's map and contact can resume on the following pass.
         runtime.StepFrame(0);

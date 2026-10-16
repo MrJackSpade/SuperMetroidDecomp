@@ -1081,7 +1081,7 @@ internal static class LookupStream5Verification
         {
             random = (ushort)(0xfff8 | bucket);
             body.Health = 1000;
-            body.AiHandlerBits = 2;
+            body.AiStates = EnemyAiStates.Hurt;
             body.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
             body.VariableE = 60;
             state.Tentacles.VariableA = state.Tentacles.VariableB = 0;

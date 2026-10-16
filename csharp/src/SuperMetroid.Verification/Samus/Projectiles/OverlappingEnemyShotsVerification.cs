@@ -64,7 +64,7 @@ internal static class OverlappingEnemyShotsVerification
         AssertEqual((ushort)0, shot.Type, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {
-            enemy.AiHandlerBits = 0;
+            enemy.AiStates = EnemyAiStates.None;
             enemy.FlashTimer = NativeCountdown.Start(0);
             enemy.InvincibilityTimer = NativeCountdown.Start(0);
         }

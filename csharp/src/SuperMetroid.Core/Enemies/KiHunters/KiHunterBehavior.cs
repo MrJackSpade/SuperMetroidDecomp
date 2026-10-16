@@ -588,7 +588,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             return;
         }
 
-        wings.AiHandlerBits = body.AiHandlerBits;
+        wings.AiStates = body.AiStates;
         wings.FrozenTimer = body.FrozenTimer;
         wings.InvincibilityTimer = body.InvincibilityTimer;
         wings.FlashTimer = body.FlashTimer;

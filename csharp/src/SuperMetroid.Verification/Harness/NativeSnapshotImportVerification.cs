@@ -273,7 +273,7 @@ internal static class NativeSnapshotImportVerification
             slot.Radius = new(W(address + 10), W(address + 12));
             slot.Properties = W(address + 14);
             slot.ExtraProperties = W(address + 16);
-            slot.AiHandlerBits = W(address + 18);
+            slot.AiStates = (EnemyAiStates)W(address + 18);
             slot.Health = W(address + 20);
             slot.SpritemapPointer = W(address + 22);
             slot.Timer = NativeCountdown.FromRaw(W(address + 24));

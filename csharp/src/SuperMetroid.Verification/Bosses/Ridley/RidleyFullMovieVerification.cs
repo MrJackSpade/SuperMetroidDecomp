@@ -1298,7 +1298,7 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " YRadius", actor.Radius.Y, address + 12);
                 Check(owner + " Properties", actor.Properties, address + 14);
                 Check(owner + " ExtraProperties", actor.ExtraProperties, address + 16);
-                Check(owner + " AiHandlerBits", actor.AiHandlerBits, address + 18);
+                Check(owner + " AiStates", actor.AiStates.NativeWord, address + 18);
                 Check(owner + " Timer", actor.Timer.RawValue, address + 24);
                 Check(owner + " PaletteIndex", actor.PaletteIndex, address + 30);
                 Check(owner + " VramTilesIndex", actor.VramTilesIndex, address + 32);

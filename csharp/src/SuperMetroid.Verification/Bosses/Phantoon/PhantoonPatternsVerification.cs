@@ -101,7 +101,7 @@ internal static class PhantoonPatternsVerification
         {
             shotRandom = (ushort)raw;
             shotBody.Health = 1000;
-            shotBody.AiHandlerBits = 2;
+            shotBody.AiStates = EnemyAiStates.Hurt;
             shotBody.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
             shotBody.VariableE = 60;
             shotState.Tentacles.VariableA = shotState.Tentacles.VariableB = 0;

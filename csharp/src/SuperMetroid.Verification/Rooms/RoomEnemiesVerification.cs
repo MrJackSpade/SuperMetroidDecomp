@@ -168,7 +168,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0, slot.VramTilesIndex, "first graphics-set tile index");
     AssertEqual(0xa2, slot.AiBank, "definition AI bank copied into native slot");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
-    AssertEqual(0, slot.AiHandlerBits, "room load clears AI handler bits");
+    AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
     AssertEqual(0, slot.InvincibilityTimer.RawValue, "room load clears invincibility timer");
     AssertEqual(0, slot.ShakeTimer.RawValue, "room load clears shake timer");
@@ -648,7 +648,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     // common death/deletion accounting on the same loaded actor.
     ripper.FrozenTimer = NativeCountdown.Start(0);
     ripper.InvincibilityTimer = NativeCountdown.Start(0);
-    ripper.AiHandlerBits = 0;
+    ripper.AiStates = EnemyAiStates.None;
     byte expectedHurtCry = unchecked((byte)ripper.Definition.HurtSoundEffect);
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
         request.SoundEffect.Library == SoundEffectLibrary.Library2 &&

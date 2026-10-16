@@ -836,7 +836,7 @@ internal sealed class KraidBehavior : IEnemySpecies
                         ? (ushort)0
                         : unchecked((ushort)(body.Health - damage));
                     body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)((body.HurtAiTime == 0 ? 4 : body.HurtAiTime) + 8)));
-                    body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+                    body.AiStates = body.AiStates | EnemyAiStates.Hurt;
                     if ((shot.Type & 8) != 0)
                         body.InvincibilityTimer = NativeCountdown.Start(16);
                 }

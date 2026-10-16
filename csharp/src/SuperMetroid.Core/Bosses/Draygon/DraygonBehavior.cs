@@ -1836,7 +1836,7 @@ internal sealed class DraygonBehavior : IEnemySpecies
     {
         RoomEnemySlot body = state.Body;
         body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.HurtAiTime + 8)));
-        body.AiHandlerBits = unchecked((ushort)(body.AiHandlerBits | EnemyAiHandlerMasks.Hurt));
+        body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 
     /// <summary>

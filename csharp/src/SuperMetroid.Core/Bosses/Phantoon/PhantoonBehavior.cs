@@ -905,7 +905,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             if (vulnerability.FreezeImmediately)
             {
                 body.FrozenTimer = NativeCountdown.Start(400);
-                body.AiHandlerBits |= EnemyAiHandlerMasks.Frozen;
+                body.AiStates |= EnemyAiStates.Frozen;
                 body.InvincibilityTimer = NativeCountdown.Start(10);
             }
             else
@@ -915,7 +915,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
                 {
                     ushort hurtTime = body.HurtAiTime == 0 ? (ushort)4 : body.HurtAiTime;
                     body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
-                    body.AiHandlerBits |= EnemyAiHandlerMasks.Hurt;
+                    body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared native damage helper.
                     if ((projectileType & (ushort)SamusBeamFlags.Plasma) != 0)
@@ -956,7 +956,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies
             return;
         }
 
-        if ((body.AiHandlerBits & EnemyAiHandlerMasks.Hurt) == 0)
+        if ((body.AiStates & EnemyAiStates.Hurt) == 0)
             return;
 
         state.LastCombatSoundEffect = PhantoonSoundDefinitions.ShotCry;

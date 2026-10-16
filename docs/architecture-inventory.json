@@ -7420,6 +7420,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Areas.Tourian.TourianPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Areas.Tourian.TourianStatueAnimatedTileMechanicsDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -12264,6 +12277,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.DraygonCannonProgram",
@@ -17853,6 +17879,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainGlassPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassProgram",
       "kind": "enum",
       "scope": "product",
@@ -22688,6 +22727,19 @@
       ],
       "partial": "none",
       "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoHandPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.BombTorizoHandProgram",
@@ -28343,6 +28395,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatuePreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatuePreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueProgram",
@@ -40225,6 +40290,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolRoomPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Shaktool/ShaktoolRoomPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Shaktool.ShaktoolSegmentDefinition",
       "kind": "record struct",
       "scope": "product",
@@ -42701,7 +42779,20 @@
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPlms.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipAtticPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticProgram",
@@ -42964,7 +43055,7 @@
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillPlmState",
-      "kind": "record",
+      "kind": "class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
@@ -42973,7 +43064,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipTreadmillPlmState.cs"
       ],
       "partial": "none",
-      "disposition": "record"
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipTreadmillPlms",
@@ -68236,6 +68327,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.ColoredDoorPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/ColoredDoorPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.ColoredDoorProgram",
       "kind": "enum",
       "scope": "product",
@@ -68939,6 +69043,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Doors.EyeDoorProjectileAnimation",
       "kind": "class",
       "scope": "product",
@@ -69268,6 +69385,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Doors.GreyDoorPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Doors/GreyDoorPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.GreyDoorProgram",
@@ -70664,6 +70794,19 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Plms.DownwardGatePreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/DownwardGatePreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Plms.DownwardGateProgram",
       "kind": "enum",
       "scope": "product",
@@ -70867,6 +71010,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Plms/IOldTourianWallExplosion.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.IPlmFamilySource",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/IPlmFamilySource.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.IPlmPreInstruction",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/IPlmPreInstruction.cs"
       ],
       "partial": "none",
       "disposition": "contract"
@@ -71151,6 +71320,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Plms.NoobTubePreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/NoobTubePreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Plms.NoobTubeProgram",
       "kind": "enum",
       "scope": "product",
@@ -71359,19 +71541,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.PlmAnimationContext",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmAnimationContext.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.Plms.PlmBlockDrawing",
       "kind": "class",
       "scope": "product",
@@ -71380,6 +71549,58 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmBlockDrawing.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmFamily",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFamily.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmFamilyState",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFamilyState.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmFamilyStepHandler",
+      "kind": "delegate",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFamilyStepHandler.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmFamilyTable",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFamilyTable.cs"
       ],
       "partial": "none",
       "disposition": "owner"
@@ -71528,6 +71749,45 @@
       "disposition": "constructor-parameters"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmPreInstruction",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmPreInstruction.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmPreInstructionDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmPreInstructionDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Plms.PlmProgramAnimation\u003CTProgram, TFrame, TCue\u003E",
       "kind": "class",
       "scope": "product",
@@ -71644,6 +71904,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmSoundRequest.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmStepContext",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmStepContext.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.PlmStepOutcome",
+      "kind": "enum",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmStepOutcome.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -74600,6 +74886,19 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.Rooms.Plms.SamusEaterPreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/SamusEaterPreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Rooms.Plms.SamusEaterProgram",
       "kind": "enum",
       "scope": "product",
@@ -74961,6 +75260,19 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapePreInstructions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Rooms/Plms/SpeedBoosterEscapePreInstructions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Plms.SpeedBoosterEscapeProgram",

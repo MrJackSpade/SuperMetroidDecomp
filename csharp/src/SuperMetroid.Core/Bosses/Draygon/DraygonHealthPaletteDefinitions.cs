@@ -19,11 +19,11 @@ internal static class DraygonHealthPaletteDefinitions
     /// Independently reviewed for #1165 against NTSC J/U v1.0 and pinned bank_A5.asm:
     /// $A5:96EF has threshold(i)=750*(7-i), i=0..7; $A5:9701 selects the first
     /// nonnegative signed difference. For health 0..6000 no difference overflows,
-    /// so integer division gives 2*max(0,7-floor(health/750)). Exact multiples stay
+    /// so integer division gives the band max(0,7-floor(health/750)) (native byte index twice that). Exact multiples stay
     /// in the higher band. The max describes the top band, not input clamping.
     /// The unreachable $FFFF terminator is not a ninth threshold.
     /// </remarks>
-    public static ushort ByteIndexForHealth(int health)
+    public static int BandForHealth(int health)
     {
         if (health > MaximumAuthoredHealth)
         {
@@ -32,6 +32,6 @@ internal static class DraygonHealthPaletteDefinitions
                 $"{MaximumAuthoredHealth} for palette-band selection.");
         }
 
-        return (ushort)(2 * Math.Max(0, 7 - health / 750));
+        return Math.Max(0, 7 - health / 750);
     }
 }

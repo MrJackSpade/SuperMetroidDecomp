@@ -97,31 +97,29 @@ public sealed class DraygonColorCatalog
         ApplyCalculated(new BossPalettes(cgram).DraygonIntro, DraygonColorRomData.IntroCount, ResolveIntro);
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
-    public void ApplyHurt(SnesCgram cgram, bool whiteFrame, ushort healthTableByteIndex)
+    public void ApplyHurt(SnesCgram cgram, bool whiteFrame, int healthBand)
     {
         if (whiteFrame)
             ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
         else
             ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.BackgroundCount, ResolveBackground);
         if (!whiteFrame)
-            ApplyHealthBand(cgram, healthTableByteIndex);
+            ApplyHealthBand(cgram, healthBand);
         if (whiteFrame)
             ApplyCalculated(new BossPalettes(cgram).DraygonSprite, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
         else
             ApplyCalculated(new BossPalettes(cgram).DraygonSprite, DraygonColorRomData.SpriteCount, ResolveSprite);
     }
 
-    /// <summary>Installs the four-color health band selected by its even native table byte index.</summary>
-    public void ApplyHealthBand(SnesCgram cgram, ushort tableByteIndex)
+    /// <summary>Installs the four-color health band 0-7.</summary>
+    public void ApplyHealthBand(SnesCgram cgram, int band)
     {
-        if ((tableByteIndex & 1) != 0 ||
-            tableByteIndex / Bgr555.ByteCount >= DraygonColorRomData.HealthBandCount)
-            throw new InvalidDataException(
-                $"Draygon health palette byte index ${tableByteIndex:X4} is not authored.");
+        if (band is < 0 or >= DraygonColorRomData.HealthBandCount)
+            throw new InvalidDataException($"Draygon health palette band {band} is not authored.");
         Ensure.NotNull(cgram);
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
             new BossPalettes(cgram).DraygonHealth.Write(color,
-                ResolveHealthBand(tableByteIndex / Bgr555.ByteCount, color));
+                ResolveHealthBand(band, color));
     }
 
     /// <summary>Loads and validates the editable Draygon RGB5 color document.</summary>

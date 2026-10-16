@@ -356,19 +356,19 @@ internal static class RoomPlmSystemAccess
             if (areaDependent && !bts.IsAreaReactionIndex(8))
             {
                 throw new ArgumentOutOfRangeException(
-                    "bts",
+                    nameof(bts),
                     "Area-dependent shootable BTS must address one of its eight native entries.");
             }
             if (!areaDependent && !bts.IsNormalReactionIndex(16))
             {
                 throw new ArgumentOutOfRangeException(
-                    "bts",
+                    nameof(bts),
                     "Translated normal-bomb shootable BTS must be in range zero through fifteen.");
             }
             if (projectileType.Family != SamusProjectileFamily.Bomb)
             {
                 throw new ArgumentOutOfRangeException(
-                    "projectileType",
+                    nameof(projectileType),
                     "This setup translation currently accepts the normal-bomb family only.");
             }
 

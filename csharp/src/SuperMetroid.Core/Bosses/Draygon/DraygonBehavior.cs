@@ -1159,7 +1159,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool whiteFrame = (body.FlashTimer.RawValue & 2) != 0;
         (_room.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon damage requires installed color artwork."))
-            .ApplyHurt(_presentation.Cgram, whiteFrame, state.HealthPaletteTableByteIndex);
+            .ApplyHurt(_presentation.Cgram, whiteFrame, RequireHealthPaletteBand(state));
 
         // Grapple-connected flag bit zero is the retail electrocution channel. It is
         // sampled only while hurt AI owns the body and subtracts exactly 256 HP on every
@@ -1251,21 +1251,24 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Changes Draygon's health color band only when the health threshold changes.</summary>
     internal void UpdateDraygonHealthPalette(DraygonEnemyState state)
     {
-        ushort tableByteIndex =
-            DraygonHealthPaletteDefinitions.ByteIndexForHealth(state.Body.Health);
+        int band = DraygonHealthPaletteDefinitions.BandForHealth(state.Body.Health);
 
-        if (tableByteIndex == state.HealthPaletteTableByteIndex)
+        if (band == state.HealthPaletteBand)
             return;
-        state.HealthPaletteTableByteIndex = tableByteIndex;
+        state.HealthPaletteBand = band;
         CopyDraygonHealthColors(state);
     }
+
+    /// <summary>The installed health band; native code reads $7E:781C only after initialization installs one.</summary>
+    private static int RequireHealthPaletteBand(DraygonEnemyState state) => state.HealthPaletteBand
+        ?? throw new InvalidOperationException("Draygon has no installed health palette band.");
 
     /// <summary>Copies the selected installed health palette band into live CGRAM.</summary>
     internal void CopyDraygonHealthColors(DraygonEnemyState state)
     {
         (_room.Artwork?.DraygonColors ?? throw new InvalidDataException(
             "Draygon health colors require installed artwork."))
-            .ApplyHealthBand(_presentation.Cgram, state.HealthPaletteTableByteIndex);
+            .ApplyHealthBand(_presentation.Cgram, RequireHealthPaletteBand(state));
     }
     /// <summary>Arena X coordinate to which Draygon drifts before burial.</summary>
     private const ushort DraygonDeathTargetX = 256;

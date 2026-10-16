@@ -13,7 +13,7 @@ internal static class SamusRunningCadenceDefinitionsAccess
             if (SamusRunningCadenceDefinitions.TryReadCompiledByte(address, out byte value))
                 return value;
             throw new ArgumentOutOfRangeException(
-                "address", address, "Address is outside the compiled Samus running-cadence catalog.");
+                nameof(address), address, "Address is outside the compiled Samus running-cadence catalog.");
         }
     }
 }

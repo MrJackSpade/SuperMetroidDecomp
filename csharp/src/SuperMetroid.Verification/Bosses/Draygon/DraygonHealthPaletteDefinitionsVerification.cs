@@ -37,13 +37,13 @@ internal static class DraygonHealthPaletteDefinitionsVerification
                 thresholds,
                 threshold => unchecked((short)(health - threshold)) >= 0);
             AssertTrue(expectedIndex >= 0, $"Draygon health {health} matches a native band");
-            AssertEqual(unchecked((ushort)(expectedIndex * 2)),
-                DraygonHealthPaletteDefinitions.ByteIndexForHealth(health),
+            AssertEqual(expectedIndex,
+                DraygonHealthPaletteDefinitions.BandForHealth(health),
                 $"Draygon health {health} compiled palette band");
         }
 
         AssertThrows<InvalidDataException>(
-            () => DraygonHealthPaletteDefinitions.ByteIndexForHealth(6001),
+            () => DraygonHealthPaletteDefinitions.BandForHealth(6001),
             "Draygon rejects health above its authored enemy-header maximum");
 
         var guard = NewDraygonHealthThresholdReadGuard(rom);
@@ -63,18 +63,18 @@ internal static class DraygonHealthPaletteDefinitionsVerification
         foreach (ushort health in productionHealth)
         {
             state.Body.Health = health;
-            state.HealthPaletteTableByteIndex = ushort.MaxValue;
+            state.HealthPaletteBand = null;
             update(state);
             AssertEqual(
-                DraygonHealthPaletteDefinitions.ByteIndexForHealth(health),
-                state.HealthPaletteTableByteIndex,
+                DraygonHealthPaletteDefinitions.BandForHealth(health),
+                state.HealthPaletteBand,
                 $"production Draygon health {health} palette band");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production Draygon palette selection performs no threshold-table reads");
 
         state.Body.Health = 6001;
-        state.HealthPaletteTableByteIndex = ushort.MaxValue;
+        state.HealthPaletteBand = null;
         AssertThrows<InvalidDataException>(
             () => update(state),
             "production Draygon rejects malformed restored health without a ROM fallback");

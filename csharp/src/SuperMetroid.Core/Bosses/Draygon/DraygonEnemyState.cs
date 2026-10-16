@@ -128,11 +128,10 @@ public sealed class DraygonEnemyState
 
 
     /// <summary>
-    /// Native byte offset <c>$7E:781C</c> into the eight health-palette bands. It advances
-    /// 0,2,...,14 because the threshold table is word-addressed even though each palette
-    /// record contains four colors.
+    /// The installed health-palette band 0-7 (native <c>$7E:781C</c> holds twice this, since the threshold table is
+    /// word-addressed); null until a band is installed.
     /// </summary>
-    public ushort HealthPaletteTableByteIndex { get; internal set; }
+    public int? HealthPaletteBand { get; internal set; }
 
     /// <summary>
     /// Native death-vector angle and its deliberately unused 16.16 velocity words. The

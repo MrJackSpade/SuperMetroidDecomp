@@ -39,7 +39,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
             if ((uint)nativeAreaIndex >= AreaAnimatedTileObjectDefinitions.NativeAreaCount)
             {
                 throw new ArgumentOutOfRangeException(
-                    "nativeAreaIndex", nativeAreaIndex,
+                    nameof(nativeAreaIndex), nativeAreaIndex,
                     $"Native animated-tile area index must be 0..{AreaAnimatedTileObjectDefinitions.NativeAreaCount - 1}.");
             }
         }

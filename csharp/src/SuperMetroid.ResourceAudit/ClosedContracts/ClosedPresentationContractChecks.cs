@@ -79,9 +79,9 @@ internal static class ClosedPresentationContractChecks
                     crocomire.ResolveFightBody(0);
                     spores.ResolveSpore(0);
                     spores.ResolveDeath(SuperMetroid.Core.Bosses.SporeSpawn.SporeSpawnDeathPaletteLayer.Level, 7, 0);
-                    draygon.ApplyHealthBand(cgram, 14);
-                    draygon.ApplyHealthBand(cgram, 1);
-                    draygon.ApplyHurt(cgram, true, 1);
+                    draygon.ApplyHealthBand(cgram, 7);
+                    draygon.ApplyHealthBand(cgram, 0);
+                    draygon.ApplyHurt(cgram, true, 0);
                     phantoon.ResolvePowerOn(111);
                     phantoon.ResolvePowerOn(112);
                     statues.ApplyEye(cgram, 6);

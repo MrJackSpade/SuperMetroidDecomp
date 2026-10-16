@@ -108,7 +108,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         AssertBand(DraygonColorRomData.IntroDestination,
             DraygonColorRomData.IntroCount, colors.ResolveIntro, "intro CGRAM");
 
-        state.HealthPaletteTableByteIndex = 2;
+        state.HealthPaletteBand = 1;
         enemies.DraygonBehavior.ApplyDraygonHurt(body, state, null);
         for (int color = 0; color < DraygonColorRomData.BackgroundCount; color++)
         {
@@ -132,7 +132,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
             "white hurt sprite CGRAM");
         for (int band = 0; band < DraygonColorRomData.HealthBandCount; band++)
         {
-            state.HealthPaletteTableByteIndex = unchecked((ushort)(band * sizeof(ushort)));
+            state.HealthPaletteBand = band;
             enemies.DraygonBehavior.CopyDraygonHealthColors(state);
             for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
                 AssertEqual(colors.ResolveHealthBand(band, color),
@@ -141,9 +141,9 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         }
         AssertEqual(DraygonAiFunction.IntroInitialDelay, state.Function,
             "visual health-band checks leave Draygon AI unchanged");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 1),
-            "odd Draygon health-band index fails loudly");
-        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 16),
+        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, -1),
+            "negative Draygon health band fails loudly");
+        AssertThrows<InvalidDataException>(() => colors.ApplyHealthBand(cgram, 8),
             "out-of-range Draygon health-band index fails loudly");
 
         File.WriteAllBytes(overrideFile, [0]);

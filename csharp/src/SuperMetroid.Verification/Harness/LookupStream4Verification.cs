@@ -2492,7 +2492,7 @@ internal static class LookupStream4Verification
             foreach(bool white in new[]{false,true})
             {
                 var cgram=new SnesCgram(); for(int color=0;color<256;color++)cgram.SetColor(color,Bgr555.FromWord(0x1234));
-                selected.ApplyHurt(cgram,white,10);
+                selected.ApplyHurt(cgram,white,5);
                 for(int color=0;color<256;color++)
                 {
                     ushort expected=0x1234;
@@ -2506,7 +2506,7 @@ internal static class LookupStream4Verification
                 var artwork=EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), DraygonColors = selected });
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
                 enemies.Presentation._cgram = cgram; enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=10};
+                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=5};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -2556,7 +2556,7 @@ internal static class LookupStream4Verification
             foreach(bool white in new[]{false,true})
             {
                 var cgram=new SnesCgram(); for(int color=0;color<256;color++) cgram.SetColor(color,Bgr555.FromWord(0x1234));
-                selected.ApplyHurt(cgram,white,6);
+                selected.ApplyHurt(cgram,white,3);
                 for(int color=0;color<256;color++)
                 {
                     ushort expected=(ushort)0x1234;
@@ -2571,7 +2571,7 @@ internal static class LookupStream4Verification
                 var enemies=new RoomEnemySystem{TileArtwork=artwork}; var cgram=new SnesCgram();
                 enemies.Presentation._cgram = cgram;
                 enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteTableByteIndex=6};
+                var body=enemies.SlotTable.Slots[0]; var state=new DraygonEnemyState(body){HealthPaletteBand=3};
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
@@ -2612,7 +2612,7 @@ internal static class LookupStream4Verification
             for (int band = 0; band < 8; band++)
             {
                 var cgram = new SnesCgram(); for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
-                selected.ApplyHealthBand(cgram, (ushort)(band * 2));
+                selected.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 256; color++)
                     AssertEqual(color is >= 89 and < 93 ? Pack(document.HealthBands[band][color - 89]) : (ushort)0x1234, cgram.Colors[color], "Exact changed health transfer and neighbors");
                 for (int shade = 0; shade < 4; shade++)
@@ -2631,9 +2631,9 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.ApplyDraygonHurt;
                 for (int band = 0; band < 8; band++)
                 {
-                    body.Health = (ushort)((7 - band) * 750); state.HealthPaletteTableByteIndex = ushort.MaxValue;
+                    body.Health = (ushort)((7 - band) * 750); state.HealthPaletteBand = null;
                     update(state);
-                    AssertEqual((ushort)(band * 2), state.HealthPaletteTableByteIndex, "Actual health threshold selects native color band");
+                    AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
                     cgram.SetColor(89, Bgr555.FromWord(0x1234)); update(state);
                     AssertEqual((ushort)0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
@@ -2684,7 +2684,7 @@ internal static class LookupStream4Verification
             for (int band = 0; band < 8; band++)
             {
                 var cgram = new SnesCgram();
-                catalog.ApplyHealthBand(cgram, (ushort)(2 * band));
+                catalog.ApplyHealthBand(cgram, band);
                 for (int color = 0; color < 4; color++)
                 {
                     ushort expected = Native(document.HealthBands[band][color]);
@@ -2693,7 +2693,7 @@ internal static class LookupStream4Verification
                 }
             }
             var flashCgram = new SnesCgram();
-            catalog.ApplyHurt(flashCgram, true, ushort.MaxValue);
+            catalog.ApplyHurt(flashCgram, true, -1);
             for (int color = 0; color < 16; color++)
             {
                 AssertEqual(Native(document.WhiteFlash[color]), flashCgram.Colors[80 + color], "Draygon flash background transfer");
@@ -2704,7 +2704,7 @@ internal static class LookupStream4Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveWhiteFlash(invalid), "Draygon flash bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(8, 0), "Draygon health band bounds");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveHealthBand(0, 4), "Draygon health color bounds");
-        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 1), "Draygon odd native health selector rejected");
+        AssertThrows<InvalidDataException>(() => stock.ApplyHealthBand(new SnesCgram(), 8), "Draygon out-of-range health band rejected");
     }
 
     /// <summary>Checks Norfair reveal room palette frames and destination colors against cartridge data.</summary>

@@ -11,15 +11,11 @@ internal sealed class TableBackedEnemyEntity(RoomEnemySlot slot, EnemyCommonPart
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() =>
-        EnemyAiTable.Routine(Slot.Definition.Bank, Slot.Definition.InitializationAiPointer) is { } routine &&
-        Common.Ai.TryGetInitialization(routine, Slot, out EnemyInitializationAiHandler? handler) ? handler : null;
+    public EnemyInitializationAiHandler? FindInitialization() => Common.FindInitialization(Slot);
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() =>
-        EnemyAiTable.Routine(Slot.Definition.Bank, Slot.Definition.MainAiPointer) is { } routine &&
-        Common.Ai.TryGetMain(routine, Slot, out EnemyMainAiHandler? handler) ? handler : null;
+    public EnemyMainAiHandler? FindMain() => Common.FindMain(Slot);
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Common.Ai.FindTypedAnimation(Slot);
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Common.FindTypedAnimation(Slot);
 }

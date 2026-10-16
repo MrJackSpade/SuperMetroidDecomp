@@ -39,6 +39,7 @@ internal static class CeresSteamDefinitionsVerification
             enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x001f);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = (ushort)variant;
+            slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             enemies.CeresSteamBehavior.InitializeCeresSteam(slot);
 
             AssertEqual(AnimationProgramCursor<CeresSteamProgram>.Start(definition.Program), enemies.CeresSteamPrograms[slot.SlotIndex],

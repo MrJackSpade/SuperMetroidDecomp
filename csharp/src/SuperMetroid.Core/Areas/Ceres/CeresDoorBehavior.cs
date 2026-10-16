@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -14,8 +16,14 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres door species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CeresDoorBehavior : IEnemySpecies
+internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CeresDoor];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresDoorEntity(this, slot, common);
+
     /// <summary>Provides Ceres room artwork, boss status, and the gameplay RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Receives the quake type and duration selected during the escape.</summary>
@@ -324,29 +332,23 @@ internal sealed class CeresDoorBehavior : IEnemySpecies
         SelectedCeresDoorVisual.LoadAnimationColors(_presentation.Cgram, colorRow);
     }
 
-    /// <summary>Registers initialization of each Ceres door population variant.</summary>
-    internal void RegisterCeresDoorInitializationAi(EnemyAiTable table)
+    /// <summary>Ports CeresDoor's initialization AI.</summary>
+    internal void RunCeresDoorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresDoor, null, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCeresDoor(slot);
-        });
+        InitializeCeresDoor(slot);
     }
 
-    /// <summary>Registers the main dispatcher for the door's escape and elevator states.</summary>
-    internal void RegisterCeresDoorMainAi(EnemyAiTable table)
+    /// <summary>Ports CeresDoor's main AI.</summary>
+    internal void RunCeresDoorMainAi(RoomEnemySlot slot, IEnemyAiFrame _, byte _1)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_CeresDoor, null, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCeresDoorMain(slot);
-        });
+        RunCeresDoorMain(slot);
     }
 
-    /// <summary>Runs the doors and walls as typed programs (#641).</summary>
-    internal void RegisterCeresDoorTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CeresDoor,
-            (slot, context) => AdvanceCeresDoorAnimation(slot, context.Samus));
+    /// <summary>Advances CeresDoor's typed animation.</summary>
+    internal void AdvanceCeresDoorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
+    {
+        AdvanceCeresDoorAnimation(slot, context.Samus);
+    }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)

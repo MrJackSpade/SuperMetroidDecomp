@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Fx;
@@ -8,8 +10,14 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 
 /// <summary>The Morph Ball eye species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class MorphBallEyeBehavior : IEnemySpecies
+internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Eye];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MorphBallEyeEntity(this, slot, common);
+
     /// <summary>Validates that the room-global beam still belongs to the retail body slot.</summary>
     private readonly EnemySlotTable _slotTable;
 
@@ -335,37 +343,27 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         _morphBallEyeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");
 
-    /// <summary>Runs the Morph Ball eye's tracking, eyelid and mount animations as typed programs (#641).</summary>
-    internal void RegisterMorphBallEyeTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye, (slot, _) =>
-        {
-            if (!EnemyProgramAnimation.Expire(slot))
-                return;
-            var state = RequireMorphBallEyeState(slot);
-            AnimationProgramCursor<MorphBallEyeProgram> cursor = state.Program;
-            EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.Spritemap);
-            state.Program = cursor;
-        });
-
-
-    /// <summary>Binds eye body/mount setup to the Eye enemy-definition ID.</summary>
-    internal void RegisterMorphBallEyeInitializationAi(EnemyAiTable table)
+    /// <summary>Advances MorphBallEye's typed animation.</summary>
+    internal void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_Eye, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeMorphBallEye(slot);
-        });
+        if (!EnemyProgramAnimation.Expire(slot))
+            return;
+        var state = RequireMorphBallEyeState(slot);
+        AnimationProgramCursor<MorphBallEyeProgram> cursor = state.Program;
+        EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.Spritemap);
+        state.Program = cursor;
     }
 
-    /// <summary>Binds proximity and beam-tracking AI to the Eye main routine.</summary>
-    internal void RegisterMorphBallEyeMainAi(EnemyAiTable table)
+    /// <summary>Ports MorphBallEye's initialization AI.</summary>
+    internal void RunMorphBallEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
+        InitializeMorphBallEye(slot);
+    }
 
-        table.RegisterMain(EnemyAiRoutine.MainAI_Eye, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Eye, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), frame.Samus);
-        });
+    /// <summary>Ports MorphBallEye's main AI.</summary>
+    internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
+    {
+        RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), frame.Samus);
     }
 
     /// <inheritdoc/>

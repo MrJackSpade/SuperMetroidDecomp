@@ -43,6 +43,7 @@ internal static class CeresDoorInitializationDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter1 = variant;
 
+            slot.Bind(EnemyDefinitionId.CeresDoor, slot.Definition);
             enemies.CeresDoorBehavior.InitializeCeresDoor(slot);
 
             AssertEqual((ushort)definition.MainFunction, slot.VariableA,

@@ -689,7 +689,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             WallSpacePirateBehavior,
             NinjaSpacePirateBehavior,
         ];
-        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior]);
+        Species = new EnemySpeciesRegistry(this, [BoyonBehavior, BullBehavior, ZoaBehavior, WaverBehavior, ChootBehavior, AtomicBehavior, SkulteraBehavior, PuyoBehavior, RioBehavior, FliesBehavior, SparkBehavior, StokeBehavior, SbugBehavior, MultiviolaBehavior, CacatacBehavior, AlcoonBehavior, BoulderBehavior, NuclearWaffleBehavior, HibashiBehavior, WreckedShipGhostBehavior, KzanBehavior, RipperBehavior, MochtroidBehavior, SkreeBehavior, OwtchBehavior, BeetomBehavior, KagoBehavior, FirefleaBehavior, MetareeBehavior, PolypBehavior, HoppersBehavior, CrawlersBehavior, PlatformsBehavior, YardBehavior, YappingMawBehavior, EtecoonBehavior, DachoraBehavior, MaridiaLargeSnailBehavior, WorkRobotBehavior, BlueBrinstarFaceBlockBehavior, DragonBehavior, FuneNamiheBehavior, PowampBehavior, NorfairRioBehavior, LowerNorfairRioBehavior, NorfairLavaJumpingEnemyBehavior, ShaktoolBehavior, MetroidBehavior, WalkingSpacePirateBehavior, WallSpacePirateBehavior, NinjaSpacePirateBehavior, ChozoStatueBehavior, TourianEntranceStatueBehavior, DeadSidehopperBehavior, DeadTorizoBehavior, DeadTourianBehavior, ShitroidBehavior, FakeKraidBehavior, ElevatorBehavior, MagdolliteBehavior, EscapeAnimalsBehavior, RinkaBehavior, ZebetiteBehavior, ShuttersBehavior, EvirBehavior, KiHunterBehavior, PipeBugsBehavior, MamaTurtleBehavior, MorphBallEyeBehavior, CeresDoorBehavior, CeresSteamBehavior, GunshipBehavior]);
         for (int slotIndex = 0; slotIndex < SlotTable._slots.Length; slotIndex++)
             SlotTable._slots[slotIndex] = new RoomEnemySlot(slotIndex, Species);
     }
@@ -1174,21 +1174,16 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneInitializationAi(table);
         BombTorizoBehavior.RegisterBombTorizoInitializationAi(table);
         BotwoonBehavior.RegisterBotwoonInitializationAi(table);
-        CeresDoorBehavior.RegisterCeresDoorInitializationAi(table);
         CeresRidleyBehavior.RegisterCeresRidleyInitializationAi(table);
-        CeresSteamBehavior.RegisterCeresSteamInitializationAi(table);
         CrocomireBehavior.RegisterCrocomireInitializationAi(table);
         DraygonBehavior.RegisterDraygonInitializationAi(table);
         KraidBehavior.RegisterKraidInitializationAi(table);
-        MorphBallEyeBehavior.RegisterMorphBallEyeInitializationAi(table);
         MotherBrainBehavior.RegisterMotherBrainInitializationAi(table);
         PhantoonBehavior.RegisterPhantoonInitializationAi(table);
         RidleyBehavior.RegisterRidleyInitializationAi(table);
         SporeSpawnBehavior.RegisterSporeSpawnInitializationAi(table);
 
-        GunshipBehavior.RegisterGunshipTopInitializationAi(table);
 
-        GunshipBehavior.RegisterGunshipBottomInitializationAi(table);
 
         table.RegisterInitialization(EnemyAiRoutine.RTL_A2804C, null, (slot, level, samus, controllerInput, cameraX) =>
         { });
@@ -1201,13 +1196,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BabyMetroidCutsceneBehavior.RegisterBabyMetroidCutsceneMainAi(table);
         BombTorizoBehavior.RegisterBombTorizoMainAi(table);
         BotwoonBehavior.RegisterBotwoonMainAi(table);
-        CeresDoorBehavior.RegisterCeresDoorMainAi(table);
         CeresRidleyBehavior.RegisterCeresRidleyMainAi(table);
-        CeresSteamBehavior.RegisterCeresSteamMainAi(table);
         CrocomireBehavior.RegisterCrocomireMainAi(table);
         DraygonBehavior.RegisterDraygonMainAi(table);
         KraidBehavior.RegisterKraidMainAi(table);
-        MorphBallEyeBehavior.RegisterMorphBallEyeMainAi(table);
         MotherBrainBehavior.RegisterMotherBrainMainAi(table);
         PhantoonBehavior.RegisterPhantoonMainAi(table);
         RidleyBehavior.RegisterRidleyMainAi(table);
@@ -1217,8 +1209,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
         CrocomireBehavior.RegisterCrocomireTongueMainAi(table);
 
-        GunshipBehavior.RegisterGunshipMainAi(table);
-        GunshipBehavior.RegisterGunshipTypedAnimations(table);
 
         table.RegisterMain(EnemyAiRoutine.RTL_A2804C, null, (slot, frame, nmiFrameCounter8) =>
         { });
@@ -1244,10 +1234,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         BotwoonBehavior.RegisterBotwoonTypedAnimations(table);
         CrocomireBehavior.RegisterCrocomireTypedAnimations(table);
         RidleyBehavior.RegisterRidleyTypedAnimations(table);
-        CeresSteamBehavior.RegisterCeresSteamTypedAnimations(table);
-        CeresDoorBehavior.RegisterCeresDoorTypedAnimations(table);
         SporeSpawnBehavior.RegisterSporeSpawnTypedAnimations(table);
-        MorphBallEyeBehavior.RegisterMorphBallEyeTypedAnimations(table);
         BombTorizoBehavior.RegisterBombTorizoTypedAnimations(table);
 }
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Input;
@@ -15,8 +16,14 @@ namespace SuperMetroid.Core.Enemies.Gunship;
 /// The gunship: its top and bottom initialization, landing, save prompt, Samus boarding and exit, and the
 /// post-Ceres and escape lift-offs, with the frame events and save answer it publishes.
 /// </summary>
-internal sealed class GunshipBehavior
+internal sealed class GunshipBehavior : IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new GunshipEntity(this, slot, common);
+
     /// <summary>Queues engine and entrance-pad sounds at the native frame boundaries.</summary>
     private readonly EnemyAudioQueue _audio;
     /// <summary>Creates gunship dust during takeoff.</summary>
@@ -92,10 +99,11 @@ internal sealed class GunshipBehavior
         _shipPrograms[slot.SlotIndex] = cursor;
     }
 
-    /// <summary>Runs the hull and entrance pad as typed programs (#641).</summary>
-    internal void RegisterGunshipTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.ShipTop or EnemyDefinitionId.ShipBottomEntrance,
-            (slot, _) => AdvanceGunshipAnimation(slot));
+    /// <summary>Advances Gunship's typed animation.</summary>
+    internal void AdvanceGunshipTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceGunshipAnimation(slot);
+    }
 
     /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
     internal void InitializeGunshipTop(RoomEnemySlot slot)
@@ -632,34 +640,26 @@ internal sealed class GunshipBehavior
         return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
-    /// <summary>Routes top-hull initialization through the native ship entry point.</summary>
-    internal void RegisterGunshipTopInitializationAi(EnemyAiTable table)
+    /// <summary>Ports ShipTop's initialization AI.</summary>
+    internal void RunShipTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_ShipTop, null, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeGunshipTop(slot);
-        });
+        InitializeGunshipTop(slot);
     }
 
-    /// <summary>Routes bottom hull and entrance-pad initialization through their shared entry point.</summary>
-    internal void RegisterGunshipBottomInitializationAi(EnemyAiTable table)
+    /// <summary>Ports ShipBottomEntrance's initialization AI.</summary>
+    internal void RunShipBottomEntranceInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_ShipBottomEntrance, null, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeGunshipBottom(slot);
-        });
+        InitializeGunshipBottom(slot);
     }
 
-    /// <summary>Runs the top hull's lifecycle once per enemy frame.</summary>
-    internal void RegisterGunshipMainAi(EnemyAiTable table)
+    /// <summary>Ports Gunship's main AI.</summary>
+    internal void RunGunshipMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-        table.RegisterMain(EnemyAiRoutine.MainAI_ShipTop, null, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunGunshipTopMain(
-                slot,
-                frame.Samus,
-                frame.NewlyPressedControllerInput,
-                frame.VramWriteQueue);
-        });
+        RunGunshipTopMain(
+            slot,
+            frame.Samus,
+            frame.NewlyPressedControllerInput,
+            frame.VramWriteQueue);
     }
+
 }

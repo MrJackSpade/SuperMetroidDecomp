@@ -30,7 +30,7 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
     {
         EnemyDefinitionId.KzanTop => KzanBehavior.AdvanceKzanTypedAnimation,
-        EnemyDefinitionId.KzanBottom => null,
+        EnemyDefinitionId.KzanBottom => Common.FindTypedAnimation(Slot),
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 }

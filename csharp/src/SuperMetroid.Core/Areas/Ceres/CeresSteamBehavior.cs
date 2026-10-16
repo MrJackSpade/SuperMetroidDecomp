@@ -1,4 +1,7 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Enemies;
@@ -8,8 +11,14 @@ using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.Core.Areas.Ceres;
 
 /// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
-internal sealed class CeresSteamBehavior
+internal sealed class CeresSteamBehavior : IEnemyEntityFactory
 {
+    /// <inheritdoc/>
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Steam];
+
+    /// <inheritdoc/>
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CeresSteamEntity(this, slot, common);
+
     /// <summary>Room services that supply the live RNG used to stagger vent activation.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Common contact resolution used after steam's extended hitbox selects its touch callback.</summary>
@@ -137,30 +146,23 @@ internal sealed class CeresSteamBehavior
         }
     }
 
-    /// <summary>Registers the initializer that selects the variant's instruction list and RNG activation delay.</summary>
-    internal void RegisterCeresSteamInitializationAi(EnemyAiTable table)
+    /// <summary>Ports CeresSteam's initialization AI.</summary>
+    internal void RunCeresSteamInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-
-        table.RegisterInitialization(EnemyAiRoutine.InitAI_CeresSteam, null, (slot, level, samus, controllerInput, cameraX) =>
-        {
-            InitializeCeresSteam(slot);
-        });
+        InitializeCeresSteam(slot);
     }
 
-    /// <summary>Registers the main AI that restores health and applies the rotating elevator's graphical offset.</summary>
-    internal static void RegisterCeresSteamMainAi(EnemyAiTable table)
+    /// <summary>Ports CeresSteam's main AI.</summary>
+    internal static void RunCeresSteamMainAi(RoomEnemySlot slot, IEnemyAiFrame frame, byte _)
     {
-
-        table.RegisterMain(EnemyAiRoutine.MainAI_CeresSteam, null, (slot, frame, nmiFrameCounter8) =>
-        {
-            RunCeresSteamMain(slot, frame.Mode7Transform);
-        });
+        RunCeresSteamMain(slot, frame.Mode7Transform);
     }
 
-    /// <summary>Runs the vents as typed programs (#641).</summary>
-    internal void RegisterCeresSteamTypedAnimations(EnemyAiTable table) =>
-        table.AddTypedAnimation(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam,
-            (slot, _) => AdvanceCeresSteamAnimation(slot));
+    /// <summary>Advances CeresSteam's typed animation.</summary>
+    internal void AdvanceCeresSteamTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
+    {
+        AdvanceCeresSteamAnimation(slot);
+    }
 
     /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
     internal void RegisterCeresSteamTouch(EnemyAiTable table)

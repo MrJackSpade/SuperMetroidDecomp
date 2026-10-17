@@ -4,16 +4,20 @@ namespace SuperMetroid.Core.Enemies.Cacatac;
 internal static class CacatacProjectileDefinitions
 {
     /// <summary>
-    /// Native immediate operands $86:D9BB/$86:D9C1: cardinal signed 8.8
-    /// negative/positive speed pair ($FE00, $0200).
+    /// Native immediate operands $86:D9BB/$86:D9C1: a cardinal spike moves two pixels per update
+    /// (signed 8.8 raw 512) toward its negative or positive side.
     /// </summary>
-    private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(0xfe00, 0x0200);
+    private static readonly CacatacSpikeSpeedPair CardinalSpeeds = new(
+        SnesSignedEightEight.FromSignedRaw(-512),
+        SnesSignedEightEight.FromSignedRaw(512));
 
     /// <summary>
-    /// Native immediate operands $86:D9CF/$86:D9D5: diagonal signed 8.8
-    /// negative/positive speed pair ($FE80, $0180).
+    /// Native immediate operands $86:D9CF/$86:D9D5: a diagonal spike moves one and a half pixels per
+    /// update on each axis (signed 8.8 raw 384) toward its negative or positive side.
     /// </summary>
-    private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(0xfe80, 0x0180);
+    private static readonly CacatacSpikeSpeedPair DiagonalSpeeds = new(
+        SnesSignedEightEight.FromSignedRaw(-384),
+        SnesSignedEightEight.FromSignedRaw(384));
 
     /// <summary>
     /// $86:D96A CacatacSpike_InstListPointers: dispatch the spike direction and

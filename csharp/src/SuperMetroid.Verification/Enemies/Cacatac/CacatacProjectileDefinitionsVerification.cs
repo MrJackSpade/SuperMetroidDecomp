@@ -19,7 +19,7 @@ internal static class CacatacProjectileDefinitionsVerification
 
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, ushort> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
+        Action<RoomEnemySlot, CacatacSpikeDirection> spawn = enemies.CacatacBehavior.SpawnCacatacSpike;
         RoomEnemySlot source = enemies.SlotTable.Slots[0];
         source.Position = new(new(0x1234, 0x5678), new(0x9abc, 0xdef0));
         source.PaletteIndex = 0x0c00;
@@ -42,10 +42,10 @@ internal static class CacatacProjectileDefinitionsVerification
             ushort expectedPositive = direction >= CacatacSpikeDirection.UpLeft
                 ? (ushort)0x0180
                 : (ushort)0x0200;
-            AssertEqual(expectedNegative, speeds.Negative, $"compiled Cacatac negative speed {direction}");
-            AssertEqual(expectedPositive, speeds.Positive, $"compiled Cacatac positive speed {direction}");
+            AssertEqual(expectedNegative, speeds.Negative.RawValue, $"compiled Cacatac negative speed {direction}");
+            AssertEqual(expectedPositive, speeds.Positive.RawValue, $"compiled Cacatac positive speed {direction}");
 
-            spawn(source, raw);
+            spawn(source, direction);
             RoomEnemyProjectileSlot actual = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CacatacSpike);
             AssertTrue(actual.Animation is CacatacProjectileAnimation { Cursor.Program: var spawned } &&

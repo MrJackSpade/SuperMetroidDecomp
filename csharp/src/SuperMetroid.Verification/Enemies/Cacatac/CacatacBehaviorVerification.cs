@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Cacatac;
 using SuperMetroid.Verification.Harness;
@@ -39,7 +40,7 @@ internal static class CacatacBehaviorVerification
             EnemyInstructionRunner.ShownFrames(slot, 53);
             AssertEqual(loop, state.Program.Program, $"Cacatac {orientation} attack returns to idle");
             AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, $"Cacatac {orientation} attack resumes patrol");
-            AssertEqual((ushort?)CacatacNativeValues.SpikeSound, enemies.CacatacBehavior.LastCacatacSoundEffect, $"Cacatac {orientation} attack plays the spike sound");
+            AssertEqual<SoundEffectId?>(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, CacatacNativeValues.SpikeSound), enemies.CacatacBehavior.LastCacatacSoundEffect, $"Cacatac {orientation} attack plays the spike sound");
             CacatacSpikeDirection[] directions = upsideUp
                 ? [CacatacSpikeDirection.LeftFacingUp, CacatacSpikeDirection.UpLeft, CacatacSpikeDirection.Up, CacatacSpikeDirection.UpRight, CacatacSpikeDirection.RightFacingUp]
                 : [CacatacSpikeDirection.LeftFacingDown, CacatacSpikeDirection.DownLeft, CacatacSpikeDirection.Down, CacatacSpikeDirection.DownRight, CacatacSpikeDirection.RightFacingDown];
@@ -49,6 +50,58 @@ internal static class CacatacBehaviorVerification
                 $"Cacatac {orientation} spike directions");
         }
         Console.WriteLine("  Cacatac behavior: both idles restore patrol and loop on time; both attacks play the sound, spit five spikes and resume patrol.");
+    }
+
+    /// <summary>
+    /// Drives the production main AI on a Cacatac whose patrol limits are its spawn X plus and minus one block. The
+    /// typed 16.16 velocity carries its fraction into the whole X, and each turn follows the wrapped signed distance
+    /// to the limit: spawned eight pixels from the room's left edge, its left limit wraps to the far right of the
+    /// coordinate range, yet the walk keeps going left until X passes that limit through the wrap, and a rightward
+    /// walk that lands exactly on its right limit turns back.
+    /// </summary>
+    internal static void VerifyCacatacPatrolLimits()
+    {
+        const int onePixel = 65536;
+        const int halfPixel = onePixel / 2;
+        var oneAndAHalfPixels = SnesSignedSixteenSixteen.FromRaw(onePixel + halfPixel);
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        // A random word that keeps the three-in-256 attack gate closed, so every update is a patrol step.
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 100);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
+        slot.Position = FixedPosition<RoomPixels>.FromWhole(new(8, 112));
+        CacatacBehavior.InitializeCacatac(slot);
+        CacatacEnemyState state = enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state.");
+        AssertEqual(new Position16<RoomPixels>(unchecked((ushort)(8 - 16)), 112), state.LeftPatrolLimit, "Cacatac left limit wraps below the room's left edge");
+        AssertEqual(new Position16<RoomPixels>(24, 112), state.RightPatrolLimit, "Cacatac right limit is one block right of spawn");
+
+        state.LeftVelocity = SnesSignedSixteenSixteen.Zero - oneAndAHalfPixels;
+        slot.Position = slot.Position.WithFractionX(checked((ushort)halfPixel));
+        enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
+        AssertEqual(new SnesFixedPosition(7, 0), slot.Position.X, "Cacatac leftward step borrows its fraction");
+        AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac keeps walking left of a limit that wrapped to the far right");
+        AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, "Cacatac keeps its leftward patrol");
+
+        // One pixel right of the wrapped limit: the step lands half a pixel past it and turns.
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(state.LeftPatrolLimit.X + 1)));
+        enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
+        AssertEqual(new SnesFixedPosition(unchecked((ushort)(state.LeftPatrolLimit.X - 1)), checked((ushort)halfPixel)), slot.Position.X,
+            "Cacatac steps past its wrapped left limit");
+        AssertEqual(CacatacDirection.Right, state.Direction, "Cacatac turns right once past its wrapped left limit");
+        AssertEqual(CacatacEnemyFunction.MovingRight, state.Function, "Cacatac patrols right after the turn");
+
+        state.RightVelocity = oneAndAHalfPixels;
+        slot.Position = slot.Position.WithX(new SnesFixedPosition(22, checked((ushort)halfPixel)));
+        enemies.CacatacBehavior.RunCacatacMainAi(slot, Frame());
+        AssertEqual(new SnesFixedPosition(24, 0), slot.Position.X, "Cacatac rightward step carries its fraction into the whole X");
+        AssertEqual(CacatacDirection.Left, state.Direction, "Cacatac turns left on reaching its right limit");
+        AssertEqual(CacatacEnemyFunction.MovingLeft, state.Function, "Cacatac patrols left after the turn");
+        Console.WriteLine("  Cacatac patrol: the 16.16 steps carry and borrow, and both turns follow the wrapped distance to the limit.");
+
+        static ClockedEnemyAiFrame Frame() => new(
+            new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = new SamusState() },
+            new FrameCounters(0));
     }
 
     /// <summary>A Cacatac initialized upright or inverted.</summary>
@@ -70,6 +123,7 @@ internal static class CacatacBehaviorVerification
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCacatacBehavior), () => VerifyCacatacBehavior());
+        Suite(nameof(VerifyCacatacPatrolLimits), () => VerifyCacatacPatrolLimits());
         Suite(nameof(CacatacAnimationsVerification.VerifyCacatacAnimations), () => CacatacAnimationsVerification.VerifyCacatacAnimations(rom));
         return 0;
     }

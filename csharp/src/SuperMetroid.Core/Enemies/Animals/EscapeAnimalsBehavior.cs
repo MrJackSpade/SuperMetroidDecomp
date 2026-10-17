@@ -228,7 +228,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
 
     /// <summary>Treats absent Samus/liquid context as the native maximum Y for acid-height branches.</summary>
-    private static ushort EscapeAnimalLavaY(SamusState? samus) =>
+    private static int EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
     /// <summary>Adds a signed 16.16 displacement with native 32-bit wraparound to the actor's X position.</summary>

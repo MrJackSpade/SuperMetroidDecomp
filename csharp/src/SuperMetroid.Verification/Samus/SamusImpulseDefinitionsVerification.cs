@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
@@ -68,7 +69,7 @@ internal static class SamusImpulseDefinitionsVerification
                 ((equipment & 4) != 0 ? SamusEquipmentFlags.GravitySuit : 0)));
             hurt.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             hurt.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
-            hurt.LiquidPhysics.LiquidOptions = environment == 3 ? (ushort)4 : (ushort)0;
+            hurt.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             hurt.BombJumpDirection = 0x0801;
             hurt.BombJumpStarting = true;
             hurt.BombJumpActive = true;

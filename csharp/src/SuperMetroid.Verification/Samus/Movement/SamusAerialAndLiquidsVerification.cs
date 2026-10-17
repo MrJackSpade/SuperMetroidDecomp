@@ -775,7 +775,7 @@ internal static void VerifySamusLiquidPhysics()
         "liquid equality is not submerged");
     AssertTrue(!sample.LiquidPhysics.IsBottomBoundarySubmerged(sample),
         "palette liquid gate treats surface equality as dry");
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 110, liquidOptions: 4);
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 110, liquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave);
     AssertEqual(SamusLiquidMedium.Air,
         sample.LiquidPhysics.DetermineMovementMedium(sample),
         "water option bit two disables physics");
@@ -912,7 +912,7 @@ internal static void VerifySamusLiquidPhysics()
     // entry so the just-finished swing retains its prior flag for exactly one handler call.
     sample.EquippedItems = 0;
     sample.Grapple.Phase = GrapplePhase.ConnectedSwinging;
-    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, liquidOptions: 4);
+    sample.LiquidPhysics.ConfigureWater(surfaceY: 111, liquidOptions: RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave);
     SamusGrappleMovement.RefreshLiquidPhysicsFlag(sample);
     AssertTrue(sample.Grapple.Submerged, "grapple liquid flag ignores water option bit two");
     sample.Grapple.Phase = GrapplePhase.ReleaseFromSwing;

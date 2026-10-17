@@ -422,7 +422,7 @@ public sealed class RoomLayer3FxState
         {
             case RoomFxType.Water:
             case RoomFxType.TourianEntranceStatue:
-                liquid.ConfigureWater(Surface.Y, LiquidOptions.ToNativeWord(), Type);
+                liquid.ConfigureWater(Surface.Y, LiquidOptions, Type);
                 return;
             case RoomFxType.Lava:
                 liquid.ConfigureLavaAcid(Surface.Y);

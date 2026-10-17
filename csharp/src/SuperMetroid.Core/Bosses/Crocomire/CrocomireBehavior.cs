@@ -1088,7 +1088,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort xOffset = unchecked((ushort)(random & 63));
         if ((random & 2) == 0)
             xOffset = unchecked((ushort)~xOffset);
-        ushort acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
+        int acidY = samus?.LiquidPhysics.LavaAcidYPosition ?? 224;
         _spriteObjects.SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + xOffset)), unchecked((ushort)(acidY + 16 - ((SnesLittleEndian.HighByte(random) & 31))))),
             RoomSpriteObjectKind.CrocomireAcidSmoke,

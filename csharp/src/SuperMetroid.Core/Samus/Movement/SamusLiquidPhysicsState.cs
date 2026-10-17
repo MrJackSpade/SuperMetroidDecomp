@@ -40,16 +40,24 @@ public sealed class SamusLiquidPhysicsState
     /// General FX surface Y at WRAM <c>$195E</c>. A negative 16-bit value tells movement
     /// routines to consult <see cref="LavaAcidYPosition"/> instead of the water surface.
     /// </summary>
-    public ushort FxYPosition { get; set; } = ushort.MaxValue;
+    public int FxYPosition
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    } = ushort.MaxValue;
 
     /// <summary>Lava/acid surface Y at WRAM <c>$1962</c>; negative means absent.</summary>
-    public ushort LavaAcidYPosition { get; set; } = ushort.MaxValue;
+    public int LavaAcidYPosition
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    } = ushort.MaxValue;
 
     /// <summary>
-    /// Liquid-options word at WRAM <c>$197E</c>. Bit two disables water interaction even
-    /// when the geometric surface comparison says Samus is below it.
+    /// The room's liquid options (WRAM <c>$197E</c>). The water-physics option disables water
+    /// interaction even when the geometric surface comparison says Samus is below it.
     /// </summary>
-    public ushort LiquidOptions { get; set; }
+    public RoomLiquidOptions LiquidOptions { get; set; }
 
     /// <summary>
     /// Remembered native medium at WRAM <c>$0AD2</c>. This is intentionally stateful:
@@ -92,11 +100,19 @@ public sealed class SamusLiquidPhysicsState
     public void QueueMovementSound(SoundEffectId soundEffect, int maximumQueued) =>
         QueueSound(soundEffect, maximumQueued);
 
-    /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
-    public ushort PeriodicSubDamage { get; internal set; }
+    /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage, 0 through 65535.</summary>
+    public int PeriodicSubDamage
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>WRAM <c>$0A50</c>, the whole-energy half of pending periodic damage.</summary>
-    public ushort PeriodicDamage { get; internal set; }
+    /// <summary>WRAM <c>$0A50</c>, the whole-energy half of pending periodic damage, 0 through 65535.</summary>
+    public int PeriodicDamage
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Logical room pair consumed by area/room-specific footstep graphics.</summary>
     public RoomIdentity RoomIdentity { get; set; }
@@ -114,7 +130,7 @@ public sealed class SamusLiquidPhysicsState
     public bool BossPresent { get; set; }
 
     /// <summary>Configures water words while preserving the ordinary or statue room's native FX identity.</summary>
-    public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0, RoomFxType type = RoomFxType.Water)
+    public void ConfigureWater(int surfaceY, RoomLiquidOptions liquidOptions = RoomLiquidOptions.None, RoomFxType type = RoomFxType.Water)
     {
         if (!RoomFxTypes.UsesWater(type))
             throw new ArgumentOutOfRangeException(nameof(type), type, "A water configuration requires a water FX dispatcher.");
@@ -125,12 +141,12 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Configures the exact room-FX words for a lava (type two) or acid (type four) surface.</summary>
-    public void ConfigureLavaAcid(ushort surfaceY, bool acid = false)
+    public void ConfigureLavaAcid(int surfaceY, bool acid = false)
     {
         FxType = acid ? RoomFxType.Acid : RoomFxType.Lava;
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = surfaceY;
-        LiquidOptions = 0;
+        LiquidOptions = RoomLiquidOptions.None;
     }
 
     /// <summary>
@@ -152,7 +168,7 @@ public sealed class SamusLiquidPhysicsState
         FxType = RoomFxType.None;
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = ushort.MaxValue;
-        LiquidOptions = 0;
+        LiquidOptions = RoomLiquidOptions.None;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         PeriodicSubDamage = 0;
         PeriodicDamage = 0;
@@ -567,8 +583,8 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        ushort appliedSubDamage = PeriodicSubDamage;
-        ushort appliedDamage = PeriodicDamage;
+        ushort appliedSubDamage = checked((ushort)PeriodicSubDamage);
+        ushort appliedDamage = checked((ushort)PeriodicDamage);
         int divisorShift = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? 2
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -580,7 +596,7 @@ public sealed class SamusLiquidPhysicsState
             // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
             // equivalent to independently shifting both 16-bit words when a carry crosses.
             ushort overlappingDamage = unchecked((ushort)(
-                SnesLittleEndian.Word(SnesLittleEndian.HighByte(PeriodicSubDamage), SnesLittleEndian.LowByte(PeriodicDamage))));
+                SnesLittleEndian.Word(SnesLittleEndian.HighByte(appliedSubDamage), SnesLittleEndian.LowByte(appliedDamage))));
             overlappingDamage = unchecked((ushort)(overlappingDamage >> divisorShift));
             appliedSubDamage = SnesLittleEndian.Word(0, SnesLittleEndian.LowByte(overlappingDamage));
             appliedDamage = unchecked((ushort)(SnesLittleEndian.HighByte(overlappingDamage)));
@@ -626,7 +642,7 @@ public sealed class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 0, type: 3, animationFrame: 0, animationTimer: 2,
-                new(samus.Position.X.Whole, FxYPosition));
+                new(samus.Position.X.Whole, checked((ushort)FxYPosition)));
             return;
         }
 
@@ -684,7 +700,7 @@ public sealed class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 slot, type: 4, animationFrame: 0, timers[slot],
-                new(xPositions[slot], LavaAcidYPosition));
+                new(xPositions[slot], checked((ushort)LavaAcidYPosition)));
         }
 
         if ((nmiFrameCounter & 1) == 0)
@@ -777,11 +793,11 @@ public sealed class SamusLiquidPhysicsState
 
     /// <summary>Applies the room's water-disable option before comparing a boundary with the water surface.</summary>
     internal bool WaterAffectsBoundary(ushort boundary) =>
-        (LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) == 0 &&
+        (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) == 0 &&
         IsBelowSurface(FxYPosition, boundary);
 
     /// <summary>Uses native signed 16-bit subtraction and rejects a negative absent-surface sentinel.</summary>
-    internal static bool IsBelowSurface(ushort surface, ushort boundary) =>
+    internal static bool IsBelowSurface(int surface, ushort boundary) =>
         unchecked((short)surface) >= 0 &&
         unchecked((short)(surface - boundary)) < 0;
 

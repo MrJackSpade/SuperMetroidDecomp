@@ -1136,9 +1136,9 @@ internal static class RidleyFullMovieVerification
                 }
                 Check("Liquid animation buffer", checked((ushort)samus.AnimationFrameBuffer), NativeSnapshotMemory.AnimationFrameBuffer);
                 Check("LiquidPhysicsType", (ushort)samus.LiquidPhysics.LiquidPhysicsType, NativeSnapshotMemory.LiquidPhysicsType);
-                Check("PeriodicSubDamage", samus.LiquidPhysics.PeriodicSubDamage, NativeSnapshotMemory.PeriodicSubDamage);
-                Check("PeriodicDamage", samus.LiquidPhysics.PeriodicDamage, NativeSnapshotMemory.PeriodicDamage);
-                Check("Acid damage surface", samus.LiquidPhysics.LavaAcidYPosition, NativeSnapshotMemory.AcidSurface);
+                Check("PeriodicSubDamage", checked((ushort)samus.LiquidPhysics.PeriodicSubDamage), NativeSnapshotMemory.PeriodicSubDamage);
+                Check("PeriodicDamage", checked((ushort)samus.LiquidPhysics.PeriodicDamage), NativeSnapshotMemory.PeriodicDamage);
+                Check("Acid damage surface", checked((ushort)samus.LiquidPhysics.LavaAcidYPosition), NativeSnapshotMemory.AcidSurface);
                 Check("Liquid tide phase", checked((ushort)runtime.RoomLayer3Fx.tidePhase), NativeSnapshotMemory.TidePhase);
             }
             Check("Samus X", samus.Position.X.Whole, NativeSnapshotMemory.X);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerification;
 using SuperMetroid.Core.Samus;
@@ -31,7 +32,7 @@ internal static class SamusVerticalDefinitionsVerification
                 (boost ? SamusEquipmentFlags.SpeedBooster : 0)));
             samus.LiquidPhysics.FxYPosition = environment is 1 or 3 ? (ushort)0 : ushort.MaxValue;
             samus.LiquidPhysics.LavaAcidYPosition = environment == 2 ? (ushort)0 : ushort.MaxValue;
-            samus.LiquidPhysics.LiquidOptions = environment == 3 ? (ushort)4 : (ushort)0;
+            samus.LiquidPhysics.LiquidOptions = environment == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             int medium = launch == 2 || gravity || environment == 3 ? 0 : environment;
             int address = launch == 2 ? 0x909eb9 : launch == 1
                 ? high ? 0x909edd : 0x909ed1

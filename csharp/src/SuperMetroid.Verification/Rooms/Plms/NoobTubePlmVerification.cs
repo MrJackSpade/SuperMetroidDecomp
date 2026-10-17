@@ -207,7 +207,7 @@ internal static class NoobTubePlmVerification
             roomFx.LiquidOptions,
             "n00b-tube completion clears the disable bit on shared room FX");
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+        AssertEqual(RoomLiquidOptions.SmallTide,
             samus.LiquidPhysics.LiquidOptions,
             "next room-FX publication preserves enabled water physics");
         AssertEqual(SamusLiquidMedium.Water,

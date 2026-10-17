@@ -314,7 +314,7 @@ internal sealed class GameplayActorDrawing
                 _player.Samus.LiquidPhysics.AtmosphericEffects.UpdateAndDraw(
                     _sprites,
                     _room.Camera.PixelPosition,
-                    _player.Samus.LiquidPhysics.FxYPosition,
+                    checked((ushort)_player.Samus.LiquidPhysics.FxYPosition),
                     _artwork.SamusBodyArt?.Spritemaps,
                     _artwork.SamusBodyArt?.Atmosphere,
                     _artwork.StandardObjects);

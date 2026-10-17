@@ -45,6 +45,10 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             "dead Torizo corpse wrap offset");
+        AssertEqual((ushort)CorpseRotationTable.Torizo, definition.RotationTablePointer,
+            "dead Torizo configuration names the Torizo tile-row layout production copies with");
+        AssertEqual((ushort)0, definition.VramTransferPointer,
+            "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 
         var enemies = new RoomEnemySystem { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -54,23 +58,11 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         initialize(slot);
 
         DeadTorizoEnemyState state = (enemies.DeadTorizo ?? throw new InvalidOperationException("Verification requires enemies.DeadTorizo."));
-        AssertEqual(definition.RottingTablePointer, (state ?? throw new InvalidOperationException("Verification requires state.")).TablePointer,
-            "dead Torizo production rotting table");
-        AssertEqual(definition.VramTransferPointer, state.VramTablePointer,
-            "dead Torizo production VRAM table");
-        AssertEqual(definition.CopyFunction, state.CopyFunction,
-            "dead Torizo production copy callback");
-        AssertEqual(definition.MoveFunction, state.MoveFunction,
-            "dead Torizo production move callback");
-        AssertEqual(definition.RotationTablePointer, state.RotationTablePointer,
-            "dead Torizo production rotation table");
-        AssertEqual(definition.FinishFunction, state.FinishFunction,
-            "dead Torizo production finish callback");
-        AssertEqual(definition.EntryCount, state.EntryCount,
-            "dead Torizo production row count");
-        AssertEqual(unchecked((ushort)(definition.EntryCount - 1)), state.YLimit,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, definition.RottingTablePointer, definition.EntryCount,
+            (state ?? throw new InvalidOperationException("Verification requires state.")).RotTable, "dead Torizo production");
+        AssertEqual(definition.EntryCount - 1, state.YLimit,
             "dead Torizo production Y limit");
-        AssertEqual(unchecked((ushort)(definition.EntryCount - 2)), state.LateMoveEntryIndex,
+        AssertEqual(definition.EntryCount - 2, state.LateMoveEntryIndex,
             "dead Torizo production late-move row");
         AssertEqual(definition.WrapOffset, state.WrapOffset,
             "dead Torizo production wrap offset");

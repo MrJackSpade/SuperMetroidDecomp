@@ -117,25 +117,15 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
             enemies.DeadTourianBehavior._extensions[slot.SlotIndex].Program,
             $"dead {species} variant {variantIndex} started animation");
-        AssertEqual(expected.ConfigurationPointer, state.ConfigurationPointer,
-            $"dead {species} variant {variantIndex} configuration");
-        AssertEqual(expected.RottingTablePointer, state.TablePointer,
-            $"dead {species} variant {variantIndex} rotting table");
-        AssertEqual(expected.VramTransferPointer, state.VramTablePointer,
-            $"dead {species} variant {variantIndex} VRAM table");
-        AssertEqual(expected.CopyFunction, state.CopyFunction,
-            $"dead {species} variant {variantIndex} copy callback");
-        AssertEqual(expected.MoveFunction, state.MoveFunction,
-            $"dead {species} variant {variantIndex} move callback");
-        AssertEqual(expected.RotationTablePointer, state.RotationTablePointer,
-            $"dead {species} variant {variantIndex} rotation table");
-        AssertEqual(expected.FinishFunction, state.FinishFunction,
-            $"dead {species} variant {variantIndex} finish callback");
-        AssertEqual(expected.EntryCount, state.EntryCount,
-            $"dead {species} variant {variantIndex} row count");
-        AssertEqual(unchecked((ushort)(expected.EntryCount - 1)), state.YLimit,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RottingTablePointer, expected.EntryCount,
+            state.RotTable, $"dead {species} variant {variantIndex}");
+        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransferPointer).SequenceEqual(state.VramTransfers),
+            $"dead {species} variant {variantIndex} uploads the configured VRAM transfer list");
+        AssertEqual((ushort)state.Profile.RowLayout, expected.RotationTablePointer,
+            $"dead {species} variant {variantIndex} configuration names the tile-row layout production copies with");
+        AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead {species} variant {variantIndex} Y limit");
-        AssertEqual(unchecked((ushort)(expected.EntryCount - 2)), state.LateMoveEntryIndex,
+        AssertEqual(expected.EntryCount - 2, state.LateMoveEntryIndex,
             $"dead {species} variant {variantIndex} late-move row");
         AssertEqual(expected.WrapOffset, state.WrapOffset,
             $"dead {species} variant {variantIndex} wrap offset");

@@ -108,23 +108,28 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTourianCorpseVariant variant = profile.Variants[variantIndex];
         DeadTourianCorpseDefinition definition =
             DeadTourianCorpseDefinitions.For(profile.Species, variantIndex);
-        if (definition.EntryCount == 0)
-            throw new InvalidDataException($"Dead {profile.Species} has zero corpse rows.");
+        // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
+        if (definition.EntryCount < 2)
+            throw new InvalidDataException($"Dead {profile.Species} has fewer than two corpse rows.");
 
         // Missing resources must not leave a registered corpse, changed slot or partially
         // initialized WRAM behind when the host reports a recoverable error.
         ReadOnlySpan<byte> installedTiles = _deadMonsters.InstalledCorpseTiles();
 
-        ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
-        ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset }, profile: profile, variant: variant);
+        int yLimit = definition.EntryCount - 1;
+        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex,
+            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset },
+            profile: profile, variant: variant)
+        {
+            RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
+            VramTransfers = DeadMonsterRottingDefinitions.ForTransferTable(definition.VramTransferPointer),
+        };
         slot.SetSpeciesState(state);
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         slot.VariableA = profile.WaitFunction;
         _extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
-        CorpseRottingTableProcessor.Initialize(
-            _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount));
+        CorpseRottingTableProcessor.Initialize(state.RotTable);
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
     }
 
@@ -142,7 +147,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (slot.VariableA == profile.PreRotFunction)
         {
-            state.PreRotDelayCounter = unchecked((ushort)(state.PreRotDelayCounter + 1));
+            state.CountPreRotDelayCall();
             if (state.PreRotDelayCounter >= 16)
             {
                 slot.VariableA = profile.RottingFunction;
@@ -188,14 +193,14 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _room.Staging.RotTable(state.TablePointer, state.EntryCount),
+            state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, move),
             entryIndex => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             slot.VariableA = DeadTourianCorpseProfileDefinitions.NoOperationFunction;
-        _deadMonsters.AppendVramTransfers(state.VramTablePointer);
+        _deadMonsters.AppendVramTransfers(state.VramTransfers);
     }
 
     /// <summary>Copies the selected corpse variant from installed art into the room's tile work buffer.</summary>
@@ -220,7 +225,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         bool move)
     {
         ushort sourceOffset = unchecked((ushort)(
-            DeadMonsterRottingDefinitions.RotationOffset(state.RotationTablePointer, yOffset) + (yOffset & 7) * 2));
+            DeadMonsterRottingDefinitions.RotationOffset(state.Profile.RowLayout, yOffset) + (yOffset & 7) * 2));
         ushort destinationOffset = (yOffset & 7) >= 6
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
@@ -256,7 +261,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)
-            _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust.Value;
+            _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
     /// <summary>Rejects uninitialized slots and slots whose corpse state belongs to another enemy.</summary>
@@ -270,7 +275,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Groups one corpse species' native callbacks with its available art layouts.</summary>
+    /// <summary>Groups one corpse species' native callbacks with its tile-row layout and available art layouts.</summary>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         ushort WaitFunction,
@@ -278,11 +283,15 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort RottingFunction,
         ushort TouchAndShotFunction,
         ushort PowerBombFunction,
-        DeadTourianCorpseVariant[] Variants);
+        DeadTourianCorpseVariant[] Variants,
+        CorpseRotationTable RowLayout);
 
     /// <summary>Describes tile-column offsets and sheet copies for one corpse art variant.</summary>
+    /// <param name="MaximumY">First pixel row that no longer copies downward: the block height less two pixels (14 or 30).</param>
+    /// <param name="ColumnWordOffsets">Work-buffer word offset of each tile column of the corpse block.</param>
+    /// <param name="InitialGraphicsCopies">Sheet-to-work-buffer copies that stage the corpse's initial art.</param>
     internal sealed record DeadTourianCorpseVariant(
-        ushort MaximumY,
+        int MaximumY,
         ushort[] ColumnWordOffsets,
         DeadTourianCorpseGraphicsCopy[] InitialGraphicsCopies);
 

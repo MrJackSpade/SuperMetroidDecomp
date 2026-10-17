@@ -71,6 +71,8 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         ushort secondRotationOffset = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa90000 | unchecked((ushort)(definition.RotationTablePointer + 2))));
         AssertEqual(unchecked((ushort)(secondRotationOffset - 12)), definition.WrapOffset,
             $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4} wrap offset");
+        AssertEqual((ushort)CorpseRotationTable.Sidehopper, definition.RotationTablePointer,
+            $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4} names the sidehopper tile-row layout production copies with");
     }
 
     /// <summary>Checks the state installed for one alive or initially dead enemy parameter.</summary>
@@ -93,23 +95,13 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             $"dead sidehopper parameter {parameter1} graphics variant");
         AssertEqual(expected.ConfigurationPointer, state.ConfigurationPointer,
             $"dead sidehopper parameter {parameter1} configuration");
-        AssertEqual(expected.RottingTablePointer, state.TablePointer,
-            $"dead sidehopper parameter {parameter1} rotting table");
-        AssertEqual(expected.VramTransferPointer, state.VramTablePointer,
-            $"dead sidehopper parameter {parameter1} VRAM table");
-        AssertEqual(expected.CopyFunction, state.CopyFunction,
-            $"dead sidehopper parameter {parameter1} copy callback");
-        AssertEqual(expected.MoveFunction, state.MoveFunction,
-            $"dead sidehopper parameter {parameter1} move callback");
-        AssertEqual(expected.RotationTablePointer, state.RotationTablePointer,
-            $"dead sidehopper parameter {parameter1} rotation table");
-        AssertEqual(expected.FinishFunction, state.FinishFunction,
-            $"dead sidehopper parameter {parameter1} finish callback");
-        AssertEqual(expected.EntryCount, state.EntryCount,
-            $"dead sidehopper parameter {parameter1} row count");
-        AssertEqual(unchecked((ushort)(expected.EntryCount - 1)), state.YLimit,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RottingTablePointer, expected.EntryCount,
+            state.RotTable, $"dead sidehopper parameter {parameter1}");
+        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransferPointer).SequenceEqual(state.VramTransfers),
+            $"dead sidehopper parameter {parameter1} uploads the configured VRAM transfer list");
+        AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead sidehopper parameter {parameter1} Y limit");
-        AssertEqual(unchecked((ushort)(expected.EntryCount - 2)), state.LateMoveEntryIndex,
+        AssertEqual(expected.EntryCount - 2, state.LateMoveEntryIndex,
             $"dead sidehopper parameter {parameter1} late-move row");
         AssertEqual(expected.WrapOffset, state.WrapOffset,
             $"dead sidehopper parameter {parameter1} wrap offset");

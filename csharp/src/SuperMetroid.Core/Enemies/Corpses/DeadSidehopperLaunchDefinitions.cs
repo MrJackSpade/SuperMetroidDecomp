@@ -13,6 +13,9 @@ public static class DeadSidehopperLaunchDefinitions
         new(new SnesSignedEightEight(0x0120), new SnesSignedEightEight(0xfe00)), new(new SnesSignedEightEight(0x0300), new SnesSignedEightEight(0xfc00)),
     ];
 
+    /// <summary>The number of launches in the cycle; the jump phase advances modulo this count.</summary>
+    public static int PhaseCount => Launches.Length;
+
     /// <summary>The launch velocity for one modulo-four jump phase.</summary>
     public static EightEightVector<RoomPixels> Velocity(int phase) => Launches[phase];
 }

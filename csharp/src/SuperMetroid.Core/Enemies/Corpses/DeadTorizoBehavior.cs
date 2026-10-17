@@ -47,8 +47,8 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
     internal AnimationProgramCursor<DeadTorizoProgram> _deadTorizoProgram;
 
-    /// <summary>Last library-two sound emitted by a completed corpse row.</summary>
-    public ushort? LastDeadTorizoSoundEffect { get; private set; }
+    /// <summary>The dust sound requested by a completed corpse row this frame, or null.</summary>
+    public SoundEffectId? LastDeadTorizoSoundEffect { get; private set; }
 
     /// <summary>Clears corpse state, pending VRAM writes, and the last sound event on room load.</summary>
     internal void ResetDeadTorizoRoomState()
@@ -81,15 +81,15 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.VariableC = 8;
 
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
-        ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
-        ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        _deadTorizo = new DeadTorizoEnemyState(slot, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset })
+        int yLimit = definition.EntryCount - 1;
+        _deadTorizo = new DeadTorizoEnemyState(slot,
+            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
         {
+            RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
             SandLineCounter = 15,
         };
 
-        CorpseRottingTableProcessor.Initialize(
-            _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount));
+        CorpseRottingTableProcessor.Initialize(_deadTorizo.RotTable);
         InitializeDeadTorizoGraphics();
     }
 
@@ -115,7 +115,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
 
             case DeadTorizoFunction.PreRot:
-                state.PreRotDelayCounter = unchecked((ushort)(state.PreRotDelayCounter + 1));
+                state.PreRotDelayCounter++;
                 if (state.PreRotDelayCounter >= 16)
                 {
                     slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -142,14 +142,14 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances sand rows, corpse motion, and one step of the native rotting table.</summary>
     private void RunDeadTorizoRotting(RoomEnemySlot slot, DeadTorizoEnemyState state)
     {
-        state.SandFrameCounter = unchecked((ushort)(state.SandFrameCounter + 1));
+        state.SandFrameCounter++;
         if (state.SandFrameCounter >= 15)
         {
             state.SandFrameCounter = 0;
             if (state.SandLineCounter != 0)
             {
                 CopyDeadTorizoSandLine(state.SandLineCounter);
-                state.SandLineCounter = NativeWordCounter.Decrement(state.SandLineCounter).Value;
+                state.ConsumeSandLine();
                 state.SandLineCopyCount++;
             }
         }
@@ -158,7 +158,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         MoveBankA9EnemyWithVelocity(slot);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _room.Staging.RotTable(state.TablePointer, state.EntryCount),
+            state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
@@ -189,39 +189,41 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusKinematicsState kinematics = samus.Kinematics;
         foreach (DeadCorpseTouchHitbox hitbox in DeadMonsterRottingDefinitions.TorizoTouchHitboxes)
         {
+            // The cartridge takes the magnitude of whichever signed edge faces Samus, so each edge
+            // acts as a reach on its own side of the corpse origin.
             ushort verticalDistance;
-            ushort verticalRadius;
+            int verticalReach;
             if (unchecked((short)(kinematics.Position.Y.Whole - slot.Position.Y.Whole)) >= 0)
             {
                 verticalDistance = unchecked((ushort)(kinematics.Position.Y.Whole - slot.Position.Y.Whole));
-                verticalRadius = hitbox.Bottom;
+                verticalReach = Math.Abs((int)hitbox.Bottom);
             }
             else
             {
                 verticalDistance = unchecked((ushort)(slot.Position.Y.Whole - kinematics.Position.Y.Whole));
-                verticalRadius = hitbox.Top;
+                verticalReach = Math.Abs((int)hitbox.Top);
             }
 
             ushort verticalOverlap = unchecked((ushort)(
-                kinematics.Radius.Y + NativeAbsolute(verticalRadius) - verticalDistance));
+                kinematics.Radius.Y + verticalReach - verticalDistance));
             if (unchecked((short)verticalOverlap) < 0)
                 continue;
 
             ushort horizontalDistance;
-            ushort horizontalRadius;
+            int horizontalReach;
             if (unchecked((short)(kinematics.Position.X.Whole - slot.Position.X.Whole)) >= 0)
             {
                 horizontalDistance = unchecked((ushort)(kinematics.Position.X.Whole - slot.Position.X.Whole));
-                horizontalRadius = hitbox.Right;
+                horizontalReach = Math.Abs((int)hitbox.Right);
             }
             else
             {
                 horizontalDistance = unchecked((ushort)(slot.Position.X.Whole - kinematics.Position.X.Whole));
-                horizontalRadius = hitbox.Left;
+                horizontalReach = Math.Abs((int)hitbox.Left);
             }
 
             short overlap = unchecked((short)(
-                kinematics.Radius.X + NativeAbsolute(horizontalRadius) - horizontalDistance));
+                kinematics.Radius.X + horizontalReach - horizontalDistance));
             if (overlap < 0)
                 continue;
             if (overlap < 4)
@@ -276,7 +278,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         bool move)
     {
         ushort sourceOffset = unchecked((ushort)(
-            DeadMonsterRottingDefinitions.RotationOffset(state.RotationTablePointer, yOffset) + (yOffset & 7) * 2));
+            DeadMonsterRottingDefinitions.RotationOffset(CorpseRotationTable.Torizo, yOffset) + (yOffset & 7) * 2));
         ushort destinationOffset = (yOffset & 7) >= 6
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
@@ -312,11 +314,11 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)
-            LastDeadTorizoSoundEffect = EnemySoundEffectDefinitions.DeadTorizoRotSound;
+            LastDeadTorizoSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
     /// <summary>Copies the first bitplane word of eighteen spaced source rows into sand scratch WRAM.</summary>
-    internal void CopyDeadTorizoSandLine(ushort lineIndex)
+    internal void CopyDeadTorizoSandLine(int lineIndex)
     {
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
         ushort destinationOffset = DeadMonsterRottingDefinitions.SandDestination(lineIndex);
@@ -349,13 +351,13 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithFractionY(y.Fraction).WithWholeY(y.Whole);
     }
 
-    /// <summary>Advances the corpse transfer phase and appends its authored WRAM-to-VRAM descriptors.</summary>
+    /// <summary>Switches to the other corpse transfer half and appends its authored WRAM-to-VRAM descriptors.</summary>
     internal void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)
     {
-        state.VramTransferPhase = unchecked((ushort)(state.VramTransferPhase + 1));
+        state.UploadsOddTransferHalf = !state.UploadsOddTransferHalf;
         // Immutable descriptors point at live WRAM corpse/sand staging surfaces.
         foreach (DeadTorizoVramTransferDefinition record in
-                 DeadTorizoVramTransferDefinitions.ForPhase(state.VramTransferPhase))
+                 DeadTorizoVramTransferDefinitions.ForHalf(state.UploadsOddTransferHalf))
             _deadTorizoFrameVramTransfers.Add(new VramWriteEntry(
                 record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
     }
@@ -401,10 +403,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Writes one corpse scratch word at a table-relative word offset.</summary>
     private void WriteWorkWord(int wordOffset, ushort value) =>
         _room.Staging.CorpseTiles.WriteWord(wordOffset * 2, value);
-
-    /// <summary>Applies the cartridge's unsigned-word two's-complement absolute operation.</summary>
-    private static ushort NativeAbsolute(ushort value) =>
-        !EnemyMath.IsNegative16(value) ? value : unchecked((ushort)(~value + 1));
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
@@ -491,6 +489,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastDeadTorizoSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastDeadTorizoSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

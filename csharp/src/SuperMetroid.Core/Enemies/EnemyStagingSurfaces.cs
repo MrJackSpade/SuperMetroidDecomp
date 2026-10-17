@@ -44,7 +44,7 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
     /// The dead-monster rot table of <paramref name="entryCount"/> entries at bank-$7E pointer
     /// <paramref name="nativePointer"/>, which must lie inside the rotting heap.
     /// </summary>
-    public CorpseRotTable RotTable(ushort nativePointer, ushort entryCount)
+    public CorpseRotTable RotTable(ushort nativePointer, int entryCount)
     {
         int firstByte = nativePointer - SnesAddress.FromBusAddress(EnemyStagingDefinitions.RottingHeapNativeAddress).Offset;
         if (firstByte < 0 || firstByte + entryCount * CorpseRotTable.EntryByteCount > _rottingHeap.Length)

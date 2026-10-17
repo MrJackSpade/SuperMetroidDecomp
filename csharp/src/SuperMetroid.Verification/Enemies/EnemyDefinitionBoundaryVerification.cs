@@ -128,7 +128,8 @@ internal static class EnemyDefinitionBoundaryVerification
         AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa9d77c), boxes.Length, "dead Torizo asymmetric rectangle count");
         for (int i = 0; i < boxes.Length; i++)
         {
-            ushort[] words = [boxes[i].Left, boxes[i].Top, boxes[i].Right, boxes[i].Bottom];
+            ushort[] words = [unchecked((ushort)boxes[i].Left), unchecked((ushort)boxes[i].Top),
+                unchecked((ushort)boxes[i].Right), unchecked((ushort)boxes[i].Bottom)];
             for (int w = 0; w < words.Length; w++)
                 AssertEqual(CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xa9d77e + i * 8 + w * 2)), words[w], "dead Torizo asymmetric word");
         }

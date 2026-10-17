@@ -21,9 +21,9 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
     {
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, ushort> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
+        Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, Position16<RoomPixels>> dispatch = enemies.DeadSidehopperBehavior.DispatchDeadSidehopperState;
         var slot = enemies.SlotTable.Slots[0];
-        var state = new DeadSidehopperEnemyState(slot, 0, 0, new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
+        var state = new DeadSidehopperEnemyState(slot, 0, 0, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         for (ushort phase = 0; phase < 4; phase++)
         {
             ushort vx = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2));
@@ -41,7 +41,7 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
                 enemies.DeadSidehopperBehavior._extensions[0].Program = AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperCorpse);
                 slot.InstructionTimer = NativeCountdown.Start(9);
                 slot.Timer = NativeCountdown.Start(17);
-                dispatch(slot, state, null, null, 0);
+                dispatch(slot, state, null, null, default);
                 ushort timer = unchecked((ushort)(raw - 1));
                 bool expired = (timer & 0x8000) != 0;
                 bool launch = expired && paletteStage == 0;

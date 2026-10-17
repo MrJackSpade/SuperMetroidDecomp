@@ -14,7 +14,8 @@ internal static class DeadTourianCorpseProfileDefinitions
         RottingFunction: 0xdad0,
         TouchAndShotFunction: 0xdcf8,
         PowerBombFunction: 0xdced,
-        Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)));
+        Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)),
+        RowLayout: CorpseRotationTable.Zoomer);
 
     /// <summary>Dead Ripper's callback addresses and two installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadRipperProfile = new(
@@ -24,7 +25,8 @@ internal static class DeadTourianCorpseProfileDefinitions
         RottingFunction: 0xdae6,
         TouchAndShotFunction: 0xdd08,
         PowerBombFunction: 0xdcfd,
-        Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)));
+        Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)),
+        RowLayout: CorpseRotationTable.Ripper);
 
     /// <summary>Dead Skree's callback addresses and three installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadSkreeProfile = new(
@@ -34,7 +36,8 @@ internal static class DeadTourianCorpseProfileDefinitions
         RottingFunction: 0xdafc,
         TouchAndShotFunction: 0xdd18,
         PowerBombFunction: 0xdd0d,
-        Variants: CorpseLayout(columns: 2, rows: 4, workBufferOffset: 0x0640, sheetSources: [0x02a0, 0x00e0, 0x01c0]));
+        Variants: CorpseLayout(columns: 2, rows: 4, workBufferOffset: 0x0640, sheetSources: [0x02a0, 0x00e0, 0x01c0]),
+        RowLayout: CorpseRotationTable.Skree);
 
     /// <summary>
     /// Builds a corpse's variants from its tile layout. Each corpse is a block of
@@ -59,7 +62,7 @@ internal static class DeadTourianCorpseProfileDefinitions
             for (int row = 0; row < rows; row++)
                 copies[row] = new(sheetSources[variant] + sheetRowBytes * row,
                     block + columns * tileBytes * row, columns * tileBytes);
-            variants[variant] = new((ushort)(8 * rows - 2), columnWords, copies);
+            variants[variant] = new(8 * rows - 2, columnWords, copies);
         }
         return variants;
     }

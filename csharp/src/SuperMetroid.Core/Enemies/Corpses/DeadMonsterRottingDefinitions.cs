@@ -17,13 +17,13 @@ internal static class DeadMonsterRottingDefinitions
     /// <summary>Dead Torizo's seven asymmetric touch rectangles at $A9:D77C..D7B5.</summary>
     private static readonly DeadCorpseTouchHitbox[] TorizoHitboxRecords =
     [
-        new(0xffe1, 0x0025, 0xfff5, 0x002b),
-        new(0x0010, 0x0025, 0x0026, 0x002b),
-        new(0xffe8, 0x0012, 0xfff3, 0x0024),
-        new(0x000b, 0x001a, 0x0019, 0x0024),
-        new(0xfff6, 0xffe2, 0x0010, 0x0018),
-        new(0xfff9, 0xffd4, 0x0022, 0xffe1),
-        new(0x0011, 0xffe1, 0x0028, 0xfff9),
+        new(Left: -31, Top: 37, Right: -11, Bottom: 43),
+        new(Left: 16, Top: 37, Right: 38, Bottom: 43),
+        new(Left: -24, Top: 18, Right: -13, Bottom: 36),
+        new(Left: 11, Top: 26, Right: 25, Bottom: 36),
+        new(Left: -10, Top: -30, Right: 16, Bottom: 24),
+        new(Left: -7, Top: -44, Right: 34, Bottom: -31),
+        new(Left: 17, Top: -31, Right: 40, Bottom: -7),
     ];
 
     /// <summary>Publishes Dead Torizo's seven asymmetric corpse touch rectangles in native order.</summary>
@@ -34,7 +34,7 @@ internal static class DeadMonsterRottingDefinitions
     /// The native atlas is sixteen tiles wide; each staged silhouette is five tiles wide.
     /// The second silhouette starts after five staged rows, nine atlas tiles to the right.
     /// </summary>
-    internal static (int SourceOffset, int DestinationOffset, int Length) SidehopperInitialCopy(ushort variant, int row)
+    internal static (int SourceOffset, int DestinationOffset, int Length) SidehopperInitialCopy(int variant, int row)
     {
         if ((uint)row >= 5) throw new ArgumentOutOfRangeException(nameof(row));
         int silhouette = variant == 0 ? 0 : 1;
@@ -45,7 +45,7 @@ internal static class DeadMonsterRottingDefinitions
     }
 
     /// <summary>Planes-0/1 tile-column words used by the $A9:E468/E564 Sidehopper pixel movers.</summary>
-    internal static int SidehopperColumnWordOffset(ushort variant, int column)
+    internal static int SidehopperColumnWordOffset(int variant, int column)
     {
         if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
         return ((variant == 0 ? 0 : 25) + column) * 16;
@@ -56,7 +56,7 @@ internal static class DeadMonsterRottingDefinitions
     /// variant zero, last three in the alternate variant. Native movers $A9:E468/E564
     /// and copiers $A9:E4F5/E5F6 skip these columns until pixel row eight.
     /// </summary>
-    internal static int SidehopperColumnMinimumY(ushort variant, int column)
+    internal static int SidehopperColumnMinimumY(int variant, int column)
     {
         if ((uint)column >= 5) throw new ArgumentOutOfRangeException(nameof(column));
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
@@ -143,9 +143,9 @@ internal static class DeadMonsterRottingDefinitions
     }
 
     /// <summary>$A9:D67C: eight words per sand strip, second strip displaced by$120 staging bytes.</summary>
-    internal static ushort SandDestination(ushort line) => line < 16
+    internal static ushort SandDestination(int line) => (uint)line < 16
         ? (ushort)((line / 8) * 0x120 + (line % 8) * 2) : throw new ArgumentOutOfRangeException(nameof(line));
     /// <summary>$A9:D69C: matching eight-word source strips are separated by$200 bytes.</summary>
-    internal static ushort SandSource(ushort line) => line < 16
+    internal static ushort SandSource(int line) => (uint)line < 16
         ? (ushort)((line / 8) * 0x200 + (line % 8) * 2) : throw new ArgumentOutOfRangeException(nameof(line));
 }

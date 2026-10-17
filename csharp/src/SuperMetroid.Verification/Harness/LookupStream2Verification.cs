@@ -1023,7 +1023,7 @@ internal static class LookupStream2Verification
         new Action(enemies.DeadTorizoBehavior.InitializeDeadTorizoGraphics)();
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
-        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe226, FinishFunction = 0, EntryCount = 96, YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
+        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
         Action<DeadTorizoEnemyState,ushort,bool> moveRow = enemies.DeadTorizoBehavior.CopyOrMoveDeadTorizoPixelRow;
         foreach (bool move in new[] { false, true })
         for (ushort y = 0; y < 96; y++)
@@ -1607,11 +1607,11 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
+        var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         Action<DeadTorizoEnemyState> build = enemies.DeadTorizoBehavior.BuildDeadTorizoVramTransfers;
         for (ushort phase = 0; phase < 2; phase++)
         {
-            var rows = DeadTorizoVramTransferDefinitions.ForPhase(phase);
+            var rows = DeadTorizoVramTransferDefinitions.ForHalf(odd: phase == 1);
             ushort table = phase == 0 ? DeadTorizoVramTransferDefinitions.EvenTable : DeadTorizoVramTransferDefinitions.OddTable;
             AssertEqual(7, rows.Length, "Dead Torizo six body rows plus sand strip");
             int count = 0;
@@ -1626,16 +1626,17 @@ internal static class LookupStream2Verification
             }
             AssertEqual(7, count, "Dead Torizo enumeration count");
             AssertEqual((ushort)0, ReadVerificationWord(rom, 0xa90000 | table + count * 8), "Dead Torizo native terminator");
-            state.VramTransferPhase = unchecked((ushort)(phase - 1));
+            // The cartridge's phase word before this call is phase - 1: 65535 for phase 0, whose odd low bit
+            // gives way to the even half across the word's wrap, then 0 for phase 1.
+            state.UploadsOddTransferHalf = phase == 0;
             build(state);
-            AssertEqual(phase, state.VramTransferPhase, "Dead Torizo phase advancement");
+            AssertEqual(phase == 1, state.UploadsOddTransferHalf, "Dead Torizo phase advancement, including across the phase word's wrap");
             for (int index = 0; index < rows.Length; index++)
             {
                 var actual = enemies.LastDeadTorizoVramTransfers[phase * 7 + index];
                 AssertEqual(rows[index].SizeInBytes, actual.SizeInBytes, "Dead Torizo queued size");
                 AssertEqual(rows[index].SourceAddress, actual.SourceAddress, "Dead Torizo queued live WRAM source");
                 AssertEqual(rows[index].EncodedVramDestination, actual.EncodedVramDestination, "Dead Torizo queued VRAM destination");
-                AssertEqual(rows[index], DeadTorizoVramTransferDefinitions.ForPhase((ushort)(phase + 2))[index], "Dead Torizo phase parity");
             }
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");

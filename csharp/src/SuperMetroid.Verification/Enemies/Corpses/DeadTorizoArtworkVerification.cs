@@ -138,7 +138,7 @@ internal static class DeadTorizoArtworkVerification
                 ? DeadTorizoVramTransferDefinitions.EvenTable
                 : DeadTorizoVramTransferDefinitions.OddTable;
             DeadTorizoVramTransferDefinitions.PhaseRows records =
-                DeadTorizoVramTransferDefinitions.ForPhase(phase);
+                DeadTorizoVramTransferDefinitions.ForHalf(odd: phase == 1);
             AssertEqual(7, records.Length,
                 $"Dead Torizo phase {phase} compiled descriptor count");
             for (int index = 0; index < records.Length; index++)
@@ -245,7 +245,7 @@ internal static class DeadTorizoArtworkVerification
     /// <summary>Invokes the live corpse behavior's sand-line copy for comparison with the independent oracle.</summary>
     private static void CopyDeadTorizoSandLine(RoomEnemySystem enemies, ushort line)
     {
-        new Action<ushort>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
+        new Action<int>(enemies.DeadTorizoBehavior.CopyDeadTorizoSandLine)(line);
     }
 
     /// <summary>Renders the corpse hook into a fresh OAM buffer with its native map reads guarded.</summary>

@@ -75,7 +75,10 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Remembers level data for the private power-bomb callback, which has no level argument.</summary>
     private RoomLevelData? _deadSidehopperLevel;
     /// <summary>Remembers the camera position for the private power-bomb AI dispatch.</summary>
-    private ushort _deadSidehopperCameraX;
+    private Position16<RoomPixels> _deadSidehopperCamera;
+
+    /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
+    private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
 
     /// <summary>Discards prior room corpse state and its queued tile transfers.</summary>
     internal void ResetDeadSidehopperRoomState()
@@ -84,7 +87,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             _extensions[slotIndex] = new DeadSidehopperExtensionWords();
         _deadMonsters.Clear();
         _deadSidehopperLevel = null;
-        _deadSidehopperCameraX = 0;
+        _deadSidehopperCamera = default;
     }
 
     /// <summary>Clears the per-frame corpse DMA and sound records before enemy AI runs.</summary>
@@ -159,16 +162,20 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         ushort graphicsVariant,
         DeadSidehopperCorpseDefinition definition)
     {
-        if (definition.EntryCount == 0)
-            throw new InvalidDataException("Dead sidehopper corpse configuration has zero rows.");
+        // Two rows is the smallest corpse whose late-move entry (height less two) is a real entry index.
+        if (definition.EntryCount < 2)
+            throw new InvalidDataException("Dead sidehopper corpse configuration has fewer than two rows.");
 
-        ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
-        ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset });
+        int yLimit = definition.EntryCount - 1;
+        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, definition.ConfigurationPointer,
+            new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
+        {
+            RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
+            VramTransfers = DeadMonsterRottingDefinitions.ForTransferTable(definition.VramTransferPointer),
+        };
         slot.SetSpeciesState(state);
 
-        CorpseRottingTableProcessor.Initialize(
-            _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount));
+        CorpseRottingTableProcessor.Initialize(state.RotTable);
         InitializeDeadSidehopperGraphics(graphicsVariant);
         return state;
     }
@@ -178,12 +185,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemySlot slot,
         SamusState? samus,
         RoomLevelData? level,
-        ushort cameraX)
+        Position16<RoomPixels> camera)
     {
         DeadSidehopperEnemyState state = RequireDeadSidehopperState(slot);
         _deadSidehopperLevel = level;
-        _deadSidehopperCameraX = cameraX;
-        DispatchDeadSidehopperState(slot, state, samus, level, cameraX);
+        _deadSidehopperCamera = camera;
+        DispatchDeadSidehopperState(slot, state, samus, level, camera);
     }
 
     /// <summary>Advances the authored hop, post-landing delay, palette change, or collision-triggered decay state.</summary>
@@ -192,12 +199,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         DeadSidehopperEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        ushort cameraX)
+        Position16<RoomPixels> camera)
     {
         switch (state.Function)
         {
             case DeadSidehopperAiFunction.AliveWaitForCamera:
-                if (unchecked((short)(cameraX - 513)) < 0)
+                if ((camera - VictimActivationCamera).X < 0)
                 {
                     state.Function = DeadSidehopperAiFunction.ActivatedMovement;
                     goto case DeadSidehopperAiFunction.ActivatedMovement;
@@ -207,7 +214,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             case DeadSidehopperAiFunction.ActivatedMovement:
                 if (MoveDeadSidehopper(slot, state, level))
                 {
-                    state.JumpPhase = unchecked((ushort)((state.JumpPhase + 1) & 3));
+                    state.JumpPhase = (state.JumpPhase + 1) % DeadSidehopperLaunchDefinitions.PhaseCount;
                     SetDeadSidehopperProgram(slot, DeadTourianProgram.SidehopperHopping);
                     state.Function = DeadSidehopperAiFunction.NoOperation;
                 }
@@ -247,7 +254,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                 return;
 
             case DeadSidehopperAiFunction.PreRotDelay:
-                state.PreRotDelayCounter = unchecked((ushort)(state.PreRotDelayCounter + 1));
+                state.CountPreRotDelayCall();
                 if (state.PreRotDelayCounter >= 16)
                 {
                     state.Function = DeadSidehopperAiFunction.Rotting;
@@ -346,7 +353,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         RoomEnemySlot slot,
         DeadSidehopperEnemyState state)
     {
-        state.PaletteFrameCounter = unchecked((ushort)(state.PaletteFrameCounter + 1));
+        state.PaletteFrameCounter++;
         if (state.PaletteFrameCounter < 8)
             return;
 
@@ -361,7 +368,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                     state.PaletteStage - 1, color));
         }
 
-        state.PaletteStage = unchecked((ushort)(state.PaletteStage + 1));
+        state.PaletteStage++;
         if (state.PaletteStage < 8)
             return;
 
@@ -436,7 +443,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             state,
             samus,
             _deadSidehopperLevel,
-            _deadSidehopperCameraX);
+            _deadSidehopperCamera);
     }
 
     /// <summary>Starts decay and keeps the corpse updating offscreen without further Samus collision.</summary>
@@ -456,7 +463,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _room.Staging.RotTable(state.TablePointer, state.EntryCount),
+            state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, move),
@@ -492,7 +499,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         bool move)
     {
         ushort sourceOffset = unchecked((ushort)(
-            DeadMonsterRottingDefinitions.RotationOffset(state.RotationTablePointer, yOffset) + (yOffset & 7) * 2));
+            DeadMonsterRottingDefinitions.RotationOffset(CorpseRotationTable.Sidehopper, yOffset) + (yOffset & 7) * 2));
         ushort destinationOffset = (yOffset & 7) >= 6
             ? unchecked((ushort)(state.WrapOffset + sourceOffset))
             : sourceOffset;
@@ -533,12 +540,12 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             MiscDustAnimation.CorpseDustCloud);
         state.DustSpawnCount++;
         if ((_frameContext._randomEnemyCounter & 7) == 0)
-            _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust.Value;
+            _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust;
     }
 
-    /// <summary>Appends the variant's native corpse tile transfer table after a rotting step.</summary>
+    /// <summary>Appends the variant's corpse tile uploads after a rotting step.</summary>
     private void BuildDeadSidehopperVramTransfers(DeadSidehopperEnemyState state) =>
-        _deadMonsters.AppendVramTransfers(state.VramTablePointer);
+        _deadMonsters.AppendVramTransfers(state.VramTransfers);
 
     /// <summary>Queues this frame's staged corpse tile uploads at their encoded VRAM destinations.</summary>
     [PpuLayoutBoundary("codec: staged dead-monster corpse DMA records' native destinations")]
@@ -604,7 +611,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Ports DeadSidehopper's main AI.</summary>
     internal void RunDeadSidehopperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunDeadSidehopperMain(slot, frame.Samus, frame.Level, frame.Camera.X);
+        RunDeadSidehopperMain(slot, frame.Samus, frame.Level, frame.Camera);
     }
 
     /// <summary>Advances DeadSidehopper's typed animation.</summary>

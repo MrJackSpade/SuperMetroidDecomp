@@ -6,8 +6,8 @@ internal sealed record WorkRobotMoveStep
     /// <summary>Horizontal pixels.</summary>
     public required int HorizontalPixels { get; init; }
 
-    /// <summary>Gets or sets variable A, the signed 8.8 horizontal velocity assigned to newly fired robot lasers.</summary>
-    public required ushort FacingLaserVelocity { get; init; }
+    /// <summary>The laser velocity the step faces the robot with; only its X is meaningful.</summary>
+    public required EightEightVector<RoomPixels> FacingLaserVelocity { get; init; }
 
     /// <summary>The animation a wall turns the walk into.</summary>
     public required WorkRobotProgram WallProgram { get; init; }
@@ -21,6 +21,6 @@ internal sealed record WorkRobotMoveStep
     /// <summary>The animation a ledge turns the walk into, when the step watches for ledges.</summary>
     public required WorkRobotProgram? FallProgram { get; init; }
 
-    /// <summary>Gets or sets variable A, the signed 8.8 horizontal velocity assigned to newly fired robot lasers.</summary>
-    public required ushort FallLaserVelocity { get; init; }
+    /// <summary>The laser velocity a ledge turns the robot to, when the step watches for ledges; only its X is meaningful.</summary>
+    public required EightEightVector<RoomPixels> FallLaserVelocity { get; init; }
 }

@@ -33,7 +33,7 @@ internal static class WorkRobotLaserBehaviorVerification
                      (WorkRobotLaser.UpRight, 512), (WorkRobotLaser.DownRight, 512),
                  })
         {
-            state.LaserXVelocity = unchecked((ushort)xVelocity);
+            state.LaserVelocity = new(xVelocity, 0);
             enemies.WorkRobotBehavior.SpawnWorkRobotLaser(robot, state, definition, Position16<RoomPixels>.Zero);
         }
         RoomEnemyProjectileSlot[] lasers = [.. enemies.Projectiles.EnemyProjectiles.Where(projectile => projectile.Animation is WorkRobotLaserAnimation)];

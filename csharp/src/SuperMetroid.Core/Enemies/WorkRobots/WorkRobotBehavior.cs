@@ -41,25 +41,40 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         _presentation = presentation;
     }
 
-    /// <summary>Native signed eight-eight leftward laser speed.</summary>
-    private const ushort WorkRobotFacingLeftVelocity = unchecked((ushort)-512);
-    /// <summary>Native signed eight-eight rightward laser speed.</summary>
-    private const ushort WorkRobotFacingRightVelocity = 512;
+    /// <summary>The leftward laser velocity, two pixels per update; only its X is meaningful.</summary>
+    private static readonly EightEightVector<RoomPixels> WorkRobotFacingLeftVelocity = new(-512, 0);
+    /// <summary>The rightward laser velocity, two pixels per update; only its X is meaningful.</summary>
+    private static readonly EightEightVector<RoomPixels> WorkRobotFacingRightVelocity = new(512, 0);
+    /// <summary>What gravity adds to a falling unpowered robot's speed each airborne update: half a pixel.</summary>
+    private static readonly SnesSignedSixteenSixteen WorkRobotGravity = SnesSignedSixteenSixteen.FromParts(0, 32768);
+    /// <summary>The speed an unpowered robot starts falling at: one pixel per update.</summary>
+    private static readonly SnesSignedSixteenSixteen WorkRobotInitialFallVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+
+    /// <summary>Library-two sound queued by a robot footstep.</summary>
+    private static readonly SoundEffectId WorkRobotFootstepSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WorkRobotFootstepSound);
+    /// <summary>Library-two sound queued by a robot laser.</summary>
+    private static readonly SoundEffectId WorkRobotLaserSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WorkRobotLaserSound);
     /// <summary>Pixels advanced by one robot walk instruction.</summary>
     private const int WorkRobotStepPixels = 4;
 
     /// <summary>Shared countdown to the next robot palette animation record.</summary>
     internal NativeCountdown _workRobotPaletteAnimationTimer;
-    /// <summary>Offset of the next native robot palette record.</summary>
-    internal ushort _workRobotPaletteAnimationTableOffset;
-    /// <summary>OBJ palette index selected by the robot graphics-drawn hook.</summary>
-    internal ushort _workRobotPaletteAnimationPaletteIndex;
+    /// <summary>
+    /// The next palette record the robot palette hook loads, 0 through
+    /// <see cref="WorkRobotPaletteTimingDefinitions.RecordCount"/>; the count itself is the table's terminator, which the
+    /// hook resolves back to record zero before loading.
+    /// </summary>
+    internal int _workRobotPaletteAnimationRecord;
+    /// <summary>The OBJ palette row, 0 through 7, the robot graphics-drawn hook animates.</summary>
+    internal int _workRobotPaletteAnimationPaletteRow;
 
     /// <summary>
     /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).
     /// It is cleared at the beginning of every enemy frame, like the other audio seams.
     /// </summary>
-    public ushort? LastWorkRobotSoundEffect { get; private set; }
+    public SoundEffectId? LastWorkRobotSoundEffect { get; private set; }
 
     /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionPointer) =>
@@ -87,14 +102,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(4);
         slot.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial);
-        state.LaserXVelocity = WorkRobotFacingLeftVelocity;
+        state.LaserVelocity = WorkRobotFacingLeftVelocity;
         state.LaserCooldown = NativeCountdown.Start(0);
 
         // The graphics-drawn hook is global. Every powered initialization resets its shared
         // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
         _workRobotPaletteAnimationTimer = NativeCountdown.Start(1);
-        _workRobotPaletteAnimationTableOffset = 0;
-        _workRobotPaletteAnimationPaletteIndex = slot.PaletteIndex;
+        _workRobotPaletteAnimationRecord = 0;
+        _workRobotPaletteAnimationPaletteRow = (slot.PaletteIndex >> 9) & 7;
     }
 
     /// <summary>Ports <c>InitAI_RobotNoPower</c> at $A8:CBCC.</summary>
@@ -116,8 +131,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // This global write disables an earlier robot's palette hook too. Mixed powered and
         // unpowered sets are unusual, but retaining the shared timer makes order observable.
         _workRobotPaletteAnimationTimer = NativeCountdown.Start(0);
-        state.YSubvelocity = 0;
-        state.YVelocity = 1;
+        state.FallVelocity = WorkRobotInitialFallVelocity;
 
         // $A8:CC1C writes four colors to active palette RAM through a stale global palette
         // index. Room fade immediately overwrites them, and no retail deactivated robot can
@@ -134,16 +148,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Work Robot gravity requires room collision data.");
 
-        int displacement = YardEnemyBehavior.ComposeSignedFixed(state.YVelocity, state.YSubvelocity);
-        if (_terrain.MoveEnemyVertically(level, slot, displacement))
+        if (_terrain.MoveEnemyVertically(level, slot, state.FallVelocity.RawValue))
             return;
 
         // Enemy instruction processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
         slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 1)));
-        uint subvelocity = (uint)state.YSubvelocity + 32768;
-        state.YSubvelocity = unchecked((ushort)subvelocity);
-        state.YVelocity = unchecked((ushort)(state.YVelocity + (SnesSixteenSixteen.WholeOf(subvelocity))));
+        // The fraction carries into the whole pixels, which wrap, as the cartridge's paired additions do.
+        state.FallVelocity += WorkRobotGravity;
     }
 
     /// <summary>
@@ -160,24 +172,24 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             case WorkRobotCueKind.LeftForwardWatchingLedges:
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallProgram = WorkRobotProgram.FacingLeftHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallProgram = WorkRobotProgram.ApproachingFallLeft, FallLaserVelocity = WorkRobotFacingRightVelocity });
             case WorkRobotCueKind.LeftForward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallProgram = WorkRobotProgram.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = 0 });
+                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallProgram = WorkRobotProgram.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = default });
             case WorkRobotCueKind.LeftBackwardWatchingLedges:
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallProgram = WorkRobotProgram.ApproachingFallRight, FallLaserVelocity = WorkRobotFacingLeftVelocity });
             case WorkRobotCueKind.LeftBackward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = 0 });
+                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = default });
             case WorkRobotCueKind.WalkRight:
                 return WorkRobotProgram.FacingRightWalkingForwards;
             case WorkRobotCueKind.RightForwardWatchingLedges:
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingRightHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallProgram = WorkRobotProgram.ApproachingFallRight, FallLaserVelocity = WorkRobotFacingLeftVelocity });
             case WorkRobotCueKind.RightForward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = 0 });
+                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = default });
             case WorkRobotCueKind.RightBackwardWatchingLedges:
                 return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallProgram = WorkRobotProgram.ApproachingFallLeft, FallLaserVelocity = WorkRobotFacingRightVelocity });
             case WorkRobotCueKind.RightBackward:
-                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = 0 });
+                return MoveWorkRobot(slot, state, samus, level, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallProgram = WorkRobotProgram.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallProgram = null, FallLaserVelocity = default });
             case WorkRobotCueKind.Footstep:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
-                    LastWorkRobotSoundEffect = EnemySoundEffectDefinitions.WorkRobotFootstepSound;
+                    LastWorkRobotSoundEffect = WorkRobotFootstepSound;
                 return null;
             case WorkRobotCueKind.WalkLeft:
                 return WorkRobotProgram.FacingLeftWalkingForwards;
@@ -226,7 +238,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Work Robot movement instruction requires room collision data.");
 
         DecrementWorkRobotLaserCooldown(state);
-        state.LaserXVelocity = step.FacingLaserVelocity;
+        state.LaserVelocity = step.FacingLaserVelocity;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -255,7 +267,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             return null;
 
         state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
-        state.LaserXVelocity = step.FallLaserVelocity;
+        state.LaserVelocity = step.FallLaserVelocity;
         return step.FallProgram ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall animation.");
     }
 
@@ -319,7 +331,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");
 
         WorkRobotEnemyState state = RequireWorkRobotState(robot);
-        bool facingLeft = unchecked((short)state.LaserXVelocity) < 0;
+        bool facingLeft = state.LaserVelocity.X.SignedRawValue < 0;
         if (facingLeft)
         {
             state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(samus.Position.X.Whole < robot.Position.X.Whole
@@ -345,23 +357,21 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_workRobotPaletteAnimationTimer.IsZero)
             return;
 
-        _workRobotPaletteAnimationTableOffset =
-            WorkRobotPaletteTimingDefinitions.NormalizeByteOffset(
-                _workRobotPaletteAnimationTableOffset);
-        int record = _workRobotPaletteAnimationTableOffset /
-            WorkRobotPaletteTimingDefinitions.RecordByteCount;
+        // The terminator after the last record resolves back to the first.
+        if (_workRobotPaletteAnimationRecord == WorkRobotPaletteTimingDefinitions.RecordCount)
+            _workRobotPaletteAnimationRecord = 0;
+        int record = _workRobotPaletteAnimationRecord;
+        ushort recordByteOffset = checked((ushort)(record * WorkRobotPaletteTimingDefinitions.RecordByteCount));
 
         int destination = 128 +
-            ((_workRobotPaletteAnimationPaletteIndex >> 9) & 7) * 16 +
+            _workRobotPaletteAnimationPaletteRow * 16 +
             WorkRobotPaletteRomData.FirstAnimatedColor;
         (_room.Artwork?.WorkRobotPaletteCycle ?? throw new InvalidDataException(
             "Work Robot palette animation requires installed artwork."))
             .ApplyFrame(_presentation.Cgram, record, destination);
         _workRobotPaletteAnimationTimer =
-            NativeCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(
-                _workRobotPaletteAnimationTableOffset));
-        _workRobotPaletteAnimationTableOffset = unchecked((ushort)(
-            _workRobotPaletteAnimationTableOffset + 10));
+            NativeCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(recordByteOffset));
+        _workRobotPaletteAnimationRecord = record + 1;
     }
 
     /// <summary>Rejects a robot callback before its slot initializes movement and laser state.</summary>
@@ -457,7 +467,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             (RoomEnemyProjectileKind)definition,
             unchecked((ushort)(robot.VramTilesIndex | robot.PaletteIndex)));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(state.LaserXVelocity));
+        projectile.Velocity = projectile.Velocity.WithX(state.LaserVelocity.X);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition switch
         {
             WorkRobotLaser.UpLeft or WorkRobotLaser.UpRight =>
@@ -473,7 +483,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // owner; pre-instruction $D3BF clears it before the first draw, matching the ROM's
         // use of palette/tile bits embedded directly in the bank-$8D laser spritemaps.
         projectile.Position = new(new(unchecked((ushort)(robot.Position.X.Whole +
-            (unchecked((short)state.LaserXVelocity) < 0 ? -4 : 4))), 0), new(unchecked((ushort)(robot.Position.Y.Whole - 16)), 0));
+            (state.LaserVelocity.X.SignedRawValue < 0 ? -4 : 4))), 0), new(unchecked((ushort)(robot.Position.Y.Whole - 16)), 0));
         // $86:D326 clears the graphics word in the down-left/right initializer itself.
         // Upward and horizontal variants retain the owner's word until common
         // pre-instruction $D3BF clears it on their first projectile pass.
@@ -491,7 +501,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((short)(robot.Position.Y.Whole + robot.Radius.Y - camera.Y)) >= 0 &&
             unchecked((short)(robot.Position.Y.Whole - robot.Radius.Y - 224)) < 0;
         if (horizontallyVisible && verticallyVisible)
-            LastWorkRobotSoundEffect = EnemySoundEffectDefinitions.WorkRobotLaserSound;
+            LastWorkRobotSoundEffect = WorkRobotLaserSound;
     }
 
     /// <summary>Ports pre-instruction $86:D3BF: X collision, then Y collision, else move.</summary>
@@ -512,8 +522,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         LastWorkRobotSoundEffect = null;
         _workRobotPaletteAnimationTimer = NativeCountdown.Start(0);
-        _workRobotPaletteAnimationTableOffset = 0;
-        _workRobotPaletteAnimationPaletteIndex = 0;
+        _workRobotPaletteAnimationRecord = 0;
+        _workRobotPaletteAnimationPaletteRow = 0;
     }
 
     /// <inheritdoc/>
@@ -525,7 +535,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastWorkRobotSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastWorkRobotSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Ports the unpowered robot's main AI, the native RTL at $A8:CC66.</summary>

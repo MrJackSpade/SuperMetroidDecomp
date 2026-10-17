@@ -3,9 +3,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.WorkRobots;
 
 /// <summary>
-/// Debugger-visible names for the six common enemy words aliased by bank-$A8's Work Robot.
-/// The values deliberately remain native words: laser speed is signed 8.8, while falling
-/// speed is split into the same signed-whole/fraction pair consumed by bank $A0 movement.
+/// Typed views of the six common enemy words bank-$A8's Work Robot uses. Each view writes the slot
+/// variables exactly, so other enemies' aliased enemy-RAM reads see the cartridge's words: the laser
+/// velocity is a signed 8.8 word and the falling speed a signed 16.16 whole/fraction pair.
 /// </summary>
 public sealed class WorkRobotEnemyState
 {
@@ -24,11 +24,14 @@ public sealed class WorkRobotEnemyState
     /// </summary>
     public bool Powered { get; internal set; }
 
-    /// <summary>Gets or sets variable A, the signed 8.8 horizontal velocity assigned to newly fired robot lasers.</summary>
-    public ushort LaserXVelocity
+    /// <summary>
+    /// Variable A: the signed 8.8 velocity, in pixels per update, given to newly fired robot lasers; only its X is
+    /// meaningful, and its sign is the robot's facing.
+    /// </summary>
+    public EightEightVector<RoomPixels> LaserVelocity
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
+        get => new(new SnesSignedEightEight(_slot.VariableA), default);
+        internal set => _slot.VariableA = value.X.RawValue;
     }
 
     /// <summary>Gets or sets variable B, the wrapping countdown that gates the next laser attempt.</summary>
@@ -52,17 +55,17 @@ public sealed class WorkRobotEnemyState
         }
     }
 
-    /// <summary>Gets or sets variable E, the fractional low word of the robot's signed 16.16 falling velocity.</summary>
-    public ushort YSubvelocity
+    /// <summary>
+    /// Variables E (fraction) and F (whole pixels): an unpowered robot's signed 16.16 falling speed in pixels per
+    /// update, which gravity accumulates with the cartridge's carry and wraparound.
+    /// </summary>
+    public SnesSignedSixteenSixteen FallVelocity
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
-    }
-
-    /// <summary>Gets or sets variable F, the signed whole-pixel word of the robot's 16.16 falling velocity.</summary>
-    public ushort YVelocity
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableF), _slot.VariableE);
+        internal set
+        {
+            _slot.VariableE = value.Fraction;
+            _slot.VariableF = value.WholeWord;
+        }
     }
 }

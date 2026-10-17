@@ -97,8 +97,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.Presentation._cgram = cgram;
         enemies.WorkRobotBehavior._workRobotPaletteAnimationTimer = NativeCountdown.Start((ushort)1);
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset = (ushort)0;
-        enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteIndex = (ushort)0;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationRecord = 0;
+        enemies.WorkRobotBehavior._workRobotPaletteAnimationPaletteRow = 0;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);
 
         int[] loadCalls = [0, 64, 80, 96, 160, 176, 192];
@@ -112,10 +112,8 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
             int record = nextLoad == WorkRobotPaletteTimingDefinitions.RecordCount
                 ? 0
                 : nextLoad;
-            ushort expectedOffset = unchecked((ushort)(
-                (record + 1) * WorkRobotPaletteTimingDefinitions.RecordByteCount));
-            AssertEqual(expectedOffset,
-                (ushort)enemies.WorkRobotBehavior._workRobotPaletteAnimationTableOffset,
+            AssertEqual(record + 1,
+                enemies.WorkRobotBehavior._workRobotPaletteAnimationRecord,
                 $"production Work Robot palette load {nextLoad} advances record");
             AssertEqual(
                 WorkRobotPaletteTimingDefinitions.DurationForByteOffset(

@@ -16,11 +16,11 @@ internal sealed class ClipLibraryState
     /// <summary>Whether the sound still holds the library: it has not reached its logical end.</summary>
     internal bool Active;
 
-    /// <summary>The library priority: zero lets any request replace the sound, one admits only exempt requests.</summary>
-    internal byte Priority;
+    /// <summary>Whether the library holds a high-priority sound, which admits only requests exempt from priority; otherwise any request replaces the sound.</summary>
+    internal bool HighPriority;
 
-    /// <summary>Library 3's low-health mode: two rejects every request except the clearing one.</summary>
-    internal byte LowHealthMode;
+    /// <summary>Whether library 3 is in low-health mode, which rejects every request except those exempt from it.</summary>
+    internal bool InLowHealthMode;
 
     /// <summary>Per layer, the clip frame before which an upload has silenced it; zero when audible.</summary>
     internal long[] SilencedUntil = [];

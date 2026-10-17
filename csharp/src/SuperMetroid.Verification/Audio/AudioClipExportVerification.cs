@@ -105,11 +105,11 @@ internal static class AudioClipExportVerification
                 AudioBank.GreenBrinstar,
                 CartridgeAudioCommand.WritePort(PortOf(effect.Library), effect.Value),
                 player => player.soundLibraries[libraryIndex].CurrentSound == effect.Value,
-                layer.Voices,
+                layer.Voices.ToVoiceMask(),
                 rendered);
-            AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"{effect} layer on voices ${layer.Voices:X2} equals the independent render");
+            AssertSequenceEqual(clip, independent[..(int)(frames * 2)], $"{effect} layer on voices ${layer.Voices.ToVoiceMask():X2} equals the independent render");
             if (layer.LoopStart is long loopStart)
-                AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"{effect} loop on voices ${layer.Voices:X2} equals the next pass");
+                AssertSequenceEqual(clip[(int)(loopStart * 2)..], independent[(int)(frames * 2)..], $"{effect} loop on voices ${layer.Voices.ToVoiceMask():X2} equals the next pass");
         }
         AssertEqual(effect == SoundEffectLibrary3Sounds.SpeedBoosterEcho, entry.ActiveFrames is null, $"{effect} never ends exactly when it repeats forever");
     }

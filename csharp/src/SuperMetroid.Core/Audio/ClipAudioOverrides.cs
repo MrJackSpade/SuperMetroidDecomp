@@ -73,7 +73,7 @@ internal static class ClipAudioOverrides
         $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(bank).DataIndex:x2}-track-{track:00}";
 
     /// <summary>The sound-effect identity of <paramref name="library"/>'s <paramref name="command"/>, as the override names it.</summary>
-    internal static string SoundEffectId(SoundEffectLibrary library, byte command) =>
+    internal static string SoundEffectId(SoundEffectLibrary library, int command) =>
         $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(library) + 1}-{command:x2}";
 
     /// <summary>Reads and checks one replacement WAV beneath the override directory.</summary>
@@ -124,7 +124,7 @@ internal static class ClipAudioOverrides
                     ? $"Audio override '{replacement.Id}' replaces a never-ending sound and needs a loop start."
                     : $"Audio override '{replacement.Id}' replaces a one-shot sound and cannot loop.");
             }
-            byte voices = 0;
+            SoundEffectVoices voices = SoundEffectVoices.None;
             foreach (SoundEffectClipLayer layer in entry.Layers)
                 voices |= layer.Voices;
             soundEffects[index] = entry with { Layers = [new SoundEffectClipLayer(clip, replacement.LoopStart, voices, [0])] };

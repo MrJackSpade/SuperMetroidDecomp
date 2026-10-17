@@ -37,16 +37,19 @@ public sealed class CartridgeAudioState
     /// <summary>Reset and upload port commands deferred until the next audio frame.</summary>
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
-    /// <summary>Index of the music entry being retired or fetched by bank-80 dispatch.</summary>
-    internal byte _musicReadPosition;
-    /// <summary>Insertion index for the circular delayed-music command queue.</summary>
-    internal byte _musicWritePosition;
-    /// <summary>Native music delay countdown, including its active-timer bit behavior.</summary>
-    internal ushort _musicTimer;
+    /// <summary>Slot of the music entry being retired or fetched by bank-80 dispatch, 0 through <see cref="AudioRomData.Queues.MusicIndexMask"/>.</summary>
+    internal int _musicReadPosition;
+    /// <summary>Insertion slot of the circular delayed-music command queue, 0 through <see cref="AudioRomData.Queues.MusicIndexMask"/>.</summary>
+    internal int _musicWritePosition;
+    /// <summary>
+    /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
+    /// next call, which is what fetches the next queued entry.
+    /// </summary>
+    internal NativeCountdown _musicTimer;
     /// <summary>Music command currently awaiting delay expiry and APU dispatch.</summary>
     private MusicCommand _musicEntry;
-    /// <summary>Frames for which a music change forces all SFX ports to zero.</summary>
-    private byte _soundHandlerDowntime;
+    /// <summary>Sound-handler calls, 0 through <see cref="AudioRomData.Queues.MusicAndSfxDowntimeFrames"/>, for which a music change forces all SFX ports to zero.</summary>
+    private int _soundHandlerDowntime;
 
     /// <summary>Creates empty native music/SFX queues and zeroed acknowledgement state, scheduling the common audio-bank upload and reset port writes for the next <see cref="AdvanceFrame"/> rather than executing them immediately.</summary>
     public CartridgeAudioState() => Reset();
@@ -63,8 +66,8 @@ public sealed class CartridgeAudioState
     /// <summary>Music-data set most recently uploaded by a processed queue command.</summary>
     public byte MusicDataIndex { get; private set; }
 
-    /// <summary>Track most recently written to APU port zero.</summary>
-    public byte MusicTrackIndex { get; private set; }
+    /// <summary>Track most recently written to APU port zero, 0 through 127.</summary>
+    public int MusicTrackIndex { get; private set; }
 
     /// <summary>Exact <c>HasQueuedMusic</c> result: any occupied delayed-command slot.</summary>
     public bool HasQueuedMusic => _musicDelays.Any(delay => delay.Frames != 0);
@@ -104,7 +107,7 @@ public sealed class CartridgeAudioState
         Array.Clear(_soundClearDelays);
         _musicReadPosition = 0;
         _musicWritePosition = 0;
-        _musicTimer = 0;
+        _musicTimer = default;
         _musicEntry = default;
         _soundHandlerDowntime = 0;
         MusicDataIndex = 0;
@@ -191,12 +194,12 @@ public sealed class CartridgeAudioState
     /// </remarks>
     public void QueuePermanentItemFanfare()
     {
-        byte roomTrack = MusicTrackIndex;
+        int roomTrack = MusicTrackIndex;
 
         Array.Clear(_musicEntries);
         Array.Clear(_musicDelays);
         _musicReadPosition = _musicWritePosition;
-        _musicTimer = 0;
+        _musicTimer = default;
         _musicEntry = default;
 
         QueueMusicDelayed8(MusicCommand.SelectTrack(
@@ -310,8 +313,7 @@ public sealed class CartridgeAudioState
                 nameof(delay), delay, "Effective music queue delay must be at least eight frames.");
         }
 
-        byte next = unchecked((byte)(
-            (_musicWritePosition + 1) & AudioRomData.Queues.MusicIndexMask));
+        int next = (_musicWritePosition + 1) & AudioRomData.Queues.MusicIndexMask;
         if (requireFreeSlot && next == _musicReadPosition)
             return;
 
@@ -323,8 +325,8 @@ public sealed class CartridgeAudioState
     /// <summary>Advances the bank-80 timer and emits either a data upload or music port write at expiry.</summary>
     private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
-        NativeWordCounterStep step = NativeWordCounter.Decrement(_musicTimer);
-        _musicTimer = step.Value;
+        NativeWordCounterStep step = _musicTimer.Decrement();
+        _musicTimer = step.Remaining;
         bool timerExpired = step.IsZero;
         if (step.IsNonNegative)
         {
@@ -333,10 +335,12 @@ public sealed class CartridgeAudioState
 
             if (_musicEntry.UsesDataUploadPath)
             {
-                MusicDataIndex = _musicEntry.DataIndex;
+                // The low byte of a queue word always fits the music-data identity.
+                byte dataIndex = checked((byte)_musicEntry.DataIndex);
+                MusicDataIndex = dataIndex;
                 MusicTrackIndex = byte.MaxValue;
                 AudioUploadAssetDefinition upload =
-                    AudioAssetCatalogDefinitions.ResolveDataIndex(_musicEntry.DataIndex);
+                    AudioAssetCatalogDefinitions.ResolveDataIndex(dataIndex);
                 commands.Add(CartridgeAudioCommand.Upload(upload.Bank));
                 MusicTrackIndex = 0;
                 // `$80:8F89-$8FA2` retires the data entry and returns. The timer stays zero,
@@ -358,12 +362,12 @@ public sealed class CartridgeAudioState
 
         if (_musicReadPosition == _musicWritePosition)
         {
-            _musicTimer = 0;
+            _musicTimer = default;
             return;
         }
 
         _musicEntry = _musicEntries[_musicReadPosition];
-        _musicTimer = _musicDelays[_musicReadPosition].Frames;
+        _musicTimer = NativeCountdown.Start(_musicDelays[_musicReadPosition].Frames);
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
@@ -371,8 +375,7 @@ public sealed class CartridgeAudioState
     {
         _musicEntries[_musicReadPosition] = default;
         _musicDelays[_musicReadPosition] = default;
-        _musicReadPosition = unchecked((byte)(
-            (_musicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask));
+        _musicReadPosition = (_musicReadPosition + 1) & AudioRomData.Queues.MusicIndexMask;
     }
 
     /// <summary>Either clears all three SFX ports during music downtime or advances their independent handshakes.</summary>
@@ -382,7 +385,8 @@ public sealed class CartridgeAudioState
     {
         if (_soundHandlerDowntime != 0)
         {
-            _soundHandlerDowntime = NativeWordCounter.DecrementByte(_soundHandlerDowntime);
+            // Guarded by the nonzero test above: the downtime counts down to zero and never wraps.
+            _soundHandlerDowntime = Ensure.AtLeastZero(_soundHandlerDowntime - 1);
             for (byte queue = 0;
                 queue < AudioRomData.Queues.SoundLibraryCount;
                 queue++)
@@ -404,7 +408,7 @@ public sealed class CartridgeAudioState
     /// <summary>Performs request, echo, clear-delay, and zero-echo phases for one SPC sound library.</summary>
     private void HandleSoundEffectQueue(
         int queue,
-        byte acknowledgement,
+        int acknowledgement,
         List<CartridgeAudioCommand> commands)
     {
         switch (_soundStates[queue])

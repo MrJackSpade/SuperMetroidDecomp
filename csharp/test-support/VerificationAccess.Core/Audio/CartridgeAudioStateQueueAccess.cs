@@ -9,7 +9,7 @@ internal static class CartridgeAudioStateQueueAccess
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
         internal string MusicQueueForVerification() =>
             $"{self._musicReadPosition:X}/{self._musicWritePosition:X} " +
-            $"t={self._musicTimer:X} d=" +
+            $"t={self._musicTimer.RawValue:X} d=" +
             string.Join(",", self._musicDelays.Select(delay => $"{delay.Frames:X}"));
 
         /// <summary>One entry of an SFX library's queue ($0643+).</summary>

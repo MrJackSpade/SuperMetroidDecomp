@@ -20,17 +20,17 @@ public sealed class ClipPlaybackState
     /// <summary>The music bank uploaded last, or null while only the common upload is installed.</summary>
     internal AudioBank? Context;
 
-    /// <summary>The track the music port holds; zero when stopped or after a track ended.</summary>
-    internal byte MusicPort;
+    /// <summary>The track the music port holds, 0 through 255; zero when stopped or after a track ended.</summary>
+    internal int MusicPort;
 
-    /// <summary>The music-port write the driver consumes at its next music tick.</summary>
-    internal byte MusicLatch = SpcPortDefinitions.MusicLatchEmpty;
+    /// <summary>The music-port write the driver consumes at its next music tick, or null when none is pending.</summary>
+    internal int? MusicLatch;
 
-    /// <summary>The eight-bit tempo accumulator; each carry is a music tick.</summary>
-    internal byte TempoAccumulator;
+    /// <summary>The tempo accumulator; each overflow is a music tick.</summary>
+    internal TickAccumulator TempoAccumulator;
 
-    /// <summary>The tempo in force while no track plays: the driver's power-on tempo, then each track's last.</summary>
-    internal byte Tempo = SpcPortDefinitions.InitialTempo;
+    /// <summary>The tempo in force while no track plays, 0 through 255: the driver's power-on tempo, then each track's last.</summary>
+    internal int Tempo = SpcPortDefinitions.InitialTempo;
 
     /// <summary>The playing music clip, or null.</summary>
     internal MusicClipEntry? Music;

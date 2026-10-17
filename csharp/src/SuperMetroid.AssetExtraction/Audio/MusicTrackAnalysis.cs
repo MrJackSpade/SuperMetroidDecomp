@@ -18,7 +18,6 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// the exported clip is intro [start, E1) and loop [E1, E2). Empty otherwise.
 /// </param>
 /// <param name="StartSample">The driver tick that started the track (the music port took the track number).</param>
-/// <param name="StartTempoPhase">The tempo accumulator after that tick.</param>
 /// <param name="TempoChanges">The tempo's whole byte after the start tick and after every tick that changed it, by tick sample.</param>
 internal sealed record MusicTrackAnalysis(
     AudioBank Bank,
@@ -27,7 +26,6 @@ internal sealed record MusicTrackAnalysis(
     long? EndSample,
     IReadOnlyList<long> Arrivals,
     long StartSample,
-    byte StartTempoPhase,
     IReadOnlyList<(long Sample, byte Tempo)> TempoChanges)
 {
     /// <summary>
@@ -75,7 +73,7 @@ internal sealed record MusicTrackAnalysis(
         return new MusicTrackAnalysis(
             bank, track, observer.Outcome.Value, observer.EndSample, observer.AnchorArrivals,
             observer.StartSample ?? throw new InvalidDataException($"{bank} track {track} never started."),
-            observer.StartTempoPhase, observer.TempoChanges);
+            observer.TempoChanges);
     }
 
     /// <summary>The native sample position of <paramref name="tick"/> in the renderer's current frame.</summary>
@@ -108,8 +106,6 @@ internal sealed record MusicTrackAnalysis(
         internal IReadOnlyList<long> AnchorArrivals { get; private set; } = [];
         /// <summary>The tick that started the track, once it has.</summary>
         internal long? StartSample { get; private set; }
-        /// <summary>The tempo accumulator after the start tick.</summary>
-        internal byte StartTempoPhase { get; private set; }
         /// <summary>The tempo after the start tick and after each tick that changed it.</summary>
         internal List<(long Sample, byte Tempo)> TempoChanges { get; } = [];
 
@@ -149,12 +145,8 @@ internal sealed record MusicTrackAnalysis(
             ManagedSpcPlayer player = Required(renderer).Player;
             if (player.musicPortToSnes != 0)
             {
-                (byte tempo, byte phase) = player.ReadTempo();
-                if (StartSample is null)
-                {
-                    StartSample = tickSample;
-                    StartTempoPhase = phase;
-                }
+                byte tempo = player.ReadTempo();
+                StartSample ??= tickSample;
                 if (TempoChanges.Count == 0 || TempoChanges[^1].Tempo != tempo)
                     TempoChanges.Add((tickSample, tempo));
             }

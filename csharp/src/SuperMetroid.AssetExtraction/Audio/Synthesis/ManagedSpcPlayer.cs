@@ -848,7 +848,7 @@ public sealed class ManagedSpcPlayer
     /// current write, so a request is echoed one service after the service that reads it.
     /// </remarks>
     private void HandleSoundLibraryCommand(int libraryIndex, SpcSoundEffectPoll poll) =>
-        ApplySoundLibraryCommand(libraryIndex, poll.Changed, poll.Command);
+        ApplySoundLibraryCommand(libraryIndex, poll.Changed, checked((byte)poll.Command));
 
     /// <summary>Applies native library priority/cancellation gates, then selects a new sound stream or advances the active one.</summary>
     private void ApplySoundLibraryCommand(int libraryIndex, bool changed, byte command)
@@ -1555,8 +1555,8 @@ public sealed class ManagedSpcPlayer
     /// <summary>The address of the next top-level music record, for offline loop analysis (#1305).</summary>
     internal ushort ReadMusicTopLevelPointer() => musicTopLevelPointer;
 
-    /// <summary>The tempo's whole byte, added to the accumulator per driver tick, and the accumulator itself, for clip export (#1305).</summary>
-    internal (byte Tempo, byte Phase) ReadTempo() => (unchecked((byte)SpcFixedPoint.Whole(tempo)), mainTempoAccumulator);
+    /// <summary>The tempo's whole byte, added to the accumulator per driver tick, for clip export (#1305).</summary>
+    internal byte ReadTempo() => unchecked((byte)SpcFixedPoint.Whole(tempo));
 
     /// <summary>Resets DSP/work RAM and publishes the driver's initial echo and master-register state.</summary>
     private void InitializeDriver()
@@ -1606,7 +1606,7 @@ public sealed class ManagedSpcPlayer
     /// <summary>Advances sound and music accumulators, servicing latched commands only on their native carry ticks.</summary>
     private void LoopPartTwo(SpcDriverTick tick)
     {
-        byte ticks = tick.Ticks;
+        int ticks = tick.Ticks;
         if (tick.SoundEffectsPolled)
         {
             HandleSoundLibraryCommand(0, tick.Library1);

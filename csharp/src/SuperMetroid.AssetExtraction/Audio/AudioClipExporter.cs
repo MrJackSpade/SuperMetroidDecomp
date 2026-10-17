@@ -121,7 +121,6 @@ internal static class AudioClipExporter
             key.Track,
             Write(root, MusicDirectory, files, pcm),
             track.Shape == MusicTrackShape.Loops ? track.Arrivals[0] - start : null,
-            track.StartTempoPhase,
             segments);
     }
 
@@ -151,14 +150,16 @@ internal static class AudioClipExporter
                 catalog, key.Context, key.Library, key.Command, effect.ChannelPrograms.Count);
             return new SoundEffectClipEntry(key.Context, key.Library, key.Command, policy, null,
                 [.. layers.Select(layer => new SoundEffectClipLayer(
-                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart, layer.Voice, layer.KeyOnFrames))]);
+                    Write(root, SoundEffectDirectory, files, layer.Clip), layer.LoopStart,
+                    SoundEffectVoicesCodec.FromVoiceMask(layer.Voice), layer.KeyOnFrames))]);
         }
         SoundEffectRendering.OneShot shot = SoundEffectRendering.RenderOneShot(catalog, key.Context, key.Library, key.Command);
         // A silent effect still occupies its library until its logical end, so it keeps an entry without layers.
         return new SoundEffectClipEntry(key.Context, key.Library, key.Command, policy, shot.ActiveFrames,
             shot.Clip.Length == 0
                 ? []
-                : [new SoundEffectClipLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null, shot.Voices, shot.KeyOnFrames)]);
+                : [new SoundEffectClipLayer(Write(root, SoundEffectDirectory, files, shot.Clip), null,
+                    SoundEffectVoicesCodec.FromVoiceMask(shot.Voices), shot.KeyOnFrames)]);
     }
 
     /// <summary>

@@ -87,14 +87,13 @@ internal static class EnemyQuadraticSpeedsVerification
         foreach (bool negative in new[] { false, true })
         {
             int offset = record * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0);
-            maw.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)start));
-            maw.ExtensionFraction = unchecked((ushort)start);
+            maw.Extension = SnesSignedSixteenSixteen.FromRaw(unchecked((int)start));
             maw.QuadraticSpeedRecord = record;
             maw.QuadraticSpeedNegative = negative;
             mawAdditions++;
             uint expected = unchecked(start + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + offset))));
             addMaw(maw);
-            AssertEqual(expected, new SnesFixedPosition(maw.ExtensionWhole, maw.ExtensionFraction).RawValue, "Yapping Maw real split-word integration");
+            AssertEqual(expected, unchecked((uint)maw.Extension.RawValue), "Yapping Maw real split-word integration");
             AssertEqual((record + 1, negative), (maw.QuadraticSpeedRecord, maw.QuadraticSpeedNegative), "Yapping Maw record advance");
         }
         Console.WriteLine("Compiled quadratic speeds: all 759 word windows and 757 displacement windows match the authored NTSC bytes, including odd offsets and native discontinuities.");

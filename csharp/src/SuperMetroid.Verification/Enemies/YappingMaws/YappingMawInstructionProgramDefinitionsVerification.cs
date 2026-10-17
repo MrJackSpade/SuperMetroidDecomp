@@ -157,7 +157,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
     }
 
     /// <summary>A Yapping Maw rooted at (128, 128) through the production initializer, with the given activation distance.</summary>
-    private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, YappingMawEnemyState State) NewInitializedYappingMaw(int activationDistance)
+    internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot, YappingMawEnemyState State) NewInitializedYappingMaw(int activationDistance)
     {
         var enemies = new RoomEnemySystem();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);

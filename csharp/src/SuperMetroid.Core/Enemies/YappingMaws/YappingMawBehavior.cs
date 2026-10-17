@@ -74,8 +74,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Minimum separation used before moving Samus to the extended mouth.</summary>
     private const ushort YappingMawGrabSafetyDistance = 32;
-    /// <summary>Maximum extension curl admitted by the four-link solver.</summary>
-    private const ushort YappingMawMaximumCurl = 128;
+    /// <summary>Maximum extension curl admitted by the four-link solver, in whole angle units.</summary>
+    private const int YappingMawMaximumCurl = 128;
     /// <summary>Cooldown after Samus is released before the Maw can grab again.</summary>
     private const ushort YappingMawGrabCooldownFrames = 48;
     /// <summary>Delay after full retraction before Samus input is released.</summary>
@@ -221,8 +221,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the one-frame setup function at $A8:A28C.</summary>
     internal static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
-        state.ExtensionWhole = 0;
-        state.ExtensionFraction = 0;
+        state.Extension = SnesSignedSixteenSixteen.Zero;
         state.QuadraticSpeedRecord = 0;
         state.QuadraticSpeedNegative = false;
         state.SegmentRadius = state.DistanceToSamus / 2;
@@ -252,7 +251,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        ushort bendStep = unchecked((ushort)(state.ExtensionWhole >> 2));
+        // The function only runs while the curl's whole part is in [0, YappingMawMaximumCurl]: setup starts it at zero,
+        // the clamp below caps it, and the update that carries it negative leaves this function. In that range a
+        // quarter of the signed whole part equals the cartridge's two logical right shifts of the word; the checked
+        // conversion fails loudly if that range is ever violated.
+        ushort bendStep = checked((ushort)(state.Extension.WholePixels / 4));
         // $A8:A532 clears carry once, then adds the eight correction words in segment
         // order (X then Y) with ADC alone, so each addition's carry adds one to the next.
         int carry = 0;
@@ -291,12 +294,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(YappingMawLinkPosition(state, 3));
         AddYappingMawQuadraticSpeed(state);
 
-        if (unchecked((short)state.ExtensionWhole) >= 0)
+        if (state.Extension.WholePixels >= 0)
         {
-            if (unchecked((short)(state.ExtensionWhole - YappingMawMaximumCurl)) >= 0)
+            // A nonnegative whole part minus 128 cannot wrap, so the cartridge's signed difference test is this
+            // ordinary comparison.
+            if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
-                state.ExtensionWhole = YappingMawMaximumCurl;
-                state.ExtensionFraction = 0;
+                state.Extension = SnesSignedSixteenSixteen.FromParts(checked((short)YappingMawMaximumCurl), 0);
                 // $A8:A4F2 adds four bytes after the ordinary eight-byte record advance: the same record's
                 // negative half, or the next record's positive half from a negative one.
                 if (state.QuadraticSpeedNegative)
@@ -351,15 +355,11 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return unchecked((ushort)sum);
     }
 
-    /// <summary>Ports $A8:A63E's split-word addition and eight-byte table advance.</summary>
+    /// <summary>Ports $A8:A63E: adds the current quadratic speed to the curl, carrying the fraction, then advances the record.</summary>
     internal static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        uint position = new SnesFixedPosition(state.ExtensionWhole, state.ExtensionFraction).RawValue;
-        uint velocity = unchecked((uint)EnemyMath.ReadQuadraticEnemySpeed(
+        state.Extension += SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadQuadraticEnemySpeed(
             checked((ushort)state.QuadraticSpeedRecord), state.QuadraticSpeedNegative));
-        uint next = unchecked(position + velocity);
-        state.ExtensionWhole = SnesFixedPosition.WholeOf(unchecked((int)next));
-        state.ExtensionFraction = unchecked((ushort)next);
         state.QuadraticSpeedRecord++;
     }
 

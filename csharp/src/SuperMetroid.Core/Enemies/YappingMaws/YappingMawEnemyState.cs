@@ -63,12 +63,12 @@ public sealed class YappingMawEnemyState
     public Offset16<RoomPixels> Baseline { get; internal set; }
 
     /// <summary>
-    /// Native B/C signed 16.16 curl amount. It accelerates past +128, wraps negative, and
-    /// thereby signals that the retracting tongue has completed its full ROM curve.
+    /// The signed 16.16 curl amount, in angle units. It accelerates out to the +128 turn-around clamp, where its
+    /// fraction is cleared, then decelerates back; the update whose addition carries its whole part below zero is the
+    /// one on which the retracting tongue has completed its full curve. Every addition carries the fraction into the
+    /// whole part and wraps at 32 bits.
     /// </summary>
-    public ushort ExtensionWhole { get; internal set; }
-    /// <summary>Native variable C's low half of the signed 16.16 curl-angle accumulator, in 1/65536-angle-unit increments; cleared at setup and at the +128 turn-around clamp.</summary>
-    public ushort ExtensionFraction { get; internal set; }
+    public SnesSignedSixteenSixteen Extension { get; internal set; }
 
     /// <summary>Record index into CommonEnemySpeeds_QuadraticallyIncreasing (native D holds the byte offset).</summary>
     public int QuadraticSpeedRecord { get; internal set; }

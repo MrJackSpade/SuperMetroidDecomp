@@ -157,6 +157,43 @@ internal static class SaveRamCodecVerification
         Console.WriteLine("Save slot fields: full-range values round-trip through SRAM exactly; out-of-range values are rejected.");
     }
 
+    /// <summary>
+    /// The progression owner's saved fields: the loaded-item count and the saved dispatcher route accept exactly a save
+    /// field's range, and an area's boss byte keeps its unproven bits through typed set, clear and query, so the byte the
+    /// save mirror receives is the byte it was loaded with, changed only in the named bits.
+    /// </summary>
+    internal static void VerifyProgressionSavedFields()
+    {
+        var system = new Bank80SystemState { LoadedItemCount = SaveFieldValue.MaximumValue };
+        AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "the loaded-item count holds a save field's largest value");
+        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = SaveFieldValue.MaximumValue + 1,
+            "a loaded-item count past a save field is rejected instead of wrapping");
+        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadedItemCount = -1, "a negative loaded-item count is rejected");
+        AssertEqual(SaveFieldValue.MaximumValue, system.LoadedItemCount, "a rejected count leaves the count unchanged");
+        system.LoadSavedLoadingGameState(SaveFieldValue.MaximumValue);
+        AssertEqual(SaveFieldValue.MaximumValue, system.SavedLoadingGameState, "an unnamed dispatcher route is kept as loaded");
+        AssertThrows<ArgumentOutOfRangeException>(() => system.LoadSavedLoadingGameState(-1),
+            "a dispatcher route outside a save field is rejected");
+
+        // An unproven bit beside two named ones: typed operations change only the named bits around it.
+        byte unprovenBit = 128;
+        byte loaded = (byte)(unprovenBit | (BossBits.AreaBoss | BossBits.AreaTorizo).ToNativeByte());
+        byte[] areas = new byte[Bank80SystemState.AreaCount];
+        areas[AreaIds.ToIndex(AreaId.Norfair)] = loaded;
+        system.LoadBossBytes(areas);
+        AssertEqual(loaded, system.GetBossBitsRaw(AreaId.Norfair), "a loaded boss byte reads back exactly");
+        system.SetBossBits(AreaId.Norfair, BossBits.AreaMiniBoss);
+        system.ClearBossBits(AreaId.Norfair, BossBits.AreaBoss);
+        AssertEqual((byte)(unprovenBit | (BossBits.AreaMiniBoss | BossBits.AreaTorizo).ToNativeByte()),
+            system.GetBossBitsRaw(AreaId.Norfair), "typed set and clear keep the unproven bit");
+        AssertTrue(system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaTorizo), "a named bit beside an unproven one is found");
+        AssertTrue(!system.HasAnyBossBits(AreaId.Norfair, BossBits.AreaBoss), "a cleared named bit is absent");
+        AssertThrows<ArgumentOutOfRangeException>(() => system.GetBossBits(AreaId.Norfair),
+            "named boss state refuses to hand out an unproven bit");
+        AssertEqual(0, system.GetBossBitsRaw(AreaId.Crateria), "other areas stay clear");
+        Console.WriteLine("Progression saved fields: save-field ranges are enforced and boss bytes keep their unproven bits.");
+    }
+
     /// <summary>A save with a distinct health, area, progression and explored map.</summary>
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
@@ -187,6 +224,7 @@ internal static class SaveRamCodecVerification
         Suite(nameof(VerifyInvalidSlotAndNoncanonicalMarker), () => VerifyInvalidSlotAndNoncanonicalMarker());
         Suite(nameof(VerifyStoreOperationsRoundTrip), () => VerifyStoreOperationsRoundTrip());
         Suite(nameof(VerifyWidenedSlotFieldsRoundTrip), () => VerifyWidenedSlotFieldsRoundTrip());
+        Suite(nameof(VerifyProgressionSavedFields), () => VerifyProgressionSavedFields());
         return 0;
     }
 }

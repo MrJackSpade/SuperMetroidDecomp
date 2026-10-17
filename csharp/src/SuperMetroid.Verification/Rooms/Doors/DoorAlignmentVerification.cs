@@ -171,10 +171,10 @@ internal static class DoorAlignmentVerification
             "door transition exercised the destination OAM handoff");
         AssertEqual(destinationRoom, runtime.Room.LoadedRoom.Pointer,
             "offset retail transition reaches its destination");
-        AssertEqual((ushort)58, runtime.GameTime.Frames, "door transition excludes game-time frames");
-        AssertEqual((ushort)56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");
-        AssertEqual((ushort)34, runtime.GameTime.Minutes, "door transition excludes game-time minutes");
-        AssertEqual((ushort)12, runtime.GameTime.Hours, "door transition excludes game-time hours");
+        AssertEqual(58, runtime.GameTime.Frames, "door transition excludes game-time frames");
+        AssertEqual(56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");
+        AssertEqual(34, runtime.GameTime.Minutes, "door transition excludes game-time minutes");
+        AssertEqual(12, runtime.GameTime.Hours, "door transition excludes game-time hours");
         AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed,
             "door transition retains base running speed");
         AssertEqual((ushort)0x8000, samus.HorizontalSpeed.BaseSubspeed,

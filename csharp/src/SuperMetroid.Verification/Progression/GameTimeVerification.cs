@@ -40,6 +40,27 @@ internal static class GameTimeVerification
         AssertEqual(59, snapshot.GameTimeMinutes, "save captures game-time minutes");
         AssertEqual(99, snapshot.GameTimeHours, "save captures game-time hours");
 
+        // A loaded save may hold any save-field value; the clock accepts it and steps it as the cartridge does.
+        time.Load(frames: 65535, seconds: 0, minutes: 0, hours: 150);
+        AssertEqual(65535, time.Frames, "game time loads a corrupt frame count unchanged");
+        AssertEqual(150, time.Hours, "game time loads a corrupt hour unchanged");
+        AssertThrows<ArgumentOutOfRangeException>(() => time.Load(frames: 65536, seconds: 0, minutes: 0, hours: 0),
+            "game time rejects a component past a save field");
+        AssertThrows<ArgumentOutOfRangeException>(() => time.Load(frames: 0, seconds: 0, minutes: 0, hours: -1),
+            "game time rejects a negative component");
+        time.Step();
+        AssertEqual(59, time.Frames, "a corrupt hour saturates frames on the next step");
+        AssertEqual(59, time.Seconds, "a corrupt hour saturates seconds on the next step");
+        AssertEqual(59, time.Minutes, "a corrupt hour saturates minutes on the next step");
+        AssertEqual(99, time.Hours, "a corrupt hour saturates to 99 on the next step");
+
+        time.Load(frames: 65535, seconds: 7, minutes: 3, hours: 1);
+        time.Step();
+        AssertEqual(0, time.Frames, "65535 frames wrap to zero as a sixteen-bit increment");
+        AssertEqual(7, time.Seconds, "a wrapped frame count is below 60, so no second is added");
+        AssertEqual(3, time.Minutes, "a wrapped frame count leaves the minutes");
+        AssertEqual(1, time.Hours, "a wrapped frame count leaves the hours");
+
         Console.WriteLine("  Game time: 60-Hz rollover, 99:59 saturation, and SRAM capture agree.");
     }
 }

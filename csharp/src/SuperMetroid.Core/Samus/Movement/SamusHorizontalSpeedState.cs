@@ -542,10 +542,13 @@ public sealed class SamusHorizontalSpeedState
     /// Ports <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c> for ordinary active boost.
     /// The gameplay clock, not NMI count, selects the four-frame sampling phase.
     /// </summary>
+    /// <param name="gameTimeFrames">The gameplay clock's frame count, 0 to 65535; only its four-frame phase is read and nothing stores it.</param>
+    /// <param name="position">Samus's whole-pixel room position sampled into the next echo slot.</param>
     public bool CaptureSpeedEchoPosition(
-        ushort gameTimeFrames,
+        int gameTimeFrames,
         Position16<RoomPixels> position)
     {
+        Ensure.BetweenInclusive(0, ushort.MaxValue, gameTimeFrames);
         if (!IsFullSpeedBoost ||
             SpeedEchoesDeparting ||
             (gameTimeFrames & 3) != 0)

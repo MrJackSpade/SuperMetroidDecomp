@@ -2,6 +2,7 @@ namespace SuperMetroid.Core.Hardware;
 
 /// <summary>A lossless view over one standard SNES background tilemap entry.</summary>
 /// <param name="Raw">The complete 16-bit entry, including character, palette, priority, and flip fields.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesBgTilemapWord(ushort Raw)
 {
     /// <summary>Bits 0 through 9 address one of 1024 background characters.</summary>

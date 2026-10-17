@@ -43,7 +43,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
             if (pose is >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadFromEndingFrame4)
             {
                 x = -8; y = index == 0 ? -8 : -16; large = true;
-                tile = index == 0 ? SnesCharacterGrid.Cell(24, 8) + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : SnesCharacterGrid.Cell(23, 8); // tile atlas indices and strides for cinematic sprite composition.
+                tile = index == 0 ? SnesCharacterGrid.Cell(24, 8) + 2 * (pose - Pose.SamusHeadFromEndingFrame1) : SnesCharacterGrid.Cell(23, 8); // magic-number-audit: allow(PoseOrMovement) - tile atlas indices and strides for cinematic sprite composition.
             }
             else if (pose == Pose.SamusHeadWithHelmetFromEnding)
             {

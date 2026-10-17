@@ -10,6 +10,7 @@ namespace SuperMetroid.TestSupport.VerificationImporters;
 /// <see cref="CartridgeWordReads"/>.
 /// </summary>
 [CpuBusAccess]
+[SnesEncodingOwner]
 internal static class CartridgeLongReads
 {
     /// <summary>Adds a linear 24-bit pointer read to imported cartridge sources for verification oracles.</summary>

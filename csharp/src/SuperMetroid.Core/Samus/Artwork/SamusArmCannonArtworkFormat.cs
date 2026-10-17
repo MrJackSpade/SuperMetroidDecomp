@@ -132,9 +132,9 @@ public static class SamusArmCannonArtworkFormat
     /// <summary>Installed indexed PNG filename holding the twelve 8-by-8 cover characters in native source-identity order.</summary>
     public const string TileFileName = "samus-arm-cannon-tiles.png";
     /// <summary>First pose descriptor at $90:C9D9.</summary>
-    public const ushort DrawingDataStart = 0xc9d9; // the installed arm-cannon artwork format keys its records by these bank-$90 addresses
+    public const ushort DrawingDataStart = 0xc9d9; // cartridge-encoding: allow(CartridgeAddress) - the installed arm-cannon artwork format keys its records by these bank-$90 addresses
     /// <summary>Descriptor bytes end immediately before the $90:CC39 code entry.</summary>
-    public const ushort DrawingDataEndExclusive = 0xcc39; // the installed arm-cannon artwork format keys its records by these bank-$90 addresses
+    public const ushort DrawingDataEndExclusive = 0xcc39; // cartridge-encoding: allow(CartridgeAddress) - the installed arm-cannon artwork format keys its records by these bank-$90 addresses
     /// <summary>608 installed bytes spanning the bank-$90 drawing descriptors from $C9D9 through $CC38.</summary>
     public const int DrawingDataByteCount = DrawingDataEndExclusive - DrawingDataStart;
     /// <summary>Four tile-selector slots per native aim direction: closed sentinel 0 and three successive nonclosed cover-art frames.</summary>
@@ -810,7 +810,7 @@ public static class SamusArmCannonArtworkFormat
         return (ushort)(CoverSpriteIdentity | (horizontal ? HorizontalReflection : 0) | (vertical ? VerticalReflection : 0));
     }
     /// <summary>$9A:9A00, Tiles_NonClosed_ArmCannon_Vertical_0, first of twelve cover tile sources.</summary>
-    private const int FirstTileSource = 0x9a00; // the installed tile sheet keys its tiles by their bank-$9A source
+    private const int FirstTileSource = 0x9a00; // cartridge-encoding: allow(CartridgeAddress) - the installed tile sheet keys its tiles by their bank-$9A source
     /// <summary>The twelve native cover sources from $9A:9A00 through $9A:B000 occupy successive $200-byte character blocks.</summary>
     private const int TileSourceStride = 512;
     /// <summary>Twelve source identities selected by the four three-frame lists at $90:C7B9..C7D8.</summary>

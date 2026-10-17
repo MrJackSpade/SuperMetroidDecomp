@@ -18,7 +18,7 @@ public static class RidleyClawOffsets
     /// The three ordinary geometry words remain calculated independently.
     /// </remarks>
     private static ReadOnlySpan<short> ExistingOutOfRangeWindow =>
-        [0x28af, 0x7e78, 0x1ff0, 0x1285, 0x0410, -183]; // adjacent opcode words, see remarks
+        [0x28af, 0x7e78, 0x1ff0, 0x1285, 0x0410, -183]; // cartridge-encoding: allow(MachineCode) - adjacent opcode words, see remarks
 
     /// <summary>$A6:B9D5 HoldingSamusXDispacement: left/turning/right displacements decrease twelve pixels per facing.</summary>
     public static short ReadX(RidleyFacing facing) => facing switch

@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// the modular X offset and bit fifteen independently selects the large OBJ size.
 /// </summary>
 /// <param name="Raw">The complete native X word, including any unused upper bits.</param>
+[SnesEncodingOwner]
 public readonly record struct SnesSpritemapXWord(ushort Raw)
 {
     /// <summary>The low nine bits encode the sprite's modular horizontal displacement.</summary>

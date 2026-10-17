@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Hardware;
 /// memory, a register's low/high byte, or a byte the cartridge stores in a word's high half. A shift that divides
 /// by 256 for another reason (an 8.8 whole part, a 256-pixel screen, a fraction scale) belongs to that domain's type.
 /// </remarks>
+[SnesEncodingOwner]
 public static class SnesLittleEndian
 {
     /// <summary>Bits in one storage byte, the distance between adjacent byte lanes.</summary>

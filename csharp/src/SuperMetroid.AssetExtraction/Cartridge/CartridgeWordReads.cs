@@ -21,6 +21,7 @@ namespace SuperMetroid.AssetExtraction.Cartridge;
 /// The two read the same bytes everywhere else.
 /// </remarks>
 [CpuBusAccess]
+[SnesEncodingOwner]
 public static class CartridgeWordReads
 {
     /// <summary>Adds cartridge byte-combination operations to import sources; fixed-bank variants wrap at $FFFF.</summary>

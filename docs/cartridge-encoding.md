@@ -5,6 +5,33 @@ a collision shape, a state transition, a published event. It should not interpre
 pointers, synthesize ROM words, or carry unexplained hexadecimal. This note covers how encoded
 values are classified and the pattern subsystem migrations follow.
 
+## The rules
+
+`SuperMetroid.EnsureAnalyzer/Contracts/CartridgeEncodingAnalyzer.cs` runs at error severity in every repository
+project except the analyzer projects. Every occurrence is reported where it is; there is no baseline, count or
+allowlist. Each finding is fixed, or carries its own reviewed justification at its site.
+
+| Rule | Reports |
+| --- | --- |
+| SME6340 | A hexadecimal literal in functional code. Files named as definition catalogs (`*Definitions.cs`, `*Definition.cs`, `*Catalog.cs`, `*CodePointers.cs`, ...) own their data and are exempt, as is an enum member's value: an enum is a named definition set wherever its file lives. |
+| SME6341 | A primitive compared with, offset from or switched over an address-valued code or instruction constant: runtime interpretation of cartridge pointers, catalogs included. |
+| SME6342 | An integral array or collection literal of four or more elements holding hexadecimal words: opaque instruction or packed-table data, catalogs included. |
+| SME6345 | A shift by a byte, word or bank width, or a byte/word/bank mask, in functional code (#223). |
+| SME6348 | A hand-written sign-bit test on a countdown-named primitive (#1324): `& 0x8000`, `& 0x80`, a comparison with `0x8000` or `0x80`, or `(short)t < 0`/`(sbyte)t >= 0` where the operand is one member or local whose name ends in a timer, counter, delay, cooldown, countdown, ticks or frames word (`FunctionTimer`, not `TargetCounterClockwiseAngle`). The constant must be the operand's own sign bit: `0x80` for a byte, `0x8000` for a word (a word compared with `0x80` is a threshold). Signed comparisons of differences, velocities and packed flags are not timer idioms. |
+| SME6349 | A wrapping self-decrement of narrow storage (#1324): `x = unchecked((ushort)(x - 1))`, its `byte` form, or `--`/`-= 1` on a `ushort` or `byte` field, property or element. |
+| SME6346 | A value of a `[Flags]` enum cast to an integral primitive in functional code (#1323): the flags leave their type before the encoding boundary. Codecs convert with the type's `ToNativeWord`; a catalog, `[SnesEncodingOwner]` type or reviewed allowance is exempt. |
+| SME6347 | A `byte` or `ushort` (or nullable) instance field, property or positional record parameter in functional code (#1323): gameplay state stored at the cartridge register width. Constants, statics, locals, parameters and arrays are not counted; catalogs, `[SnesEncodingOwner]` types and reviewed allowances are exempt. |
+
+An intrinsic encoded value in functional code (an exact hardware mask, a hash, a wire-format constant) carries a
+reviewed same-line allowance naming its class and a reason:
+
+```csharp
+int nibble = value & 0x0f; // cartridge-encoding: allow(Mask) - BCD digit extraction
+```
+
+The `// magic-number-audit: allow(Category) - reason` marker is accepted as the same review. A type that owns and
+documents an encoding carries `[SnesEncodingOwner]`: its literals and width operations are definitions.
+
 ## Countdowns (#1324)
 
 `Core/Hardware/NativeWordCounter.cs` owns the 65C816 timer idioms. A timer that gameplay starts,

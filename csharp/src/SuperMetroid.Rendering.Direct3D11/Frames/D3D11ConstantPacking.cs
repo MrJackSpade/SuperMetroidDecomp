@@ -7,6 +7,7 @@ namespace SuperMetroid.Rendering.Direct3D11.Frames;
 /// Packs values into 32-bit constant-buffer words (#223): the compute shaders unpack byte 0 from the lowest
 /// eight bits upward, and a pair of sixteen-bit halves low half first, so both sides share this layout.
 /// </summary>
+[SnesEncodingOwner]
 internal static class D3D11ConstantPacking
 {
     /// <summary>Four bytes in one constant word, <paramref name="byte0"/> in the lowest eight bits.</summary>

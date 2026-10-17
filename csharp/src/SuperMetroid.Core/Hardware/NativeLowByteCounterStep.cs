@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 /// Result of one native 8-bit DEC of the low byte of a word whose high byte is independent state.
 /// The flags describe the decremented low byte only, as the processor sets them in 8-bit mode.
 /// </summary>
+[SnesEncodingOwner]
 public readonly record struct NativeLowByteCounterStep(ushort Remaining)
 {
     /// <summary>The decremented low byte.</summary>

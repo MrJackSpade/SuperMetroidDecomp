@@ -142,9 +142,9 @@ public static class SamusGrappleMovement
     private static SnesSignedSixteenSixteen QuarterExtensionVelocity(
         short velocity, SnesSignedSixteenSixteen previous)
     {
-        uint pair = ((uint)((ushort)previous.WholePixels & 0xff00) << 16) | // native ROR over the packed whole-high, velocity, fraction-low bytes
-            ((uint)(ushort)velocity << 8) | // native ROR over the packed whole-high, velocity, fraction-low bytes
-            (uint)(previous.Fraction & 0x00ff); // native ROR over the packed whole-high, velocity, fraction-low bytes
+        uint pair = ((uint)((ushort)previous.WholePixels & 0xff00) << 16) | // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
+            ((uint)(ushort)velocity << 8) | // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
+            (uint)(previous.Fraction & 0x00ff); // cartridge-encoding: allow(ByteLane) - native ROR over the packed whole-high, velocity, fraction-low bytes
         uint rotated = (pair >> 2) | ((pair & 1) << 31);
         ushort whole = SnesFixedPosition.WholeOf(unchecked((int)rotated));
         if (velocity < 0)

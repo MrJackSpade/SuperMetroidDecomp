@@ -87378,6 +87378,19 @@
       "disposition": "record"
     },
     {
+      "type": "SuperMetroid.Core.SnesEncodingOwnerAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/SnesEncodingOwnerAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Spatial.BackgroundBlockConversions",
       "kind": "static class",
       "scope": "product",
@@ -90235,6 +90248,58 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.CartridgeEncoding.CartridgeEncodingClass",
+      "kind": "enum",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/CartridgeEncoding/CartridgeEncodingClass.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CartridgeEncoding.CartridgeEncodingOccurrence",
+      "kind": "record struct",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/CartridgeEncoding/CartridgeEncodingOccurrence.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CartridgeEncoding.CartridgeEncodingRule",
+      "kind": "enum",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/CartridgeEncoding/CartridgeEncodingRule.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.CartridgeEncoding.CartridgeEncodingScanner",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/CartridgeEncoding/CartridgeEncodingScanner.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.CodeFixes.AdapterChainCodeFixProvider",
       "kind": "class",
       "scope": "tool",
@@ -90321,6 +90386,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/AdapterChainAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.CartridgeEncodingAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/CartridgeEncodingAnalyzer.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -90430,6 +90508,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.RepositoryOwnership",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/RepositoryOwnership.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.SpatialClumpAnalyzer",
       "kind": "class",
       "scope": "tool",
@@ -90438,6 +90529,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/SpatialClumpAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.SpeciesIdentityAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/SpeciesIdentityAnalyzer.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -90464,6 +90568,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer/Hardware/CpuBusAccessAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Hardware.CpuBusDeclarationAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Hardware/CpuBusDeclarationAnalyzer.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -90719,6 +90836,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.EnsureVerification.CartridgeEncoding.CartridgeEncodingAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/CartridgeEncoding/CartridgeEncodingAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.EnsureVerification.Contracts.AdapterChainAnalyzerTests",
       "kind": "static class",
       "scope": "test",
@@ -90831,6 +90961,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Hardware/CpuBusCodeFixTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Hardware.CpuBusDeclarationAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Hardware/CpuBusDeclarationAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -94911,6 +95054,58 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.SourceAudit.MagicNumberAuditResult",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/tools/MagicNumberAudit/MagicNumberAuditResult.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.SourceAudit.MagicNumberCategory",
+      "kind": "enum",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/tools/MagicNumberAudit/MagicNumberCategory.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.SourceAudit.MagicNumberFinding",
+      "kind": "record",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/tools/MagicNumberAudit/MagicNumberFinding.cs"
+      ],
+      "partial": "none",
+      "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.SourceAudit.ProductionMagicNumberAudit",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/tools/MagicNumberAudit/ProductionMagicNumberAudit.cs"
+      ],
+      "partial": "generated-boundary",
+      "disposition": "generated-boundary"
     },
     {
       "type": "SuperMetroid.TestSupport.CatalogInventories.EnemyVisualSelectorInventory",
@@ -111371,6 +111566,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Verification.Harness.MagicNumberAuditVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Harness/MagicNumberAuditVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Harness.MemoryStreamContents",
       "kind": "static class",
       "scope": "test",
@@ -117667,7 +117875,8 @@
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
-        "SuperMetroid.EnsureAnalyzer"
+        "SuperMetroid.EnsureAnalyzer",
+        "SuperMetroid.EnsureAnalyzer.CodeFixes"
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureAnalyzer/Polyfills/Runtime/CompilerServices/IsExternalInit.cs"

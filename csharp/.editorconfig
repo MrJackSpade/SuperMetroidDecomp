@@ -57,6 +57,8 @@ dotnet_diagnostic.SME6282.severity = error
 dotnet_diagnostic.SME6283.severity = error
 # #629: the CPU A-bus layout is confined to declared boundaries.
 dotnet_diagnostic.SME6290.severity = error
+# #1320: Core takes, stores or exposes a CPU-bus interface only inside a [CpuBusBoundary].
+dotnet_diagnostic.SME6292.severity = error
 dotnet_diagnostic.SME6291.severity = error
 # #630: the PPU layout is confined to declared rendering boundaries.
 dotnet_diagnostic.SME6300.severity = error
@@ -80,6 +82,20 @@ dotnet_diagnostic.SME6202.severity = error
 
 # #223: 16-bit and 24-bit values are read through the canonical word reads, not rebuilt from bytes.
 dotnet_diagnostic.SME6350.severity = error
+# #641 cartridge encoding: functional code holds no raw hex, pointer dispatch or opaque word arrays.
+dotnet_diagnostic.SME6340.severity = error
+dotnet_diagnostic.SME6341.severity = error
+dotnet_diagnostic.SME6342.severity = error
+# #223: shifts and masks by a storage width name their meaning.
+dotnet_diagnostic.SME6345.severity = error
+# #1323: [Flags] stay typed and gameplay state is not stored at the CPU register width.
+dotnet_diagnostic.SME6346.severity = error
+dotnet_diagnostic.SME6347.severity = error
+# #1324: countdowns use NativeCountdown, not hand-written DEC wraparound and sign-bit tests.
+dotnet_diagnostic.SME6348.severity = error
+dotnet_diagnostic.SME6349.severity = error
+# #1312: species identity tests live with the species that owns the definition.
+dotnet_diagnostic.SME6392.severity = error
 
 # #1315: outside the enemy-owning modules, species are reached through the enemy system's capability interfaces.
 dotnet_diagnostic.SME6407.severity = error

@@ -11,6 +11,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks catalog ownership and the WRAM/SRAM cell primitives against the real address-space mapping.</summary>
 internal static class CpuBusBoundaryVerification
 {
+    /// <summary>Inventory cell fields compared between the generated and committed CPU-bus inventories.</summary>
+    private static readonly string[] InventoryCellFields =
+        ["owner", "name", "region", "address", "byteCount", "encoding", "aliasOf"];
+
     /// <summary>
     /// Checks the #629 CPU-bus boundary: catalog identities and aliases, the repository inventory,
     /// and the cell primitives' mapping, mirroring, wrapping, bounds and write order on a real
@@ -22,6 +26,7 @@ internal static class CpuBusBoundaryVerification
         IReadOnlyList<CpuBusCatalogEntry> entries = CpuBusCatalogInventory.Enumerate(CpuBusCatalogInventory.ProductionAssemblies);
         Suite(nameof(VerifyCpuBusCatalogIdentities), () => VerifyCpuBusCatalogIdentities(entries));
         Suite(nameof(VerifyCpuBusInventoryCurrent), () => VerifyCpuBusInventoryCurrent(entries));
+        Suite(nameof(VerifyCoreDeclaresNoWorkRamCells), () => VerifyCoreDeclaresNoWorkRamCells(entries));
         Suite(nameof(VerifyWramWordBankWrap), VerifyWramWordBankWrap);
         Suite(nameof(VerifyCpuBusTableBounds), VerifyCpuBusTableBounds);
         Suite(nameof(VerifyCpuBusCellShapeRejection), VerifyCpuBusCellShapeRejection);
@@ -43,6 +48,19 @@ internal static class CpuBusBoundaryVerification
         AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
     }
 
+    /// <summary>Core gameplay catalogs declare no WRAM cell (#1319): gameplay state lives in its owning system.</summary>
+    [CpuBusBoundary("exact bus test: Core gameplay WRAM-cell rule over the catalog inventory")]
+    private static void VerifyCoreDeclaresNoWorkRamCells(IReadOnlyList<CpuBusCatalogEntry> entries)
+    {
+        string[] declared = [.. entries
+            .Where(entry => entry.Cell.Region == CpuBusRegion.WorkRam &&
+                entry.Owner.Assembly == typeof(CpuBusRegion).Assembly)
+            .Select(entry => $"{entry.Owner.FullName ?? entry.Owner.Name}.{entry.Cell.Name}")
+            .Order(StringComparer.Ordinal)];
+        AssertTrue(declared.Length == 0, "Core gameplay WRAM cells; move the state into its owning system:" +
+            Environment.NewLine + string.Join(Environment.NewLine, declared));
+    }
+
     /// <summary>The committed inventory lists exactly the catalog cells (consumers may drift between regenerations).</summary>
     [CpuBusBoundary("exact bus test: inventory matches the catalogs")]
     private static void VerifyCpuBusInventoryCurrent(IReadOnlyList<CpuBusCatalogEntry> entries)
@@ -51,7 +69,7 @@ internal static class CpuBusBoundaryVerification
         using JsonDocument expected = JsonDocument.Parse(CpuBusCatalogInventory.RenderJson(entries, root));
         using JsonDocument actual = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, CpuBusCatalogInventory.InventoryPath)));
         string[] Cells(JsonDocument document) => document.RootElement.GetProperty("cells").EnumerateArray()
-            .Select(cell => string.Join('|', new[] { "owner", "name", "region", "address", "byteCount", "encoding", "aliasOf" }
+            .Select(cell => string.Join('|', InventoryCellFields
                 .Select(field => cell.GetProperty(field).ToString())))
             .ToArray();
         AssertTrue(Cells(expected).SequenceEqual(Cells(actual)),

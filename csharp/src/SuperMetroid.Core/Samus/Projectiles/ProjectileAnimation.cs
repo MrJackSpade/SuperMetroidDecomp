@@ -137,7 +137,7 @@ internal sealed class ProjectileAnimation
     {
         var visualOffset = (artwork.Placement ?? throw new InvalidOperationException(
             "Charge flare requires installed placement definitions."))
-            .Resolve(pose.Running, pose.Direction & 0x0f); // low nibble of the native shot-direction byte
+            .Resolve(pose.Running, pose.Direction & 0x0f); // magic-number-audit: allow(PoseOrMovement) - low nibble of the native shot-direction byte
         short xOffset = visualOffset.X;
         short yOffset = visualOffset.Y;
 

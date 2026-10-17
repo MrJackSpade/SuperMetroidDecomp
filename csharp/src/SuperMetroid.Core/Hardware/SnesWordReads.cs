@@ -18,6 +18,7 @@ namespace SuperMetroid.Core.Hardware;
 /// The two read the same bytes everywhere else.
 /// </remarks>
 [CpuBusAccess]
+[SnesEncodingOwner]
 public static class SnesWordReads
 {
     /// <summary>

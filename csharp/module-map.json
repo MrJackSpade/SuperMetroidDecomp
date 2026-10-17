@@ -61,6 +61,7 @@
     { "path": "csharp/test-support/RepositoryInstallation", "namespace": "SuperMetroid.TestSupport.RepositoryInstallation", "role": "verification-support" },
     { "path": "csharp/test-support/RepositoryInstallation.Verification", "namespace": "SuperMetroid.TestSupport.RepositoryInstallation.Verification", "role": "verification-support" },
 
+    { "path": "csharp/tools/MagicNumberAudit", "namespace": "SuperMetroid.SourceAudit", "role": "tool-source" },
     { "path": "csharp/tools/android-probes", "namespace": "SuperMetroid.Android", "role": "tool-source" },
     { "path": "csharp/test-fixtures", "namespace": "", "role": "fixture" }
   ],

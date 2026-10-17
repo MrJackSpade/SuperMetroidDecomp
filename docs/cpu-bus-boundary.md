@@ -30,6 +30,11 @@ bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cel
 - **SME6290** — using a `[CpuBusAccess]` member (invocation, property, method group, construction,
   or a concrete implementation of an attributed interface member) outside a `[CpuBusBoundary]`.
 - **SME6291** — a class/struct implementing a `[CpuBusAccess]` interface outside a boundary.
+- **SME6292** (#1320) — in Core, a parameter, field or property (record and primary-constructor
+  parameters included) typed as a `[CpuBusAccess]` interface (`ISnesAddressSpace`, `ISnesMemoryBus`,
+  `ISnesMutableMemory`) outside a boundary. SME6290 checks use; this rule checks threading, so a
+  bus passed along without being read is also reported. Gameplay code takes the owned state or
+  narrow service it uses. Every declaration is reported; there is no baseline.
 
 All are build errors. The analyzers check the enclosing member, so a boundary on a local function
 or lambda has no effect; extract a named method.
@@ -93,4 +98,6 @@ committed inventory to list exactly the catalog cells:
   or a cell that covers it (overlap is judged on physical bytes, so `$00:0123` and `$7E:0123`
   are the same WRAM byte). Staging surfaces that the cartridge reuses under several meanings are
   owned buffers with views (#1319), so no mutable cell aliases another;
+- Core gameplay catalogs declare no WRAM cell (#1319): gameplay state lives in its owning system, and every
+  Core WRAM cell is reported by `VerifyCoreDeclaresNoWorkRamCells`;
 - representative typed round trips, mapping/mirror/wrap and side-effect tests cover the primitives.

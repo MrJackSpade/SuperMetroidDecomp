@@ -9,6 +9,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// banks, so a word at <c>$FFFF</c> takes its high byte from <c>$0000</c>.
 /// </summary>
 [SpcMemoryAccess]
+[SnesEncodingOwner]
 internal static class SpcRamWords
 {
     /// <summary>The SPC700 address-bus mask: sixteen bits, wrapping at the end of audio RAM.</summary>

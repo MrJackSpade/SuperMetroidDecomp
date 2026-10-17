@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>A signed native 16.16 displacement with explicit whole and fractional halves.</summary>
+[SnesEncodingOwner]
 public readonly record struct SnesSignedSixteenSixteen
 {
     /// <summary>Wraps an existing signed 32-bit displacement without altering its whole and fraction bits.</summary>

@@ -1321,9 +1321,9 @@ internal static void VerifyPowerBombColorMathWindow()
     // gives a three-pixel center half-width. Testing beyond both extents catches use of
     // the already-updated `$34.00` radius as well as floating-point ellipse substitution.
     explosion.StepFrame();
-    AssertEqual(0x0400, explosion.RenderedPreExplosionRadius,
+    AssertEqual(0x0400, explosion.RenderedPreExplosionRadius.RawValue,
         "power-bomb renderer retains pre-update radius");
-    AssertEqual(0x3400, explosion.PreExplosionRadius,
+    AssertEqual(0x3400, explosion.PreExplosionRadius.RawValue,
         "power-bomb logic advances next-frame radius");
     Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
     SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(scaledFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
@@ -1348,7 +1348,7 @@ internal static void VerifyPowerBombColorMathWindow()
         "first pre-scaled yellow frame is retained for composition");
     Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
     SnesGameplayFrameRendererConstants.ApplyPowerBombColorMath(shapeFrame, PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
-    AssertEqual(0x9f06, explosion.RenderedShapeDefinitionPointer,
+    AssertEqual<PowerBombShapeCursor?>(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), explosion.RenderedShape,
         "first yellow frame selects the native profile");
     for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)
     {

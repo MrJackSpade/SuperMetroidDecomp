@@ -1174,7 +1174,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     {
         if (state.FightMode is RidleyFightMode.NotFighting or RidleyFightMode.Dying or RidleyFightMode.PowerBombDodge)
             return;
-        if (sharedProjectiles.PowerBombExplosion.Flag == 0 || state.GrabState != 0)
+        if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != 0)
             return;
 
         // Function $B84D resets both tail control words before the lunge.
@@ -1572,7 +1572,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             BeginNorfairRidleyDeathRoar(slot, state);
             return;
         }
-        if (_audio.PowerBomb is { Flag: not 0 })
+        if (_audio.PowerBomb is { IsArmed: true })
         {
             state.Function = RidleyAiFunction.NorfairReturnToArena;
             TickNorfairRidleyPowerBombDodge(slot, state);
@@ -1585,7 +1585,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Ports $A6:BD4E, the power-bomb branch of missed-lunge recovery.</summary>
     private void TickNorfairRidleyPowerBombDodge(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (_audio.PowerBomb is not { Flag: not 0 } bomb)
+        if (_audio.PowerBomb is not { IsArmed: true } bomb)
         {
             state.FightMode = RidleyFightMode.Fighting;
             state.Function = state.GrabState == 0

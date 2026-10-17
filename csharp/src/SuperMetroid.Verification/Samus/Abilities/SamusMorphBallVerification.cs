@@ -922,7 +922,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
         powerBombs.PowerBombExplosion.Phase,
         "fuse expiry allocates HDMA list without executing setup");
-    AssertEqual(0, powerBombs.PowerBombExplosion.PreExplosionRadius,
+    AssertEqual(0, powerBombs.PowerBombExplosion.PreExplosionRadius.RawValue,
         "pre-explosion radius is not initialized during allocation");
     AssertEqual(0x8000, powerBombs.PowerBombExplosion.Status,
         "normal explosion publishes active status $8000");
@@ -936,7 +936,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
     powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
-    AssertEqual(0x0400, powerBombs.PowerBombExplosion.PreExplosionRadius,
+    AssertEqual(0x0400, powerBombs.PowerBombExplosion.PreExplosionRadius.RawValue,
         "first HDMA pass initializes the 4.00-pixel radius without expanding it");
     AssertEqual(PowerBombExplosionPhase.Inactive, powerBombs.PowerBombExplosion.RenderedPhase,
         "setup pass has not generated an explosion window");
@@ -945,7 +945,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated
     // corners in bank-$94 top/left/bottom/right order.
     powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
-    AssertEqual(0x3400, powerBombs.PowerBombExplosion.PreExplosionRadius,
+    AssertEqual(0x3400, powerBombs.PowerBombExplosion.PreExplosionRadius.RawValue,
         "first white pre-explosion frame applies $3000 speed");
     AssertEqual(PowerBombRadius.FromRaw(0x2f80), powerBombs.PowerBombExplosion.RadiusSpeed,
         "white pre-explosion subtracts $0080 acceleration");
@@ -960,7 +960,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow,
         powerBombs.PowerBombExplosion.Phase,
         "white threshold advances to yellow shape phase");
-    AssertTrue(powerBombs.PowerBombExplosion.PreExplosionRadius >= 0x9200,
+    AssertTrue(powerBombs.PowerBombExplosion.PreExplosionRadius.RawValue >= 0x9200,
         "white phase crosses literal $9200 radius threshold");
     AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), powerBombs.PowerBombExplosion.Shape,
         "yellow pre-explosion starts at the first yellow shape");
@@ -969,7 +969,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
         powerBombs.PowerBombExplosion.Phase,
         "four 192-byte yellow shapes advance to damaging explosion");
-    AssertEqual(0x0400, powerBombs.PowerBombExplosion.ExplosionRadius,
+    AssertEqual(0x0400, powerBombs.PowerBombExplosion.ExplosionRadius.RawValue,
         "damaging yellow explosion restarts at 4.00 pixels");
     AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.RadiusSpeed,
         "damaging yellow explosion restarts with zero speed");
@@ -984,7 +984,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(PowerBombExplosionPhase.ExplosionWhite,
         powerBombs.PowerBombExplosion.Phase,
         "yellow radius threshold advances to white shape phase");
-    AssertTrue(powerBombs.PowerBombExplosion.ExplosionRadius >= 0x8600,
+    AssertTrue(powerBombs.PowerBombExplosion.ExplosionRadius.RawValue >= 0x8600,
         "yellow explosion crosses literal $8600 threshold");
     AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.White, 0), powerBombs.PowerBombExplosion.Shape,
         "white explosion starts at the first white ellipse shape");
@@ -1021,7 +1021,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "power-bomb cleanup decrements shared bomb counter");
     AssertTrue(!powerBombs.PowerBombExplosion.IsArmed,
         "failed Crystal Flash cleanup releases power-bomb flag");
-    AssertEqual(0, powerBombs.PowerBombExplosion.ExplosionRadius,
+    AssertEqual(0, powerBombs.PowerBombExplosion.ExplosionRadius.RawValue,
         "cleanup clears damaging radius");
 
     // Put the explosion center on a type-$5 horizontal extension whose signed BTS $FF

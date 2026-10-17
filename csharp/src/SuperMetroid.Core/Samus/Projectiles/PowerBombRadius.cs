@@ -14,6 +14,9 @@ public readonly record struct PowerBombRadius
     /// <summary>The value in 1/256 pixels, 0 through 65535.</summary>
     public int RawValue { get; }
 
+    /// <summary>The whole pixels of the value, 0 through 255; the fraction is dropped.</summary>
+    public int WholePixels => SnesUnsignedEightEight.Whole(checked((ushort)RawValue));
+
     /// <summary>A zero radius or a stationary speed.</summary>
     public static PowerBombRadius Zero => default;
 

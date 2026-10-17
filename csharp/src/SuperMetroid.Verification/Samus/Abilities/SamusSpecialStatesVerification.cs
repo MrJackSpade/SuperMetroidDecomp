@@ -215,7 +215,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash spawn clears one-at-a-time Power Bomb flag");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashExplosion, crystalWindow.Phase,
         "Crystal Flash installs bank-$88 stage-one pre-instruction");
-    AssertEqual(0x0400, crystalWindow.ExplosionRadius,
+    AssertEqual(0x0400, crystalWindow.ExplosionRadius.RawValue,
         "Crystal Flash bubble begins at radius four");
 
     // Seventeen calls remain below `$20.00`; call eighteen adds the old `$0330` speed,
@@ -227,9 +227,9 @@ internal static void VerifySamusCrystalFlash()
     AssertTrue(!crystalWindow.StepFrame(), "Crystal Flash expansion transition is not cleanup");
     AssertEqual(PowerBombExplosionPhase.CrystalFlashAfterglow, crystalWindow.Phase,
         "Crystal Flash call eighteen installs afterglow");
-    AssertEqual(0x20b0, crystalWindow.ExplosionRadius,
+    AssertEqual(0x20b0, crystalWindow.ExplosionRadius.RawValue,
         "Crystal Flash transition radius preserves 8.8 acceleration sum");
-    AssertEqual(0x1d80, crystalWindow.RenderedExplosionRadius,
+    AssertEqual(0x1d80, crystalWindow.RenderedExplosionRadius.RawValue,
         "Crystal Flash transition renders pre-update radius");
     AssertEqual(4, crystalWindow.FixedColorRed,
         "Crystal Flash transition selects shared fixed-color entry three");
@@ -240,11 +240,11 @@ internal static void VerifySamusCrystalFlash()
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
         AssertTrue(!crystalWindow.StepFrame(), $"Crystal Flash afterglow call {hdmaCall}");
-        AssertEqual(Math.Max(0, 4 - hdmaCall), (int)crystalWindow.FixedColorRed,
+        AssertEqual(Math.Max(0, 4 - hdmaCall), crystalWindow.FixedColorRed,
             "custom Crystal Flash red fades without shortening native lifetime");
-        AssertEqual(Math.Max(0, 3 - hdmaCall), (int)crystalWindow.FixedColorGreen,
+        AssertEqual(Math.Max(0, 3 - hdmaCall), crystalWindow.FixedColorGreen,
             "custom Crystal Flash green fade");
-        AssertEqual(Math.Max(0, 2 - hdmaCall), (int)crystalWindow.FixedColorBlue,
+        AssertEqual(Math.Max(0, 2 - hdmaCall), crystalWindow.FixedColorBlue,
             "custom Crystal Flash blue fade");
     }
     AssertTrue(crystalWindow.StepFrame(),

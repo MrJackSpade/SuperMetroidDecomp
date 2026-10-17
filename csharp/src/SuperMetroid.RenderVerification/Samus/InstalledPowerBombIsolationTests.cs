@@ -178,7 +178,7 @@ internal static class InstalledPowerBombIsolationTests
     }
 
     /// <summary>Captures the three live fixed-color outputs without including simulation state.</summary>
-    internal static (byte Red, byte Green, byte Blue) Colors(SamusPowerBombExplosionState state) =>
+    internal static (int Red, int Green, int Blue) Colors(SamusPowerBombExplosionState state) =>
         (state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
 
     /// <summary>Fails the focused isolation check with its current edit/frame context.</summary>

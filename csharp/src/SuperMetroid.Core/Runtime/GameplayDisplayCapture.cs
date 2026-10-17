@@ -190,7 +190,7 @@ public static class GameplayDisplayCapture
         FixedColorRegisterSnapshot color = frame.Latched.FixedColors.PowerBomb;
         return frame.FrameEnd.PowerBomb with
         {
-            FixedColorRed = checked((byte)color.Red), FixedColorGreen = checked((byte)color.Green), FixedColorBlue = checked((byte)color.Blue),
+            FixedColorRed = color.Red, FixedColorGreen = color.Green, FixedColorBlue = color.Blue,
         };
     }
 

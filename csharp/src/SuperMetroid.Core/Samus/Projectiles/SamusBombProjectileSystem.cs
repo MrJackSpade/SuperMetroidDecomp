@@ -597,7 +597,7 @@ public sealed class SamusBombProjectileSystem
         bool explosionStarted = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer, PowerBombExplosion.Flag);
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer, PowerBombExplosion.IsArmed);
             slot.BombTimer = fuse.Timer;
             if (fuse.FastAnimation)
                 slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
@@ -761,13 +761,13 @@ public sealed class SamusBombProjectileSystem
     public static void CollectPowerBombBoundaryReactions(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
-        ushort explosionRadius,
+        PowerBombRadius explosionRadius,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
         AreaId areaIndex,
         ushort projectileType)
     {
-        int horizontalRadius = SnesLittleEndian.HighByte(explosionRadius);
+        int horizontalRadius = explosionRadius.WholePixels;
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
         int left = Math.Max(0, explosion.X - horizontalRadius) >> 4;

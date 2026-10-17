@@ -2070,7 +2070,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // A standalone projectile pass has no bomb owner, which is the radius-zero case.
         if (_audio.PowerBomb is not { } powerBomb)
             return;
-        int horizontalRadius = SnesLittleEndian.HighByte(powerBomb.ExplosionRadius);
+        int horizontalRadius = powerBomb.ExplosionRadius.WholePixels;
         if (horizontalRadius == 0)
             return;
         // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.

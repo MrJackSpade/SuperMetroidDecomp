@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Abilities;
 
@@ -49,34 +50,13 @@ public static class PowerBombShapeDefinitions
     /// White/yellow radii integrate their native acceleration/deceleration; select
     /// the lower row at exact inverse-scaling boundaries before multiplying by radius.
     /// All 4,032 bytes independently match the NTSC ROM and pinned bank_88.asm.
-    /// Only aligned native profile pointers and rows 0..191 are accepted.</remarks>
-    public static byte ReadPreScaledHalfWidth(ushort shapePointer, int row)
+    /// Only shapes inside their stream and rows 0..191 are accepted.</remarks>
+    public static byte ReadPreScaledHalfWidth(PowerBombShapeCursor shape, int row)
     {
         if ((uint)row >= SamusSpecialSequenceRomData.PowerBomb.ShapeStride)
             throw new ArgumentOutOfRangeException(nameof(row));
 
-        int frame;
-        if (shapePointer >= SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape &&
-            shapePointer < SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd &&
-            (shapePointer - SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape) %
-                SamusSpecialSequenceRomData.PowerBomb.ShapeStride == 0)
-        {
-            frame = (shapePointer - SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape) /
-                SamusSpecialSequenceRomData.PowerBomb.ShapeStride;
-        }
-        else if (shapePointer >= SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape &&
-            shapePointer < SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd &&
-            (shapePointer - SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape) %
-                SamusSpecialSequenceRomData.PowerBomb.ShapeStride == 0)
-        {
-            frame = 17 + (shapePointer - SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape) /
-                SamusSpecialSequenceRomData.PowerBomb.ShapeStride;
-        }
-        else
-        {
-            throw new InvalidDataException(
-                $"Power Bomb shape pointer $88:{shapePointer:X4} is outside the compiled profiles.");
-        }
+        int frame = shape.ProfileIndex;
 
         int n = frame < 17 ? frame + 37 : frame - 14;
         int radius = frame < 17

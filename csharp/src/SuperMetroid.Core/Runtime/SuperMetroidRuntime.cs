@@ -296,8 +296,7 @@ public sealed class SuperMetroidRuntime
     public int PowerBombExplosionStatus
     {
         get => BombProjectiles.PowerBombExplosion.Status;
-        set => BombProjectiles.PowerBombExplosion.SetStatusForDebugging(
-            checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
+        set => BombProjectiles.PowerBombExplosion.SetStatusForDebugging(value);
     }
 
     /// <summary>
@@ -735,7 +734,7 @@ public sealed class SuperMetroidRuntime
                 BombProjectiles.PowerBombExplosion;
             Enemies.Collision.ResolveOrdinaryPowerBombHits(
                 powerBomb.Position,
-                SnesUnsignedEightEight.Whole(powerBomb.ExplosionRadius),
+                checked((byte)powerBomb.ExplosionRadius.WholePixels),
                 samus);
         }
     }

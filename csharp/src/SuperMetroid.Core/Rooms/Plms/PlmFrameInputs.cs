@@ -22,5 +22,9 @@ public readonly record struct PlmFrameInputs
     public SuperMetroid.Core.Samus.SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Power bomb explosion status.</summary>
-    public ushort PowerBombExplosionStatus { get; init; }
+    public int PowerBombExplosionStatus
+    {
+        get;
+        init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 }

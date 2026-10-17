@@ -190,7 +190,7 @@ internal static class GameplayDisplayFrameTestsVerification
         explosion.Spawn(new(128, 120));
         for (int i = 0; i < 4; i++) explosion.StepFrame();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        byte latchedRed = explosion.FixedColorRed;
+        int latchedRed = explosion.FixedColorRed;
         int steps = 0;
         while (explosion.FixedColorRed == latchedRed && steps++ < 64) explosion.StepFrame();
         AssertTrue(explosion.FixedColorRed != latchedRed, "fixture reaches a power-bomb COLDATA change");

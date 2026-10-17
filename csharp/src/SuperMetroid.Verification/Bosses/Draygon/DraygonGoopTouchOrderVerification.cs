@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
@@ -49,7 +50,7 @@ internal static class DraygonGoopTouchOrderVerification
             if (powerBombed)
             {
                 powerBomb.Spawn(goop.Position.Whole);
-                powerBomb.ExplosionRadius = 8192; // 32 pixels in 8.8
+                powerBomb.ExplosionRadius = PowerBombRadius.FromRaw(8192); // 32 pixels in 8.8
             }
             enemies.Audio.PowerBomb = powerBomb;
 

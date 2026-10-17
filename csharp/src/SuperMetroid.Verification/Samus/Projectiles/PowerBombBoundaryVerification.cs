@@ -23,7 +23,7 @@ internal static class PowerBombBoundaryVerification
             foreach (ushort type in new ushort[] { 0x0300, 0x800d })
             {
                 var visited = new List<BombBlockReaction>();
-                SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(x, y), radius,
+                SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(level, new(x, y), PowerBombRadius.FromRaw(radius),
                     visited, null, AreaId.Crateria, type);
                 // A visit into this inert air room leaves no state besides its reaction entry,
                 // so only the inclusive visit count (corner revisits included) is observable.

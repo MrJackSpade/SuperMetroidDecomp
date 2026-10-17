@@ -20,20 +20,24 @@ public sealed class SamusPowerBombExplosionState
     [field: NonSerialized]
     public PowerBombFixedColorCatalog? PresentationColors { get; set; }
 
-    /// <summary>WRAM $0CEE. Negative means an armed/executing power bomb.</summary>
-    public ushort Flag { get; private set; }
+    /// <summary>The HDMA explosion status, 0 through 65535; the top bit set is the normal active state.</summary>
+    public int Status
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>The HDMA explosion status. $8000 is the normal active state.</summary>
-    public ushort Status { get; private set; }
+    /// <summary>The status bit set while the bank-$88 animation runs.</summary>
+    private const int ActiveStatus = 1 << 15;
 
     /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
     public Position16<RoomPixels> Position { get; private set; }
 
     /// <summary>WRAM $0CEC, the pre-explosion flash's unsigned 8.8 radius.</summary>
-    public ushort PreExplosionRadius { get; private set; }
+    public PowerBombRadius PreExplosionRadius { get; private set; }
 
     /// <summary>WRAM $0CEA, the damaging explosion's unsigned 8.8 radius.</summary>
-    public ushort ExplosionRadius { get; internal set; }
+    public PowerBombRadius ExplosionRadius { get; internal set; }
 
     /// <summary>
     /// The per-frame radius change, deliberately shared by the pre-explosion and explosion phases. Cleanup leaves
@@ -45,9 +49,9 @@ public sealed class SamusPowerBombExplosionState
     public PowerBombShapeCursor? Shape { get; private set; }
 
     /// <summary>
-    /// Shape table consumed by the current rendered frame before the native pointer advanced.
+    /// The window shape the current rendered frame consumed before the cursor advanced, or null when the frame used none.
     /// </summary>
-    public ushort RenderedShapeDefinitionPointer { get; private set; }
+    public PowerBombShapeCursor? RenderedShape { get; private set; }
 
     /// <summary>Current semantic phase of the native sleeping instruction list.</summary>
     public PowerBombExplosionPhase Phase { get; private set; }
@@ -63,25 +67,37 @@ public sealed class SamusPowerBombExplosionState
     public PowerBombExplosionPhase RenderedPhase { get; internal set; }
 
     /// <summary>Pre-explosion radius consumed before the native end-of-frame update.</summary>
-    public ushort RenderedPreExplosionRadius { get; internal set; }
+    public PowerBombRadius RenderedPreExplosionRadius { get; internal set; }
 
     /// <summary>Explosion radius consumed before the native end-of-frame update.</summary>
-    public ushort RenderedExplosionRadius { get; internal set; }
+    public PowerBombRadius RenderedExplosionRadius { get; internal set; }
 
-    /// <summary>Current fixed-color red component written through COLDATA.</summary>
-    public byte FixedColorRed { get; internal set; }
+    /// <summary>Current fixed-color red component written through COLDATA, 0 through 255.</summary>
+    public int FixedColorRed
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
-    /// <summary>Current fixed-color green component written through COLDATA.</summary>
-    public byte FixedColorGreen { get; private set; }
+    /// <summary>Current fixed-color green component written through COLDATA, 0 through 255.</summary>
+    public int FixedColorGreen
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
-    /// <summary>Current fixed-color blue component written through COLDATA.</summary>
-    public byte FixedColorBlue { get; private set; }
+    /// <summary>Current fixed-color blue component written through COLDATA, 0 through 255.</summary>
+    public int FixedColorBlue
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
-    /// <summary>True from placement until cleanup releases WRAM $0CEA.</summary>
-    public bool IsArmed => unchecked((short)Flag) < 0;
+    /// <summary>True from placement until cleanup releases the one-at-a-time Power Bomb lock.</summary>
+    public bool IsArmed { get; private set; }
 
     /// <summary>True while the bank-$88 color-math animation is running.</summary>
-    public bool IsActive => unchecked((short)Status) < 0;
+    public bool IsActive => Status >= ActiveStatus;
 
     /// <summary>HDMA fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
     private NativeCountdown _afterglowTimer;
@@ -103,7 +119,7 @@ public sealed class SamusPowerBombExplosionState
     /// </summary>
     public void Arm()
     {
-        Flag = ushort.MaxValue;
+        IsArmed = true;
     }
 
     /// <summary>
@@ -112,21 +128,21 @@ public sealed class SamusPowerBombExplosionState
     public void Spawn(Position16<RoomPixels> position)
     {
         Position = position;
-        Status = 1 << 15;
+        Status = ActiveStatus;
 
         // Allocation occurs after this frame's HDMA pass. The NEXT pass consumes the
         // instruction list and installs the radius pre-instruction; that pre-instruction
         // cannot run until the pass after setup. Executing setup here skips one frame.
-        PreExplosionRadius = 0;
-        ExplosionRadius = 0;
+        PreExplosionRadius = PowerBombRadius.Zero;
+        ExplosionRadius = PowerBombRadius.Zero;
         // $88:8AA4 allocates the objects without clearing $0CF0. The next HDMA
         // setup owns its replacement, even when the previous explosion has ended.
         Shape = null;
-        RenderedShapeDefinitionPointer = 0;
+        RenderedShape = null;
         Phase = PowerBombExplosionPhase.PendingPreExplosionSetup;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = 0;
-        RenderedExplosionRadius = 0;
+        RenderedPreExplosionRadius = PowerBombRadius.Zero;
+        RenderedExplosionRadius = PowerBombRadius.Zero;
         _afterglowTimer = NativeCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
@@ -144,18 +160,18 @@ public sealed class SamusPowerBombExplosionState
         // `$90:D6AE` releases the one-at-a-time Power Bomb lock before spawning the two
         // Crystal Flash HDMA objects. Their animation still reuses the same status,
         // position, radius, speed, fixed-color, and window-table WRAM words.
-        Flag = 0;
+        IsArmed = false;
         Position = position;
-        Status = 1 << 15;
-        PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
-        ExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
+        Status = ActiveStatus;
+        PreExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
+        ExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
         Shape = null;
-        RenderedShapeDefinitionPointer = 0;
+        RenderedShape = null;
         Phase = PowerBombExplosionPhase.CrystalFlashExplosion;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = 0;
-        RenderedExplosionRadius = 0;
+        RenderedPreExplosionRadius = PowerBombRadius.Zero;
+        RenderedExplosionRadius = PowerBombRadius.Zero;
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
@@ -182,7 +198,7 @@ public sealed class SamusPowerBombExplosionState
         switch (Phase)
         {
             case PowerBombExplosionPhase.PendingPreExplosionSetup:
-                PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
+                PreExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
                 RadiusSpeed = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialPreExplosionSpeed);
                 Phase = PowerBombExplosionPhase.PreExplosionWhite;
                 RenderedPhase = PowerBombExplosionPhase.Inactive;
@@ -222,23 +238,23 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>
     /// Releases the armed flag after cleanup when Crystal Flash did not take ownership.
     /// </summary>
-    public void ReleaseFlag() => Flag = 0;
+    public void ReleaseFlag() => IsArmed = false;
 
     /// <summary>Clears every bank-$88/WRAM field during room/runtime reset.</summary>
     public void Reset()
     {
-        Flag = 0;
+        IsArmed = false;
         Status = 0;
         Position = Position16<RoomPixels>.Zero;
-        PreExplosionRadius = 0;
-        ExplosionRadius = 0;
+        PreExplosionRadius = PowerBombRadius.Zero;
+        ExplosionRadius = PowerBombRadius.Zero;
         RadiusSpeed = PowerBombRadius.Zero;
         Shape = null;
-        RenderedShapeDefinitionPointer = 0;
+        RenderedShape = null;
         Phase = PowerBombExplosionPhase.Inactive;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = 0;
-        RenderedExplosionRadius = 0;
+        RenderedPreExplosionRadius = PowerBombRadius.Zero;
+        RenderedExplosionRadius = PowerBombRadius.Zero;
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
@@ -251,7 +267,7 @@ public sealed class SamusPowerBombExplosionState
     /// Retains the old runtime debugger seam used to force X-ray's status precondition.
     /// A forced status does not fabricate an animation phase or armed projectile.
     /// </summary>
-    internal void SetStatusForDebugging(ushort value)
+    internal void SetStatusForDebugging(int value)
     {
         Status = value;
         if (value == 0 && Phase != PowerBombExplosionPhase.Inactive)
@@ -264,12 +280,12 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.PreExplosion,
-            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 15);
+            (PreExplosionRadius.WholePixels >> 3) & 15);
 
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
         PreExplosionRadius = AdvanceRadiusWrapping(PreExplosionRadius);
-        if (PreExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.PreExplosionWhiteLimit)
+        if (PreExplosionRadius.RawValue < SamusSpecialSequenceRomData.PowerBomb.PreExplosionWhiteLimit)
         {
             RadiusSpeed = RadiusSpeed.WrappingSubtract(SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration);
             return;
@@ -281,58 +297,31 @@ public sealed class SamusPowerBombExplosionState
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
 
-    /// <summary>Selects the first authored shape pointer in the yellow or white window stream.</summary>
-    private static ushort StartOf(PowerBombShapeStream stream) => stream switch
-    {
-        PowerBombShapeStream.Yellow => SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
-        PowerBombShapeStream.White => SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PowerBombShapeStream)} {stream}."),
-    };
-
-    /// <summary>Selects the exclusive end pointer for one authored window-shape stream.</summary>
-    private static ushort EndOf(PowerBombShapeStream stream) => stream switch
-    {
-        PowerBombShapeStream.Yellow => SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd,
-        PowerBombShapeStream.White => SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd,
-        _ => throw new InvalidOperationException($"Undefined {nameof(PowerBombShapeStream)} {stream}."),
-    };
-
-    /// <summary>Number of shapes in one authored stream.</summary>
-    private static int ShapeCount(PowerBombShapeStream stream) =>
-        (EndOf(stream) - StartOf(stream)) / SamusSpecialSequenceRomData.PowerBomb.ShapeStride;
-
     /// <summary>
-    /// Consumes the cursor's shape: returns the shape table it names for this frame's window, the pointer the
-    /// renderer resolves, and moves the cursor to the next shape of its stream.
+    /// Consumes the cursor's shape: returns the shape this frame's window is built from and moves the cursor to the
+    /// next shape of its stream.
     /// </summary>
     /// <param name="finishedShapes">Whether the consumed shape was the stream's last.</param>
-    private ushort ConsumeShape(out bool finishedShapes)
+    private PowerBombShapeCursor ConsumeShape(out bool finishedShapes)
     {
         PowerBombShapeCursor shape = Shape ?? throw new InvalidOperationException(
             $"Power Bomb phase {Phase} consumes a window shape with no shape stream active.");
-        ushort consumed = checked((ushort)(StartOf(shape.Stream) +
-            shape.Index * SamusSpecialSequenceRomData.PowerBomb.ShapeStride));
         PowerBombShapeCursor next = shape with { Index = shape.Index + 1 };
-        finishedShapes = next.Index == ShapeCount(shape.Stream);
+        finishedShapes = next.Index == PowerBombShapeCursor.CountOf(shape.Stream);
         Shape = next;
-        return consumed;
+        return shape;
     }
 
     /// <summary>Advances a radius by the shared speed with the cartridge's sixteen-bit wraparound ($88:90DF).</summary>
-    private ushort AdvanceRadiusWrapping(ushort radius) =>
-        checked((ushort)PowerBombRadius.FromRaw(radius).WrappingAdd(RadiusSpeed).RawValue);
+    private PowerBombRadius AdvanceRadiusWrapping(PowerBombRadius radius) => radius.WrappingAdd(RadiusSpeed);
 
     /// <summary>
     /// Advances a radius by the shared speed unless the sum carries past 65535; the carry test runs before either
     /// word changes, so a carrying frame leaves the radius (and the caller's speed update) frozen.
     /// </summary>
     /// <returns>True with the advanced radius when the sum fits.</returns>
-    private bool TryAdvanceRadiusWithoutCarry(ushort radius, out ushort advanced)
-    {
-        bool fits = PowerBombRadius.FromRaw(radius).TryAddWithoutCarry(RadiusSpeed, out PowerBombRadius sum);
-        advanced = checked((ushort)sum.RawValue);
-        return fits;
-    }
+    private bool TryAdvanceRadiusWithoutCarry(PowerBombRadius radius, out PowerBombRadius advanced) =>
+        radius.TryAddWithoutCarry(RadiusSpeed, out advanced);
 
     /// <summary>Consumes each yellow shape before advancing its pointer and primes the damaging radius at the last shape.</summary>
     private void StepPreExplosionYellow()
@@ -340,16 +329,16 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.PreExplosion,
-            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 15);
+            (PreExplosionRadius.WholePixels >> 3) & 15);
 
         // $91A8 builds this frame's two 192-byte window tables before incrementing the
         // source pointer. Preserve that consumed pointer for a host compositor running
         // after the logic frame has completed.
-        RenderedShapeDefinitionPointer = ConsumeShape(out bool finishedShapes);
+        RenderedShape = ConsumeShape(out bool finishedShapes);
 
         // The carry test is performed on the sum before either state word is changed.
         // If it would exceed $FFFF, both radius and speed remain frozen for this frame.
-        if (TryAdvanceRadiusWithoutCarry(PreExplosionRadius, out ushort nextRadius))
+        if (TryAdvanceRadiusWithoutCarry(PreExplosionRadius, out PowerBombRadius nextRadius))
         {
             PreExplosionRadius = nextRadius;
             RadiusSpeed = RadiusSpeed.WrappingSubtract(SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration);
@@ -360,7 +349,7 @@ public sealed class SamusPowerBombExplosionState
 
         // CallFar($8B39) initializes the actual damaging radius before the next frame's
         // ExplosionYellow pre-instruction. PreExplosionRadius remains debugger-visible.
-        ExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
+        ExplosionRadius = PowerBombRadius.FromRaw(SamusSpecialSequenceRomData.PowerBomb.InitialRadius);
         RadiusSpeed = PowerBombRadius.Zero;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
@@ -371,10 +360,10 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,
-            (SnesUnsignedEightEight.Whole(ExplosionRadius)) >> 3);
+            ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.ExplosionYellowLimit)
+        if (ExplosionRadius.RawValue < SamusSpecialSequenceRomData.PowerBomb.ExplosionYellowLimit)
         {
             RadiusSpeed = RadiusSpeed.WrappingAdd(SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration);
             return;
@@ -383,7 +372,7 @@ public sealed class SamusPowerBombExplosionState
         // The next instruction calls $8B47, selecting the first of seventeen expanding
         // white shape tables, then installs $8EB2 and sleeps.
         Shape = new PowerBombShapeCursor(PowerBombShapeStream.White, 0);
-        RenderedShapeDefinitionPointer = 0;
+        RenderedShape = null;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
 
@@ -393,11 +382,11 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,
-            (SnesUnsignedEightEight.Whole(ExplosionRadius)) >> 3);
+            ExplosionRadius.WholePixels >> 3);
 
-        RenderedShapeDefinitionPointer = ConsumeShape(out bool finishedShapes);
+        RenderedShape = ConsumeShape(out bool finishedShapes);
 
-        if (TryAdvanceRadiusWithoutCarry(ExplosionRadius, out ushort nextRadius))
+        if (TryAdvanceRadiusWithoutCarry(ExplosionRadius, out PowerBombRadius nextRadius))
         {
             ExplosionRadius = nextRadius;
             RadiusSpeed = RadiusSpeed.WrappingAdd(SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration);
@@ -425,16 +414,16 @@ public sealed class SamusPowerBombExplosionState
         if (_afterglowStepsRemaining == 0)
         {
             Status = 0;
-            PreExplosionRadius = 0;
-            ExplosionRadius = 0;
+            PreExplosionRadius = PowerBombRadius.Zero;
+            ExplosionRadius = PowerBombRadius.Zero;
             // $88:8B4E does not clear the shared radius-speed word. Retain it
             // until the next pre-explosion setup, as on the cartridge.
             Shape = null;
-            RenderedShapeDefinitionPointer = 0;
+            RenderedShape = null;
             Phase = PowerBombExplosionPhase.Inactive;
             RenderedPhase = PowerBombExplosionPhase.Inactive;
-            RenderedPreExplosionRadius = 0;
-            RenderedExplosionRadius = 0;
+            RenderedPreExplosionRadius = PowerBombRadius.Zero;
+            RenderedExplosionRadius = PowerBombRadius.Zero;
             return true;
         }
 
@@ -457,10 +446,10 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,
-            (SnesUnsignedEightEight.Whole(ExplosionRadius)) >> 3);
+            ExplosionRadius.WholePixels >> 3);
 
         ExplosionRadius = AdvanceRadiusWrapping(ExplosionRadius);
-        if (ExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit)
+        if (ExplosionRadius.RawValue < SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit)
         {
             RadiusSpeed = RadiusSpeed.WrappingAdd(SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration);
             return;
@@ -470,7 +459,7 @@ public sealed class SamusPowerBombExplosionState
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
         _afterglowTimer = NativeCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
-            SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(RenderedExplosionRadius);
+            SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
     }
 
@@ -501,17 +490,17 @@ public sealed class SamusPowerBombExplosionState
         // The awakened list immediately calls `$88:A317`, disables both HDMA channels,
         // and clears every shared Power Bomb word. Flag is already zero from `$90:D6AE`,
         // but assigning it again mirrors the cleanup routine and makes reset atomic.
-        Flag = 0;
+        IsArmed = false;
         Status = 0;
-        PreExplosionRadius = 0;
-        ExplosionRadius = 0;
+        PreExplosionRadius = PowerBombRadius.Zero;
+        ExplosionRadius = PowerBombRadius.Zero;
         RadiusSpeed = PowerBombRadius.Zero;
         Shape = null;
-        RenderedShapeDefinitionPointer = 0;
+        RenderedShape = null;
         Phase = PowerBombExplosionPhase.Inactive;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
-        RenderedPreExplosionRadius = 0;
-        RenderedExplosionRadius = 0;
+        RenderedPreExplosionRadius = PowerBombRadius.Zero;
+        RenderedExplosionRadius = PowerBombRadius.Zero;
         // Replacement colors may be brighter than the stock lifetime operand. Once
         // the HDMA window is released, do not retain their unused display remainder.
         FixedColorRed = 0;

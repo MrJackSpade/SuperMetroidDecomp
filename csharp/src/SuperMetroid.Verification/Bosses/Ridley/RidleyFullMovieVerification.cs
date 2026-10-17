@@ -1456,8 +1456,8 @@ internal static class RidleyFullMovieVerification
                         "Movie now activates a bomb slot; add its full live-state mapping");
                 }
                 var explosion = runtime.BombProjectiles.PowerBombExplosion;
-                Check("Power-bomb armed flag", explosion.Flag, NativeSnapshotMemory.PowerBombArmedFlag);
-                Check("Power-bomb explosion status", explosion.Status, NativeSnapshotMemory.PowerBombExplosionStatus);
+                Check("Power-bomb armed flag", explosion.IsArmed ? ushort.MaxValue : (ushort)0, NativeSnapshotMemory.PowerBombArmedFlag);
+                Check("Power-bomb explosion status", checked((ushort)explosion.Status), NativeSnapshotMemory.PowerBombExplosionStatus);
                 AssertTrue(W(NativeSnapshotMemory.PowerBombArmedFlag) == 0 &&
                     W(NativeSnapshotMemory.PowerBombExplosionStatus) == 0,
                     "Movie now activates a power bomb; add its full live-state mapping");

@@ -414,9 +414,9 @@ public static class SnesGameplayFrameRenderer
             return -1;
         }
 
-        ushort shapePointer = explosion.RenderedShapeDefinitionPointer;
         if ((renderedPhase is PowerBombExplosionPhase.PreExplosionYellow or
-             PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow) && shapePointer != 0)
+             PowerBombExplosionPhase.ExplosionWhite or PowerBombExplosionPhase.Afterglow) &&
+            explosion.RenderedShape is { } shape)
         {
             // $88:8B98 only fades COLDATA: the final white window remains installed.
             // It can still leave visible corners outside the oval near screen edges.
@@ -427,13 +427,13 @@ public static class SnesGameplayFrameRenderer
             if ((uint)shapeLine >= 192)
                 return -1;
             byte halfWidth = PowerBombShapeDefinitions.ReadPreScaledHalfWidth(
-                shapePointer, shapeLine);
+                shape, shapeLine);
             return halfWidth == 0 ? -1 : halfWidth;
         }
 
         int horizontalRadius = renderedPhase == PowerBombExplosionPhase.PreExplosionWhite
-            ? SnesLittleEndian.HighByte(explosion.RenderedPreExplosionRadius)
-            : SnesLittleEndian.HighByte(explosion.RenderedExplosionRadius);
+            ? explosion.RenderedPreExplosionRadius.WholePixels
+            : explosion.RenderedExplosionRadius.WholePixels;
         int scanlineDistance = Math.Abs(yFromCenter);
         if (horizontalRadius == 0 || scanlineDistance >= 192)
             return -1;

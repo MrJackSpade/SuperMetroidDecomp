@@ -43,7 +43,7 @@ internal sealed class ShaktoolPlms
     /// <summary>Opens all scroll cells during a power bomb and retires the controller after Samus passes the cleared-path boundary.</summary>
     /// <remarks>The full explosion status word admits a pending or time-frozen blast; retiring clears the PLM ID but leaves its instruction words in RAM.</remarks>
     internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
-        ushort powerBombExplosionStatus)
+        int powerBombExplosionStatus)
     {
         if (scrolls is null || _bindings.Samus?.Current is not { } samus || _bindings.Events is null)
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");

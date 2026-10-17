@@ -94,7 +94,7 @@ internal static class ChozoGrabAnimationVerification
             frames++;
         }
         if (powerBomb)
-            AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && runtime.BombProjectiles.PowerBombExplosion.Flag == 0,
+            AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && !runtime.BombProjectiles.PowerBombExplosion.IsArmed,
                 "Power Bomb completes and releases its armed flag during the statue ride");
         AssertTrue(carried, "statue still moves Samus while animation is locked");
         AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked && !samus.InputLocked && runtime.Player.GroundedSamusMovementEnabled,

@@ -26,8 +26,11 @@ internal static class PowerBombAfterglowShapeVerification
             explosion.StepFrame();
         AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Phase, "reported blast reaches the fade transition");
         AssertEqual(PowerBombExplosionPhase.ExplosionWhite, explosion.RenderedPhase, "transition retains the final expanding oval");
-        ushort finalShape = explosion.RenderedShapeDefinitionPointer;
-        AssertEqual((ushort)0x9e46, finalShape, "native final white profile");
+        PowerBombShapeCursor finalShape = explosion.RenderedShape
+            ?? throw new InvalidOperationException("The final white frame consumed no shape.");
+        AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.White, 16), finalShape, "native final white profile");
+        int finalShapeAddress = PowerBombShapeReferenceData.PreScaledWhite + finalShape.Index * 192;
+        AssertEqual(0x889e46, finalShapeAddress, "the final white profile's bank-$88 table");
         var last = SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(explosion), new Position16<RoomPixels>(0, 0));
         int checkedFrames = 0;
         while (explosion.IsActive)
@@ -38,7 +41,7 @@ internal static class PowerBombAfterglowShapeVerification
             for (int y = 32; y < 224; y++)
             {
                 int row = Math.Abs(y - 208);
-                int halfWidth = row < 192 ? rom.ReadCartridgeByte(0x880000 | (finalShape + row)) : 0;
+                int halfWidth = row < 192 ? rom.ReadCartridgeByte(finalShapeAddress + row) : 0;
                 var expected = halfWidth == 0 ? ColorAddWindow.Empty : new ColorAddWindow(
                     (byte)Math.Max(0, 32 - halfWidth), (byte)Math.Min(255, 32 + halfWidth), 0, 0, 0);
                 AssertEqual(expected.Left, (actual ?? throw new InvalidOperationException("Verification requires actual.")).Windows[y].Left, "afterglow retains native oval left edge");

@@ -15,15 +15,14 @@ internal static class PowerBombFuseVerification
     /// <summary>Checks flag, wrap, expiration, and complete sixty-frame fuse behavior.</summary>
     internal static void VerifyPowerBombFuse()
     {
-        // Expected boundary cases follow the literal C157 branches, including a
-        // positive nonzero flag (native tests zero, not merely the sign bit).
+        // Expected boundary cases follow the literal C157 branches with the lock released and held.
         // The fuse is a countdown: zero stays stopped, one expires into the collision
         // sentinel, and the sentinel itself keeps wrapping downward one word per call.
         NativeCountdown sentinel = NativeCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel);
         NativeCountdown sentinelAfterOneCall = NativeCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel - 1);
-        foreach (ushort flag in new ushort[] { 0, 1, 0x8000, 0xffff })
+        foreach (bool flag in new[] { false, true })
         {
-            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(0), false, false, flag == 0),
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(0), false, false, !flag),
                 SamusPowerBombFuse.Step(NativeCountdown.Start(0), flag), "zero fuse follows native flag equality");
             AssertEqual(new PowerBombFuseStep(sentinel, false, true, false),
                 SamusPowerBombFuse.Step(NativeCountdown.Start(1), flag), "expiration spawns before collision consumes sentinel");
@@ -38,7 +37,7 @@ internal static class PowerBombFuseVerification
         int spawns = 0;
         for (int frame = 0; frame < 60; frame++)
         {
-            PowerBombFuseStep result = SamusPowerBombFuse.Step(timer, 0x8000);
+            PowerBombFuseStep result = SamusPowerBombFuse.Step(timer, true);
             timer = result.Timer;
             spawns += result.SpawnExplosion ? 1 : 0;
             AssertEqual(false, result.DeleteProjectile, "live fuse never requests deletion");

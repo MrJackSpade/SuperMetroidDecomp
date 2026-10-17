@@ -300,7 +300,7 @@ public sealed class RoomLevelData
 
     /// <summary>Typed overload for a bounded native PLM BTS write.</summary>
     internal void SetPlmBehavior(int blockIndex, RoomBlockBehavior behavior) =>
-        SetPlmBehavior(blockIndex, behavior.Value);
+        SetPlmBehavior(blockIndex, behavior.ToBtsByte());
 
     /// <summary>Returns both collision inputs consumed for one block by bank $94.</summary>
     public RoomCollisionBlock GetCollisionBlock(Position16<RoomBlocks> block)
@@ -467,7 +467,7 @@ public sealed class RoomLevelData
 
     /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>
     public void SetBehavior(int blockIndex, RoomBlockBehavior behavior) =>
-        SetBehavior(blockIndex, behavior.Value);
+        SetBehavior(blockIndex, behavior.ToBtsByte());
 
     /// <summary>
     /// Replaces one 16-bit child tilemap word in the combined CRE/area block-definition

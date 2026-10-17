@@ -1152,7 +1152,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     var bombDoorBts = new byte[bombDoorWords.Length];
     const int bombDoorIndex = 3 * width + 3;
     bombDoorWords[bombDoorIndex] = 0xc000;
-    bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
+    bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.ToBtsByte();
     RoomLevelData bombDoorLevel = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(bombDoorWords, bombDoorBts, new ushort[bombDoorWords.Length]), reactionDefinitions);
     var bombDoorPlms = new RoomPlmSystem();
     var bombDoorBombs = CreateBombFixture();

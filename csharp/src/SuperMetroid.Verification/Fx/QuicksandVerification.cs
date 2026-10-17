@@ -246,7 +246,7 @@ internal static class QuicksandVerification
 
     /// <summary>Follows native area tables while checking valid reactions and out-of-range selector behavior.</summary>
     private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
-        Func<AreaId, byte, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
+        Func<AreaId, int, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
     {
         for (int rawArea = 0; rawArea <= byte.MaxValue; rawArea++)
         for (int index = 0; index <= byte.MaxValue; index++)

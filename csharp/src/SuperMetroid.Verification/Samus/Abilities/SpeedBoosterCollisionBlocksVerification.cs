@@ -170,7 +170,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         byte[] behaviors = new byte[words.Length];
         int blockIndex = blockY * width + blockX;
         words[blockIndex] = 0xb123;
-        behaviors[blockIndex] = bts.Value;
+        behaviors[blockIndex] = bts.ToBtsByte();
         RoomLevelData level = CreateRoom(new(width, height),
             words,
             behaviors,

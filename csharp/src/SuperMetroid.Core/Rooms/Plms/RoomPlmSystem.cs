@@ -458,11 +458,11 @@ public sealed class RoomPlmSystem
         WritePlmCollisionTypeAndBts(level, blockIndex, new RoomLevelWord(typeAndBts).CollisionType, unchecked((byte)typeAndBts));
 
     /// <summary>Replaces a block's collision type and BTS, keeping its visual payload.</summary>
-    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, RoomCollisionType collisionType, byte bts)
+    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, RoomCollisionType collisionType, int bts)
     {
         var original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
         level.SetPlmForegroundEntry(blockIndex, RoomLevelWord.Create(original.VisualBlockIndex,
             original.VisualFlipFlags, collisionType).Raw);
-        level.SetPlmBehavior(blockIndex, bts);
+        level.SetPlmBehavior(blockIndex, new RoomBlockBehavior(bts));
     }
 }

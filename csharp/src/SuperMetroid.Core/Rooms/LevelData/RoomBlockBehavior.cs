@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// meanings that happen to share a numeric value as one domain.
 /// </summary>
 /// <param name="Value">The unchanged block-type-specific BTS byte from the room's behavior data.</param>
-public readonly record struct RoomBlockBehavior(byte Value)
+public readonly record struct RoomBlockBehavior(int Value)
 {
+    /// <summary>The unchanged block-type-specific BTS byte, 0 through 255.</summary>
+    public int Value { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Value);
+
     /// <summary>The low five bits: a slope's shape.</summary>
     private const int SlopeShapeBits = (1 << 5) - 1;
     /// <summary>Bit six: a slope's horizontal reflection.</summary>
@@ -25,7 +28,7 @@ public readonly record struct RoomBlockBehavior(byte Value)
     public sbyte ExtensionOffset => unchecked((sbyte)Value);
 
     /// <summary>Low-five-bit index into the bank-$94 slope-shape tables.</summary>
-    public byte SlopeShape => unchecked((byte)(Value & SlopeShapeBits));
+    public int SlopeShape => Value & SlopeShapeBits;
 
     /// <summary>Whether the slope selects the non-square height-table dispatcher.</summary>
     public bool IsNonSquareSlope => SlopeShape >= 5;
@@ -37,7 +40,7 @@ public readonly record struct RoomBlockBehavior(byte Value)
     public bool SlopeFlipsVertically => (Value & HighBit) != 0;
 
     /// <summary>Two-bit slope orientation/quadrant selector stored in bits six and seven.</summary>
-    public byte SlopeOrientation => unchecked((byte)(Value >> 6));
+    public int SlopeOrientation => Value >> 6;
 
     /// <summary>
     /// Whether a projectile/bomb reaction selects the area-dependent table. This is the
@@ -46,7 +49,7 @@ public readonly record struct RoomBlockBehavior(byte Value)
     public bool UsesAreaReactionTable => (Value & HighBit) != 0;
 
     /// <summary>Low-seven-bit index used by area-dependent reaction tables.</summary>
-    public byte AreaReactionIndex => unchecked((byte)(Value & LowSevenBits));
+    public int AreaReactionIndex => Value & LowSevenBits;
 
     /// <summary>Whether this is a valid index into a normal table of the given size.</summary>
     public bool IsNormalReactionIndex(int entryCount) =>
@@ -60,7 +63,7 @@ public readonly record struct RoomBlockBehavior(byte Value)
     public bool RejectsGrappleReaction => (Value & HighBit) != 0;
 
     /// <summary>Low-seven-bit grapple reaction-table index.</summary>
-    public byte GrappleReactionIndex => unchecked((byte)(Value & LowSevenBits));
+    public int GrappleReactionIndex => Value & LowSevenBits;
 
     /// <summary>Persistent grapple anchors are table entries zero and three.</summary>
     public bool IsPersistentGrappleReaction =>
@@ -71,7 +74,7 @@ public readonly record struct RoomBlockBehavior(byte Value)
         !RejectsGrappleReaction && GrappleReactionIndex is 1 or 2;
 
     /// <summary>Validated direct index for a non-area projectile/bomb reaction table.</summary>
-    public byte NormalReactionIndex => Value;
+    public int NormalReactionIndex => Value;
 
     /// <summary>Entries zero through three restore after their break animation.</summary>
     public bool IsRespawningReaction => IsNormalReactionIndex(4);

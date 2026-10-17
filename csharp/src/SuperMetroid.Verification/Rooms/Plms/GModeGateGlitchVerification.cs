@@ -245,7 +245,7 @@ internal static class GModeGateGlitchVerification
             ushort[] words = new ushort[width * height];
             byte[] behavior = new byte[words.Length];
             words[doorIndex] = 0xc123;
-            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
+            behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.ToBtsByte();
             return CreateRoom(new(width, height), words, behavior);
         }
 

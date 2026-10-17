@@ -108,11 +108,11 @@ internal sealed class ChozoStatuePlms
 
     /// <summary>Changes a hand or plug block's collision type and BTS while preserving its visual word.</summary>
     private static void WriteChozoBlock(RoomLevelData level, int index,
-        RoomCollisionType type, byte bts)
+        RoomCollisionType type, int bts)
     {
         RoomLevelWord word = level.GetCollisionBlockByIndex(index).PackedWord;
         level.SetForegroundEntry(index, word.WithCollisionType(type).Raw);
-        level.SetBehavior(index, bts);
+        level.SetBehavior(index, new RoomBlockBehavior(bts));
     }
 
     /// <summary>Handles the hand's event branch, spike/slope changes, and lowered acid FX instruction.</summary>

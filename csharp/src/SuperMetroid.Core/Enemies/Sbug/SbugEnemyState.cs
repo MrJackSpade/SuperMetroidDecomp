@@ -30,12 +30,23 @@ public sealed class SbugEnemyState
         internal set => _slot.VariableB = (ushort)value;
     }
 
-    /// <summary>Variable C; a standard-mathematics byte angle retained in a word.</summary>
-    public ushort CustomAngle
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
+    /// <summary>
+    /// Variable C's custom movement heading, in standard-mathematics orientation (zero right, a quarter turn up). The
+    /// cartridge adds random turns to the whole variable word, so whole turns carry into its high byte, which nothing
+    /// steers by; the heading is its low byte. The word changes only through <see cref="FaceCustomHeading"/> and
+    /// <see cref="TurnCustomHeading"/>, so other enemies' aliased enemy-RAM reads see the cartridge's exact word.
+    /// </summary>
+    public SnesAngle CustomHeading => SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(_slot.VariableC));
+
+    /// <summary>Sets the custom heading outright, as the toward- and away-from-Samus activations do.</summary>
+    internal void FaceCustomHeading(SnesAngle heading) => _slot.VariableC = heading.TableIndex;
+
+    /// <summary>
+    /// Turns the custom heading by <paramref name="tableUnits"/> 256ths of a turn (0 through 255), added to the whole
+    /// variable word with wraparound as the cartridge does, so a whole turn carries into its high byte.
+    /// </summary>
+    internal void TurnCustomHeading(int tableUnits) =>
+        _slot.VariableC = unchecked((ushort)(_slot.VariableC + tableUnits));
 
     /// <summary>Variable F; the 32-frame segment/wait countdown.</summary>
     public NativeCountdown MovementTimer
@@ -44,16 +55,16 @@ public sealed class SbugEnemyState
         internal set => _slot.VariableF = value.RawValue;
     }
 
-    /// <summary>Parameter one low byte, multiplied by the ROM trigonometry tables.</summary>
-    public byte Speed => unchecked((byte)_slot.Parameter1);
+    /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
+    public int Speed => SnesLittleEndian.LowByte(_slot.Parameter1);
 
     /// <summary>
-    /// Parameter one high byte. Zero points right, $40 up, $80 left, and $C0 down.
+    /// Parameter one's high byte as a heading: a table index of zero points right, 64 up, 128 left and 192 down.
     /// </summary>
-    public byte InitialAngle => SnesLittleEndian.HighByte(_slot.Parameter1);
+    public SnesAngle InitialAngle => SnesAngle.FromTableIndex(SnesLittleEndian.HighByte(_slot.Parameter1));
 
-    /// <summary>Parameter two low byte; both-axis proximity needed for activation.</summary>
-    public byte ActivationRadius => unchecked((byte)_slot.Parameter2);
+    /// <summary>Parameter two's low byte, 0 through 255: the pixel distance Samus must be within on both axes for activation.</summary>
+    public int ActivationRadius => SnesLittleEndian.LowByte(_slot.Parameter2);
 
     /// <summary>Parameter two high byte; the activation-table selector.</summary>
     public SbugActivationBehavior ActivationBehavior =>
@@ -76,14 +87,14 @@ public sealed class SbugEnemyState
     /// <summary>Current signed 16.16 vertical displacement in pixels per AI update, computed from the custom angle and independently word-negated on reversal.</summary>
     public SbugVelocityWords CustomYVelocity { get; internal set; }
 
-    /// <summary>Even byte offsets into the eight-entry instruction-pointer table.</summary>
-    public ushort ForwardInstructionIndex { get; internal set; }
-    /// <summary>Spawn-computed even byte offset $00-$0E into <c>$A3:A111</c> for angle <c>InitialAngle - $20</c>; used by the left zigzag leg.</summary>
-    public ushort LeftInstructionIndex { get; internal set; }
-    /// <summary>Spawn-computed even byte offset $00-$0E into <c>$A3:A111</c> for angle <c>InitialAngle + $20</c>; used by the right zigzag leg.</summary>
-    public ushort RightInstructionIndex { get; internal set; }
-    /// <summary>Custom-direction byte offset into <c>$A3:A111</c>; normally even $00-$0E, but reversal preserves the native <c>(index + 4) &amp; $0007</c> mask.</summary>
-    public ushort CustomInstructionIndex { get; internal set; }
+    /// <summary>Spawn-computed facing, 0 through 7 counter-clockwise from right, for the spawn heading; selects the forward loop.</summary>
+    public int ForwardFacing { get; internal set; }
+    /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading less an eighth of a turn; used by the left zigzag leg.</summary>
+    public int LeftFacing { get; internal set; }
+    /// <summary>Spawn-computed facing, 0 through 7, for the spawn heading plus an eighth of a turn; used by the right zigzag leg.</summary>
+    public int RightFacing { get; internal set; }
+    /// <summary>Facing, 0 through 7, for the custom heading; a reversal folds it into the first four facings as the cartridge does.</summary>
+    public int CustomFacing { get; internal set; }
 
     /// <summary>The loop most recently requested by direction-selection code.</summary>
     internal SbugProgram? RequestedProgram { get; set; }

@@ -3,11 +3,8 @@ namespace SuperMetroid.Core.Enemies.Sbug;
 /// <summary>Facing-program and activation-function selection for Sbug movement.</summary>
 internal static class SbugMovementDefinitions
 {
-    /// <summary>
-    /// $A3:A111: the eight directional loops, selected by a byte index into the word table. Native odd reversal indices
-    /// discard bit zero.
-    /// </summary>
-    internal static SbugProgram FacingProgram(ushort directionIndex) => (directionIndex >> 1) switch
+    /// <summary>$A3:A111: the eight directional loops, selected by facing counter-clockwise from right.</summary>
+    internal static SbugProgram FacingProgram(int facing) => facing switch
     {
         0 => SbugProgram.Right,
         1 => SbugProgram.UpRight,
@@ -18,7 +15,7 @@ internal static class SbugMovementDefinitions
         6 => SbugProgram.Down,
         7 => SbugProgram.DownRight,
         _ => throw new InvalidDataException(
-            $"Sbug direction index {directionIndex} is outside the eight native selectors."),
+            $"Sbug facing {facing} is outside the eight native selectors."),
     };
 
     /// <summary>$A3:A121: dispatches the seven population-selected activation behaviors.</summary>

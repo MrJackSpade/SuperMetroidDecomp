@@ -31,12 +31,12 @@ internal static class SbugMovementDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
 
-        for (ushort directionIndex = 0; directionIndex < 16; directionIndex++)
+        for (int facing = 0; facing < 8; facing++)
         {
-            int address = instructionTable + (directionIndex >> 1) * 2;
+            int address = instructionTable + facing * 2;
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, SbugMovementDefinitions.FacingProgram(directionIndex)),
-                $"compiled Sbug facing selector {directionIndex}");
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, SbugMovementDefinitions.FacingProgram(facing)),
+                $"compiled Sbug facing selector {facing}");
         }
 
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
@@ -56,9 +56,9 @@ internal static class SbugMovementDefinitionsVerification
 
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(instructionTable + selector * 2);
             SbugEnemyState state = (enemies.SbugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.SbugStates[0]."));
-            AssertEqual(unchecked((ushort)(selector * 2)), (state ?? throw new InvalidOperationException("Verification requires state.")).ForwardInstructionIndex,
-                $"Sbug production facing index {selector}");
-            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram((ushort)(selector * 2))), state.Program,
+            AssertEqual(selector, (state ?? throw new InvalidOperationException("Verification requires state.")).ForwardFacing,
+                $"Sbug production facing {selector}");
+            AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram(selector)), state.Program,
                 $"Sbug production facing animation {selector}");
             AssertEqual(native, NativeEnemyProgramOracle.EntryOf(SbugNativeListAddresses.Entries, state.Program.Program),
                 $"Sbug production facing list {selector}");
@@ -86,11 +86,11 @@ internal static class SbugMovementDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.FacingProgram(16),
+            () => SbugMovementDefinitions.FacingProgram(8),
             "Sbug facing selector beyond authored table");
         AssertThrows<InvalidDataException>(
-            () => SbugMovementDefinitions.FacingProgram(ushort.MaxValue),
-            "Sbug restored facing selector does not read adjacent code");
+            () => SbugMovementDefinitions.FacingProgram(-1),
+            "Sbug facing selector below the authored table");
         AssertThrows<InvalidDataException>(
             () => SbugMovementDefinitions.ActivationFunction((SbugActivationBehavior)7),
             "Sbug activation selector beyond authored table");
@@ -98,6 +98,41 @@ internal static class SbugMovementDefinitionsVerification
         Console.WriteLine(
             "Sbug movement definitions: eight facing loops, seven activation callbacks and every loop's run pass " +
             "with the selector tables forbidden.");
+    }
+
+    /// <summary>
+    /// The production random-direction chooser adds an unsigned byte turn to the custom heading's whole variable word:
+    /// from heading 240, random 96 turns by 32, so the word becomes 272 with the whole turn carried into its high byte,
+    /// and the heading, its low byte, is 16, facing down-right. A later reversal, with Samus at least six blocks away on
+    /// both axes, advances that facing by two and folds it into the first four facings: down-right becomes up-right.
+    /// </summary>
+    internal static void VerifySbugCustomHeadingCarriesAndFolds()
+    {
+        var enemies = new RoomEnemySystem();
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 96);
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
+        slot.Parameter1 = 1;
+        slot.Parameter2 = 1;
+        slot.Position = slot.Position.WithWhole(new(512, 512));
+        SbugBehavior.InitializeSbug(slot);
+        SbugEnemyState state = SbugBehavior.RequireSbugState(slot);
+        state.FaceCustomHeading(SnesAngle.FromTableIndex(240));
+        state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };
+
+        enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+        AssertEqual(272, slot.VariableC, "the turn carries a whole turn into the heading word's high byte");
+        AssertEqual(SnesAngle.FromTableIndex(16), state.CustomHeading, "the heading is the word's low byte");
+        AssertEqual(7, state.CustomFacing, "heading 16 faces down-right");
+        AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
+
+        state.StraightMovementTimer = NativeCountdown.Start(512);
+        enemies.SbugBehavior.RunSbugMain(slot, samus, null);
+        AssertEqual(1, state.CustomFacing, "the reversal folds facing 7 into facing 1");
+        AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram(1)), state.Program,
+            "the folded facing installs its loop");
+        Console.WriteLine("  Sbug custom heading: turns carry into the heading word and a reversal folds the facing.");
     }
 
 
@@ -108,6 +143,7 @@ internal static class SbugMovementDefinitionsVerification
         SuperMetroidAddressSpace rom =
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifySbugMovementDefinitions), () => VerifySbugMovementDefinitions(rom));
+        Suite(nameof(VerifySbugCustomHeadingCarriesAndFolds), () => VerifySbugCustomHeadingCarriesAndFolds());
         Suite(nameof(SbugAnimationsVerification.VerifySbugAnimations), () => SbugAnimationsVerification.VerifySbugAnimations(rom));
         return 0;
     }

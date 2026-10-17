@@ -127,7 +127,11 @@ public sealed class SamusBodyArtworkCatalog
                 : parts.LandingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)]))
             .ToDictionary(index => index, index => parts.LandingYOffsets[index]);
 
-        byte[] components = parts.Frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
+        if (parts.Frames.Any(frame => !IsSelectorComponent(frame.TopSet) || !IsSelectorComponent(frame.TopPosition) ||
+                !IsSelectorComponent(frame.BottomSet) || !IsSelectorComponent(frame.BottomPosition)))
+            throw new InvalidDataException("Samus body frame selector components must be table indices from 0 through 255.");
+        byte[] components = parts.Frames.SelectMany(frame => new[] { (byte)frame.TopSet, (byte)frame.TopPosition,
+            (byte)frame.BottomSet, (byte)frame.BottomPosition }).ToArray();
         this.frames = Enumerable.Range(0, components.Length)
             .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) != index
                 ? components[index] != components[SamusBodyFrameDefinitions.SourceComponent(index)]
@@ -290,10 +294,13 @@ public sealed class SamusBodyArtworkCatalog
         return overrides.TryGetValue(set, out ushort value) ? value : upperHalf
             ? SamusBodyDefinitionLayout.DefaultTopPointer(set) : SamusBodyDefinitionLayout.DefaultBottomPointer(set);
     }
+    /// <summary>Whether a frame-selector component is a table index the selector can hold (0 through 255).</summary>
+    private static bool IsSelectorComponent(int component) => component is >= 0 and <= byte.MaxValue;
+
     /// <summary>Resolves a native set and position to its physical body tile definition.</summary>
-    public SamusBodyTileDefinition GetDefinition(bool upperHalf, byte set, byte position)
+    public SamusBodyTileDefinition GetDefinition(bool upperHalf, int set, int position)
     {
-        if (set >= (upperHalf ? TopSetCount : BottomSetCount))
+        if (set < 0 || set >= (upperHalf ? TopSetCount : BottomSetCount) || !IsSelectorComponent(position))
             throw new InvalidDataException(
                 $"Samus {(upperHalf ? "top" : "bottom")} definition {set:X2}/{position:X2} is absent.");
         // The native selector adds position*7 to the chosen set pointer without a
@@ -305,7 +312,7 @@ public sealed class SamusBodyArtworkCatalog
     }
 
     /// <summary>Returns the SNES address selected by a native body set and position.</summary>
-    public int DefinitionAddress(bool upperHalf, byte set, byte position)
+    public int DefinitionAddress(bool upperHalf, int set, int position)
     {
         _ = GetDefinition(upperHalf, set, position);
         return SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +

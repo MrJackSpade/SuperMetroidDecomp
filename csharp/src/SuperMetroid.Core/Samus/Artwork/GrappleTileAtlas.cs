@@ -97,7 +97,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// The endpoint character for animation <paramref name="pointFrame"/> followed by the four rope characters the
     /// grapple <paramref name="angle"/> selects: OBJ characters $20-$24 as the beam's sprites name them.
     /// </summary>
-    public SpriteArtwork Tiles(ushort pointFrame, ushort angle)
+    public SpriteArtwork Tiles(int pointFrame, ushort angle)
     {
         VramAssetId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
         VramAssetId segments = GrappleTileDefinitions.SegmentAssetFor(angle);
@@ -110,7 +110,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// The standard OBJ page with <see cref="Tiles"/> over characters $20-$24: the beam's sprites name OBJ characters
     /// directly, and one stock rope frame names tile $1FF outside the grapple's own characters.
     /// </summary>
-    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, ushort pointFrame, ushort angle)
+    public SpriteArtwork OnStandardObjects(SpriteArtwork standardObjects, int pointFrame, ushort angle)
     {
         Ensure.NotNull(standardObjects);
         if (!ReferenceEquals(pagesComposedOn, standardObjects))

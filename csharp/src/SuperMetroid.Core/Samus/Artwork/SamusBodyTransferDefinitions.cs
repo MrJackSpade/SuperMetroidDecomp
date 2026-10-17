@@ -114,7 +114,7 @@ internal static class SamusBodyTransferDefinitions
                     !body.Spritemaps.TryGet((ushort)mapIndex, out SamusSpritemapDefinition? map)) continue;
                 foreach (SamusSpritePart part in map.Parts)
                 {
-                    int tile = (part.Attributes & 511) - (upper ? 0 : 8);
+                    int tile = part.Attributes.TileNumber - (upper ? 0 : 8);
                     int width = (part.X & 0x8000) != 0 ? LargeObjTilesAcross : 1;
                     for (int x = 0; x < width; x++)
                         if ((uint)(tile + x) < 8) firstTiles = Math.Max(firstTiles, tile + x + 1);

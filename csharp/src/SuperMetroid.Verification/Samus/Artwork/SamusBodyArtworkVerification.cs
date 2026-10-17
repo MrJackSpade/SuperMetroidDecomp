@@ -119,7 +119,7 @@ internal static class SamusBodyArtworkVerification
                 AssertEqual(bus.ReadCartridgeByte(at + 2), record.Parts[part].Y,
                     $"Samus OAM ${pointer:X4} part {part} Y");
                 AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(at + 3),
-                    record.Parts[part].Attributes,
+                    record.Parts[part].Attributes.Raw,
                     $"Samus OAM ${pointer:X4} part {part} attributes");
             }
             var nativeOam = new OamBuffer();

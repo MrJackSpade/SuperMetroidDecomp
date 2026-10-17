@@ -43,7 +43,7 @@ public static class GrappleTileDefinitions
         return distance < 3 ? Vertical : distance < 11 ? Diagonal : Horizontal;
     }
     /// <summary>$9B:BFBD cycles endpoint characters at $8200/$8400/$8600/$8800, independently of rope angle.</summary>
-    public static VramAssetId PointAssetFor(ushort frame) => frame switch
+    public static VramAssetId PointAssetFor(int frame) => frame switch
     {
         0 => VramAssetId.GrapplePointFirstTiles,
         1 => VramAssetId.GrapplePointSecondTiles,
@@ -84,7 +84,7 @@ public static class GrappleTileDefinitions
                 if ((uint)index >= Count)
                     throw new ArgumentOutOfRangeException(nameof(index));
                 if (index < 4)
-                    return new(PointAssetFor((ushort)index),
+                    return new(PointAssetFor(index),
                         FirstPointSource + PointSourceStride * index, 32 * index, 32);
                 int orientation = index - 4;
                 VramAssetId asset = orientation switch

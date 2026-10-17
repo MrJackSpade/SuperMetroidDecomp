@@ -458,7 +458,7 @@ internal static void VerifySamusRenderingSlice()
     var quarterTurn = new SamusMode7Transform(
         MatrixA: 0x0000,
         MatrixB: 0x0100,
-        MatrixC: 0xff00,
+        MatrixC: -0x0100,
         Center: new Position16<RoomPixels>(0x0480, 0x0080));
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -480,9 +480,9 @@ internal static void VerifySamusRenderingSlice()
     // quarter-turn result. The explicit reference operations mirror `$8B:8A52`'s two
     // word-sized accumulators and catch a host implementation that retains extra precision.
     var wrappedMatrix = new SamusMode7Transform(
-        MatrixA: 0xff80,
+        MatrixA: -0x0080,
         MatrixB: 0x0180,
-        MatrixC: 0xfe80,
+        MatrixC: -0x0180,
         Center: new Position16<RoomPixels>(0xfff0, 0x0010));
     Position16<RoomPixels> wrapped = wrappedMatrix.Transform(new Position16<RoomPixels>(0x0010, 0xffe0));
     AssertEqual(0x0028, wrapped.X,

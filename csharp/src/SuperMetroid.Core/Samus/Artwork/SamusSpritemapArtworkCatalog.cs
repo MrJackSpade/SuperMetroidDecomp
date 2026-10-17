@@ -91,7 +91,7 @@ public sealed class SamusSpritemapArtworkCatalog
             {
                 content.Append("x", part.X);
                 content.Append("y", part.Y);
-                content.Append("attributes", part.Attributes);
+                content.Append("attributes", part.Attributes.Raw);
             }
         }
     });
@@ -134,7 +134,7 @@ public sealed class SamusSpritemapArtworkCatalog
     /// The spritemap at <paramref name="index"/> as a whole frame named by its record, whose parts' characters are
     /// their OBJ tile numbers. Returns false only for a native zero pointer, which requires a WRAM read.
     /// </summary>
-    public bool TryGetFrame(ushort index, [NotNullWhen(true)] out SpriteFrame? frame)
+    public bool TryGetFrame(int index, [NotNullWhen(true)] out SpriteFrame? frame)
     {
         if (!TryGet(index, out SamusSpritemapDefinition? definition))
         {
@@ -143,14 +143,14 @@ public sealed class SamusSpritemapArtworkCatalog
         }
         frame = frames.GetOrAdd(definition.Pointer, pointer => new SpriteFrame($"Samus.{pointer:X4}",
             [.. definition.Parts.Select(part => ObjPartFrames.Part(new SnesSpritemapXWord(part.X), part.Y,
-                new SnesObjAttributeWord(part.Attributes), 0))]));
+                part.Attributes, 0))]));
         return true;
     }
 
     /// <summary>Returns false only for a native zero pointer, which requires a bus read.</summary>
-    public bool TryGet(ushort index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
+    public bool TryGet(int index, [NotNullWhen(true)] out SamusSpritemapDefinition? definition)
     {
-        if (index >= PointerCount)
+        if (index < 0 || index >= PointerCount)
             throw new InvalidDataException($"Samus spritemap index {index} is outside extracted art.");
         ushort pointer = Pointer(index);
         definition = pointer == 0 ? null : definitions[pointer];

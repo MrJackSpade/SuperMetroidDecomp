@@ -299,7 +299,7 @@ internal static class NativeSnapshotImportVerification
                 pipe.SpawnPosition = new(slot.VariableB, slot.VariableC);
                 pipe.RespawnDelay = NativeCountdown.FromRaw(slot.VariableD);
                 pipe.AnimationState = (PipeBugAnimationSelector)slot.VariableE;
-                pipe.EmergenceTopY = W(NativeSnapshotMemory.EnemyExtra + index * 64);
+                pipe.EmergenceTop = pipe.SpawnPosition.WithY(W(NativeSnapshotMemory.EnemyExtra + index * 64));
                 pipe.InstalledAnimationState = (PipeBugAnimationSelector)W(NativeSnapshotMemory.EnemyExtraPreviousAnimation + index * 64);
             }
         }

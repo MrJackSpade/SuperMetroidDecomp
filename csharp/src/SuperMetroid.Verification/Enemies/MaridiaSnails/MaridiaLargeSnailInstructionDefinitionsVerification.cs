@@ -30,12 +30,12 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             var state = new MaridiaLargeSnailEnemyState(slot)
             {
                 RequestedInstructionListIndex = animationIndex,
-                InstalledInstructionListIndex = ushort.MaxValue,
+                InstalledInstructionListIndex = -1,
             };
             slot.InstructionTimer = NativeCountdown.Start(0x1234);
             slot.Timer = NativeCountdown.Start(0x5678);
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailInstructionList(slot, state);
-            AssertEqual(animationIndex, state.InstalledInstructionListIndex, $"Oum installed selector {animationIndex}");
+            AssertEqual((int)animationIndex, state.InstalledInstructionListIndex, $"Oum installed selector {animationIndex}");
             AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program), state.Program, $"Oum installed animation {animationIndex}");
             AssertEqual((ushort)1, slot.InstructionTimer.RawValue, $"Oum instruction timer {animationIndex}");
             AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");
@@ -53,7 +53,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             AssertTrue(!state.AttackAnimationFinished, $"Oum {attack} is unfinished while its last pose holds");
             EnemyInstructionRunner.ShownFrames(slot, 1);
             AssertTrue(state.AttackAnimationFinished, $"Oum {attack} marks the attack finished");
-            AssertEqual((ushort?)MaridiaLargeSnailNativeValues.SplashSound, enemies.MaridiaLargeSnailBehavior.LastMaridiaLargeSnailSoundEffect, $"Oum {attack} plays the splash");
+            AssertEqual<SoundEffectId?>(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, MaridiaLargeSnailNativeValues.SplashSound),
+                enemies.MaridiaLargeSnailBehavior.LastMaridiaLargeSnailSoundEffect, $"Oum {attack} plays the library-two splash");
         }
 
         foreach ((MaridiaLargeSnailProgram roll, int windowPose) in new[]

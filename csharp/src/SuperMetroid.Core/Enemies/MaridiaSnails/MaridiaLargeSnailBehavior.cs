@@ -29,6 +29,13 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         _collision = collision;
     }
 
+    /// <summary>The animation selector's left-facing choice: the right-facing program's selector plus one.</summary>
+    private const int MaridiaLargeSnailFacingSelector = 1;
+    /// <summary>Added to an idle selector to choose the same facing's forward roll.</summary>
+    private const int MaridiaLargeSnailRollingSelector = 2;
+    /// <summary>Selects the same facing's attack from idle, and toggles a roll between forwards and backwards.</summary>
+    private const int MaridiaLargeSnailAttackSelector = 4;
+
     /// <summary>Strict horizontal range in which Oum can push or carry Samus.</summary>
     private const ushort MaridiaLargeSnailPushingXDistance = 24;
     /// <summary>Strict vertical range required for Samus to be in Oum's pushing band.</summary>
@@ -40,17 +47,21 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Number of impacts in Oum's landing or ledge-fall settling sequence.</summary>
     private const ushort MaridiaLargeSnailInitialBounceCount = 3;
     /// <summary>Per-frame 8.8 index change in the quadratic vertical speed table.</summary>
-    private const ushort MaridiaLargeSnailBounceAcceleration = 384;
+    private const int MaridiaLargeSnailBounceAcceleration = 384;
     /// <summary>Maximum falling speed-table index before the next impact.</summary>
-    private const ushort MaridiaLargeSnailMaximumFallIndex = 16384;
+    private const int MaridiaLargeSnailMaximumFallIndex = 16384;
     /// <summary>Speed-table index removed at each floor impact.</summary>
-    private const ushort MaridiaLargeSnailImpactIndexLoss = 4096;
+    private const int MaridiaLargeSnailImpactIndexLoss = 4096;
 
-    /// <summary>
-    /// Most recent library-two sound requested by Oum this frame. The outer audio mixer is
-    /// still a frontend seam, so the enemy publishes the exact native sound identifier.
-    /// </summary>
-    public ushort? LastMaridiaLargeSnailSoundEffect { get; private set; }
+    /// <summary>Library-two sound queued by Oum's attack splash.</summary>
+    private static readonly SoundEffectId MaridiaLargeSnailSplashSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound);
+    /// <summary>Library-two sound queued after a shot hits Oum.</summary>
+    private static readonly SoundEffectId MaridiaLargeSnailShotSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound);
+
+    /// <summary>Most recent library-two sound requested by Oum this frame.</summary>
+    public SoundEffectId? LastMaridiaLargeSnailSoundEffect { get; private set; }
 
     /// <summary>Clears physical-slot extensions and the frame's pending Oum sound.</summary>
     internal void ResetMaridiaLargeSnailRoomState()
@@ -70,7 +81,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             SamusInPushingRange = false,
             SamusIsLeft = false,
             PreviousPosition = Position16<RoomPixels>.Zero,
-            UnusedExtra0A = 0,
             StopMovementNextFrame = false,
             Function = MaridiaLargeSnailEnemyFunction.Idle,
             YSpeedTableIndex = 0,
@@ -155,8 +165,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
         }
 
-        state.RequestedInstructionListIndex = unchecked((ushort)(
-            state.RequestedInstructionListIndex | 2));
+        state.RequestedInstructionListIndex |= MaridiaLargeSnailRollingSelector;
         InstallMaridiaLargeSnailInstructionList(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
@@ -208,8 +217,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 }
 
                 state.AttackCooldown = NativeCountdown.Start(MaridiaLargeSnailInitialAttackCooldown);
-                state.RequestedInstructionListIndex = unchecked((ushort)(
-                    (state.RequestedInstructionListIndex & 1) | 4));
+                state.RequestedInstructionListIndex =
+                    (state.RequestedInstructionListIndex & MaridiaLargeSnailFacingSelector) | MaridiaLargeSnailAttackSelector;
                 InstallMaridiaLargeSnailInstructionList(slot, state);
                 state.Function = MaridiaLargeSnailEnemyFunction.Attacking;
                 return;
@@ -228,8 +237,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.AttackAnimationFinished = false;
-        state.RequestedInstructionListIndex = unchecked((ushort)(
-            state.RequestedInstructionListIndex - 2));
+        state.RequestedInstructionListIndex -= MaridiaLargeSnailRollingSelector;
         InstallMaridiaLargeSnailInstructionList(slot, state);
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
@@ -243,36 +251,33 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (state.BounceFunction)
         {
             case MaridiaLargeSnailBounceFunction.Falling:
-                state.YSpeedTableIndex = unchecked((ushort)(
-                    state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration));
-                if (unchecked((short)(
-                        state.YSpeedTableIndex - MaridiaLargeSnailMaximumFallIndex)) >= 0)
-                {
-                    state.YSpeedTableIndex = MaridiaLargeSnailMaximumFallIndex;
-                }
+                // The record stays within -3712 through 16384, so the cartridge's signed word comparisons are
+                // ordinary comparisons.
+                state.YSpeedTableIndex = Math.Min(
+                    state.YSpeedTableIndex + MaridiaLargeSnailBounceAcceleration,
+                    MaridiaLargeSnailMaximumFallIndex);
 
                 if (!_terrain.MoveEnemyVertically(
                         level,
                         slot,
                         EnemyMath.ReadQuadraticEnemySpeed(
-                            unchecked((ushort)(SnesEightEight.WholeOf(state.YSpeedTableIndex))),
+                            checked((ushort)SnesEightEight.WholeOf(state.YSpeedTableIndex)),
                             negative: false)))
                 {
                     return;
                 }
 
                 state.RemainingBounces = state.RemainingBounces.Decrement().Remaining;
-                state.YSpeedTableIndex = unchecked((ushort)(
-                    state.YSpeedTableIndex - MaridiaLargeSnailImpactIndexLoss));
-                if (unchecked((short)state.YSpeedTableIndex) < 0)
+                // An impact that leaves the record below zero ends the bounces; the negative record is kept.
+                state.YSpeedTableIndex -= MaridiaLargeSnailImpactIndexLoss;
+                if (state.YSpeedTableIndex < 0)
                     state.RemainingBounces = NativeCountdown.Start(0);
                 state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
                 return;
 
             case MaridiaLargeSnailBounceFunction.Rising:
-                state.YSpeedTableIndex = unchecked((ushort)(
-                    state.YSpeedTableIndex - MaridiaLargeSnailBounceAcceleration));
-                if (unchecked((short)state.YSpeedTableIndex) < 0)
+                state.YSpeedTableIndex -= MaridiaLargeSnailBounceAcceleration;
+                if (state.YSpeedTableIndex < 0)
                 {
                     state.YSpeedTableIndex = 0;
                     state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
@@ -282,8 +287,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // The rising half reads the negative member of the same quadratic row. The
                 // native AND $7F00 is retained even though valid bounce indexes stay below
                 // $4000; it documents the exact table-index formation seen in a debugger.
-                ushort tableIndex = unchecked((ushort)(
-                    SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits)));
+                ushort tableIndex = checked((ushort)
+                    SnesEightEight.WholeOf(state.YSpeedTableIndex & MaridiaLargeSnailMasks.SpeedIndexWholeBits));
                 _terrain.MoveEnemyVertically(
                     level,
                     slot,
@@ -331,8 +336,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             return;
 
         state.MovingLeft = !state.MovingLeft;
-        state.RequestedInstructionListIndex = unchecked((ushort)(
-            state.RequestedInstructionListIndex ^ 4));
+        state.RequestedInstructionListIndex ^= MaridiaLargeSnailAttackSelector;
         InstallMaridiaLargeSnailInstructionList(slot, state);
     }
 
@@ -453,7 +457,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         switch (cue.Kind)
         {
             case MaridiaLargeSnailCueKind.PlaySplash:
-                LastMaridiaLargeSnailSoundEffect = EnemySoundEffectDefinitions.MaridiaLargeSnailSplashSound;
+                LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailSplashSound;
                 break;
             case MaridiaLargeSnailCueKind.FinishAttack:
                 state.AttackAnimationFinished = true;
@@ -513,7 +517,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// AI for damaging, freezing, and zero-damage vulnerability results alike.
     /// </summary>
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
-        LastMaridiaLargeSnailSoundEffect = EnemySoundEffectDefinitions.MaridiaLargeSnailShotSound;
+        LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
 
     /// <summary>Requires an initialized Oum extension for the physical enemy slot.</summary>
     internal static MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
@@ -631,7 +635,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastMaridiaLargeSnailSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastMaridiaLargeSnailSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>The callback of the first of the occupant's hitboxes the probe overlaps, or null outside its compiled frames.</summary>

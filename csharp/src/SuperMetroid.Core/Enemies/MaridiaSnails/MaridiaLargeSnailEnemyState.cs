@@ -18,11 +18,15 @@ public sealed class MaridiaLargeSnailEnemyState
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<MaridiaLargeSnailProgram> Program { get; set; }
 
-    /// <summary>Extra word $00: requested index into the eight-entry list table at $CB77.</summary>
-    public ushort RequestedInstructionListIndex { get; internal set; }
+    /// <summary>
+    /// Extra word $00: the requested animation, 0 through 7, an index into the eight-entry selector table at $CB77.
+    /// Its lowest bit selects the left-facing program, and the idle, roll and attack transitions set, clear and toggle
+    /// its upper two bits, which never carries it outside the table.
+    /// </summary>
+    public int RequestedInstructionListIndex { get; internal set; }
 
-    /// <summary>Extra word $01: last list-table index accepted by <c>SetOumInstList</c>.</summary>
-    public ushort InstalledInstructionListIndex { get; internal set; }
+    /// <summary>Extra word $01: the last requested animation <c>SetOumInstList</c> installed, 0 through 7.</summary>
+    public int InstalledInstructionListIndex { get; internal set; }
 
     /// <summary>Extra word $02: set by instruction $CCB3 when the attack animation ends.</summary>
     public bool AttackAnimationFinished { get; internal set; }
@@ -43,12 +47,6 @@ public sealed class MaridiaLargeSnailEnemyState
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
 
     /// <summary>
-    /// Extra word $0A is cleared by initialization and otherwise unused by the retail code.
-    /// It remains visible so a debugger can prove that the untranslated-looking write exists.
-    /// </summary>
-    public ushort UnusedExtra0A { get; internal set; }
-
-    /// <summary>
     /// Extra word $0B: movement suppression produced after AI and consumed on the next frame.
     /// This one-frame pipeline is intentional cartridge ordering, not input latency invented
     /// by the host translation.
@@ -62,11 +60,16 @@ public sealed class MaridiaLargeSnailEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Common variable B: $0180-stepped index used by the bounce arc.</summary>
-    public ushort YSpeedTableIndex
+    /// <summary>
+    /// Common variable B: the bounce arc's quadratic-speed record in 256ths, stepped by 384 per update. Falling caps it
+    /// at 16384; an impact removes 4096 and may leave it below zero, which ends the bounces, and rising stores zero
+    /// once it would go below zero. It therefore stays within -3712 through 16384, and the slot variable keeps the
+    /// signed word the cartridge stores for other enemies' aliased enemy-RAM reads.
+    /// </summary>
+    public int YSpeedTableIndex
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => unchecked((short)_slot.VariableB);
+        internal set => _slot.VariableB = unchecked((ushort)checked((short)value));
     }
 
     /// <summary>Common variable C: signed-underflow attack cooldown, initialized to 128.</summary>

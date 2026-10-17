@@ -296,7 +296,7 @@ internal sealed class EnemyCollision
                     samus,
                     projectileType,
                     projectileDamage,
-                    projectileDirection,
+                    new SamusProjectileDirectionWord(projectileDirection),
                     family,
                     usesExtendedHitboxes,
                     HitboxCallback(enemy, hitboxShotAiPointer),
@@ -403,7 +403,7 @@ internal sealed class EnemyCollision
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&
                         new SamusProjectileTypeWord(projectileType).BeamCombination.HasIce &&
-                        !EnemyVulnerabilityDefinitions.PreventsLethalFreeze(shotVulnerability.RawBeamEntry) &&
+                        !shotVulnerability.PreventsLethalFreeze &&
                         enemy.FrozenTimer.IsZero;
                     if (freezeInsteadOfKilling)
                     {
@@ -798,7 +798,7 @@ internal sealed class EnemyCollision
             return new NormalShotVulnerability(
                 Multiplier: EnemyVulnerabilityDefinitions.Multiplier(familyEntry),
                 FreezeImmediately: false,
-                RawBeamEntry: 0);
+                PreventsLethalFreeze: false);
         }
 
         byte beamEntry = EnemyVulnerabilityDefinitions.Read(
@@ -808,7 +808,7 @@ internal sealed class EnemyCollision
             return new NormalShotVulnerability(
                 Multiplier: 0,
                 FreezeImmediately: true,
-                RawBeamEntry: beamEntry);
+                PreventsLethalFreeze: EnemyVulnerabilityDefinitions.PreventsLethalFreeze(beamEntry));
         }
 
         int multiplier = EnemyVulnerabilityDefinitions.Multiplier(beamEntry);
@@ -825,7 +825,7 @@ internal sealed class EnemyCollision
         return new NormalShotVulnerability(
             multiplier,
             FreezeImmediately: false,
-            RawBeamEntry: beamEntry);
+            PreventsLethalFreeze: EnemyVulnerabilityDefinitions.PreventsLethalFreeze(beamEntry));
     }
 
     /// <summary>
@@ -869,11 +869,15 @@ internal sealed class EnemyCollision
         return EnemyVulnerabilityDefinitions.Read(pointer, byteOffset);
     }
 
-    /// <summary>Damage multiplier and freezing behavior selected from an ordinary shot's vulnerability byte.</summary>
+    /// <summary>
+    /// Damage multiplier and freezing behavior selected from an ordinary shot's vulnerability byte. A lethal Ice-bearing
+    /// beam freezes the enemy instead of killing it unless <see cref="PreventsLethalFreeze"/>, which the beam entry
+    /// decides; non-beam families never prevent it.
+    /// </summary>
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
-        byte RawBeamEntry);
+        bool PreventsLethalFreeze);
 
     /// <summary>
     /// Walks `$A0:9A5A/$A0:9B7F`'s bank-local extended-spritemap structure and returns the
@@ -897,10 +901,12 @@ internal sealed class EnemyCollision
             return false;
 
         var target = new EnemyHitboxProbe(
-            Left: unchecked((ushort)(targetPosition.X - targetRadius.X)),
-            Right: unchecked((ushort)(targetPosition.X + targetRadius.X)),
-            Top: unchecked((ushort)(targetPosition.Y - targetRadius.Y)),
-            Bottom: unchecked((ushort)(targetPosition.Y + targetRadius.Y)),
+            TopLeft: new(
+                unchecked((ushort)(targetPosition.X - targetRadius.X)),
+                unchecked((ushort)(targetPosition.Y - targetRadius.Y))),
+            BottomRight: new(
+                unchecked((ushort)(targetPosition.X + targetRadius.X)),
+                unchecked((ushort)(targetPosition.Y + targetRadius.Y))),
             SelectShotCallback: selectShotCallback,
             ArtworkInstalled: _room.Artwork is not null);
 

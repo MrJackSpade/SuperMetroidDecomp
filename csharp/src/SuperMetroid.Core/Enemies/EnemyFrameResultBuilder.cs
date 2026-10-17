@@ -53,8 +53,11 @@ internal sealed class EnemyFrameResultBuilder
     /// <summary>Mother Brain's death-sequence step.</summary>
     internal MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep { get; set; }
 
-    /// <summary>Mother Brain's pending <c>LoadFxEntry</c> index, or zero.</summary>
-    internal ushort MotherBrainFxEntry { get; set; }
+    /// <summary>
+    /// Mother Brain's pending room FX entry index, or zero for none: its initialization requests entry one and its
+    /// tube collapse entry two, and the pass reset clears it.
+    /// </summary>
+    internal int MotherBrainFxEntry { get; set; }
 
     /// <summary>Mother Brain's room mutations, in publication order.</summary>
     internal List<MotherBrainPlmRequest> MotherBrainPlms { get; } = [];

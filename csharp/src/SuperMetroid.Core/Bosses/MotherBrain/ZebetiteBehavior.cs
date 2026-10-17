@@ -288,7 +288,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Clear();
         slot.Spawn = survivingSpawn;
         _slotTable._slots[slotIndex].SetSpeciesState<ZebetiteEnemyState>(null);
-        _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
+        _roomStatus.RecordKill();
     }
 
     /// <summary>Reads one persistent bit used to reconstruct the current Zebetite generation.</summary>

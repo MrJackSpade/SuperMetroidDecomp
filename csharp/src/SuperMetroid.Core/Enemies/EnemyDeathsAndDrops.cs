@@ -54,18 +54,24 @@ internal sealed class EnemyDeathsAndDrops
     public ushort? LastEnemyPickupSoundEffect { get; internal set; }
 
     /// <summary>
-    /// Last library-two request made by the shared death/pickup instruction lists this
-    /// frame. Values nine, $24, and $0B are authored directly in bank $86.
+    /// Last library-two sound requested by the shared death/pickup instruction lists this
+    /// frame: the enemy-killed cry, the small explosion or the contact-killed sound, each
+    /// authored directly in bank $86.
     /// </summary>
-    public ushort? LastEnemyDeathSoundEffectLibrary2 { get; internal set; }
+    public SoundEffectId? LastEnemyDeathSoundEffectLibrary2 { get; internal set; }
+
+    /// <summary>The library-two enemy-killed cry that <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) queues.</summary>
+    internal static readonly SoundEffectId EnemyKilledSound = new(SoundEffectLibrary.Library2, 9);
 
     /// <summary>
     /// Scratch word `$12` as last written by <c>EnemyDeath</c> ($A0:A3E6) or
-    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit. The
+    /// <c>RinkaDeath</c> ($A0:A437): the dying actor's respawn property bit as its word,
+    /// zero or 16384 (<see cref="RespawnScratchWord"/> is the only producer). The
     /// power-bomb walker at $A0:A306 keeps its horizontal radius in that same word, so a
-    /// kill inside its loop resizes the explosion for every lower slot that frame.
+    /// kill inside its loop resizes the explosion for every lower slot that frame; the
+    /// walker reads it back as an ordinary radius, so no wider value can reach it.
     /// </summary>
-    internal ushort? _enemyDeathRespawnScratch;
+    internal int? _enemyDeathRespawnScratch;
 
     /// <summary>
     /// Ports <c>EnemyDeathAnimation</c> at $A0:A3AF. The enemy is cleared immediately,
@@ -113,14 +119,17 @@ internal sealed class EnemyDeathsAndDrops
             // projectile's $EF10 instruction reconstructs it from the population record.
             InstallRespawnPlaceholder(enemy);
         }
-        _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
+        _roomStatus.RecordKill();
     }
 
-    /// <summary>Publishes the dying enemy's respawn property bit into the shared scratch word.</summary>
-    internal static ushort RespawnScratchWord(RoomEnemySlot enemy) =>
+    /// <summary>
+    /// Publishes the dying enemy's respawn property bit, as the word the cartridge stores, into the shared scratch
+    /// word: 16384 for a respawning enemy, otherwise zero.
+    /// </summary>
+    internal static int RespawnScratchWord(RoomEnemySlot enemy) =>
         enemy.Properties.HasAny(EnemyProperties.RespawnIfKilled)
-            ? (ushort)EnemyProperties.RespawnIfKilled
-            : (ushort)0;
+            ? EnemyProperties.RespawnIfKilled.ToNativeWord()
+            : 0;
 
     /// <summary>Keeps a killed respawning slot occupied by replacing its header with the respawn placeholder.</summary>
     internal void InstallRespawnPlaceholder(RoomEnemySlot enemy)
@@ -134,13 +143,13 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>
     internal static ushort SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
-        ushort projectileType,
+        SamusProjectileTypeWord projectileType,
         bool forcePirateBigExplosion = false)
     {
         if (forcePirateBigExplosion)
             return 4;
 
-        ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType);
+        ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType.Raw);
         if (causeOfDeath != 2)
             return enemy.Definition.DeathAnimation;
 
@@ -423,8 +432,10 @@ internal sealed class EnemyDeathsAndDrops
         RoomEnemyProjectileSlot projectile,
         SamusState? samus)
     {
-        projectile.Variable1 = unchecked((ushort)(projectile.Variable1 - 1));
-        if (projectile.Variable1 == 0)
+        // The lifetime is decremented first; the pickup expires on the update it reaches zero.
+        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(projectile.Variable1).Decrement();
+        projectile.Variable1 = lifetime.Value;
+        if (lifetime.IsZero)
         {
             MakeEnemyPickupDormant(projectile);
             return;
@@ -556,7 +567,8 @@ internal sealed class EnemyDeathsAndDrops
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
         audio.QueueLegacySound(LastEnemyPickupSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 1);
-        audio.QueueLegacySound(LastEnemyDeathSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 1);
+        if (LastEnemyDeathSoundEffectLibrary2 is { } deathSound)
+            audio.QueueEnemySound(deathSound, maximumQueued: 1);
     }
 
     /// <summary>
@@ -594,7 +606,7 @@ internal sealed class EnemyDeathsAndDrops
     }
 
     /// <summary>Queues the library-two enemy-killed sound 9, as <c>EprojInstr_QueueSfx2_9</c> ($86:EE8B) does.</summary>
-    internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = 9;
+    internal void QueueEnemyKilledSound() => LastEnemyDeathSoundEffectLibrary2 = EnemyKilledSound;
 
     /// <summary>Connects the death and drop programs' cues: sprite spawns, sounds, drop conversion and respawn.</summary>
     internal void RegisterDeathExplosionInstructions(EnemyProjectileHandlerTable table) =>
@@ -622,10 +634,12 @@ internal sealed class EnemyDeathsAndDrops
                 QueueEnemyKilledSound();
                 return null;
             case EnemyDeathProjectileCueKind.PlaySmallExplosionSound:
-                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathSmallExplosionSound;
+                LastEnemyDeathSoundEffectLibrary2 = SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DeathSmallExplosionSound);
                 return null;
             case EnemyDeathProjectileCueKind.PlayContactKilledSound:
-                LastEnemyDeathSoundEffectLibrary2 = EnemySoundEffectDefinitions.DeathContactKilledSound;
+                LastEnemyDeathSoundEffectLibrary2 = SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.DeathContactKilledSound);
                 return null;
             case EnemyDeathProjectileCueKind.BecomePickup:
                 if (projectile.Kind != RoomEnemyProjectileKind.EnemyDeathExplosion)

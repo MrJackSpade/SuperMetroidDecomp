@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="CrocomirePlms">Crocomire's arena mutations.</param>
 /// <param name="KraidPlms">Kraid's ceiling and platform mutations.</param>
 /// <param name="MotherBrainDeathStep">Mother Brain's death-sequence step and its palette, timer, boss-bit and event requests.</param>
-/// <param name="MotherBrainFxEntry">Mother Brain's pending <c>LoadFxEntry</c> index, or zero.</param>
+/// <param name="MotherBrainFxEntry">Mother Brain's pending room FX entry index (one or two), or zero for none.</param>
 /// <param name="MotherBrainPlms">Mother Brain's room mutations.</param>
 /// <param name="ShitroidPlms">The Shitroid's wall mutations.</param>
 public readonly record struct EnemyRoomEffectRequests(
@@ -24,7 +24,7 @@ public readonly record struct EnemyRoomEffectRequests(
     IReadOnlyList<CrocomirePlmRequest> CrocomirePlms,
     IReadOnlyList<KraidPlmRequest> KraidPlms,
     MotherBrainRainbowBeamAttackStepResult? MotherBrainDeathStep,
-    ushort MotherBrainFxEntry,
+    int MotherBrainFxEntry,
     IReadOnlyList<MotherBrainPlmRequest> MotherBrainPlms,
     IReadOnlyList<ShitroidPlmRequest> ShitroidPlms)
 {

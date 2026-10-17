@@ -12,7 +12,7 @@ public readonly record struct EnemyExtraPropertyWord
     public EnemyExtraPropertyWord(EnemyExtraProperties flags, ushort untranslatedBits = 0)
     {
         EnemyPropertyFlagExtensions.ValidateKnown(flags);
-        if ((untranslatedBits & (ushort)EnemyPropertyFlagExtensions.TranslatedExtraFlags) != 0)
+        if (((EnemyExtraProperties)untranslatedBits & EnemyPropertyFlagExtensions.TranslatedExtraFlags) != 0)
             throw new ArgumentException($"Untranslated bits ${untranslatedBits:X4} include translated flags.", nameof(untranslatedBits));
         Flags = flags;
         UntranslatedBits = untranslatedBits;
@@ -21,34 +21,36 @@ public readonly record struct EnemyExtraPropertyWord
     /// <summary>The translated flags.</summary>
     public EnemyExtraProperties Flags { get; }
 
-    /// <summary>Every other bit, verbatim.</summary>
-    public ushort UntranslatedBits { get; }
+    /// <summary>
+    /// Every other bit, verbatim, 0 through 65535. Every producer supplies a word (the constructor and
+    /// <see cref="WithUntranslatedBits"/> take one, and decoding masks the native word), only bitwise operations combine
+    /// them, and the native word places them unchanged beside the flags.
+    /// </summary>
+    public int UntranslatedBits { get; }
 
     /// <summary>A native word split into translated flags and untranslated bits.</summary>
-    public static EnemyExtraPropertyWord FromNativeWord(ushort word) => new(
-        (EnemyExtraProperties)word & EnemyPropertyFlagExtensions.TranslatedExtraFlags,
-        unchecked((ushort)(word & ~(ushort)EnemyPropertyFlagExtensions.TranslatedExtraFlags)));
+    public static EnemyExtraPropertyWord FromNativeWord(ushort word) => EnemyPropertyWordCodec.DecodeExtra(word);
 
     /// <summary>The native word.</summary>
-    public ushort ToNativeWord() => (ushort)((ushort)Flags | UntranslatedBits);
+    public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
 
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
     public bool HasAny(EnemyExtraProperties flags) => (Flags & flags) != 0;
 
     /// <summary>This value with <paramref name="flags"/> set.</summary>
-    public EnemyExtraPropertyWord With(EnemyExtraProperties flags) => new(Flags | flags, UntranslatedBits);
+    public EnemyExtraPropertyWord With(EnemyExtraProperties flags) => new(Flags | flags, checked((ushort)UntranslatedBits));
 
     /// <summary>This value with <paramref name="flags"/> cleared.</summary>
-    public EnemyExtraPropertyWord Without(EnemyExtraProperties flags) => new(Flags & ~flags, UntranslatedBits);
+    public EnemyExtraPropertyWord Without(EnemyExtraProperties flags) => new(Flags & ~flags, checked((ushort)UntranslatedBits));
 
     /// <summary>
     /// This value with explicitly named, still-untranslated bits set. A translated flag cannot be smuggled through
     /// this escape hatch.
     /// </summary>
     public EnemyExtraPropertyWord WithUntranslatedBits(ushort bits, string sourceContext) =>
-        (bits & (ushort)EnemyPropertyFlagExtensions.TranslatedExtraFlags) != 0
+        ((EnemyExtraProperties)bits & EnemyPropertyFlagExtensions.TranslatedExtraFlags) != 0
             ? throw new ArgumentException(
                 $"{sourceContext} attempted to write translated extra-property bits through the raw escape hatch: ${bits:X4}.",
                 nameof(bits))
-            : new(Flags, (ushort)(UntranslatedBits | bits));
+            : new(Flags, checked((ushort)(UntranslatedBits | bits)));
 }

@@ -135,7 +135,7 @@ internal sealed class EnemyTerrain
         for (int scanIndex = 0; scanIndex <= spanMinusOne; scanIndex++)
         {
             int remaining = spanMinusOne - scanIndex;
-            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = targetCenter, TargetEdge = targetEdge, MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
+            if (EnemyVerticalProbeIsSolid(level, slot, EnemyMoverBlockIndex(firstIndex + scanIndex), new EnemyVerticalProbe { TargetCenter = new(slot.Position.X.Whole, targetCenter), TargetEdge = new(slot.Position.X.Whole, targetEdge), MovingUp = movingUp, Remaining = remaining, SpanMinusOne = spanMinusOne }))
             {
                 collided = true;
                 break;
@@ -319,11 +319,11 @@ internal sealed class EnemyTerrain
                     level,
                     slot,
                     block,
-                    probe.TargetCenter,
+                    probe.TargetCenter.Y,
                     probe.MovingUp),
             RoomCollisionType.Slope => SquareVerticalSlopeIsSolid(
                 slot,
-                probe.TargetEdge,
+                probe.TargetEdge.Y,
                 block.Bts,
                 probe.Remaining,
                 probe.SpanMinusOne),

@@ -449,7 +449,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Spore Spawn hitbox shot AI $A5:{c.HitboxShotAiPointer:X4} is not translated.");
                 }
-                if (!SporeSpawnAcceptsProjectile(c.ProjectileType))
+                if (!SporeSpawnAcceptsProjectile(c.ProjectileType.Raw))
                 {
                     // The extended collision walker has already selected the vulnerable
                     // core. $ED5A rejects this projectile family before common damage.

@@ -2,10 +2,16 @@ namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
 /// The colliding projectile's or Samus's edges as <c>$A0:9A5A/$9B7F</c> compare them, whether the walker selects the shot
-/// (strict) or touch (inclusive) callback (#633), and whether the room has installed enemy artwork.
+/// (strict) or touch (inclusive) callback (#633), and whether the room has installed enemy artwork. The corners are room
+/// pixels whose sixteen-bit wrap is part of the comparison: the walker's signed differences are taken between wrapped
+/// edges.
 /// </summary>
+/// <param name="TopLeft">The target's left and top edges.</param>
+/// <param name="BottomRight">The target's right and bottom edges.</param>
+/// <param name="SelectShotCallback">Whether the walker selects the shot callback with strict edges, rather than the touch callback with inclusive ones.</param>
+/// <param name="ArtworkInstalled">Whether the room has installed enemy artwork.</param>
 internal readonly record struct EnemyHitboxProbe(
-    ushort Left, ushort Right, ushort Top, ushort Bottom, bool SelectShotCallback, bool ArtworkInstalled)
+    Position16<RoomPixels> TopLeft, Position16<RoomPixels> BottomRight, bool SelectShotCallback, bool ArtworkInstalled)
 {
     /// <summary>
     /// The shared literal `$A0:9A5A/$9B7F` rectangle test. The shot and touch walkers have different strict/inclusive
@@ -13,12 +19,12 @@ internal readonly record struct EnemyHitboxProbe(
     /// </summary>
     internal bool Overlaps(ushort left, ushort top, ushort right, ushort bottom) =>
         SelectShotCallback
-            ? !EnemyMath.IsNegative16(Right - left) &&
-              EnemyMath.IsNegative16(Left - right) &&
-              !EnemyMath.IsNegative16(Bottom - top) &&
-              EnemyMath.IsNegative16(Top - bottom)
-            : EnemyMath.IsNegative16(left - Right) &&
-              !EnemyMath.IsNegative16(right - Left) &&
-              EnemyMath.IsNegative16(top - Bottom) &&
-              !EnemyMath.IsNegative16(bottom - Top);
+            ? !EnemyMath.IsNegative16(BottomRight.X - left) &&
+              EnemyMath.IsNegative16(TopLeft.X - right) &&
+              !EnemyMath.IsNegative16(BottomRight.Y - top) &&
+              EnemyMath.IsNegative16(TopLeft.Y - bottom)
+            : EnemyMath.IsNegative16(left - BottomRight.X) &&
+              !EnemyMath.IsNegative16(right - TopLeft.X) &&
+              EnemyMath.IsNegative16(top - BottomRight.Y) &&
+              !EnemyMath.IsNegative16(bottom - TopLeft.Y);
 }

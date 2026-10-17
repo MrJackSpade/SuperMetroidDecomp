@@ -102,7 +102,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (!slot.Properties.HasAny(EnemyProperties.Deleted))
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
-                _roomStatus.EnemiesKilled = unchecked((ushort)(_roomStatus.EnemiesKilled + 1));
+                _roomStatus.RecordKill();
             }
             state.DeathAnimationStarted = true;
         }

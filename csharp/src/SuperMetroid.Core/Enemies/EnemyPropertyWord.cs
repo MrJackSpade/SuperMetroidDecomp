@@ -19,24 +19,27 @@ public readonly record struct EnemyPropertyWord
     /// <summary>The named engine flags of the high byte.</summary>
     public EnemyProperties Flags { get; }
 
-    /// <summary>The species-owned low byte.</summary>
-    public byte FamilyData { get; }
+    /// <summary>
+    /// The species-owned family bits, 0 through 255. Every producer supplies a byte (the constructor and
+    /// <see cref="WithFamilyData"/> take one, and decoding takes the word's low byte), so the value cannot leave that
+    /// range, and the native word places it unchanged beside the flags.
+    /// </summary>
+    public int FamilyData { get; }
 
     /// <summary>A native word as a property value; an unnamed high-byte flag is corrupt.</summary>
-    public static EnemyPropertyWord FromNativeWord(ushort word) =>
-        new(word.ReadFlagsChecked(), SnesLittleEndian.LowByte(word));
+    public static EnemyPropertyWord FromNativeWord(ushort word) => EnemyPropertyWordCodec.Decode(word);
 
     /// <summary>The native word.</summary>
-    public ushort ToNativeWord() => (ushort)((ushort)Flags | FamilyData);
+    public ushort ToNativeWord() => EnemyPropertyWordCodec.Encode(this);
 
     /// <summary>Whether any of <paramref name="flags"/> is set.</summary>
     public bool HasAny(EnemyProperties flags) => (Flags & flags) != 0;
 
     /// <summary>This value with <paramref name="flags"/> set.</summary>
-    public EnemyPropertyWord With(EnemyProperties flags) => new(Flags | flags, FamilyData);
+    public EnemyPropertyWord With(EnemyProperties flags) => new(Flags | flags, checked((byte)FamilyData));
 
     /// <summary>This value with <paramref name="flags"/> cleared.</summary>
-    public EnemyPropertyWord Without(EnemyProperties flags) => new(Flags & ~flags, FamilyData);
+    public EnemyPropertyWord Without(EnemyProperties flags) => new(Flags & ~flags, checked((byte)FamilyData));
 
     /// <summary>This value with <paramref name="clear"/> cleared, then <paramref name="set"/> set.</summary>
     public EnemyPropertyWord Replace(EnemyProperties clear, EnemyProperties set) => Without(clear).With(set);

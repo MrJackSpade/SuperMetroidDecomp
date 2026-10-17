@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Projectile">The overlapping beam or missile slot.</param>
 /// <param name="Projectiles">Samus's projectile owner, for collision preludes, impacts and reflection.</param>
 /// <param name="Samus">Samus, when the pass has one.</param>
-/// <param name="ProjectileType">The incoming projectile type word, sampled before any impact rewrites it.</param>
-/// <param name="ProjectileDamage">The incoming projectile damage.</param>
-/// <param name="ProjectileDirection">The incoming projectile direction word.</param>
+/// <param name="ProjectileType">The incoming projectile type, sampled before any impact rewrites it.</param>
+/// <param name="ProjectileDamage">The incoming projectile damage, a copy of the projectile's damage (0 through 65535).</param>
+/// <param name="ProjectileDirection">The incoming projectile direction and lifecycle state.</param>
 /// <param name="Family">The incoming projectile family.</param>
 /// <param name="UsesExtendedHitboxes">Whether the overlap came from the enemy's authored extended hitboxes.</param>
 /// <param name="HitboxShotAi">The named shot callback of the overlapping hitbox, if named.</param>
@@ -21,9 +21,9 @@ internal readonly record struct EnemyShotContext(
     SamusProjectileSlot Projectile,
     SamusProjectileSystem Projectiles,
     SamusState? Samus,
-    ushort ProjectileType,
-    ushort ProjectileDamage,
-    ushort ProjectileDirection,
+    SamusProjectileTypeWord ProjectileType,
+    int ProjectileDamage,
+    SamusProjectileDirectionWord ProjectileDirection,
     SamusProjectileFamily Family,
     bool UsesExtendedHitboxes,
     EnemyInteractionCallback? HitboxShotAi,

@@ -545,7 +545,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 c.Projectiles.EnemyImpacts.ApplyExtendedEnemyCollisionPrelude(c.Projectile.SlotIndex, c.MarksCollision);
                 if (c.HitboxShotAi == EnemyInteractionCallback.KraidArmShot)
-                    SpawnKraidArmShotExplosion(c.ProjectileType, c.Projectile.Position.Whole);
+                    SpawnKraidArmShotExplosion(c.ProjectileType.Raw, c.Projectile.Position.Whole);
                 return true;
             },
         });

@@ -1405,7 +1405,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileTypeWord projectileType,
-        ushort projectileDamage)
+        int projectileDamage)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidOperationException(
             "Mother Brain head shot AI ran without its multipart encounter state.");
@@ -1483,7 +1483,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusProjectileSlot projectile,
         SamusProjectileSystem projectiles,
         SamusProjectileTypeWord projectileType,
-        ushort projectileDamage)
+        int projectileDamage)
     {
         // The bank-$A0 walker marked the projectile before dispatching this callback.
         projectiles.EnemyImpacts.ApplyEnemyCollisionPrelude(

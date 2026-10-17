@@ -72,7 +72,7 @@ internal static class EnemyQuadraticSpeedsVerification
         // table. Out-of-table instruction-byte reads are not a fabricated math API.
         AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
 
-        var wings = new Func<ushort, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var wings = new Func<int, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         for (int index = 0; index < 95; index++)
         for (int low = 0; low < 256; low++)
         foreach (bool negative in new[] { false, true })

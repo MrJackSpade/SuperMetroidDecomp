@@ -78,7 +78,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
-    public ushort? LastKiHunterSoundEffect { get; private set; }
+    public SoundEffectId? LastKiHunterSoundEffect { get; private set; }
+
+    /// <summary>The detached wing's speed-index step: 384 per update while it slows, and per step while its reset is found.</summary>
+    private const int DetachedSpeedStep = 384;
+    /// <summary>The speed index a slowing detached wing lands on when the next step would go below zero.</summary>
+    private const int SlowestDetachedSpeedIndex = 256;
 
     /// <summary>Recognizes the green, yellow and red body definition records.</summary>
     internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
@@ -107,11 +112,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         body.Properties = body.Properties.With(EnemyProperties.ProcessInstructions);
         state.HasLostWings = false;
         InstallKiHunterInstruction(body, state, KiHunterProgram.FlyingLeft);
-        state.Angle = 0;
+        state.SwoopAngle = 0;
         state.Function = KiHunterEnemyFunction.FlyingPatrol;
         state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
-        state.UpperPatrolY = unchecked((ushort)(body.Position.Y.Whole - 16));
-        state.LowerPatrolY = unchecked((ushort)(state.UpperPatrolY + 32));
+        state.UpperPatrol = new(0, unchecked((ushort)(body.Position.Y.Whole - 16)));
+        state.LowerPatrol = state.UpperPatrol + new Offset16<RoomPixels>(0, 32);
         state.SpawnPosition = body.Position.Whole;
 
         // Parameter bit 15 selects the permanently ground-bound form used by two red
@@ -211,11 +216,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Velocity = state.Velocity.WithWholeY(unchecked((short)-state.Velocity.Y.WholePixels));
         }
-        else if (unchecked((short)(body.Position.Y.Whole - state.UpperPatrolY)) < 0)
+        else if ((body.Position.Whole - state.UpperPatrol).Y < 0)
         {
             state.Velocity = state.Velocity.WithWholeY(1);
         }
-        else if (unchecked((short)(body.Position.Y.Whole - state.LowerPatrolY)) >= 0)
+        else if ((body.Position.Whole - state.LowerPatrol).Y >= 0)
         {
             state.Velocity = state.Velocity.WithWholeY(-1);
         }
@@ -239,32 +244,32 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.AngularVelocityWhole = 0;
-        state.AngularVelocityFraction = 0;
+        state.AngularVelocity = SnesSignedSixteenSixteen.Zero;
         state.SwoopAnimationChanged = false;
         state.SwoopRadius = new Extent16<RoomPixels>(
             absoluteXDistance,
             unchecked((ushort)(samus.Position.Y.Whole - body.Position.Y.Whole)));
-        state.TargetXOrSpeedIndex = samus.Position.X.Whole;
-        state.SwoopOriginY = body.Position.Y.Whole;
+        state.SwoopTarget = new(samus.Position.X.Whole, 0);
+        state.SwoopOrigin = new(0, body.Position.Y.Whole);
         state.Function = KiHunterEnemyFunction.Swooping;
 
         bool swoopLeft = unchecked((short)signedXDistance) < 0;
         if (swoopLeft)
         {
-            state.MaximumAngularVelocity = unchecked((ushort)-2);
-            state.AngularAccelerationWhole = KiHunterMotionDefinitions.LeftSwoopAccelerationWhole;
-            state.AngularAccelerationFraction = KiHunterMotionDefinitions.LeftSwoopAccelerationFraction;
-            state.Angle = 255;
+            state.MaximumAngularVelocity = -2;
+            state.AngularAcceleration = SnesSignedSixteenSixteen.FromParts(
+                unchecked((short)KiHunterMotionDefinitions.LeftSwoopAccelerationWhole),
+                KiHunterMotionDefinitions.LeftSwoopAccelerationFraction);
+            state.SwoopAngle = 255;
             state.AnimationChangeAngle = 240;
             state.Velocity = state.Velocity.WithWholeX(-1);
         }
         else
         {
             state.MaximumAngularVelocity = 2;
-            state.AngularAccelerationWhole = 0;
-            state.AngularAccelerationFraction = KiHunterMotionDefinitions.RightSwoopAccelerationFraction;
-            state.Angle = 128;
+            state.AngularAcceleration = SnesSignedSixteenSixteen.FromParts(
+                0, KiHunterMotionDefinitions.RightSwoopAccelerationFraction);
+            state.SwoopAngle = SnesAngle.HalfTurn.TableIndex;
             state.AnimationChangeAngle = 144;
             state.Velocity = state.Velocity.WithWholeX(1);
         }
@@ -277,10 +282,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         RoomLevelData level)
     {
-        bool leftArc = unchecked((short)state.AngularAccelerationWhole) < 0;
+        bool leftArc = state.AngularAcceleration.RawValue < 0;
         bool beforeAnimationChange = leftArc
-            ? unchecked((short)(state.Angle - state.AnimationChangeAngle)) >= 0
-            : unchecked((short)(state.Angle - state.AnimationChangeAngle)) < 0;
+            ? state.SwoopAngle >= state.AnimationChangeAngle
+            : state.SwoopAngle < state.AnimationChangeAngle;
         if (!beforeAnimationChange && !state.SwoopAnimationChanged)
         {
             state.SwoopAnimationChanged = true;
@@ -292,32 +297,26 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                     : KiHunterProgram.SwoopRight);
         }
 
-        (state.AngularVelocityWhole, state.AngularVelocityFraction) = AddKiHunterFixed(
-            state.AngularVelocityWhole,
-            state.AngularVelocityFraction,
-            state.AngularAccelerationWhole,
-            state.AngularAccelerationFraction);
-        if (leftArc)
-        {
-            if (unchecked((short)(state.AngularVelocityWhole - state.MaximumAngularVelocity)) < 0)
-                state.AngularVelocityWhole = state.MaximumAngularVelocity;
-        }
-        else if (unchecked((short)(state.AngularVelocityWhole - state.MaximumAngularVelocity)) >= 0)
-        {
-            state.AngularVelocityWhole = state.MaximumAngularVelocity;
-        }
+        // The cap replaces only the whole part; the fraction keeps accumulating beneath it.
+        state.AngularVelocity += state.AngularAcceleration;
+        bool pastCap = leftArc
+            ? state.AngularVelocity.WholePixels < state.MaximumAngularVelocity
+            : state.AngularVelocity.WholePixels >= state.MaximumAngularVelocity;
+        if (pastCap)
+            state.AngularVelocity = state.AngularVelocity.WithWholePixels(checked((short)state.MaximumAngularVelocity));
 
-        state.Angle = unchecked((ushort)(state.Angle + state.AngularVelocityWhole));
-        if ((!leftArc && unchecked((short)(state.Angle - 256)) >= 0) ||
-            (leftArc && unchecked((short)(state.Angle - 128)) < 0))
+        state.SwoopAngle += state.AngularVelocity.WholePixels;
+        if ((!leftArc && state.SwoopAngle >= SnesAngle.TableUnitsPerTurn) ||
+            (leftArc && state.SwoopAngle < SnesAngle.HalfTurn.TableIndex))
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
             return;
         }
 
+        ushort tableAngle = SnesAngle.NormalizeTableIndex(state.SwoopAngle).TableIndex;
         ushort targetX = unchecked((ushort)(
-            state.TargetXOrSpeedIndex +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle, state.SwoopRadius.X)));
+            state.SwoopTarget.X +
+            EnemyMath.ReadEightBitCosineProduct(tableAngle, state.SwoopRadius.X)));
         int horizontalDisplacement = SnesSixteenSixteen.FromWhole((short)(targetX - body.Position.X.Whole));
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
@@ -328,8 +327,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         EnemyTerrain.AlignEnemyYWithNonSquareSlope(level, body);
         ushort targetY = unchecked((ushort)(
-            state.SwoopOriginY +
-            EnemyMath.ReadEightBitNegativeSineProduct(state.Angle, state.SwoopRadius.Y)));
+            state.SwoopOrigin.Y +
+            EnemyMath.ReadEightBitNegativeSineProduct(tableAngle, state.SwoopRadius.Y)));
         int verticalDisplacement = SnesSixteenSixteen.FromWhole((short)(targetY - body.Position.Y.Whole));
         if (_terrain.MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
@@ -511,14 +510,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports detached wing orbit <c>$A8:F7DB</c>, including its odd ROM word read.</summary>
     internal static void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterEnemyState state)
     {
-        state.Angle = unchecked((ushort)(state.Angle + ReadKiHunterQuadraticAngleDelta(
-            state.TargetXOrSpeedIndex,
-            negativeHalf: true)));
+        state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
+            state.DetachedSpeedIndex,
+            negativeHalf: true));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ushort byteAngle = SnesAngle.FromRaw(state.Angle).TableIndex;
+        ushort byteAngle = state.WingArcAngle.TableIndex;
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(byteAngle, radius) - state.OrbitOffset);
 
-        if (unchecked((short)(state.Angle + SnesAngle.QuarterTurn.RawValue)) < 0)
+        if (LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
             BeginDetachedKiHunterWingCollisionArc(wings, state);
             return;
@@ -532,11 +531,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state,
         RoomLevelData level)
     {
-        state.Angle = unchecked((ushort)(state.Angle + ReadKiHunterQuadraticAngleDelta(
-            state.TargetXOrSpeedIndex,
-            negativeHalf: false)));
+        state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
+            state.DetachedSpeedIndex,
+            negativeHalf: false));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        ushort byteAngle = SnesAngle.FromRaw(state.Angle).TableIndex;
+        ushort byteAngle = state.WingArcAngle.TableIndex;
         ushort desiredY = unchecked((ushort)(
             state.OrbitCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(byteAngle, radius) -
@@ -554,7 +553,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         wings.Position = wings.Position.WithWholeX(unchecked((ushort)(
             state.OrbitCenter.X + EnemyMath.ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcOffset.X)));
-        if (unchecked((short)(state.Angle + SnesAngle.QuarterTurn.RawValue)) >= 0)
+        if (!LiesWithinMiddleHalfTurn(state.WingArcAngle))
         {
             BeginDetachedKiHunterWingOrbit(wings, state);
             return;
@@ -608,13 +607,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         state.OrbitOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.DetachedOrbitOffsetAngle, radius);
         state.FallingArcOffset = EnemyMath.CircleOffset(KiHunterMotionDefinitions.FallingArcOffsetAngle, radius);
-        state.Angle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
+        state.WingArcAngle = SnesAngle.FromRaw(KiHunterMotionDefinitions.DetachedOrbitStartAngle);
         state.Function = KiHunterEnemyFunction.DetachedWing;
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.OrbitCenter = new Position16<RoomPixels>(
             wings.Position.X.Whole,
-            unchecked((ushort)(state.SavedWingPosition.Y - state.LowerPatrolY)));
-        state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
+            unchecked((ushort)(state.SavedWingPosition - state.LowerPatrol).Y));
+        state.DetachedSpeedIndex = state.DetachedSpeedReset;
         InstallKiHunterInstruction(
             wings,
             state,
@@ -623,18 +622,19 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
-    /// <summary>Walks the quadratic speed table until detached-wing acceleration crosses the native $2000 threshold.</summary>
+    /// <summary>
+    /// Walks the quadratic speed table until the detached wing's speed sum reaches its threshold. The reset cannot wrap:
+    /// the table read rejects an index past its last record long before the reset would leave its sixteen-bit range.
+    /// </summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
         state.DetachedSpeedReset = 0;
-        state.TargetXOrSpeedIndex = 0;
+        state.DetachedSpeedIndex = 0;
         do
         {
-            state.DetachedSpeedReset = unchecked((ushort)(state.DetachedSpeedReset + 384));
-            ushort index = unchecked((byte)(SnesEightEight.WholeOf(state.DetachedSpeedReset)));
-            state.DetachedSpeedAccumulator = unchecked((ushort)(
-                state.DetachedSpeedAccumulator +
-                EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + 1)));
+            state.DetachedSpeedReset += DetachedSpeedStep;
+            int index = SnesEightEight.WholeOf(state.DetachedSpeedReset);
+            state.AccumulateDetachedSpeed(EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + 1));
         }
         while (unchecked((short)(state.DetachedSpeedAccumulator - KiHunterMotionDefinitions.DetachedSpeedThreshold)) < 0);
     }
@@ -645,8 +645,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state)
     {
         state.WingFunction = KiHunterWingFunction.Orbit;
-        state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
-        state.Angle = KiHunterMotionDefinitions.DetachedOrbitStartAngle;
+        state.DetachedSpeedIndex = state.DetachedSpeedReset;
+        state.WingArcAngle = SnesAngle.FromRaw(KiHunterMotionDefinitions.DetachedOrbitStartAngle);
         state.OrbitCenter = wings.Position.Whole;
     }
 
@@ -656,27 +656,34 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         KiHunterEnemyState state)
     {
         state.WingFunction = KiHunterWingFunction.FallingCollisionArc;
-        state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
-        state.Angle = KiHunterMotionDefinitions.FallingArcStartAngle;
+        state.DetachedSpeedIndex = state.DetachedSpeedReset;
+        state.WingArcAngle = SnesAngle.FromRaw(KiHunterMotionDefinitions.FallingArcStartAngle);
         state.OrbitCenter = wings.Position.Whole;
     }
 
     /// <summary>Reads the unaligned quadratic-table word used by one half of detached-wing orbit motion.</summary>
-    internal static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
+    internal static ushort ReadKiHunterQuadraticAngleDelta(int speedIndex, bool negativeHalf)
     {
-        int index = unchecked((byte)(SnesEightEight.WholeOf(speedIndex)));
+        int index = SnesEightEight.WholeOf(speedIndex);
         // These deliberately unaligned reads are literal: F7DB reads at record +5 and
         // F8AD at record +1, combining adjacent bytes instead of consuming a normal 16.16
         // table component. Replacing this with ReadQuadraticEnemySpeed changes the orbit.
         return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (negativeHalf ? 5 : 1));
     }
 
-    /// <summary>Subtracts the native $0180 speed step, wrapping a negative result to $0100.</summary>
+    /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
     {
-        short next = unchecked((short)(state.TargetXOrSpeedIndex - 384));
-        state.TargetXOrSpeedIndex = next < 0 ? (ushort)256 : unchecked((ushort)next);
+        int next = state.DetachedSpeedIndex - DetachedSpeedStep;
+        state.DetachedSpeedIndex = next < 0 ? SlowestDetachedSpeedIndex : next;
     }
+
+    /// <summary>
+    /// Whether a detached wing's arc angle lies from a quarter turn up to three quarters: the cartridge's sign test of
+    /// the angle plus a quarter turn, which switches the wing from its orbit to its falling arc and back.
+    /// </summary>
+    private static bool LiesWithinMiddleHalfTurn(SnesAngle angle) =>
+        angle.AddRaw(SnesAngle.QuarterTurn.RawValue).CompareTo(SnesAngle.HalfTurn) >= 0;
 
     /// <summary>Instruction <c>$A8:F526</c>: return to steady art and sync attached wings.</summary>
     private KiHunterProgram ReturnKiHunterToSteadyInstruction(RoomEnemySlot body)
@@ -706,7 +713,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Emits the acid projectile and sound, then starts the native 24-frame spit wait.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, bool movingRight)
     {
-        LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit.Value;
+        LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.KiHunterAcidSpit, maximumQueued: 6);
         SpawnKiHunterAcidSpit(body, movingRight);
         RequireKiHunterState(body).WaitTimer = NativeCountdown.Start(KiHunterSpitWaitFrames);
@@ -821,19 +828,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static SnesSignedSixteenSixteen KiHunterGravity => SnesSignedSixteenSixteen.FromParts(
         unchecked((short)KiHunterMotionDefinitions.GravityWhole),
         KiHunterMotionDefinitions.GravityFraction);
-
-    /// <summary>Adds split 16.16 motion with the fractional carry retained in the whole word.</summary>
-    private static (ushort Whole, ushort Fraction) AddKiHunterFixed(
-        ushort whole,
-        ushort fraction,
-        ushort deltaWhole,
-        ushort deltaFraction)
-    {
-        uint lowSum = (uint)fraction + deltaFraction;
-        return (
-            unchecked((ushort)(whole + deltaWhole + (SnesCarry.OutOfWord(lowSum)))),
-            unchecked((ushort)lowSum));
-    }
 
     /// <summary>Requires a live Samus, room collision data and a body definition before body-only movement AI.</summary>
     private static void RequireKiHunterWorld(

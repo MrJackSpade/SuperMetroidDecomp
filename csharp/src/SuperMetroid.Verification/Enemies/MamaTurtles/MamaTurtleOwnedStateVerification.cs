@@ -29,7 +29,7 @@ internal static class MamaTurtleOwnedStateVerification
 
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(-1, 0));
         MamaTurtleBehavior.ReverseMamaTurtleAtWall(state);
-        AssertEqual(SnesSignedSixteenSixteen.FromParts(1, 0), state.Velocity.X, "a whole-pixel reversal carries");
+        AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0), state.Velocity.X, "the carry-in wraps a -1 whole-pixel reversal to zero");
         AssertEqual(SnesSignedSixteenSixteen.FromParts(-1, 0x1000), state.XAcceleration, "the carried reversal skips the acceleration's final increment");
 
         state.Function = MamaTurtleAiFunction.Hovering;

@@ -414,3 +414,10 @@ Commit and push that update too.
     - Samus projectile slot consumers in enemy and boss files must take the typed slot API (owner question 2).
     - Remaining Q7 room-identity work needs both generators edited.
     - Q8 sprite objects and Q10 RNG need every consumer in one batch.
+- 2026-10-17, single session resumed at `602d5546e`:
+  - The compile break was the W1 owned-state checks missing `using SuperMetroid.Core;` for the fixture binder;
+    every W1 family otherwise compiled.
+  - The Mama Turtle check guessed the wall reversal of -1.0; the routine (unchanged by W1) wraps it to 0 through
+    the carry-in, and the assertion now says so.
+  - Census 261 sites, all Core (SME6347 235, SME6292 10, SME6341 10, SME6342 6); no (rule, file) pair rose
+    against the 420-site census at `6027af33f`.

@@ -67,9 +67,9 @@ internal static class IntroPoseHistoryVerification
             SamusState? before = intro.flashbackSamus;
             SamusPoseId? oldPose = before?.Pose;
             SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
-            ushort priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
+            int priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
             SamusPoseId olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
-            ushort olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
+            int olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
             bool demoEnabled = intro.flashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();

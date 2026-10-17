@@ -47,7 +47,7 @@ internal static class XrayControlsVerification
                 "selected inactive X-ray falls through to ordinary beam producer when Run is released");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
             SamusPoseId poseBeforeActivation = samus.PoseHistory.PreviousPose;
-            ushort metadataBeforeActivation = samus.PoseHistory.PreviousDirectionAndMovement;
+            int metadataBeforeActivation = samus.PoseHistory.PreviousDirectionAndMovement;
             // Construct an already-placed bomb, far from Samus, to isolate the shared
             // ten-slot update gate. Its long instruction delay avoids consuming data.
             var pendingBomb = runtime.BombProjectiles.Slots[0];

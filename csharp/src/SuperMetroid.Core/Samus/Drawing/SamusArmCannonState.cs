@@ -22,20 +22,40 @@ public sealed class SamusArmCannonState
     [field: NonSerialized]
     public SamusArmCannonArtworkCatalog? Artwork { get; set; }
 
-    /// <summary>Low byte of WRAM `$0AA6`: zero closed, one open/opening.</summary>
-    public byte OpenFlag { get; internal set; }
+    /// <summary>Low byte of WRAM `$0AA6`, 0 through 255: zero closed, one open/opening.</summary>
+    public int OpenFlag
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
-    /// <summary>High byte at WRAM `$0AA7`: one while either transition is incomplete.</summary>
-    public byte CloseFlag { get; internal set; }
+    /// <summary>High byte at WRAM `$0AA7`, 0 through 255: one while either transition is incomplete.</summary>
+    public int CloseFlag
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
-    /// <summary>WRAM `$0AA8`; zero is invisible, one/two transition, three fully open.</summary>
-    public ushort Frame { get; internal set; }
+    /// <summary>WRAM `$0AA8`, 0 through 65535; zero is invisible, one/two transition, three fully open.</summary>
+    public int Frame
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>WRAM `$0AAA`; the HUD selection producer saturates this at two.</summary>
-    public ushort ToggleFlag { get; internal set; }
+    /// <summary>WRAM `$0AAA`, 0 through 65535; the HUD selection producer saturates this at two.</summary>
+    public int ToggleFlag
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>Pose-record byte one copied to WRAM `$0AAC` on every draw pass.</summary>
-    public ushort DrawingMode { get; internal set; }
+    /// <summary>Pose-record byte one copied to WRAM `$0AAC` on every draw pass, 0 through 65535.</summary>
+    public int DrawingMode
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Where this frame's cover is drawn relative to the body. The full source byte is retained in
@@ -65,11 +85,11 @@ public sealed class SamusArmCannonState
         }
         else
         {
-            ushort incremented = unchecked((ushort)(ToggleFlag + 1));
-            ToggleFlag = incremented < 3 ? incremented : (ushort)2;
+            int incremented = unchecked((ushort)(ToggleFlag + 1));
+            ToggleFlag = incremented < 3 ? incremented : 2;
         }
 
-        ushort frameBefore = Frame;
+        int frameBefore = Frame;
         bool transitionStarted = false;
         if (CloseFlag != 0 || (transitionStarted = TryStartTransition(samus.SelectedHudItem)))
             AdvanceFrame();
@@ -148,7 +168,7 @@ public sealed class SamusArmCannonState
         // The packed native word write changes the low open byte and sets high close byte
         // one simultaneously. Closing begins from synthetic frame four; the same call then
         // advances it to visible frame three.
-        Frame = desiredOpenFlag != 0 ? (ushort)0 : (ushort)4;
+        Frame = desiredOpenFlag != 0 ? 0 : 4;
         OpenFlag = desiredOpenFlag;
         CloseFlag = 1;
         return true;

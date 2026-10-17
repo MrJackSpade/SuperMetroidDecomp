@@ -20,7 +20,7 @@ internal sealed class SamusInputSnapshot
     /// timer. A grab-interrupted Flash keeps the latter ticking indefinitely, so
     /// native jump admission still sees a nonzero shine without a Stored phase.
     /// </summary>
-    public ushort SharedShineTimer => _samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
+    public int SharedShineTimer => _samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
         ? _samus.CrystalFlash.SpecialPaletteTimer.RawValue : _samus.Shinespark.ShineTimer.RawValue;
 
     /// <summary>
@@ -32,8 +32,12 @@ internal sealed class SamusInputSnapshot
     /// </summary>
     public SnesButton PreviousDrawNewInput { get; internal set; }
 
-    /// <summary>WRAM $0AF4: consecutive held-Jump history updated by $90:EAB3.</summary>
-    public ushort AutoJumpTimer { get; internal set; }
+    /// <summary>WRAM $0AF4, 0 through 65535: consecutive held-Jump history updated by $90:EAB3.</summary>
+    public int AutoJumpTimer
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>WRAM $0DFE: held input published by $90:EAB3 and main-loop tail $82:8AB0.</summary>
     public SnesButton PreviousDrawHeldInput { get; internal set; }
@@ -74,7 +78,7 @@ internal sealed class SamusInputSnapshot
     {
         SnesButton jump = SnesButton.A;
         AutoJumpTimer = (held & PreviousDrawHeldInput & jump) != 0
-            ? unchecked((ushort)(AutoJumpTimer + 1)) : (ushort)0;
+            ? unchecked((ushort)(AutoJumpTimer + 1)) : 0;
         PreviousDrawHeldInput = held;
         PreviousDrawNewInput = newlyPressed;
     }

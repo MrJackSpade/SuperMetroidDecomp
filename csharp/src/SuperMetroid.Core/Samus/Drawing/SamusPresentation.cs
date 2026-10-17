@@ -19,11 +19,19 @@ internal sealed class SamusPresentation
     {
         _samus = owner;
     }
-    /// <summary>Last top-half index passed to bank-$81's Samus spritemap routine.</summary>
-    public ushort TopSpritemapIndex { get; internal set; }
+    /// <summary>Last top-half index passed to bank-$81's Samus spritemap routine, 0 through 65535.</summary>
+    public int TopSpritemapIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>Last bottom-half index passed to bank-$81's Samus spritemap routine.</summary>
-    public ushort BottomSpritemapIndex { get; internal set; }
+    /// <summary>Last bottom-half index passed to bank-$81's Samus spritemap routine, 0 through 65535.</summary>
+    public int BottomSpritemapIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Last screen-space origin calculated from world position and layer-1 scroll.</summary>
     public Position16<ScreenPixels> SpritemapPosition { get; internal set; }

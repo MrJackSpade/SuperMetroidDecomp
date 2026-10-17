@@ -202,9 +202,9 @@ public sealed class SamusProjectileSystem
                 bool catalogued = samus.Presentation.ChargeColors is not null &&
                     (pseudoScrew
                         ? SamusChargePaletteDefinitions.TryPseudoScrew(
-                            suitOffset, Charge.SamusChargePaletteIndex, out palettePointer)
+                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out palettePointer)
                         : SamusChargePaletteDefinitions.TryChargedBeam(
-                            suitOffset, Charge.SamusChargePaletteIndex, out palettePointer));
+                            suitOffset, checked((ushort)Charge.SamusChargePaletteIndex), out palettePointer));
                 if (!catalogued)
                     throw new InvalidDataException(
                         $"Charge palette offset {Charge.SamusChargePaletteIndex} is not compiled.");
@@ -214,7 +214,7 @@ public sealed class SamusProjectileSystem
                     .ApplyCharge(cgram, pseudoScrew, suitOffset / 2, paletteIndex);
 
                 Charge.SamusChargePaletteIndex = Charge.SamusChargePaletteIndex >= 10
-                    ? (ushort)0
+                    ? 0
                     : unchecked((ushort)(Charge.SamusChargePaletteIndex + 2));
                 LastBeamChargePaletteStep = new(
                     pseudoScrew

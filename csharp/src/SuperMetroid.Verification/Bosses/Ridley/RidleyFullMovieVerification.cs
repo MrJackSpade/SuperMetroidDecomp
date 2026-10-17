@@ -959,7 +959,7 @@ internal static class RidleyFullMovieVerification
             return words.ToArray();
         }
         int pairedBodyDraws = 0, phaseShiftedBodyDraws = 0, retainedHiddenBodyRecords = 0;
-        (ushort Top, ushort Bottom, ushort X, ushort Y) BodyRecord() =>
+        (int Top, int Bottom, ushort X, ushort Y) BodyRecord() =>
             (samus.Presentation.TopSpritemapIndex, samus.Presentation.BottomSpritemapIndex,
                 samus.Presentation.SpritemapPosition.X, samus.Presentation.SpritemapPosition.Y);
         var previousBodyRecord = BodyRecord();
@@ -972,7 +972,7 @@ internal static class RidleyFullMovieVerification
             // The cartridge parks an unaimed whip target at $FFFF.
             static ushort WhipTargetWord(int? target) => target is int angle ? checked((ushort)angle) : ushort.MaxValue;
 
-            void Check(string name, ushort actual, int address)
+            void Check(string name, int actual, int address)
             {
                 ushort expected = W(address);
                 if (actual != expected) mismatches.Add($"{name}: native={expected:X4} port={actual:X4}");
@@ -1067,7 +1067,7 @@ internal static class RidleyFullMovieVerification
                         AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(cannon.TileSource), covers[0].Artwork.Id.Variant,
                             $"update {frame}: cannon draw binds the reference cover tile");
                 }
-                Check("Cannon flags", (ushort)(SnesLittleEndian.Word(samus.ArmCannon.OpenFlag, samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
+                Check("Cannon flags", SnesLittleEndian.Word(checked((byte)samus.ArmCannon.OpenFlag), checked((byte)samus.ArmCannon.CloseFlag)), NativeSnapshotMemory.CannonFlags);
                 Check("Cannon frame", samus.ArmCannon.Frame, NativeSnapshotMemory.CannonFrame);
                 Check("Cannon toggle", samus.ArmCannon.ToggleFlag, NativeSnapshotMemory.CannonToggle);
                 Check("Cannon drawing mode", samus.ArmCannon.DrawingMode, NativeSnapshotMemory.CannonDrawingMode);

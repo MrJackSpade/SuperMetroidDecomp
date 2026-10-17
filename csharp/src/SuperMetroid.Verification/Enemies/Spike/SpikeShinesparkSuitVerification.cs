@@ -66,7 +66,7 @@ internal static class SpikeShinesparkSuitVerification
         uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
         ushort frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
-        ushort frozenShineTimer = frozenSamus.InputSnapshot.SharedShineTimer;
+        int frozenShineTimer = frozenSamus.InputSnapshot.SharedShineTimer;
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>

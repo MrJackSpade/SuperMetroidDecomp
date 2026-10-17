@@ -44,12 +44,12 @@ internal static class SamusArmCannonDefinitionsVerification
             // the transition flag and advances the cover frame in the same call. Unchanged
             // flags and frame therefore prove that no transition began.
             SamusArmCannonState cannon = samus.ArmCannon;
-            (byte Open, byte Close, ushort Frame) initial =
+            (int Open, int Close, int Frame) initial =
                 (cannon.OpenFlag, cannon.CloseFlag, cannon.Frame);
             cannon.Update(samus);
             AssertEqual(initial, (cannon.OpenFlag, cannon.CloseFlag, cannon.Frame),
                 $"arm-cannon HUD item {selectedHudItem} waits for a stable second sample");
-            byte openBeforeSecond = cannon.OpenFlag;
+            int openBeforeSecond = cannon.OpenFlag;
             cannon.Update(samus);
             AssertEqual(
                 expected != 0,
@@ -60,6 +60,23 @@ internal static class SamusArmCannonDefinitionsVerification
                 cannon.OpenFlag,
                 $"arm-cannon HUD item {selectedHudItem} publishes its compiled open flag");
         }
+
+        // An imported toggle word at its top wraps to zero on a stable sample, as the native 16-bit INC does, and the
+        // closed Beam selection starts no transition while it counts back up.
+        var wrapping = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, SelectedHudItem = HudItem.Beam };
+        PrepareRetailSamusFixture(wrapping);
+        wrapping.ArmCannon.Artwork = artwork;
+        wrapping.ArmCannon.ToggleFlag = ushort.MaxValue;
+        wrapping.ArmCannon.Update(wrapping);
+        AssertEqual(0, wrapping.ArmCannon.ToggleFlag, "a stable sample wraps the toggle word from 65535 to zero");
+        wrapping.ArmCannon.Update(wrapping);
+        AssertEqual(1, wrapping.ArmCannon.ToggleFlag, "the wrapped toggle word counts up again");
+        AssertEqual((0, 0, 0), (wrapping.ArmCannon.OpenFlag, wrapping.ArmCannon.CloseFlag, wrapping.ArmCannon.Frame),
+            "the closed Beam selection starts no transition");
+        AssertThrows<ArgumentOutOfRangeException>(() => wrapping.ArmCannon.ToggleFlag = ushort.MaxValue + 1,
+            "the toggle word rejects a value above sixteen bits");
+        AssertThrows<ArgumentOutOfRangeException>(() => wrapping.ArmCannon.OpenFlag = byte.MaxValue + 1,
+            "the open flag rejects a value above a byte");
 
         AssertThrows<ArgumentOutOfRangeException>(
             () => SamusArmCannonDefinitions.DesiredOpenFlag(

@@ -147,7 +147,7 @@ internal static void VerifySamusRenderingSlice()
         ?? throw new InvalidOperationException("Verification requires bound Samus spritemaps.");
     SpriteDraw[] body = [.. oamFrame.Draws.Select(ordered => ordered.Draw).Where(draw => draw.Source.Kind == SpriteSourceKind.Samus)];
     AssertEqual(2, body.Length, "Samus pose 1 publishes its top and bottom body frames");
-    foreach ((SpriteDraw draw, ushort index, int instance) in new[] {
+    foreach ((SpriteDraw draw, int index, int instance) in new[] {
         (body[0], samus.Presentation.TopSpritemapIndex, 0), (body[1], samus.Presentation.BottomSpritemapIndex, 1) })
     {
         AssertTrue(spritemaps.TryGet(index, out SamusSpritemapDefinition? definition), "body spritemap is installed");
@@ -547,14 +547,14 @@ internal static void VerifySamusArmCannon()
         "pose record publishes after-body arm-cannon draw mode");
 
     samus.SelectedHudItem = HudItem.Missile;
-    byte openBeforeSelection = cannon.OpenFlag;
+    int openBeforeSelection = cannon.OpenFlag;
     cannon.Update(samus);
     AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeSelection,
         "new missile selection waits one stable HUD frame");
     AssertEqual(0, cannon.Frame,
         "selection-change frame keeps cannon closed");
 
-    byte openBeforeOpening = cannon.OpenFlag;
+    int openBeforeOpening = cannon.OpenFlag;
     cannon.Update(samus);
     AssertTrue(openBeforeOpening == 0 && cannon.OpenFlag != openBeforeOpening,
         "second missile sample begins opening");
@@ -610,11 +610,11 @@ internal static void VerifySamusArmCannon()
     // Closing mirrors opening but starts from synthetic frame four. The same stable-sample
     // call decrements immediately to three, followed by two, one, and invisible zero.
     samus.SelectedHudItem = HudItem.Beam;
-    byte openBeforeDeselection = cannon.OpenFlag;
+    int openBeforeDeselection = cannon.OpenFlag;
     cannon.Update(samus);
     AssertTrue(cannon.ToggleFlag == 1 && cannon.OpenFlag == openBeforeDeselection,
         "item deselection also waits one stable frame");
-    byte openBeforeClosing = cannon.OpenFlag;
+    int openBeforeClosing = cannon.OpenFlag;
     cannon.Update(samus);
     AssertTrue(openBeforeClosing == 1 && cannon.OpenFlag == 0,
         "second empty-item sample begins closing");

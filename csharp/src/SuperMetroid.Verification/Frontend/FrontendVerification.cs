@@ -493,7 +493,7 @@ internal static void VerifySavedGameLoadAppearance()
 
     var appearanceHistory = runtime.Player.IntroducedSamus.PoseHistory;
     SamusPoseId appearancePose = appearanceHistory.PreviousPose;
-    ushort appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
+    int appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
     // Distinct older sample exposes the otherwise invisible same-pose shift.
     appearanceHistory.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
     appearanceHistory.LastDifferentDirectionAndMovement = 0x0308;

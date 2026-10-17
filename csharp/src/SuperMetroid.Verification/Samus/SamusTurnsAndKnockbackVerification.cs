@@ -37,6 +37,12 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         autoJump.InputSnapshot.SnapshotDrawInput(0, 0);
         AssertEqual(0, autoJump.InputSnapshot.AutoJumpTimer, "release clears auto-jump history");
     }
+    var wrappingAutoJump = new SamusState { InputSnapshot = { AutoJumpTimer = ushort.MaxValue } };
+    wrappingAutoJump.InputSnapshot.PublishMainLoopHeldInput(SnesButton.A);
+    wrappingAutoJump.InputSnapshot.SnapshotDrawInput(SnesButton.A, 0);
+    AssertEqual(0, wrappingAutoJump.InputSnapshot.AutoJumpTimer, "held Jump wraps the auto-jump timer from 65535 to zero");
+    AssertThrows<ArgumentOutOfRangeException>(() => wrappingAutoJump.InputSnapshot.AutoJumpTimer = ushort.MaxValue + 1,
+        "the auto-jump timer rejects a value above sixteen bits");
 
     // F8 must yield to precisely the four ordinary jump targets selected by
     // alpha, even when the turn animation expires on that same frame (#474).

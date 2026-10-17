@@ -722,22 +722,26 @@ internal static class LookupStream5Verification
                 PhantoonCollisionComponent component = components[index];
                 AssertEqual(unchecked((short)ReadVerificationWord(rom, record)), component.Offset.X, "Native component X");
                 AssertEqual(unchecked((short)ReadVerificationWord(rom, record + 2)), component.Offset.Y, "Native component Y");
-                AssertEqual(ReadVerificationWord(rom, record + 6), component.HitboxPointer, "Native collision identity");
                 componentCount++;
-                if (!lists.Add(component.HitboxPointer)) continue;
-                int address = 0xa70000 | component.HitboxPointer;
-                var hitboxes = PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
+                // The ROM names the component's hitbox list by address; the oracle decodes the list it names, and
+                // every compiled component must hold exactly those rectangles and reactions, so a component holding
+                // another list fails.
+                ushort listPointer = ReadVerificationWord(rom, record + 6);
+                lists.Add(listPointer);
+                int address = 0xa70000 | listPointer;
+                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
                 AssertEqual((int)ReadVerificationWord(rom, address), hitboxes.Count, "Native hitbox extent");
                 for (int hitbox = 0; hitbox < hitboxes.Count; hitbox++)
                 {
                     int native = address + 2 + hitbox * 12;
-                    var expected = new PhantoonCollisionHitbox(unchecked((short)ReadVerificationWord(rom, native)),
+                    (short, short, short, short, ushort, ushort) expected = (unchecked((short)ReadVerificationWord(rom, native)),
                         unchecked((short)ReadVerificationWord(rom, native + 2)), unchecked((short)ReadVerificationWord(rom, native + 4)),
                         unchecked((short)ReadVerificationWord(rom, native + 6)), ReadVerificationWord(rom, native + 8), ReadVerificationWord(rom, native + 10));
-                    AssertEqual(expected, hitboxes[hitbox], "Native shape and callback pair");
+                    PhantoonCollisionHitbox actual = hitboxes[hitbox];
+                    (short, short, short, short, ushort, ushort) compiled = (actual.Left, actual.Top, actual.Right, actual.Bottom,
+                        PhantoonHitboxCallbackCodec.ToCallbackWord(actual.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(actual.Shot));
+                    AssertEqual(expected, compiled, "Native shape and callback pair");
                 }
-                AssertThrows<IndexOutOfRangeException>(() => _ = hitboxes[-1], "Hitbox lower bound");
-                AssertThrows<IndexOutOfRangeException>(() => _ = hitboxes[hitboxes.Count], "Hitbox upper bound");
             }
             AssertEqual(components.Count, components.ToArray().Length, "Component enumeration compatibility");
             AssertThrows<IndexOutOfRangeException>(() => _ = components[components.Count], "Component upper bound");
@@ -749,7 +753,6 @@ internal static class LookupStream5Verification
         AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
         AssertEqual((ushort)0, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
-        AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.HitboxesAt(0), "Hitbox domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }
     /// <summary>Compares Phantoon fade color rows and transition timing with cartridge palettes.</summary>
@@ -1260,7 +1263,7 @@ internal static class LookupStream5Verification
         var body = owner.SlotTable.Slots[1];
         body.Bind(EnemyDefinitionId.Eye, body.Definition);
         new Action<RoomEnemySlot>(owner.MorphBallEyeBehavior.InitializeMorphBallEye)(body);
-        (owner.MorphBallEyeBehavior.MorphBallEyeStates[1] ?? throw new InvalidOperationException("Verification requires owner.MorphBallEyeBehavior.MorphBallEyeStates[1].")).ActivatedFlag = 1;
+        (owner.MorphBallEyeBehavior.MorphBallEyeStates[1] ?? throw new InvalidOperationException("Verification requires owner.MorphBallEyeBehavior.MorphBallEyeStates[1].")).IsActivated = true;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.BodySlotIndex = 1;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Full;
         owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex = 0xfff0;
@@ -1381,7 +1384,7 @@ internal static class LookupStream5Verification
                 AssertEqual(minimumOperands[column] == 0 ? 0 : (int)Word(minimumOperands[column]),
                     DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
             }
-            var state = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], variant, 0, new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe240, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 148 });
+            var state = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], variant, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 148 });
             Action<DeadSidehopperEnemyState, ushort, bool> copy = enemies.DeadSidehopperBehavior.CopyOrMoveDeadSidehopperPixelRow;
             foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
             foreach (bool move in new[] { false, true })

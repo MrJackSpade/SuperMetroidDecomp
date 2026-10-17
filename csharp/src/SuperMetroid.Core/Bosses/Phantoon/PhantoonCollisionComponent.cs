@@ -1,4 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
-/// <summary>Engine-owned component offset and bank-$A7 hitbox-list identity.</summary>
-internal readonly record struct PhantoonCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
+/// <summary>One fixed collision component of a Phantoon BG2 frame, independent of its editable artwork.</summary>
+/// <param name="Offset">The component's offset from the part's position.</param>
+/// <param name="Hitboxes">The component's rectangles, tested in order.</param>
+internal readonly record struct PhantoonCollisionComponent(
+    Offset16<RoomPixels> Offset, IReadOnlyList<PhantoonCollisionHitbox> Hitboxes);

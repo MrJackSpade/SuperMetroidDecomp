@@ -2341,8 +2341,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                  PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (PhantoonCollisionHitbox hitbox in
-                     PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
                 ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
@@ -2350,7 +2349,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = probe.SelectShotCallback
+                    ? PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
+                    : PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
                 return true;
             }
         }

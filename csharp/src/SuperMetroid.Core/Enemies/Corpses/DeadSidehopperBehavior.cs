@@ -167,7 +167,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             throw new InvalidDataException("Dead sidehopper corpse configuration has fewer than two rows.");
 
         int yLimit = definition.EntryCount - 1;
-        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, definition.ConfigurationPointer,
+        var state = new DeadSidehopperEnemyState(slot, graphicsVariant,
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
         {
             RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),

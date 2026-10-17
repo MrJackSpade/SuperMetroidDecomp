@@ -90,20 +90,14 @@ internal static class BossDisplayBindingsOracleVerification
             .SelectToArray(part => (part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray())),
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .Select(part => (part.Offset.X, part.Offset.Y, BossPhysicalHitboxes(frame.Bank, part.HitboxPointer))).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y,
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
+                    PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
             .Select(part => (part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),
-    };
-
-    /// <summary>Selects compiled hitbox rectangles and callbacks for a native boss list.</summary>
-    private static ushort[][] BossPhysicalHitboxes(byte bank, ushort pointer) => bank switch
-    {
-        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.HitboxesAt(pointer)
-            .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
-        _ => throw new InvalidDataException("Unknown native oracle bank."),
     };
 
     /// <summary>Arranges one hitbox's bounds and callbacks in cartridge record order.</summary>

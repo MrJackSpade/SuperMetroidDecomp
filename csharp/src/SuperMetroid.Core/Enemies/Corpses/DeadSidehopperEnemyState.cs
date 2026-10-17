@@ -3,12 +3,11 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>One dead sidehopper's corpse state: its silhouette, rot table and schedule, hop, palette and contact progress.</summary>
 public sealed class DeadSidehopperEnemyState
 {
-    /// <summary>Captures one corpse's silhouette, configuration identity and rot schedule.</summary>
-    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, ushort configurationPointer, CorpseRottingProgram rotting)
+    /// <summary>Captures one corpse's silhouette and rot schedule.</summary>
+    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, CorpseRottingProgram rotting)
     {
         Slot = slot;
         GraphicsVariant = graphicsVariant;
-        ConfigurationPointer = configurationPointer;
         YLimit = rotting.YLimit;
         LateMoveEntryIndex = rotting.LateMoveEntryIndex;
         WrapOffset = rotting.WrapOffset;
@@ -18,8 +17,6 @@ public sealed class DeadSidehopperEnemyState
     public RoomEnemySlot Slot { get; }
     /// <summary>Silhouette selected by the population parameter: 0 for the initially living Shitroid victim or 2 for the already dead Tourian corpse, selecting initial graphics and row-copy column layouts.</summary>
     public int GraphicsVariant { get; }
-    /// <summary>Bank-$A9 rotting configuration identity: $DD68 for variant 0 or $DD78 for variant 2, describing table, callbacks, height, and uploads.</summary>
-    public ushort ConfigurationPointer { get; }
     /// <summary>The corpse's (signed pixel Y, delay) entries in the shared rotting heap, one per corpse pixel row.</summary>
     internal CorpseRotTable RotTable { get; init; }
     /// <summary>The corpse tile uploads submitted after every rotting call, including the call that finishes the corpse.</summary>

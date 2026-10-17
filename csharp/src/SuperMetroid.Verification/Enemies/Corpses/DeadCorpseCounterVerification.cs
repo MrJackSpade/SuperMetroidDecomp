@@ -16,7 +16,7 @@ internal static class DeadCorpseCounterVerification
     {
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new DeadSidehopperEnemyState(slot, 2, 0,
+        var state = new DeadSidehopperEnemyState(slot, 2,
             new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
 
         state.Function = DeadSidehopperAiFunction.PreRotDelay;

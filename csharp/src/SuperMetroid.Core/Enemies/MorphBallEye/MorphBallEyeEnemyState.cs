@@ -18,13 +18,14 @@ public sealed class MorphBallEyeEnemyState
     internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
 
     /// <summary>
-    /// Native <c>Eye.activatedFlag</c> in variable C: one once the beam object has initialized, zero once the body
-    /// starts closing. Nothing else is stored here; the beam keeps cycling its colours only while it is nonzero.
+    /// Whether the eye is activated (<c>Eye.activatedFlag</c>, slot variable C): set once the beam object has
+    /// initialized, cleared once the body starts closing. The beam keeps cycling its colours only while it is set.
+    /// The slot view is exact: the cartridge writes only 0 and 1 here and tests the word only against zero.
     /// </summary>
-    public int ActivatedFlag
+    public bool IsActivated
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = checked((ushort)value);
+        get => _slot.VariableC != 0;
+        internal set => _slot.VariableC = value ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>

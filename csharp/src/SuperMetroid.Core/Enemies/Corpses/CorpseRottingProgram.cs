@@ -7,27 +7,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// </summary>
 internal sealed record CorpseRottingProgram
 {
-    /// <summary>The cartridge's rot-table WRAM pointer. No production code reads or writes it; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public ushort TablePointer { get; init; }
-
-    /// <summary>The cartridge's corpse transfer-list pointer. No production code reads or writes it; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public ushort VramTablePointer { get; init; }
-
-    /// <summary>The cartridge's row-copy routine pointer. No production code reads or writes it; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public ushort CopyFunction { get; init; }
-
-    /// <summary>The cartridge's row-move routine pointer. No production code reads or writes it; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public ushort MoveFunction { get; init; }
-
-    /// <summary>The cartridge's tile-row offset table pointer. No production code reads or writes it; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public ushort RotationTablePointer { get; init; }
-
-    /// <summary>The cartridge's completed-row hook pointer. No production code reads or writes it; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public ushort FinishFunction { get; init; }
-
-    /// <summary>The corpse height in pixel rows. No production code reads it, because the located rot table owns its entry count; LookupStream5Verification's sidehopper fixture still initializes it.</summary>
-    public int EntryCount { get; init; }
-
     /// <summary>Exclusive pixel-row limit of the two-pixel advance, and the final entry index: the corpse height less one.</summary>
     public required int YLimit { get; init; }
 

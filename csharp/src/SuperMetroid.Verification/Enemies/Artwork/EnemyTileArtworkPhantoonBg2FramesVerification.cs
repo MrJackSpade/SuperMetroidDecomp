@@ -164,16 +164,15 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                     $"Phantoon {frame.Name} component X");
                 AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2))), component.Offset.Y,
                     $"Phantoon {frame.Name} component Y");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), component.HitboxPointer,
-                    $"Phantoon {frame.Name} engine hitbox list");
-                if (!checkedLists.Add(component.HitboxPointer))
-                    continue;
-                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, component.HitboxPointer));
-                PhantoonCollisionDefinitions.HitboxSequence hitboxes =
-                    PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), (ushort)hitboxes.Length,
-                    $"Phantoon ${component.HitboxPointer:X4} rectangle count");
-                for (int hitboxIndex = 0; hitboxIndex < hitboxes.Length; hitboxIndex++)
+                // The ROM names the component's hitbox list by address; every compiled component must hold exactly
+                // the rectangles and reactions of the list the ROM names.
+                ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                checkedLists.Add(listPointer);
+                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, listPointer));
+                IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
+                    $"Phantoon {frame.Name} component {index} rectangle count");
+                for (int hitboxIndex = 0; hitboxIndex < hitboxes.Count; hitboxIndex++)
                 {
                     int address = listAddress + 2 + hitboxIndex * 12;
                     PhantoonCollisionHitbox hitbox = hitboxes[hitboxIndex];
@@ -185,10 +184,10 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                         "Phantoon compiled right bound");
                     AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6))), hitbox.Bottom,
                         "Phantoon compiled bottom bound");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)), hitbox.TouchAi,
-                        "Phantoon compiled touch callback");
-                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)), hitbox.ShotAi,
-                        "Phantoon compiled shot callback");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 8)),
+                        PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Touch), "Phantoon compiled touch reaction");
+                    AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 10)),
+                        PhantoonHitboxCallbackCodec.ToCallbackWord(hitbox.Shot), "Phantoon compiled shot reaction");
                 }
             }
             _ = FindPhantoonHitboxCallback(stock, frame.Pointer, new(0x0080, 0x0080), selectShot: true);

@@ -169,7 +169,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             LastMorphBallEyeSoundEffect = SoundEffectId.FromCartridge(
                 SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EyeDeactivationSound);
-            state.ActivatedFlag = 0;
+            state.IsActivated = false;
             state.FunctionTimer = NativeCountdown.Start(EyeTransitionDuration);
             state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start((eye.Parameter1 & 1) == 0
                 ? MorphBallEyeProgram.FacingRightDeactivating
@@ -259,7 +259,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         MorphBallEyeBeam.AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
         MorphBallEyeBeam.AngularHalfWidthGrowth = SnesSignedSixteenSixteen.Zero;
         MorphBallEyeBeam.ColorIndex = 0;
-        state.ActivatedFlag = 1;
+        state.IsActivated = true;
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }
 
@@ -282,7 +282,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = RequireMorphBallEyeState(RequireMorphBallEyeBeamBody());
-        if (bodyState.ActivatedFlag == 0)
+        if (!bodyState.IsActivated)
         {
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Deactivating;
             return;

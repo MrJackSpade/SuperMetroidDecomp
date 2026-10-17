@@ -37,20 +37,24 @@ public sealed class YappingMawEnemyState
     /// </summary>
     public Offset16<RoomPixels>[] SegmentOffsets { get; } = new Offset16<RoomPixels>[4];
 
-    /// <summary>Approximate bank-$A0 distance used by the strict activation comparisons.</summary>
-    public ushort DistanceToSamus { get; internal set; }
+    /// <summary>
+    /// Approximate bank-$A0 distance from the root to Samus in room pixels, 0 through 32768: a single axis's magnitude
+    /// when Samus is 255 or more pixels away on it, otherwise the sum of two short trigonometric products. An attack
+    /// caps it at <see cref="YappingMawRomData.MaximumTargetDistance"/>, so the extension sees 32 through 64.
+    /// </summary>
+    public int DistanceToSamus { get; internal set; }
 
-    /// <summary>Half of the clamped target distance, used as the tongue's X radius.</summary>
-    public ushort SegmentRadius { get; internal set; }
+    /// <summary>Half of the capped target distance in room pixels, 16 through 32, used as the tongue's X radius.</summary>
+    public int SegmentRadius { get; internal set; }
 
-    /// <summary>Zero-up, clockwise byte angle returned by CalculateAngleFromXY.</summary>
-    public ushort AimAngle { get; internal set; }
+    /// <summary>Zero-up, clockwise direction to Samus in 1/256 turn, 0 through 255, returned by CalculateAngleFromXY.</summary>
+    public int AimAngle { get; internal set; }
 
-    /// <summary>Byte-wrapped 64-minus-aim angle used to rotate the curled link corrections.</summary>
-    public ushort CurlAngle { get; internal set; }
+    /// <summary>A quarter turn minus <see cref="AimAngle"/>, wrapping around the turn; rotates the curled link corrections.</summary>
+    public SnesAngle CurlAngle { get; internal set; }
 
-    /// <summary>Native variable 2F: zero bends one way, one bends the mirrored way.</summary>
-    public ushort MirroredBend { get; internal set; }
+    /// <summary>Native variable 2F: whether the tongue bends the mirrored way, which it does when the curl angle lies in the turn's second half.</summary>
+    public bool MirroredBend { get; internal set; }
 
     /// <summary>
     /// Signed room-pixel reference samples subtracted from each raw link before curl correction:
@@ -75,8 +79,19 @@ public sealed class YappingMawEnemyState
     /// <summary>Native E: 64-frame hold after the tongue fully retracts.</summary>
     public NativeCountdown RetractedDelayTimer { get; internal set; }
 
-    /// <summary>Native F copied from population parameter one.</summary>
-    public ushort ActivationDistance { get; internal set; }
+    /// <summary>
+    /// Native F: the population parameter-one distance, 0 through 65535, below which an attack starts. The cartridge
+    /// compares it by the sign of a sixteen-bit difference, so a parameter of 32768 or more behaves as the cartridge's
+    /// wrapped comparison does; <see cref="IsWithinActivationDistance"/> owns that comparison.
+    /// </summary>
+    public int ActivationDistance { get; internal set; }
+
+    /// <summary>
+    /// Whether <paramref name="distance"/> is strictly inside <see cref="ActivationDistance"/>, judged as the cartridge
+    /// does by the sign of their difference wrapped to sixteen bits.
+    /// </summary>
+    internal bool IsWithinActivationDistance(int distance) =>
+        unchecked((short)(distance - ActivationDistance)) < 0;
 
     /// <summary>Native variable 30: the mouth currently owns Samus's input/position.</summary>
     public bool HasGrabbedSamus { get; internal set; }
@@ -96,8 +111,8 @@ public sealed class YappingMawEnemyState
     /// <summary>Result of the point-based $A0:AD70 viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }
 
-    /// <summary>Original OBJ palette bits restored after frozen flashing.</summary>
-    public ushort OriginalPaletteBits { get; internal set; }
+    /// <summary>The actor's own OBJ palette, captured at room load and restored to every link after frozen flashing.</summary>
+    public SnesObjAttributeWord OriginalPalette { get; internal set; }
 
     /// <summary>The four physical bank-$86 body-link slots, ordered root to mouth.</summary>
     public RoomEnemyProjectileSlot?[] BodyProjectiles { get; } =

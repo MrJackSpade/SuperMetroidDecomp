@@ -82,7 +82,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort YappingMawRetractedDelayFrames = 64;
 
     /// <summary>Most recent library-two $2F request emitted by animation opcode $A133.</summary>
-    public ushort? LastYappingMawSoundEffect { get; private set; }
+    public SoundEffectId? LastYappingMawSoundEffect { get; private set; }
 
     /// <summary>Ports <c>YappingMaw_Init</c> at $A8:A148.</summary>
     internal void InitializeYappingMaw(RoomEnemySlot slot)
@@ -93,7 +93,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = slot.Position.Whole,
             ActivationDistance = slot.Parameter1,
             RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames),
-            OriginalPaletteBits = new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits,
+            OriginalPalette = SnesObjAttributeWord.FromPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits),
         };
         slot.SetSpeciesState(state);
 
@@ -198,7 +198,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Position.Whole);
         state.DistanceToSamus = distance;
 
-        if (unchecked((short)(distance - YappingMawGrabSafetyDistance)) < 0)
+        if (distance < YappingMawGrabSafetyDistance)
         {
             // A target already inside 32 pixels cannot safely trigger an extension and has
             // its grab gate refreshed to 48 every frame. This is why the cooldown must wrap.
@@ -206,12 +206,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (unchecked((short)(distance - state.ActivationDistance)) >= 0)
+        if (!state.IsWithinActivationDistance(distance))
             return;
 
         // Native BMI skips the assignment for a shorter target. Inflating a short
         // distance instead makes the mouth overshoot the position it aimed at.
-        if (unchecked((short)(state.DistanceToSamus - YappingMawRomData.MaximumTargetDistance)) >= 0)
+        if (state.DistanceToSamus >= YappingMawRomData.MaximumTargetDistance)
             state.DistanceToSamus = YappingMawRomData.MaximumTargetDistance;
 
         state.AimAngle = angle;
@@ -225,19 +225,18 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ExtensionFraction = 0;
         state.QuadraticSpeedRecord = 0;
         state.QuadraticSpeedNegative = false;
-        state.SegmentRadius = unchecked((ushort)(state.DistanceToSamus >> 1));
-        state.CurlAngle = unchecked((byte)(64 - state.AimAngle));
-        state.MirroredBend = unchecked((short)(state.CurlAngle - 128)) < 0
-            ? (ushort)0
-            : (ushort)1;
+        state.SegmentRadius = state.DistanceToSamus / 2;
+        state.CurlAngle = SnesAngle.NormalizeTableIndex(SnesAngle.QuarterTurn.TableIndex - state.AimAngle);
+        state.MirroredBend = state.CurlAngle.TableIndex >= SnesAngle.HalfTurn.TableIndex;
 
         state.Baseline = new Offset16<RoomPixels>(
-            unchecked((short)CalculateYappingMawX(128, state.SegmentRadius)),
+            unchecked((short)CalculateYappingMawX(128, checked((ushort)state.SegmentRadius))),
             unchecked((short)CalculateYappingMawY(
                 128,
-                unchecked((ushort)(state.SegmentRadius >> 1)))));
+                checked((ushort)(state.SegmentRadius / 2)))));
 
-        int direction = unchecked((byte)(state.AimAngle + 16)) >> 5;
+        // Eight 32-unit sectors, each centred on its direction: the aim is turned a half sector before quantizing.
+        int direction = SnesAngle.NormalizeTableIndex(state.AimAngle + 16).TableIndex / 32;
         state.DirectionIndex = direction;
         state.Program = AnimationProgramCursor<YappingMawProgram>.Start(YappingMawAnimationDefinitions.AttackForDirection(direction));
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -260,25 +259,25 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int segment = 0; segment < 4; segment++)
         {
             ushort multiple = unchecked((ushort)(bendStep * (segment + 1)));
-            ushort linkAngle = state.MirroredBend != 0
+            ushort linkAngle = state.MirroredBend
                 ? unchecked((ushort)(128 + multiple))
                 : unchecked((ushort)(128 - multiple));
 
             ushort rawX = unchecked((ushort)(
-                CalculateYappingMawX(linkAngle, state.SegmentRadius) - state.Baseline.X));
+                CalculateYappingMawX(linkAngle, checked((ushort)state.SegmentRadius)) - state.Baseline.X));
             ushort rawY = unchecked((ushort)(
                 CalculateYappingMawY(
                     linkAngle,
-                    unchecked((ushort)(state.SegmentRadius >> 1))) - state.Baseline.Y));
+                    checked((ushort)(state.SegmentRadius / 2))) - state.Baseline.Y));
 
             // Variables 27..2E rotate a correction whose length is the LOW BYTE of raw X.
             // Passing raw Y here is an attractive cleanup and is wrong; the cartridge's
             // lopsided curve is a direct consequence of reusing raw X for both components.
             ushort correctionX = unchecked((ushort)(
-                CalculateYappingMawX(state.CurlAngle, rawX) -
+                CalculateYappingMawX(state.CurlAngle.TableIndex, rawX) -
                 CalculateYappingMawX(0, rawX)));
             ushort correctionY = unchecked((ushort)(
-                CalculateYappingMawY(state.CurlAngle, rawX) -
+                CalculateYappingMawY(state.CurlAngle.TableIndex, rawX) -
                 CalculateYappingMawY(0, rawX)));
             state.Corrections[segment] = new Offset16<RoomPixels>(
                 unchecked((short)correctionX), unchecked((short)correctionY));
@@ -472,7 +471,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state)
     {
         ushort paletteBits = SelectYappingMawFrozenPalette(
-            state.OriginalPaletteBits,
+            state.OriginalPalette.PaletteBits,
             slot.FrozenTimer.RawValue);
         foreach (RoomEnemyProjectileSlot? body in state.BodyProjectiles)
         {
@@ -518,7 +517,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
-            LastYappingMawSoundEffect = EnemySoundEffectDefinitions.YappingMawAttackSound;
+            LastYappingMawSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.YappingMawAttackSound);
     }
 
     /// <summary>Moves one of the four required body-link projectiles to its solved point.</summary>
@@ -678,7 +677,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastYappingMawSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastYappingMawSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>

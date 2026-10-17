@@ -35,8 +35,8 @@ internal static class WorldMapLabelsVerification
             var installedWindow = new FileSelectMapWindow(area, original.Labels);
             while (!nativeWindow.IsComplete)
             {
-                AssertEqual((nativeWindow.Left, nativeWindow.Right, nativeWindow.Top, nativeWindow.Bottom),
-                    (installedWindow.Left, installedWindow.Right, installedWindow.Top, installedWindow.Bottom), "stock window edges");
+                AssertEqual((nativeWindow.TopLeft, nativeWindow.BottomRight),
+                    (installedWindow.TopLeft, installedWindow.BottomRight), "stock window edges");
                 AssertEqual(nativeWindow.Step(), installedWindow.Step(), "stock window completion timing");
             }
         }
@@ -57,8 +57,8 @@ internal static class WorldMapLabelsVerification
         var navigation = new FileSelectMapNavigation(0);
         navigation.BindLabels(edited.Labels);
         navigation.Step(SnesButton.A); navigation.Step(0);
-        AssertEqual(areas["Crateria"].X, (navigation.Window ?? throw new InvalidOperationException("Verification requires navigation.Window.")).Left, "normal navigation uses edited label/window anchor");
-        AssertEqual(areas["Crateria"].Y, navigation.Window.Top, "normal navigation uses edited vertical anchor");
+        AssertEqual(areas["Crateria"].X, (navigation.Window ?? throw new InvalidOperationException("Verification requires navigation.Window.")).TopLeft.X, "normal navigation uses edited label/window anchor");
+        AssertEqual(areas["Crateria"].Y, navigation.Window.TopLeft.Y, "normal navigation uses edited vertical anchor");
         installed.BindLabels(original.Labels);
         AssertTrue(native.Render(used).SequenceEqual(installed.Render(used)), "rebind restores stock label pixels");
         string rebuilt = Path.Combine(overrides, "rebuilt");

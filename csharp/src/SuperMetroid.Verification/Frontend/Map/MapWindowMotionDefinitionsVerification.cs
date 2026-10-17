@@ -44,10 +44,10 @@ internal static class MapWindowMotionDefinitionsVerification
                 AssertEqual(editedAreas[((AreaId)identity).ToString()], edited.Get(identity),
                     "named selection preserves edited and untouched coordinate fields");
             var window = new FileSelectMapWindow(area, edited);
-            AssertEqual(edited.Get(area).X, (int)window.Left, "actual window uses editable X");
-            AssertEqual(edited.Get(area).Y, (int)window.Top, "actual window uses editable Y");
-            AssertEqual(window.Left, window.Right, "edited window starts with zero width");
-            AssertEqual(window.Top, window.Bottom, "edited window starts with zero height");
+            AssertEqual(edited.Get(area).X, (int)window.TopLeft.X, "actual window uses editable X");
+            AssertEqual(edited.Get(area).Y, (int)window.TopLeft.Y, "actual window uses editable Y");
+            AssertEqual(window.TopLeft.X, window.BottomRight.X, "edited window starts with zero width");
+            AssertEqual(window.TopLeft.Y, window.BottomRight.Y, "edited window starts with zero height");
             AssertEqual(stock, FileSelectMapWindowMotions.StockOrigin(area), "editing labels preserves stock motion input");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 6, 7, int.MaxValue })

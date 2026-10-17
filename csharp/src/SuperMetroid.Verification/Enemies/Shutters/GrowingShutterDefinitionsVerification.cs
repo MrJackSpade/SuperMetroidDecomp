@@ -33,13 +33,13 @@ internal static class GrowingShutterDefinitionsVerification
                     initialize(slot);
                     GrowingShutterEnemyState state = (enemies.GrowingShutterStates[0] ?? throw new InvalidOperationException("Verification requires enemies.GrowingShutterStates[0]."));
                     AssertEqual(Word(0xa2ea4e + selector * 2), (ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function, "Shutter real dispatch without bus");
-                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthVelocity, "Shutter native whole speed");
-                    AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSubvelocity, "Shutter native fractional speed");
+                    AssertEqual(unchecked((short)Word(0xa2ea56 + speed * 4)), state.GrowthSpeed.WholePixels, "Shutter native whole speed");
+                    AssertEqual(Word(0xa2ea58 + speed * 4), state.GrowthSpeed.Fraction, "Shutter native fractional speed");
                     int direction = selector < 2 ? 1 : -1;
-                    AssertEqual(slot.Position.Y.Whole, state.GrowthLevel0OriginY, "Shutter base origin");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8)), state.GrowthLevel1OriginY, "Shutter wrapped origin one");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 16)), state.GrowthLevel2OriginY, "Shutter wrapped origin two");
-                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 24)), state.GrowthLevel3OriginY, "Shutter wrapped origin three");
+                    AssertEqual(slot.Position.Y.Whole, state.GrowthLevel0Origin.Y, "Shutter base origin");
+                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 8)), state.GrowthLevel1Origin.Y, "Shutter wrapped origin one");
+                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 16)), state.GrowthLevel2Origin.Y, "Shutter wrapped origin two");
+                    AssertEqual(unchecked((ushort)(slot.Position.Y.Whole + direction * 24)), state.GrowthLevel3Origin.Y, "Shutter wrapped origin three");
                     AssertEqual((ushort)0, slot.ExtraProperties.ToNativeWord(), "Shutter consumes initial direction word");
                 }
             }

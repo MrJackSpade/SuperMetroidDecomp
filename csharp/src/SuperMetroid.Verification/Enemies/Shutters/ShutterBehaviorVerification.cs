@@ -31,7 +31,7 @@ internal static class ShutterBehaviorVerification
                 enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, VerticalShutterEnemyState>()?.Program);
         }
         VerifyPose(EnemyDefinitionId.ShutterHorizShootable, ShutterProgram.Horizontal,
-            (enemies, slot) => ShuttersBehavior.InitializeHorizontalShutter(slot, null),
+            (enemies, slot) => ShuttersBehavior.InitializeHorizontalShutter(slot),
             enemies => enemies.SlotTable.Slots[0].EntityState<ShuttersEntity, HorizontalShutterEnemyState>()?.Program);
 
         RoomEnemySystem kamerSystem = NewSystem();
@@ -152,12 +152,95 @@ internal static class ShutterBehaviorVerification
     private static ushort ReadShutterWord(SuperMetroidAddressSpace bus, SnesAddress address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address.Value);
 
+    /// <summary>
+    /// The growing shutter's timer-mode wait tests for expiry before it decrements: a wait of two activates on the
+    /// third call, and an expired wait stays at zero (activating again) instead of wrapping to a 65535-update wait.
+    /// The wait stays in parameter 1, where other enemies' aliased enemy-RAM reads observe it.
+    /// </summary>
+    internal static void VerifyGrowingShutterActivationTimer()
+    {
+        var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+        var state = new GrowingShutterEnemyState(slot);
+        slot.Parameter1 = 2;
+        AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its first call");
+        AssertEqual(NativeCountdown.Start(1), state.ActivationTimer, "the first call counts the wait down by one");
+        AssertEqual(false, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait does not activate on its second call");
+        AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "a two-update wait activates on its third call");
+        AssertEqual(NativeCountdown.Start(0), state.ActivationTimer, "activation leaves the wait expired");
+        AssertEqual(true, ShuttersBehavior.AdvanceGrowingShutterTimer(state), "an expired wait activates again rather than wrapping");
+        AssertEqual(0, slot.Parameter1, "an expired wait stays zero in parameter 1");
+    }
+
+    /// <summary>
+    /// Upward growth applies the exact signed 16.16 negation of every authored growth speed: the fraction is
+    /// negated as a sixteen-bit word and the whole word borrows one pixel whenever that fraction is nonzero.
+    /// </summary>
+    internal static void VerifyGrowingShutterUpwardVelocity()
+    {
+        for (int index = 0; index < GrowingShutterSpeedRecordCount; index++)
+        {
+            (short whole, ushort fraction) = GrowingShutterDefinitions.Speed((ushort)index);
+            SnesSignedSixteenSixteen upward = ShuttersBehavior.UpwardGrowthVelocity(SnesSignedSixteenSixteen.FromParts(whole, fraction));
+            AssertEqual(unchecked((short)(-whole - (fraction == 0 ? 0 : 1))), upward.WholePixels, $"growth speed {index}: upward whole pixels borrow for a nonzero fraction");
+            AssertEqual(unchecked((ushort)-fraction), upward.Fraction, $"growth speed {index}: upward fraction is the negated fraction word");
+        }
+    }
+
+    /// <summary>
+    /// A horizontal shutter's travel endpoints are room positions offset from its spawn position by the travel
+    /// distance, wrapping at sixteen bits: a leftward shutter spawned five pixels from the room's left edge ends
+    /// its travel at the wrapped X, and a rightward one spawned near the right limit wraps past zero.
+    /// </summary>
+    internal static void VerifyHorizontalShutterEndpoints()
+    {
+        const byte travelDistance = 16;
+        const ushort spawnY = 100;
+        Confirm(primaryDirection: 0, spawnX: 5, expectedLeftX: 65525, expectedRightX: 5);
+        Confirm(primaryDirection: 1, spawnX: 65530, expectedLeftX: 65530, expectedRightX: 10);
+
+        static void Confirm(byte primaryDirection, ushort spawnX, ushort expectedLeftX, ushort expectedRightX)
+        {
+            var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
+            slot.CurrentInstruction = SnesLittleEndian.Word(0, primaryDirection);
+            slot.Parameter1 = SnesLittleEndian.Word(0, travelDistance);
+            ShuttersBehavior.InitializeHorizontalShutter(slot);
+            HorizontalShutterEnemyState state = slot.SpeciesState<HorizontalShutterEnemyState>()
+                ?? throw new InvalidOperationException("Verification requires the horizontal shutter state.");
+            string context = $"primary direction {primaryDirection} at X {spawnX}";
+            AssertEqual(new Position16<RoomPixels>(expectedLeftX, spawnY), state.LeftEndpoint, $"{context}: left endpoint");
+            AssertEqual(new Position16<RoomPixels>(expectedRightX, spawnY), state.RightEndpoint, $"{context}: right endpoint");
+        }
+    }
+
+    /// <summary>
+    /// The rightward and leftward 16.16 velocities each round-trip exactly through their own pair of slot words,
+    /// including a negative whole word and a full fraction, and writing one leaves the other unchanged.
+    /// </summary>
+    internal static void VerifyHorizontalShutterVelocityWords()
+    {
+        var state = new HorizontalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        SnesSignedSixteenSixteen right = SnesSignedSixteenSixteen.FromParts(-2, 40000);
+        SnesSignedSixteenSixteen left = SnesSignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
+        state.RightVelocity = right;
+        state.LeftVelocity = left;
+        AssertEqual(right, state.RightVelocity, "rightward velocity round-trips through its slot words");
+        AssertEqual(left, state.LeftVelocity, "leftward velocity round-trips through its own slot words");
+    }
+
+    /// <summary>Number of authored growing-shutter speed records.</summary>
+    private const int GrowingShutterSpeedRecordCount = 24;
+
     /// <summary>Runs the shutter behavior checks and program oracle against the local retail cartridge.</summary>
     [VerificationCommand("--shutter-behavior")]
     internal static int ShutterBehaviorCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyShutterBehavior), () => VerifyShutterBehavior());
+        Suite(nameof(VerifyGrowingShutterActivationTimer), () => VerifyGrowingShutterActivationTimer());
+        Suite(nameof(VerifyGrowingShutterUpwardVelocity), () => VerifyGrowingShutterUpwardVelocity());
+        Suite(nameof(VerifyHorizontalShutterEndpoints), () => VerifyHorizontalShutterEndpoints());
+        Suite(nameof(VerifyHorizontalShutterVelocityWords), () => VerifyHorizontalShutterVelocityWords());
         Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(rom));
         Suite(nameof(VerifyShutterExportFrames), () => VerifyShutterExportFrames(rom));
         return 0;

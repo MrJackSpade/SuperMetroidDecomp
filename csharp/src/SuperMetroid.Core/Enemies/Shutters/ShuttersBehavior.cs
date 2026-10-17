@@ -20,9 +20,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShuttersEntity(this, slot, common);
 
     /// <summary>Each growing section advances sixteen pixels before its final placement.</summary>
-    private const ushort GrowingShutterSectionLength = 16;
+    private const short GrowingShutterSectionLength = 16;
     /// <summary>Intermediate sections stop seven pixels inside their full-size endpoint.</summary>
-    private const ushort GrowingShutterIntermediateInset = 7;
+    private const short GrowingShutterIntermediateInset = 7;
+    /// <summary>AI updates of endpoint rest per unit of a shutter's population rest parameter.</summary>
+    private const int RestUpdatesPerParameterUnit = 16;
 
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
     internal static void InitializeGrowingShutter(RoomEnemySlot slot)
@@ -37,13 +39,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties.ToNativeWord() != 0;
-        state.GrowthLevel0OriginY = slot.Position.Y.Whole;
-        state.GrowthLevel1OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -8 : 8)));
-        state.GrowthLevel2OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -16 : 16)));
-        state.GrowthLevel3OriginY = unchecked((ushort)(slot.Position.Y.Whole + (growsUp ? -24 : 24)));
+        state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
-        (state.GrowthVelocity, state.GrowthSubvelocity) = GrowingShutterDefinitions.Speed(slot.Parameter2);
+        (short growthWhole, ushort growthFraction) = GrowingShutterDefinitions.Speed(slot.Parameter2);
+        state.GrowthSpeed = SnesSignedSixteenSixteen.FromParts(growthWhole, growthFraction);
 
         slot.ExtraProperties = default;
         InstallGrowingShutterProgram(
@@ -63,12 +63,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case GrowingShutterFunction.WaitToGrowDownForTimer:
-                if (AdvanceGrowingShutterTimer(slot))
+                if (AdvanceGrowingShutterTimer(state))
                     ActivateGrowingShutter(slot, state, growsUp: false, camera);
                 return;
 
             case GrowingShutterFunction.WaitToGrowUpForTimer:
-                if (AdvanceGrowingShutterTimer(slot))
+                if (AdvanceGrowingShutterTimer(state))
                     ActivateGrowingShutter(slot, state, growsUp: true, camera);
                 return;
 
@@ -106,11 +106,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Native code tests the timer before decrementing it. Zero therefore activates on the
     /// current call, while a positive N waits N complete calls and activates on call N + 1.
     /// </summary>
-    private static bool AdvanceGrowingShutterTimer(RoomEnemySlot slot)
+    internal static bool AdvanceGrowingShutterTimer(GrowingShutterEnemyState state)
     {
-        if (slot.Parameter1 == 0)
+        if (state.ActivationTimer.IsZero)
             return true;
-        slot.Parameter1--;
+        state.ActivationTimer = state.ActivationTimer.DecrementToZero();
         return false;
     }
 
@@ -133,15 +133,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.GrowthLevel >= 4)
             return;
 
-        slot.Position = slot.Position.WithY(AddShutterVelocity(
-            slot.Position.Y,
-            state.GrowthVelocity,
-            state.GrowthSubvelocity));
-        ushort target = unchecked((ushort)(state.OriginForLevel() + GrowingShutterSectionLength));
+        slot.Position = slot.Position.AdvanceY(state.GrowthSpeed);
+        Position16<RoomPixels> target = state.OriginForLevel() + new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
 
         // BPL returns at equality. A section advances only after its center has passed the
         // full sixteen-pixel threshold, after which the first three sections are inset seven.
-        if (unchecked((short)(target - slot.Position.Y.Whole)) >= 0)
+        if ((target - slot.Position.Whole).Y >= 0)
             return;
         FinishGrowingShutterSection(slot, state, target, growsUp: false);
     }
@@ -155,13 +152,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.GrowthLevel >= 4)
             return;
 
-        state.PreviousYPosition = slot.Position.Y.Whole;
-        slot.Position = slot.Position.WithY(AddShutterVelocity(
-            slot.Position.Y,
-            unchecked((short)(-state.GrowthVelocity - (state.GrowthSubvelocity == 0 ? 0 : 1))),
-            unchecked((ushort)-state.GrowthSubvelocity)));
-        ushort target = unchecked((ushort)(state.OriginForLevel() - GrowingShutterSectionLength));
-        if (unchecked((short)(target - slot.Position.Y.Whole)) < 0)
+        state.PreviousPosition = slot.Position.Whole;
+        slot.Position = slot.Position.AdvanceY(UpwardGrowthVelocity(state.GrowthSpeed));
+        Position16<RoomPixels> target = state.OriginForLevel() - new Offset16<RoomPixels>(0, GrowingShutterSectionLength);
+        if ((target - slot.Position.Whole).Y < 0)
         {
             CarrySamusWithGrowingShutter(slot, state, samus);
             return;
@@ -170,6 +164,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         FinishGrowingShutterSection(slot, state, target, growsUp: true);
         CarrySamusWithGrowingShutter(slot, state, samus);
     }
+
+    /// <summary>
+    /// The upward growth step: the exact signed 16.16 negation of the positive growth speed, borrowing one
+    /// whole pixel from the negated whole word whenever the fraction is nonzero.
+    /// </summary>
+    internal static SnesSignedSixteenSixteen UpwardGrowthVelocity(SnesSignedSixteenSixteen growthSpeed) =>
+        SnesSignedSixteenSixteen.Zero - growthSpeed;
 
     /// <summary>Adds upward displacement only while Samus is riding the growing platform.</summary>
     private static void CarrySamusWithGrowingShutter(
@@ -180,10 +181,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!PlatformsBehavior.IsSamusRidingPlatform(slot, samus))
             return;
 
-        short wholeDelta = unchecked((short)(slot.Position.Y.Whole - state.PreviousYPosition));
+        short wholeDelta = (slot.Position.Whole - state.PreviousPosition).Y;
         if (wholeDelta < 0)
         {
-            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(wholeDelta)));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, wholeDelta);
         }
     }
 
@@ -191,16 +192,17 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void FinishGrowingShutterSection(
         RoomEnemySlot slot,
         GrowingShutterEnemyState state,
-        ushort target,
+        Position16<RoomPixels> target,
         bool growsUp)
     {
         bool finalSection = state.GrowthLevel == 3;
-        slot.Position = slot.Position.WithWholeY(finalSection
+        Position16<RoomPixels> placed = finalSection
             ? target
-            : unchecked((ushort)(target + (growsUp
+            : target + new Offset16<RoomPixels>(0, growsUp
                 ? GrowingShutterIntermediateInset
-                : -GrowingShutterIntermediateInset))));
-        state.GrowthLevel = unchecked((ushort)(state.GrowthLevel + 1));
+                : (short)-GrowingShutterIntermediateInset);
+        slot.Position = slot.Position.WithWholeY(placed.Y);
+        state.GrowthLevel += 1;
 
         if (finalSection)
             return;
@@ -213,7 +215,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Growing shutter advanced to invalid level {state.GrowthLevel}."),
         };
-        ushort radius = unchecked((ushort)(8 + state.GrowthLevel * 8));
+        ushort radius = checked((ushort)(8 + state.GrowthLevel * 8));
         InstallGrowingShutterProgram(slot, state, program, radius);
     }
 
@@ -233,7 +235,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private const short HorizontalShutterManualPushPixels = 4;
 
     /// <summary>Ports <c>HorizontalShutter_Init</c> at $A2:F111/$A2:F11E.</summary>
-    internal static void InitializeHorizontalShutter(RoomEnemySlot slot, SamusState? samus)
+    internal static void InitializeHorizontalShutter(RoomEnemySlot slot)
     {
         var state = new HorizontalShutterEnemyState(slot);
         slot.SetSpeciesState(state);
@@ -241,21 +243,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort packedSpeedAndDirection = slot.CurrentInstruction;
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
         state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
-        state.ReactionDirection = unchecked((ushort)(state.PrimaryDirection ^ 1));
+        state.ReactionDirection = state.PrimaryDirection ^ 1;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;
-        (state.RightVelocity, state.RightSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
-            unchecked((ushort)speedRecordOffset));
-        (state.LeftVelocity, state.LeftSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
-            unchecked((ushort)(speedRecordOffset + 4)));
+        state.RightVelocity = ReadShutterLinearSpeed(speedRecordOffset);
+        state.LeftVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
         state.MovedLeftRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
         state.MovedRightRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
-        state.MovedLeftRestTime = unchecked((ushort)(state.MovedLeftRestParameter << 4));
-        state.MovedRightRestTime = unchecked((ushort)(state.MovedRightRestParameter << 4));
+        state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
+        state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
 
         state.TriggerMode = unchecked((byte)slot.Parameter1);
-        state.InitialFunctionTableOffset = unchecked((ushort)(state.TriggerMode * 2));
+        state.InitialFunctionTableOffset = state.TriggerMode * 2;
         if (state.InitialFunctionTableOffset > 8)
         {
             throw new InvalidDataException(
@@ -265,19 +265,19 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
         state.FunctionTimer = NativeCountdown.FromRaw(slot.Parameter2);
 
-        state.MinimumXPosition = slot.Position.X.Whole;
-        state.MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + state.TravelDistance));
+        Position16<RoomPixels> spawn = slot.Position.Whole;
+        var travel = new Offset16<RoomPixels>(checked((short)state.TravelDistance), 0);
+        state.LeftEndpoint = spawn;
+        state.RightEndpoint = spawn + travel;
         if (state.PrimaryDirection == 0)
         {
-            state.MaximumXPosition = slot.Position.X.Whole;
-            state.MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - state.TravelDistance));
+            state.RightEndpoint = spawn;
+            state.LeftEndpoint = spawn - travel;
         }
 
         state.Function = HorizontalShutterFunction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
-        state.PreviousSamusXPosition = samus?.Position.X.Whole ?? 0;
-        state.PreviousSamusXSubposition = samus?.Kinematics.Position.X.Fraction ?? 0;
         slot.ExtraProperties = default;
         InstallHorizontalShutterProgram(slot, state);
     }
@@ -302,7 +302,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsZero)
                 {
-                    state.FunctionTimer = NativeCountdown.FromRaw(state.HorizontalProximityOrWaitTime);
+                    state.FunctionTimer = NativeCountdown.Start(state.HorizontalProximityOrWaitTime);
                     ActivateHorizontalShutter(state);
                 }
                 break;
@@ -353,12 +353,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ReactHorizontalShutter(slot);
         }
-
-        // The native main routine snapshots these after the dispatcher, including on no-op
-        // frames. They are retained even though the known routines do not subsequently read
-        // the host copies; doing so keeps debugger state and future bank-$A2 work faithful.
-        state.PreviousSamusXPosition = samus.Position.X.Whole;
-        state.PreviousSamusXSubposition = samus.Kinematics.Position.X.Fraction;
     }
 
     /// <summary>Decodes the population's trigger offset into timer, proximity, activation, or idle mode.</summary>
@@ -388,17 +382,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SnesButton controllerInput)
     {
-        state.PreviousXPosition = slot.Position.X.Whole;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
             unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
-        slot.Position = slot.Position.WithX(AddShutterVelocity(
-            slot.Position.X,
-            state.LeftVelocity,
-            state.LeftSubvelocity));
+        slot.Position = slot.Position.AdvanceX(state.LeftVelocity);
         if (state.MovingSamus)
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
-                SnesSignedSixteenSixteen.FromParts(unchecked((short)state.LeftVelocity), state.LeftSubvelocity));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(state.LeftVelocity);
             if ((controllerInput & SnesButton.Right) != 0)
             {
                 samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(unchecked((short)(HorizontalShutterManualPushPixels)), 0);
@@ -406,14 +395,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        if (unchecked((short)(state.MinimumXPosition - slot.Position.X.Whole)) < 0)
+        if ((state.LeftEndpoint - slot.Position.Whole).X < 0)
             return;
         if (state.MovedLeftRestTime == PermanentStopRestTime)
         {
             state.Function = HorizontalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedLeftRestTime);
+        state.FunctionTimer = NativeCountdown.Start(state.MovedLeftRestTime);
         state.Function = HorizontalShutterFunction.StoppedAfterMovingLeft;
     }
 
@@ -424,17 +413,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         SnesButton controllerInput)
     {
-        state.PreviousXPosition = slot.Position.X.Whole;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
             unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) >= 0;
-        slot.Position = slot.Position.WithX(AddShutterVelocity(
-            slot.Position.X,
-            state.RightVelocity,
-            state.RightSubvelocity));
+        slot.Position = slot.Position.AdvanceX(state.RightVelocity);
         if (state.MovingSamus)
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
-                SnesSignedSixteenSixteen.FromParts(unchecked((short)state.RightVelocity), state.RightSubvelocity));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(state.RightVelocity);
             if ((controllerInput & SnesButton.Left) != 0)
             {
                 samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(HorizontalShutterManualPushPixels)), 0);
@@ -442,14 +426,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
 
-        if (unchecked((short)(state.MaximumXPosition - slot.Position.X.Whole)) > 0)
+        if ((state.RightEndpoint - slot.Position.Whole).X > 0)
             return;
         if (state.MovedRightRestTime == PermanentStopRestTime)
         {
             state.Function = HorizontalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedRightRestTime);
+        state.FunctionTimer = NativeCountdown.Start(state.MovedRightRestTime);
         state.Function = HorizontalShutterFunction.StoppedAfterMovingRight;
     }
 
@@ -537,14 +521,18 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Rest-time sentinel selecting a permanent stop at an endpoint.</summary>
-    private const ushort PermanentStopRestTime = 4080;
+    /// <summary>Rest length, in AI updates, that selects a permanent stop at an endpoint instead of a timed rest.</summary>
+    private const int PermanentStopRestTime = 4080;
+
+    /// <summary>The library-two sound queued when an on-screen shutter begins moving.</summary>
+    private static readonly SoundEffectId ShutterActivationSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.ShutterActivationSound);
 
     /// <summary>Frame camera used to admit activation sound only for on-screen shutters.</summary>
     private Position16<RoomPixels> _shutterCamera;
 
     /// <summary>Last library-two shutter sound queued during the current enemy frame.</summary>
-    public ushort? LastShutterSoundEffect { get; private set; }
+    public SoundEffectId? LastShutterSoundEffect { get; private set; }
 
     /// <summary>Clears every shutter slot state and sound request on room change.</summary>
     internal void ResetShutterRoomState(Position16<RoomPixels> camera)
@@ -565,16 +553,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.ShutterDestroyable or
         EnemyDefinitionId.Kamer;
 
-    /// <summary>Adds a signed 16.16 velocity using the same wrapping carry as ADC.</summary>
-    private static SnesFixedPosition AddShutterVelocity(
-        SnesFixedPosition position,
-        short wholeVelocity,
-        ushort subvelocity)
+    /// <summary>Reads one signed 16.16 velocity from the common linear-speed table at <paramref name="byteOffset"/>.</summary>
+    private static SnesSignedSixteenSixteen ReadShutterLinearSpeed(int byteOffset)
     {
-        uint fixedPosition = position.RawValue;
-        int velocity = unchecked((SnesSixteenSixteen.FromWhole(wholeVelocity)) | subvelocity);
-        fixedPosition = unchecked(fixedPosition + (uint)velocity);
-        return SnesFixedPosition.FromRaw(fixedPosition);
+        (short whole, ushort fraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)byteOffset));
+        return SnesSignedSixteenSixteen.FromParts(whole, fraction);
     }
 
     /// <summary>
@@ -595,7 +578,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static bool IsSamusWithinShutterHorizontalDistance(
         RoomEnemySlot slot,
         SamusState samus,
-        ushort maximumDistance)
+        int maximumDistance)
     {
         ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
         if (unchecked((short)distance) < 0)
@@ -621,7 +604,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> camera)
     {
         if (IsShutterCenterOnScreen(slot, camera))
-            LastShutterSoundEffect = EnemySoundEffectDefinitions.ShutterActivationSound;
+            LastShutterSoundEffect = ShutterActivationSound;
     }
 
     /// <summary>Finds a growing shutter's room state by its physical enemy slot.</summary>
@@ -705,9 +688,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports ShutterHorizShootable's initialization AI.</summary>
-    internal static void RunShutterHorizShootableInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    internal static void RunShutterHorizShootableInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
-        InitializeHorizontalShutter(slot, samus);
+        InitializeHorizontalShutter(slot);
     }
 
     /// <summary>Ports ShutterGrowing's main AI.</summary>
@@ -835,11 +818,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
         state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
-        state.MovedUpRestTime = unchecked((ushort)(state.MovedUpRestParameter << 4));
-        state.MovedDownRestTime = unchecked((ushort)(state.MovedDownRestParameter << 4));
+        state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
+        state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
 
         state.TriggerMode = unchecked((byte)slot.Parameter1);
-        state.InitialFunctionTableOffset = unchecked((ushort)(state.TriggerMode * 2));
+        state.InitialFunctionTableOffset = state.TriggerMode * 2;
         if (state.InitialFunctionTableOffset > 8)
         {
             throw new InvalidDataException(
@@ -884,7 +867,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
                 if (state.FunctionTimer.IsZero)
                 {
-                    state.FunctionTimer = NativeCountdown.FromRaw(state.HorizontalProximityOrWaitTime);
+                    state.FunctionTimer = NativeCountdown.Start(state.HorizontalProximityOrWaitTime);
                     ActivateVerticalShutter(slot, state, camera);
                 }
                 break;
@@ -976,12 +959,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalShutterEnemyState state,
         SamusState samus)
     {
-        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousPosition = slot.Position.Whole;
         state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(slot, samus);
-        slot.Position = slot.Position.WithY(AddShutterVelocity(
-            slot.Position.Y,
-            state.UpVelocity,
-            state.UpSubvelocity));
+        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromParts(state.UpVelocity, state.UpSubvelocity));
         CarrySamusVertically(slot, state, samus);
 
         if (unchecked((short)(state.MinimumYPosition - slot.Position.Y.Whole)) < 0)
@@ -995,12 +975,9 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         VerticalShutterEnemyState state,
         SamusState samus)
     {
-        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousPosition = slot.Position.Whole;
         state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(slot, samus);
-        slot.Position = slot.Position.WithY(AddShutterVelocity(
-            slot.Position.Y,
-            state.DownVelocity,
-            state.DownSubvelocity));
+        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromParts(state.DownVelocity, state.DownSubvelocity));
         CarrySamusVertically(slot, state, samus);
 
         if (unchecked((short)(state.MaximumYPosition - slot.Position.Y.Whole)) > 0)
@@ -1016,8 +993,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.MovingSamus)
             return;
-        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(unchecked((short)(
-            slot.Position.Y.Whole - state.PreviousYPosition)));
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(
+            (slot.Position.Whole - state.PreviousPosition).Y);
     }
 
     /// <summary>Enters a timed rest or permanent stop at the upper endpoint.</summary>
@@ -1028,7 +1005,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = VerticalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedUpRestTime);
+        state.FunctionTimer = NativeCountdown.Start(state.MovedUpRestTime);
         state.Function = VerticalShutterFunction.StoppedAfterMovingUp;
     }
 
@@ -1040,7 +1017,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = VerticalShutterFunction.PermanentNoOp;
             return;
         }
-        state.FunctionTimer = NativeCountdown.FromRaw(state.MovedDownRestTime);
+        state.FunctionTimer = NativeCountdown.Start(state.MovedDownRestTime);
         state.Function = VerticalShutterFunction.StoppedAfterMovingDown;
     }
 
@@ -1133,6 +1110,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastShutterSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastShutterSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

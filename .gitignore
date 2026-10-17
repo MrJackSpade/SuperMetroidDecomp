@@ -74,3 +74,4 @@ stdout.txt
 /native-captures/
 # Player-supplied native snapshots contain emulated game memory, not just inputs.
 /csharp/test-fixtures/issue-445-player-cwj/
+test-temp/

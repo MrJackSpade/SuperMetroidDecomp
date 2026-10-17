@@ -150,7 +150,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
 
     /// <summary>A typed object's words: its cursor as the native instruction pointer and its buttons as joypad words.</summary>
     internal static string Of(DemoInputState state) =>
-        $"{state.Enabled}/{state.InitializationParameter}/{state.PreInstructionPointer}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
+        $"{state.Enabled}/{state.InitializationParameter}/{DemoInputNativeListAddresses.PreInstructionAddress(state.PreInstruction)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
         $"{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{(ushort)state.Held}/{(ushort)state.NewlyPressed}/{(ushort)state.PreviousHeld}/" +
         $"{(ushort)state.PreviousNewlyPressed}/{(ushort)state.PublishedPreviousHeld}/{(ushort)state.PublishedPreviousNewlyPressed}";
 

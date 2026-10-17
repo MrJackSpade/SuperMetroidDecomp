@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Gameplay;
 
@@ -25,30 +24,33 @@ public sealed class AttractDemoInput
 
     /// <summary>Steps application-owned inputs; no address space is required.</summary>
     public void StepStock(SuperMetroidGameState gameState, SamusMovementType movementType) =>
-        Script.Step((_, pointer) => ApplyPreInstruction(pointer, gameState, movementType),
+        Script.Step((_, preInstruction) => ApplyPreInstruction(preInstruction, gameState, movementType),
             cue => throw new InvalidOperationException($"Title demonstrations call no {cue} routine."));
 
     /// <summary>Redirects stock demo input at leave and movement branches using the cartridge's actual type-$1A comparison.</summary>
-    private void ApplyPreInstruction(ushort pointer, SuperMetroidGameState gameState, SamusMovementType movementType)
+    private void ApplyPreInstruction(DemoInputPreInstruction preInstruction, SuperMetroidGameState gameState, SamusMovementType movementType)
     {
-        switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "title-demo pre-instruction"))
+        switch (preInstruction)
         {
-            case AttractDemoPreInstruction.NoOp:
-            case AttractDemoPreInstruction.Cleared:
+            case DemoInputPreInstruction.ReturnOnly:
                 break;
-            case AttractDemoPreInstruction.CheckLeave:
+            case DemoInputPreInstruction.AttractCheckLeave:
                 if (gameState == SuperMetroidGameState.TransitionFromDemoB)
-                    Script.Redirect(pointer, DemoInputProgram.AttractDelete);
+                    Script.Redirect(preInstruction, DemoInputProgram.AttractDelete);
                 break;
-            case AttractDemoPreInstruction.Shinespark:
+            case DemoInputPreInstruction.AttractShinespark:
                 // The routine's name does not match its type-$1A comparison. Retain
                 // the actual cartridge branch rather than correcting that oddity.
                 if (movementType != SamusMovementType.DraygonHeld)
-                    Script.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
+                    Script.Redirect(DemoInputPreInstruction.AttractCheckLeave,
                         DemoInputProgram.AttractDiagonalShinesparkContinuation);
                 break;
+            case DemoInputPreInstruction.None:
+            case DemoInputPreInstruction.IntroBabyRunningLeft:
+            case DemoInputPreInstruction.IntroBabyStopAndLook:
+                throw new InvalidOperationException($"A title demonstration's input object cannot hold the {preInstruction} pre-instruction.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(DemoInputPreInstruction)} {preInstruction}.");
         }
     }
 }

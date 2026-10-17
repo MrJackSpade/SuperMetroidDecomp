@@ -36,22 +36,25 @@ internal static class AttractInputFixtureVerification
     private static void RunPreInstruction(NativeDemoInputReference state, ushort pointer, SuperMetroidGameState gameState,
         SamusMovementType movementType)
     {
-        switch (ClosedNativeWords.Decode<AttractDemoPreInstruction>(pointer, "reference demo pre-instruction"))
+        switch (ClosedNativeWords.Decode<NativeDemoPreInstruction>(pointer, "reference demo pre-instruction"))
         {
-            case AttractDemoPreInstruction.NoOp:
-            case AttractDemoPreInstruction.Cleared:
+            case NativeDemoPreInstruction.ReturnOnly:
+            case NativeDemoPreInstruction.Cleared:
                 break;
-            case AttractDemoPreInstruction.CheckLeave:
+            case NativeDemoPreInstruction.AttractCheckLeave:
                 if (gameState == SuperMetroidGameState.TransitionFromDemoB)
                     state.Redirect(pointer, DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDelete));
                 break;
-            case AttractDemoPreInstruction.Shinespark:
+            case NativeDemoPreInstruction.AttractShinespark:
                 if (movementType != SamusMovementType.DraygonHeld)
-                    state.Redirect((ushort)AttractDemoPreInstruction.CheckLeave,
+                    state.Redirect((ushort)NativeDemoPreInstruction.AttractCheckLeave,
                         DemoInputNativeListAddresses.Entry(DemoInputProgram.AttractDiagonalShinesparkContinuation));
                 break;
+            case NativeDemoPreInstruction.IntroBabyRunningLeft:
+            case NativeDemoPreInstruction.IntroBabyStopAndLook:
+                throw new InvalidOperationException($"A title demonstration's input object cannot hold {pointer:X4}.");
             default:
-                throw new InvalidOperationException($"Undefined {nameof(AttractDemoPreInstruction)} {pointer:X4}.");
+                throw new InvalidOperationException($"Undefined {nameof(NativeDemoPreInstruction)} {pointer:X4}.");
         }
     }
 }

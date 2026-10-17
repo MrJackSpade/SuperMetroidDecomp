@@ -93,7 +93,7 @@ internal sealed class IntroBabyDiscoveryState
         {
             // $90:E91D: the demo pose-input handler runs DemoInputObjectHandler inside Samus's
             // current-state handler, ahead of her pose input and movement.
-            demo.Step((_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer), HandleDemoCue);
+            demo.Step((_, preInstruction) => RunDemoPreInstruction(preInstruction, introCrossfadeTimer), HandleDemoCue);
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
             Samus.PoseTransitions.ClearPoseTransitionShotDirection();
@@ -165,34 +165,35 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Changes the demo from running to waiting or ending at its scripted position and crossfade edges.</summary>
-    private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)
+    private void RunDemoPreInstruction(DemoInputPreInstruction preInstruction, ushort introCrossfadeTimer)
     {
-        // The Baby-discovery object references only these four routines. Another
-        // pointer means the object definition/list pairing is corrupt.
-        IntroBabyDiscoveryPreInstruction preInstruction =
-            ClosedNativeWords.Decode<IntroBabyDiscoveryPreInstruction>(pointer, "Baby-discovery demo pre-instruction");
+        // The Baby-discovery object holds only its own two routines or the return-only one.
         switch (preInstruction)
         {
-            case IntroBabyDiscoveryPreInstruction.RunningLeft:
+            case DemoInputPreInstruction.IntroBabyRunningLeft:
                 if (Samus.Position.X.Whole < 178)
                     demo.Redirect(
-                        (ushort)IntroBabyDiscoveryPreInstruction.StopAndLook,
+                        DemoInputPreInstruction.IntroBabyStopAndLook,
                         DemoInputProgram.IntroBabyDiscoveryStopAndLook);
                 return;
 
-            case IntroBabyDiscoveryPreInstruction.StopAndLook:
+            case DemoInputPreInstruction.IntroBabyStopAndLook:
                 if (introCrossfadeTimer == 0)
                     demo.Redirect(
-                        (ushort)IntroBabyDiscoveryPreInstruction.Inert,
+                        DemoInputPreInstruction.ReturnOnly,
                         DemoInputProgram.IntroBabyDiscoveryEnd);
                 return;
 
-            case IntroBabyDiscoveryPreInstruction.Inert:
-            case IntroBabyDiscoveryPreInstruction.InertAlternate:
+            case DemoInputPreInstruction.ReturnOnly:
                 return;
 
+            case DemoInputPreInstruction.None:
+            case DemoInputPreInstruction.AttractCheckLeave:
+            case DemoInputPreInstruction.AttractShinespark:
+                throw new InvalidOperationException($"The Baby-discovery demo object cannot hold the {preInstruction} pre-instruction.");
+
             default:
-                throw new InvalidOperationException($"Undefined IntroBabyDiscoveryPreInstruction {preInstruction}.");
+                throw new InvalidOperationException($"Undefined {nameof(DemoInputPreInstruction)} {preInstruction}.");
         }
     }
 

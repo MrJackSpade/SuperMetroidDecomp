@@ -31,7 +31,7 @@ internal static class DemoInputProgramsVerification
         foreach ((ushort header, DemoInputObjectDefinition definition) in DemoInputNativeListAddresses.Objects)
         {
             AssertEqual(DemoInputRomData.Routines.NoOp, Word(header), $"demo object $91:{header:X4} initializer");
-            AssertEqual(Word(header + 2), definition.PreInstruction, $"demo object $91:{header:X4} pre-instruction");
+            AssertEqual(Word(header + 2), DemoInputNativeListAddresses.PreInstructionAddress(definition.PreInstruction), $"demo object $91:{header:X4} pre-instruction");
             AssertEqual(Word(header + 4), DemoInputNativeListAddresses.Entry(definition.Program), $"demo object $91:{header:X4} list");
         }
 

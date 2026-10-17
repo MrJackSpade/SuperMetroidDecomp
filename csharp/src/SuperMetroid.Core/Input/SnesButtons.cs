@@ -32,15 +32,16 @@ public static class SnesButtons
     [ControllerWordBoundary("the validated conversion every inbound controller word passes through")]
     public static SnesButton FromRaw(ushort rawInput, string sourceContext)
     {
-        const ushort knownMask = (ushort)All;
-        if ((rawInput & ~knownMask) != 0)
+        var input = (SnesButton)rawInput;
+        SnesButton unknown = input & ~All;
+        if (unknown != SnesButton.None)
         {
             throw new InvalidDataException(
-                $"{sourceContext} supplied non-controller bits ${rawInput & ~knownMask:X4} " +
+                $"{sourceContext} supplied non-controller bits ${unknown:X} " +
                 $"in input word ${rawInput:X4}.");
         }
 
-        return (SnesButton)rawInput;
+        return input;
     }
 
     /// <summary>Tests whether at least one requested button is present.</summary>

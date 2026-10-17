@@ -92,6 +92,21 @@ internal static class DemoInputNativeListAddresses
         return (ushort)address;
     }
 
+    /// <summary>
+    /// The native pre-instruction word a typed object's <paramref name="preInstruction"/> stands for; a cleared object's
+    /// is zero.
+    /// </summary>
+    internal static ushort PreInstructionAddress(DemoInputPreInstruction preInstruction) => preInstruction switch
+    {
+        DemoInputPreInstruction.None => 0,
+        DemoInputPreInstruction.ReturnOnly => (ushort)NativeDemoPreInstruction.ReturnOnly,
+        DemoInputPreInstruction.AttractCheckLeave => (ushort)NativeDemoPreInstruction.AttractCheckLeave,
+        DemoInputPreInstruction.AttractShinespark => (ushort)NativeDemoPreInstruction.AttractShinespark,
+        DemoInputPreInstruction.IntroBabyRunningLeft => (ushort)NativeDemoPreInstruction.IntroBabyRunningLeft,
+        DemoInputPreInstruction.IntroBabyStopAndLook => (ushort)NativeDemoPreInstruction.IntroBabyStopAndLook,
+        _ => throw new ArgumentOutOfRangeException(nameof(preInstruction), preInstruction, "Undefined demo-input pre-instruction."),
+    };
+
     /// <summary>The native instruction pointer of an object's cursor; a deleted object's is zero.</summary>
     internal static ushort Address(AnimationProgramCursor<DemoInputProgram>? cursor) => cursor is { } live ? Address(live) : (ushort)0;
 }

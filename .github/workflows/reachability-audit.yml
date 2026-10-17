@@ -35,8 +35,8 @@ jobs:
         run: dotnet build csharp/SuperMetroid.Full.slnx -c Release
       - name: Fail on dead code
         run: dotnet run --project csharp/src/SuperMetroid.ReachabilityAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx --check --output out/reachability
-      # #621: every type has a disposition; flagged owners, locators, context bags and large classes are reviewed.
-      - name: Architecture audit (inventory current, every finding reviewed)
+      # Every type has a disposition; a flagged owner, locator, context bag or large class is justified on the type or fails.
+      - name: Architecture audit (inventory current, every finding justified at its site)
         if: always()
         run: dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release --no-build -- --solution csharp/SuperMetroid.Full.slnx
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

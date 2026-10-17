@@ -1,5 +1,5 @@
 {
-  "description": "Module map (#626). Every maintained C# source file belongs to exactly one module below; its namespace is the module's namespace followed by the file's subdirectories (a mirror subdirectory switches to the mirrored assembly's namespace). Files declaring no type need no namespace. Project references must stay within each project's 'references', and production projects reference only production projects. Inside Core, a module may depend only on modules of its own or a lower layer, and a dependency cycle among modules is allowed only as listed in acceptedCycles with its tracking issues. Enforced by SME6402-SME6406, BuildPolicyVerification and the ArchitectureAudit module inventory (docs/module-inventory.json); see docs/architecture-audit.md.",
+  "description": "Module map (#626). Every maintained C# source file belongs to exactly one module below; its namespace is the module's namespace followed by the file's subdirectories (a mirror subdirectory switches to the mirrored assembly's namespace). Files declaring no type need no namespace. Project references must stay within each project's 'references', and production projects reference only production projects. Inside Core, a module may depend only on modules of its own or a lower layer, and modules form no dependency cycle; a cycle fails the audit and is never listed as accepted. Enforced by SME6402-SME6406, BuildPolicyVerification and the ArchitectureAudit module inventory (docs/module-inventory.json); see docs/architecture-audit.md.",
   "roles": {
     "production": "Shipped game code: the simulation, its hosts and the player-facing executables.",
     "tooling": "Developer tools and audits that read the cartridge, installed assets or sources.",
@@ -80,10 +80,5 @@
       "description": "The gameplay frame loop that composes the simulation, its attract-demo playback and the runtime's renderer and audio publication." },
     { "name": "Frontend", "modules": ["Frontend"],
       "description": "The game's state dispatcher, frontend screens and cinematics, and host options; it drives the runtime." }
-  ],
-  "acceptedCycles": [
-    { "modules": ["Areas", "Bosses", "Enemies", "Fx", "Gameplay", "Hud", "Map", "Progression", "Rooms", "Samus", "Saves"],
-      "issues": [1362, 1315, 1328],
-      "reason": "The gameplay domains still reach into each other through broad *Dependencies records, runtime reach-ins and aggregate field writes; their replacement with narrow capability contracts is tracked by #1362, #1315 and #1328. Layering above and below Simulation is already enforced." }
   ]
 }

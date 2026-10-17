@@ -21,9 +21,10 @@ ticket that is driving them down, not here.
 
 - Fix the code to the destination shape (`manifesto.md`, section 7: "Fix versus satisfy").
 - Otherwise justify that one site: a same-line `// cartridge-encoding: allow(Class) - reason`, the rule's boundary
-  attribute with its reason (`[ControllerWordBoundary("...")]`, `[CpuBusBoundary("...")]`), or `[SnesEncodingOwner]`
-  on a type that is by construction the single owner of an encoding. The reason names the thing, not the rule, and
-  would not be equally true of a thousand other sites.
+  attribute with its reason (`[ControllerWordBoundary("...")]`, `[CpuBusBoundary("...")]`), `[SnesEncodingOwner]`
+  on a type that is by construction the single owner of an encoding, or `[ArchitectureReview(finding, reason)]` on
+  a type the architecture audit flags. The reason names the thing, not the rule, and would not be equally true of a
+  thousand other sites.
 - Never a baseline, allowlist, count, blanket suppression, severity change, rename to an exempt file suffix, or
   change to a rule's scope or exemption lists.
 - Core first: every other project references it, and it must build before `EnsureVerification` can run the

@@ -1,6 +1,6 @@
 namespace SuperMetroid.ArchitectureAudit;
 
-/// <summary>One source-declared type: where it lives, what it is, and the architecture findings that need review.</summary>
+/// <summary>One source-declared type: where it lives, what it is, its architecture findings and the reviews it declares for them.</summary>
 internal sealed record TypeEntry(
     string Type,
     string Kind,
@@ -9,4 +9,5 @@ internal sealed record TypeEntry(
     IReadOnlyList<string> Files,
     string Partial,
     string Disposition,
-    IReadOnlyList<string> Flags);
+    IReadOnlyList<string> Flags,
+    IReadOnlyList<ArchitectureReview> Reviews);

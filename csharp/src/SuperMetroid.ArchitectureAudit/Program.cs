@@ -6,17 +6,18 @@ using SuperMetroid.TestSupport.WindowsConsole;
 namespace SuperMetroid.ArchitectureAudit;
 
 /// <summary>
-/// #621 architecture audit. Inventories every source type with a disposition and checks it against the
-/// checked-in <c>docs/architecture-inventory.json</c>; every structural flag must be accepted by a reviewed
-/// entry in <c>docs/architecture-reviews.json</c>, and no review may outlive its finding. It also writes and checks the
-/// #626 per-file module inventory, <c>docs/module-inventory.json</c>.
+/// Architecture audit. Inventories every source type with a disposition and checks it against the checked-in
+/// <c>docs/architecture-inventory.json</c>. Every structural finding is justified on the type itself with
+/// <c>[ArchitectureReview]</c> or fails the audit, and a review whose finding is gone fails as stale; there is no
+/// central list of accepted findings. It also writes and checks the per-file module inventory,
+/// <c>docs/module-inventory.json</c>.
 /// </summary>
 internal static class Program
 {
     /// <summary>Requires an explicit solution path and reserves --write for inventory regeneration.</summary>
     private const string Usage = "Usage: SuperMetroid.ArchitectureAudit --solution <SuperMetroid.Full.slnx> [--write]";
 
-    /// <summary>Stable camel-case JSON settings shared by inventory and review documents.</summary>
+    /// <summary>Stable camel-case JSON settings shared by the inventory documents.</summary>
     private static readonly JsonSerializerOptions Json = new()
     {
         WriteIndented = true,
@@ -24,7 +25,7 @@ internal static class Program
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
-    /// <summary>Checks the reviewed type inventory or rewrites it while reporting failures through the guarded console boundary.</summary>
+    /// <summary>Checks the type inventory or rewrites it while reporting failures through the guarded console boundary.</summary>
     private static async Task<int> Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
@@ -38,16 +39,13 @@ internal static class Program
             };
             var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
             string inventoryPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-inventory.json");
-            string reviewsPath = Path.Combine(solution.RepositoryRoot, "docs", "architecture-reviews.json");
-            var reviews = JsonSerializer.Deserialize<ReviewDocument>(File.ReadAllText(reviewsPath), Json)
-                ?? throw new InvalidDataException($"{reviewsPath} is empty.");
             var entries = TypeInventory.Collect(solution);
-            var problems = ReviewProblems(entries, reviews.Reviews);
+            var problems = ReviewProblems(entries);
             string document = JsonSerializer.Serialize(new
             {
                 issue = 621,
                 regenerate = "dotnet run --project csharp/src/SuperMetroid.ArchitectureAudit -c Release -- --solution csharp/SuperMetroid.Full.slnx --write",
-                types = entries.Select(entry => Reviewed(entry, reviews.Reviews)).ToList(),
+                types = entries.Select(Describe).ToList(),
             }, Json).ReplaceLineEndings("\n") + "\n";
             string modulePath = Path.Combine(solution.RepositoryRoot, "docs", "module-inventory.json");
             string modules = JsonSerializer.Serialize(ModuleInventory.Collect(solution, problems), Json).ReplaceLineEndings("\n") + "\n";
@@ -67,7 +65,7 @@ internal static class Program
                 Console.Error.WriteLine(problem);
             if (problems.Count != 0)
                 return 1;
-            Console.WriteLine($"Architecture audit passed: {entries.Count} types, {entries.Count(entry => entry.Flags.Count != 0)} reviewed findings.");
+            Console.WriteLine($"Architecture audit passed: {entries.Count} types, {entries.Count(entry => entry.Flags.Count != 0)} findings justified at their sites.");
             return 0;
         }
         catch (Exception exception)
@@ -77,52 +75,48 @@ internal static class Program
         }
     }
 
-    /// <summary>Each flagged type needs a review naming exactly its flags; a review without a matching finding is stale.</summary>
-    private static List<string> ReviewProblems(IReadOnlyList<TypeEntry> entries, IReadOnlyList<Review> reviews)
+    /// <summary>
+    /// Each finding needs a review on its own type naming that finding with a reason; a review naming no current
+    /// finding is stale. Nothing outside the type can justify its finding.
+    /// </summary>
+    private static List<string> ReviewProblems(IReadOnlyList<TypeEntry> entries)
     {
         var problems = new List<string>();
-        var byType = new Dictionary<string, Review>(StringComparer.Ordinal);
-        foreach (Review review in reviews)
+        foreach (TypeEntry entry in entries)
         {
-            if (!byType.TryAdd(review.Type, review))
-                problems.Add($"Duplicate review for {review.Type}.");
-            if (string.IsNullOrWhiteSpace(review.Disposition) || string.IsNullOrWhiteSpace(review.Reason))
-                problems.Add($"Review for {review.Type} needs a disposition and a reason.");
+            var findings = entry.Flags.Select(FindingKind).ToHashSet(StringComparer.Ordinal);
+            foreach (ArchitectureReview review in entry.Reviews)
+            {
+                if (string.IsNullOrWhiteSpace(review.Reason))
+                    problems.Add($"{entry.Type}: [ArchitectureReview(\"{review.Finding}\")] needs a reason specific to this type.");
+                if (!findings.Contains(review.Finding))
+                    problems.Add($"Stale review: {entry.Type} justifies \"{review.Finding}\" but has no such finding; remove the attribute.");
+            }
+            foreach (string flag in entry.Flags.Where(flag => !IsJustified(entry, flag)))
+                problems.Add($"{entry.Type} is flagged [{flag}] with no [ArchitectureReview(\"{FindingKind(flag)}\", reason)] on the type. " +
+                    "Fix the shape, or justify this one site.");
         }
-        var flagged = entries.Where(entry => entry.Flags.Count != 0).ToDictionary(entry => entry.Type, StringComparer.Ordinal);
-        foreach (TypeEntry entry in flagged.Values)
-        {
-            if (!byType.TryGetValue(entry.Type, out Review? review))
-                problems.Add($"{entry.Type} is flagged [{string.Join(", ", entry.Flags)}] without a review in docs/architecture-reviews.json.");
-            else if (!review.Flags.Order(StringComparer.Ordinal).SequenceEqual(entry.Flags.Order(StringComparer.Ordinal), StringComparer.Ordinal))
-                problems.Add($"{entry.Type} is flagged [{string.Join(", ", entry.Flags)}] but its review accepts [{string.Join(", ", review.Flags)}].");
-        }
-        foreach (Review review in reviews.Where(review => !flagged.ContainsKey(review.Type)))
-            problems.Add($"Stale review: {review.Type} has no current finding.");
         return problems;
     }
 
-    /// <summary>Projects a discovered type with its reviewed disposition and only its current flags.</summary>
-    private static object Reviewed(TypeEntry entry, IReadOnlyList<Review> reviews)
+    /// <summary>The finding kind of a flag: <c>back-reference:&lt;creator&gt;</c> is justified as <c>back-reference</c>.</summary>
+    private static string FindingKind(string flag) => flag.Split(':')[0];
+
+    /// <summary>Whether the type declares a reasoned review for <paramref name="flag"/>.</summary>
+    private static bool IsJustified(TypeEntry entry, string flag) =>
+        entry.Reviews.Any(review => review.Finding == FindingKind(flag) && !string.IsNullOrWhiteSpace(review.Reason));
+
+    /// <summary>Projects a discovered type with its computed disposition, its current flags and whether every flag is justified.</summary>
+    private static object Describe(TypeEntry entry) => new
     {
-        Review? review = reviews.FirstOrDefault(candidate => candidate.Type == entry.Type);
-        return new
-        {
-            type = entry.Type,
-            kind = entry.Kind,
-            scope = entry.Scope,
-            assemblies = entry.Assemblies,
-            files = entry.Files,
-            partial = entry.Partial,
-            disposition = review?.Disposition ?? entry.Disposition,
-            flags = entry.Flags.Count == 0 ? null : entry.Flags,
-            review = review is null ? null : "reviewed",
-        };
-    }
-
-    /// <summary>Root of the checked-in architecture review list.</summary>
-    private sealed record ReviewDocument(IReadOnlyList<Review> Reviews);
-
-    /// <summary>A reviewed acceptance of a type's flags.</summary>
-    private sealed record Review(string Type, IReadOnlyList<string> Flags, string Disposition, string Reason);
+        type = entry.Type,
+        kind = entry.Kind,
+        scope = entry.Scope,
+        assemblies = entry.Assemblies,
+        files = entry.Files,
+        partial = entry.Partial,
+        disposition = entry.Disposition,
+        flags = entry.Flags.Count == 0 ? null : entry.Flags,
+        justified = entry.Flags.Count != 0 && entry.Flags.All(flag => IsJustified(entry, flag)) ? true : (bool?)null,
+    };
 }

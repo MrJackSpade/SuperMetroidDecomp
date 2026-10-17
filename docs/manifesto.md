@@ -270,8 +270,9 @@ Agents are judged on this section. The analyzer stops complaining in both column
 
 ### When an allowance is legitimate
 
-A same-line `// cartridge-encoding: allow(Class) - reason`, a boundary attribute with a reason, or an
-encoding-owner attribute is correct **only** when the value or operation is intrinsic to that site: an exact mask
+A same-line `// cartridge-encoding: allow(Class) - reason`, a boundary attribute with a reason, an
+encoding-owner attribute, or an `[ArchitectureReview(finding, reason)]` on the flagged type is correct **only**
+when the value, operation or shape is intrinsic to that site: an exact mask
 the hardware or a file format defines, a hash, a wire-format constant, a conversion that is by construction the
 one place the encoding happens. The reason names the thing, not the rule: `allow(BitMask) - phase-inversion bit`
 is a reason; `allow(Native) - cartridge value` is a baseline entry wearing a comment.

@@ -24,8 +24,7 @@ Each type's disposition comes from its shape:
 
 ## Findings
 
-Some structural findings need a reviewed acceptance in
-[`architecture-reviews.json`](architecture-reviews.json):
+The audit reports four structural findings:
 
 | Flag | Meaning |
 | --- | --- |
@@ -34,15 +33,23 @@ Some structural findings need a reviewed acceptance in
 | `context-bag` | The type carries eight or more service-typed members and has no behaviour. |
 | `large` | A product class has more than 1,500 hand-written lines. |
 
-Each review names the type, the exact flags it accepts, a disposition and the reason. A review
-whose finding no longer exists fails the audit, so accepted exceptions cannot accumulate.
+Every finding fails the audit unless the type itself justifies it:
 
-A review is a per-site justification, not an acceptance of the shape. Every flag above names a shape the
-design forbids (`manifesto.md`: entities and services with explicit dependencies, no context bags, no
-reach-backs, no monoliths), so a review is debt with a reason attached: it says why this type cannot be fixed
-in the change at hand, and it is removed when the type is. A reviews entry is never added to make a new type
-pass, and a disposition such as "cartridge routine family" names scaffolding that the migration replaces, not
-a category of type that is allowed to exist.
+```csharp
+[ArchitectureReview("context-bag", "A record of installed artwork catalogs; its members are data, not services.")]
+public sealed record EnemyTileArtworkParts
+```
+
+The attribute names the finding kind (`back-reference`, `context-bag`, `service-locator`, `large`) and a reason
+specific to that type. The audit requires one per current finding and fails on a review whose finding is gone, so
+justifications cannot outlive the shape they excuse. There is no central list: nothing outside the type can
+justify its finding, and the audit never accepts a finding in bulk.
+
+A justification is legitimate only when the site is intrinsic (a framework callback that must reach its host, a
+test fixture whose purpose is to carry services) or a false positive of the heuristic (a record of artwork data
+counted as services). Every flag names a shape the design forbids (`manifesto.md`: entities and services with
+explicit dependencies, no context bags, no reach-backs, no monoliths), so "it is a large boss translation" or
+"the Samus aggregate constructs its parts" is not a reason; it is the finding restated. Those types are fixed.
 
 ## Partial types
 
@@ -159,6 +166,5 @@ a source root outside each project's own ignored `bin` and `obj` (test fixtures 
 
 The architecture audit also writes `docs/module-inventory.json`: every compiled source file with its module, role,
 namespace, assemblies, Core layer and the modules it references, each module's aggregate dependencies, and the
-dependency cycles among Core modules. A cycle among Core modules fails the audit. An `acceptedCycles` entry in the
-map is a grandfathered cycle: debt that the design forbids, listed with the issues that remove it. No cycle is
-ever added to that list, no listed cycle is widened, and each entry goes when its cycle does.
+dependency cycles among Core modules. A cycle among Core modules fails the audit, and the map has no list of
+accepted cycles; a cycle is broken, never recorded.

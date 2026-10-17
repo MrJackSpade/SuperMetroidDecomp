@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Enemies.Hoppers;
 internal static class HopperAnimationDefinitions
 {
     /// <summary>$A3:AAC2-AAE1: selects the species/size program for its orientation and movement phase.</summary>
-    internal static HopperProgram Program(ushort variantIndex, bool upsideDown, bool jumping) =>
+    internal static HopperProgram Program(int variantIndex, bool upsideDown, bool jumping) =>
         (variantIndex, upsideDown, jumping) switch
         {
             (0, false, true) => HopperProgram.SidehopperFloorJumping,

@@ -41,8 +41,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
                 break;
             case HopperCueKind.PlaySound:
-                // Audio playback is an outer concern; publishing the exact word keeps the event observable.
-                LastHopperSoundEffect = cue.Value;
+                LastHopperSoundEffect = cue.Sound ?? throw new InvalidOperationException("A hopper sound cue has no sound.");
                 break;
             case HopperCueKind.ReadyToHop:
                 state.ReadyToHop = true;
@@ -56,7 +55,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Native global RNG seed written when a Hopper initializes.</summary>
     private const ushort HopperRandomSeed = 37;
     /// <summary>Terminal quadratic-speed table index used to cap the falling half of a hop.</summary>
-    private const ushort MaximumHopperYSpeedTableIndex = 64;
+    private const int MaximumHopperYSpeedTableIndex = 64;
 
     /// <summary>Ports <c>InitAI_Hopper</c> at $A3:AB09.</summary>
     internal void InitializeHopper(RoomEnemySlot slot)
@@ -77,8 +76,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Falling = false,
             ReadyToHop = false,
-            HopTableIndex = slot.Definition.VariantIndex == 0 ? (ushort)0 : (ushort)2,
-            VariantTableOffset = unchecked((ushort)(slot.Definition.VariantIndex * 2)),
+            Variant = slot.Definition.VariantIndex,
             UpsideDown = slot.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
@@ -172,7 +170,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Selects big or small quadratic-speed parameters and routes to the facing choice for the next hop.</summary>
     private static void PrepareHopperHop(HopperEnemyState state, bool bigHop)
     {
-        state.YSpeedTableIndexDelta = bigHop ? (ushort)4 : (ushort)3;
+        state.YSpeedTableIndexDelta = bigHop ? 4 : 3;
         state.XVelocity = 3;
         state.YSpeedTableIndex = bigHop
             ? state.BigHopInitialYSpeedTableIndex
@@ -247,7 +245,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         // each actor collide with its starting surface and then migrate to the opposite one.
         bool useNegativeSpeed = upsideDown != movingAwayFromSurface;
         int verticalDisplacement = EnemyMath.ReadQuadraticEnemySpeed(
-            state.YSpeedTableIndex,
+            checked((ushort)state.YSpeedTableIndex),
             negative: useNegativeSpeed);
 
         // Every native movement entry resolves Y first. A collision while rising reverses
@@ -283,22 +281,26 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (movingAwayFromSurface)
         {
-            ushort next = unchecked((ushort)(
-                state.YSpeedTableIndex - state.YSpeedTableIndexDelta));
-            state.YSpeedTableIndex = next;
-            if ((short)next < 0)
+            // The cartridge stores the decremented record and branches on its sign: a record below zero is the apex,
+            // replaced by zero as the hop turns back toward the surface.
+            int next = state.YSpeedTableIndex - state.YSpeedTableIndexDelta;
+            if (next < 0)
             {
                 state.YSpeedTableIndex = 0;
                 state.Falling = true;
             }
+            else
+            {
+                state.YSpeedTableIndex = next;
+            }
             return;
         }
 
-        ushort fallingIndex = unchecked((ushort)(
-            state.YSpeedTableIndex + state.YSpeedTableIndexDelta));
-        state.YSpeedTableIndex = unchecked((short)(fallingIndex - MaximumHopperYSpeedTableIndex)) < 0
-            ? fallingIndex
-            : MaximumHopperYSpeedTableIndex;
+        // The cartridge caps the returning record by the sign of its word difference from the cap; both stay far
+        // below the word's sign bit, so that is the ordinary minimum.
+        state.YSpeedTableIndex = Math.Min(
+            state.YSpeedTableIndex + state.YSpeedTableIndexDelta,
+            MaximumHopperYSpeedTableIndex);
     }
 
     /// <summary>Accumulates the native unaligned quadratic-speed words until the authored jump height is reached.</summary>
@@ -330,8 +332,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperEnemyState state,
         bool upsideDown,
         bool jumping) =>
-        HopperAnimationDefinitions.Program(
-            (ushort)(state.VariantTableOffset >> 1), upsideDown, jumping);
+        HopperAnimationDefinitions.Program(state.Variant, upsideDown, jumping);
 
     /// <summary>Starts a new animation with a one-tick countdown.</summary>
     private static void SetHopperProgram(
@@ -373,8 +374,8 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = cursor;
     }
 
-    /// <summary>Last library-two sound operand emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
-    public ushort? LastHopperSoundEffect { get; private set; }
+    /// <summary>Last library-two sound emitted by a Hopper instruction this enemy pass, admitted through the native Max6 queue entry; null means no request.</summary>
+    public SoundEffectId? LastHopperSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
@@ -391,6 +392,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastHopperSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastHopperSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

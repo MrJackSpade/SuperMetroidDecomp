@@ -20,7 +20,7 @@ internal static class HopperAnimations
         [P.SidehopperFloorJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Value: 93)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
             Show(2, 1),
             Hold,
         ],
@@ -28,7 +28,7 @@ internal static class HopperAnimations
         [P.SidehopperFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Value: 94)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
             Show(0, 2),
             Show(1, 5),
             Show(0, 2),
@@ -40,7 +40,7 @@ internal static class HopperAnimations
         [P.SidehopperCeilingJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Value: 93)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
             Show(5, 1),
             Hold,
         ],
@@ -48,7 +48,7 @@ internal static class HopperAnimations
         [P.SidehopperCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Value: 94)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
             Show(3, 2),
             Show(4, 5),
             Show(3, 2),
@@ -96,7 +96,7 @@ internal static class HopperAnimations
         [P.LargeSidehopperFloorJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Value: 93)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
             Show(14, 1),
             Hold,
         ],
@@ -104,7 +104,7 @@ internal static class HopperAnimations
         [P.LargeSidehopperFloorLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Value: 94)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
             Show(12, 2),
             Show(13, 5),
             Show(12, 2),
@@ -116,7 +116,7 @@ internal static class HopperAnimations
         [P.LargeSidehopperCeilingJumping] =
         [
             Cue(new(K.ProcessOffScreen)),
-            Cue(new(K.PlaySound, Value: 93)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Hop)),
             Show(17, 1),
             Hold,
         ],
@@ -124,7 +124,7 @@ internal static class HopperAnimations
         [P.LargeSidehopperCeilingLanded] =
         [
             Cue(new(K.StopProcessingOffScreen)),
-            Cue(new(K.PlaySound, Value: 94)),
+            Cue(new(K.PlaySound, Sound: HopperSoundDefinitions.Land)),
             Show(15, 2),
             Show(16, 5),
             Show(15, 2),

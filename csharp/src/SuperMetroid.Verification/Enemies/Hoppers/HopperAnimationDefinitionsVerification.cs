@@ -69,7 +69,7 @@ internal static class HopperAnimationDefinitionsVerification
                 EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
-            AssertEqual(variant is 0 or 1 ? (ushort?)0x005d : null, enemies.HoppersBehavior.LastHopperSoundEffect,
+            AssertEqual(variant is 0 or 1 ? (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005d) : null, enemies.HoppersBehavior.LastHopperSoundEffect,
                 $"hopper jumping sound {context}");
 
             HoppersBehavior.LandHopper(slot, state);
@@ -82,7 +82,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
-            AssertEqual(variant is 0 or 1 ? (ushort?)0x005e : null, enemies.HoppersBehavior.LastHopperSoundEffect,
+            AssertEqual(variant is 0 or 1 ? (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005e) : null, enemies.HoppersBehavior.LastHopperSoundEffect,
                 $"hopper landed sound {context}");
         }
 
@@ -115,7 +115,7 @@ internal static class HopperAnimationDefinitionsVerification
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = HopperFrameDefinitionsBank, VariantIndex = 1 });
         enemies.HoppersBehavior.InitializeHopper(slot);
         EnemyInstructionRunner.ShownFrames(slot, 1);
-        AssertEqual((ushort?)0x005e, enemies.HoppersBehavior.LastHopperSoundEffect,
+        AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005e), enemies.HoppersBehavior.LastHopperSoundEffect,
             "Tourian Sidehopper shares the large-Sidehopper landed program");
     }
 

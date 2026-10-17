@@ -68,11 +68,6 @@ public sealed class TourianStatueSequence
         public AnimationProgramCursor<TourianStatueTileProgram>? Cursor;
         /// <summary>Remaining duration of the current tile frame.</summary>
         public NativeCountdown Timer = NativeCountdown.Start(1);
-        /// <summary>
-        /// The same position as <see cref="Cursor"/> under the name <c>DoorAnimatedTilesVerification</c> still uses;
-        /// it goes once that verification reads <see cref="Cursor"/>.
-        /// </summary>
-        public AnimationProgramCursor<TourianStatueTileProgram>? Pointer => Cursor;
     }
     /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches native slot traversal and busy-bit ownership.</summary>
     internal readonly List<TileObject> objects = [];

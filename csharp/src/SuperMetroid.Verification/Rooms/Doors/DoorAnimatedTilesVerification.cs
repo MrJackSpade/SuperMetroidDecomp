@@ -79,7 +79,8 @@ internal static class DoorAnimatedTilesVerification
 
         static string StatueSnapshot(SuperMetroid.Core.Runtime.SuperMetroidRuntime source)
         {
-            return string.Join(" ", source.TourianStatues.objects.Select(o => $"{o.Pointer}/{o.Timer.RawValue}"));
+            // Each statue's typed program step (program and position) and its frame timer.
+            return string.Join(" ", source.TourianStatues.objects.Select(o => $"{o.Cursor}/{o.Timer.RawValue}"));
         }
     }
 

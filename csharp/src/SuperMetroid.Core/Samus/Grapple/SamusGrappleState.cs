@@ -29,10 +29,18 @@ public sealed class SamusGrappleState
     /// </summary>
     public Position16<RoomPixels> BeamStart { get; set; }
     /// <summary>
-    /// Unsigned native length word at `$0D08`. Connected motion clamps it below 64, while
-    /// firing must represent 120 before the following frame reaches the 128-pixel cutoff.
+    /// Rope length in pixels. Connected motion clamps it below 64, while firing grows it by twelve per frame
+    /// and cancels once it reaches 128, so it never leaves 0 through 132; writes outside 0 through 32767 are
+    /// rejected, which keeps every signed length test an ordinary comparison.
     /// </summary>
-    public ushort RopeLength { get; set; }
+    public int RopeLength
+    {
+        get => _ropeLength;
+        set => _ropeLength = Ensure.BetweenInclusive(0, short.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="RopeLength"/>, always 0 through 32767.</summary>
+    private int _ropeLength;
     /// <summary>Gets or sets the signed per-update change in rope length.</summary>
     public short RopeLengthDelta { get; set; }
     /// <summary>Gets or sets the native grapple firing-direction index.</summary>
@@ -121,11 +129,18 @@ public sealed class SamusGrappleState
     public bool CancelFromConnectedPose { get; set; }
 
     /// <summary>
-    /// Native shared flare counter `$0CD0`. Grapple seeds one, increments it after tile
-    /// uploads, and saturates at 120; teardown returns it to zero before ordinary charge
-    /// handling can resume.
+    /// Grapple flare counter. Grapple seeds one, increments it after tile uploads, and saturates at 120;
+    /// teardown returns it to zero before ordinary charge handling can resume. Writes outside 0 through 32767
+    /// are rejected, which keeps the saturation test an ordinary comparison.
     /// </summary>
-    public ushort FlareCounter { get; set; }
+    public int FlareCounter
+    {
+        get => _flareCounter;
+        set => _flareCounter = Ensure.BetweenInclusive(0, short.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="FlareCounter"/>, always 0 through 32767.</summary>
+    private int _flareCounter;
 
     /// <summary>Native main-flare bytecode index `$0CD2`, stored as a 16-bit WRAM word.</summary>
     public ushort FlareAnimationFrame { get; set; }
@@ -135,8 +150,18 @@ public sealed class SamusGrappleState
 
     /// <summary>Gets or sets the grapple endpoint animation countdown.</summary>
     public NativeCountdown PointAnimationTimer { get; set; }
-    /// <summary>Ordinal of the native $200-byte-strided endpoint source, normally zero through three.</summary>
-    public byte PointAnimationFrame { get; set; }
+    /// <summary>
+    /// Endpoint animation frame, normally zero through three. The advance keeps every ordinal it produces below
+    /// 128 and restored ordinals are 0 through 255; other writes are rejected.
+    /// </summary>
+    public int PointAnimationFrame
+    {
+        get => _pointAnimationFrame;
+        set => _pointAnimationFrame = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="PointAnimationFrame"/>, always 0 through 255.</summary>
+    private int _pointAnimationFrame;
     /// <summary>
     /// Sixteen timers at WRAM $7E:0D42. A connected rope draws slots 15 downward; retaining
     /// all sixteen makes shortening and lengthening the rope resume the original slot state.

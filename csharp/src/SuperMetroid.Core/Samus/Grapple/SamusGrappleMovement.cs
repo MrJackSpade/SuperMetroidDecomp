@@ -288,7 +288,7 @@ public static class SamusGrappleMovement
         if ((controllerInput & SnesButton.X) == 0)
             return QueueFiringCancellation(grapple);
 
-        grapple.RopeLength = unchecked((ushort)(grapple.RopeLength + 12));
+        grapple.RopeLength += 12;
         if (grapple.RopeLength >= 128)
             return QueueFiringCancellation(grapple);
 
@@ -598,12 +598,12 @@ public static class SamusGrappleMovement
 
         SamusState samus,
         SnesButton controllerInput,
-        ushort damageBeforeSuit)
+        int damageBeforeSuit)
     {
-        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? unchecked((ushort)(damageBeforeSuit >> 2))
+        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? damageBeforeSuit / 4
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? unchecked((ushort)(damageBeforeSuit >> 1))
+                ? damageBeforeSuit / 2
                 : damageBeforeSuit;
         samus.Health = samus.Health <= damage
             ? 0
@@ -1115,7 +1115,7 @@ public static class SamusGrappleMovement
         grapple.AngularVelocity = 0;
         grapple.RopeLengthDelta = 0;
         if (grapple.RopeLength >= 64)
-            grapple.RopeLength = unchecked((ushort)(grapple.RopeLength - 24));
+            grapple.RopeLength -= 24;
 
         // $94:AC11 publishes the native grapple-beam Start pair from the accepted endpoint,
         // angle, and possibly shortened rope. This is the hand attachment point, not the
@@ -1346,9 +1346,9 @@ public static class SamusGrappleMovement
         // at 120 by a signed comparison. It happens even at zero rope length; only the OAM
         // rope renderer below is conditional. This is why a newly fired beam can animate
         // its muzzle flare before its first eight-pixel body segment exists.
-        if (unchecked((short)(grapple.FlareCounter - 120)) < 0)
-            grapple.FlareCounter = unchecked((ushort)(grapple.FlareCounter + 1));
-        if (unchecked((short)grapple.RopeLength) <= 0)
+        if (grapple.FlareCounter < 120)
+            grapple.FlareCounter++;
+        if (grapple.RopeLength <= 0)
             return;
 
         // $94:AFCF recalculates the draw vector from endpoint-minus-flare geometry. This
@@ -1808,14 +1808,14 @@ public static class SamusGrappleMovement
                 // Native stores GrappleCollision_NewBeamLength, which is the last accepted
                 // length rather than the colliding candidate. It deliberately leaves the
                 // signed delta alive so a held adjustment retries on the following frame.
-                grapple.RopeLength = unchecked((ushort)currentLength);
+                grapple.RopeLength = currentLength;
                 return true;
             }
 
             currentLength = candidateLength;
         }
 
-        grapple.RopeLength = unchecked((ushort)targetLength);
+        grapple.RopeLength = targetLength;
         return false;
     }
 

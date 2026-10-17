@@ -1073,7 +1073,7 @@ internal static void VerifySamusAtmosphericEffects()
     samus.LiquidPhysics.ConfigureWater(surfaceY: 110);
     samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
     SamusAtmosphericEffectSlot entrySplash = samus.LiquidPhysics.AtmosphericEffects.Slots[0];
-    AssertEqual(3, entrySplash.Type, "water entry selects diving-splash type");
+    AssertEqual(SamusAtmosphericEffectType.DivingSplash, entrySplash.Type, "water entry selects diving-splash type");
     AssertEqual(2, entrySplash.AnimationTimer.RawValue, "diving splash initial timer");
     AssertEqual(100, entrySplash.Position.X, "diving splash Samus X");
     AssertEqual(110, entrySplash.Position.Y, "diving splash surface Y");
@@ -1094,7 +1094,7 @@ internal static void VerifySamusAtmosphericEffects()
     var bubbleSystem = new Bank80SystemState(0x0061);
     samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 128, bubbleSystem);
     SamusAtmosphericEffectSlot bubble = samus.LiquidPhysics.AtmosphericEffects.Slots[2];
-    AssertEqual(5, bubble.Type, "128-frame submerged cadence creates bubbles");
+    AssertEqual(SamusAtmosphericEffectType.Bubbles, bubble.Type, "128-frame submerged cadence creates bubbles");
     AssertEqual(94, bubble.Position.Y, "bubble origin is Samus top plus six");
     AssertTrue(samus.LiquidPhysics.SoundRequests.Any(request =>
         request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
@@ -1108,7 +1108,7 @@ internal static void VerifySamusAtmosphericEffects()
     samus.SubunitHealth = 0;
     samus.EquippedItems = 0;
     samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
-    AssertTrue(samus.LiquidPhysics.AtmosphericEffects.Slots.All(slot => slot.Type == 4),
+    AssertTrue(samus.LiquidPhysics.AtmosphericEffects.Slots.All(slot => slot.Type == SamusAtmosphericEffectType.LavaSurfaceDamage),
         "partial lava submersion fills four surface-spray slots");
     AssertEqual(0x8000, samus.LiquidPhysics.PeriodicSubDamage,
         "lava fractional damage accumulates from ROM");
@@ -1174,7 +1174,7 @@ internal static void VerifySamusAtmosphericEffects()
     runner.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 1);
     runner.HorizontalSpeed.SpeedBoostCounter = 0x0400;
     runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
-    AssertEqual(7, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
+    AssertEqual(SamusAtmosphericEffectType.AlternateDust, runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
         "boost-stage-four foot contact creates dust");
     AssertEqual(0x8002,
         runner.LiquidPhysics.AtmosphericEffects.Slots[0].AnimationTimer.RawValue,
@@ -1219,9 +1219,9 @@ internal static void VerifySamusAtmosphericEffects()
         landing.LiquidPhysics.SoundRequests[0], "ordinary spin termination sound");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6),
         landing.LiquidPhysics.SoundRequests[1], "sub-five soft landing sound");
-    AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+    AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Norfair landing creates right dust slot");
-    AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[3].Type,
+    AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[3].Type,
         "Norfair landing creates left dust slot");
     AssertEqual(108, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "landing dust right X offset");
@@ -1250,7 +1250,7 @@ internal static void VerifySamusAtmosphericEffects()
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count,
         "cinematic landing suppresses both sound libraries");
-    AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+    AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Norfair cinematic still dispatches landing dust");
     landing.LiquidPhysics.CinematicFunctionActive = false;
 
@@ -1258,7 +1258,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
-    AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+    AssertEqual(SamusAtmosphericEffectType.Dust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "liquid exactly at the inclusive bottom does not suppress landing dust");
 
     // Active liquid returns without touching the landing slots. This is intentionally not
@@ -1270,7 +1270,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
-    AssertEqual(7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+    AssertEqual(SamusAtmosphericEffectType.AlternateDust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "submerged landing leaves prior atmospheric slot untouched");
     AssertEqual(9, landing.LiquidPhysics.AtmosphericEffects.Slots[2].AnimationTimer.RawValue,
         "submerged return does not clear stale timer");
@@ -1296,7 +1296,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
-    AssertEqual(7, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+    AssertEqual(SamusAtmosphericEffectType.AlternateDust, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "zero-speed grounding returns before graphics dispatch");
 
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
@@ -1309,7 +1309,7 @@ internal static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
-    AssertEqual(1, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
+    AssertEqual(SamusAtmosphericEffectType.FootstepSplash, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Landing Site type-A FX selects splash");
     AssertEqual(104, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Position.X,
         "landing splash right X offset");

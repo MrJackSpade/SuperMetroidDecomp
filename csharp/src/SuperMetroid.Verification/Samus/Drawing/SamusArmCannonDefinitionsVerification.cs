@@ -70,6 +70,25 @@ internal static class SamusArmCannonDefinitionsVerification
             "Arm-cannon policy: all six HUD selections match the cartridge and the real update path rejects runtime policy-table reads.");
     }
 
+    /// <summary>
+    /// Checks the cover's draw order for every pose drawing-mode byte: the drawing handler reads only the low
+    /// nibble, where zero hides the cover, two draws it after the body and every other value before it.
+    /// </summary>
+    internal static void VerifyArmCannonDrawOrder()
+    {
+        var cannon = new SamusArmCannonState();
+        for (int mode = 0; mode <= byte.MaxValue; mode++)
+        {
+            cannon.DrawingMode = (ushort)mode;
+            int lowNibble = mode % 16;
+            SamusArmCannonDrawOrder expected = lowNibble == 0 ? SamusArmCannonDrawOrder.Hidden
+                : lowNibble == 2 ? SamusArmCannonDrawOrder.AfterBody
+                : SamusArmCannonDrawOrder.BeforeBody;
+            AssertEqual(expected, cannon.DrawOrder, $"arm-cannon drawing mode {mode} draw order");
+        }
+        Console.WriteLine("Arm-cannon draw order: all 256 drawing-mode bytes select hidden, before-body or after-body by their low nibble.");
+    }
+
     /// <summary>Rejects live reads of the compiled arm-cannon HUD policy table.</summary>
     private static CartridgeReadGuard NewArmCannonPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address >= SamusArmCannonDefinitions.OpenFlagTable &&
@@ -82,6 +101,7 @@ internal static class SamusArmCannonDefinitionsVerification
     {
         Suite(nameof(VerifySamusArmCannonDefinitions), () => VerifySamusArmCannonDefinitions(
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyArmCannonDrawOrder), VerifyArmCannonDrawOrder);
         return 0;
     }
 }

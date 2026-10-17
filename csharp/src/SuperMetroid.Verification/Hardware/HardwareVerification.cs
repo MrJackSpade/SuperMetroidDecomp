@@ -523,7 +523,7 @@ internal static void VerifyFrameRuntime()
 
     // `$89:ACC3` writes Mode 7 shadow registers during room main. They must become visible
     // only when an accepted NMI reaches `$80:95A7`, at the same boundary as displayed OAM.
-    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, 0xfff0, new Position16<RoomPixels>(0x0080, 0x03f0));
+    var firstMode7 = new SamusMode7Transform(0x00f0, 0x0010, -0x0010, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = firstMode7;
 
     runtime.StepFrame(SnesButton.Start);
@@ -536,7 +536,7 @@ internal static void VerifyFrameRuntime()
     AssertEqual(firstMode7, runtime.Display.DisplayedSamusMode7Transform,
         "accepted NMI publishes Mode 7 shadow registers");
 
-    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, 0xffe0, new Position16<RoomPixels>(0x0080, 0x03f0));
+    var secondMode7 = new SamusMode7Transform(0x00e0, 0x0020, -0x0020, new Position16<RoomPixels>(0x0080, 0x03f0));
     runtime.Display.ActiveSamusMode7Transform = secondMode7;
     runtime.StepFrame(SnesButton.Start);
     AssertEqual(SnesButton.None, runtime.Controller1.NewlyPressed, "second runtime frame sees stable hold");

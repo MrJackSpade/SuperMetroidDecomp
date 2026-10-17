@@ -399,7 +399,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     var baselineMode7FlareOam = new OamBuffer();
     var rotatedMode7FlareOam = new OamBuffer();
     baselineMode7FlareOam = baselineMode7Projectiles.ChargeFlareOam(baselineMode7Samus, new(0, 0), fixtureFlarePlacement, fixtureFlareSprites);
-    rotatedMode7FlareOam = rotatedMode7Projectiles.ChargeFlareOam(rotatedMode7Samus, Position16<RoomPixels>.Zero, fixtureFlarePlacement, fixtureFlareSprites, new SamusMode7Transform(0, 0x0100, 0xff00, new Position16<RoomPixels>(120, 96)));
+    rotatedMode7FlareOam = rotatedMode7Projectiles.ChargeFlareOam(rotatedMode7Samus, Position16<RoomPixels>.Zero, fixtureFlarePlacement, fixtureFlareSprites, new SamusMode7Transform(0, 0x0100, -0x0100, new Position16<RoomPixels>(120, 96)));
     AssertTrue(baselineMode7FlareOam.LastFinalizedSpriteCount != 0,
         "Mode 7 flare fixture reaches visible central component");
     AssertEqual(baselineMode7FlareOam.LastFinalizedSpriteCount, rotatedMode7FlareOam.LastFinalizedSpriteCount,

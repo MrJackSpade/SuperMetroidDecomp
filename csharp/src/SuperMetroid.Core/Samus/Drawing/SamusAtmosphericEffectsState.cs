@@ -109,8 +109,8 @@ public sealed class SamusAtmosphericEffectsState
             if (slot.FrameAndType == 0)
                 continue;
 
-            byte type = slot.Type;
-            byte frameBeforeTimer = slot.AnimationFrame;
+            SamusAtmosphericEffectType type = slot.Type;
+            int frameBeforeTimer = slot.AnimationFrame;
             slot.AnimationTimer = slot.AnimationTimer.Decrement().Remaining;
 
             if (slot.AnimationTimer.IsZero)
@@ -119,10 +119,10 @@ public sealed class SamusAtmosphericEffectsState
                 // packed word. That ordering is why a newly created timer-three frame is
                 // visible for two calls before frame one begins.
                 slot.AnimationTimer =
-                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
+                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
                 slot.FrameAndType = unchecked((ushort)(slot.FrameAndType + 1));
                 if (slot.AnimationFrame >=
-                    SamusAtmosphericAnimationDefinitions.FrameCount(type))
+                    SamusAtmosphericAnimationDefinitions.FrameCount((byte)type))
                 {
                     slot.FrameAndType = 0;
                     continue;
@@ -135,42 +135,43 @@ public sealed class SamusAtmosphericEffectsState
                 if (slot.AnimationTimer.RawValue != DelayedStartMarker)
                     continue;
                 slot.AnimationTimer =
-                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer(type, frameBeforeTimer));
+                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
             }
 
             switch (type)
             {
-                case 1:
-                case 2:
+                case SamusAtmosphericEffectType.FootstepSplash:
+                case SamusAtmosphericEffectType.AlternateFootstepSplash:
                     DrawDirectSmallSprite(drawing, slot, slotIndex, type);
                     break;
 
-                case 3:
+                case SamusAtmosphericEffectType.DivingSplash:
                     // Diving splash graphics remain pinned to the live water surface even
                     // if room FX moves it while the nine-frame animation is running.
                     slot.Position = slot.Position.WithY(fxYPosition);
                     DrawSamusTableSpritemap(drawing, slot, slotIndex, 399);
                     break;
 
-                case 4:
+                case SamusAtmosphericEffectType.LavaSurfaceDamage:
                     // Slots 0/1 drift apart to the right and slots 2/3 to the left. Native
                     // tests bit two of the byte offset (0,2,4,6), equivalent to index >= 2.
                     slot.Position += new Offset16<RoomPixels>(slotIndex >= 2 ? (short)-1 : (short)1, -1);
                     DrawDirectSmallSprite(drawing, slot, slotIndex, type);
                     break;
 
-                case 5:
+                case SamusAtmosphericEffectType.Bubbles:
                     DrawSamusTableSpritemap(drawing, slot, slotIndex, 390);
                     break;
 
-                case 6:
-                case 7:
+                case SamusAtmosphericEffectType.Dust:
+                case SamusAtmosphericEffectType.AlternateDust:
                     slot.Position -= new Offset16<RoomPixels>(0, 1);
                     DrawDirectSmallSprite(drawing, slot, slotIndex, type);
                     break;
 
+                case SamusAtmosphericEffectType.Inactive:
                 default:
-                    // Type zero is the inactive word and was filtered above. The producer
+                    // An inactive slot has a zero packed word and was filtered above. The producer
                     // validates 0..7, so reaching this branch means externally corrupted state.
                     throw new InvalidDataException($"Unsupported atmospheric graphics type {type}.");
             }
@@ -182,7 +183,7 @@ public sealed class SamusAtmosphericEffectsState
         AtmosphereDrawing drawing,
         SamusAtmosphericEffectSlot slot,
         int slotIndex,
-        byte type)
+        SamusAtmosphericEffectType type)
     {
         short screenX = unchecked((short)(slot.Position.X - drawing.Camera.X - 4));
         short screenY = unchecked((short)(slot.Position.Y - drawing.Camera.Y - 4));
@@ -204,12 +205,12 @@ public sealed class SamusAtmosphericEffectsState
 
     /// <summary>Requires an installed direct-sprite entry for the visible type and animation frame.</summary>
     private static ushort ResolveInstalledAttributes(
-        SamusAtmosphericArtworkCatalog? artwork, byte type, byte frame)
+        SamusAtmosphericArtworkCatalog? artwork, SamusAtmosphericEffectType type, int frame)
     {
         if (artwork is null)
             throw new InvalidOperationException(
                 $"Atmospheric type {type} requires installed small-sprite artwork.");
-        if (!artwork.TryResolve(type, frame, out ushort attributes))
+        if (!artwork.TryResolve((byte)type, frame, out ushort attributes))
             throw new InvalidDataException(
                 $"Atmospheric type {type} frame {frame} is outside the installed sprite artwork.");
         return attributes;

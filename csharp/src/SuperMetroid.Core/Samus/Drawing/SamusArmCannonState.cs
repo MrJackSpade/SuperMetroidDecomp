@@ -38,11 +38,17 @@ public sealed class SamusArmCannonState
     public ushort DrawingMode { get; internal set; }
 
     /// <summary>
-    /// Low-nibble dispatch value consumed by `$90:EB55/$90:EBA3`. The full source byte is
-    /// retained above because `$90:C5E0-$C5E6` stores it unmasked; only the drawing handler
-    /// applies `$000F` before choosing mode zero, one, or two.
+    /// Where this frame's cover is drawn relative to the body. The full source byte is retained in
+    /// <see cref="DrawingMode"/> because `$90:C5E0-$C5E6` stores it unmasked; only the drawing handler
+    /// reads its low nibble, where zero hides the cover, two draws it after the body and every other
+    /// value draws it before the body.
     /// </summary>
-    public ushort EffectiveDrawingMode => unchecked((ushort)(DrawingMode & 15));
+    public SamusArmCannonDrawOrder DrawOrder => (DrawingMode & 15) switch
+    {
+        0 => SamusArmCannonDrawOrder.Hidden,
+        2 => SamusArmCannonDrawOrder.AfterBody,
+        _ => SamusArmCannonDrawOrder.BeforeBody,
+    };
 
     /// <summary>
     /// Runs the HUD selection stability update and `HandleArmCannonOpenState`. Calling once
@@ -75,7 +81,7 @@ public sealed class SamusArmCannonState
 
     /// <summary>
     /// Draws the direction-specific small OBJ bound to its selected cover character. The caller chooses
-    /// before/after-body order from <see cref="DrawingMode"/>.
+    /// before/after-body order from <see cref="DrawOrder"/>.
     /// </summary>
     public SamusArmCannonDrawResult Draw(
         SpriteFrameBuffer sprites,

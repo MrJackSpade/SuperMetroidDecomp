@@ -121,9 +121,9 @@ public sealed class CeresElevatorShaftRoomMainState
         ushort sine = record.Sine;
         ushort cosine = record.Cosine;
         Transform = new SamusMode7Transform(
-            MatrixA: cosine,
-            MatrixB: sine,
-            MatrixC: unchecked((ushort)-sine),
+            MatrixA: unchecked((short)cosine),
+            MatrixB: unchecked((short)sine),
+            MatrixC: unchecked((short)-sine),
             Center: CeresShaftMode7Center);
 
         // Values 0..67 sweep forward. The comparison occurs after INC, so 67 becomes the
@@ -165,7 +165,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(
-        MatrixA: (ushort)SnesEightEight.FromWhole(1),
+        MatrixA: (short)SnesEightEight.FromWhole(1),
         MatrixB: 0,
         MatrixC: 0,
         Center: CeresShaftMode7Center);

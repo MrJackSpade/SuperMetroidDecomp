@@ -322,8 +322,7 @@ internal sealed class GameplayActorDrawing
                 // Drawing modes one and two differ only in OAM priority: one appends the
                 // cannon before the body, while two appends it after. Mode zero suppresses
                 // the independent object even if a HUD-driven cover frame remains nonzero.
-                if (_player.Samus.ArmCannon.EffectiveDrawingMode is not 0 and
-                    not 2)
+                if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.BeforeBody)
                 {
                     _player.Samus.ArmCannon.Draw(
                         _sprites,
@@ -336,7 +335,7 @@ internal sealed class GameplayActorDrawing
                     _room.Camera.PixelPosition,
                     _clock.Counter,
                     _display.ActiveSamusMode7Transform);
-                if (_player.Samus.ArmCannon.EffectiveDrawingMode == 2)
+                if (_player.Samus.ArmCannon.DrawOrder == SamusArmCannonDrawOrder.AfterBody)
                 {
                     _player.Samus.ArmCannon.Draw(
                         _sprites,

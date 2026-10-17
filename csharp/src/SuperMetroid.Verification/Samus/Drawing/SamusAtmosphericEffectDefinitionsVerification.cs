@@ -88,10 +88,10 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
 
             WaterSplashKind expected =
                 SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)movement);
-            AssertEqual(expected == WaterSplashKind.GroundedPair ? 1 : 3,
+            AssertEqual(expected == WaterSplashKind.GroundedPair ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.DivingSplash,
                 samus.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production water-splash type ${movement:X2}");
-            AssertEqual(expected == WaterSplashKind.GroundedPair ? 1 : 0,
+            AssertEqual(expected == WaterSplashKind.GroundedPair ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 samus.LiquidPhysics.AtmosphericEffects.Slots[1].Type,
                 $"production second water-splash slot ${movement:X2}");
         }
@@ -114,9 +114,9 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, nmiFrameCounter: 1);
 
-            byte expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
-                ? (byte)1
-                : (byte)0;
+            SamusAtmosphericEffectType expectedType = SamusAtmosphericEffectDefinitions.IsRunningFootContact(frame)
+                ? SamusAtmosphericEffectType.FootstepSplash
+                : SamusAtmosphericEffectType.Inactive;
             AssertEqual(expectedType,
                 samus.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production running contact frame {frame}");
@@ -145,7 +145,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.Presentation.InitializeAnimation(initialFrame: 2);
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, nmiFrameCounter: 1);
-            AssertEqual(wet ? 1 : 0,
+            AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 runner.LiquidPhysics.AtmosphericEffects.Slots[0].Type,
                 $"production Crateria running policy ${room:X2}");
 
@@ -165,7 +165,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 previousPose: pose,
                 impactYSpeed: 1,
                 impactYSubspeed: 0);
-            AssertEqual(wet ? 1 : 0,
+            AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
                 $"production Crateria landing policy ${room:X2}");
         }

@@ -12,13 +12,13 @@ public static class SamusSpritemapDraws
     /// palettes and priorities.
     /// </summary>
     /// <param name="sprites">The frame receiving the draw after everything already emitted.</param>
-    /// <param name="spritemapIndex">Word index into <c>$92:808D</c>.</param>
+    /// <param name="spritemapIndex">Index into the installed Samus spritemap table.</param>
     /// <param name="origin">Screen-space origin produced by bank $90.</param>
     /// <param name="artwork">The spritemaps and the characters their parts name.</param>
     /// <param name="source">The Samus element the draw shows.</param>
     public static void AddSamusSpritemap(
         this SpriteFrameBuffer sprites,
-        ushort spritemapIndex,
+        int spritemapIndex,
         Position16<ScreenPixels> origin,
         SamusSpritemapArtwork artwork,
         SpriteSource source)

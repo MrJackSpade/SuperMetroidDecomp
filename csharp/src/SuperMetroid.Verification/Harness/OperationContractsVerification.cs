@@ -54,7 +54,7 @@ internal static class OperationContractsVerification
             NewlyPressedControllerInput = SnesButton.A,
             ControllerInput = SnesButton.Right,
             SamusProjectiles = new SamusProjectileSystem(),
-            Mode7Transform = new SamusMode7Transform(240, 16, 65520, new(128, 112)),
+            Mode7Transform = new SamusMode7Transform(240, 16, -16, new(128, 112)),
             SharedProjectiles = new SamusBombProjectileSystem(),
             VramWriteQueue = new VramWriteQueue(),
         };

@@ -749,7 +749,7 @@ internal static void VerifySamusHurtFlashPalette()
     int untouchedCalls = 0;
     for (int call = 1; call <= 59; call++)
     {
-        ushort counterBefore = samus.HurtFlashCounter;
+        int counterBefore = samus.HurtFlashCounter;
         Bgr555[] paletteBefore = cgram.Colors.Slice(192, 16).ToArray();
         int soundsBefore = samus.LiquidPhysics.SoundRequests.Count;
         SamusHurtFlashPalette.Update(

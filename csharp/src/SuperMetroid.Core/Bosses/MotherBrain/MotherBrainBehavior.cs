@@ -1365,7 +1365,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)Math.Max(xOverlap, 4)), 4));
             samus.InvincibilityTimer = NativeCountdown.Start(96);
             samus.KnockbackTimer = NativeCountdown.Start(5);
-            samus.KnockbackXDirection = 1;
+            samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
             if (unchecked((short)(samus.Position.Y.Whole - 192)) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
@@ -1391,7 +1391,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
         samus.KnockbackTimer = NativeCountdown.Start(5);
-        samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? (ushort)1 : (ushort)0;
+        samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
     }
 
     /// <summary>
@@ -3757,8 +3757,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.InvincibilityTimer = NativeCountdown.Start(96);
             samus.KnockbackTimer = NativeCountdown.Start(5);
             samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringPosition.X)) >= 0
-                ? (ushort)1
-                : (ushort)0;
+                ? KnockbackHorizontalDirection.Right
+                : KnockbackHorizontalDirection.Left;
             ExplodeMotherBrainOnionRing(ring, state, ringPosition);
             return;
         }

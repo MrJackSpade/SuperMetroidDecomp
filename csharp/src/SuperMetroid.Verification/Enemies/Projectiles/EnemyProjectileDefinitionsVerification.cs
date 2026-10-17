@@ -47,7 +47,7 @@ internal static class EnemyProjectileDefinitionsVerification
         enemies.Load(new RoomEnemyLoadRequest(setupBus, populationPointer, 0xffff, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
-        Func<RoomEnemyProjectileSlot, SamusState, ushort?> collideWithSamus =
+        Func<RoomEnemyProjectileSlot, SamusState, SuperMetroid.Core.Samus.Movement.KnockbackHorizontalDirection?> collideWithSamus =
             enemies.Projectiles.ResolveEnemyProjectileSamusCollision;
 
         foreach (RoomEnemyProjectileKind kind in kinds)

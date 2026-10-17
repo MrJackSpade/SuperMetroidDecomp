@@ -341,7 +341,7 @@ internal static void VerifySamusBlockCollision()
         AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.KnockbackFrames,
             spikeSamus.KnockbackTimer.RawValue,
             $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
-        AssertEqual(0, spikeSamus.KnockbackXDirection,
+        AssertEqual(KnockbackHorizontalDirection.Left, spikeSamus.KnockbackXDirection,
             $"right-facing spike-block BTS ${spikeBehavior:X2} knocks left");
     }
 

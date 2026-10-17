@@ -607,7 +607,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             "touch callback publishes request without changing the pre-movement pose");
     AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
             "touch callback does not install the later hurt movement handler");
-    AssertEqual(1, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
+    AssertEqual(KnockbackHorizontalDirection.Right, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
     if (verifyDeferredContact) return;
 
     var projectiles = CreateProjectileFixture();

@@ -179,7 +179,7 @@ internal sealed class IntroRinkaSystem
 
                 samus.InvincibilityTimer = NativeCountdown.Start(11);
                 samus.KnockbackTimer = NativeCountdown.Start(11);
-                samus.KnockbackXDirection = 1;
+                samus.KnockbackXDirection = Samus.Movement.KnockbackHorizontalDirection.Right;
                 rinka.Delete();
                 return;
 

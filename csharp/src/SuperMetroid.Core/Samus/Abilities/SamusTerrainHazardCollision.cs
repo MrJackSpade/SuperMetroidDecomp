@@ -103,7 +103,7 @@ public static class SamusTerrainHazardCollision
         // records to leftward knockback and both left/front-special records to the other
         // direction. A switch over the proven pose discriminator states that intent.
         samus.KnockbackXDirection = samus.PoseMetadata.ReadFacingDirection() == SamusFacingDirection.Right
-            ? (ushort)0
-            : (ushort)1;
+            ? KnockbackHorizontalDirection.Left
+            : KnockbackHorizontalDirection.Right;
     }
 }

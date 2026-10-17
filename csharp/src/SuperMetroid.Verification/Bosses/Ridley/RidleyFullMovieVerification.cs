@@ -547,7 +547,7 @@ internal static class RidleyFullMovieVerification
         samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
         samus.KnockbackActive = true; samus.KnockbackDirection = 2;
-        samus.KnockbackXDirection = 1; samus.KnockbackTimer = NativeCountdown.Start(4);
+        samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackTimer = NativeCountdown.Start(4);
         samus.InvincibilityTimer = NativeCountdown.Start(95);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = 5; samus.Kinematics.YSubspeed = 0;
         runtime.StepFrame(0);
@@ -1220,8 +1220,8 @@ internal static class RidleyFullMovieVerification
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackTimer.RawValue, NativeSnapshotMemory.KnockbackTimer);
             Check("Samus Samus knockback direction", samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
-            Check("Samus horizontal knockback direction", samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
-            Check("Samus hurt palette/audio recovery countdown", samus.HurtFlashCounter, NativeSnapshotMemory.HurtFlashCounter);
+            Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
+            Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlashCounter), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.SubunitHealth), NativeSnapshotMemory.SubunitHealth);
             Check("Samus selected HUD weapon", samus.SelectedHudItem.ToNativeWord(), NativeSnapshotMemory.SelectedHudItem);
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);

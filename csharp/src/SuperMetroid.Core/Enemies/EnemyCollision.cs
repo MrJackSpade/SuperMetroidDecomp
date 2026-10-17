@@ -1059,7 +1059,7 @@ internal sealed class EnemyCollision
             ? 0
             : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.Start(96);
-        ushort direction = samus.Position.X.Whole >= damageSourceX ? (ushort)1 : (ushort)0;
+        KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).

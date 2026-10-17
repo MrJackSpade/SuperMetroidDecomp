@@ -165,8 +165,7 @@ level, targetPose, nmiFrameCounter, plms))
         // when choosing a ball's vertical branch: right-facing ball art always gets up-right
         // direction two, and left-facing art gets up-left direction one. Humanoid `$91:EDB0`
         // retains the unusual forward-held selection of down-left/down-right directions.
-        // Samus still holds the cartridge's left/right word: zero for left, one for right.
-        samus.KnockbackXDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Right ? (ushort)1 : (ushort)0;
+        samus.KnockbackXDirection = launch.KnockbackXDirection;
         if (morphed)
         {
             samus.KnockbackDirection = facingLeft ? (ushort)1 : (ushort)2;
@@ -239,7 +238,7 @@ level, targetPose, nmiFrameCounter, plms))
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
         uint baseSpeed = speed.CalculateBaseSpeed(samus.PoseMetadata.ReadMovementType());
-        var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == 0, samus, baseSpeed);
+        var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's

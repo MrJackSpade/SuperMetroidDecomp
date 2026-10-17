@@ -19,6 +19,9 @@ namespace SuperMetroid.Core.Samus.Palettes;
 /// </remarks>
 public static class SamusHurtFlashPalette
 {
+    /// <summary>How many values the hurt-flash counter counts through before it returns to zero, as the cartridge's word does.</summary>
+    private const int HurtFlashCounterPeriod = 65536;
+
     /// <summary>
     /// Advances one native hurt-flash call, optionally replacing all sixteen colors of
     /// OBJ palette four and publishing the exact recovery sound side effects.
@@ -37,7 +40,7 @@ public static class SamusHurtFlashPalette
         Ensure.NotNull(cgram);
         Ensure.NotNull(samus);
 
-        ushort counterBefore = samus.HurtFlashCounter;
+        int counterBefore = samus.HurtFlashCounter;
         if (counterBefore == 0)
         {
             return new SamusHurtFlashPaletteStepResult();
@@ -82,7 +85,7 @@ public static class SamusHurtFlashPalette
         // Native stores the increment before either comparison. The signed branch against
         // sixty is preserved rather than simplified to an unsigned host range, retaining
         // the exact wrap behavior for manually corrupted/debugger-written counters.
-        ushort counterAfter = unchecked((ushort)(counterBefore + 1));
+        int counterAfter = (counterBefore + 1) % HurtFlashCounterPeriod;
         samus.HurtFlashCounter = counterAfter;
 
         SamusHurtFlashRecoveryAction recovery = SamusHurtFlashRecoveryAction.None;

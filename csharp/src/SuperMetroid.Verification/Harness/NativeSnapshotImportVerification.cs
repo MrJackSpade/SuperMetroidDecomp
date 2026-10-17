@@ -161,7 +161,7 @@ internal static class NativeSnapshotImportVerification
         samus.InvincibilityTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.InvincibilityTimer));
         samus.KnockbackTimer = NativeCountdown.FromRaw(W(NativeSnapshotMemory.KnockbackTimer));
         samus.KnockbackDirection = W(NativeSnapshotMemory.KnockbackDirection);
-        samus.KnockbackXDirection = W(NativeSnapshotMemory.KnockbackXDirection);
+        samus.KnockbackXDirection = (KnockbackHorizontalDirection)W(NativeSnapshotMemory.KnockbackXDirection);
         samus.HurtFlashCounter = W(NativeSnapshotMemory.HurtFlashCounter);
         samus.SubunitHealth = W(NativeSnapshotMemory.SubunitHealth);
         samus.SelectedHudItem = HudItems.Decode(W(NativeSnapshotMemory.SelectedHudItem));

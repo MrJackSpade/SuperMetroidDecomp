@@ -21,10 +21,10 @@ public sealed record KnockbackLaunch
         {
             KnockbackXDirection = samus.KnockbackXDirection switch
             {
-                0 => KnockbackHorizontalDirection.Left,
-                1 => KnockbackHorizontalDirection.Right,
+                KnockbackHorizontalDirection.Left => KnockbackHorizontalDirection.Left,
+                KnockbackHorizontalDirection.Right => KnockbackHorizontalDirection.Right,
                 _ => throw new InvalidDataException(
-                    $"Pending knockback horizontal direction {samus.KnockbackXDirection} is neither left (0) nor right (1)."),
+                    $"Pending knockback horizontal direction {samus.KnockbackXDirection} is neither left nor right."),
             },
             KnockbackTimer = samus.KnockbackTimer,
         };

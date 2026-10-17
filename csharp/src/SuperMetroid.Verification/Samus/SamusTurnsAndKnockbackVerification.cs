@@ -519,7 +519,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.Start(samus, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right });
     AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
     AssertEqual(2, samus.KnockbackDirection, "up-right knockback direction");
-    AssertEqual(1, samus.KnockbackXDirection, "knockback X direction publication");
+    AssertEqual(KnockbackHorizontalDirection.Right, samus.KnockbackXDirection, "knockback X direction publication");
     AssertEqual(5, samus.KnockbackTimer.RawValue, "enemy hurt timer publication");
     AssertEqual(1, samus.HurtFlashCounter,
         "knockback command starts shared hurt-flash palette counter");
@@ -549,7 +549,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
         KnockbackTimer = NativeCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames),
-        KnockbackXDirection = 0,
+        KnockbackXDirection = KnockbackHorizontalDirection.Left,
     };
     AssertTrue(
         !SamusKnockbackMovement.TryStartPendingHitInterruption(

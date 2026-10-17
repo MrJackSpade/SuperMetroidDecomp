@@ -336,7 +336,7 @@ internal sealed class EnemyProjectileEngine
             samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
             return;
 
-        ushort? finalKnockbackXDirection = null;
+        KnockbackHorizontalDirection? finalKnockbackXDirection = null;
         for (int index = _enemyProjectiles.Length - 1; index >= 0; index--)
         {
             RoomEnemyProjectileSlot projectile = _enemyProjectiles[index];
@@ -708,7 +708,7 @@ internal sealed class EnemyProjectileEngine
         level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
 
     /// <summary>Checks radius overlap and publishes touch-list or damage behavior for a projectile that reaches Samus.</summary>
-    internal ushort? ResolveEnemyProjectileSamusCollision(
+    internal KnockbackHorizontalDirection? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
@@ -734,10 +734,10 @@ internal sealed class EnemyProjectileEngine
             ? 0
             : samus.Health - damage;
         samus.InvincibilityTimer = NativeCountdown.FromRaw(projectile.InvincibilityFrames);
-        ushort knockbackXDirection = unchecked((short)(
+        KnockbackHorizontalDirection knockbackXDirection = unchecked((short)(
             samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
-            ? (ushort)1
-            : (ushort)0;
+            ? KnockbackHorizontalDirection.Right
+            : KnockbackHorizontalDirection.Left;
 
         // `$A0:9930-$993F` installs the definition's touch list before consulting property
         // $4000. Mother Brain's turret bullet depends on that ordering: it survives contact

@@ -417,8 +417,8 @@ public sealed class SamusState
     /// </summary>
     public ushort KnockbackDirection { get; set; }
 
-    /// <summary>WRAM `$0A54`: zero moves knockback left; one moves it right.</summary>
-    public ushort KnockbackXDirection { get; set; }
+    /// <summary>Which way the pending or active knockback moves Samus horizontally.</summary>
+    public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }
 
     /// <summary>
     /// WRAM <c>$0A48</c>, the shared hurt-flash palette counter. Ordinary knockback starts
@@ -430,9 +430,11 @@ public sealed class SamusState
     /// <remarks>
     /// This word belongs to Samus rather than the shinespark child state. Keeping it here
     /// preserves the cartridge's intentional sharing between unrelated damage, palette,
-    /// and special-movement producers and makes the complete effect debugger-watchable.
+    /// and special-movement producers and makes the complete effect debugger-watchable. Its value is 0 through 65535:
+    /// gameplay keeps it below sixty, and a debugger-written value at or above 32768 advances with the cartridge's
+    /// 16-bit wrap (<see cref="Palettes.SamusHurtFlashPalette"/>) until the signed sixty test ends it.
     /// </remarks>
-    public ushort HurtFlashCounter { get; set; }
+    public int HurtFlashCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// WRAM <c>ResumeChargingBeamSFXFlag</c>. Hurt-flash recovery sets one at counter forty

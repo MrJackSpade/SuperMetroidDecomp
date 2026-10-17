@@ -39,12 +39,12 @@ internal static class GameOverMenuIndexesVerification
             "game-over index zero queues one library-three request");
         AssertEqual(SoundEffectLibrary3Sounds.CancelAll.Value, audio._soundQueues[library3, read],
             "game-over index zero queues library-three cancel");
-        ushort babyPointer = menu.BabyInstructionPointer;
+        int? babyStep = menu.BabyStep;
         int babyTimer = menu.babyInstructionTimer.RawValue;
         int missileTimer = menu.missileTimer;
         menu.Step(0);
         AssertEqual(GameOverMenuPhase.WaitForInitialMusic, menu.Phase, "music wait holds while the queue is occupied");
-        AssertEqual(babyPointer, menu.BabyInstructionPointer, "music wait does not animate the Baby");
+        AssertEqual(babyStep, menu.BabyStep, "music wait does not animate the Baby");
         AssertEqual(babyTimer, (int)menu.babyInstructionTimer.RawValue, "music wait keeps the Baby timer");
         AssertEqual(missileTimer, menu.missileTimer, "music wait does not draw the missile");
 

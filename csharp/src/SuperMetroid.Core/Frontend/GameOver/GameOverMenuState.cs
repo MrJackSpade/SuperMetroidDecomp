@@ -24,12 +24,10 @@ public sealed class GameOverMenuState
     internal int missileTimer = 1;
     /// <summary>Current cursor animation frame shared by Yes and No positions.</summary>
     private int missileFrame;
-    /// <summary>Current compiled Baby animation instruction address.</summary>
-    internal ushort babyInstructionPointer;
+    /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
+    internal int? babyStep;
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
     internal NativeCountdown babyInstructionTimer;
-    /// <summary>Native spritemap identity corresponding to the current Baby frame.</summary>
-    internal ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
@@ -103,10 +101,9 @@ public sealed class GameOverMenuState
         ppu.BindMapSprites(catalog.Sprites);
         ppu.BindMapPalettes(catalog.Palettes);
         LoadGameOverTilemap(catalog.GameOver);
-        if (babyInstructionPointer != 0)
+        if (babyStep is int step)
         {
-            GameOverBabyInstruction instruction =
-                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+            GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(step);
             catalog.GameOver.ApplyBabyPalette(ppu.Cgram, instruction.Palette);
         }
     }
@@ -151,7 +148,7 @@ public sealed class GameOverMenuState
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusicDelayed8(MusicCommand.Stop);
                 audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
-                babyInstructionPointer = 0;
+                babyStep = null;
                 babyInstructionTimer = NativeCountdown.Start(0);
                 StepBabyMetroid();
                 SelectedItem = 0;
@@ -241,9 +238,7 @@ public sealed class GameOverMenuState
         oam.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        GameOverBabyInstruction instruction = babyInstructionPointer == 0
-            ? GameOverBabyAnimationDefinitions.Get(GameOverBabyAnimationDefinitions.FirstPointer)
-            : GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+        GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(babyStep ?? 0);
         content.GameOver.DrawBaby(oam, instruction.Frame);
         content.GameOver.DrawEgg(oam);
         content.GameOver.DrawCursor(oam, missileFrame, SelectedItem != 0);
@@ -261,26 +256,22 @@ public sealed class GameOverMenuState
     {
         if (babyInstructionTimer.IsZero)
         {
-            babyInstructionPointer = GameOverBabyAnimationDefinitions.FirstPointer;
-            babyInstructionTimer =
-                NativeCountdown.FromRaw(GameOverBabyAnimationDefinitions.Get(babyInstructionPointer).Duration);
+            babyStep = 0;
+            babyInstructionTimer = NativeCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
         }
 
         babyInstructionTimer = babyInstructionTimer.Decrement().Remaining;
+        GameOverBabyInstruction current = GameOverBabyAnimation.Get(babyStep ??
+            throw new InvalidOperationException("The game-over Baby program is held before its first step."));
         if (babyInstructionTimer.IsZero)
         {
-            GameOverBabyInstruction completed =
-                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
-            if (completed.SoundAfter != GameOverBabySound.None)
-                QueueCompiledBabySound(completed.SoundAfter);
-            babyInstructionPointer = completed.NextPointer;
-            babyInstructionTimer =
-                NativeCountdown.FromRaw(GameOverBabyAnimationDefinitions.Get(completed.NextPointer).Duration);
+            if (current.SoundAfter != GameOverBabySound.None)
+                QueueCompiledBabySound(current.SoundAfter);
+            current = GameOverBabyAnimation.Get(current.NextStep);
+            babyStep = current.Step;
+            babyInstructionTimer = NativeCountdown.Start(current.Duration);
         }
 
-        GameOverBabyInstruction current =
-            GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
-        babySpritemap = GameOverBabyAnimationDefinitions.NativeSpritemap(current.Frame);
         MapPresentation.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
     }
 

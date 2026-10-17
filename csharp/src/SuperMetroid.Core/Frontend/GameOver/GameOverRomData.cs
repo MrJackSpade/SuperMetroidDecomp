@@ -75,10 +75,6 @@ public static class GameOverRomData
         public const ushort AcceptedAnswerHoldDuration = 180;
         /// <summary>Native $FFFF animation sentinel, which restarts the stream at $82:BC27 rather than deleting the Baby or drawing a frame.</summary>
         public const ushort End = 0xffff;
-        /// <summary>First Baby frame, ID $65 in the bounded $65+frame sequence.</summary>
-        /// <remarks>Issues #625 and #971: GameOverBabyAnimationDefinitions.NativeSpritemap
-        /// documents all 60 native frame records and the three spritemap pointers.</remarks>
-        public const ushort InitialSpritemap = 0x65;
         /// <summary>CGRAM color-entry index $C0, the start of OBJ palette four; each Baby frame copies sixteen colors here at $82:BBA9.</summary>
         public const int PaletteDestinationIndex = 0xc0;
         /// <summary>Sixteen colors per game-over Baby palette source.</summary>

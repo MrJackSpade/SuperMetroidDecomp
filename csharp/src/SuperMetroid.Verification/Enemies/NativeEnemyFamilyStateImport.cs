@@ -15,6 +15,7 @@ using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.Metaree;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Platforms;
+using SuperMetroid.Core.Enemies.Polyp;
 using SuperMetroid.Core.Enemies.Powamp;
 using SuperMetroid.Core.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Rios;
@@ -92,6 +93,11 @@ internal static class NativeEnemyFamilyStateImport
             skultera.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableE), slot.VariableD);
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(slot.VariableF));
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks && slot.SpeciesState<PolypEnemyState>() is { } polyp)
+        {
+            polyp.Function = slot.VariableA == 0 ? null : (PolypEnemyFunction)slot.VariableA;
+            polyp.CooldownTimer = NativeCountdown.FromRaw(slot.VariableB);
         }
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampEnemyState>() is { } powamp)
         {

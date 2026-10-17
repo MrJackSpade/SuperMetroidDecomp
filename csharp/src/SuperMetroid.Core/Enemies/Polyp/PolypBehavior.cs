@@ -42,12 +42,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.SetSpeciesState(new PolypEnemyState(slot)
+        var state = new PolypEnemyState
         {
             Program = AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
             Function = PolypEnemyFunction.WaitingForSamus,
             CooldownTimer = NativeCountdown.Start(0),
-        });
+        };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Every Polyp initializer writes $0011 to the shared seed. In Volcano the fourth
         // actor therefore leaves this exact value for the first gameplay frame; treating it
@@ -92,7 +93,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Polyp function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Polyp function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

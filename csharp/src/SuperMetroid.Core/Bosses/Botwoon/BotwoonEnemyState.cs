@@ -44,32 +44,40 @@ public sealed class BotwoonEnemyState
     /// <summary>Initial unsigned countdown, seeded to 256 and decremented until zero before normal traversal begins.</summary>
     public NativeCountdown InitialDelayTimer { get; internal set; }
     /// <summary>Spit-action cooldown, seeded to 48 for the stationary attack and decremented to signed underflow by the head callback before being pinned to zero.</summary>
-    public ushort AttackTimer { get; internal set; }
-    /// <summary>Pre-fall death count, seeded to 240 once the tail completes the hole transition and incremented toward 256.</summary>
-    public ushort DeathTimer { get; internal set; }
-    /// <summary>Head-fall acceleration cursor; its high byte indexes the quadratic speed table and each still-airborne update adds $00C0.</summary>
-    public ushort DeathFallAccumulator { get; internal set; }
+    public NativeCountdown AttackTimer { get; internal set; }
+    /// <summary>
+    /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per
+    /// update until it reaches 256, when the head starts falling; it stays within 240..256.
+    /// </summary>
+    public int DeathTimer { get; internal set; }
+    /// <summary>
+    /// Head-fall acceleration in 256ths of a quadratic-speed step: each still-airborne update adds 192, and the
+    /// whole steps select the fall speed. The fall reaches the floor before the speed table runs out, so it stays
+    /// well below 95 whole steps.
+    /// </summary>
+    public int DeathFallAccumulator { get; internal set; }
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
-    public ushort WallExplosionFrame { get; internal set; }
+    public int WallExplosionFrame { get; internal set; }
     /// <summary>Large wall-explosion countdown, active from update 64 and reloaded to 12 after signed underflow.</summary>
     public NativeCountdown LargeExplosionTimer { get; internal set; }
     /// <summary>Small wall-explosion countdown, active from update 64 and reloaded to four after signed underflow to emit a pair of effects.</summary>
     public NativeCountdown SmallExplosionTimer { get; internal set; }
     /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or signed path samples consumed per authored-path update.</summary>
-    public ushort Speed { get; internal set; }
-    /// <summary>Byte offset 0, 8, 16, or 24 selecting one of four hole rectangles and its direct-movement target.</summary>
-    public ushort TargetHoleOffset { get; internal set; }
-    /// <summary>Raw byte-angle result retained in a word for the clamped head-to-hole vector, before conversion to the movement angle convention.</summary>
-    public ushort TargetAngle { get; internal set; }
-    /// <summary>Wrapping movement byte-angle, calculated as 64 minus the target angle and consumed by the signed fixed-point vector helper.</summary>
-    public byte MovementAngle { get; internal set; }
-    /// <summary>Wrapping spit byte-angle, calculated as 64 minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
-    public byte SpitAngle { get; internal set; }
-    /// <summary>Byte offset into the authored descriptor table, combining an RNG choice, the current target hole, and the inside-hole table half.</summary>
-    public ushort PathChoiceOffset { get; internal set; }
-    /// <summary>Low-word pointer in bank $B3 to the next signed X/Y movement-byte pair, advanced or reversed by two bytes per sample.</summary>
-    public ushort PathPointer { get; internal set; }
-    /// <summary>Signed descriptor direction: negative walks the sample pointer backward and negates accumulated displacements; nonnegative walks forward.</summary>
+    public int Speed { get; internal set; }
+    /// <summary>The hole, zero through three, that direct movement targets and the next path choice starts from.</summary>
+    public int TargetHoleIndex { get; internal set; }
+    /// <summary>Wrapping movement angle in 256ths of a turn: a quarter turn minus the clamped head-to-hole angle, consumed by the signed fixed-point vector helper.</summary>
+    public SnesAngle MovementAngle { get; internal set; }
+    /// <summary>Wrapping spit angle in 256ths of a turn: a quarter turn minus the head-to-Samus angle; volley children add their spread offsets to it.</summary>
+    public SnesAngle SpitAngle { get; internal set; }
+    /// <summary>
+    /// The authored path chosen next, zero through 31: one of four random variants for the target hole, in the
+    /// visible half of the table or, from inside a hole, the hidden half.
+    /// </summary>
+    public int PathChoice { get; internal set; }
+    /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
+    public int PathSampleIndex { get; internal set; }
+    /// <summary>Signed descriptor direction: negative walks the samples backward and negates accumulated displacements; nonnegative walks forward.</summary>
     public short PathDirection { get; internal set; }
     /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
@@ -88,7 +96,7 @@ public sealed class BotwoonEnemyState
     /// <summary>Native previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
-    public byte HealthPhase { get; internal set; }
+    public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }
     /// <summary>Inside-hole state observed by the direct-movement callback on its previous call; a difference marks that traversal complete.</summary>

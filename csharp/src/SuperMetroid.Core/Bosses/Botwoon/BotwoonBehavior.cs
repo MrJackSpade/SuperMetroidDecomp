@@ -59,11 +59,21 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Per-room movement, head-animation, body, and wall-collapse state.</summary>
     internal BotwoonEnemyState? _botwoonState;
-    /// <summary>Drop requests retained in their native RNG order for the current room.</summary>
-    private readonly List<BotwoonDropRequest> _botwoonDropRequests = new();
+    /// <summary>Last sound selected by Botwoon in the current enemy frame.</summary>
+    public SoundEffectId? LastBotwoonSoundEffect { get; internal set; }
 
-    /// <summary>Last library-two sound selected by Botwoon in the current enemy frame.</summary>
-    public ushort? LastBotwoonSoundEffect { get; internal set; }
+    /// <summary>The value the pre-fall death count starts from once the tail completes its hole transition.</summary>
+    private const int BotwoonDeathDelayStart = 240;
+    /// <summary>The pre-fall death count at which the head starts falling.</summary>
+    private const int BotwoonDeathDelayEnd = 256;
+    /// <summary>Fall acceleration added each airborne update, in 256ths of a quadratic-speed step.</summary>
+    private const int BotwoonDeathFallAcceleration = 192;
+    /// <summary>Fall acceleration units per whole quadratic-speed step.</summary>
+    private const int BotwoonDeathFallUnitsPerStep = 256;
+    /// <summary>Updates the wall-explosion phase lasts before the boss is removed.</summary>
+    private const int BotwoonWallExplosionDuration = 192;
+    /// <summary>Wall-explosion update from which the explosion timers run.</summary>
+    private const int BotwoonWallExplosionsBegin = 64;
 
 
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
@@ -74,7 +84,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         _botwoonState = null;
         LastBotwoonSoundEffect = null;
-        _botwoonDropRequests.Clear();
         LastBotwoonMusicRequest = null;
     }
 
@@ -116,7 +125,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InsideHole = true;
         state.PreviousInsideHole = true;
         state.InitialAction = true;
-        state.TargetHoleOffset = 0;
+        state.TargetHoleIndex = 0;
         state.MaximumHealth = head.Health;
         state.HalfHealth = head.Health >> 1;
         state.QuarterHealth = head.Health >> 2;
@@ -147,7 +156,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.BodyDeathStarted = true;
             state.Function = BotwoonEnemyFunction.DeathDelay;
-            state.DeathTimer = 240;
+            state.DeathTimer = BotwoonDeathDelayStart;
             state.PendingDeath = false;
             state.ExitTransitionComplete = false;
         }
@@ -173,8 +182,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
 
             case BotwoonEnemyFunction.DeathDelay:
-                state.DeathTimer = unchecked((ushort)(state.DeathTimer + 1));
-                if (unchecked((short)(state.DeathTimer - 256)) >= 0)
+                state.DeathTimer++;
+                if (state.DeathTimer >= BotwoonDeathDelayEnd)
                     state.Function = BotwoonEnemyFunction.HeadFalling;
                 break;
 
@@ -221,7 +230,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = BotwoonEnemyFunction.FollowAuthoredPath;
             state.MovementFunction = BotwoonMovementFunction.LoadAuthoredPath;
-            state.AttackTimer = 0;
+            state.AttackTimer = NativeCountdown.Start(0);
             state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
             ChooseBotwoonPath(head, state);
         }
@@ -229,7 +238,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.Function = BotwoonEnemyFunction.SpitWhileHidden;
             state.HeadFunction = BotwoonHeadFunction.AimAtSamus;
-            state.AttackTimer = 48;
+            state.AttackTimer = NativeCountdown.Start(48);
             // `$B3:992C` (AND #$FBFF) makes the spitting head tangible again.
             head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         }
@@ -260,7 +269,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         BotwoonEnemyState state,
         SamusState samus)
     {
-        if (state.AttackTimer != 0)
+        if (!state.AttackTimer.IsZero)
         {
             RunBotwoonHeadFunction(head, state, samus);
             return;
@@ -278,7 +287,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PreviousInsideHole = state.InsideHole;
         if (!state.InsideHole)
         {
-            state.PathChoiceOffset = 0;
+            state.PathChoice = 0;
         }
         else
         {
@@ -330,16 +339,15 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         BotwoonHoleDefinition hole =
-            BotwoonNavigationDefinitions.HoleForByteOffset(state.TargetHoleOffset);
+            BotwoonNavigationDefinitions.HoleAt(state.TargetHoleIndex);
         Offset16<RoomPixels> delta = hole.Target - head.Position.Whole;
         byte angle = EnemyMath.CalculateCartridgeAngle(new(
             ClampBotwoonTargetDelta(delta.X), ClampBotwoonTargetDelta(delta.Y)));
-        state.TargetAngle = angle;
-        state.MovementAngle = unchecked((byte)(64 - angle));
+        state.MovementAngle = SnesAngle.NormalizeTableIndex(SnesAngle.QuarterTurn.TableIndex - angle);
 
         if (state.InsideHole == state.PreviousInsideHole)
         {
-            AddBotwoonAngleVector(head, state.MovementAngle, state.Speed);
+            AddBotwoonAngleVector(head, state.MovementAngle.TableIndex, state.Speed);
         }
         else
         {
@@ -352,13 +360,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static short ClampBotwoonTargetDelta(short value) =>
         value < -256 ? (short)-255 : value >= 256 ? (short)255 : value;
 
-    /// <summary>Uses health phase, current hole, and native RNG to choose a path-table offset.</summary>
+    /// <summary>Uses health phase, current hole, and native RNG to choose an authored path.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         UpdateBotwoonHealthPhase(head, state);
-        ushort insideBase = state.InsideHole ? (ushort)128 : (ushort)0;
-        state.PathChoiceOffset = unchecked((ushort)(
-            (_room.Random.Generate() & BotwoonNavigationDefinitions.PathChoiceMask) + insideBase + 4 * state.TargetHoleOffset));
+        int hiddenBase = state.InsideHole ? BotwoonNavigationDefinitions.HiddenPathChoiceBase : 0;
+        int variant = (_room.Random.Generate() & BotwoonNavigationDefinitions.PathChoiceMask) >>
+            BotwoonNavigationDefinitions.PathChoiceVariantShift;
+        state.PathChoice = variant + hiddenBase + BotwoonNavigationDefinitions.PathVariantsPerHole * state.TargetHoleIndex;
     }
 
     /// <summary>Changes traversal speed and body spacing at half and quarter health outside holes.</summary>
@@ -367,13 +376,9 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.InsideHole)
             return;
 
-        byte phase = 0;
+        int phase = 0;
         if (head.Health != 0 && head.Health < state.HalfHealth)
-        {
-            phase = head.Health < state.QuarterHealth
-                ? (byte)2
-                : (byte)1;
-        }
+            phase = head.Health < state.QuarterHealth ? 2 : 1;
         state.HealthPhase = phase;
         var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
         state.Speed = speed.MovementSpeed;
@@ -384,12 +389,13 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
     {
         BotwoonPathDescriptorDefinition descriptor =
-            BotwoonNavigationDefinitions.PathForChoiceByteOffset(state.PathChoiceOffset);
-        state.PathPointer = descriptor.PathPointer;
+            BotwoonNavigationDefinitions.PathForChoice(state.PathChoice);
+        state.PathSampleIndex = descriptor.FirstSampleIndex;
         state.PathDirection = descriptor.Direction;
-        state.TargetHoleOffset = descriptor.TargetHoleByteOffset;
+        state.TargetHoleIndex = descriptor.TargetHoleIndex;
+        // A reverse stream starts at its closing separator; the first sample read is two before it.
         if (state.PathDirection < 0)
-            state.PathPointer = unchecked((ushort)(state.PathPointer - 4));
+            state.PathSampleIndex -= 2;
         state.PathComplete = false;
         state.MovementFunction = BotwoonMovementFunction.FollowAuthoredPath;
     }
@@ -398,11 +404,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
-        int step = state.PathDirection < 0 ? -2 : 2;
+        int step = state.PathDirection < 0 ? -1 : 1;
         for (int sample = 0; sample < state.Speed; sample++)
         {
             Offset16<RoomPixels> movement =
-                BotwoonNavigationDefinitions.MovementSampleForPointer(state.PathPointer);
+                BotwoonNavigationDefinitions.MovementSample(state.PathSampleIndex);
             if (movement.X == sbyte.MinValue)
             {
                 state.PathComplete = true;
@@ -414,7 +420,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
             total += movement;
-            state.PathPointer = unchecked((ushort)(state.PathPointer + step));
+            state.PathSampleIndex += step;
         }
 
         head.Position += state.PathDirection < 0 ? -total : total;
@@ -498,10 +504,10 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.HoleLatch)
             return;
 
-        for (int rectangleOffset = 24; rectangleOffset >= 0; rectangleOffset -= 8)
+        // The cartridge tests the holes from the last to the first and latches the first it finds.
+        for (int holeIndex = BotwoonNavigationDefinitions.HoleCount - 1; holeIndex >= 0; holeIndex--)
         {
-            BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleForByteOffset(
-                unchecked((ushort)rectangleOffset));
+            BotwoonHoleDefinition hole = BotwoonNavigationDefinitions.HoleAt(holeIndex);
             Offset16<RoomPixels> fromTopLeft = head.Position.Whole - hole.TopLeft;
             Offset16<RoomPixels> fromBottomRight = head.Position.Whole - hole.BottomRight;
             if (fromTopLeft.X >= 0 && fromBottomRight.X < 0 &&
@@ -543,11 +549,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.HeadFunction = BotwoonHeadFunction.AttackCooldown;
                 return;
             case BotwoonHeadFunction.AttackCooldown:
-                ushort next = unchecked((ushort)(state.AttackTimer - 1));
-                state.AttackTimer = next;
-                if (unchecked((short)next) < 0)
+                NativeWordCounterStep cooldown = state.AttackTimer.Decrement();
+                state.AttackTimer = cooldown.Remaining;
+                if (cooldown.IsNegative)
                 {
-                    state.AttackTimer = 0;
+                    state.AttackTimer = NativeCountdown.Start(0);
                     state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
                 }
                 return;
@@ -600,7 +606,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         byte angle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
         InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(angle));
-        state.SpitAngle = unchecked((byte)(64 - angle));
+        state.SpitAngle = SnesAngle.NormalizeTableIndex(SnesAngle.QuarterTurn.TableIndex - angle);
         state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden
             ? BotwoonHeadFunction.WaitForSpitFrame
             : BotwoonHeadFunction.SpawnImmediateVolley;
@@ -681,7 +687,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int startOffset)
     {
         ushort speed = BotwoonSpeedDefinitions.ForHealthPhase(state.HealthPhase).SpitSpeed;
-        byte angle = unchecked((byte)(state.SpitAngle + startOffset));
+        byte angle = state.SpitAngle.AddTableUnits(startOffset).TableIndex;
         for (int projectile = 0; projectile < count; projectile++)
         {
             SpawnBotwoonSpit(head, angle, speed);
@@ -720,12 +726,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
-            unchecked((ushort)(SnesLittleEndian.HighByte(state.DeathFallAccumulator))),
+            checked((ushort)(state.DeathFallAccumulator / BotwoonDeathFallUnitsPerStep)),
             negative: false);
         head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(head.Position.Y.Whole - 200)) < 0)
         {
-            state.DeathFallAccumulator = unchecked((ushort)(state.DeathFallAccumulator + 192));
+            state.DeathFallAccumulator += BotwoonDeathFallAcceleration;
             return;
         }
 
@@ -746,20 +752,17 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // `Enemy_ItemDrop_Botwoon` at `$A0:BA3E` emits sixteen independent pickup
         // requests. Each position uses both bytes of one RNG result: X samples low seven
-        // bits and Y samples bits 8..13. Each request is also materialized immediately as
-        // a real $F337 actor using the retained six-byte item-chance pointer.
+        // bits and Y samples bits 8..13. Each pickup is materialized immediately as
+        // a real $F337 actor from the head definition's item chances.
         for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
         {
             ushort random = _room.Random.Generate();
-            var request = new BotwoonDropRequest(
-                Position: new Position16<RoomPixels>(
-                    unchecked((ushort)((random & 127) + 64)),
-                    unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128))),
-                ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
-            _botwoonDropRequests.Add(request);
+            var position = new Position16<RoomPixels>(
+                unchecked((ushort)((random & 127) + 64)),
+                unchecked((ushort)((SnesLittleEndian.HighByte(random) & 63) + 128)));
             _deathsAndDrops.SpawnEnemyDropFromChanceTable(
-                request.Position,
-                request.ItemDropChancesPointer);
+                position,
+                head.Definition.ItemDropChancesPointer);
         }
         state.DropRequested = true;
         state.WallExplosionFrame = 0;
@@ -770,7 +773,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the 192-frame wall sequence, then sets the boss bit and queues delayed music.</summary>
     private void RunBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        if (state.WallExplosionFrame >= 192)
+        if (state.WallExplosionFrame >= BotwoonWallExplosionDuration)
         {
             head.Properties = head.Properties.With(EnemyProperties.Deleted);
             state.BossBitSet = true;
@@ -783,7 +786,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (state.WallExplosionFrame >= 64)
+        if (state.WallExplosionFrame >= BotwoonWallExplosionsBegin)
         {
             NativeWordCounterStep largeExplosionTimer =
                 state.LargeExplosionTimer.Decrement();
@@ -813,7 +816,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
             }
         }
-        state.WallExplosionFrame = unchecked((ushort)(state.WallExplosionFrame + 1));
+        state.WallExplosionFrame++;
     }
 
     /// <summary>
@@ -840,10 +843,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void AddBotwoonAngleVector(
         RoomEnemySlot head,
         byte angle,
-        ushort magnitude)
+        int magnitude)
     {
-        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, magnitude);
-        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, magnitude);
+        ushort wholeMagnitude = checked((ushort)magnitude);
+        int xMagnitude = EnemyMath.ReadAbsoluteCosineProduct(angle, wholeMagnitude);
+        int yMagnitude = EnemyMath.ReadAbsoluteSineProduct(angle, wholeMagnitude);
         int xDisplacement = EnemyMath.CosineIsNegative(angle) ? -xMagnitude : xMagnitude;
         int yDisplacement = EnemyMath.SineIsNegative(angle) ? -yMagnitude : yMagnitude;
         head.Position = head.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
@@ -1138,7 +1142,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastBotwoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastBotwoonSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

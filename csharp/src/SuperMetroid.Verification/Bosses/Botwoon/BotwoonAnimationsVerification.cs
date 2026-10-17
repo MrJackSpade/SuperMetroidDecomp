@@ -102,6 +102,22 @@ internal static class BotwoonAnimationsVerification
             aimHead(spitEnemies, spitHead, spitState, samus);
             AssertEqual(new BotwoonHeadProgram(BotwoonHeadProgramKind.Spitting, BotwoonAnimations.FacingOfOctant(octant)),
                 spitState.HeadProgram, $"spitting head toward octant {octant}");
+            // Outside a hidden spit the aim fires a three-shot volley at once. The spit angle is a quarter turn minus
+            // the aim and the volley spreads a sixteenth of a turn either side of it, all wrapping around the turn.
+            (RoomEnemySystem volleyEnemies, RoomEnemySlot volleyHead, BotwoonEnemyState volleyState) = NewBotwoonHead();
+            volleyHead.Position = volleyHead.Position.WithWhole(new(1000, 1000));
+            aimHead(volleyEnemies, volleyHead, volleyState, samus);
+            byte aim = EnemyMath.CalculateCartridgeAngle(new(dx, dy));
+            byte spitAngle = unchecked((byte)(64 - aim));
+            AssertEqual(SnesAngle.FromTableIndex(spitAngle), volleyState.SpitAngle, $"spit angle toward octant {octant} wraps around the turn");
+            ushort[] expectedDirections = [unchecked((byte)(spitAngle - 16)), spitAngle, unchecked((byte)(spitAngle + 16))];
+            ushort[] actualDirections = volleyEnemies.Projectiles.EnemyProjectiles
+                .Where(projectile => projectile.Kind == RoomEnemyProjectileKind.BotwoonSpit)
+                .Select(projectile => projectile.DirectionParameter)
+                .Order()
+                .ToArray();
+            AssertTrue(expectedDirections.Order().SequenceEqual(actualDirections),
+                $"volley toward octant {octant} spreads around the wrapped spit angle");
         }
 
         // Travelling inside the wall hides the head; an unchanged program keeps its timer.
@@ -229,7 +245,7 @@ internal static class BotwoonAnimationsVerification
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
-            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (ushort?)null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
+            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (SoundEffectId?)null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
         }
     }
 

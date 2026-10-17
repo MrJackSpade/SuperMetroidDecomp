@@ -2000,9 +2000,11 @@ internal static class LookupStream4Verification
         Suite(nameof(VerifyLookupStream4TailTerrain), () => VerifyLookupStream4TailTerrain(rom));
         Suite(nameof(VerifyLookupStream4MessageDispatch), () => VerifyLookupStream4MessageDispatch(rom));
         Suite(nameof(VerifyLookupStream4NoticeRegions), () => VerifyLookupStream4NoticeRegions(rom));
-        for (ushort offset = 0; offset <= 24; offset += 8)
+        // The cartridge's hole table holds one eight-byte record per hole, in the compiled holes' order.
+        for (int holeIndex = 0; holeIndex < BotwoonNavigationDefinitions.HoleCount; holeIndex++)
         {
-            var hole = BotwoonNavigationDefinitions.HoleForByteOffset(offset);
+            int offset = 8 * holeIndex;
+            var hole = BotwoonNavigationDefinitions.HoleAt(holeIndex);
             AssertEqual(new Position16<RoomPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4)), hole.TopLeft, "Botwoon named hole native top-left boundary");
             AssertEqual(new Position16<RoomPixels>((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 0) + 4), (ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xb3949b + offset + 4) + 4)), hole.Target, "Botwoon named hole center");
         }

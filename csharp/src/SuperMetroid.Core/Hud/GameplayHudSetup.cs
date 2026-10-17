@@ -44,6 +44,22 @@ internal sealed class GameplayHudSetup
     internal void SelectGameplayHudCharacterBase() => _display.GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;
 
     /// <summary>
+    /// $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at VRAM $6000: the installed sheet
+    /// when one is bound, otherwise the cartridge source. The dynamic Samus DMA refreshes its four reserved regions each
+    /// NMI; fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
+    /// </summary>
+    internal void QueueStandardObjectTiles()
+    {
+        if (_artwork.StandardObjectArt is null)
+            _vramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
+                sourceAddress: StandardObjectArtworkAddresses.Source,
+                destination: GameplayVram.ObjectCharactersDma());
+        else
+            _vramWrites.EnqueueAsset(VramAssetId.StandardObjectTiles, StandardObjectArtworkFormat.TransferByteCount,
+                GameplayVram.ObjectCharactersDma());
+    }
+
+    /// <summary>
     /// Loads standard 2-bpp BG3 graphics and initializes the HUD tilemap using the exact
     /// ROM/WRAM/VRAM destinations from <c>$82:82E2</c> and <c>$80:9A79</c>.
     /// </summary>
@@ -67,16 +83,7 @@ internal sealed class GameplayHudSetup
         else
             _vramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, GameplayVram.HudCharacterUploadDma);
 
-        // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
-        // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
-        // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
-        if (_artwork.StandardObjectArt is null)
-            _vramWrites.Enqueue(sizeInBytes: StandardObjectArtworkFormat.TransferByteCount,
-                sourceAddress: StandardObjectArtworkAddresses.Source,
-                destination: GameplayVram.ObjectCharactersDma());
-        else
-            _vramWrites.EnqueueAsset(VramAssetId.StandardObjectTiles, StandardObjectArtworkFormat.TransferByteCount,
-                GameplayVram.ObjectCharactersDma());
+        QueueStandardObjectTiles();
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
         // room enemy loader has already populated the modeled VRAM for immediate watches;

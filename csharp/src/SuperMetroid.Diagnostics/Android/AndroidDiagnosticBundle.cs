@@ -11,6 +11,9 @@ namespace SuperMetroid.Diagnostics.Android;
 /// </summary>
 internal static class AndroidDiagnosticBundle
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>
     /// Creates a new ZIP from the explicit save, settings, log, selected state, and recording
     /// allowlist, then records included paths and the private-data warning in its manifest.
@@ -42,7 +45,7 @@ internal static class AndroidDiagnosticBundle
             selectedStatePresent = files.Contains(state),
             privateDataWarning = "Debugger states and recording seeds may embed cartridge data. Keep this bundle private.",
             files,
-        }, new JsonSerializerOptions { WriteIndented = true });
+        }, IndentedJson);
         return destination;
     }
 }

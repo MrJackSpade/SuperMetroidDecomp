@@ -19,6 +19,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks compiled Grapple launch, origin, and movement data through production firing and connection paths.</summary>
 internal static class GrappleFiringDefinitionsVerification
 {
+    /// <summary>Both running states of a charge-flare placement key.</summary>
+    private static readonly bool[] RunningStates =
+        [false, true];
+
     /// <summary>Compares launch and draw origins across authored poses, input directions, wrap boundaries, and trajectory frames.</summary>
     internal static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -37,7 +41,7 @@ internal static class GrappleFiringDefinitionsVerification
             ChargeFlarePlacementCatalog.Write(new()
             {
                 Version = ChargeFlarePlacementDefinitions.Version,
-                Offsets = new[] { false, true }.SelectMany(running => Enumerable.Range(0, 16)
+                Offsets = RunningStates.SelectMany(running => Enumerable.Range(0, 16)
                     .Select(direction => (running, direction))).ToDictionary(
                         entry => ChargeFlarePlacementDefinitions.Key(entry.running, entry.direction),
                         _ => new ChargeFlareOffset { X = 0x55aa, Y = 0x55aa }),

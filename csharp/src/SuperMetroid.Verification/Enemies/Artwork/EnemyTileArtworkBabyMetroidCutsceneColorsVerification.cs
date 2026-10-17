@@ -16,6 +16,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Baby Metroid cutscene colors and fade palettes in live CGRAM.</summary>
 internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares native colors and selectors, edits one channel, and checks strict override failures.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby Metroid cutscene colors and fade selectors")]
@@ -47,7 +50,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         byte[] stockJson = File.ReadAllBytes(file);
         BabyMetroidCutsceneColorDocument visual =
             JsonSerializer.Deserialize<BabyMetroidCutsceneColorDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock cutscene Baby color JSON is null.");
         visual.Initial[5] = ChangeRed(visual.Initial[5]);
         foreach (PaletteRgb5[] frame in visual.Fade)

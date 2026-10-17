@@ -20,6 +20,9 @@ namespace SuperMetroid.DebugRunner.Tools;
 /// </summary>
 internal static class AudioClipInventory
 {
+    /// <summary>JSON options: Indented output that includes public fields.</summary>
+    private static readonly JsonSerializerOptions IndentedFieldsJson = new() { WriteIndented = true, IncludeFields = true };
+
     /// <summary>Bytes per native stereo frame in a 16-bit stereo clip.</summary>
     private const int BytesPerStereoFrame = 4;
 
@@ -75,7 +78,7 @@ internal static class AudioClipInventory
         });
 
         var document = new InventoryDocument(music, scans, effects, timings);
-        var options = new JsonSerializerOptions { WriteIndented = true, IncludeFields = true };
+        var options = IndentedFieldsJson;
         options.Converters.Add(new JsonStringEnumConverter());
         File.WriteAllText(Path.Combine(outputDirectory, "audio-clip-inventory.json"), JsonSerializer.Serialize(document, options));
         string summary = Summarize(catalog, document);

@@ -12,17 +12,18 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 /// <summary>Checks compiled projectile damage and special beam mechanics against native data and guarded production initialization.</summary>
 internal static class ProjectileDamageVerification
 {
+    /// <summary>Bank-$93 projectile headers after the 24 evenly spaced beam headers.</summary>
+    private static readonly int[] LaterProjectileHeaders =
+        [0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681, 0x938685, 0x938689,
+        0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7];
+
     /// <summary>Exercises beam, missile, bomb, hyper, and combo initializers with cartridge damage reads forbidden.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
-        int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(new[]
-        {
-            0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681,
-            0x938685, 0x938689, 0x93868d, 0x938691, 0x938695, 0x9386ab, 0x9386c1, 0x9386d7,
-        }).ToArray();
+        int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(LaterProjectileHeaders).ToArray();
         var bus = NewProjectileDamageReadGuard(rom);
         foreach (int address in headers)
             AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(address), "Compiled native damage header");

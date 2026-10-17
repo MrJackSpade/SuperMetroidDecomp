@@ -14,6 +14,9 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>Prints 600-frame capture, audio, publication, and allocation distributions for gameplay and pause fixtures.</summary>
     internal static void Run()
     {
@@ -36,7 +39,7 @@ internal static class SimulationProfile
             WarmupFrames = 120,
             MeasuredFrames = 600,
             Results = results,
-        }, new JsonSerializerOptions { WriteIndented = true }));
+        }, IndentedJson));
     }
 
     /// <summary>Warms one installed room, captures unpaced frames with desktop audio, and summarizes their timing samples.</summary>

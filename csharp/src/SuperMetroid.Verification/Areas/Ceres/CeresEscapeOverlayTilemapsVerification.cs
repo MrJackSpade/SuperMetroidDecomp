@@ -19,6 +19,9 @@ namespace SuperMetroid.Verification.Areas.Ceres;
 /// <summary>Checks installed Ceres emergency title and Japanese subtitle tilemaps against cartridge VRAM.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification
 {
+    /// <summary>JSON options: Web defaults: camel-case names, case-insensitive matching, quoted numbers.</summary>
+    private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
+
     /// <summary>Compares five native overlays, then checks live override, reload, and missing-resource behavior.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
@@ -81,7 +84,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         CeresEscapeOverlayTilemapDocument document =
             JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(
                 File.ReadAllBytes(Path.Combine(stockDirectory, fileName)),
-                new JsonSerializerOptions(JsonSerializerDefaults.Web))
+                WebJson)
             ?? throw new InvalidDataException("Stock Ceres overlay JSON is null.");
         document.Pages[title.Name][0] ^= 1;
         File.WriteAllBytes(Path.Combine(overrideDirectory, fileName),

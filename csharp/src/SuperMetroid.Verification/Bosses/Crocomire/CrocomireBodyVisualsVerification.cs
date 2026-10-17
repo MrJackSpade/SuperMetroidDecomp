@@ -20,6 +20,9 @@ namespace SuperMetroid.Verification.Bosses.Crocomire;
 /// <summary>Retail comparisons for Crocomire's mixed OAM/BG2 body frames and installed editable artwork.</summary>
 internal static class CrocomireBodyVisualsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Derives the 50 selected body roots from bank-$A4 instructions and checks frame ordering, component counts, and the 42-frame BG2 domain.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
@@ -177,7 +180,7 @@ internal static class CrocomireBodyVisualsVerification
         string overridePath = Path.Combine(overrideDirectory,
             CrocomireBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(authored,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            CamelCaseJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         var editedGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> editedGuardBlockFrame);

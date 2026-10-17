@@ -19,6 +19,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks reserve-tank arrow colors, visibility, and native tilemap palette writes.</summary>
 internal static class PauseReserveArrowVerification
 {
+    /// <summary>The two horizontal arrow tilemap word offsets that follow the eight vertical ones.</summary>
+    private static readonly int[] HorizontalArrowWordOffsets =
+        [0x302, 0x304];
+
     /// <summary>Compares thirty-two AUTO color phases and MANUAL selection transitions with rendered arrow pixels.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve arrow spritemap")]
     internal static void VerifyPauseReserveArrow()
@@ -64,7 +68,7 @@ internal static class PauseReserveArrowVerification
             var colors = capture.Memory.Cgram.ToArray();
             // Independent native AE01/AE46 walk: eight vertical words followed
             // by two horizontal words. Only the three palette bits may change.
-            foreach (int offset in Enumerable.Range(0, 8).Select(i => 0x102 + i * 0x40).Concat(new[] { 0x302, 0x304 }))
+            foreach (int offset in Enumerable.Range(0, 8).Select(i => 0x102 + i * 0x40).Concat(HorizontalArrowWordOffsets))
             {
                 int address = 0x6000 + offset;
                 ushort before = BinaryPrimitives.ReadUInt16LittleEndian(tiles.AsSpan(address));

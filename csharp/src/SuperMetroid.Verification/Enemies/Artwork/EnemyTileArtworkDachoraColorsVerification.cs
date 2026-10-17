@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks Dachora's default, speed, and shine palette frames against installed art and native selectors.</summary>
 internal static class EnemyTileArtworkDachoraColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Exercises edited RGB5 colors through live CGRAM updates while preserving phase and next-frame selection.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
@@ -45,7 +48,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         string file = Path.Combine(stockDirectory, DachoraColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         DachoraColorDocument visual = JsonSerializer.Deserialize<DachoraColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Dachora color JSON is null.");
         visual.Normal[5] = ChangeRed(visual.Normal[5]);
         foreach (PaletteRgb5[] frame in visual.Speed)

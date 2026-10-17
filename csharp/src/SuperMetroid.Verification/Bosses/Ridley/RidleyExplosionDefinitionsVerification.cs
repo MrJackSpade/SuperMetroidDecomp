@@ -14,6 +14,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Ridley breakup fragments and death explosions against native tables and production spawns.</summary>
 internal static class RidleyExplosionDefinitionsVerification
 {
+    /// <summary>$A6:C710-$C788: the breakup instruction word for each of the six tail segments, by tail index.</summary>
+    private static readonly int[] TailBreakupInstructionAddresses =
+        [0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788];
+
     /// <summary>Compares spawn order, fragment lifetimes and lists, and death scatter with cartridge data.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
     internal static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
@@ -227,7 +231,7 @@ internal static class RidleyExplosionDefinitionsVerification
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
                         ? CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6c7ba + orientation * 2))
-                        : CartridgeImportSource.Require(rom).ReadCartridgeWord(new[] { 0xa6c710, 0xa6c728, 0xa6c740, 0xa6c758, 0xa6c770, 0xa6c788 }
+                        : CartridgeImportSource.Require(rom).ReadCartridgeWord(TailBreakupInstructionAddresses
                                 [tailIndex]);
                     AssertEqual(expectedInstruction, RidleyAnimationsVerification.BreakupList(state.BreakupPrograms[fragment.SlotIndex].Program),
                         $"Ridley breakup production tail instruction ${parameter:X2}/{orientation}");

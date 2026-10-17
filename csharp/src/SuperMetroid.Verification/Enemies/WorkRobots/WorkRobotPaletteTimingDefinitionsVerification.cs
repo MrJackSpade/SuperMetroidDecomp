@@ -17,6 +17,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks the Work Robot's palette record timing and installed colors against bank A3.</summary>
 internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares six native timing records and colors, then follows a full edited-color cycle through CGRAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
@@ -74,7 +77,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         }
         WorkRobotPaletteCycleDocument visual =
             JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(extracted,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Work Robot color extraction is null.");
         PaletteRgb5 prior = visual.Frames[1][0];
         visual.Frames[1][0] = prior with

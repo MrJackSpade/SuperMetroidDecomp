@@ -27,6 +27,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Kraid BG2, BG3, head, and room-background artwork against native transfers.</summary>
 internal static class EnemyTileArtworkKraidVerification
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+
     /// <summary>Matches Kraid's working BG2 map and both visible VRAM pages, then checks an edited tile.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
@@ -142,11 +145,7 @@ internal static class EnemyTileArtworkKraidVerification
         cells[0] = cells[0] with { TileColumn = cells[0].TileColumn ^ 1 };
         string overridePath = Path.Combine(overrides, fileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
-            document with { Cells = cells }, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = true,
-            }));
+            document with { Cells = cells }, CamelCaseIndentedJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
         (_, SnesVram changedVram) = RunKraidHeadFrame(edited, editedPointer);
         (_, SnesVram stockVram) = ReadImportedKraidHeadFrame(rom, editedPointer);

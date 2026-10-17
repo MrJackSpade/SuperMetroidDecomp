@@ -18,6 +18,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Chozo statue and n00b-tube palette bands against native RGB5 data and live CGRAM initialization.</summary>
 internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks three editable color bands, persistent overrides, and real initializers while preserving native instructions and PLM requests.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
@@ -37,7 +40,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         byte[] stockJson = File.ReadAllBytes(file);
         ChozoAndTubeColorDocument visual =
             JsonSerializer.Deserialize<ChozoAndTubeColorDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Chozo/tube color JSON is null.");
         visual.TubeCracks[5] = ChangeRed(visual.TubeCracks[5]);
         visual.WreckedShip[5] = ChangeRed(visual.WreckedShip[5]);

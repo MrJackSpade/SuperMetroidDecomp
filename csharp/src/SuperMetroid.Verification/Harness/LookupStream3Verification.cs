@@ -65,6 +65,10 @@ using SuperMetroid.Verification.Bosses.MotherBrain;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {
+    /// <summary>$94:B18D-$B199: the four grapple-rope segment attribute words.</summary>
+    private static readonly int[] GrappleSegmentAttributeAddresses =
+        [0x94b18d, 0x94b191, 0x94b195, 0x94b199];
+
     /// <summary>Confirms the five typed tube pieces' native records and production spawn bindings.</summary>
     internal static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
     {
@@ -1176,7 +1180,7 @@ internal static class LookupStream3Verification
         byte[] grappleSpriteJson = SuperMetroid.AssetExtraction.Samus.GrappleSpriteExtractor.Extract(rom);
         var grappleSprites = GrappleSpriteCatalog.Load(new MemoryStream(grappleSpriteJson));
         AssertTrue(grappleSprites.segments is null, "stream 3 stock rope attribute rows discarded");
-        AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(new[] { 0x94b18d, 0x94b191, 0x94b195, 0x94b199 }),
+        AssertTrue(GrappleSpriteDefinitions.SegmentAttributeAddresses.SequenceEqual(GrappleSegmentAttributeAddresses),
             "stream 3 segment address enumeration");
         for (int frame = 0; frame < 4; frame++)
         {

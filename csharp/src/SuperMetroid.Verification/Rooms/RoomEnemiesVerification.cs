@@ -42,6 +42,8 @@ using SuperMetroid.Verification.Harness;
 /// </summary>
 internal static class RoomEnemiesVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly System.Text.Json.JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase };
 
 /// <summary>
 /// Seeds the two loading-fixture enemies' palettes and planar tiles at the bank-$A2/$A3
@@ -566,8 +568,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         DisplayFrames = frames.ToDictionary(frame => frame.Name, frame => frame.Name),
     };
     using var spriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-        spriteDocument, new System.Text.Json.JsonSerializerOptions
-        { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        spriteDocument, CamelCaseJson));
     enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = EnemySpritemapCatalog.Load(spriteJson) });
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
@@ -865,8 +866,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         DisplayFrames = fixtureSpriteFrames.ToDictionary(frame => frame.Name, frame => frame.Name),
     };
     using var fixtureSpriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
-        fixtureSprites, new System.Text.Json.JsonSerializerOptions
-        { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+        fixtureSprites, CamelCaseJson));
     var enemies = new RoomEnemySystem
     {
         TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>

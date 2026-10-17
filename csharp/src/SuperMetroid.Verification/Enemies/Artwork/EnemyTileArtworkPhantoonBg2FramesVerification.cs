@@ -18,6 +18,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Checks 22 BG2 selectors and native tile writes, then proves an override changes live VRAM without changing engine hitboxes or the new-frame gate.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     internal static void VerifyInstalledPhantoonBg2Frames(
@@ -91,7 +94,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             PhantoonBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath,
             JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+                CamelCaseJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((edited.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
@@ -133,7 +136,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         document.Frames[frameName][0] = first with { X = 32 };
         using var invalid = new MemoryStream(
             JsonSerializer.SerializeToUtf8Bytes(document,
-                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+                CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => PhantoonBg2FrameCatalog.Load(invalid),
             "Phantoon BG2 frame outside tilemap fails loudly");

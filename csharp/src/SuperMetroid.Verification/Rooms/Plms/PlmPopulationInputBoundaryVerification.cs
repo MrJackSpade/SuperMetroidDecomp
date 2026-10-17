@@ -13,6 +13,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks typed PLM population ownership and execution on a RAM-only bus.</summary>
 internal static class PlmPopulationInputBoundaryVerification
 {
+    /// <summary>Native slots the typed population occupies after extension deletion frees the highest slot.</summary>
+    private static readonly int[] ReusedPopulationSlots =
+        [39, 38];
+
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
     internal static void VerifyPlmPopulationInputBoundary()
     {
@@ -38,7 +42,7 @@ internal static class PlmPopulationInputBoundaryVerification
         var streamer = level.CreateBackgroundStreamer();
         AssertEqual(3, plms.PopulationLoader.LoadRoomPopulation(new PlmRoom(level, streamer, new SnesVram(), new Bank80SystemState(), AreaId.Crateria), population, new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),
             "typed population runs the real sequential allocator using a RAM-only bus");
-        AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(new[] { 39, 38 }),
+        AssertTrue(plms.PopulationSlots.Select(slot => slot.NativeSlotIndex).SequenceEqual(ReusedPopulationSlots),
             "extension deletion permits immediate highest-slot reuse in authored order");
         AssertEqual(RoomBlockBehaviorValues.ScrollTrigger.Value, level.GetCollisionBlock(new(3, 3)).Behavior,
             "typed trigger setup publishes its native collision behavior");

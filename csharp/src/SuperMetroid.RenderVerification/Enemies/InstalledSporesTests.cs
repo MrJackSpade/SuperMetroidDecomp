@@ -23,6 +23,10 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// <summary>Source-selected spores FX acceptance, not a gameplay or read-discovery probe.</summary>
 internal static class InstalledSporesTests
 {
+    /// <summary>Expected layer depth of an OBJ pixel for sprite priorities 0-3.</summary>
+    private static readonly int[] ObjPriorityLayers =
+        [0, 1, 4, 7];
+
     /// <summary>Loads stock and edited spores presentation, checks owner state and pixels, then round-trips packets through each D3D11 device kind.</summary>
     internal static void Run(string installationRoot, string romPath, string nativeArtworkDirectory)
     {
@@ -374,7 +378,7 @@ internal static class InstalledSporesTests
                 }
                 if ((enabled & 2) != 0) Insert(bg2High ? 5 : 2, 0, 12, true);
                 if ((enabled & 1) != 0) Insert(bg1High ? 6 : 3, 10, 0, false);
-                if (objectPixel) Insert(new[] { 0, 1, 4, 7 }[objPriority], 18, 2, palette >= 4);
+                if (objectPixel) Insert(ObjPriorityLayers[objPriority], 18, 2, palette >= 4);
                 byte Expand(int value) => (byte)((value << 3) | (value >> 2));
                 var expected = new Rgba32(Expand(red), Expand(green), Expand(blue + (blend ? 7 : 0)));
                 int x = objectPixel ? 16 : 64;

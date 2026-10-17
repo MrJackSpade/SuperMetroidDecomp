@@ -389,6 +389,27 @@ internal static class VerificationAssert
             $"Verification failed: {context}; expected {typeof(TException).Name}.");
     }
 
+    /// <summary>
+    /// Returns the expected exception from a construction or query, or fails when it yields a value instead. The
+    /// evaluated value is the outcome under test, so a constructor or query that should reject its input is passed here.
+    /// </summary>
+    internal static TException AssertThrows<TException>(Func<object?> evaluate, string context)
+        where TException : Exception
+    {
+        object? produced;
+        try
+        {
+            produced = evaluate();
+        }
+        catch (TException exception)
+        {
+            return exception;
+        }
+
+        throw new InvalidOperationException(
+            $"Verification failed: {context}; expected {typeof(TException).Name}, but it produced {produced ?? "null"}.");
+    }
+
     /// <summary>Checks the imported HUD icon tiles against the pinned cartridge image.</summary>
     [VerificationCommand("--lookup-stream-4-hud-icons")]
     internal static int LookupStream4HudIconsCommand()

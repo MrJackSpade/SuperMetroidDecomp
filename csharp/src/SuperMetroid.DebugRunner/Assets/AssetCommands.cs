@@ -12,6 +12,9 @@ using SuperMetroid.AssetExtraction.ReferenceRendering;
 /// <summary>Debug-runner commands for installing, extracting, previewing and replacing cartridge-derived assets.</summary>
 internal static class AssetCommands
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
 /// <summary>Dispatches asset commands and reports path or malformed-asset failures to standard error with a nonzero exit code.</summary>
 public static int Run(string[] args)
 {
@@ -164,7 +167,7 @@ foreach (string path in Directory.EnumerateFiles(inputDirectory, "*.bin", Search
 
 // The manifest is deliberately human-readable: it is both an audit trail and the seed for
 // replacing hardcoded filenames with generated, strongly typed asset declarations later.
-var options = new JsonSerializerOptions { WriteIndented = true };
+var options = IndentedJson;
 File.WriteAllText(Path.Combine(outputDirectory, "manifest.json"), JsonSerializer.Serialize(records, options));
 Console.WriteLine($"Inventoried {records.Count} chunks; wrote {records.Count(r => r.Png is not null)} PNG previews to {outputDirectory}");
 return 0;

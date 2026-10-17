@@ -53,6 +53,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Compares installed enemy-projectile drawing compositions with native OAM and guards their runtime visual reads.</summary>
 internal static class EnemyTileArtworkProjectileSpritemapsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>The graphics index the drawing fixtures give every projectile: palette five, tile offset $0004.</summary>
     private const ushort FixtureGraphicsIndex = 0x0a04;
 
@@ -601,7 +604,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = incompleteCurrent,
                 ProgramFrames = document.ProgramFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidCurrentJson),
                 installed),
@@ -615,7 +618,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.Current,
                 Frames = document.Frames,
                 ProgramFrames = incompleteProgramFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(invalidProgramJson),
                 installed),
@@ -629,7 +632,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Version = 1,
                 Frames = legacyFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         AssertThrows<InvalidDataException>(
             () => EnemyProjectileSpritemapCatalog.Load(new MemoryStream(legacyJson)),
             "a partial version-one composition cannot stand alone as stock content");
@@ -651,7 +654,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             {
                 Version = 2,
                 Frames = document.Frames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTwoJson);
         EnemyTileArtworkCatalog migratedV2 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -673,7 +676,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = 3,
                 Frames = document.Frames,
                 ProgramFrames = versionThreeFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionThreeJson);
         EnemyTileArtworkCatalog migratedV3 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -702,7 +705,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreAlcoon,
                 Frames = document.Frames,
                 ProgramFrames = versionFourFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
         EnemyTileArtworkCatalog migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -729,7 +732,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizo,
                 Frames = document.Frames,
                 ProgramFrames = versionFiveFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
         EnemyTileArtworkCatalog migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -763,7 +766,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreGoldenTorizoEgg,
                 Frames = document.Frames,
                 ProgramFrames = versionSixFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
         EnemyTileArtworkCatalog migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -790,7 +793,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreTorizoEffects,
                 Frames = document.Frames,
                 ProgramFrames = versionSevenFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
         EnemyTileArtworkCatalog migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -820,7 +823,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreGenericEnemyDeath,
                 Frames = document.Frames,
                 ProgramFrames = versionEightFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionEightJson);
         EnemyTileArtworkCatalog migratedV8 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -851,7 +854,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreEnvironmentAndAttack,
                 Frames = document.Frames,
                 ProgramFrames = versionNineFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionNineJson);
         EnemyTileArtworkCatalog migratedV9 = EnemyTileArtworkFiles.Load(directory, overrides);
@@ -882,7 +885,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 Version = (int)EnemyProjectileSpritemapVersion.PreMotherBrainAndStatue,
                 Frames = document.Frames,
                 ProgramFrames = versionTenFrames,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTenJson);
         EnemyTileArtworkCatalog migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);

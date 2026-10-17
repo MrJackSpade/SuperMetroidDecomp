@@ -16,7 +16,7 @@ private static int Main(string[] args)
 // exception" dialog. That is actively hostile to an automated verifier: the useful stack
 // trace belongs in this console and a dialog must never steal focus or stall the process.
 if (OperatingSystem.IsWindows())
-    NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
+    _ = NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
 
 try
 {

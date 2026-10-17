@@ -13,6 +13,19 @@ namespace SuperMetroid.Verification.Hardware;
 /// </summary>
 internal static class WordReadsVerification
 {
+    /// <summary>Expected 4-bpp colour indices of the constructed row: planes 0-3 weigh 1, 2, 4 and 8.</summary>
+    private static readonly int[] FourBppRowColorIndices =
+        [1, 2, 4, 8, 0, 0, 0, 8];
+    /// <summary>Expected 2-bpp colour indices of the constructed row: planes 0-1 weigh 1 and 2.</summary>
+    private static readonly int[] TwoBppRowColorIndices =
+        [1, 3, 2, 0];
+    /// <summary>A WRAM word reads its low byte, then its high byte, once each.</summary>
+    private static readonly int[] WorkRamWordReads =
+        [0x7e1234, 0x7e1235];
+    /// <summary>A cartridge word reads its low byte, then its high byte, once each.</summary>
+    private static readonly int[] CartridgeWordReads =
+        [0x8f8000, 0x8f8001];
+
     /// <summary>Runs byte order, bank-boundary, failure propagation, and PPU format checks for canonical reads.</summary>
     internal static void VerifyCanonicalWordReads()
     {
@@ -27,11 +40,11 @@ internal static class WordReadsVerification
     {
         var bytes = new RecordingByteSource(new() { [0x7e1234] = 0x34, [0x7e1235] = 0x12 });
         AssertEqual((ushort)0x1234, bytes.ReadWorkRamWord(0x7e1234), "WRAM word: low byte first");
-        AssertSequenceEqual(new[] { 0x7e1234, 0x7e1235 }, bytes.Reads, "WRAM word: low then high, once each");
+        AssertSequenceEqual(WorkRamWordReads, bytes.Reads, "WRAM word: low then high, once each");
 
         bytes = new RecordingByteSource(new() { [0x8f8000] = 0x78, [0x8f8001] = 0x56, [0x8f8002] = 0xa1 });
         AssertEqual((ushort)0x5678, bytes.ReadCartridgeWord(0x8f8000), "cartridge word: low byte first");
-        AssertSequenceEqual(new[] { 0x8f8000, 0x8f8001 }, bytes.Reads, "cartridge word: low then high, once each");
+        AssertSequenceEqual(CartridgeWordReads, bytes.Reads, "cartridge word: low then high, once each");
 
         AssertEqual((ushort)0xbeef, SnesLittleEndian.Word(0xef, 0xbe), "named composition: low then high");
     }
@@ -97,7 +110,7 @@ internal static class WordReadsVerification
         vram[row + 1] = 0b0100_0000;
         vram[row + 16] = 0b0010_0000;
         vram[row + 17] = 0b0001_0001;
-        AssertSequenceEqual(new[] { 1, 2, 4, 8, 0, 0, 0, 8 },
+        AssertSequenceEqual(FourBppRowColorIndices,
             Enumerable.Range(0, 8).Select(column => four4.ColorIndexAt(vram, row, column)).ToArray(), "4-bpp planes 0-3 weight 1, 2, 4, 8");
         AssertEqual(7, BgCharacterGrid.SourcePixel(0, flipped: true), "flip mirrors within the character");
         AssertEqual(3 * 16 + 9, four4.CgramColor(3, 9), "4-bpp palettes hold sixteen colors");
@@ -107,7 +120,7 @@ internal static class WordReadsVerification
         AssertEqual((0x4000 + 8) * 2, twoRow, "2-bpp row offset: 8 words per character");
         vram[twoRow] = 0b1100_0000;
         vram[twoRow + 1] = 0b0110_0000;
-        AssertSequenceEqual(new[] { 1, 3, 2, 0 },
+        AssertSequenceEqual(TwoBppRowColorIndices,
             Enumerable.Range(0, 4).Select(column => two.ColorIndexAt(vram, twoRow, column)).ToArray(), "2-bpp planes 0-1 weight 1, 2");
         AssertEqual(2 * 4 + 3, two.CgramColor(2, 3), "2-bpp palettes hold four colors");
         vram[0x7fff * 2] = 0x34;

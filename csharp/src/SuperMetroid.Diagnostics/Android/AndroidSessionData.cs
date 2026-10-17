@@ -17,6 +17,9 @@ namespace SuperMetroid.Diagnostics.Android;
 /// </summary>
 internal sealed class AndroidSessionData : IDisposable
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>Installation root used for saves, states, and recordings.</summary>
     private readonly string root;
     /// <summary>Atomic JSON save path for the session's live SRAM.</summary>
@@ -158,7 +161,7 @@ internal sealed class AndroidSessionData : IDisposable
             diagnosticsBuild = typeof(DebuggerSaveStateStore).Module.ModuleVersionId,
             hostBuild = typeof(AndroidSessionData).Module.ModuleVersionId,
             contentIdentity = ContentIdentity,
-        }, new JsonSerializerOptions { WriteIndented = true }));
+        }, IndentedJson));
         FlushRecording();
     }
 

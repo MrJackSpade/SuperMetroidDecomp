@@ -13,6 +13,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks alive and dead Sidehopper corpse metadata and production initialization.</summary>
 internal static class DeadSidehopperCorpseDefinitionsVerification
 {
+    /// <summary>Configuration word indices with a compiled consumer; word five, the graphics-initialization callback, has none.</summary>
+    private static readonly int[] ConsumedConfigurationWords =
+        [0, 1, 2, 3, 4, 6, 7];
+
     /// <summary>Compares both native configuration records and initialized rotting state without metadata rereads.</summary>
     internal static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -48,7 +52,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             "dead sidehopper configuration identity");
         int address = 0xa90000 | definition.ConfigurationPointer;
         // Word five, the graphics-initialization callback, has no compiled consumer.
-        ushort[] expected = [.. new[] { 0, 1, 2, 3, 4, 6, 7 }
+        ushort[] expected = [.. ConsumedConfigurationWords
             .Select(index => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + index * 2)))];
 
         ushort[] actual =

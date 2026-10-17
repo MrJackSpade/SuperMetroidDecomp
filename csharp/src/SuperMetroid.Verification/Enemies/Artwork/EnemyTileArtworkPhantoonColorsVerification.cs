@@ -18,6 +18,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// native RGB5 data and live palette transitions.</summary>
 internal static class EnemyTileArtworkPhantoonColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks isolated color edits through boss fade and hurt handlers,
     /// with native source reads forbidden and malformed overrides rejected.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
@@ -43,7 +46,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         string file = Path.Combine(stockDirectory, PhantoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         PhantoonColorDocument visual = JsonSerializer.Deserialize<PhantoonColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Phantoon color JSON is null.");
         visual.HealthBands[2][1] = ChangeRed(visual.HealthBands[2][1]);
         visual.FadeOut[1] = ChangeRed(visual.FadeOut[1]);

@@ -93,10 +93,10 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
                 return Constant(receiver, arguments[0].Expression, 1, "WorkRam");
             case ("WramWord" or "WramByte", "Read", 0) when receiver is BaseObjectCreationExpressionSyntax
             {
-                ArgumentList.Arguments: [{ Expression: { } bus }, { Expression: { } cellExpression }],
+                ArgumentList.Arguments: { Count: 2 } construction,
             }:
-                return model.GetSymbolInfo(cellExpression, token).Symbol is IFieldSymbol { Type.Name: CellTypeName } cell
-                    ? new RawRead(invocation, bus, method.ReturnType, cell, 0, 0, "")
+                return model.GetSymbolInfo(construction[1].Expression, token).Symbol is IFieldSymbol { Type.Name: CellTypeName } cell
+                    ? new RawRead(invocation, construction[0].Expression, method.ReturnType, cell, 0, 0, "")
                     : null;
             default:
                 return null;
@@ -169,7 +169,8 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
     private static bool Declares(IPropertySymbol property, IFieldSymbol cell) =>
         property.GetAttributes().Any(attribute =>
             attribute.AttributeClass?.Name == ViewOfAttributeName &&
-            attribute.ConstructorArguments is [{ Value: INamedTypeSymbol catalog }, { Value: string name }] &&
+            attribute.ConstructorArguments is { Length: 2 } arguments &&
+            arguments[0].Value is INamedTypeSymbol catalog && arguments[1].Value is string name &&
             name == cell.Name &&
             catalog.ToDisplayString() == cell.ContainingType.ToDisplayString());
 
@@ -208,7 +209,8 @@ public sealed class CpuBusAccessCodeFixProvider : CodeFixProvider
     private static async Task<(int Address, int Width, string Region)?> CellShapeAsync(Solution solution, IFieldSymbol field,
         CancellationToken token)
     {
-        if (field.DeclaringSyntaxReferences is not [{ } reference] ||
+        if (field.DeclaringSyntaxReferences is not { Length: 1 } references ||
+            references[0] is not { } reference ||
             await reference.GetSyntaxAsync(token).ConfigureAwait(false) is not VariableDeclaratorSyntax
             {
                 Initializer.Value: InvocationExpressionSyntax

@@ -1,9 +1,4 @@
 <Project>
-  <PropertyGroup>
-    <!-- #627 primitive-domain rules report the audit inventory until each rule reaches zero.
-         SME6271 and SME6272 have reached zero; .editorconfig makes them errors. -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6270</WarningsNotAsErrors>
-  </PropertyGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer.CodeFixes' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj"
                       OutputItemType="Analyzer"

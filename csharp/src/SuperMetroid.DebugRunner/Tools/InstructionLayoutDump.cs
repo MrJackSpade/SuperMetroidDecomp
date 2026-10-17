@@ -6,6 +6,9 @@ namespace SuperMetroid.DebugRunner.Tools;
 /// <summary>Exports a stable mechanics-and-presentation snapshot of compiled instruction catalogs.</summary>
 internal static class InstructionLayoutDump
 {
+    /// <summary>JSON options: Unindented output.</summary>
+    private static readonly JsonSerializerOptions CompactJson = new() { WriteIndented = false };
+
     /// <summary>
     /// Conversion probe (<c>--dump-instruction-layouts &lt;file&gt;</c>): records every compiled
     /// instruction program's mechanics words and presentation slot addresses, so a semantic rewrite
@@ -25,7 +28,7 @@ internal static class InstructionLayoutDump
             int[] slots = [.. (catalog.PresentationOperands ?? []).Select(address => (int)address)];
             result[catalog.Type.Name] = new { mechanics = words, presentation = slots };
         }
-        File.WriteAllText(outputPath, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = false }));
+        File.WriteAllText(outputPath, JsonSerializer.Serialize(result, CompactJson));
         Console.WriteLine($"Instruction layouts: {result.Count} program types written to {outputPath}.");
     }
 }

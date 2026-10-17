@@ -16,6 +16,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Mother Brain death palettes against retail data and verifies editable colors reach CGRAM without cartridge reads.</summary>
 internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares all fade selectors and RGB5 words, edits a palette channel, and checks live body, corpse, and door destinations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
@@ -64,7 +67,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         byte[] stockJson = File.ReadAllBytes(file);
         MotherBrainDeathColorDocument visual =
             JsonSerializer.Deserialize<MotherBrainDeathColorDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Mother Brain death color JSON is null.");
         foreach (PaletteRgb5[] frame in visual.BodyFade)
             frame[5] = ChangeRed(frame[5]);

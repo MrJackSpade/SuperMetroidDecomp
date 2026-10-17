@@ -16,6 +16,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Botwoon palette art, live health transitions, and override validation.</summary>
 internal static class EnemyTileArtworkBotwoonColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 128 stock colors with the ROM and checks edited colors flow through live health-band updates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palettes and thresholds")]
@@ -35,7 +38,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         string file = Path.Combine(stockDirectory, BotwoonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         BotwoonColorDocument visual = JsonSerializer.Deserialize<BotwoonColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Botwoon color JSON is null.");
         foreach (PaletteRgb5[] band in visual.Health)
             band[5] = ChangeRed(band[5]);

@@ -96,6 +96,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks editable map and related presentation assets while keeping exploration rules and live gameplay reads separate from artwork.</summary>
 internal static class MapPresentationVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Checks edited map cells in pause projection and HUD, retail roundtrips, and rejection of gameplay rules in artwork JSON.</summary>
     internal static void VerifyMapPresentation()
     {
@@ -107,7 +110,7 @@ internal static class MapPresentationVerification
         var document = new MapPresentationDocument { Version = 1, Area = "Crateria",
             Cells = Enumerable.Repeat(cell, 64 * 32).ToArray() };
         string Json(MapPresentationDocument value) => JsonSerializer.Serialize(value,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            CamelCaseJson);
         AreaMapPresentationAsset Load(string text) => AreaMapPresentationAsset.Load(
             new MemoryStream(Encoding.UTF8.GetBytes(text)), rules);
         var map = Load(Json(document));

@@ -12,6 +12,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Work Robot palette-cycle colors and author override handling.</summary>
 internal static class EnemyTileArtworkWorkRobotPaletteVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 24 retail RGB5 words, persistent single-color override, and invalid document rejection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed work-robot palette cycle")]
     internal static void VerifyInstalledWorkRobotPaletteCycle(
@@ -34,7 +37,7 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         byte[] stockJson = File.ReadAllBytes(file);
         WorkRobotPaletteCycleDocument visual =
             JsonSerializer.Deserialize<WorkRobotPaletteCycleDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Work Robot palette JSON is null.");
         PaletteRgb5 prior = visual.Frames[2][1];
         visual.Frames[2][1] = prior with

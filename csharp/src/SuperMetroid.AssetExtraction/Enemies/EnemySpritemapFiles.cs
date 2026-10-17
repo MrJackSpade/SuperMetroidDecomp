@@ -11,6 +11,9 @@ namespace SuperMetroid.AssetExtraction.Enemies;
 [CpuBusBoundary("codec: ROM enemy spritemap part records → named enemy visual frames")]
 internal static class EnemySpritemapFiles
 {
+    /// <summary>JSON options: Camel-case property names, indented output.</summary>
+    private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
+
     /// <summary>Exports each named enemy spritemap and validates the resulting JSON
     /// against the runtime catalog before returning the asset bytes.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
@@ -32,11 +35,7 @@ internal static class EnemySpritemapFiles
             DisplayFrames = EnemySpritemapDefinitions.Frames
                 .ToDictionary(frame => frame.Name, frame => frame.Name,
                     StringComparer.Ordinal),
-        }, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            WriteIndented = true,
-        });
+        }, CamelCaseIndentedJson);
         _ = EnemySpritemapCatalog.Load(new MemoryStream(json, writable: false));
         return json;
     }

@@ -41,9 +41,7 @@ internal static class StandardObjectArtworkVerification
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: palettes);
             runtime.Artwork.StandardObjectArt = baseline;
-            runtime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
-                StandardObjectArtworkAddresses.Source,
-                GameplayVram.ObjectCharactersDma());
+            runtime.HudSetup.QueueStandardObjectTiles();
             runtime.VramWrites.DrainTo(runtime.Vram, ReferenceMutableMemory.From(guard), runtime.Artwork);
             AssertTrue(runtime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(baseline.Transfer.Span),
@@ -67,9 +65,7 @@ internal static class StandardObjectArtworkVerification
                 "selected indexed PNG changes the native standard OBJ transfer");
             var editedRuntime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(guard, HostGameplayOverrides.None, initialPaletteArt: palettes);
             editedRuntime.Artwork.StandardObjectArt = edited;
-            editedRuntime.VramWrites.Enqueue(StandardObjectArtworkFormat.TransferByteCount,
-                StandardObjectArtworkAddresses.Source,
-                GameplayVram.ObjectCharactersDma());
+            editedRuntime.HudSetup.QueueStandardObjectTiles();
             editedRuntime.VramWrites.DrainTo(editedRuntime.Vram, ReferenceMutableMemory.From(guard), editedRuntime.Artwork);
             AssertTrue(editedRuntime.Vram.Bytes.Slice(0xc000,
                     StandardObjectArtworkFormat.TransferByteCount).SequenceEqual(edited.Transfer.Span),

@@ -46,6 +46,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed opening and Ceres cinematic artwork, resource validation, and ROM-read guards.</summary>
 internal static class IntroCinematicArtworkVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro cinematic characters, tilemaps and palette")]
@@ -160,7 +163,7 @@ internal static class IntroCinematicArtworkVerification
             IntroCinematicPaletteDocument paletteDocument =
                 JsonSerializer.Deserialize<IntroCinematicPaletteDocument>(
                     File.ReadAllBytes(paletteStockPath),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                    CaseInsensitiveJson)
                 ?? throw new InvalidDataException("Extracted opening palette is empty.");
             PaletteRgb5 originalColor = paletteDocument.Colors[1];
             paletteDocument.Colors[1] = originalColor with
@@ -254,7 +257,7 @@ internal static class IntroCinematicArtworkVerification
             IntroFinalLineTilemapDocument dividerDocument =
                 JsonSerializer.Deserialize<IntroFinalLineTilemapDocument>(
                     File.ReadAllBytes(dividerStockPath),
-                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                    CaseInsensitiveJson)
                 ?? throw new InvalidDataException("Extracted opening divider is empty.");
             var nativeDividerState = CreateRetailIntroFixture();
             var stockDividerState = CreateRetailIntroFixture(characterArtwork: stock);
@@ -391,7 +394,7 @@ internal static class IntroCinematicArtworkVerification
                 RoomBackgroundTilemapDocument document;
                 using (var input = File.OpenRead(stockPath))
                     document = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(input,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        CaseInsensitiveJson)
                         ?? throw new InvalidDataException($"Empty cinematic BG page {name}.");
                 // Choose a nonblank source cell so each isolated page edit has a
                 // deterministic physical tilemap-word difference.
@@ -472,7 +475,7 @@ internal static class IntroCinematicArtworkVerification
                 RoomBackgroundTilemapDocument document;
                 using (var input = File.OpenRead(stockPath))
                     document = JsonSerializer.Deserialize<RoomBackgroundTilemapDocument>(input,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                        CaseInsensitiveJson)
                         ?? throw new InvalidDataException($"Empty opening tilemap {name}.");
                 RoomBackgroundTilemapCell original = document.Pages[0].Cells[0];
                 document.Pages[0].Cells[0] = original with

@@ -22,6 +22,9 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 /// </summary>
 internal static class InstalledPowerBombIsolationTests
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Runs five installed palette edits through Power Bomb and Crystal Flash, comparing mechanics, color windows, cleanup, and software/D3D pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
@@ -29,7 +32,7 @@ internal static class InstalledPowerBombIsolationTests
         string stockDirectory = Path.Combine(Path.GetFullPath(installationRoot), "game", "maps");
         string path = Path.Combine(stockDirectory, PowerBombFixedColorFormat.FileName);
         byte[] original = File.ReadAllBytes(path);
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var options = CamelCaseJson;
         var document = JsonSerializer.Deserialize<PowerBombFixedColorDocument>(original, options)
             ?? throw new InvalidDataException($"Null color document: {path}");
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(stockDirectory, null);

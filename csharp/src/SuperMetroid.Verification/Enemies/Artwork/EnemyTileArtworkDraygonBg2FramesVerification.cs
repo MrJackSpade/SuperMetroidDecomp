@@ -21,6 +21,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
 internal static class EnemyTileArtworkDraygonBg2FramesVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Compares 34 installed frames and 102 ordered tilemap writes with ROM, then checks guarded rendering and editable overrides.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
     internal static void VerifyInstalledDraygonBg2Frames(
@@ -108,7 +111,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         string overridePath = Path.Combine(overrideDirectory,
             DraygonBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            CamelCaseJson));
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((edited.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
@@ -129,7 +132,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon BG2 override survives reload");
         document.Frames[editedIdentity.Name][0] = first with { X = 32 };
         using var invalid = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            CamelCaseJson));
         AssertThrows<InvalidDataException>(
             () => DraygonBg2FrameCatalog.Load(invalid),
             "Draygon BG2 write outside its tilemap fails loudly");

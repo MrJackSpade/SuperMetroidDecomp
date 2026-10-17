@@ -19,6 +19,9 @@ using SuperMetroid.Core.Fx;
 /// <summary>Checks installed Spore Spawn spore, health, and death colors against ROM and live current and target palettes.</summary>
 internal static class EnemyTileArtworkSporeSpawnColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 432 native RGB5 words, edits one color per palette family, and checks production CGRAM and fade targets without source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Spore Spawn colors")]
@@ -45,7 +48,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         byte[] stockJson = File.ReadAllBytes(file);
         SporeSpawnColorDocument visual =
             JsonSerializer.Deserialize<SporeSpawnColorDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Spore Spawn color JSON is null.");
         visual.Spores[5] = ChangeRed(visual.Spores[5]);
         foreach (PaletteRgb5[] frame in visual.Health)

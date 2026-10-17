@@ -12,6 +12,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks strict JSON schemas, RGB5 bounds, and override isolation for installed palette formats.</summary>
 internal static class PaletteJsonContractsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Finite source-inventoried palette formats; no gameplay or ROM-read discovery.</summary>
     internal static void VerifyPaletteJsonContracts()
     {
@@ -99,7 +102,7 @@ internal static class PaletteJsonContractsVerification
 
     /// <summary>Serializes a typed palette fixture into a mutable camel-case JSON document.</summary>
     internal static JsonObject PaletteContractDocument(object document) => (JsonObject)(JsonSerializer.SerializeToNode(
-        document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }) ?? throw new InvalidOperationException("Verification requires JsonSerializer.SerializeToNode( document, document.GetType(), new JsonSerializerOptions...."));
+        document, document.GetType(), CamelCaseJson) ?? throw new InvalidOperationException("Verification requires JsonSerializer.SerializeToNode( document, document.GetType(), new JsonSerializerOptions...."));
 
     /// <summary>Runs a schema's production loader on supplied UTF-8 JSON text.</summary>
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)

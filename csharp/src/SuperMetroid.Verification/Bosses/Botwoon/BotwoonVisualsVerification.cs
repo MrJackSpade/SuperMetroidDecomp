@@ -13,6 +13,9 @@ namespace SuperMetroid.Verification.Bosses.Botwoon;
 /// <summary>Checks installed Botwoon head frames and compatibility of older enemy artwork overrides.</summary>
 internal static class BotwoonVisualsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Compares sixteen installed head frames to native OAM and confirms pre-Botwoon edits survive schema upgrade.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledBotwoonVisuals(
@@ -64,7 +67,7 @@ internal static class BotwoonVisualsVerification
                 Version = (int)EnemySpritemapSchema.PreBotwoon,
                 Frames = previousFrames,
                 DisplayFrames = previousBindings,
-            }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            }, CamelCaseJson));
         EnemySpritemapCatalog upgraded = EnemySpritemapCatalog.Load(
             previousJson, stock.Spritemaps);
         foreach (EnemySpritemapDefinition frame in BotwoonVisualDefinitions.Frames())

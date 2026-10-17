@@ -79,6 +79,10 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
 internal static class LookupStream4Verification
 {
+    /// <summary>Background colours 14 and 15, which follow colours 1-11 in the required fade sites.</summary>
+    private static readonly int[] UpperBackgroundColors =
+        [14, 15];
+
     /// <summary>Checks every foreground explosion palette hold, CGRAM exposure, deletion, and star handoff tick.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for foreground cadence")]
@@ -1001,7 +1005,7 @@ internal static class LookupStream4Verification
             SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
         Bgr555[] basis = SporeSpawnDeathColorDefinitions.InitialRoomBackgroundColors;
         AssertEqual(13, basis.Length, "Background fade retains exactly thirteen required original room-color sites");
-        foreach (int color in Enumerable.Range(1, 11).Concat(new[] { 14, 15 }))
+        foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
         {
             int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
             AssertEqual((ushort)(SnesLittleEndian.Word(palette[offset], palette[offset + 1])),

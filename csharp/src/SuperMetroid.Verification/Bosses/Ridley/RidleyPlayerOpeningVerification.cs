@@ -15,6 +15,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks the reported first Ridley-room trajectory against a captured player movie segment.</summary>
 internal static class RidleyPlayerOpeningVerification
 {
+    /// <summary>Native WRAM words compared against the port's Ridley state line, in comparison order.</summary>
+    private static readonly int[] ComparedRidleyStateAddresses =
+        [0xfa8, 0xf7a, 0xf7c, 0xf7e, 0xf80, 0xfaa, 0xfac];
+
     /// <summary>Checks arrival collision edges, then compares boss motion while feeding recorded Samus position and RNG as isolated inputs.</summary>
     internal static void VerifyRidleyPlayerOpening()
     {
@@ -68,7 +72,7 @@ internal static class RidleyPlayerOpeningVerification
             random = W(expected, 0x5e5);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(W(expected, 0x911), W(expected, 0x915)), TimeIsFrozen = false, Samus = samus, Level = runtime.Room.LevelData, ControllerInput = (SnesButton)W(expected, 0x8b), SamusProjectiles = runtime.Projectiles, SharedProjectiles = runtime.BombProjectiles });
             string actual = $"{(ushort)(state ?? throw new InvalidOperationException("Verification requires state.")).Function:X4},{body.Position.X.Whole:X4},{body.Position.X.Fraction:X4},{body.Position.Y.Whole:X4},{body.Position.Y.Fraction:X4},{state.Velocity.X.RawValue:X4},{state.Velocity.Y.RawValue:X4}";
-            string native = string.Join(",", new[] {0xfa8,0xf7a,0xf7c,0xf7e,0xf80,0xfaa,0xfac}.Select(a => W(expected,a).ToString("X4")));
+            string native = string.Join(",", ComparedRidleyStateAddresses.Select(a => W(expected,a).ToString("X4")));
             if (actual != native)
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={pointers.Body(state):X4}/{body.InstructionTimer.RawValue}; timer={state.FunctionTimer.RawValue} native={W(expected,0xfb2)}");
         }

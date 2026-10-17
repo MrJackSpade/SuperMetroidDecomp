@@ -10,6 +10,6 @@ internal static partial class NativeConsoleErrors
     private static partial uint SetErrorMode(uint mode);
 
     /// <summary>Suppresses critical-error, general-protection, and missing-file Windows dialogs.</summary>
-    internal static void DisableDialogs() => SetErrorMode(ErrorModes.FailCriticalErrors | ErrorModes.NoGpFaultErrorBox | ErrorModes.NoOpenFileErrorBox);
+    internal static void DisableDialogs() => _ = SetErrorMode(ErrorModes.FailCriticalErrors | ErrorModes.NoGpFaultErrorBox | ErrorModes.NoOpenFileErrorBox);
 
 }

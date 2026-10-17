@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks installed Draygon palette bands against retail colors and edited intro, hurt, flash, and health CGRAM paths.</summary>
 internal static class EnemyTileArtworkDraygonColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Compares 105 RGB5 words with ROM, edits selected palette cells, and checks production Draygon color writes under a source-read guard.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon palette bands")]
@@ -44,7 +47,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         string file = Path.Combine(stockDirectory, DraygonColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         DraygonColorDocument visual = JsonSerializer.Deserialize<DraygonColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Draygon color JSON is null.");
         visual.Intro[1] = ChangeRed(visual.Intro[1]);
         visual.Background[1] = ChangeRed(visual.Background[1]);

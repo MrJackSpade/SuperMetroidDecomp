@@ -10,6 +10,9 @@ namespace SuperMetroid.Diagnostics.Android;
 /// </summary>
 internal sealed class AndroidControllerPreferences
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>Physical host-key names mapped to individual SNES buttons.</summary>
     private readonly Dictionary<string, SnesButton> overrides;
 
@@ -33,7 +36,7 @@ internal sealed class AndroidControllerPreferences
     /// <summary>Writes physical-key overrides as an indented JSON object of button names.</summary>
     public string Serialize() => JsonSerializer.Serialize(
         overrides.ToDictionary(pair => pair.Key, pair => pair.Value.ToString()),
-        new JsonSerializerOptions { WriteIndented = true });
+        IndentedJson);
 
     /// <summary>Parses exact button names and rejects composite or unknown bindings.</summary>
     public static AndroidControllerPreferences Parse(string json)

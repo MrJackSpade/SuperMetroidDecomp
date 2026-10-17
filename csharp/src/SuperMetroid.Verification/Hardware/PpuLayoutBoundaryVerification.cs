@@ -7,6 +7,10 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks catalog ownership and typed VRAM, CGRAM, OAM and register views against their PPU backends.</summary>
 internal static class PpuLayoutBoundaryVerification
 {
+    /// <summary>Inventory cell fields compared between the generated and committed PPU-layout inventories.</summary>
+    private static readonly string[] InventoryCellFields =
+        ["owner", "name", "region", "offset", "count", "encoding", "aliasOf"];
+
     /// <summary>
     /// Checks the #630 PPU layout boundary: catalog identities and aliases, the repository
     /// inventory, alias coherence through the typed views on real backends, typed round trips,
@@ -145,7 +149,7 @@ internal static class PpuLayoutBoundaryVerification
         using JsonDocument expected = JsonDocument.Parse(PpuLayoutCatalogInventory.RenderJson(entries, root));
         using JsonDocument actual = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, PpuLayoutCatalogInventory.InventoryPath)));
         string[] Cells(JsonDocument document) => document.RootElement.GetProperty("cells").EnumerateArray()
-            .Select(cell => string.Join('|', new[] { "owner", "name", "region", "offset", "count", "encoding", "aliasOf" }
+            .Select(cell => string.Join('|', InventoryCellFields
                 .Select(field => cell.GetProperty(field).ToString())))
             .ToArray();
         AssertTrue(Cells(expected).SequenceEqual(Cells(actual)),

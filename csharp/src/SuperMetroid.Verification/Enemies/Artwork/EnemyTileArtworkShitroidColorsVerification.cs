@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// <summary>Checks Shitroid's normal palette cycle and three target fades against installed art and native RGB5 data.</summary>
 internal static class EnemyTileArtworkShitroidColorsVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>Exercises edited colors through live CGRAM consumers while preserving native timer selection and forbidding source reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
@@ -40,7 +43,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         string file = Path.Combine(stockDirectory, ShitroidColorFormat.FileName);
         byte[] stockJson = File.ReadAllBytes(file);
         ShitroidColorDocument visual = JsonSerializer.Deserialize<ShitroidColorDocument>(
-            stockJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+            stockJson, CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Shitroid color JSON is null.");
         foreach (PaletteRgb5[] frame in visual.Normal) frame[2] = ChangeRed(frame[2]);
         visual.Sidehopper[5] = ChangeRed(visual.Sidehopper[5]);

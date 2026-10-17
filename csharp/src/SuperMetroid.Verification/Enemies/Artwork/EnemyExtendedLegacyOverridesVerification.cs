@@ -26,12 +26,12 @@ internal static class EnemyExtendedLegacyOverridesVerification
         {
             (int version, int count) = schemas[index];
             AssertEqual((int)EnemyExtendedFrameSchema.First + index, version, "extended schema fixtures are contiguous");
-            var expectedNames = definitions[..count].ToDictionary(frame => frame.Name, frame => AuthoredName(frame, version));
+            var expectedNames = definitions.Take(count).ToDictionary(frame => frame.Name, frame => AuthoredName(frame, version));
             bool hasBindings = version > (int)EnemyExtendedFrameSchema.PreDisplayBindings;
             EnemyExtendedFrameDocument document = stockDocument with
             {
                 Version = version,
-                Frames = definitions[..count].ToDictionary(frame => expectedNames[frame.Name],
+                Frames = definitions.Take(count).ToDictionary(frame => expectedNames[frame.Name],
                     frame => stockDocument.Frames[frame.Name].ToArray(), StringComparer.Ordinal),
                 DisplayFrames = hasBindings ? expectedNames.Values.ToDictionary(name => name, name => name, StringComparer.Ordinal) : null,
             };

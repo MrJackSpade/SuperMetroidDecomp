@@ -63,6 +63,27 @@ using SuperMetroid.Core.Progression;
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification
 {
+    /// <summary>Header row of the required Samus OAM pointer report.</summary>
+    private static readonly string[] OamPointerCsvHeader =
+        ["Index, NativeAddress, CompositionPointer"];
+    /// <summary>The four escape-timer pixels whose native values still deviate from the calculated shapes.</summary>
+    private static readonly int[] RetainedTimerDeviations =
+        [1161, 1163, 189, 999];
+    /// <summary>Header row of the required Samus body-frame report.</summary>
+    private static readonly string[] BodyFrameCsvHeader =
+        ["Component, NativeAddress, Value"];
+    /// <summary>Bank-$92 body-frame records outside the contiguous runs, each covering four bytes.</summary>
+    private static readonly int[] BodyFrameRecordAddresses =
+        [0xe050, 0xe0d0, 0xe150, 0xe158, 0xe1d8, 0xe258, 0xe2c0, 0xe37c, 0xe4c8, 0xe4d0, 0xe4f0, 0xe4fc,
+        0xe508, 0xe530, 0xe558, 0xe580, 0xe5a8, 0xe5d0, 0xe5f8, 0xe628, 0xe658, 0xe688, 0xe6b8, 0xe728,
+        0xe798, 0xe7a4, 0xe7b0, 0xe7bc, 0xe7c8, 0xe7d4, 0xe7e0, 0xe7ec, 0xe7f8, 0xe804, 0xe810, 0xe81c,
+        0xe890, 0xe8cc, 0xe938, 0xe974, 0xe9f4, 0xea0c, 0xea24, 0xeba4, 0xea28, 0xe968];
+    /// <summary>Bank-$92 body-frame records edited by the final-only check, each covering four bytes.</summary>
+    private static readonly int[] FinalBodyFrameEditAddresses =
+        [0xdb58, 0xdb54, 0xdba0, 0xdbbc, 0xdbfc, 0xe2ec, 0xe37c, 0xe600, 0xe65c, 0xe6bc, 0xe534, 0xe29c,
+        0xe7a8, 0xe050, 0xe158, 0xe060, 0xe0d0, 0xea40, 0xeba8, 0xe984, 0xe8a8, 0xea00, 0xdf40, 0xe458,
+        0xe888];
+
     /// <summary>Checks world-map BG3 primitives and residual pixels against native tiles, including edited full uploads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
@@ -541,7 +562,7 @@ internal static class LookupStream1Verification
         AssertTrue(Transfer(stock).SequenceEqual(native), "Both reconstructed timer pages match all800 native planar bytes");
         AssertEqual(275, Fill(stock).Count, "Exact retained timer fill footprint after calculated digit and label shapes");
         AssertEqual(0, FillOverrides(stock).Count, "Zero stock calculated-footprint overrides");
-        AssertTrue(Overrides(stock).Keys.ToHashSet().SetEquals(new[] { 1161, 1163, 189, 999 }), "Exact four still-retained native deviations");
+        AssertTrue(Overrides(stock).Keys.ToHashSet().SetEquals(RetainedTimerDeviations), "Exact four still-retained native deviations");
         for (int index = 0; index < 1600; index++)
         {
             bool fill = image.Pixels[index] == Ink(index);
@@ -791,7 +812,7 @@ internal static class LookupStream1Verification
         AssertTrue(stock.Frames.SequenceEqual(Decode(native)), "All supplied frame components preserved");
         AssertEqual(CanonicalBodyHash(template, top, bottom, poses, Decode(native), upper, lower), stock.ContentIdentity, "Original canonical frame hash");
         Directory.CreateDirectory("csharp/test-temp");
-        File.WriteAllLines("csharp/test-temp/samus-body-frame-required.csv", new[] { "Component,NativeAddress,Value" }
+        File.WriteAllLines("csharp/test-temp/samus-body-frame-required.csv", BodyFrameCsvHeader
             .Concat(Stored(stock).OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92db48 + pair.Key:X6},{pair.Value:X2}")));
         if (basisOnly)
         {
@@ -801,14 +822,9 @@ internal static class LookupStream1Verification
         IEnumerable<int> editAddresses = Enumerable.Range(0xdbf8, 240).Concat(Enumerable.Range(0xdf28, 240))
             .Concat(Enumerable.Range(0xdb48, 176)).Concat(Enumerable.Range(0xde18, 72))
             .Concat(Enumerable.Range(0xdd18, 32)).Concat(Enumerable.Range(0xdd48, 16)).Concat(Enumerable.Range(0xdeb0, 16))
-            .Concat(new[] { 0xe050, 0xe0d0, 0xe150, 0xe158, 0xe1d8, 0xe258, 0xe2c0, 0xe37c, 0xe4c8, 0xe4d0, 0xe4f0, 0xe4fc,
-                0xe508, 0xe530, 0xe558, 0xe580, 0xe5a8, 0xe5d0, 0xe5f8, 0xe628, 0xe658, 0xe688, 0xe6b8, 0xe728,
-                0xe798, 0xe7a4, 0xe7b0, 0xe7bc, 0xe7c8, 0xe7d4, 0xe7e0, 0xe7ec, 0xe7f8, 0xe804, 0xe810, 0xe81c,
-                0xe890, 0xe8cc, 0xe938, 0xe974, 0xe9f4, 0xea0c, 0xea24, 0xeba4, 0xea28, 0xe968 }.SelectMany(address => Enumerable.Range(address, 4)));
+            .Concat(BodyFrameRecordAddresses.SelectMany(address => Enumerable.Range(address, 4)));
         if (finalOnly)
-            editAddresses = new[] { 0xdb58, 0xdb54, 0xdba0, 0xdbbc, 0xdbfc, 0xe2ec, 0xe37c, 0xe600, 0xe65c,
-                0xe6bc, 0xe534, 0xe29c, 0xe7a8, 0xe050, 0xe158, 0xe060, 0xe0d0, 0xea40, 0xeba8,
-                0xe984, 0xe8a8, 0xea00, 0xdf40, 0xe458, 0xe888 }.SelectMany(address => Enumerable.Range(address, 4));
+            editAddresses = FinalBodyFrameEditAddresses.SelectMany(address => Enumerable.Range(address, 4));
         int edits = 0;
         foreach (int address in editAddresses)
         {
@@ -3028,7 +3044,7 @@ internal static class LookupStream1Verification
             if (index == native.Length - 1) AssertEqual(Canonical(supplied), edited.ContentIdentity, "Original independently edited OAM canonical hash");
         }
         Directory.CreateDirectory("csharp/test-temp");
-        File.WriteAllLines("csharp/test-temp/samus-oam-pointer-required.csv", new[] { "Index,NativeAddress,CompositionPointer" }
+        File.WriteAllLines("csharp/test-temp/samus-oam-pointer-required.csv", OamPointerCsvHeader
             .Concat(stored.OrderBy(pair => pair.Key).Select(pair => $"{pair.Key:X4},{0x92808d + pair.Key * 2:X6},{pair.Value:X4}")));
         AssertThrows<InvalidDataException>(() => stock.TryGet(2096, out _), "Original upper index rejection");
         AssertThrows<InvalidDataException>(() => stock.TryGet(ushort.MaxValue, out _), "Original full ushort rejection");

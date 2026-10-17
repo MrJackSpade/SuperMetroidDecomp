@@ -17,6 +17,9 @@ namespace SuperMetroid.Verification.Enemies.Artwork;
 /// </summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
+    /// <summary>JSON options: Case-insensitive property matching.</summary>
+    private static readonly JsonSerializerOptions CaseInsensitiveJson = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>
     /// Compares installed RGB5 colors with the cartridge, then exercises an override through the room enemy draw hook and CGRAM.
     /// </summary>
@@ -42,7 +45,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         byte[] stockJson = File.ReadAllBytes(file);
         MagdollitePaletteCycleDocument document =
             JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(stockJson,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ??
+                CaseInsensitiveJson) ??
             throw new InvalidDataException("Stock Magdollite palette JSON is null.");
         PaletteRgb5 original = document.Frames[1][0];
         document.Frames[1][0] = original with

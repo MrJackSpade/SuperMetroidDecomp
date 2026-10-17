@@ -18,6 +18,10 @@ using SuperMetroid.Core.Samus;
 /// <summary>Checks pause-menu reserve input and HUD DMA timing through the real frontend dispatcher.</summary>
 internal static class PauseReserveHudVerification
 {
+    /// <summary>HUD cells the reserve display rewrites; every other mutable cell must be preserved.</summary>
+    private static readonly int[] ReserveDisplayCells =
+        [8, 9, 40, 41, 70, 71, 72, 73];
+
     /// <summary>Confirms AUTO label changes, manual refill digits, queued NMI presentation, and preservation of unrelated HUD cells.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve HUD")]
@@ -73,7 +77,7 @@ internal static class PauseReserveHudVerification
         AssertTrue(!samus.HealthWarning.IsActive, "paused input does not invoke ordinary low-health beta check");
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), displayed.ReadWord(HudState.VramDestination + index), "empty AUTO uses native table");
-        foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(new[] { 8, 9, 40, 41, 70, 71, 72, 73 }))
+        foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(ReserveDisplayCells))
             AssertEqual((ushort)(SnesLittleEndian.Word(initialHud[index * 2], initialHud[index * 2 + 1])),
                 displayed.ReadWord(HudState.VramDestination + index), "reserve updates preserve other HUD cells");
         AssertTrue(initialFx.SequenceEqual(displayed.Bytes.Slice(0xb100, 0x700)), "HUD synchronization preserves cleared pause FX rows");

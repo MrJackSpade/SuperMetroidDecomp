@@ -23,6 +23,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Ceres Ridley's private door quake offsets and editable overlay art.</summary>
 internal static class CeresDoorQuakeDefinitionsVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Compares four native offsets, timer aliases, real OAM phases, and an isolated sprite edit.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door quake definitions")]
     internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
@@ -96,7 +99,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
             OffsetY = first.OffsetY + 1,
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
-            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            CamelCaseJson);
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapCatalog.Load(
                 new MemoryStream(editedJson, writable: false)) });
         var editedOverlay = new OamBuffer();

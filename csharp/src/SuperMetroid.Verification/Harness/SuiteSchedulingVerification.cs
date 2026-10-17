@@ -11,6 +11,9 @@ namespace SuperMetroid.Verification.Harness;
 /// <summary>Runs registered verification suites serially or through isolated worker processes.</summary>
 internal static class SuiteSchedulingVerification
 {
+    /// <summary>JSON options: Indented output.</summary>
+    private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+
     /// <summary>
     /// Previous run's elapsed time per suite, read to start the longest suites first. Kept in the
     /// ignored <see cref="RepositoryInstallation.CacheRoot"/>, so a missing file only means registry
@@ -184,7 +187,7 @@ internal static class SuiteSchedulingVerification
         Directory.CreateDirectory((Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)) ?? throw new InvalidOperationException("Verification requires Path.GetDirectoryName(Path.GetFullPath(SuiteDurationsPath)).")));
         File.WriteAllText(SuiteDurationsPath, JsonSerializer.Serialize(
             keys.Zip(durations).ToDictionary(pair => pair.First, pair => pair.Second),
-            new JsonSerializerOptions { WriteIndented = true }));
+            IndentedJson));
     }
 
     /// <summary>A <c>--suite-worker</c> child process of this verifier, driven over its standard streams.</summary>

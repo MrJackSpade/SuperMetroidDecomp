@@ -19,6 +19,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks six installed room-FX BG3 tilemap pages against native VRAM output under read guards.</summary>
 internal static class RoomFxLayer3TilemapsVerification
 {
+    /// <summary>JSON options: Camel-case property names with case-insensitive matching.</summary>
+    private static readonly JsonSerializerOptions CamelCaseCaseInsensitiveJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true };
+
     /// <summary>Checks all six extracted BG3 pages and guarded installed FX loads against native VRAM words.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
@@ -65,11 +68,7 @@ internal static class RoomFxLayer3TilemapsVerification
         string path = Path.Combine(overrides, RoomFxLayer3TilemapFormat.FileName);
         string stockPath = Path.Combine(stock, RoomFxLayer3TilemapFormat.FileName);
         RoomFxLayer3TilemapDocument document = JsonSerializer.Deserialize<RoomFxLayer3TilemapDocument>(
-            File.ReadAllBytes(stockPath), new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true,
-            }) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
+            File.ReadAllBytes(stockPath), CamelCaseCaseInsensitiveJson) ?? throw new InvalidDataException("Stock room-FX BG3 document is null.");
         RoomBackgroundTilemapCell originalCell = document.Pages[nameof(RoomFxType.Lava)][0];
         document.Pages[nameof(RoomFxType.Lava)][0] = originalCell with
         {

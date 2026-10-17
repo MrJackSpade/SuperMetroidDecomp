@@ -17,6 +17,9 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Constructs cartridge-free enemy-effect artwork and Crocomire state fixtures.</summary>
 internal static class EnemyEffectsFixtureVerification
 {
+    /// <summary>JSON options: Camel-case property names.</summary>
+    private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
     internal sealed class CrocomireEffectFixture
     {
@@ -122,7 +125,7 @@ internal static class EnemyEffectsFixtureVerification
                 TileIndex = (index + seed) % 512, Palette = seed % 8,
                 Priority = seed != 0, FlipX = seed != 0, FlipY = seed != 0,
             }).ToArray(),
-    }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+    }, CamelCaseJson);
 
     /// <summary>Compiles both Crocomire PNG passes and tilemap documents through the production loader.</summary>
     internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,

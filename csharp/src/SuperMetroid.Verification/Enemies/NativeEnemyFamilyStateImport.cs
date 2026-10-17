@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
+using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Elevator;
+using SuperMetroid.Core.Enemies.FaceBlocks;
 using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Enemies.FuneNamihe;
@@ -13,6 +15,7 @@ using SuperMetroid.Core.Enemies.Hibashi;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.Metaree;
+using SuperMetroid.Core.Enemies.Nuclear;
 using SuperMetroid.Core.Enemies.Skree;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Enemies.Polyp;
@@ -93,6 +96,27 @@ internal static class NativeEnemyFamilyStateImport
             skultera.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableE), slot.VariableD);
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(slot.VariableF));
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz && slot.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
+        {
+            holtz.Velocity = new(new SnesSignedEightEight(slot.VariableD), new SnesSignedEightEight(slot.VariableC));
+            holtz.Function = slot.VariableF == 0 ? null : (LowerNorfairRioEnemyFunction)slot.VariableF;
+            holtz.IsFollower = (slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
+        {
+            escape.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(slot.VariableA), default);
+            escape.PreInstruction = slot.VariableF == 0 ? null : (EscapeEtecoonPreInstruction)slot.VariableF;
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
+        {
+            faceBlock.Activated = slot.VariableA != 0;
+            faceBlock.LastHorizontalDelta = slot.VariableB;
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi && slot.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
+        {
+            waffle.Function = slot.VariableA == 0 ? null : (NuclearWaffleEnemyFunction)slot.VariableA;
+            waffle.WaitingTimer = NativeCountdown.FromRaw(slot.VariableB);
         }
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks && slot.SpeciesState<PolypEnemyState>() is { } polyp)
         {

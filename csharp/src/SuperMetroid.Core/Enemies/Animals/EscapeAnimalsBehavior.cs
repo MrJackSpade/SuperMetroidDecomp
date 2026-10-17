@@ -47,8 +47,8 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>EscapeEtecoon_Init</c> at <c>$B3:E6CB</c>.</summary>
     internal void InitializeEscapeEtecoon(RoomEnemySlot slot)
     {
-        var state = new EscapeEtecoonEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new EscapeEtecoonEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Event $0F means the animals already escaped on an earlier visit. Native code
         // deletes the actor before changing any animation, position, palette, or AI fields.
@@ -127,7 +127,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Escape Etecoon pre-instruction $B3:{(ushort)state.PreInstruction:X4} " +
+                    $"Escape Etecoon pre-instruction {state.PreInstruction?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }

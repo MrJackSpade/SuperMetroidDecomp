@@ -74,8 +74,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// <summary>Ports <c>BlueBrinstarFaceBlock_Init</c> at <c>$A8:E82E</c>.</summary>
     internal void InitializeBlueBrinstarFaceBlock(RoomEnemySlot slot, SamusState? samus)
     {
-        var state = new BlueBrinstarFaceBlockEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new BlueBrinstarFaceBlockEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.

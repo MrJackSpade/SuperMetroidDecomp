@@ -5,33 +5,27 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 namespace SuperMetroid.Core.Enemies.Nuclear;
 
 /// <summary>
-/// Debugger-facing projection of Nuclear Waffle's base, extra-RAM, projectile, and sprite-
-/// object state. The seven articulated body links alternate between the two shared native
-/// pools, exactly as the original actor does.
+/// The state of the Nuclear Waffle, with its projectile and sprite-object links. The seven articulated body links
+/// alternate between the two shared native pools, exactly as the original actor does. Its behaviour and wait are
+/// values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
-    /// <summary>Underlying population slot that owns the native dispatcher and wait words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Attaches the articulated actor state to its room enemy slot.</summary>
-    internal NuclearWaffleEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the body's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<NuclearWaffleProgram> Program { get; set; }
 
-    /// <summary>Native variable A ($0FA8 plus slot byte index): current bank-$A6 inactive/active dispatcher pointer.</summary>
-    public NuclearWaffleEnemyFunction Function
-    {
-        get => (NuclearWaffleEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>The current waiting or sweeping behaviour; none once a kill has emptied the record.</summary>
+    public NuclearWaffleEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Native variable B: wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
-    public NativeCountdown WaitingTimer
+    /// <summary>Wrapping wait countdown in enemy AI calls, expiring only after decrement produces a signed-negative word and reloaded from the population reset byte.</summary>
+    public NativeCountdown WaitingTimer { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour and no wait.</summary>
+    internal void ClearWithRecord()
     {
-        get => NativeCountdown.FromRaw(_slot.VariableB);
-        internal set => _slot.VariableB = value.RawValue;
+        Function = null;
+        WaitingTimer = NativeCountdown.Start(0);
     }
 
     /// <summary>

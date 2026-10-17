@@ -36,8 +36,8 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>NuclearWaffle_Init</c> at <c>$A6:94C4</c>.</summary>
     internal void InitializeNuclearWaffle(RoomEnemySlot slot)
     {
-        var state = new NuclearWaffleEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new NuclearWaffleEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Program = AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop);
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -91,7 +91,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Nuclear Waffle function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Nuclear Waffle function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

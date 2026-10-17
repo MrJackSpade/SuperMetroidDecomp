@@ -89,9 +89,49 @@ internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
         slot.Bind(EnemyDefinitionId.Holtz, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         slot.InstructionTimer = NativeCountdown.Start(1);
-        var state = new LowerNorfairRioEnemyState(slot) { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
-        slot.SetSpeciesState(state);
+        var state = new LowerNorfairRioEnemyState { Program = AnimationProgramCursor<LowerNorfairRioProgram>.Start(entry) };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return (enemies, slot, state);
+    }
+
+    /// <summary>
+    /// Initializes a Lower Norfair Rio parent and its flame follower and confirms parameter one's sign bit selects the
+    /// follower, then confirms a kill empties the velocity, behaviour and follower selection kept in the common record
+    /// while the follower visibility outlives it.
+    /// </summary>
+    internal static void VerifyLowerNorfairRioOwnedState()
+    {
+        var enemies = new RoomEnemySystem();
+        enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+        RoomEnemySlot parent = enemies.SlotTable.Slots[0];
+        parent.Bind(EnemyDefinitionId.Holtz, parent.Definition);
+        enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(parent);
+        RoomEnemySlot follower = enemies.SlotTable.Slots[1];
+        follower.Bind(EnemyDefinitionId.Holtz, follower.Definition);
+        follower.Parameter1 = EnemyParameterMasks.FollowerBit;
+        enemies.LowerNorfairRioBehavior.InitializeLowerNorfairRio(follower);
+        LowerNorfairRioEnemyState parentState = parent.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()
+            ?? throw new InvalidOperationException("The Lower Norfair Rio parent has no state.");
+        LowerNorfairRioEnemyState followerState = follower.EntityState<LowerNorfairRioEntity, LowerNorfairRioEnemyState>()
+            ?? throw new InvalidOperationException("The Lower Norfair Rio follower has no state.");
+        AssertTrue(!parentState.IsFollower && followerState.IsFollower, "parameter one's sign bit selects the follower");
+
+        followerState.FollowerVisible = true;
+        followerState.Velocity = new(new SnesSignedEightEight(0x0180), new SnesSignedEightEight(0xff00));
+        follower.Clear();
+        AssertEqual<LowerNorfairRioEnemyFunction?>(null, followerState.Function, "a kill empties the behaviour");
+        AssertEqual(default(EightEightVector<RoomPixels>), followerState.Velocity, "a kill empties the velocity");
+        AssertTrue(!followerState.IsFollower, "a kill empties the follower selection with its parameter");
+        AssertTrue(followerState.FollowerVisible, "the follower visibility outlives the kill");
+        Console.WriteLine("Lower Norfair Rio owned state: the follower selection and the cleared record match.");
+    }
+
+    /// <summary>Runs the focused Lower Norfair Rio owned-state check.</summary>
+    [VerificationCommand("--lower-norfair-rio-owned-state")]
+    internal static int LowerNorfairRioOwnedStateCommand()
+    {
+        VerifyLowerNorfairRioOwnedState();
+        return 0;
     }
 
     /// <summary>Runs the standalone Lower Norfair Rio animation verification command.</summary>

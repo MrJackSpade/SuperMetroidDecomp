@@ -51,12 +51,13 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Ports <c>LowerNorfairRio_Init</c> at $A2:C6F3.</summary>
     internal void InitializeLowerNorfairRio(RoomEnemySlot slot)
     {
-        var state = new LowerNorfairRioEnemyState(slot)
+        var state = new LowerNorfairRioEnemyState
         {
             AnimationSignal = false,
             FollowerVisible = false,
+            IsFollower = (slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         if (state.IsFollower)
         {
@@ -188,7 +189,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
 
             default:
                 throw new InvalidDataException(
-                    $"Lower Norfair Rio function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Lower Norfair Rio function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

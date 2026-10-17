@@ -5,8 +5,10 @@ namespace SuperMetroid.Core.Areas.Escape;
 /// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
+    /// <summary>How many word addresses the destination counts through before it returns to zero.</summary>
+    private const int DestinationPeriod = 65536;
     /// <summary>Complete tilemap word for A, including attributes applied to each written glyph.</summary>
-    private readonly ushort tileBase;
+    private readonly SnesBgTilemapWord tileBase;
     /// <summary>Rebound host text excluded from serialized interpreter state.</summary>
     [NonSerialized] private EscapeTypewriterProgram? installedProgram;
 
@@ -16,7 +18,7 @@ public sealed class EscapeTypewriterState
     public EscapeTypewriterState(int textAddress, ushort tileBase)
     {
         Pointer = textAddress;
-        this.tileBase = tileBase;
+        this.tileBase = new SnesBgTilemapWord(tileBase);
     }
 
     /// <summary>Creates a warning-text state with its host program bound and its saved identity initialized from that program.</summary>
@@ -32,10 +34,13 @@ public sealed class EscapeTypewriterState
 
     /// <summary>Retained native text source address for compatibility watches; installed text advances the line and character cursors rather than this address.</summary>
     public int Pointer { get; private set; }
-    /// <summary>VRAM word address of the next tilemap cell, reset at each line's first character and incremented for both written glyphs and spaces.</summary>
-    public ushort Destination { get; private set; }
-    /// <summary>Countdown reload in <see cref="Step"/> calls; initially zero and set to the two-call character delay when the program first starts.</summary>
-    public ushort Delay { get; private set; }
+    /// <summary>
+    /// VRAM word address of the next tilemap cell, 0 through 65535: reset at each line's first character and advanced
+    /// for both written glyphs and spaces, returning to zero after 65535 as the cartridge's word does.
+    /// </summary>
+    public int Destination { get; private set; }
+    /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
+    public int Delay { get; private set; }
     /// <summary>Calls still to skip before interpreting another character; a call that decrements it to zero still performs no character work.</summary>
     public NativeCountdown DelayTimer { get; private set; }
     /// <summary>Total non-space glyphs transferred to VRAM; spaces advance the destination but do not increment this count.</summary>
@@ -86,7 +91,7 @@ public sealed class EscapeTypewriterState
     /// <summary>Advances line and character cursors after the delay expires, consuming at most one character.</summary>
     private bool StepInstalled(EscapeTypewriterProgram program, SnesVram vram)
     {
-        DelayTimer = NativeCountdown.FromRaw(Delay);
+        DelayTimer = NativeCountdown.Start(Delay);
         if (!ProgramStarted)
         {
             Delay = EscapeTypewriterDefinitions.CharacterDelayFrames;
@@ -123,12 +128,12 @@ public sealed class EscapeTypewriterState
         if (character != (byte)' ')
         {
             if (character == (byte)'!') character = EscapeTypewriterRomData.ExclamationGlyph;
-            ushort tile = unchecked((ushort)(tileBase + character - EscapeTypewriterRomData.FirstLetter));
-            vram.ExecuteWordTransfer([tile], Destination, 1);
+            ushort tile = unchecked((ushort)(tileBase.Raw + character - EscapeTypewriterRomData.FirstLetter));
+            vram.ExecuteWordTransfer([tile], checked((ushort)Destination), 1);
             GlyphsWritten++;
             ClickRequested = GlyphsWritten % 2 == 0;
         }
-        Destination++;
+        Destination = (Destination + 1) % DestinationPeriod;
     }
 
 }

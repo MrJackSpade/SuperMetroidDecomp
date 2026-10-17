@@ -71,7 +71,7 @@ internal static class RoomPlmSystemAccess
                     (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
                     entry.slot.Animation is ColoredDoorPlmAnimation colored ? colored.Orientation
                         : throw new InvalidOperationException($"Coloured cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
-                    ColoredPhase(entry.slot), entry.door.HitCounter)),
+                    ColoredPhase(entry.slot), checked((byte)entry.door.HitCounter))),
         ];
 
         /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
@@ -86,7 +86,7 @@ internal static class RoomPlmSystemAccess
                     entry.slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
                         : throw new InvalidOperationException($"Grey cap at block {entry.slot.BlockIndex} runs {entry.slot.Animation}."),
                     (entry.door ?? throw new InvalidOperationException("Verification requires entry.door.")).Condition,
-                    GreyPhase(entry.slot), entry.door.HitCounter, entry.slot.Animation)),
+                    GreyPhase(entry.slot), checked((byte)entry.door.HitCounter), entry.slot.Animation)),
         ];
 
         /// <summary>Debugger-visible projections of every live eye-door component.</summary>
@@ -99,7 +99,7 @@ internal static class RoomPlmSystemAccess
                     entry.slot.BlockIndex,
                     entry.slot.RoomArgument,
                     ((entry.door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
-                    (entry.door).HitCounter,
+                    checked((byte)(entry.door).HitCounter),
                     entry.slot.Animation,
                     entry.slot.PreInstruction.NativeRoutine)),
         ];

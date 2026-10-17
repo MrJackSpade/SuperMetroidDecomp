@@ -89,7 +89,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     {
         GreyDoorPlmState door = (slot.Family as GreyDoorPlmState)
             ?? throw new InvalidOperationException("A grey cap's hit reached a slot without its door state.");
-        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
+        door.HitCounter++;
         if (door.HitCounter < GreyDoorPlmProgramDefinitions.HitThreshold)
             return false;
         _doors.MarkDoorOpened(slot);

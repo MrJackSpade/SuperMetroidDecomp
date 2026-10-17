@@ -40,7 +40,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
             case EyeDoorPlmCue.PulseIfSamusNear:
             case EyeDoorPlmCue.KeepPulsingIfSamusNear:
                 EyeDoorProximity proximity = EyeDoorPlmProgramDefinitions.ProximityOf(cue);
-                return eyes.IsSamusNear(context.Level, slot, proximity.Columns, proximity.Rows) ? proximity.Target : null;
+                return eyes.IsSamusNear(context.Level, slot, proximity.Reach) ? proximity.Target : null;
             case EyeDoorPlmCue.LinkHit:
                 SetLink(EyeDoorPlmProgram.EyeHit);
                 return null;

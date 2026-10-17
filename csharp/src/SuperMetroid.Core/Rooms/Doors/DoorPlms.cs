@@ -221,7 +221,7 @@ internal sealed class DoorPlms : IPlmFamilySource
     {
         ColoredDoorPlmState door = (slot.Family as ColoredDoorPlmState)
             ?? throw new InvalidOperationException("A coloured cap's hit reached a slot without its door state.");
-        door.HitCounter = unchecked((byte)(door.HitCounter + 1));
+        door.HitCounter++;
         if (door.HitCounter < ColoredDoorPlmProgramDefinitions.HitThresholdOf(door.Color))
             return false;
         MarkDoorOpened(slot);

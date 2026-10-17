@@ -407,7 +407,7 @@ internal static class RoomPlmProgramsVerification
                 }, 4);
                 return true;
             case RoomPlmInstruction.GotoIfSamusNear:
-                var near = new EyeDoorProximity(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3), ProgramAt(Word(4)));
+                var near = new EyeDoorProximity(new(ReadOperandByte(cartridge, cursor + 2), ReadOperandByte(cartridge, cursor + 3)), ProgramAt(Word(4)));
                 (cue, length) = (Enum.GetValues<EyeDoorPlmCue>().Single(candidate => candidate is EyeDoorPlmCue.ActivateIfSamusNear
                     or EyeDoorPlmCue.CloseIfSamusInFront or EyeDoorPlmCue.WatchIfSamusNear or EyeDoorPlmCue.PulseIfSamusNear
                     or EyeDoorPlmCue.KeepPulsingIfSamusNear && EyeDoorPlmProgramDefinitions.ProximityOf(candidate) == near), 6);

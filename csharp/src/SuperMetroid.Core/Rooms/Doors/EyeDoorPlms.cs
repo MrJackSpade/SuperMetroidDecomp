@@ -137,7 +137,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     }
 
     /// <summary><c>$84:8D41</c>: whether Samus stands within <paramref name="columns"/> blocks across and <paramref name="rows"/> blocks up or down of the PLM.</summary>
-    internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, byte columns, byte rows)
+    internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, Extent16<RoomBlocks> reach)
     {
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
@@ -145,7 +145,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         int plmY = slot.BlockIndex / level.Size.X;
         int deltaX = Math.Abs((samus.Position.X.Whole >> 4) - plmX);
         int deltaY = Math.Abs((samus.Position.Y.Whole >> 4) - plmY);
-        return deltaX <= columns && deltaY <= rows;
+        return deltaX <= reach.X && deltaY <= reach.Y;
     }
 
     /// <summary><c>$84:D77A</c>: fires an eye-door projectile and queues its sound.</summary>
@@ -177,7 +177,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     {
         EyeDoorPlmState eye = (slot.Family as EyeDoorPlmState)
             ?? throw new InvalidOperationException("An eye's hit reached a slot without its eye-door state.");
-        eye.HitCounter = unchecked((byte)(eye.HitCounter + 1));
+        eye.HitCounter++;
         if (eye.HitCounter < EyeDoorPlmProgramDefinitions.HitThreshold)
             return false;
         doors.MarkDoorOpened(slot);
@@ -235,8 +235,8 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
 
         /// <summary>Identifies whether this slot is the eye, middle, or bottom component.</summary>
         public EyeDoorComponent Component { get; } = component;
-        /// <summary>Missile-hit count used by the door's threshold instruction.</summary>
-        public byte HitCounter { get; set; }
+        /// <summary>Missile-hit count used by the door's threshold instruction. It only counts up, by one per hit or to 120 on a Super Missile hit, and the door opens once it reaches its threshold, so it stays far below the 255 the cartridge's byte could hold.</summary>
+        public int HitCounter { get; set; }
         /// <summary>Whether a projectile collision awaits the eye's missile pre-instruction.</summary>
         public bool HasPendingHit { get; set; }
     }

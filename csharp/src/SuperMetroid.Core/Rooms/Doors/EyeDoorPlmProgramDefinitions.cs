@@ -67,11 +67,11 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>The operands of a proximity cue.</summary>
     internal static EyeDoorProximity ProximityOf(EyeDoorPlmCue cue) => cue switch
     {
-        EyeDoorPlmCue.ActivateIfSamusNear => new(EyeWakeColumns, EyeWakeRows, EyeDoorPlmProgram.EyeActivate),
-        EyeDoorPlmCue.CloseIfSamusInFront => new(EyeInFrontColumns, EyeWakeRows, EyeDoorPlmProgram.EyeClose),
-        EyeDoorPlmCue.WatchIfSamusNear => new(EyeWakeColumns, EyeWakeRows, EyeDoorPlmProgram.EyeWatch),
-        EyeDoorPlmCue.PulseIfSamusNear => new(ComponentWakeColumns, ComponentWakeRows, EyeDoorPlmProgram.ComponentActivate),
-        EyeDoorPlmCue.KeepPulsingIfSamusNear => new(ComponentWakeColumns, ComponentWakeRows, EyeDoorPlmProgram.ComponentCycle),
+        EyeDoorPlmCue.ActivateIfSamusNear => new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeActivate),
+        EyeDoorPlmCue.CloseIfSamusInFront => new(new(EyeInFrontColumns, EyeWakeRows), EyeDoorPlmProgram.EyeClose),
+        EyeDoorPlmCue.WatchIfSamusNear => new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeWatch),
+        EyeDoorPlmCue.PulseIfSamusNear => new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentActivate),
+        EyeDoorPlmCue.KeepPulsingIfSamusNear => new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentCycle),
         _ => throw new InvalidOperationException($"{nameof(EyeDoorPlmCue)} {cue} is not a proximity branch."),
     };
 

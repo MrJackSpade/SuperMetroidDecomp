@@ -1387,7 +1387,7 @@ internal static class RidleyFullMovieVerification
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.PlmFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
                     // before that transition setup's zero is the live counter value.
-                    Check($"PLM {slotIndex} grey-door hit count", greyDoor.HitCounter, NativeSnapshotMemory.PlmExtraVariable + offset);
+                    Check($"PLM {slotIndex} grey-door hit count", checked((ushort)greyDoor.HitCounter), NativeSnapshotMemory.PlmExtraVariable + offset);
                     // The typed cap names its native instruction and link through the oracle's step addresses; a closing
                     // cap's link is the one its previous program left, which the closing never reads.
                     GreyDoorPlmAnimation typedDoor = slot.Animation as GreyDoorPlmAnimation

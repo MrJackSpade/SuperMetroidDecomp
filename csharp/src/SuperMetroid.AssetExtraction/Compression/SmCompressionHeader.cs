@@ -5,11 +5,9 @@ namespace SuperMetroid.AssetExtraction.Compression;
 /// <summary>Lossless decoder for one Super Metroid compressed-stream command header.</summary>
 public readonly record struct SmCompressionHeader
 {
-    /// <summary>Decodes the short, long, or terminator header while retaining its original bytes.</summary>
+    /// <summary>Decodes the short, long, or terminator header.</summary>
     private SmCompressionHeader(byte firstByte, byte? secondByte)
     {
-        FirstByte = firstByte;
-        SecondByte = secondByte;
         IsTerminator = firstByte == SmCompressionCodes.Terminator;
         if (IsTerminator)
         {
@@ -31,10 +29,6 @@ public readonly record struct SmCompressionHeader
         HeaderByteCount = isLong ? 2 : 1;
     }
 
-    /// <summary>The original command-and-length byte, or <c>$FF</c> for the stream terminator.</summary>
-    public byte FirstByte { get; }
-    /// <summary>The supplied low length byte for a long header; short headers do not require it.</summary>
-    public byte? SecondByte { get; }
     /// <summary>The command bits normalized into bits 5-7.</summary>
     /// <exception cref="InvalidOperationException">The header is the stream terminator, which has no command.</exception>
     public SmCompressionCommand Command

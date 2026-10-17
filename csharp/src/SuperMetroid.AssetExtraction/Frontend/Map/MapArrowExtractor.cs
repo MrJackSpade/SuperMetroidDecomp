@@ -10,6 +10,10 @@ namespace SuperMetroid.AssetExtraction.Frontend.Map;
 [CpuBusBoundary("codec: ROM map arrow records → map arrow visuals")]
 public static class MapArrowExtractor
 {
+    /// <summary>The scroll direction of each cartridge arrow record, in record order.</summary>
+    private static readonly MapScrollDirection[] ArrowDirections =
+        [MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down];
+
     /// <summary>Exports the four map-scroll arrows' drawing anchors and cosmetic phase durations while verifying their fixed native spritemap bindings.</summary>
     /// <param name="bus">Import-capable cartridge source for mixed arrow records, sprite-program tables, and byte-timed animation streams.</param>
     /// <returns>A new UTF-8 JSON buffer keyed by direction, with screen-pixel X/Y anchors and positive update-tick durations.</returns>
@@ -21,7 +25,7 @@ public static class MapArrowExtractor
         var arrows = new Dictionary<string, MapArrowEntry>();
         for (int index = 0; index < MapArrowDefinitions.Count; index++)
         {
-            var direction = (MapScrollDirection)(index + 1);
+            MapScrollDirection direction = ArrowDirections[index];
             int record = FileSelectMapRomData.ScrollArrows + index * 10;
             int animation = Read(record + 4);
             if (animation is < 1 or > 9) throw new InvalidDataException("Invalid cartridge map arrow animation.");

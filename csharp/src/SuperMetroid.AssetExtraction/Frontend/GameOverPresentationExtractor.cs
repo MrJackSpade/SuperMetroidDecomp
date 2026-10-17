@@ -104,13 +104,19 @@ public static class GameOverPresentationExtractor
             {
                 ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
                 sourceAddress = GameOverRomData.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
-                if (word == GameOverRomData.TextEnd)
-                    return;
-                if (word == GameOverRomData.TextNextLine)
+                if (Enum.IsDefined((GameOverTextControl)word))
                 {
-                    initialColumn += GameOverRomData.TilemapRowByteCount;
-                    destinationByteOffset = initialColumn;
-                    continue;
+                    switch ((GameOverTextControl)word)
+                    {
+                        case GameOverTextControl.End:
+                            return;
+                        case GameOverTextControl.NextLine:
+                            initialColumn += GameOverRomData.TilemapRowByteCount;
+                            destinationByteOffset = initialColumn;
+                            continue;
+                        default:
+                            throw new InvalidOperationException($"Undefined {nameof(GameOverTextControl)} {word}.");
+                    }
                 }
 
                 int wordIndex = destinationByteOffset / sizeof(ushort);

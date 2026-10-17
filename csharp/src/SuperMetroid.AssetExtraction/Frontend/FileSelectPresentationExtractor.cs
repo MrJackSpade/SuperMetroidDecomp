@@ -240,15 +240,21 @@ public static class FileSelectPresentationExtractor
         {
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
-            if (word == FileSelectTilemapFormat.End)
-                return new(cells.ToArray());
-            if (word == FileSelectTilemapFormat.NextRow)
+            if (Enum.IsDefined((FileSelectTextControl)word))
             {
-                x = 0;
-                y++;
-                continue;
+                switch ((FileSelectTextControl)word)
+                {
+                    case FileSelectTextControl.End:
+                        return new(cells.ToArray());
+                    case FileSelectTextControl.NextRow:
+                        x = 0;
+                        y++;
+                        continue;
+                    default:
+                        throw new InvalidOperationException($"Undefined {nameof(FileSelectTextControl)} {word}.");
+                }
             }
-            cells.Add(new(new(checked((short)(x++)), checked((short)y)), word));
+            cells.Add(new(new(checked((short)(x++)), checked((short)y)), new SnesBgTilemapWord(word)));
         }
     }
 
@@ -261,7 +267,7 @@ public static class FileSelectPresentationExtractor
             int index = FileSelectPresentationDefinitions.PageSize.RowMajorIndex(anchor + cell.Offset);
             if ((uint)index >= page.Length)
                 throw new InvalidDataException("Extracted file-select text escaped its page.");
-            page[index] = cell.Word;
+            page[index] = cell.Word.Raw;
         }
     }
 
@@ -289,7 +295,7 @@ public static class FileSelectPresentationExtractor
         {
             X = cell.Offset.X,
             Y = cell.Offset.Y,
-            Cell = Cell(cell.Word),
+            Cell = Cell(cell.Word.Raw),
         }).ToArray(),
     };
 
@@ -339,5 +345,5 @@ public static class FileSelectPresentationExtractor
     /// <summary>Decoded relative tile cells from one native file-select text patch.</summary>
     private sealed record RawPatch(RawPatchCell[] Cells);
     /// <summary>One patch tile word and its row/column offset from the destination anchor.</summary>
-    private readonly record struct RawPatchCell(Offset16<TilemapCells> Offset, ushort Word);
+    private readonly record struct RawPatchCell(Offset16<TilemapCells> Offset, SnesBgTilemapWord Word);
 }

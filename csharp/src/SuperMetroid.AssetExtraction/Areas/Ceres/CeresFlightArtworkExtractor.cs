@@ -33,10 +33,8 @@ internal static class CeresFlightArtworkExtractor
             out Extent16<ImagePixels> mode7Size);
         byte[] objPixels = SnesGraphics.DecodePlanarTiles(objectCharacters, 4, 32,
             out Extent16<ImagePixels> objectSize);
-        if (mode7Size.X != CeresFlightArtworkFormat.Mode7Width ||
-            mode7Size.Y != CeresFlightArtworkFormat.Mode7Height ||
-            objectSize.X != CeresFlightArtworkFormat.ObjectWidth ||
-            objectSize.Y != CeresFlightArtworkFormat.ObjectHeight)
+        if (mode7Size != new Extent16<ImagePixels>(CeresFlightArtworkFormat.Mode7Width, CeresFlightArtworkFormat.Mode7Height) ||
+            objectSize != new Extent16<ImagePixels>(CeresFlightArtworkFormat.ObjectWidth, CeresFlightArtworkFormat.ObjectHeight))
             throw new InvalidDataException("Ceres flight character streams have unexpected dimensions.");
 
         byte[] mode7Png = Png(mode7Size, mode7Pixels, 256);

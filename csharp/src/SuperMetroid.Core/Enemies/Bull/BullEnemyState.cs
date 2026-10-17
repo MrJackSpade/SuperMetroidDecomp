@@ -3,9 +3,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
-/// Debugger-visible view of Bull's six common words and its bank-$7E extension words. Raw
-/// 16-bit values are intentional: speed and acceleration are unsigned 8.8 magnitudes, while
-/// angle arithmetic and the native independently-negated 16.16 movement components wrap.
+/// Bull's state: its six common slot variables and its per-slot extension words. Speed and acceleration stay the exact
+/// words the cartridge keeps, because a deceleration that overshoots leaves a wrapped word that the next update reads by
+/// its sign; they change only through <see cref="Accelerate"/> and <see cref="Decelerate"/>.
 /// </summary>
 public sealed class BullEnemyState
 {
@@ -31,25 +31,63 @@ public sealed class BullEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Native variable B: wrapping unsigned 8.8 speed-change magnitude, increased or decreased by AccelerationDelta and then added to or subtracted from Speed at interval expiry.</summary>
-    public ushort Acceleration
+    /// <summary>
+    /// Variable B: the speed change applied at each interval expiry, in 256ths of a pixel per update, as the exact word
+    /// the cartridge keeps (0 through 65535). It grows or shrinks by <see cref="AccelerationDelta"/> through
+    /// <see cref="Accelerate"/> and <see cref="Decelerate"/>; a word with its sign bit set reads as below zero.
+    /// </summary>
+    public int Acceleration
     {
         get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        internal set => _slot.VariableB = checked((ushort)value);
     }
 
-    /// <summary>Native variable C: second-order increment $0018 applied to the 8.8 acceleration magnitude at each configured interval expiry; cleared when the flight cycle stops.</summary>
-    public ushort AccelerationDelta
+    /// <summary>Variable C: the change in <see cref="Acceleration"/> at each interval expiry, 24 (a 256th of a pixel per update each) while flying and zero once the flight cycle stops.</summary>
+    public int AccelerationDelta
     {
         get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        internal set => _slot.VariableC = checked((ushort)value);
     }
 
-    /// <summary>Native variable D: unsigned 8.8 flight-speed magnitude in pixels per AI update, projected through the sine table into wrapped 16.16 X/Y displacements.</summary>
-    public ushort Speed
+    /// <summary>
+    /// Variable D: the flight speed in 256ths of a pixel per update, projected through the sine table into the X and Y
+    /// displacements, as the exact word the cartridge keeps (0 through 65535). A deceleration that overshoots leaves a
+    /// word with its sign bit set, which the next decelerating update reads as stopped (<see cref="HasStopped"/>).
+    /// </summary>
+    public int Speed
     {
         get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        internal set => _slot.VariableD = checked((ushort)value);
+    }
+
+    /// <summary>
+    /// Whether flight is still below <see cref="MaxSpeed"/>, compared by the sign of the word difference as the cartridge
+    /// does; an overshooting update is not clamped.
+    /// </summary>
+    internal bool IsBelowMaximumSpeed => EnemyMath.IsNegative16(Speed - MaxSpeed);
+
+    /// <summary>Whether a decelerating update stops the flight: the speed or the acceleration is zero or has gone below zero.</summary>
+    internal bool HasStopped =>
+        Speed == 0 || EnemyMath.IsNegative16(Speed) || Acceleration == 0 || EnemyMath.IsNegative16(Acceleration);
+
+    /// <summary>
+    /// An accelerating interval expiry: the acceleration grows by its delta, then the speed grows by the acceleration.
+    /// Both are word additions that wrap as the cartridge's do.
+    /// </summary>
+    internal void Accelerate()
+    {
+        _slot.VariableB = unchecked((ushort)(_slot.VariableB + _slot.VariableC));
+        _slot.VariableD = unchecked((ushort)(_slot.VariableD + _slot.VariableB));
+    }
+
+    /// <summary>
+    /// A decelerating interval expiry: the acceleration shrinks by its delta, then the speed shrinks by the acceleration.
+    /// Both are word subtractions that wrap as the cartridge's do, so an overshoot leaves a word that reads as below zero.
+    /// </summary>
+    internal void Decelerate()
+    {
+        _slot.VariableB = unchecked((ushort)(_slot.VariableB - _slot.VariableC));
+        _slot.VariableD = unchecked((ushort)(_slot.VariableD - _slot.VariableB));
     }
 
     /// <summary>Native variable E: wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement reaches exactly zero.</summary>
@@ -66,22 +104,22 @@ public sealed class BullEnemyState
         internal set => _slot.VariableF = value.RawValue;
     }
 
-    /// <summary>Native extension offset $00: unsigned 8.8 maximum-speed threshold selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
-    public ushort MaxSpeed
+    /// <summary>Native extension offset $00: maximum-speed threshold in 256ths of a pixel per update, 1023 through 2815, selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
+    public int MaxSpeed
     {
         get => _words.MaxSpeed;
         internal set => _words.MaxSpeed = value;
     }
 
-    /// <summary>Native extension offset $02: latest byte-wrapped angle toward Samus, 256 units per turn with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
-    public ushort AngleToSamus
+    /// <summary>Native extension offset $02: latest bearing toward Samus with zero pointing right; compared with the captured flight angle rather than continuously steering it.</summary>
+    public SnesAngle AngleToSamus
     {
         get => _words.AngleToSamus;
         internal set => _words.AngleToSamus = value;
     }
 
-    /// <summary>Native extension offset $04: captured movement angle in 1/256-turn units, zero right and $40 down, set when targeting Samus or replaced from projectile direction by an immune-shot kick.</summary>
-    public ushort Angle
+    /// <summary>Native extension offset $04: captured movement angle in 256ths of a turn (0 through 255 as the game writes it), zero right and 64 down, set when targeting Samus or replaced from projectile direction by an immune-shot kick. Movement steers by its low byte.</summary>
+    public int Angle
     {
         get => _words.Angle;
         internal set => _words.Angle = value;
@@ -94,15 +132,15 @@ public sealed class BullEnemyState
         internal set => _words.ShotReactionDisableFlag = value ? (ushort)1 : (ushort)0;
     }
 
-    /// <summary>Native extension offset $0A: acceleration interval in eligible AI calls, selected by population parameter one and also copied into the initial live interval timer.</summary>
-    public ushort AccelerationIntervalTimerReset
+    /// <summary>Native extension offset $0A: acceleration interval in eligible AI calls, 3 through 15, selected by population parameter one and also copied into the initial live interval timer.</summary>
+    public int AccelerationIntervalTimerReset
     {
         get => _words.AccelerationTimerReset;
         internal set => _words.AccelerationTimerReset = value;
     }
 
-    /// <summary>Native extension offset $0C: deceleration interval selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
-    public ushort DecelerationIntervalTimerReset
+    /// <summary>Native extension offset $0C: deceleration interval in eligible AI calls, 1 through 7, selected alongside the acceleration interval; used to reload the shared timer after a deceleration expiry.</summary>
+    public int DecelerationIntervalTimerReset
     {
         get => _words.DecelerationTimerReset;
         internal set => _words.DecelerationTimerReset = value;

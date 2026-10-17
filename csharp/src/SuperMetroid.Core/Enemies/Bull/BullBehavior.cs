@@ -42,7 +42,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
         var intervals = BullMovementDefinitions.Intervals(slot.Parameter1);
         state.AccelerationIntervalTimerReset = intervals.Acceleration;
-        state.AccelerationIntervalTimer = NativeCountdown.FromRaw(state.AccelerationIntervalTimerReset);
+        state.AccelerationIntervalTimer = NativeCountdown.Start(state.AccelerationIntervalTimerReset);
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = NativeCountdown.Start(BullMovementDelayFrames);
         state.Function = BullEnemyFunction.MovementDelay;
@@ -76,7 +76,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (samus is null)
                     throw new InvalidOperationException("Bull targeting requires the active Samus actor.");
                 state.AngleToSamus = CalculateBullAngleToSamus(slot, samus);
-                state.Angle = state.AngleToSamus;
+                state.Angle = state.AngleToSamus.TableIndex;
                 state.Function = BullEnemyFunction.Accelerating;
                 state.AccelerationDelta = BullAccelerationDelta;
                 return;
@@ -84,15 +84,14 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
             case BullEnemyFunction.Accelerating:
                 if (samus is null)
                     throw new InvalidOperationException("Bull steering requires the active Samus actor.");
-                if (unchecked((short)(state.Speed - state.MaxSpeed)) < 0)
+                if (state.IsBelowMaximumSpeed)
                     AccelerateBull(state);
                 MoveBull(slot, state);
                 TriggerBullDecelerationIfOffTarget(slot, state, samus);
                 return;
 
             case BullEnemyFunction.Decelerating:
-                if (state.Speed == 0 || unchecked((short)state.Speed) < 0 ||
-                    state.Acceleration == 0 || unchecked((short)state.Acceleration) < 0)
+                if (state.HasStopped)
                 {
                     state.Function = BullEnemyFunction.MovementDelay;
                     state.Acceleration = 0;
@@ -110,10 +109,10 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Converts the signed displacement to Samus into Bull's quarter-turn-offset byte angle.</summary>
-    private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
-        unchecked((byte)(EnemyMath.CalculateCartridgeAngle(
-            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - 64));
+    /// <summary>Converts the signed displacement to Samus into Bull's bearing, a quarter turn behind the cartridge's zero-up angle.</summary>
+    private static SnesAngle CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
+        SnesAngle.NormalizeTableIndex(EnemyMath.CalculateCartridgeAngle(
+            new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - EnemyByteAngleDefinitions.QuarterTurn);
 
     /// <summary>Increases acceleration and speed only when the configured interval expires.</summary>
     private static void AccelerateBull(BullEnemyState state)
@@ -122,10 +121,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AccelerationIntervalTimer.IsZero)
             return;
 
-        state.AccelerationIntervalTimer = NativeCountdown.FromRaw(state.AccelerationIntervalTimerReset);
-        state.Acceleration = unchecked((ushort)(
-            state.Acceleration + state.AccelerationDelta));
-        state.Speed = unchecked((ushort)(state.Speed + state.Acceleration));
+        state.AccelerationIntervalTimer = NativeCountdown.Start(state.AccelerationIntervalTimerReset);
+        state.Accelerate();
     }
 
     /// <summary>Reduces acceleration and speed on the configured deceleration cadence.</summary>
@@ -135,10 +132,8 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AccelerationIntervalTimer.IsZero)
             return;
 
-        state.AccelerationIntervalTimer = NativeCountdown.FromRaw(state.DecelerationIntervalTimerReset);
-        state.Acceleration = unchecked((ushort)(
-            state.Acceleration - state.AccelerationDelta));
-        state.Speed = unchecked((ushort)(state.Speed - state.Acceleration));
+        state.AccelerationIntervalTimer = NativeCountdown.Start(state.DecelerationIntervalTimerReset);
+        state.Decelerate();
     }
 
     /// <summary>Starts braking when the native signed angle difference reaches $30.</summary>
@@ -153,7 +148,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // only ORs $FF00 when bit seven is set and never clears a borrowed high byte, so a
         // negative difference with bit seven clear (e.g. $FF10) stays large. NegateA then
         // takes the absolute value and CMP/BMI tests it against $30.
-        ushort difference = unchecked((ushort)(state.AngleToSamus - state.Angle));
+        ushort difference = unchecked((ushort)(state.AngleToSamus.TableIndex - state.Angle));
         if ((difference & EnemyWordMasks.LowByteSignBit) != 0)
             difference |= EnemyWordMasks.SignExtendedHighByte;
         if (EnemyMath.IsNegative16(difference))
@@ -186,7 +181,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
     private static SnesFixedPosition AddBullComponent(
         SnesFixedPosition position,
         short sine,
-        ushort speed)
+        int speed)
     {
         // Bull discards the sine table's low byte, multiplies the absolute high byte by its
         // unsigned 8.8 speed, and keeps the 24-bit result as a 16.16 displacement. Negative
@@ -194,7 +189,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative than a conventional two's-complement negation.
         ushort magnitude = unchecked((ushort)Math.Abs((int)sine));
         byte sineHighByte = SnesLittleEndian.HighByte(magnitude);
-        uint product = (uint)sineHighByte * speed;
+        uint product = (uint)sineHighByte * (uint)speed;
         ushort fraction = unchecked((ushort)product);
         ushort whole = SnesFixedPosition.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))

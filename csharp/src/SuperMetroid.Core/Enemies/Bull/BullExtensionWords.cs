@@ -7,23 +7,23 @@ namespace SuperMetroid.Core.Enemies.Bull;
 /// </summary>
 internal sealed class BullExtensionWords
 {
-    /// <summary>Population-selected terminal speed.</summary>
-    internal ushort MaxSpeed { get; set; }
+    /// <summary>Population-selected terminal speed, in 256ths of a pixel per update.</summary>
+    internal int MaxSpeed { get; set; }
 
     /// <summary>Latest target bearing toward Samus, retained separately from the flight angle.</summary>
-    internal ushort AngleToSamus { get; set; }
+    internal SnesAngle AngleToSamus { get; set; }
 
-    /// <summary>Committed travel bearing used while integrating the Bull's position.</summary>
-    internal ushort Angle { get; set; }
+    /// <summary>Committed travel bearing in 256ths of a turn, used while integrating the Bull's position.</summary>
+    internal int Angle { get; set; }
 
     /// <summary>Suppresses repeated immune-shot knockback during its reaction window.</summary>
     internal ushort ShotReactionDisableFlag { get; set; }
 
-    /// <summary>Population-selected interval between acceleration steps.</summary>
-    internal ushort AccelerationTimerReset { get; set; }
+    /// <summary>Population-selected interval between acceleration steps, in eligible AI calls.</summary>
+    internal int AccelerationTimerReset { get; set; }
 
-    /// <summary>Population-selected interval between deceleration steps.</summary>
-    internal ushort DecelerationTimerReset { get; set; }
+    /// <summary>Population-selected interval between deceleration steps, in eligible AI calls.</summary>
+    internal int DecelerationTimerReset { get; set; }
 
     /// <summary>Counts down the post-hit period before shot reactions may run again.</summary>
     internal ushort ShotReactionDisableTimer { get; set; }

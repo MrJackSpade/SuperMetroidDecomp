@@ -41,12 +41,45 @@ internal static class BullBehaviorVerification
         Console.WriteLine("  Bull behavior: the normal loop and the five-repeat immune-shot reaction run as the cartridge does.");
     }
 
+    /// <summary>
+    /// A deceleration that overshoots: speed 10 shrinks by the acceleration 24 to the wrapped word 65522, which the slot
+    /// variable keeps; the next decelerating update reads that word as below zero and stops the flight, clearing speed,
+    /// acceleration and its delta and returning to the movement delay. Both updates run the production main AI.
+    /// </summary>
+    internal static void VerifyBullDecelerationOvershoot()
+    {
+        var enemies = new RoomEnemySystem();
+        RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+        slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
+        enemies.BullBehavior.InitializeBull(slot);
+        BullEnemyState state = BullBehavior.RequireBullState(slot);
+        state.Function = BullEnemyFunction.Decelerating;
+        state.Speed = 10;
+        state.Acceleration = 48;
+        state.AccelerationDelta = 24;
+        state.AccelerationIntervalTimer = NativeCountdown.Start(1);
+
+        BullBehavior.RunBullMain(slot, state, samus: null);
+        AssertEqual(24, state.Acceleration, "the expiring interval shrinks the acceleration by its delta");
+        AssertEqual(65522, state.Speed, "the overshooting deceleration leaves the wrapped speed word");
+        AssertEqual(65522, slot.VariableD, "the wrapped speed word stays in the slot variable");
+        AssertEqual(BullEnemyFunction.Decelerating, state.Function, "the overshoot is read on the following update");
+
+        BullBehavior.RunBullMain(slot, state, samus: null);
+        AssertEqual(BullEnemyFunction.MovementDelay, state.Function, "a speed below zero stops the flight");
+        AssertEqual(0, state.Speed, "stopping clears the speed");
+        AssertEqual(0, state.Acceleration, "stopping clears the acceleration");
+        AssertEqual(0, state.AccelerationDelta, "stopping clears the acceleration delta");
+        Console.WriteLine("  Bull deceleration: an overshoot keeps the wrapped speed word and stops the flight on the next update.");
+    }
+
     /// <summary>Runs the Bull behavior check and program oracle against the local retail cartridge.</summary>
     [VerificationCommand("--bull-instruction-mechanics")]
     internal static int BullInstructionMechanicsCommand()
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBullBehavior), () => VerifyBullBehavior());
+        Suite(nameof(VerifyBullDecelerationOvershoot), () => VerifyBullDecelerationOvershoot());
         Suite(nameof(BullAnimationsVerification.VerifyBullAnimations), () => BullAnimationsVerification.VerifyBullAnimations(rom));
         return 0;
     }

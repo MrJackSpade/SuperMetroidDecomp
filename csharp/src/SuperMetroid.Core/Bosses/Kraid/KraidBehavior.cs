@@ -1568,7 +1568,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             yMask: SnesLittleEndian.Word(0, 63));
         state.DeathDropRequestCount = 16;
         // $A7:C59B continues into DrawKraidsRoomBackground, which zeroes the shared numerator.
-        _presentation.GradualColorChange.Numerator = 0;
+        _presentation.GradualColorChange.Reset();
     }
 
     /// <summary>Consumes native sink-table entries as the body descends.</summary>
@@ -1708,7 +1708,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.VariableE = 0;
                 body.VariableF = 0;
                 // $A7:ADB0 DrawKraidsRoomBackground zeroes the shared numerator.
-                _presentation.GradualColorChange.Numerator = 0;
+                _presentation.GradualColorChange.Reset();
                 // `$A7:AD9A` queues this character upload on the same frame that it
                 // initializes palette-six fading. Without it, BG1's authored repeating
                 // room-background blocks decode an uninitialized character as transparent,
@@ -1730,7 +1730,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal bool AdvanceKraidRoomBackgroundFade(
         bool fadeToBlack)
     {
-        ushort step = _presentation.GradualColorChange.Numerator;
+        int step = _presentation.GradualColorChange.Numerator;
         if (step <= 13)
         {
             for (int color = 0; color < 16; color++)
@@ -1741,19 +1741,19 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
                 _presentation.BossPalettes.KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
             }
-            _presentation.GradualColorChange.Numerator = unchecked((ushort)(step + 1));
+            _presentation.GradualColorChange.Advance();
             return false;
         }
-        _presentation.GradualColorChange.Numerator = 0;
+        _presentation.GradualColorChange.Reset();
         return true;
     }
 
     /// <summary>Interpolates one RGB5 color toward its growth-phase target.</summary>
-    private static Bgr555 TransitionKraidColor(ushort step, Bgr555 current, Bgr555 target) =>
+    private static Bgr555 TransitionKraidColor(int step, Bgr555 current, Bgr555 target) =>
         current.Zip(target, (_, from, to) => TransitionKraidComponent(step, from, to));
 
     /// <summary>Moves one color channel toward its target under the native step rule.</summary>
-    private static int TransitionKraidComponent(ushort step, int current, int target)
+    private static int TransitionKraidComponent(int step, int current, int target)
     {
         if (step == 0)
             return current;

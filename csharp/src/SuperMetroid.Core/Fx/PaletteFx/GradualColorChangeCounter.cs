@@ -8,6 +8,15 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </summary>
 public sealed class GradualColorChangeCounter
 {
-    /// <summary>The current transition number.</summary>
-    public ushort Numerator { get; internal set; }
+    /// <summary>
+    /// The current transition number: zero when a fade starts, then one more per completed step. Every fade resets it
+    /// once it passes the fade's denominator plus one, so it never exceeds the largest denominator plus two.
+    /// </summary>
+    public int Numerator { get; private set; }
+
+    /// <summary>Moves to the next transition number after a completed step.</summary>
+    public void Advance() => Numerator++;
+
+    /// <summary>Restarts the count for the next fade.</summary>
+    public void Reset() => Numerator = 0;
 }

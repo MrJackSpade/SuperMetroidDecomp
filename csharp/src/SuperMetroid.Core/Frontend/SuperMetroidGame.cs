@@ -406,9 +406,6 @@ public sealed class SuperMetroidGame
     /// <summary>Validated retail area in the active room header, or null before gameplay.</summary>
     public AreaId? GameplayActiveAreaIndex => Session.runtime?.Room.ActiveRoom?.AreaIndex;
 
-    /// <summary>Native room index within the active area, or null before gameplay.</summary>
-    public byte? GameplayActiveRoomIndex => Session.runtime?.Room.ActiveRoom?.RoomIndex;
-
     /// <summary>Validated logical area/room pair, or null before cartridge gameplay.</summary>
     public RoomIdentity? GameplayActiveRoomIdentity => Session.runtime?.Room.ActiveRoom?.Identity;
 

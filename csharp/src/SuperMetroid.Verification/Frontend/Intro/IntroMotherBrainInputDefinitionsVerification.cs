@@ -22,7 +22,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         compiled.Clear();
         compiled.Enable();
         reference.Enable();
-        compiled.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
+        compiled.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
         reference.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);
         int endFrame = -1;
         for (int frame = 0; frame < 1024; frame++)

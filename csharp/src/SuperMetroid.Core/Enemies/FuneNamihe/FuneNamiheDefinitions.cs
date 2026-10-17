@@ -1,45 +1,9 @@
 using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
-/// <summary>Compiled cartridge identities and animation selection for Fune/Namihe.</summary>
+/// <summary>Compiled sound identity for Fune/Namihe.</summary>
 internal static class FuneNamiheDefinitions
 {
-
-    /// <summary>$A8:96D7, Fune idle-left selector cursor.</summary>
-    internal const ushort FuneIdleLeftCursor = 0x96d7;
-
-    /// <summary>$A8:96DF, Namihe idle-left selector cursor.</summary>
-    internal const ushort NamiheIdleLeftCursor = 0x96df;
-
-    /// <summary>Native cursor distance from an active instruction selector to the idle selector of the same species and facing.</summary>
-    internal const ushort ActiveCursorDelta = 4;
-    /// <summary>Native cursor distance between left- and right-facing selectors of one species and activity.</summary>
-    internal const ushort FacingRightCursorDelta = 2;
-
     /// <summary>Sound effect $1F in library two, queued when either actor spits.</summary>
     internal static readonly SoundEffectId SpitSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x001f);
-
-    /// <summary>$A8:96D3-$A8:96E2 selects species, activity and facing.
-    /// The cursor advances by two for right-facing and four for idle programs.</summary>
-    internal static FuneNamiheProgram InstructionList(ushort cursor)
-    {
-        int offset = cursor - (FuneIdleLeftCursor - ActiveCursorDelta);
-        if ((uint)offset >= 16 || (offset & 1) != 0)
-            throw new InvalidDataException(
-                $"Fune/Namihe instruction selector $A8:{cursor:X4} is not authored.");
-        bool namihe = offset >= 8;
-        bool idle = (offset & ActiveCursorDelta) != 0;
-        bool right = (offset & FacingRightCursorDelta) != 0;
-        return (namihe, idle, right) switch
-        {
-            (false, false, false) => FuneNamiheProgram.FuneActiveLeft,
-            (false, false, true) => FuneNamiheProgram.FuneActiveRight,
-            (false, true, false) => FuneNamiheProgram.FuneIdleLeft,
-            (false, true, true) => FuneNamiheProgram.FuneIdleRight,
-            (true, false, false) => FuneNamiheProgram.NamiheActiveLeft,
-            (true, false, true) => FuneNamiheProgram.NamiheActiveRight,
-            (true, true, false) => FuneNamiheProgram.NamiheIdleLeft,
-            (true, true, true) => FuneNamiheProgram.NamiheIdleRight,
-        };
-    }
 }

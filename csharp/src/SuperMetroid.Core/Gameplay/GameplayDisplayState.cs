@@ -35,12 +35,15 @@ internal sealed class GameplayDisplayState
 
     /// <summary>
     /// BG3 character base selected by gameplay initialization or a room's library-
-    /// background command list. Kraid temporarily selects word $2000; ordinary rooms use
-    /// word $4000.
+    /// background command list, as a VRAM word address. Kraid temporarily selects word $2000; ordinary rooms use
+    /// word $4000. Setting a value outside VRAM throws.
     /// </summary>
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
-    public ushort GameplayHudCharacterBaseWord { get; internal set; } =
-        GameplayVramLayout.HudCharacterWord;
+    public int GameplayHudCharacterBaseWord
+    {
+        get;
+        internal set => field = Hardware.SnesPpuLayout.RequireVramWord(value);
+    } = GameplayVramLayout.HudCharacterWord;
 
     /// <summary>Moves the HUD's BG3 characters to Kraid's base, as Kraid's library-background transfer does.</summary>
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]

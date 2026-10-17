@@ -51,20 +51,24 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Hibashi</c> at <c>$A6:8FFC</c>.</summary>
     internal static void InitializeHibashi(RoomEnemySlot slot)
     {
-        var state = new HibashiEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new HibashiEnemyState
+        {
+            InactiveTimerReset = NativeCountdown.FromRaw(slot.Parameter1),
+            IsCollisionPart = slot.Parameter2 != 0,
+        };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Hitbox);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        if (state.Part != 0)
+        if (state.IsCollisionPart)
             return;
 
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
         state.Function = HibashiEnemyFunction.Inactive;
-        state.SpawnYPosition = slot.Position.Y.Whole;
+        state.SpawnHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
 
         // The visible graphics record must never participate through its header radius.
         // Its following part receives the dynamic radius from instruction commands.
@@ -74,7 +78,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>MainAI_Hibashi</c> at <c>$A6:9023</c>.</summary>
     private void RunHibashiMain(RoomEnemySlot slot, HibashiEnemyState state)
     {
-        if (state.Part != 0)
+        if (state.IsCollisionPart)
             return;
 
         switch (state.Function)
@@ -89,7 +93,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Hibashi function $A6:{(ushort)state.Function:X4} is not translated.");
+                    $"Hibashi function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -104,7 +108,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         state.Function = HibashiEnemyFunction.Active;
-        state.FinishedActivityFlag = 0;
+        state.ActivityFinished = false;
         graphics.InstructionTimer = NativeCountdown.Start(1);
         graphics.Timer = NativeCountdown.Start(0);
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
@@ -119,10 +123,10 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Function_Hibashi_Active</c> at <c>$A6:9062</c>.</summary>
     private static void RunHibashiActive(RoomEnemySlot graphics, HibashiEnemyState state)
     {
-        if (state.FinishedActivityFlag == 0)
+        if (!state.ActivityFinished)
             return;
 
-        state.InactiveTimer = NativeCountdown.FromRaw(state.InactiveTimerResetValue);
+        state.InactiveTimer = state.InactiveTimerReset;
         graphics.Properties = graphics.Properties.With(EnemyProperties.Invisible);
         state.Function = HibashiEnemyFunction.Inactive;
     }
@@ -149,7 +153,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
         hitbox.Position = hitbox.Position.WithWholeY(unchecked((ushort)(
-            state.SpawnYPosition - frame.YOffset)));
+            state.SpawnHeight.Y - frame.YOffset)));
         hitbox.Radius = hitbox.Radius.WithY(frame.YRadius);
         if (frameIndex == 0)
             hitbox.Radius = hitbox.Radius.WithX(8);
@@ -161,9 +165,9 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         HibashiEnemyState state = RequireHibashiState(graphics);
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
 
-        state.FinishedActivityFlag = 1;
+        state.ActivityFinished = true;
         hitbox.Radius = new(0, 0);
-        graphics.Position = graphics.Position.WithWholeY(state.SpawnYPosition);
+        graphics.Position = graphics.Position.WithWholeY(state.SpawnHeight.Y);
         graphics.Properties = graphics.Properties.With(EnemyProperties.Invisible);
         hitbox.Properties = hitbox.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }

@@ -51,8 +51,8 @@ public sealed class ZoaEnemyState
         internal set => _slot.VariableF = (ushort)value;
     }
 
-    /// <summary>Byte offset zero, four, eight, or twelve into the five-row X-speed table.</summary>
-    public ushort XSpeedTableIndex { get; internal set; }
+    /// <summary>Byte offset zero, four, eight, or twelve into the five-row X-speed table, set by the shooting animation's cues.</summary>
+    public int XSpeedTableIndex { get; internal set; }
 
     /// <summary>Where Zoa's typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ZoaProgram> Program { get; set; }

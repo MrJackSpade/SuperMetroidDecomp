@@ -12,7 +12,7 @@ public static class ElevatorActorDefinitions
     /// $A3:94E2, ElevatorInputMaskTable: newly pressed inputs that begin downward
     /// and upward elevator travel, indexed by the actor's doubled parameter one.
     /// </summary>
-    internal static SnesButton RequiredDirectionInput(ushort tableByteOffset) => tableByteOffset switch
+    internal static SnesButton RequiredDirectionInput(int tableByteOffset) => tableByteOffset switch
     {
         0 => SnesButton.Down,
         2 => SnesButton.Up,

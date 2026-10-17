@@ -106,7 +106,7 @@ internal static class EnemyMath
     /// negative half uses the separately stored, bug-compatible ROM negation rather than
     /// negating the positive host integer.
     /// </summary>
-    internal static int ReadQuadraticEnemySpeed(ushort tableIndex, bool negative) =>
+    internal static int ReadQuadraticEnemySpeed(int tableIndex, bool negative) =>
         EnemyQuadraticSpeedDefinitions.ReadDisplacement(
             tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0));
 

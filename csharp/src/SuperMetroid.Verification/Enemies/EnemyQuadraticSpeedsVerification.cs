@@ -27,7 +27,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadWord(759), "quadratic partial word");
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadDisplacement(757), "quadratic partial displacement");
         if (definitionsOnly) return;
-        var shared = new Func<ushort, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
+        var shared = new Func<int, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
         var addRock = new Action<RoomEnemyProjectileSlot, ushort, bool>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new RoomEnemyProjectileSlot(0);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })

@@ -16,18 +16,12 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new AtomicEntity(this, slot, common);
 
-    /// <summary>The words each physical slot keeps across Atomic occupants for the current room.</summary>
-    private readonly AtomicExtensionWords[] _extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static AtomicExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new AtomicExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
     internal void InitializeAtomic(RoomEnemySlot slot)
     {
-        var state = new AtomicEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new AtomicEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -43,10 +37,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
         (short negativeWhole, ushort negativeFraction) =
             EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
-        state.SpeedWhole = unchecked((ushort)positiveWhole);
-        state.SpeedFraction = positiveFraction;
-        state.NegativeSpeedWhole = unchecked((ushort)negativeWhole);
-        state.NegativeSpeedFraction = negativeFraction;
+        state.Speed = SnesSignedSixteenSixteen.FromParts(positiveWhole, positiveFraction);
+        state.NegativeSpeed = SnesSignedSixteenSixteen.FromParts(negativeWhole, negativeFraction);
     }
 
     /// <summary>
@@ -74,43 +66,31 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.VerticalMovement)
         {
             case AtomicVerticalMovement.MoveUp:
-                slot.Position = slot.Position.WithY(AddAtomicVelocity(
-                    slot.Position.Y,
-                    state.NegativeSpeedWhole,
-                    state.NegativeSpeedFraction));
+                slot.Position = slot.Position.WithY(AddAtomicVelocity(slot.Position.Y, state.NegativeSpeed));
                 break;
 
             case AtomicVerticalMovement.MoveDown:
-                slot.Position = slot.Position.WithY(AddAtomicVelocity(
-                    slot.Position.Y,
-                    state.SpeedWhole,
-                    state.SpeedFraction));
+                slot.Position = slot.Position.WithY(AddAtomicVelocity(slot.Position.Y, state.Speed));
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Atomic vertical function $A8:{(ushort)state.VerticalMovement:X4} is not translated.");
+                    $"Atomic vertical movement {state.VerticalMovement?.ToString() ?? "none"} is not translated.");
         }
 
         switch (state.HorizontalMovement)
         {
             case AtomicHorizontalMovement.MoveLeft:
-                slot.Position = slot.Position.WithX(AddAtomicVelocity(
-                    slot.Position.X,
-                    state.NegativeSpeedWhole,
-                    state.NegativeSpeedFraction));
+                slot.Position = slot.Position.WithX(AddAtomicVelocity(slot.Position.X, state.NegativeSpeed));
                 break;
 
             case AtomicHorizontalMovement.MoveRight:
-                slot.Position = slot.Position.WithX(AddAtomicVelocity(
-                    slot.Position.X,
-                    state.SpeedWhole,
-                    state.SpeedFraction));
+                slot.Position = slot.Position.WithX(AddAtomicVelocity(slot.Position.X, state.Speed));
                 break;
 
             default:
                 throw new InvalidDataException(
-                    $"Atomic horizontal function $A8:{(ushort)state.HorizontalMovement:X4} is not translated.");
+                    $"Atomic horizontal movement {state.HorizontalMovement?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -120,11 +100,10 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static SnesFixedPosition AddAtomicVelocity(
         SnesFixedPosition position,
-        ushort wholeVelocity,
-        ushort fractionalVelocity)
+        SnesSignedSixteenSixteen velocity)
     {
-        ushort whole = unchecked((ushort)(position.Whole + wholeVelocity));
-        uint fractionalSum = (uint)position.Fraction + fractionalVelocity;
+        ushort whole = unchecked((ushort)(position.Whole + velocity.WholeWord));
+        uint fractionalSum = (uint)position.Fraction + velocity.Fraction;
         if (fractionalSum > ushort.MaxValue)
             whole = unchecked((ushort)(whole + 1));
         return new(whole, unchecked((ushort)fractionalSum));
@@ -159,9 +138,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
+    /// <remarks>Each Atomic's initializer creates its state, so a room load has nothing to reset.</remarks>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new AtomicExtensionWords();
     }
 }

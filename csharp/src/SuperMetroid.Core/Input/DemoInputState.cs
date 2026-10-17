@@ -28,9 +28,6 @@ public sealed class DemoInputState
     /// <summary>General loop timer of instructions <c>$844F/$8459</c>; no demo program counts it.</summary>
     public NativeCountdown Timer { get; private set; }
 
-    /// <summary>Initializer parameter stored at WRAM <c>$0A80</c>.</summary>
-    public ushort InitializationParameter { get; private set; }
-
     /// <summary>Controller word currently replacing player-held input.</summary>
     public SnesButton Held { get; private set; }
 
@@ -63,7 +60,6 @@ public sealed class DemoInputState
         Cursor = null;
         InstructionTimer = NativeCountdown.Start(0);
         Timer = NativeCountdown.Start(0);
-        InitializationParameter = 0;
         Held = 0;
         NewlyPressed = 0;
         PreviousHeld = 0;
@@ -80,11 +76,10 @@ public sealed class DemoInputState
 
     /// <summary>
     /// Loads an object as <c>$91:8395</c> does: its pre-instruction and program, with the first record due on the next
-    /// step. Every object's initializer is the return-only <c>$91:83BF</c>.
+    /// step. Every object's initializer is the return-only <c>$91:83BF</c>, so no initialization parameter is kept.
     /// </summary>
-    public void Load(DemoInputObjectDefinition definition, ushort initializationParameter)
+    public void Load(DemoInputObjectDefinition definition)
     {
-        InitializationParameter = initializationParameter;
         PreInstruction = definition.PreInstruction;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(definition.Program);
         InstructionTimer = NativeCountdown.Start(1);

@@ -708,7 +708,7 @@ public sealed class IntroCinematicState
         flashbackDemoInput = new DemoInputState();
         flashbackDemoInput.Clear();
         flashbackDemoInput.Enable();
-        flashbackDemoInput.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
+        flashbackDemoInput.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
         // $8B:AF62: Samus is processed, and drawn ahead of the cinematic objects.
         flashbackSamusDisplay = IntroSamusDisplay.SamusFirst;
 

@@ -32,10 +32,13 @@ public sealed class RoomPaletteFxSystem
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
-    /// <summary>Heat palette selector published by the Norfair object for the next descending-slot pass.</summary>
-    internal ushort samusInHeatPaletteIndex;
-    /// <summary>Last heat palette selector applied to Samus; prevents redundant program restarts.</summary>
-    internal ushort previousSamusInHeatPaletteIndex;
+    /// <summary>
+    /// Heat palette phase published by the Norfair object for the next descending-slot pass. Only compared for
+    /// equality and used to select a heat program, so it is held as a plain phase number.
+    /// </summary>
+    internal int samusInHeatPaletteIndex;
+    /// <summary>Last heat palette phase applied to Samus; prevents redundant program restarts.</summary>
+    internal int previousSamusInHeatPaletteIndex;
 
     /// <summary>
     /// Bit 15 of <c>PaletteFXObject_Enable</c> ($1E79), checked first by the handler. Game
@@ -182,7 +185,7 @@ public sealed class RoomPaletteFxSystem
         RoomPaletteFxDefinition compiled = RoomPaletteFxDefinitions.Get(definition);
         slot.Id = definition;
         slot.ColorIndex = 0;
-        slot.PreInstruction = (ushort)PaletteFxPreInstruction.Null;
+        slot.PreInstruction = PaletteFxPreInstruction.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
@@ -194,7 +197,7 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxSetup.Intro:
-                slot.PreInstruction = (ushort)PaletteFxPreInstruction.Intro;
+                slot.PreInstruction = PaletteFxPreInstruction.Intro;
                 return;
 
             case PaletteFxSetup.Norfair:
@@ -218,11 +221,11 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Runs the slot's condition handler before timer and bytecode execution, including room heat and cutscene gates.</summary>
     private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
     {
-        var preInstruction = (PaletteFxPreInstruction)slot.PreInstruction;
+        PaletteFxPreInstruction preInstruction = slot.PreInstruction;
         if (!Enum.IsDefined(preInstruction))
         {
             throw new NotSupportedException(
-                $"Room palette-FX pre-instruction $8D:{slot.PreInstruction:X4} is not translated " +
+                $"Room palette-FX pre-instruction {slot.PreInstruction} is not translated " +
                 $"for object $8D:{slot.Id:X4} (Samus Y=${conditions.SamusY:X4}, items=${conditions.EquippedItems.ToNativeWord():X4}).");
         }
         switch (preInstruction)
@@ -371,14 +374,13 @@ public sealed class RoomPaletteFxSystem
                 slot.ColorIndex = cue.ColorIndex;
                 return;
             case PaletteFxCueKind.SetPreInstruction:
-                slot.PreInstruction = (ushort)cue.PreInstruction;
+                slot.PreInstruction = cue.PreInstruction;
                 return;
             case PaletteFxCueKind.ClearPreInstruction:
-                slot.PreInstruction = (ushort)PaletteFxPreInstruction.Cleared;
+                slot.PreInstruction = PaletteFxPreInstruction.Cleared;
                 return;
             case PaletteFxCueKind.SetHeatPaletteIndex:
-                // The shared heat selector holds the phase as a word.
-                samusInHeatPaletteIndex = checked((ushort)cue.HeatPhase);
+                samusInHeatPaletteIndex = cue.HeatPhase;
                 return;
             case PaletteFxCueKind.QueueSoundLibrary2:
                 soundRequests.Add(new PaletteFxSoundRequest(
@@ -435,8 +437,11 @@ public sealed class RoomPaletteFxSystem
         public ushort Id { get; set; }
         /// <summary>CGRAM colour selected by the most recent SetColorIndex command (native byte offset twice this).</summary>
         public int ColorIndex { get; set; }
-        /// <summary>Pre-instruction pointer evaluated before this slot's program timer.</summary>
-        public ushort PreInstruction { get; set; }
+        /// <summary>
+        /// Pre-instruction evaluated before this slot's program timer. A freed slot holds the cleared (zero) value, which
+        /// never runs because the slot is skipped while free.
+        /// </summary>
+        public PaletteFxPreInstruction PreInstruction { get; set; }
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
@@ -449,7 +454,7 @@ public sealed class RoomPaletteFxSystem
         {
             Id = 0;
             ColorIndex = 0;
-            PreInstruction = 0;
+            PreInstruction = default;
             Cursor = default;
             InstructionTimer = NativeCountdown.Start(0);
             Timer = NativeCountdown.Start(0);

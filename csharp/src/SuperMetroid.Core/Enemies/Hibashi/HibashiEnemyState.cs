@@ -3,52 +3,42 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
 /// <summary>
-/// Debugger-facing projection of Hibashi's shared variables and population aliases. Every
-/// shipped pillar uses two consecutive records of definition $E07F: part zero owns art and
-/// timing, while nonzero part one is the invisible collision body manipulated by part zero.
+/// The state of one Hibashi part. Every shipped pillar uses two consecutive records: part zero owns art and timing,
+/// while the nonzero part is the invisible collision body manipulated by part zero. Every value here is one the
+/// cartridge keeps in the enemy's common record (its variables and population parameters), so it is emptied with
+/// that record when the part is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class HibashiEnemyState
 {
-    /// <summary>Physical graphics or collision-part slot carrying Hibashi's native variables.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Hibashi's per-part variables from its occupied enemy slot.</summary>
-    internal HibashiEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<HibashiProgram> Program { get; set; }
 
-    /// <summary>Graphics part's same-bank function word in common variable A, initialized to inactive; nonzero population parts do not dispatch this state machine.</summary>
-    public HibashiEnemyFunction Function
+    /// <summary>The graphics part's behaviour, initialized to inactive; collision parts do not dispatch it, and none once a kill has emptied the record.</summary>
+    public HibashiEnemyFunction? Function { get; internal set; }
+
+    /// <summary>Countdown decremented once per inactive AI update; zero wraps to $FFFF and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
+    public NativeCountdown InactiveTimer { get; internal set; }
+
+    /// <summary>Animation-to-AI handshake: cleared when an eruption starts, set by the finishing cue after the hitbox is disabled, and awaited by active AI.</summary>
+    public bool ActivityFinished { get; internal set; }
+
+    /// <summary>The graphics part's room Y captured at initialization; only Y is meaningful. Activity frames place the collision part relative to it and the finishing cue restores the art owner to it.</summary>
+    public Position16<RoomPixels> SpawnHeight { get; internal set; }
+
+    /// <summary>The inactive countdown's restart value, population parameter one.</summary>
+    public NativeCountdown InactiveTimerReset { get; internal set; }
+
+    /// <summary>Whether this is the collision part (population parameter two nonzero) rather than the graphics part.</summary>
+    public bool IsCollisionPart { get; internal set; }
+
+    /// <summary>Empties every value, when a kill empties the part's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (HibashiEnemyFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
+        Function = null;
+        InactiveTimer = NativeCountdown.Start(0);
+        ActivityFinished = false;
+        SpawnHeight = Position16<RoomPixels>.Zero;
+        InactiveTimerReset = NativeCountdown.Start(0);
+        IsCollisionPart = false;
     }
-
-    /// <summary>Raw countdown in common variable B, decremented once per inactive AI update; zero wraps to $FFFF and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
-    public NativeCountdown InactiveTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableB);
-        internal set => _slot.VariableB = value.RawValue;
-    }
-
-    /// <summary>Animation-to-AI handshake in common variable C: cleared on eruption start, set to one by $A6:8FD1 after disabling the hitbox, and tested as nonzero by active AI.</summary>
-    public ushort FinishedActivityFlag
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Graphics owner's whole-pixel room Y captured at initialization; activity frames place the next part's hitbox relative to it and the finish instruction restores the art owner to it.</summary>
-    public ushort SpawnYPosition
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
-
-    /// <summary>Native extension word $0FB4 aliases population init0/parameter one.</summary>
-    public ushort InactiveTimerResetValue => _slot.Parameter1;
-
-    /// <summary>Native extension word $0FB6 aliases population init1/parameter two.</summary>
-    public ushort Part => _slot.Parameter2;
 }

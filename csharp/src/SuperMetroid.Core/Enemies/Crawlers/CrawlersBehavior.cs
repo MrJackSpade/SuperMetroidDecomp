@@ -396,8 +396,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerEnemyState state,
         RoomLevelData level)
     {
-        int displacement = unchecked(
-            (SnesSixteenSixteen.FromWhole((short)state.FallingYVelocity)) | state.FallingYSubvelocity);
+        int displacement = state.FallingYVelocity.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, displacement))
         {
             // Parameter $FF is the native "choose default speed after first landing" path.
@@ -405,24 +404,17 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Velocity = new EightEightVector<RoomPixels>(128, 128);
             }
-            state.FallingYSubvelocity = 0;
-            state.FallingYVelocity = 0;
+            state.FallingYVelocity = SnesSignedSixteenSixteen.Zero;
             state.ConsecutiveTurnCounter = 0;
             state.Function = state.NonFallingFunction;
             return;
         }
 
-        if ((short)(state.FallingYVelocity - 4) < 0)
-        {
-            uint velocity = (SnesSixteenSixteen.FromWhole((uint)state.FallingYVelocity)) | state.FallingYSubvelocity;
-            velocity = unchecked(velocity + 32768);
-            state.FallingYVelocity = unchecked((ushort)(SnesSixteenSixteen.WholeOf(velocity)));
-            state.FallingYSubvelocity = unchecked((ushort)velocity);
-        }
+        state.ApplyFallingGravity();
 
         // The native routine contains this zero-velocity escape even though ordinary falls
         // immediately gain gravity. Retain it for ROM-modified parameter/state combinations.
-        if (state.FallingYSubvelocity == 0 && state.FallingYVelocity == 0)
+        if (state.FallingYVelocity == SnesSignedSixteenSixteen.Zero)
             state.Function = CrawlerEnemyFunction.CrawlingVertically;
     }
 

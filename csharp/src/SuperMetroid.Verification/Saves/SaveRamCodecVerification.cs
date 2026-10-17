@@ -139,6 +139,9 @@ internal static class SaveRamCodecVerification
         AssertEqual(SaveFieldValue.MaximumValue, slot.SaveStation, "the load station decodes its largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.Area, "the checkpoint area decodes its largest value");
         AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeHours, "the clock's hours decode their largest value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeMinutes, "the clock's minutes decode their largest value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeFrames, "the clock's frames decode their largest value");
+        AssertEqual(0, slot.GameTimeSeconds, "the clock's seconds decode zero");
         AssertEqual(SaveFieldValue.MaximumValue, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.LoadedItemCountOffset),
             "the item-load counter's SRAM field holds the counter's largest value");
 

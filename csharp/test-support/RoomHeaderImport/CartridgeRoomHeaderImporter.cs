@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -72,7 +73,8 @@ public static class CartridgeRoomHeaderImporter
             CartridgeImportSource.Require(bus), address + 9);
         ushort statePointer = SelectImportedState(bus, unchecked((ushort)(roomPointer + 11)), selection);
         return new CartridgeRoomHeader(roomPointer, Byte(0), (AreaId)Byte(1),
-            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7), Byte(8),
+            new(Byte(2), Byte(3)), new(Byte(4), Byte(5)), Byte(6), Byte(7),
+            (Byte(8) & RoomCreBitsets.SuppressDoorTransitionBg1) != 0,
             doorList, CartridgeRoomStateImporter.Load(bus, statePointer));
     }
 }

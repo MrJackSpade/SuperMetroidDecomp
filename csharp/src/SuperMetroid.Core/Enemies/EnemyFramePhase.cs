@@ -165,8 +165,9 @@ internal sealed class EnemyFramePhase
                 // ceres_status from one to two; the actor sets the boss bit itself.
                 _escapeTimer.RequestCeresStart();
             }
-            if (result.LayerOneXOverride is ushort shitroidCameraX)
+            if (result.LayerOneXOverride is int layerOneX)
             {
+                ushort shitroidCameraX = checked((ushort)layerOneX);
                 // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
                 // scrolling routine later in this frame. Do not route it through entry
                 // placement, which would clear subposition and ideal-camera state.

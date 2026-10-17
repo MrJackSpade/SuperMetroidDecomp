@@ -1,50 +1,26 @@
 namespace SuperMetroid.Core.Enemies.Ripper;
 
 /// <summary>
-/// Typed view of the common Ripper-family motion words plus GRipper's two private patrol
-/// bounds. The three species reuse the same native variables C/D/E for fractional speed,
-/// signed whole speed, and byte offset into the bank-$A0 linear-speed table.
+/// The state of one GRipper or Ripper II: its patrol velocity, its linear-speed record, and GRipper's two patrol
+/// bounds. The velocity and speed record are values the cartridge keeps in the enemy's common record, so they are
+/// emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>); the bounds outlive the kill.
 /// </summary>
 public sealed class RipperVariantEnemyState
 {
-    /// <summary>Native enemy variables C, D, and E for the current Ripper slot.</summary>
-    private readonly RoomEnemySlot _slot;
     /// <summary>The slot's Ripper extension words, kept for the room across occupants.</summary>
     private readonly RipperExtensionWords _words;
 
-    /// <summary>Binds a Ripper slot and the GRipper patrol-bound storage shared by the enemy system.</summary>
-    internal RipperVariantEnemyState(
-        RoomEnemySlot slot, RipperExtensionWords words)
-    {
-        _slot = slot;
-        _words = words;
-    }
+    /// <summary>Binds a variant to its slot's GRipper patrol-bound storage.</summary>
+    internal RipperVariantEnemyState(RipperExtensionWords words) => _words = words;
 
-    /// <summary>Common variable C: low/fractional word of signed 16.16 X velocity.</summary>
-    public ushort XSubvelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Common variable D: signed whole-pixel word of 16.16 X velocity.</summary>
-    public ushort XVelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
+    /// <summary>Signed 16.16 horizontal velocity per update, one half of the selected linear-speed record.</summary>
+    public SnesSignedSixteenSixteen XVelocity { get; internal set; }
 
     /// <summary>
-    /// Common variable E: the selected linear-speed record's offset into <c>$A0:8187</c>, eight bytes
-    /// per record, set by initialization (wrapping at the word boundary there) and read back when the
-    /// velocity pair is loaded. The slot word holds it exactly, so aliased reads of slot memory see the
-    /// native word.
+    /// The selected linear-speed record's byte offset in the shared speed table, eight bytes per record, set by
+    /// initialization (wrapping at the word boundary there, 0 through 65535) and read back when the velocity is loaded.
     /// </summary>
-    public int SpeedTableByteOffset
-    {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = checked((ushort)value);
-    }
+    public int SpeedTableByteOffset { get; internal set; }
 
     /// <summary>
     /// GRipper extra word $00: exclusive left patrol reversal threshold, a room X coordinate in pixels
@@ -64,5 +40,12 @@ public sealed class RipperVariantEnemyState
     {
         get => _words.MaximumXPosition;
         internal set => _words.MaximumXPosition = checked((ushort)value);
+    }
+
+    /// <summary>Empties the velocity and speed record, when a kill empties the enemy's common record.</summary>
+    internal void ClearWithRecord()
+    {
+        XVelocity = SnesSignedSixteenSixteen.Zero;
+        SpeedTableByteOffset = 0;
     }
 }

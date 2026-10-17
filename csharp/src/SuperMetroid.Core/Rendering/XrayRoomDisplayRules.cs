@@ -16,7 +16,7 @@ public static class XrayRoomDisplayRules
     /// branches on the active enemy-header boss identity preserve the room background.
     /// These are control-flow cases, not an indexed sequence or numerical progression.
     /// </summary>
-    private static bool PreservesBossBackground(ushort bossId) => bossId is 3 or 6 or 7 or 8 or 10;
+    private static bool PreservesBossBackground(int bossId) => bossId is 3 or 6 or 7 or 8 or 10;
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public static Bgr555 ActiveBackdrop => new(3, 3, 3);
 
@@ -32,7 +32,7 @@ public static class XrayRoomDisplayRules
     }
 
     /// <summary>Preserves the native Fireflea precedence over the ordinary room/boss exclusions.</summary>
-    public static XrayRoomBlendMode Select(ushort roomPointer, RoomFxType fx, ushort bossId)
+    public static XrayRoomBlendMode Select(ushort roomPointer, RoomFxType fx, int bossId)
     {
         if (fx == RoomFxType.Fireflea) return XrayRoomBlendMode.Fireflea;
         if (IsExcludedRoom(roomPointer) || PreservesBossBackground(bossId))

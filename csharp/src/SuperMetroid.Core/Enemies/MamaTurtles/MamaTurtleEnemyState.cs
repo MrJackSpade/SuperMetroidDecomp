@@ -3,65 +3,42 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
-/// Typed view of Mama Turtle's ordinary variables and bank-$7E extension. The six ordinary
-/// words remain backed by the physical enemy slot; the extension has no ordinary-slot alias
-/// in the host and therefore lives in this one-to-one state object.
+/// The state of the Mama Turtle. The function, the horizontal velocity's whole pixels and the wake counter are values
+/// the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
+/// (<see cref="ClearWithRecord"/>); the rest outlive the kill.
 /// </summary>
 public sealed class MamaTurtleEnemyState
 {
-    /// <summary>Physical parent slot whose common variable words remain debugger-visible.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Attaches Mama Turtle's typed state to its native parent record.</summary>
-    internal MamaTurtleEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<MamaTurtleProgram> Program { get; set; }
 
-    /// <summary>Gets the current bank-$A2 Mama Turtle AI function pointer.</summary>
-    public MamaTurtleAiFunction Function
-    {
-        get => (MamaTurtleAiFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>The current Mama Turtle behaviour; none once a kill has emptied the record.</summary>
+    public MamaTurtleAiFunction? Function { get; internal set; }
 
-    /// <summary>
-    /// Signed 16.16 velocity. The horizontal whole word is ordinary variable E; the horizontal
-    /// fraction and the vertical axis are extension words.
-    /// </summary>
-    public FixedVector<RoomPixels> Velocity
-    {
-        get => new(SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableE), _horizontalSubvelocity), _verticalVelocity);
-        internal set
-        {
-            _slot.VariableE = value.X.WholeWord;
-            _horizontalSubvelocity = value.X.Fraction;
-            _verticalVelocity = value.Y;
-        }
-    }
+    /// <summary>Signed 16.16 velocity per AI update.</summary>
+    public FixedVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Extra-WRAM fractional half of the parent's horizontal 16.16 velocity.</summary>
-    private ushort _horizontalSubvelocity;
-    /// <summary>Extra-WRAM vertical 16.16 velocity, paired with common-slot horizontal motion.</summary>
-    private SnesSignedSixteenSixteen _verticalVelocity;
-
-    /// <summary>Wake counter at variable F; each Baby touch or shot decrements it.</summary>
-    public NativeCountdown AsleepFlag
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableF);
-        internal set => _slot.VariableF = value.RawValue;
-    }
+    /// <summary>Wake counter; each Baby touch or shot decrements it, and the Mama wakes once it reaches zero.</summary>
+    public NativeCountdown AsleepFlag { get; internal set; }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
     public NativeCountdown FunctionTimer { get; internal set; }
-    /// <summary>Gets the fractional word of signed horizontal 16.16 acceleration.</summary>
-    public ushort XSubAcceleration { get; internal set; }
-    /// <summary>Gets the whole word of signed horizontal 16.16 acceleration.</summary>
-    public ushort XAcceleration { get; internal set; }
 
     /// <summary>
-    /// Extended word six. Every Baby clears this through its main-AI prologue; a child in
-    /// carrying state republishes its Y radius. This odd last-writer-wins behavior is native.
+    /// Signed 16.16 horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall
+    /// reversal negates it with the cartridge's carry quirk.
     /// </summary>
-    public ushort CarryingChildHeight { get; internal set; }
+    public SnesSignedSixteenSixteen XAcceleration { get; internal set; }
+
+    /// <summary>
+    /// Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record: no
+    /// function, a zero wake counter, and no whole pixels of horizontal velocity, its fraction and the vertical
+    /// velocity kept.
+    /// </summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        Velocity = Velocity.WithX(Velocity.X.WithWholePixels(0));
+        AsleepFlag = NativeCountdown.Start(0);
+    }
 }

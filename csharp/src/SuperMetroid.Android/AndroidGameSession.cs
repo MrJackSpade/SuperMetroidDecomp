@@ -163,8 +163,8 @@ internal sealed class AndroidGameSession
                 data.Record(input);
                 var previousGameState = data.Game.GameState;
                 CapturedFrontendFrame frame = data.Game.StepCaptured(input, ++sequence, data.Generation);
-                view.SetRoomIdentity(data.Game.GameplayActiveAreaIndex is { } area && data.Game.GameplayActiveRoomIndex is { } room
-                    ? $"Room ${(byte)area:X2}/${room:X2} [$8F:{data.Game.GameplayActiveRoomPointer:X4}, state $8F:{data.Game.GameplayActiveRoomStatePointer:X4}]"
+                view.SetRoomIdentity(data.Game.GameplayActiveRoomIdentity is { } room
+                    ? $"Room {room} [$8F:{data.Game.GameplayActiveRoomPointer:X4}, state $8F:{data.Game.GameplayActiveRoomStatePointer:X4}]"
                     : "No active room");
                 double stepped = clock.Elapsed.TotalMilliseconds;
                 var pixels = SoftwareFrameSnapshotRenderer.Render(frame.Snapshot, rasterBuffer);

@@ -1,8 +1,14 @@
 namespace SuperMetroid.Core.Spatial;
 
 /// <summary>An unsigned sixteen-bit size or half-extent (radius) within one coordinate space.</summary>
+/// <remarks>
+/// This type is the one owner of the spatial family's size representation: sizes and radii share the sixteen-bit
+/// axes of <see cref="Position16{TSpace}"/> (<c>docs/spatial-types.md</c>, "Shapes"), so containment and grid
+/// indexing compare a position with an extent in the same wrapped coordinate words.
+/// </remarks>
 /// <typeparam name="TSpace">The coordinate space the extent is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y extents.")]
+[SnesEncodingOwner]
 public readonly record struct Extent16<TSpace>(ushort X, ushort Y)
     where TSpace : ISpatialSpace
 {

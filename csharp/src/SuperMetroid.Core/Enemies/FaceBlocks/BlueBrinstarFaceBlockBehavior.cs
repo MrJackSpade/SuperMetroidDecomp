@@ -57,8 +57,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
     /// <summary>Shared countdown, reset to sixteen after each color update or actor activation.</summary>
     private NativeCountdown _blueBrinstarFaceBlockPaletteTimer;
-    /// <summary>Shared eight-frame color index, intentionally retained when an actor activates.</summary>
-    private ushort _blueBrinstarFaceBlockPaletteFrame;
+    /// <summary>Shared eight-frame color index, 0 through 7, intentionally retained when an actor activates.</summary>
+    private int _blueBrinstarFaceBlockPaletteFrame;
     /// <summary>OBJ palette row selected by the last eligible block processed by main AI.</summary>
     private int _blueBrinstarFaceBlockPaletteRow;
 
@@ -194,11 +194,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
                 colors.Resolve(SuperMetroid.Core.Enemies.Artwork.EnemyAuxiliaryPalette.FaceBlock, frame, color));
         }
 
-        // Native masks only the low byte after incrementing. Because the value is already
-        // constrained to 0..7, this is exactly its `(index + 1) & 7` result.
-        _blueBrinstarFaceBlockPaletteFrame = unchecked((ushort)(
-            (_blueBrinstarFaceBlockPaletteFrame + 1) &
-            (BlueBrinstarFaceBlockPaletteFrameCount - 1)));
+        // The index cycles through the eight colors, as the cartridge's increment and low-bits mask do.
+        _blueBrinstarFaceBlockPaletteFrame = (_blueBrinstarFaceBlockPaletteFrame + 1) % BlueBrinstarFaceBlockPaletteFrameCount;
     }
 
     /// <summary>Rejects AI dispatch for a face-block slot that was not initialized on room load.</summary>

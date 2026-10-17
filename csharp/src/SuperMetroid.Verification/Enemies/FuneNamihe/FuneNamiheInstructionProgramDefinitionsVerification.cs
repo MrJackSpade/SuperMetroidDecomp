@@ -51,7 +51,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
 
         foreach (FuneNamiheProgramCase program in programs)
         {
-            AssertEqual(program.Entry, FuneNamiheDefinitions.InstructionList(program.SelectorCursor),
+            AssertEqual(program.Entry, FuneNamiheSelectorOracle.ProgramAt(program.SelectorCursor),
                 $"Fune/Namihe selector $A8:{program.SelectorCursor:X4} names {program.Entry}");
             (RoomEnemySystem enemies, RoomEnemySlot slot) = RunFuneNamiheProgram(program);
             int activeProjectiles = enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
@@ -69,7 +69,7 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
                 (enemies.FuneNamiheStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[slot.SlotIndex].")).Function,
                 $"Fune/Namihe {program.Entry} returns main-AI ownership");
         }
-        AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
+        AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.ProgramAt(0x96e3), "Fune/Namihe selector beyond the table fails loudly");
 
         Suite(nameof(FuneNamiheAnimationsVerification.VerifyFuneNamiheAnimations), () => FuneNamiheAnimationsVerification.VerifyFuneNamiheAnimations(rom));
         Console.WriteLine(
@@ -89,9 +89,10 @@ internal static class FuneNamiheInstructionProgramDefinitionsVerification
         slot.Position = slot.Position.WithWhole(new(128, 128));
         slot.InstructionTimer = NativeCountdown.Start(1);
 
-        var state = new FuneNamiheEnemyState(slot)
+        var state = new FuneNamiheEnemyState
         {
-            InstructionListPointerTableCursor = program.SelectorCursor,
+            ShowsActiveAnimation = program.Active,
+            FacingRight = program.Right,
             Function = program.Active
                 ? program.Namihe ? FuneNamiheEnemyFunction.NamiheActivityNoOp : FuneNamiheEnemyFunction.FuneActivityNoOp
                 : program.Namihe ? FuneNamiheEnemyFunction.NamiheWaitForSamus : FuneNamiheEnemyFunction.FuneWaitForCooldown,

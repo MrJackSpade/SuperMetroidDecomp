@@ -8,9 +8,6 @@ internal sealed record EndingBackgroundTextSetup
     /// <summary>Tilemap.</summary>
     public required ushort[] Tilemap { get; init; }
 
-    /// <summary>Cartridge instruction-list identity of the text sequence; the text owner does not read it.</summary>
-    public ushort InstructionPointer { get; init; }
-
     /// <summary>Inventory.</summary>
     public required EndingInventorySnapshot Inventory { get; init; }
 

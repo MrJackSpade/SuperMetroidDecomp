@@ -803,8 +803,8 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0, state.planetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)
             {
-                AssertEqual((short)0, state.planetVelocityWhole, "slow handoff initializes independent acceleration whole");
-                AssertEqual((ushort)0x8000, state.planetVelocityFraction, "slow handoff initializes independent acceleration fraction");
+                AssertEqual((short)0, state.planetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
+                AssertEqual((ushort)0x8000, state.planetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -1224,7 +1224,7 @@ internal static class LookupStream4Verification
             AssertTrue(expected.SequenceEqual(copied.AsSpan(0, expected.Length)), "Subtitle direct copy preserves every cell");
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
-            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, InstructionPointer = EndingTextDefinitions.Native.ItemPercentage, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
+            var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
             state.installedInitialMarkerPending = false;
             state.installedCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var vram = new SnesVram();

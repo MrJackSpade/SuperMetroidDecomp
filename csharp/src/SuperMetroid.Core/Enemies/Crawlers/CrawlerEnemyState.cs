@@ -41,10 +41,21 @@ public sealed class CrawlerEnemyState
         internal set => _slot.VariableF = (ushort)value;
     }
 
-    /// <summary>Unsigned fractional falling Y velocity in 1/65536 pixel per AI update, separate from attached 8.8 motion; gravity adds $8000 with carry and landing clears it. Native $7E:7802,x.</summary>
-    public ushort FallingYSubvelocity { get; internal set; }
-    /// <summary>Signed two's-complement whole-pixel falling Y velocity per AI update, paired with <see cref="FallingYSubvelocity"/> as signed 16.16 and cleared on landing. Native $7E:7804,x.</summary>
-    public ushort FallingYVelocity { get; internal set; }
+    /// <summary>
+    /// Signed 16.16 falling Y velocity per AI update, separate from attached 8.8 motion: gravity adds half a pixel per
+    /// update while the whole pixels are below four, and landing clears it.
+    /// </summary>
+    public SnesSignedSixteenSixteen FallingYVelocity { get; internal set; }
+
+    /// <summary>
+    /// One falling update's gravity: adds half a pixel per update while the whole pixels, compared as a signed word,
+    /// are below four.
+    /// </summary>
+    internal void ApplyFallingGravity()
+    {
+        if (unchecked((short)(FallingYVelocity.WholeWord - 4)) < 0)
+            FallingYVelocity += SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 2);
+    }
     /// <summary>Attached bank-$A3 AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer. Native $7E:7806,x.</summary>
     public CrawlerEnemyFunction NonFallingFunction { get; internal set; }
     /// <summary>

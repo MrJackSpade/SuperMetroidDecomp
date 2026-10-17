@@ -63,9 +63,9 @@ internal static class ChootPatternDefinitionsVerification
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
-                AssertEqual((ushort)definition.FallingPatternPointer, (state ?? throw new InvalidOperationException("Verification requires state.")).FallingPatternPointer,
-                    $"Choot production pattern pointer {patternIndex}/{loopCount}");
-                AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
+                AssertEqual<ChootFallingPath?>(definition.FallingPatternPointer, (state ?? throw new InvalidOperationException("Verification requires state.")).FallingPath,
+                    $"Choot production pattern {patternIndex}/{loopCount}");
+                AssertEqual((int)definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
                 AssertEqual(slot.Position.X.Whole, state.InitialFallingPosition.X,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");
@@ -84,7 +84,7 @@ internal static class ChootPatternDefinitionsVerification
             initializeFall(fallSlot);
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             (fallState ?? throw new InvalidOperationException("Verification requires fallState.")).FallingOrigin = new(0x4000, 0x5000);
-            fallState.FallingPatternIndex = 0;
+            fallState.FallingPatternFrame = 0;
             fallState.FallingPatternLoopCounter = NativeCountdown.Start(1);
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
@@ -99,13 +99,13 @@ internal static class ChootPatternDefinitionsVerification
                 AssertEqual(unchecked((ushort)(0x5000 + point.Offset.Y)),
                     fallSlot.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
-                AssertEqual(unchecked((ushort)((frameIndex + 1) << 8)),
-                    fallState.FallingPatternIndex,
+                AssertEqual(frameIndex + 1,
+                    fallState.FallingPatternFrame,
                     $"Choot production fall cursor {patternIndex}/{frameIndex}");
             }
 
             runFall(fallSlot, fallState);
-            AssertEqual((ushort)0, fallState.FallingPatternIndex,
+            AssertEqual(0, fallState.FallingPatternFrame,
                 $"Choot production loop cursor reset {patternIndex}");
             AssertEqual((ushort)0, fallState.FallingPatternLoopCounter.RawValue,
                 $"Choot production loop counter {patternIndex}");
@@ -113,8 +113,7 @@ internal static class ChootPatternDefinitionsVerification
                 fallState.FallingOrigin.Y,
                 $"Choot production loop Y advance {patternIndex}");
 
-            fallState.FallingPatternIndex = unchecked((ushort)(
-                (frameCounts[patternIndex] - 1) << 8));
+            fallState.FallingPatternFrame = frameCounts[patternIndex] - 1;
             runFall(fallSlot, fallState);
             AssertEqual((ushort)0x3456, fallSlot.Position.X.Whole,
                 $"Choot production final spawn X {patternIndex}");

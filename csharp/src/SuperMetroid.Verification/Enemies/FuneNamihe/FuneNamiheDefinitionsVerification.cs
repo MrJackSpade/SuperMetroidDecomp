@@ -35,15 +35,15 @@ internal static class FuneNamiheDefinitionsVerification
             initialize(slot);
             FuneNamiheEnemyState state = (enemies.FuneNamiheStates[0] ?? throw new InvalidOperationException("Verification requires enemies.FuneNamiheStates[0]."));
             ushort idleCursor = (ushort)((namihe
-                ? FuneNamiheDefinitions.NamiheIdleLeftCursor
-                : FuneNamiheDefinitions.FuneIdleLeftCursor) +
-                (right ? FuneNamiheDefinitions.FacingRightCursorDelta : 0));
-            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheDefinitions.InstructionList(idleCursor)), state.Program,
+                ? FuneNamiheSelectorOracle.NamiheIdleLeftCursor
+                : FuneNamiheSelectorOracle.FuneIdleLeftCursor) +
+                (right ? FuneNamiheSelectorOracle.FacingRightCursorDelta : 0));
+            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(idleCursor)), state.Program,
                 $"Fune/Namihe production idle list {variant}");
 
             runMain(slot, (state ?? throw new InvalidOperationException("Verification requires state.")), namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.Position.Y.Whole)) } : null);
-            ushort activeCursor = (ushort)(idleCursor - FuneNamiheDefinitions.ActiveCursorDelta);
-            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheDefinitions.InstructionList(activeCursor)), state.Program,
+            ushort activeCursor = (ushort)(idleCursor - FuneNamiheSelectorOracle.ActiveCursorDelta);
+            AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheSelectorOracle.ProgramAt(activeCursor)), state.Program,
                 $"Fune/Namihe production active list {variant}");
         }
 
@@ -51,24 +51,29 @@ internal static class FuneNamiheDefinitionsVerification
             "Fune/Namihe definitions: eight native selectors and all eight real idle/active installs pass with table reads forbidden.");
     }
 
-    /// <summary>Compares the eight native program pointers and rejects adjacent or wrapped cursor values.</summary>
+    /// <summary>
+    /// For each of the eight native selector entries, the production selection for that entry's species, activity and
+    /// facing names the program the native pointer lists; the selector decode rejects adjacent or wrapped cursors.
+    /// </summary>
     private static void VerifyFuneNamiheProgramSelection(SuperMetroidAddressSpace rom)
     {
         ushort[] cursors = [0x96d3, 0x96d5, 0x96d7, 0x96d9, 0x96db, 0x96dd, 0x96df, 0x96e1];
         foreach (ushort cursor in cursors)
         {
             ushort native = (ushort)(SnesLittleEndian.Word(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor), FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1))));
-            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheDefinitions.InstructionList(cursor)),
-                "Fune/Namihe named species/activity/facing case matches native pointer");
+            (bool namihe, bool active, bool right) = FuneNamiheSelectorOracle.Decode(cursor);
+            var state = new FuneNamiheEnemyState { VariantIndex = namihe ? 1 : 0, ShowsActiveAnimation = active, FacingRight = right };
+            AssertEqual(native, NativeEnemyProgramOracle.EntryOf(FuneNamiheNativeListAddresses.Entries, FuneNamiheBehavior.SelectFuneNamiheProgram(state)),
+                "Fune/Namihe production species/activity/facing selection matches native pointer");
         }
         var valid = cursors.ToHashSet();
         for (int cursor = 0x96d1; cursor <= 0x96e4; cursor++)
             if (!valid.Contains((ushort)cursor))
-                AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList((ushort)cursor),
-                    "Fune/Namihe selection rejects odd and adjacent cursors");
+                AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.Decode((ushort)cursor),
+                    "Fune/Namihe selector decode rejects odd and adjacent cursors");
         foreach (ushort cursor in new ushort[] { 0, 1, 0x16d3, 0x7fff, 0xffff })
-            AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(cursor),
-                "Fune/Namihe selection rejects distant and wrapped cursors");
+            AssertThrows<InvalidDataException>(() => FuneNamiheSelectorOracle.Decode(cursor),
+                "Fune/Namihe selector decode rejects distant and wrapped cursors");
     }
 
     /// <summary>Reads one native selector byte solely as the verification oracle.</summary>

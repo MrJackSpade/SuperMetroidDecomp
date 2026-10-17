@@ -42,8 +42,6 @@ internal sealed class PlmSlot
     public ushort RoomArgument { get; set; }
     /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
     public ushort LoopTimer { get; set; }
-    /// <summary>Native extra PLM link-instruction word used by sleeping coroutines.</summary>
-    public ushort LinkInstruction { get; set; }
     /// <summary>
     /// The semantic state of the family this slot belongs to, or null while the slot runs only its native words under the
     /// shared pre-instruction, timer and instruction interpreter.
@@ -67,7 +65,6 @@ internal sealed class PlmSlot
         PreInstruction = PlmPreInstructions.Inert;
         RoomArgument = 0;
         LoopTimer = 0;
-        LinkInstruction = 0;
         Family = null;
     }
 
@@ -79,15 +76,16 @@ internal sealed class PlmSlot
     }
 
     /// <summary>
-    /// A pre-instruction's wake: the native list resumes at <see cref="LinkInstruction"/>, a typed program at the
-    /// program it linked, on the next pass.
+    /// A pre-instruction's wake: a typed program resumes at the program it linked, on the next pass. Only typed programs
+    /// record a link, so a slot running a native list has none and resumes at the cleared list word, as the cartridge's
+    /// zero link word directs.
     /// </summary>
     internal void WakeAtLink()
     {
         if (Animation is { } animation)
             animation.WakeAtLink();
         else
-            InstructionPointer = LinkInstruction;
+            InstructionPointer = 0;
         InstructionTimer = NativeCountdown.Start(1);
     }
 

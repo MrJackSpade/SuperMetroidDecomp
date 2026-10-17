@@ -7,11 +7,14 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// </summary>
 public sealed class FirefleaFxState
 {
-    /// <summary><c>FirefleaFlashing_Timer</c>: frames until the next flashing-index step; held while time is frozen.</summary>
-    public ushort Timer { get; private set; }
+    /// <summary>
+    /// <c>FirefleaFlashing_Timer</c>: frames until the next flashing-index step, held while time is frozen. A step
+    /// that reaches zero restarts it; one that starts from zero, before the FX initializes, wraps instead.
+    /// </summary>
+    public NativeCountdown Timer { get; private set; }
 
-    /// <summary><c>FirefleaFlashing_Index</c>: the current flashing-table element index.</summary>
-    public ushort Index { get; private set; }
+    /// <summary><c>FirefleaFlashing_Index</c>: the current flashing-table element index, 0 through 11.</summary>
+    public int Index { get; private set; }
 
     /// <summary><c>FirefleaFlashing_DarknessLevel</c>: the level published from the enemy-owned death counter, an even darkness-table byte offset 0 through 12.</summary>
     public int Darkness { get; private set; }
@@ -19,7 +22,7 @@ public sealed class FirefleaFxState
     /// <summary>Seeds the initial flash duration, first shade index, and undarkened room state.</summary>
     internal void Initialize()
     {
-        Timer = FirefleaFxDefinitions.FlashDuration;
+        Timer = NativeCountdown.Start(FirefleaFxDefinitions.FlashDuration);
         Index = 0;
         Darkness = 0;
     }
@@ -33,14 +36,15 @@ public sealed class FirefleaFxState
         Ensure.NotNull(fixedColor);
         Darkness = darkness;
         if (frozen) return;
-        ushort timer = unchecked((ushort)(Timer - 1));
-        ushort index = Index;
-        if (timer == 0)
+        NativeWordCounterStep step = Timer.Decrement();
+        NativeCountdown timer = step.Remaining;
+        int index = Index;
+        if (step.IsZero)
         {
-            timer = FirefleaFxDefinitions.FlashDuration;
+            timer = NativeCountdown.Start(FirefleaFxDefinitions.FlashDuration);
             if (unchecked((short)(darkness - FirefleaFxDefinitions.SteadyDarknessThreshold)) < 0)
             {
-                index = unchecked((ushort)(index + 1));
+                index++;
                 if (index >= FirefleaFxDefinitions.FlashCount) index = 0;
             }
             else index = FirefleaFxDefinitions.SteadyFlashIndex;

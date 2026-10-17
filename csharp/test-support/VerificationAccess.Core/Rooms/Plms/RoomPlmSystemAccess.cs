@@ -236,7 +236,6 @@ internal static class RoomPlmSystemAccess
                 InstructionPointer: slot.InstructionPointer,
                 PreInstruction: slot.PreInstruction.NativeRoutine,
                 InstructionTimer: slot.InstructionTimer.RawValue,
-                LinkInstruction: slot.LinkInstruction,
                 LoopTimer: slot.LoopTimer,
                 Animation: slot.Animation);
         }

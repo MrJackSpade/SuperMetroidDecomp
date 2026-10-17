@@ -595,7 +595,7 @@ internal static void VerifyDemoInputObject()
     var demo = new DemoInputState();
     demo.Clear();
     demo.Enable();
-    demo.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback, initializationParameter: 0);
+    demo.Load(IntroDemoInputObjectDefinitions.IntroMotherBrainFlashback);
 
     // The first six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code, not this program, decides each shot.

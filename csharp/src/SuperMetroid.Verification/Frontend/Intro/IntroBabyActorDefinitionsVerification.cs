@@ -23,7 +23,7 @@ internal static class IntroBabyActorDefinitionsVerification
         var compiledInput = new DemoInputState();
         compiledInput.Clear();
         compiledInput.Enable();
-        compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery, initializationParameter: 0);
+        compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
         ushort NativeInputWord(ushort pointer) => (ushort)(
             SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1)))));
         var cartridgeInput = new NativeDemoInputReference(NativeInputWord);

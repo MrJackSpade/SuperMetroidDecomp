@@ -65,8 +65,24 @@ public sealed class MetroidEnemyState
     public RoomSpriteObjectSlot OuterBodyB { get; }
 
     /// <summary>
-    /// Unsigned fractional health-drain accumulator. A borrow from subtracting the suit-
-    /// selected rate removes exactly one energy from Samus.
+    /// Fractional health-drain accumulator, 0 through 65535 in 1/65536ths of one energy. A borrow from subtracting the suit-selected rate removes exactly one energy from Samus
+    /// (<see cref="DrainBorrows"/>).
     /// </summary>
-    public ushort DrainAccumulator { get; internal set; }
+    public int DrainAccumulator { get; internal set; }
+
+    /// <summary>The accumulator's range: one energy in fractional steps.</summary>
+    private const int DrainFractionSteps = ushort.MaxValue + 1;
+
+    /// <summary>
+    /// Subtracts one update's drain <paramref name="rate"/> from the accumulator, wrapping below zero back into its
+    /// range as the cartridge's word subtraction does, and reports whether it borrowed: a borrow drains one energy.
+    /// </summary>
+    /// <param name="rate">The suit-selected drain per update, in the accumulator's fractional steps.</param>
+    internal bool DrainBorrows(int rate)
+    {
+        int remaining = DrainAccumulator - rate;
+        bool borrowed = remaining < 0;
+        DrainAccumulator = borrowed ? remaining + DrainFractionSteps : remaining;
+        return borrowed;
+    }
 }

@@ -29,8 +29,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Choot</c> at <c>$A2:DF76</c>, selecting a falling pattern and calculating ascent speed from native parameters.</summary>
     internal void InitializeChoot(RoomEnemySlot slot)
     {
-        var state = new ChootEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new ChootEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         SetChootProgram(slot, state, ChootProgram.Idle);
         state.Function = ChootEnemyFunction.WaitingForSamus;
@@ -41,13 +41,13 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // retail population selects it, so expose corrupt/high parameters as invalid data.
         ushort patternIndex = SnesLittleEndian.HighByte(slot.Parameter1);
         ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
-        state.FallingPatternPointer = (ushort)pattern.FallingPatternPointer;
+        state.FallingPath = pattern.FallingPatternPointer;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
-        // The SNES multiplier consumes only the low bytes. Retail loop counts are nonzero,
-        // but byte multiplication also preserves the native result for debugger corruption.
+        // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is
+        // already below 256. Retail loop counts are nonzero.
         ushort jumpHeight = unchecked((ushort)(
-            (SnesLittleEndian.LowByte(slot.Parameter1)) * (SnesLittleEndian.LowByte(state.FallingPatternYDistance))));
+            (SnesLittleEndian.LowByte(slot.Parameter1)) * state.FallingPatternYDistance));
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
             state.SpawnPosition.Y - jumpHeight)));
@@ -76,7 +76,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Choot function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Choot function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -117,24 +117,22 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies native quadratic ascent without room collision and snaps whole coordinates to the calculated falling origin at the apex.</summary>
     internal static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
-        // Only the cursor's high byte reaches the eight-byte quadratic table index. Choot
-        // applies the table's separately stored negative pair, including its fractional
+        // Choot applies the table's separately stored negative pair, including its fractional
         // negation bug, without consulting room collision during this authored leap.
-        ushort tableIndex = unchecked((ushort)(SnesEightEight.WholeOf(state.YSpeedTableIndex)));
-        int upwardDisplacement = EnemyMath.ReadQuadraticEnemySpeed(tableIndex, negative: true);
+        int upwardDisplacement = EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: true);
         uint fixedY = slot.Position.Y.RawValue;
         fixedY = unchecked(fixedY + (uint)upwardDisplacement);
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
 
-        state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex - 512));
-        if (unchecked((short)state.YSpeedTableIndex) >= 0)
+        state.YSpeedTableIndex -= 2;
+        if (state.YSpeedTableIndex >= 0)
             return;
 
         // The apex transition snaps only the whole positions to precalculated origins;
         // subpositions deliberately survive until the final spawn reset, just as in WRAM.
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
-        state.FallingPatternIndex = 0;
+        state.FallingPatternFrame = 0;
         state.FallingPatternLoopCounter = NativeCountdown.FromRaw(unchecked((ushort)(
             (SnesLittleEndian.LowByte(slot.Parameter1)) - 1)));
         SetChootProgram(slot, state, ChootProgram.Falling);
@@ -144,15 +142,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Follows authored path offsets, advancing its origin at terminators and restoring the exact spawn state after the final loop.</summary>
     internal static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
-        int frameIndex = SnesLittleEndian.HighByte(state.FallingPatternIndex);
         ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
-            state.FallingPatternPointer,
-            frameIndex);
+            state.FallingPath ?? throw new InvalidDataException("A falling Choot has no falling pattern."),
+            state.FallingPatternFrame);
         if (point.IsTerminator)
         {
             state.FallingOrigin = state.FallingOrigin.WithY(unchecked((ushort)(
                 state.FallingOrigin.Y + state.FallingPatternYDistance)));
-            state.FallingPatternIndex = 0;
+            state.FallingPatternFrame = 0;
             state.FallingPatternLoopCounter = state.FallingPatternLoopCounter.Decrement().Remaining;
             if (!state.FallingPatternLoopCounter.IsNegative)
                 return;
@@ -167,24 +164,25 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.Position = slot.Position.WithWhole(state.FallingOrigin + point.Offset);
-        state.FallingPatternIndex = unchecked((ushort)(
-            state.FallingPatternIndex + 256));
+        state.FallingPatternFrame++;
     }
 
-    /// <summary>Ports <c>CalculateChootInitialJumpSpeed</c> at <c>$A2:DFE9</c>, integrating quadratic steps until they cover the requested height.</summary>
-    private static ushort CalculateInitialChootYSpeedTableIndex(ushort jumpHeight)
+    /// <summary>
+    /// Ports <c>CalculateChootInitialJumpSpeed</c> at <c>$A2:DFE9</c>, integrating every second quadratic step until
+    /// they cover the requested height. The table ends at record 94, so the result is an even index from 2 to 94.
+    /// </summary>
+    private static int CalculateInitialChootYSpeedTableIndex(ushort jumpHeight)
     {
-        ushort encodedIndex = 0;
+        int tableIndex = 0;
         uint accumulatedDistance = 0;
         for (int iteration = 0; iteration < 128; iteration++)
         {
-            encodedIndex = unchecked((ushort)(encodedIndex + 512));
-            ushort tableIndex = unchecked((ushort)(SnesLittleEndian.HighByte(encodedIndex)));
+            tableIndex += 2;
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)EnemyMath.ReadQuadraticEnemySpeed(tableIndex, negative: false));
             ushort wholeDistance = SnesFixedPosition.WholeOf(unchecked((int)accumulatedDistance));
             if (unchecked((short)(wholeDistance - jumpHeight)) >= 0)
-                return encodedIndex;
+                return tableIndex;
         }
 
         throw new InvalidDataException(

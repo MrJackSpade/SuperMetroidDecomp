@@ -96,19 +96,19 @@ internal static class FamilyTrigonometryVerification
         var previous = enemies.SlotTable.Slots[0];
         var segment = enemies.SlotTable.Slots[1];
         previous.Bind(EnemyDefinitionId.Shaktool, previous.Definition);
-        var segmentState = new ShaktoolSegmentState(segment);
+        var segmentState = new ShaktoolSegmentState();
         Action<RoomEnemySlot, ShaktoolSegmentState> place = enemies.ShaktoolBehavior.PositionShaktoolAroundPreviousSegment;
         foreach (uint initial in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             previous.Position = new(new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)), new(SnesFixedPosition.WholeOf(unchecked((int)initial)), unchecked((ushort)initial)));
-            segmentState.OrbitAngle = (ushort)angle;
+            segmentState.OrbitAngle = SnesAngle.FromRaw((ushort)angle);
             place(segment, segmentState);
             uint expectedX = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex + 64]));
             uint expectedY = unchecked(initial + (uint)SnesSixteenSixteen.FromEightEight(orbit[SnesAngle.FromRaw(unchecked((ushort)angle)).TableIndex]));
             if ((segment.Position.X.RawValue) != expectedX ||
                 (segment.Position.Y.RawValue) != expectedY ||
-                segmentState.OrbitAngle != angle)
+                segmentState.OrbitAngle.RawValue != angle)
                 throw new InvalidDataException($"Shaktool placement differs: angle={angle:X4}, origin={initial:X8}.");
         }
         Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");

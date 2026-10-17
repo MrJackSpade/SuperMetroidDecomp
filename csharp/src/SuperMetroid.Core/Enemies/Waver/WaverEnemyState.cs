@@ -3,62 +3,46 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Waver;
 
 /// <summary>
-/// Named view of Waver's seven private words at <c>$0FA8-$0FB4</c>. Keeping the words in
-/// their cartridge roles makes instruction-list changes and fixed-point motion inspectable
-/// without leaking generic <c>VariableA</c> names into the translated AI.
+/// The state of one Waver: its horizontal velocity, wave phase and animation selection. Every value here is one the
+/// cartridge keeps in the enemy's common record, so it is emptied with that record when the enemy is killed
+/// (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class WaverEnemyState
 {
-    /// <summary>Physical enemy slot retaining Waver's fixed-point motion and animation words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Projects Waver's seven private words from its occupied enemy slot.</summary>
-    internal WaverEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<WaverProgram> Program { get; set; }
 
-    /// <summary>Low 16 bits of the signed horizontal 16.16 displacement.</summary>
-    public ushort XSubvelocity
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
+    /// <summary>Signed 16.16 horizontal displacement per update, one and a half pixels either way; a wall negates it.</summary>
+    public SnesSignedSixteenSixteen XVelocity { get; internal set; }
 
-    /// <summary>High 16 bits of the signed horizontal 16.16 displacement.</summary>
-    public short XVelocity
-    {
-        get => unchecked((short)_slot.VariableB);
-        internal set => _slot.VariableB = unchecked((ushort)value);
-    }
-
-    /// <summary>The instruction-list index currently installed in the common enemy slot.</summary>
-    public WaverAnimationSelector CurrentInstructionListIndex
-    {
-        get => (WaverAnimationSelector)_slot.VariableC;
-        internal set => _slot.VariableC = value.ToNativeWord();
-    }
-
-    /// <summary>Byte angle advanced by two per unobstructed frame.</summary>
-    public ushort Angle
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
-    }
-
-    /// <summary>Set by instruction <c>$A3:86E3</c> after the four-frame spin completes.</summary>
-    public bool SpinFinished
-    {
-        get => _slot.VariableE != 0;
-        internal set => _slot.VariableE = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>The animation selection currently installed.</summary>
+    public WaverAnimationSelector CurrentInstructionListIndex { get; internal set; }
 
     /// <summary>
-    /// Requested list: bit zero selects facing, bit one selects the temporary spin family.
+    /// The vertical wave's phase; only its table index is read, so it wraps after a full turn. It advances two table
+    /// units per unobstructed update and a vertical collision reflects it by half a turn.
     /// </summary>
-    public WaverAnimationSelector RequestedInstructionListIndex
+    public SnesAngle Angle { get; internal set; }
+
+    /// <summary>Set by the spin animation's last cue after the four-frame spin completes.</summary>
+    public bool SpinFinished { get; internal set; }
+
+    /// <summary>Requested animation selection: one flag selects facing, the other the temporary spin family.</summary>
+    public WaverAnimationSelector RequestedInstructionListIndex { get; internal set; }
+
+    /// <summary>Advances the wave phase two table units, wrapping after a full turn.</summary>
+    internal void AdvanceWave() => Angle = Angle.AddTableUnits(2);
+
+    /// <summary>Reflects the wave phase by half a turn, as a vertical collision does.</summary>
+    internal void ReflectWave() => Angle = Angle.AddTableUnits(EnemyByteAngleDefinitions.HalfTurn);
+
+    /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
+    internal void ClearWithRecord()
     {
-        get => (WaverAnimationSelector)_slot.VariableF;
-        internal set => _slot.VariableF = value.ToNativeWord();
+        XVelocity = SnesSignedSixteenSixteen.Zero;
+        CurrentInstructionListIndex = WaverAnimationSelector.None;
+        Angle = SnesAngle.Zero;
+        SpinFinished = false;
+        RequestedInstructionListIndex = WaverAnimationSelector.None;
     }
 }

@@ -65,7 +65,7 @@ internal sealed class GatePlms : IPlmFamilySource
 
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
             DownwardGateProjectileOperation.Spawn,
-            (ushort)RoomEnemyProjectileKind.DownwardGateClosed,
+            RoomEnemyProjectileKind.DownwardGateClosed,
             slot.BlockIndex));
     }
 
@@ -169,14 +169,14 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary><c>$84:BBE1</c>: requests the moving gate projectile that slides the gate down from the slot's block.</summary>
     internal void SpawnMovingGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Spawn, (ushort)RoomEnemyProjectileKind.DownwardGateMoving, slot.BlockIndex));
+            DownwardGateProjectileOperation.Spawn, RoomEnemyProjectileKind.DownwardGateMoving, slot.BlockIndex));
 
     /// <summary>
     /// <c>$84:BBF0</c>: wakes the gate projectile whose variable E holds this PLM's block, so it slides back up.
     /// </summary>
     internal void WakeGateProjectile(PlmSlot slot) =>
         _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
-            DownwardGateProjectileOperation.Wake, DefinitionPointer: 0, slot.BlockIndex));
+            DownwardGateProjectileOperation.Wake, Kind: null, slot.BlockIndex));
 
     /// <summary>Moves buffered rejected-shot sounds into the room sound queue in emission order.</summary>
     internal void PublishPendingDownwardGateSounds()

@@ -51,13 +51,13 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Rio_Init</c> at $A2:BBCD.</summary>
     internal static void InitializeRio(RoomEnemySlot slot)
     {
-        var state = new RioEnemyState(slot)
+        var state = new RioEnemyState
         {
             AnimationFinished = false,
             InstalledProgram = null,
             Function = RioEnemyFunction.WaitingForSamus,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
@@ -141,7 +141,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
                 if (state.Velocity.Y.SignedRawValue < 0)
                 {
-                    state.SavedHorizontalVelocity = state.Velocity.X.RawValue;
+                    state.SavedHorizontalVelocity = state.Velocity.X;
                     state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                     state.Function = RioEnemyFunction.HoveringTowardSamus;
                 }
@@ -191,7 +191,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
                 {
                     state.Velocity = new EightEightVector<RoomPixels>(
-                        new SnesSignedEightEight(state.SavedHorizontalVelocity),
+                        state.SavedHorizontalVelocity,
                         new SnesSignedEightEight(unchecked((ushort)-1)));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
@@ -214,7 +214,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Rio function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Rio function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

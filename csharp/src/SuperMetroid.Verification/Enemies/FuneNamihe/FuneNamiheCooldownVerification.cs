@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
@@ -29,9 +30,9 @@ internal static class FuneNamiheCooldownVerification
         FuneNamiheEnemyState crossed = Wait(short.MaxValue);
         AssertEqual(0, crossed.CooldownTimer, "ending the wait resets the count");
         AssertEqual(FuneNamiheEnemyFunction.FuneActivityNoOp, crossed.Function, "a count crossing the signed boundary ends the wait");
-        AssertEqual(FuneNamiheProgram.FuneActiveLeft,
-            FuneNamiheDefinitions.InstructionList(crossed.InstructionListPointerTableCursor),
-            "ending the wait selects the active program for the same facing");
+        AssertTrue(crossed.ShowsActiveAnimation && !crossed.FacingRight, "ending the wait selects the active animation for the same facing");
+        AssertEqual(AnimationProgramCursor<FuneNamiheProgram>.Start(FuneNamiheProgram.FuneActiveLeft), crossed.Program,
+            "ending the wait installs the active program for the same facing");
         Console.WriteLine("  Fune cooldown: short, wrapped and signed-boundary counts pass.");
     }
 
@@ -41,9 +42,10 @@ internal static class FuneNamiheCooldownVerification
         var enemies = new RoomEnemySystem();
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Fune, slot.Definition);
-        var state = new FuneNamiheEnemyState(slot)
+        var state = new FuneNamiheEnemyState
         {
-            InstructionListPointerTableCursor = FuneNamiheDefinitions.FuneIdleLeftCursor,
+            ShowsActiveAnimation = false,
+            FacingRight = false,
             Function = FuneNamiheEnemyFunction.FuneWaitForCooldown,
             VariantIndex = 0,
             CooldownTime = CooldownTime,

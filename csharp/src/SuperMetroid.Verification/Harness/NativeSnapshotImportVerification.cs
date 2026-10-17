@@ -88,7 +88,7 @@ internal static class NativeSnapshotImportVerification
             var paletteSlot = initialPaletteSlots[slot];
             paletteSlot.Id = W(NativeSnapshotMemory.PaletteFxId + slot * 2);
             paletteSlot.ColorIndex = RoomPaletteFxSystem.PaletteFxColorIndex(W(NativeSnapshotMemory.PaletteFxColor + slot * 2), paletteSlot.Id);
-            paletteSlot.PreInstruction = W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
+            paletteSlot.PreInstruction = (SuperMetroid.Core.Fx.PaletteFx.PaletteFxPreInstruction)W(NativeSnapshotMemory.PaletteFxPreInstruction + slot * 2);
             // A live object resumes its typed program where the recorded native pointer stands.
             paletteSlot.Cursor = paletteSlot.Id == 0
                 ? default
@@ -292,6 +292,7 @@ internal static class NativeSnapshotImportVerification
             slot.VariableD = W(address + 54);
             slot.VariableE = W(address + 56);
             slot.VariableF = W(address + 58);
+            NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
             if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Kraid is { } kraid)

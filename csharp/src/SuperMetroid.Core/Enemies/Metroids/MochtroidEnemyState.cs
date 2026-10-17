@@ -51,6 +51,18 @@ public sealed class MochtroidEnemyState
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<MochtroidProgram> Program { get; set; }
 
-    /// <summary>$7E:8800 parallel word; contact damage occurs when this reaches 80.</summary>
-    public ushort AttachmentDamageTimer { get; internal set; }
+    /// <summary>
+    /// Attached updates counted since the last contact damage, 0 through 65535: contact damage occurs once the count,
+    /// compared as a signed word difference, reaches the damage period. Updates with Samus's own contact damage count
+    /// without the check, so the count can grow past the sign bit and wrap (<see cref="CountAttachedUpdate"/>).
+    /// </summary>
+    public int AttachmentDamageTimer { get; internal set; }
+
+    /// <summary>Counts one attached update, wrapping after 65535 as the cartridge's word does.</summary>
+    internal void CountAttachedUpdate() =>
+        AttachmentDamageTimer = AttachmentDamageTimer == ushort.MaxValue ? 0 : AttachmentDamageTimer + 1;
+
+    /// <summary>Whether the count has reached <paramref name="period"/>, compared as the cartridge's signed word difference.</summary>
+    /// <param name="period">The damage period in attached updates.</param>
+    internal bool HasReachedDamagePeriod(int period) => unchecked((short)(AttachmentDamageTimer - period)) >= 0;
 }

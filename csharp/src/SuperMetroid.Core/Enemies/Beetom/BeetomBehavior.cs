@@ -64,8 +64,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort BeetomProximityDistance = 96;
     /// <summary>Input changes required to dislodge an attached draining Beetom.</summary>
     private const ushort BeetomMashCount = 64;
-    /// <summary>Final quadratic speed-table index used in falling phases.</summary>
-    private const ushort BeetomMaximumYSpeedIndex = 64;
 
     /// <summary>The words each physical slot keeps across Beetom occupants for the current room.</summary>
     private readonly BeetomExtensionWords[] _extensions = NewExtensions();
@@ -80,11 +78,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
-        var state = new BeetomEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new BeetomEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.FunctionTimer = NativeCountdown.Start(0);
-        state.Function = 0;
+        state.Function = null;
         state.Falling = false;
         state.AttachedToSamus = false;
         slot.VariableA = 0;
@@ -226,7 +224,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunFlungBeetom(slot, state, level);
                 return;
             default:
-                throw new InvalidDataException($"Beetom function $A8:{(ushort)state.Function:X4} is not translated.");
+                throw new InvalidDataException($"Beetom function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -242,7 +240,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             5 => BeetomEnemyFunction.StartShortHopRight,
             _ => BeetomEnemyFunction.StartLongHopLeft,
         };
-        state.Direction = unchecked((ushort)(random & 1));
+        state.FacingRight = (random & 1) != 0;
     }
 
     /// <summary>Starts side-specific crawl AI and animation.</summary>
@@ -261,7 +259,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void StartBeetomHop(
         RoomEnemySlot slot,
         BeetomEnemyState state,
-        ushort initialYSpeedIndex,
+        int initialYSpeedIndex,
         bool left,
         bool longHop)
     {
@@ -287,7 +285,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         bool left = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
         state.YSpeedTableIndex = state.InitialLungeYSpeedIndex;
-        state.Direction = left ? (ushort)0 : (ushort)1;
+        state.FacingRight = !left;
         state.Function = left ? BeetomEnemyFunction.LungeLeft : BeetomEnemyFunction.LungeRight;
         state.Falling = false;
         SetBeetomInstructionList(
@@ -316,9 +314,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         SetBeetomInstructionList(
             slot,
             state,
-            state.Direction == 0
-                ? BeetomProgram.CrawlingLeft
-                : BeetomProgram.CrawlingRight);
+            state.FacingRight
+                ? BeetomProgram.CrawlingRight
+                : BeetomProgram.CrawlingLeft);
         state.Falling = false;
         state.Function = BeetomEnemyFunction.Dropping;
     }
@@ -374,7 +372,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
-        state.Direction ^= 1;
+        state.FacingRight = !state.FacingRight;
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
@@ -394,12 +392,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             }
 
-            state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex - risingDelta));
-            if (unchecked((short)state.YSpeedTableIndex) >= 0)
-                return;
-
-            state.YSpeedTableIndex = 0;
-            state.Falling = true;
+            state.StepRisingSpeed(risingDelta);
             return;
         }
 
@@ -409,9 +402,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.YSpeedTableIndex = unchecked((ushort)Math.Min(
-            BeetomMaximumYSpeedIndex,
-            state.YSpeedTableIndex + fallingDelta));
+        state.StepFallingSpeed(fallingDelta);
     }
 
     /// <summary>Follows Samus until enough input changes occur, then throws Beetom clear of terrain.</summary>
@@ -440,7 +431,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         int initialDisplacement = left ? 16 << 16 : -(16 << 16);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, initialDisplacement))
         {
-            state.Direction = left ? (ushort)1 : (ushort)0;
+            state.FacingRight = left;
             int reflectedDisplacement = left ? -(32 << 16) : 32 << 16;
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, reflectedDisplacement);
         }
@@ -453,9 +444,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!_terrain.MoveEnemyVertically(level, slot, 3 << 16))
             return;
-        state.Function = state.Direction == 0
-            ? BeetomEnemyFunction.StartCrawlingLeft
-            : BeetomEnemyFunction.StartCrawlingRight;
+        state.Function = state.FacingRight
+            ? BeetomEnemyFunction.StartCrawlingRight
+            : BeetomEnemyFunction.StartCrawlingLeft;
     }
 
     /// <summary>Moves opposite the pre-escape facing until a floor or wall selects its next action.</summary>
@@ -464,14 +455,14 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_terrain.MoveEnemyVertically(level, slot, EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: false)))
             state.Function = BeetomEnemyFunction.DecideAction;
         else
-            state.YSpeedTableIndex = unchecked((ushort)Math.Min(BeetomMaximumYSpeedIndex, state.YSpeedTableIndex + 1));
+            state.StepFallingSpeed(1);
 
-        // Direction describes the pre-escape facing. The throw deliberately travels in the
-        // opposite direction: zero moves right and one moves left.
-        int horizontal = state.Direction == 0 ? 2 << 16 : -(2 << 16);
+        // The facing is the pre-escape facing. The throw deliberately travels in the
+        // opposite direction: facing left moves right and facing right moves left.
+        int horizontal = state.FacingRight ? -(2 << 16) : 2 << 16;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontal))
             return;
-        state.Direction ^= 1;
+        state.FacingRight = !state.FacingRight;
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
@@ -501,9 +492,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.AttachedToSamus)
         {
-            state.Function = state.Direction == 0
-                ? BeetomEnemyFunction.StartDrainingLeft
-                : BeetomEnemyFunction.StartDrainingRight;
+            state.Function = state.FacingRight
+                ? BeetomEnemyFunction.StartDrainingRight
+                : BeetomEnemyFunction.StartDrainingLeft;
             state.AttachedToSamus = true;
             state.ButtonCounter = NativeCountdown.Start(BeetomMashCount);
             slot.Layer = 2;

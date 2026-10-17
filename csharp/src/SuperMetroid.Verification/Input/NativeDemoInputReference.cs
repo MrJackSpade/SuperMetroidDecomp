@@ -143,14 +143,17 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         }
     }
 
-    /// <summary>The object's words, in the order <see cref="Of(DemoInputState)"/> gives a typed object's.</summary>
+    /// <summary>
+    /// The object's words, in the order <see cref="Of(DemoInputState)"/> gives a typed object's. The initialization
+    /// parameter is left out: every object's initializer returns at once, so nothing reads it.
+    /// </summary>
     internal string Snapshot() =>
-        $"{Enabled}/{InitializationParameter}/{PreInstructionPointer}/{InstructionPointer}/{InstructionTimer.RawValue}/" +
+        $"{Enabled}/{PreInstructionPointer}/{InstructionPointer}/{InstructionTimer.RawValue}/" +
         $"{Timer.RawValue}/{Held}/{NewlyPressed}/{PreviousHeld}/{PreviousNewlyPressed}/{PublishedPreviousHeld}/{PublishedPreviousNewlyPressed}";
 
     /// <summary>A typed object's words: its cursor as the native instruction pointer and its buttons as joypad words.</summary>
     internal static string Of(DemoInputState state) =>
-        $"{state.Enabled}/{state.InitializationParameter}/{DemoInputNativeListAddresses.PreInstructionAddress(state.PreInstruction)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
+        $"{state.Enabled}/{DemoInputNativeListAddresses.PreInstructionAddress(state.PreInstruction)}/{DemoInputNativeListAddresses.Address(state.Cursor)}/" +
         $"{state.InstructionTimer.RawValue}/{state.Timer.RawValue}/{(ushort)state.Held}/{(ushort)state.NewlyPressed}/{(ushort)state.PreviousHeld}/" +
         $"{(ushort)state.PreviousNewlyPressed}/{(ushort)state.PublishedPreviousHeld}/{(ushort)state.PublishedPreviousNewlyPressed}";
 

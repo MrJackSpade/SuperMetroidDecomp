@@ -61,7 +61,7 @@ internal static class EnemyLinearSpeedsVerification
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             stoke(slot);
             var s = enemies.StokeStates[0];
-            AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity, s.RightSubvelocity, s.LeftVelocity, s.LeftSubvelocity), "Stoke native speed setup");
+            AssertEqual(expected, ((s ?? throw new InvalidOperationException("Verification requires s.")).RightVelocity.WholeWord, s.RightVelocity.Fraction, s.LeftVelocity.WholeWord, s.LeftVelocity.Fraction), "Stoke native speed setup");
             slot.VariableE = (ushort)(index * 8);
             ripper(slot, true);
             AssertEqual((right, rightFraction), (slot.VariableD, slot.VariableC), "Ripper right speed");

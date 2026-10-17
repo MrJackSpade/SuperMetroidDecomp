@@ -52,10 +52,10 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort packedSelector = slot.CurrentInstruction;
         state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
         bool selectsPositiveVelocity = (packedSelector & RipperMasks.VelocitySelectorBits) != 0;
-        LoadRipperVelocity(slot, selectsPositiveVelocity);
+        LoadRipperVariantVelocity(state, selectsPositiveVelocity);
         SetRipperProgram(
             slot,
-            unchecked((short)state.XVelocity) < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
+            state.XVelocity.WholePixels < 0 ? RipperProgram.GRipperMovingLeft : RipperProgram.GRipperMovingRight);
 
         // Unlike the wall-collision helper, patrol-bound reversal does not clamp the actor
         // back to either endpoint. The one-frame fractional overshoot is native and becomes
@@ -71,16 +71,16 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData? level)
     {
         RequireRipperTerrain(level, "GRipper");
-        int displacement = unchecked((SnesSixteenSixteen.FromWhole((short)state.XVelocity)) | state.XSubvelocity);
+        int displacement = state.XVelocity.RawValue;
         bool reverse = _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
             displacement);
-        if (!reverse && unchecked((short)state.XVelocity) < 0)
+        if (!reverse && state.XVelocity.WholePixels < 0)
         {
             reverse = unchecked((short)(slot.Position.X.Whole - state.MinimumXPosition)) < 0;
         }
-        if (!reverse && unchecked((short)state.XVelocity) >= 0)
+        if (!reverse && state.XVelocity.WholePixels >= 0)
         {
             reverse = unchecked((short)(slot.Position.X.Whole - state.MaximumXPosition)) >= 0;
         }
@@ -104,15 +104,15 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative speed pair with the moving-right list, while nonzero uses positive speed
         // with the moving-left list.
         bool movingPositive = slot.Parameter2 != 0;
-        LoadRipperVelocity(slot, movingPositive);
+        LoadRipperVariantVelocity(state, movingPositive);
         SetRipperProgram(slot, movingPositive ? RipperProgram.Ripper2MovingLeft : RipperProgram.Ripper2MovingRight);
     }
 
     /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
-    private void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
+    private void RunRipper2Main(RoomEnemySlot slot, RipperVariantEnemyState state, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
-        int displacement = unchecked((int)SnesSixteenSixteen.Compose(slot.VariableD, slot.VariableC));
+        int displacement = state.XVelocity.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -159,6 +159,15 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         SetRipperProgram(slot, nowMovingRight ? RipperProgram.RipperMovingRight : RipperProgram.RipperMovingLeft);
     }
 
+    /// <summary>Loads a GRipper's or Ripper II's velocity from its shared eight-byte speed record.</summary>
+    /// <param name="state">The variant's state, whose speed record is read.</param>
+    /// <param name="movingRight">Whether the record's positive half is loaded rather than its negative half.</param>
+    internal static void LoadRipperVariantVelocity(RipperVariantEnemyState state, bool movingRight)
+    {
+        (short whole, ushort fraction) = EnemyLinearSpeedDefinitions.Read(state.SpeedTableByteOffset + (movingRight ? 0 : 4));
+        state.XVelocity = SnesSignedSixteenSixteen.FromParts(whole, fraction);
+    }
+
     /// <summary>Loads the signed whole and fractional velocity pair from the shared eight-byte speed record.</summary>
     internal static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
     {
@@ -176,7 +185,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.FrozenTimer.IsZero)
             return;
-        slot.SpritemapPointer = unchecked((short)slot.VariableD) < 0
+        slot.SpritemapPointer = RequireRipperVariantState(slot).XVelocity.WholePixels < 0
             ? RipperFrameDefinitions.FrozenFacingLeftSpritemap
             : RipperFrameDefinitions.FrozenFacingRightSpritemap;
     }
@@ -184,8 +193,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds a variant slot to its per-room patrol arrays and retains its AI state.</summary>
     private RipperVariantEnemyState CreateRipperVariantState(RoomEnemySlot slot)
     {
-        var state = new RipperVariantEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState<RipperVariantEnemyState>(state);
+        var state = new RipperVariantEnemyState(_extensions[slot.SlotIndex]);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
 
@@ -205,8 +214,9 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RipperProgram positiveProgram,
         RipperProgram negativeProgram)
     {
-        bool wasMovingNegative = unchecked((short)slot.VariableD) < 0;
-        LoadRipperVelocity(slot, movingRight: wasMovingNegative);
+        RipperVariantEnemyState state = RequireRipperVariantState(slot);
+        bool wasMovingNegative = state.XVelocity.WholePixels < 0;
+        LoadRipperVariantVelocity(state, movingRight: wasMovingNegative);
         SetRipperProgram(slot, wasMovingNegative ? positiveProgram : negativeProgram);
     }
 
@@ -270,7 +280,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Ripper2's main AI.</summary>
     internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRipper2Main(slot, frame.Level);
+        RunRipper2Main(slot, RequireRipperVariantState(slot), frame.Level);
     }
 
     /// <summary>Ports Ripper's main AI.</summary>

@@ -122,7 +122,6 @@ public sealed class CeresElevatorArrivalState
         Position16<RoomPixels> position)
     {
         return new CeresElevatorProjectile(
-            definition.DefinitionPointer,
             definition.Program,
             position,
             CeresElevatorArrivalDefinitions.NativeGraphicsIndex);
@@ -186,21 +185,17 @@ public sealed class CeresElevatorArrivalState
     /// <summary>Small per-slot state for the two Ceres arrival enemy projectiles.</summary>
     internal sealed class CeresElevatorProjectile
     {
-        /// <summary>Initializes a projectile's definition, program, position, and graphics index.</summary>
+        /// <summary>Initializes a projectile's program, position, and graphics index.</summary>
         public CeresElevatorProjectile(
-            ushort definitionPointer,
             CeresElevatorArrivalProgram program,
             Position16<RoomPixels> position,
             ushort graphicsIndex)
         {
-            DefinitionPointer = definitionPointer;
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
             Position = position;
             GraphicsIndex = graphicsIndex;
         }
 
-        /// <summary>The projectile's bank-$86 definition identity.</summary>
-        public ushort DefinitionPointer { get; }
         /// <summary>Native graphics word supplying palette and tile-base bits for drawing.</summary>
         public ushort GraphicsIndex { get; }
         /// <summary>Whether the projectile still occupies its arrival slot.</summary>

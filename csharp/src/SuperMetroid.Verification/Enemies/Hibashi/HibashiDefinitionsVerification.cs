@@ -124,7 +124,7 @@ internal static class HibashiDefinitionsVerification
         SoundEffectId eruption = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, HibashiDefinitions.EruptionSoundEffect);
         AssertEqual(2, programSystem.Audio.SoundRequests.Count(request => request.SoundEffect == eruption),
             "each Hibashi graphics program queues its eruption sound");
-        AssertEqual((ushort)1, (programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).FinishedActivityFlag,
+        AssertTrue((programSystem.HibashiStates[0] ?? throw new InvalidOperationException("Verification requires programSystem.HibashiStates[0].")).ActivityFinished,
             "Hibashi graphics program publishes finished activity");
         AssertEqual((ushort)0, programHitbox.Radius.X,
             "Hibashi finished program clears hitbox X radius");

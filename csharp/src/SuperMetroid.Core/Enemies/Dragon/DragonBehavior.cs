@@ -58,19 +58,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Pause beneath the platform before the next rise attempt.</summary>
     private const ushort DragonWaitBeforeRiseFrames = 128;
 
-    /// <summary>The words each physical slot keeps across Dragon occupants for the current room.</summary>
-    private readonly DragonExtensionWords[] _extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static DragonExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new DragonExtensionWords())];
-
-    /// <summary>Clears per-slot animation requests, completion flags and species state on room load.</summary>
-    internal void ResetDragonRoomState()
-    {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new DragonExtensionWords();
-    }
 
     /// <summary>Ports <c>InitAI_Dragon</c> at $A2:E606.</summary>
     internal void InitializeDragon(RoomEnemySlot slot)
@@ -128,7 +115,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Dragon function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Dragon function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -149,12 +136,10 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = NativeCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Rising;
 
-        // $E666-$E672 rotates the sign of (Samus X - body X) into bit 15 of variable A,
-        // preserving its other fifteen bits. The following byte-sized list edits use that
-        // sign to select even/odd left/right table entries for both physical records.
+        // $E666-$E672 records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
+        // edits use that sign to select even/odd left/right table entries for both physical records.
         bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.Position.X.Whole)) < 0;
-        bodyState.DirectionWord = unchecked((ushort)(
-            (bodyState.DirectionWord & EnemyWordMasks.BelowSignBits) | (facingLeft ? EnemyWordMasks.SignBit : 0)));
+        bodyState.FacingLeft = facingLeft;
         bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(
             bodyState.RequestedInstructionListIndex,
             facingLeft);
@@ -315,11 +300,11 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         return wing;
     }
 
-    /// <summary>Attaches one Dragon slot to the shared native animation-word arrays.</summary>
-    private DragonEnemyState CreateDragonState(RoomEnemySlot slot)
+    /// <summary>Creates one Dragon slot's state, selecting body or wing from population parameter one.</summary>
+    private static DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
-        var state = new DragonEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new DragonEnemyState { IsWing = slot.Parameter1 != 0 };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         return state;
     }
 
@@ -425,7 +410,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithY(new(unchecked((ushort)(body.Position.Y.Whole - 28)), 0));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(DragonFireballInitialYVelocity));
 
-        if (unchecked((short)bodyState.DirectionWord) < 0)
+        if (bodyState.FacingLeft)
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(body.Position.X.Whole - 12)));
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(DragonFireballLeftXVelocity));
@@ -472,7 +457,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        ResetDragonRoomState();
+
     }
 
     /// <inheritdoc/>

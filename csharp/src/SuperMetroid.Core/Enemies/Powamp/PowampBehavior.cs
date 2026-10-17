@@ -54,8 +54,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Powamp</c> at $A8:C1C9.</summary>
     internal void InitializePowamp(RoomEnemySlot slot)
     {
-        var state = new PowampEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new PowampEnemyState { IsBalloon = slot.Parameter1 != 0 };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initializer forces animation processing for both halves and clears the
         // instruction interpreter's loop counter before choosing the half-specific list.
@@ -126,7 +126,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Powamp body function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Powamp body function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -154,9 +154,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Function = PowampEnemyFunction.InflatedRiseToTargetHeight;
-            // $FFFF:$8000 is exactly -0.5 pixels/frame on the NTSC cartridge.
-            state.YVelocity = unchecked((ushort)-1);
-            state.YSubvelocity = 32768;
+            // Exactly half a pixel per frame upward on the NTSC cartridge.
+            state.YVelocity = SnesSignedSixteenSixteen.FromRaw(-SnesSixteenSixteen.FromWhole(1) / 2);
             SetPowampProgram(body, state, PowampProgram.BodyFast);
         }
         AlignPowampBalloonY(body, balloon);
@@ -269,9 +268,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (TickPowampTimer(state))
         {
             state.Function = PowampEnemyFunction.DeflatedSinking;
-            // $0001:$0000 is exactly +1 pixel/frame.
-            state.YVelocity = 1;
-            state.YSubvelocity = 0;
+            // Exactly +1 pixel/frame.
+            state.YVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -420,7 +418,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (stopWhenCentered && IsPowampCentered(state.WiggleIndex))
             return true;
 
-        state.WiggleIndex = unchecked((ushort)(state.WiggleIndex + 1));
+        state.WiggleIndex++;
         if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
             state.WiggleIndex = 0;
         return false;
@@ -465,12 +463,11 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         return state.FunctionTimer.IsZero || EnemyMath.IsNegative16(state.FunctionTimer.RawValue);
     }
 
-    /// <summary>Combines native whole and fractional Y-velocity words for terrain movement.</summary>
-    private static int ComposePowampVerticalDisplacement(PowampEnemyState state) =>
-        unchecked((SnesSixteenSixteen.FromWhole((short)state.YVelocity)) | state.YSubvelocity);
+    /// <summary>The body's vertical displacement for terrain movement.</summary>
+    private static int ComposePowampVerticalDisplacement(PowampEnemyState state) => state.YVelocity.RawValue;
 
     /// <summary>Recognizes the two zero-offset points in the twelve-phase wiggle table.</summary>
-    private static bool IsPowampCentered(ushort wiggleIndex) => wiggleIndex is 0 or 6;
+    private static bool IsPowampCentered(int wiggleIndex) => wiggleIndex is 0 or 6;
 
     /// <summary>Restarts a body or balloon animation on the next interpreter pass.</summary>
     private static void SetPowampProgram(RoomEnemySlot slot, PowampEnemyState state, PowampProgram program)

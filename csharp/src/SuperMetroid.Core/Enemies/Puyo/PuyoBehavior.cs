@@ -42,16 +42,16 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // per-family variable words; no later Puyo routine reads it.
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
 
-        var state = new PuyoEnemyState(slot)
+        var state = new PuyoEnemyState
         {
             YSpeedTableIndex = 0,
             HopCooldownTimer = NativeCountdown.FromRaw(slot.Parameter1),
             Function = PuyoEnemyFunction.Grounded,
-            // InitAI never writes $0FB0 or the inactive extended words. The room loader's
-            // cleared enemy allocation therefore leaves them zero until InitiateHop owns
+            // InitAI never writes the airborne function or the inactive extended words. The room loader's
+            // cleared enemy allocation therefore leaves them empty until InitiateHop owns
             // them; do not pre-populate plausible values the cartridge has not written.
-            AirborneFunction = (PuyoAirborneFunction)0,
-            HopTableIndex = 0,
+            AirborneFunction = null,
+            HopRecord = 0,
             HopType = PuyoHopType.NormalSmall,
             HoppingAnimationActive = false,
             Direction = PuyoDirection.Right,
@@ -61,7 +61,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             InitialYSpeedTableIndexThreeQuarters = 0,
             InitialYSpeedTableIndexHalf = 0,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         SetPuyoProgram(slot, state, PuyoProgram.GroundedFast);
     }
 
@@ -87,7 +87,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Puyo function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -144,8 +144,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.HopType = (PuyoHopType)hopType;
         }
 
-        state.HopTableIndex = checked((ushort)(hopType * PuyoHopDefinitions.RecordSize));
-        state.AirborneFunction = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).Function;
+        state.HopRecord = hopType;
+        state.AirborneFunction = Hop(state).Function;
         CalculateInitialPuyoHopSpeed(state);
     }
 
@@ -154,7 +154,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ushort timeAccumulator = 0;
         ushort distanceAccumulator = 0;
-        PuyoHopDefinition hop = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex);
+        PuyoHopDefinition hop = Hop(state);
         ushort xSpeed = hop.XSpeed;
         ushort swappedJumpHeight = SnesLittleEndian.SwapBytes(hop.Height);
 
@@ -174,16 +174,19 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
 
             state.YSpeedTableIndex = timeAccumulator;
             state.Falling = false;
-            state.InitialYSpeedTableIndexHalf = (ushort)(timeAccumulator >> 1);
-            state.InitialYSpeedTableIndexThreeQuarters = unchecked((ushort)(
-                (timeAccumulator >> 2) + state.InitialYSpeedTableIndexHalf));
+            state.InitialYSpeedTableIndexHalf = timeAccumulator >> 1;
+            state.InitialYSpeedTableIndexThreeQuarters = (timeAccumulator >> 2) + state.InitialYSpeedTableIndexHalf;
             return;
         }
 
         throw new InvalidDataException(
-            $"Puyo hop record {state.HopTableIndex / PuyoHopDefinitions.RecordSize} never reached " +
+            $"Puyo hop record {state.HopRecord} never reached " +
             "its ROM jump-height threshold.");
     }
+
+    /// <summary>The hop-table record <paramref name="state"/> has selected.</summary>
+    private static PuyoHopDefinition Hop(PuyoEnemyState state) =>
+        PuyoHopDefinitions.FromByteIndex(checked((ushort)(state.HopRecord * PuyoHopDefinitions.RecordSize)));
 
     /// <summary>Ports the indirect airborne dispatcher at $A2:9B81.</summary>
     private void RunAirbornePuyo(
@@ -225,7 +228,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Puyo airborne function $A2:{(ushort)state.AirborneFunction:X4} " +
+                    $"Puyo airborne function {state.AirborneFunction?.ToString() ?? "none"} " +
                     "is not translated.");
         }
     }
@@ -267,7 +270,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the constant-speed collision fall at $A2:9D98.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        ushort packed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).YIndexDelta;
+        ushort packed = Hop(state).YIndexDelta;
         int displacement = SnesSixteenSixteen.FromEightEight(packed);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return;
@@ -301,11 +304,8 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>PuyoMovement</c> at $A2:9B88.</summary>
     private void MovePuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        ushort cappedIndex = state.YSpeedTableIndex;
-        if (!EnemyMath.IsNegative16(unchecked((ushort)(cappedIndex - MaximumPuyoYSpeedTableIndex))))
-            cappedIndex = MaximumPuyoYSpeedTableIndex;
-
-        int speedRow = (SnesLittleEndian.HighByte(cappedIndex)) * QuadraticSpeedRecordSize;
+        int cappedIndex = Math.Min(state.YSpeedTableIndex, MaximumPuyoYSpeedTableIndex);
+        int speedRow = SnesEightEight.WholeOf(cappedIndex) * QuadraticSpeedRecordSize;
         int verticalOffset = state.Falling ? 0 : 4;
         int verticalDisplacement = EnemyQuadraticSpeedDefinitions.ReadDisplacement(speedRow + verticalOffset);
         bool verticalCollision = _terrain.MoveEnemyVertically(level, slot, verticalDisplacement);
@@ -336,20 +336,12 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         // squash/stretch thresholds in the ROM rather than interpolating sprite frames.
         SetPuyoAirborneProgram(slot, state);
 
-        ushort delta = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).YIndexDelta;
-        state.YSpeedTableIndex = state.Falling
-            ? unchecked((ushort)(state.YSpeedTableIndex + delta))
-            : unchecked((ushort)(state.YSpeedTableIndex - delta));
-        if (EnemyMath.IsNegative16(state.YSpeedTableIndex))
-        {
-            state.Falling = true;
-            state.YSpeedTableIndex = 0;
-        }
+        state.StepAirborneIndex(Hop(state).YIndexDelta);
 
         // X speed is stored as 8.8, but NTSC $A2:9C29-9C32 moves by the whole byte only
         // and zeroes the subspeed word; only the PAL build uses the fraction. The giant
         // hop's $0140 therefore moves exactly one pixel per frame either way.
-        ushort xSpeed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).XSpeed;
+        ushort xSpeed = Hop(state).XSpeed;
         short whole = unchecked((short)(SnesEightEight.WholeOf(xSpeed)));
         if (state.Direction == PuyoDirection.Left)
             whole = unchecked((short)-whole);

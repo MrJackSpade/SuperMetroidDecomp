@@ -19,7 +19,7 @@ internal static class DownwardGateProjectileAnimations
         // $86:E53C
         [P.Moving] =
         [
-            Cue(new(K.SetYVelocity, Value: 256)),
+            Cue(new(K.SetYVelocity, YVelocity: SnesSignedEightEight.FromSignedRaw(256))),
             Cue(new(K.SetPreInstruction, PreInstruction: EnemyProjectilePreInstruction.DownwardGateMovementPreInstruction)),
             Show(0, 1),
             Hold,
@@ -51,7 +51,7 @@ internal static class DownwardGateProjectileAnimations
         // $86:E55E
         [P.Closed] =
         [
-            Cue(new(K.SetYVelocity, Value: 65280)),
+            Cue(new(K.SetYVelocity, YVelocity: SnesSignedEightEight.FromSignedRaw(-256))),
             Show(4, 1),
             Hold,
         ],

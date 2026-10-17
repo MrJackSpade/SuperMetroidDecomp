@@ -67,7 +67,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the idle list directly and initializes the slot's dive, burrow, and instruction-change state.</summary>
     internal static void InitializeMetaree(RoomEnemySlot slot)
     {
-        slot.SetSpeciesState(new MetareeEnemyState(slot)
+        var state = new MetareeEnemyState
         {
             BurrowTimer = NativeCountdown.Start(0),
             Function = MetareeEnemyFunction.Idling,
@@ -75,12 +75,12 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
             InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
             AttackReady = false,
             YVelocity = 0,
-        });
+        };
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The initializer starts the idle animation directly rather than going through the change detector,
         // because both requested and installed indexes intentionally start at zero.
-        (slot.SpeciesState<MetareeEnemyState>() ?? throw new InvalidOperationException("The Metaree state was not stored.")).Program =
-            AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.MetareeIdling);
+        state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeProgram.MetareeIdling);
     }
 
     /// <summary>Dispatches idle, attack preparation, airborne dive, and burrow phases with required Samus and room data.</summary>
@@ -118,7 +118,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Metaree function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Metaree function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -140,8 +140,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // above Metaree, this deliberately creates the cartridge's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
         ushort verticalDifference = unchecked((ushort)(samus.Position.Y.Whole - slot.Position.Y.Whole));
-        state.YVelocity = unchecked((ushort)(
-            verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity));
+        state.YVelocity = verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity;
         state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.PreparingAttack;
         InstallRequestedMetareeInstruction(slot, state);
         state.Function = MetareeEnemyFunction.PreparingAttack;

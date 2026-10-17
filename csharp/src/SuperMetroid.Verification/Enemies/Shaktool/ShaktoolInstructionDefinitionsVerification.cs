@@ -40,14 +40,13 @@ internal static class ShaktoolInstructionDefinitionsVerification
         for (ushort bucket = 0; bucket <= 0x00e0; bucket += 0x0020)
         {
             ushort midpoint = unchecked((ushort)(bucket << 8));
-            center.Parameter1 = 0;
-            (centerState ?? throw new InvalidOperationException("Verification requires centerState.")).OrbitAngle = unchecked((ushort)(midpoint ^ 0x8000));
+            (centerState ?? throw new InvalidOperationException("Verification requires centerState.")).MotionFlags = 0;
+            centerState.OrbitAngle = SnesAngle.FromRaw(unchecked((ushort)(midpoint ^ 0x8000)));
             centerState.AngularVelocity = 0;
-            centerState.OrientationAndAcceleration = 0;
-            (nextState ?? throw new InvalidOperationException("Verification requires nextState.")).OrbitAngle = midpoint;
+            centerState.ResetOrientation();
+            (nextState ?? throw new InvalidOperationException("Verification requires nextState.")).OrbitAngle = SnesAngle.FromRaw(midpoint);
             orient(center, centerState);
-            AssertEqual(bucket, unchecked((ushort)(
-                    SnesLittleEndian.LowByte(centerState.OrientationAndAcceleration))),
+            AssertEqual((int)bucket, centerState.OrientationBucket,
                 $"Shaktool production orientation bucket {bucket:X2}");
             AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolInstructionDefinitions.ForOrientationBucket(bucket)),
                 centerState.Program,

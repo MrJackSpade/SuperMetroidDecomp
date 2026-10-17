@@ -113,12 +113,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
     private static void InitializeMamaTurtle(RoomEnemySlot slot)
     {
-        var state = new MamaTurtleEnemyState(slot)
+        var state = new MamaTurtleEnemyState
         {
             Function = MamaTurtleAiFunction.Initial,
             AsleepFlag = NativeCountdown.Start(1),
         };
-        slot.SetSpeciesState<MamaTurtleEnemyState>(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The population already supplies $A800, but the initializer explicitly ORs $2000.
         // Spell that write out because instruction processing is essential to leaving shell.
@@ -198,7 +198,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Mama Turtle main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Mama Turtle main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -335,17 +335,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.FunctionTimer.IsZero)
             return;
 
-        // The two adjacent {sub,whole} pairs at $8D56 accelerate toward Samus's side.
-        if (unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0)
-        {
-            state.XSubAcceleration = 4096;
-            state.XAcceleration = 0;
-        }
-        else
-        {
-            state.XSubAcceleration = 61440;
-            state.XAcceleration = unchecked((ushort)-1);
-        }
+        // The two adjacent acceleration records at $8D56 accelerate toward Samus's side by a sixteenth of a pixel per update.
+        state.XAcceleration = unchecked((short)(mama.Position.X.Whole - samus.Position.X.Whole)) < 0
+            ? SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 16)
+            : SnesSignedSixteenSixteen.FromRaw(-SnesSixteenSixteen.FromWhole(1) / 16);
         state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.Zero);
         state.Function = MamaTurtleAiFunction.Hovering;
     }
@@ -386,14 +379,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Adds signed 16.16 hover acceleration with carry and caps whole speed using the old velocity's sign.</summary>
-    private static void AddAndClampMamaTurtleHorizontalAcceleration(
+    internal static void AddAndClampMamaTurtleHorizontalAcceleration(
         MamaTurtleEnemyState state)
     {
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
-        uint subSum = (uint)velocity.Fraction + state.XSubAcceleration;
+        // One 16.16 add: the fraction's carry reaches the whole pixels.
+        SnesSignedSixteenSixteen sum = velocity + state.XAcceleration;
         ushort oldWhole = velocity.WholeWord;
-        ushort newWhole = unchecked((ushort)(
-            oldWhole + state.XAcceleration + (SnesCarry.OutOfWord(subSum))));
+        ushort newWhole = sum.WholeWord;
 
         int magnitude = Math.Abs((int)unchecked((short)newWhole));
         ushort cappedWhole = magnitude < MamaTurtleMaximumHoveringSpeed
@@ -404,14 +397,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? unchecked((ushort)-MamaTurtleMaximumHoveringSpeed)
                 : MamaTurtleMaximumHoveringSpeed;
         state.Velocity = state.Velocity.WithX(
-            SnesSignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), unchecked((ushort)subSum)));
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)cappedWhole), sum.Fraction));
     }
 
     /// <summary>
     /// Reproduces $903C-$906B, including carry propagation across two otherwise separate
     /// negations and the missing final INC on the whole acceleration word.
     /// </summary>
-    private static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
+    internal static void ReverseMamaTurtleAtWall(MamaTurtleEnemyState state)
     {
         SnesSignedSixteenSixteen velocity = state.Velocity.X;
         ushort negatedFraction = unchecked((ushort)(~velocity.Fraction + 1));
@@ -422,9 +415,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = state.Velocity.WithX(
             SnesSignedSixteenSixteen.FromParts(unchecked((short)negatedWhole), negatedFraction));
 
-        state.XSubAcceleration = unchecked((ushort)(~state.XSubAcceleration + 1));
-        uint accelerationSum = (uint)state.XAcceleration + (carry ? 1u : 0u);
-        state.XAcceleration = unchecked((ushort)~(ushort)accelerationSum); // No INC in ROM.
+        ushort negatedAccelerationFraction = unchecked((ushort)(~state.XAcceleration.Fraction + 1));
+        uint accelerationSum = (uint)state.XAcceleration.WholeWord + (carry ? 1u : 0u);
+        ushort invertedAccelerationWhole = unchecked((ushort)~(ushort)accelerationSum); // No INC in ROM.
+        state.XAcceleration = SnesSignedSixteenSixteen.FromParts(unchecked((short)invertedAccelerationWhole), negatedAccelerationFraction);
     }
 
     /// <summary>Ports the rider-powered seven-pixel ascent at <c>$A2:9083</c>.</summary>
@@ -509,8 +503,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Baby Turtle AI requires the active Samus actor.");
 
-        MamaTurtleEnemyState parent = RequireMamaTurtleParent(state);
-        parent.CarryingChildHeight = 0;
+        // The prologue requires the child's parent to be a Mama Turtle. The cartridge also clears and republishes a
+        // carried-height word on the parent here, which nothing reads.
+        _ = RequireMamaTurtleParent(state);
         switch (state.Function)
         {
             case BabyTurtleAiFunction.CrawlingNotCarryingSamus:
@@ -578,7 +573,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case BabyTurtleAiFunction.CrawlingCarryingSamus:
-                parent.CarryingChildHeight = baby.Radius.Y;
                 if (!PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                     state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
                 return;

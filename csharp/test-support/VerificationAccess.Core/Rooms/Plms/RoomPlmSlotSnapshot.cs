@@ -9,6 +9,5 @@ internal readonly record struct RoomPlmSlotSnapshot(
     ushort InstructionPointer,
     ushort PreInstruction,
     ushort InstructionTimer,
-    ushort LinkInstruction,
     ushort LoopTimer,
     PlmAnimation? Animation);

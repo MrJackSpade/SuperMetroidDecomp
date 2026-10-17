@@ -27,10 +27,10 @@ public sealed class DoorTransitionState
     private CartridgeDoorHeader? door;
     /// <summary>Samus's source-room position used to compute the final door-scroll placement.</summary>
     private FixedPosition<RoomPixels> sourceSamus;
-    /// <summary>Source common-room-element bit used when selecting palette and IRQ behavior.</summary>
-    private byte sourceCreBitset;
-    /// <summary>Destination common-room-element bit used by the transition IRQ setup.</summary>
-    private byte destinationCreBitset;
+    /// <summary>Whether the source room selects the isolated door transition, for the transition IRQ setup.</summary>
+    private bool sourceIsolated;
+    /// <summary>Whether the destination room selects the isolated door transition, for the transition IRQ setup.</summary>
+    private bool destinationIsolated;
 
     /// <summary>Gets the currently selected native door-transition coroutine phase.</summary>
     public DoorTransitionPhase Phase { get; private set; } = DoorTransitionPhase.Inactive;
@@ -53,9 +53,9 @@ public sealed class DoorTransitionState
         runtime.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;
-        sourceCreBitset = runtime.Room.ActiveRoom?.CreBitset
+        sourceIsolated = runtime.Room.ActiveRoom?.UsesIsolatedDoorTransition
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
-        destinationCreBitset = runtime.RoomLoader.PendingDoorDestinationCreBitset;
+        destinationIsolated = runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition;
         sourceSamus = runtime.Player.Samus.Position;
         PaletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
@@ -117,7 +117,7 @@ public sealed class DoorTransitionState
                 // coroutine boundary and its one accepted NMI.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true);
-                runtime.RoomLoader.BeginDoorTransitionIrqDisplay(sourceCreBitset, destinationCreBitset);
+                runtime.RoomLoader.BeginDoorTransitionIrqDisplay(sourceIsolated, destinationIsolated);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
@@ -314,9 +314,7 @@ public sealed class DoorTransitionState
         CartridgeRoomHeader sourceRoom = runtime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Door palette fade started without an active source room header.");
-        byte sourceCre = sourceRoom.CreBitset;
-        byte destinationCre = runtime.RoomLoader.PendingDoorDestinationCreBitset;
-        if (((sourceCre | destinationCre) & 1) == 0)
+        if (!sourceRoom.UsesIsolatedDoorTransition && !runtime.RoomLoader.PendingDoorDestinationUsesIsolatedDoorTransition)
         {
             DoorTransitionPaletteDefinitions.PreserveCommonCre(current, target);
             if (runtime.EscapeTimer.IsActive)

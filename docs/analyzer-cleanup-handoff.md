@@ -387,3 +387,30 @@ Commit and push that update too.
     `ScreenFade` packed byte counters; `Position16`/`Extent16` X/Y (about 3500 Core uses); Samus speed pairs; room
     and frame identity (Q5, Q7); Samus projectiles (Q2); per-family enemy state (5.3).
   - Final census: 420 sites, all Core (SME6347 392, SME6292 10, SME6341 10, SME6342 6, SME6346 2), down from 633; AssetExtraction 0.
+- 2026-10-17, coordinator resumed with three workers (from `6027af33f`, census 404 sites, Core only):
+  - `0a6130a15` Samus batch (W2): census clean, Core SME6347 379 -> 356.
+  - The commit after it holds two batches that were NOT fully censused, committed at the owner's direction
+    at the weekly usage limit:
+    - W3 (rooms, frontend, runtime, saves, map, fx, gameplay, spatial): reviewed and accepted, 46 rows.
+      - Census b46 was otherwise clean (SME6347 379 -> 310 together with W2), with two exceptions.
+      - The first exception, two SME6404 layering findings (Gameplay referencing Rendering's `VramWordRange`),
+        is fixed in that commit by calling `SnesPpuLayout.RequireVramWord` instead.
+      - The second exception is a compile error: `NativeSnapshotImportVerification.cs:295` calls W1's
+        `NativeEnemyFamilyStateImport`.
+    - W1 (enemy families to owned state, owner question 4): interrupted mid-run (last step: Metaree state).
+      - It is partial and unreviewed.
+      - It added `Verification/Enemies/NativeEnemyFamilyStateImport.cs` and `*OwnedStateVerification.cs` files,
+        and edited several family `*EnemyState`/`*Behavior` files.
+  - **First thing next session:**
+    1. Run one census.
+    2. Fix every compile error. W1's half-finished families are the likely source; finish each family or revert
+       it to its pre-W1 state.
+    3. Confirm no rule rose versus 356 Core SME6347 sites.
+    4. Then continue section 5.
+  - Owner question 13 added (Ceres Mode 7 source address read by the speed-booster residue).
+  - Blockers reported by the workers (exact edits are in their reports, summarized here):
+    - The largest blocker is `RidleyFullMovieVerification.Check(string, ushort, int)`, which pins most remaining
+      Samus fields; it should take `int`.
+    - Samus projectile slot consumers in enemy and boss files must take the typed slot API (owner question 2).
+    - Remaining Q7 room-identity work needs both generators edited.
+    - Q8 sprite objects and Q10 RNG need every consumer in one batch.

@@ -132,8 +132,8 @@ public sealed class BackgroundTilemapStreamer
             _blockDefinitions);
         return new PlmTilemapUpdate(
             destination,
-            new[] { tiles.TopLeft, tiles.TopRight },
-            new[] { tiles.BottomLeft, tiles.BottomRight });
+            new ushort[] { tiles.TopLeft, tiles.TopRight },
+            new ushort[] { tiles.BottomLeft, tiles.BottomRight });
     }
 
     /// <summary>Produces one native staging-buffer update, or null for Mode 7 rooms.</summary>

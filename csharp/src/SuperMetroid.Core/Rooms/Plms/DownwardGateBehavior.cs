@@ -47,12 +47,11 @@ internal sealed class DownwardGateBehavior
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
     {
-        RoomEnemyProjectileKind kind = (RoomEnemyProjectileKind)request.DefinitionPointer;
-        if (kind is not RoomEnemyProjectileKind.DownwardGateMoving and
-            not RoomEnemyProjectileKind.DownwardGateClosed)
+        if (request.Kind is not { } kind ||
+            kind is not RoomEnemyProjectileKind.DownwardGateMoving and not RoomEnemyProjectileKind.DownwardGateClosed)
         {
             throw new InvalidDataException(
-                $"Downward gate requested unsupported projectile definition $86:{request.DefinitionPointer:X4}.");
+                $"Downward gate requested unsupported projectile {request.Kind?.ToString() ?? "(none)"}.");
         }
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -136,7 +135,7 @@ internal sealed class DownwardGateBehavior
         switch (cue.Kind)
         {
             case DownwardGateProjectileCueKind.SetYVelocity:
-                projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(cue.Value));
+                projectile.Velocity = projectile.Velocity.WithY(cue.YVelocity);
                 break;
             case DownwardGateProjectileCueKind.SetPreInstruction:
                 projectile.PreInstruction = (ushort)cue.PreInstruction;

@@ -45,12 +45,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         return null;
     }
 
-    /// <summary>The words each physical slot keeps across Platforms occupants for the current room.</summary>
-    private readonly PlatformsExtensionWords[] _extensions = NewExtensions();
-
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static PlatformsExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new PlatformsExtensionWords())];
 
     /// <summary>Recognizes the two enemy definitions sharing bank-$A3 platform movement.</summary>
     internal static bool IsPlatformDefinition(EnemyDefinitionId definition) =>
@@ -60,8 +54,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
-        var state = new PlatformEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new PlatformEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.IsSuspensorPlatform = isKamer;
         // Main AI dispatches the complete word through a two-entry table. Initialization's
@@ -75,18 +69,18 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
         ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter2)) * 8));
-        (state.RightVelocity, state.RightSubvelocity) =
-            EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        (state.LeftVelocity, state.LeftSubvelocity) =
-            EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
+        (short rightWhole, ushort rightFraction) = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
+        state.RightSpeed = SnesSignedSixteenSixteen.FromParts(rightWhole, rightFraction);
+        (short leftWhole, ushort leftFraction) = EnemyMath.ReadLinearEnemySpeed(unchecked((ushort)(speedTableOffset + 4)));
+        state.LeftSpeed = SnesSignedSixteenSixteen.FromParts(leftWhole, leftFraction);
 
         state.YMovement = PlatformVerticalMovement.Rising;
         state.PreviousYMovement = PlatformVerticalMovement.Rising;
         state.VerticallyMovingArtInstalled = false;
         state.VerticallyStillArtInstalled = false;
-        state.TargetYPosition = unchecked((ushort)(slot.Position.Y.Whole + 1));
+        state.RestingHeight = new Position16<RoomPixels>(0, slot.Position.Y.Whole) + new Offset16<RoomPixels>(0, 1);
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = unchecked((ushort)(SnesLittleEndian.HighByte(slot.Parameter2)));
+        state.MaximumYSpeedTableIndex = SnesLittleEndian.HighByte(slot.Parameter2);
     }
 
     /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>
@@ -108,8 +102,10 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             ? PlatformVerticalMovement.Sinking
             : PlatformVerticalMovement.Rising;
 
+        // The sinking carry measures the horizontal step from the position before it.
+        ushort preHorizontalX = slot.Position.X.Whole;
         MovePlatformHorizontally(slot, state, level);
-        MovePlatformVertically(slot, state, samus, level);
+        MovePlatformVertically(slot, state, samus, level, preHorizontalX);
 
         // Native main AI resets acceleration after running the first frame in a newly
         // selected vertical state. Preserve that slightly surprising ordering: a new phase
@@ -153,7 +149,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state,
         RoomLevelData level)
     {
-        state.PreviousPosition = slot.Position.X.Whole;
         bool movingLeft = state.XMovement switch
         {
             PlatformHorizontalMovement.Left => true,
@@ -161,7 +156,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidDataException(
                 $"Platform X movement index {(ushort)state.XMovement} exceeds its two-entry table."),
         };
-        int displacement = movingLeft ? state.LeftDisplacement : state.RightDisplacement;
+        int displacement = (movingLeft ? state.LeftSpeed : state.RightSpeed).RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -175,11 +170,17 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Routes the platform through rise or sink physics and carries a riding Samus by accepted motion.</summary>
+    /// <param name="slot">The platform's slot.</param>
+    /// <param name="state">The platform's state.</param>
+    /// <param name="samus">Samus, carried while riding.</param>
+    /// <param name="level">The room's collision data.</param>
+    /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void MovePlatformVertically(
         RoomEnemySlot slot,
         PlatformEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        ushort preHorizontalX)
     {
         switch (state.YMovement)
         {
@@ -187,7 +188,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                 RaisePlatform(slot, state, level);
                 return;
             case PlatformVerticalMovement.Sinking:
-                SinkPlatform(slot, state, samus, level);
+                SinkPlatform(slot, state, samus, level, preHorizontalX);
                 return;
             default:
                 throw new InvalidDataException(
@@ -203,7 +204,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Signed BMI comparison is intentional. Normal platforms stop once they have risen
         // from their depressed position to one pixel below their original spawn center.
-        if (unchecked((short)(slot.Position.Y.Whole - state.TargetYPosition)) < 0)
+        if (unchecked((short)(slot.Position.Y.Whole - state.RestingHeight.Y)) < 0)
         {
             state.YSpeedTableIndex = 0;
             SetPlatformVerticallyStillInstruction(slot, state);
@@ -223,23 +224,28 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Accelerates a ridden platform downward and publishes its collision-clipped displacement to Samus.</summary>
+    /// <param name="slot">The platform's slot.</param>
+    /// <param name="state">The platform's state.</param>
+    /// <param name="samus">Samus, carried by the platform's accepted movement.</param>
+    /// <param name="level">The room's collision data.</param>
+    /// <param name="preHorizontalX">The platform's whole X before this update's horizontal movement.</param>
     private void SinkPlatform(
         RoomEnemySlot slot,
         PlatformEnemyState state,
         SamusState samus,
-        RoomLevelData level)
+        RoomLevelData level,
+        ushort preHorizontalX)
     {
         // `$A3:9DE7-$9DED` performs a comparison followed by a JSR to an immediate RTS; it
         // has no branch or side effect. Sinking therefore always continues to acceleration.
         IncrementAndClampPlatformYSpeed(state);
 
-        // Horizontal movement saved the pre-move X position in the aliased word. Add the
-        // wrapped whole-pixel delta to the shared producer word; fractional displacement is
-        // deliberately untouched because this enemy writes only `$0B58`.
-        ushort xDelta = unchecked((ushort)(slot.Position.X.Whole - state.PreviousPosition));
+        // Add the wrapped whole-pixel horizontal step to Samus's extra displacement; fractional
+        // displacement is deliberately untouched because this enemy carries only whole pixels.
+        ushort xDelta = unchecked((ushort)(slot.Position.X.Whole - preHorizontalX));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
 
-        state.PreviousPosition = slot.Position.Y.Whole;
+        ushort preVerticalY = slot.Position.Y.Whole;
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
             state.YSpeedTableIndex,
             negative: false);
@@ -251,19 +257,20 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
-        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - state.PreviousPosition));
+        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - preVerticalY));
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
-    /// <summary>Steps the quadratic-speed table index without crossing its variant-specific cap.</summary>
-    private static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
+    /// <summary>
+    /// Steps the quadratic-speed table index without crossing its variant-specific cap. The index stays within
+    /// 0 through the cap (at most 255) and one step can only reach 256, so the cartridge's signed word comparison
+    /// is an ordinary one.
+    /// </summary>
+    internal static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)
     {
-        state.YSpeedTableIndex = unchecked((ushort)(state.YSpeedTableIndex + 1));
-        if (unchecked((short)(
-                state.YSpeedTableIndex - state.MaximumYSpeedTableIndex)) >= 0)
-        {
+        state.YSpeedTableIndex++;
+        if (state.YSpeedTableIndex >= state.MaximumYSpeedTableIndex)
             state.YSpeedTableIndex = state.MaximumYSpeedTableIndex;
-        }
     }
 
     /// <summary>Installs moving art once per phase and always clears the still-art flag at the native merge label.</summary>
@@ -399,9 +406,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <inheritdoc/>
+    /// <remarks>Each platform's initializer creates its state, so a room load has nothing to reset.</remarks>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new PlatformsExtensionWords();
     }
 }

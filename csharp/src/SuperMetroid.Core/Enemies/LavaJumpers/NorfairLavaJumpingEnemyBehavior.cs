@@ -47,12 +47,13 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Ports <c>NorfairLavajumpingEnemy_Init</c> at $A2:BE99.</summary>
     internal void InitializeNorfairLavaJumpingEnemy(RoomEnemySlot slot)
     {
-        var state = new NorfairLavaJumpingEnemyState(slot)
+        var state = new NorfairLavaJumpingEnemyState
         {
             AnimationFinished = false,
             InstalledProgram = null,
+            IsFollower = (slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         if (state.IsFollower)
         {
@@ -90,7 +91,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 return;
 
             case NorfairLavaJumpingEnemyFunction.BeginJump:
-                state.YVelocity = NorfairLavaJumpDefinitions.InitialVerticalVelocity(random);
+                state.YVelocity = new SnesSignedEightEight(NorfairLavaJumpDefinitions.InitialVerticalVelocity(random));
                 state.Function = NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch;
                 slot.Properties = slot.Properties.With(EnemyProperties.ProcessOffScreen);
                 LastNorfairLavaJumpingEnemySoundEffect = EnemySoundEffectDefinitions.NorfairLavaJumpingEnemyJumpSound;
@@ -98,11 +99,11 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             case NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch:
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
-                state.YVelocity = unchecked((ushort)(state.YVelocity + NorfairLavaJumpingEnemyGravity));
+                state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
 
                 // The 65816 CMP is unsigned. Starting jump velocities are near $F800; the
                 // test becomes true while still negative at $FC00, before the arc apex.
-                if (state.YVelocity >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
+                if (state.YVelocity.RawValue >= NorfairLavaJumpingEnemyAnimationSwitchVelocity)
                 {
                     InstallNorfairLavaJumpingEnemyProgram(slot, state, NorfairLavaJumperProgram.Jump);
                     state.Function = NorfairLavaJumpingEnemyFunction.MoveUntilAnimationSignal;
@@ -111,7 +112,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
             case NorfairLavaJumpingEnemyFunction.MoveUntilAnimationSignal:
                 MoveNorfairLavaJumpingEnemyVertically(slot, state);
-                state.YVelocity = unchecked((ushort)(state.YVelocity + NorfairLavaJumpingEnemyGravity));
+                state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
                 if (state.AnimationFinished)
                 {
                     state.AnimationFinished = false;
@@ -134,13 +135,13 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
                 }
                 else
                 {
-                    state.YVelocity = unchecked((ushort)(state.YVelocity + NorfairLavaJumpingEnemyGravity));
+                    state.ApplyGravity(NorfairLavaJumpingEnemyGravity);
                 }
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair lava-jumping enemy function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Norfair lava-jumping enemy function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -160,8 +161,8 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
 
         // These four reads look nonsensical in the disassembly because the routine indexes
         // enemy_drawing_queue with offsets +100/+109/+2/+93. For a follower one slot after
-        // its parent, those WRAM addresses alias the preceding EnemyData record exactly:
-        // health, frozen timer, variable C (Y velocity), and Y position respectively.
+        // its parent, those WRAM addresses alias the preceding enemy record exactly:
+        // health, frozen timer, the parent's Y velocity, and Y position respectively.
         if (parent.Health == 0)
         {
             follower.Properties = follower.Properties.With(EnemyProperties.Deleted);
@@ -174,7 +175,9 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         // Requiring a live definition here rejects valid retained-WRAM reads (#322).
 
         follower.FrozenTimer = parent.FrozenTimer;
-        if (!parent.FrozenTimer.IsZero || !EnemyMath.IsNegative16(parent.VariableC))
+        NorfairLavaJumpingEnemyState parentState = parent.SpeciesState<NorfairLavaJumpingEnemyState>() ??
+            throw new InvalidDataException($"The Norfair lava-jumping follower in slot {follower.SlotIndex} has no parent state.");
+        if (!parent.FrozenTimer.IsZero || parentState.YVelocity.SignedRawValue >= 0)
         {
             // The second half appears only while the parent is travelling upward. At the
             // apex and during descent, the parent animation alone owns the visible shape.
@@ -218,7 +221,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
     {
-        slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(state.YVelocity).ToSixteenSixteenDelta());
+        slot.Position = slot.Position.AdvanceY(state.YVelocity.ToSixteenSixteenDelta());
     }
 
     /// <summary>Ports function six at $A2:C012 without restarting an unchanged list.</summary>

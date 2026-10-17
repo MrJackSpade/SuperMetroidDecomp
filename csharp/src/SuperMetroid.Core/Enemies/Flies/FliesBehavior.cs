@@ -32,12 +32,12 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts a newly loaded fly at angle zero with its flight instruction and clockwise motion.</summary>
     internal static void InitializeFly(RoomEnemySlot slot)
     {
-        var state = new FlyEnemyState(slot)
+        var state = new FlyEnemyState
         {
-            Angle = 0,
+            Angle = SnesAngle.Zero,
             Function = FlyEnemyFunction.ClockwiseCircle,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
@@ -75,7 +75,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Fly function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Fly function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -98,8 +98,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         MoveFlyAccordingToAngle(slot, state);
-        state.Angle = unchecked((ushort)((state.Angle + (clockwise ? 32 : -32)) & FliesDefinitions.AngleBits));
-        if (state.Angle == 0)
+        state.AdvanceCircle(clockwise);
+        if (state.Angle == SnesAngle.Zero)
         {
             state.Function = clockwise
                 ? FlyEnemyFunction.AntiClockwiseCircle
@@ -118,7 +118,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Velocity = new(
             unchecked((short)(ReadSignedSineCosine(angle + 64) * 2)),
             unchecked((short)(ReadSignedSineCosine(angle) * 4)));
-        state.TargetYPosition = samus.Position.Y.Whole;
+        state.TargetHeight = new Position16<RoomPixels>(0, samus.Position.Y.Whole);
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 
@@ -129,8 +129,8 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         state.RetreatTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.RetreatTimer.RawValue + 1)));
 
         bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
-            ? slot.Position.Y.Whole < state.TargetYPosition
-            : slot.Position.Y.Whole >= state.TargetYPosition;
+            ? slot.Position.Y.Whole < state.TargetHeight.Y
+            : slot.Position.Y.Whole >= state.TargetHeight.Y;
         if (!crossedTarget)
             return;
 
@@ -141,7 +141,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the sine and phase-offset cosine table deltas for circular flight.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
-        int tableIndex = state.Angle >> 1;
+        int tableIndex = state.Angle.TableIndex;
         slot.Position = slot.Position.AdvanceX(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex + 64))).ToSixteenSixteenDelta());
         slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
     }

@@ -135,8 +135,8 @@ internal static class DragonAnimationDefinitionsVerification
         Timer = NativeCountdown.Start(0x3333),
     };
 
-    /// <summary>Provides Dragon's extension words for a standalone animation slot.</summary>
-    private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) => new(slot, new DragonExtensionWords());
+    /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>
+    private static DragonEnemyState NewDragonAnimationState(RoomEnemySlot slot) => new();
 
     /// <summary>Confirms the requested selector reached state and slot, clearing the previous loop timer.</summary>
     private static void AssertDragonAnimationHandoff(

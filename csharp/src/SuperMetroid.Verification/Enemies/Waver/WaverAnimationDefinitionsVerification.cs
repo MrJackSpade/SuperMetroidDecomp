@@ -32,7 +32,7 @@ internal static class WaverAnimationDefinitionsVerification
                 InstructionTimer = NativeCountdown.Start(0x2222),
                 Timer = NativeCountdown.Start(0x3333),
             };
-            var state = new WaverEnemyState(slot)
+            var state = new WaverEnemyState
             {
                 CurrentInstructionListIndex = selector == WaverAnimationSelector.None
                     ? WaverAnimationSelector.FacingRight

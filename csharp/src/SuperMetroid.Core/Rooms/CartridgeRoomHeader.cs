@@ -1,4 +1,6 @@
 
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -10,6 +12,10 @@ namespace SuperMetroid.Core.Rooms;
 /// the fixed header. State selection is data-driven and can depend on events, bosses, or
 /// inventory. This first reusable loader accepts those facts explicitly; a fresh Ceres
 /// start supplies an all-clear context and therefore follows the exact default branch.
+/// <c>UpScroller</c> and <c>DownScroller</c> are the camera's vertical scroller distances in pixels, 0 through 255.
+/// <c>UsesIsolatedDoorTransition</c> is the header's common-room-element bit that door transitions read: when the
+/// source or destination room sets it, the transition hides BG1 below the HUD and does not keep the common
+/// room elements' colours while the source palette fades.
 /// </remarks>
 public sealed record CartridgeRoomHeader(
     ushort Pointer,
@@ -17,9 +23,9 @@ public sealed record CartridgeRoomHeader(
     AreaId AreaIndex,
     Position16<MapTiles> MapPosition,
     Extent16<RoomScreens> Size,
-    byte UpScroller,
-    byte DownScroller,
-    byte CreBitset,
+    int UpScroller,
+    int DownScroller,
+    bool UsesIsolatedDoorTransition,
     ushort DoorListPointer,
     CartridgeRoomState State)
 {
@@ -41,7 +47,7 @@ public sealed record CartridgeRoomHeader(
             header.Size,
             header.UpScroller,
             header.DownScroller,
-            header.CreBitset,
+            (header.CreBitset & RoomCreBitsets.SuppressDoorTransitionBg1) != 0,
             header.DoorListPointer,
             RoomStateDefinitions.Get(statePointer));
     }

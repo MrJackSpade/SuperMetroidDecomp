@@ -141,8 +141,8 @@ internal static class RoomPaletteFxDefinitionsVerification
                 $"${pointer:X4} production timer");
             AssertEqual(
                 definition.SetupCallback == PaletteFxSetup.Intro
-                    ? (ushort)PaletteFxPreInstruction.Intro
-                    : (ushort)PaletteFxPreInstruction.Null,
+                    ? PaletteFxPreInstruction.Intro
+                    : PaletteFxPreInstruction.Null,
                 slot.PreInstruction,
                 $"${pointer:X4} production pre-instruction");
             AssertEqual(

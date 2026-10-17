@@ -127,8 +127,8 @@ internal static class DownwardGatePlmsVerification
         DownwardGateProjectileRequest request = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, request.Operation,
             "closed gate setup publishes one spawn");
-        AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateClosed,
-            request.DefinitionPointer, "closed gate setup uses definition $E659");
+        AssertEqual((RoomEnemyProjectileKind?)RoomEnemyProjectileKind.DownwardGateClosed,
+            request.Kind, "closed gate setup spawns the initially closed gate projectile");
 
         // The production room loader consumes this request after Enemies.Load has cleared
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
@@ -203,8 +203,8 @@ internal static class DownwardGatePlmsVerification
         DownwardGateProjectileRequest close = plms.Gates.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, close.Operation,
             "open gate publishes a moving close actor");
-        AssertEqual((ushort)RoomEnemyProjectileKind.DownwardGateMoving,
-            close.DefinitionPointer, "close request uses definition $E64B");
+        AssertEqual((RoomEnemyProjectileKind?)RoomEnemyProjectileKind.DownwardGateMoving,
+            close.Kind, "close request spawns the moving gate projectile");
         enemies.DownwardGateBehavior.ApplyDownwardGateProjectileRequest(close, level.Size.X);
         for (int frame = 0; frame < 80; frame++)
             enemies.StepEnemyProjectiles(level, samus: null);

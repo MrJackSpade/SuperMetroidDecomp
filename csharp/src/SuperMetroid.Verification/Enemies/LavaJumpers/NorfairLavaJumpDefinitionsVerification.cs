@@ -36,18 +36,18 @@ internal static class NorfairLavaJumpDefinitionsVerification
             });
         Action<RoomEnemySlot, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        var state = new NorfairLavaJumpingEnemyState(slot);
+        var state = new NorfairLavaJumpingEnemyState();
 
         for (int random = 0; random <= ushort.MaxValue; random++)
         {
             nextRandom = unchecked((ushort)random);
             advances = 0;
             state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
-            state.YVelocity = 0;
+            state.YVelocity = default;
             slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0));
             runMain(slot, state);
 
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,
                 $"Norfair lava jumper production velocity {random:X4}");
             AssertEqual(NorfairLavaJumpingEnemyFunction.RiseBeforeAnimationSwitch,
                 state.Function, $"Norfair lava jumper production handoff {random:X4}");

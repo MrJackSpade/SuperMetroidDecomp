@@ -40,7 +40,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case StokeCueKind.SpawnFireball:
-                SpawnStokeProjectile(slot, cue.Value);
+                SpawnStokeProjectile(slot, cue.FireballDirection);
                 break;
             case StokeCueKind.SetMovingLeft:
                 SetStokeMovingLeft(state);
@@ -72,16 +72,14 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         int speedOffset = slot.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedOffset);
         var left = EnemyLinearSpeedDefinitions.Read(speedOffset + 4);
-        var state = new StokeEnemyState(slot)
+        var state = new StokeEnemyState
         {
-            RightVelocity = unchecked((ushort)right.Whole),
-            RightSubvelocity = right.Fraction,
-            LeftVelocity = unchecked((ushort)left.Whole),
-            LeftSubvelocity = left.Fraction,
+            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
+            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
             Function = StokeAiFunction.MovingLeft,
             Direction = (StokeDirection)slot.Parameter1,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Initialization writes the common empty map, then picks the left list by default.
         // A nonzero init0 takes the native right-facing branch. The room-loader tail later
@@ -111,7 +109,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     level,
-                    (SnesSixteenSixteen.FromWhole((int)(short)state.LeftVelocity)) | state.LeftSubvelocity,
+                    state.LeftVelocity.RawValue,
                     StokeProgram.AttackingLeft);
                 return;
 
@@ -120,13 +118,13 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
                     slot,
                     state,
                     level,
-                    (SnesSixteenSixteen.FromWhole((int)(short)state.RightVelocity)) | state.RightSubvelocity,
+                    state.RightVelocity.RawValue,
                     StokeProgram.AttackingRight);
                 return;
 
             default:
                 throw new InvalidDataException(
-                    $"Stoke main-AI pointer $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Stoke main-AI function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -254,7 +252,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// initializer <c>$86:DB18</c>. Direction zero selects the intentionally odd left branch,
     /// which reads the signed speed from Y velocity while still moving on the X axis.
     /// </summary>
-    internal void SpawnStokeProjectile(RoomEnemySlot stoke, ushort direction)
+    internal void SpawnStokeProjectile(RoomEnemySlot stoke, StokeDirection direction)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -264,8 +262,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             RoomEnemyProjectileKind.StokeProjectile,
             unchecked((ushort)(stoke.PaletteIndex | stoke.VramTilesIndex)));
-        projectile.DirectionParameter = direction;
-        projectile.Variable0 = direction == 0
+        projectile.DirectionParameter = (ushort)direction;
+        projectile.Variable0 = direction == StokeDirection.Left
             ? (ushort)StokeProjectileFunction.MoveLeft
             : (ushort)StokeProjectileFunction.MoveRight;
         projectile.Position = new(new(stoke.Position.X.Whole, stoke.Position.X.Fraction), new(unchecked((ushort)(stoke.Position.Y.Whole + 2)), stoke.Position.Y.Fraction));

@@ -84,10 +84,8 @@ internal sealed class EndingCreditsState
     internal int planetMotionIndex;
     /// <summary>Scroll of the post-credits text map; only the vertical axis moves, during the item-percentage scroll-down.</summary>
     internal Position16<BgPlanePixels> postCreditsScroll;
-    /// <summary>Whole word of planet-escape velocity.</summary>
-    internal short planetVelocityWhole;
-    /// <summary>Fractional word of planet-escape velocity.</summary>
-    internal ushort planetVelocityFraction;
+    /// <summary>Planet-escape velocity: a signed 16.16 displacement that grows more negative every accelerating update.</summary>
+    internal SnesSignedSixteenSixteen planetVelocity;
     /// <summary>Whether the credits and reward art have been transferred to VRAM.</summary>
     private bool creditsAssetsLoaded;
     /// <summary>Prevents repeating the native copyright-panel handoff.</summary>
@@ -1035,8 +1033,7 @@ internal sealed class EndingCreditsState
         mode7Zoom -= 2;
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
         {
-            planetVelocityWhole = 0;
-            planetVelocityFraction = EndingCreditsRomData.Motion.InitialAccelerationFraction;
+            planetVelocity = SnesSignedSixteenSixteen.FromParts(0, EndingCreditsRomData.Motion.InitialAccelerationFraction);
             Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
             if (crittersEscaped)
             {
@@ -1057,12 +1054,8 @@ internal sealed class EndingCreditsState
     private void StepPlanetEscapeAccelerating()
     {
         StepFlyawayFade();
-        int velocity = (SnesSixteenSixteen.FromWhole(planetVelocityWhole)) | planetVelocityFraction;
-        velocity = unchecked(
-            velocity - EndingCreditsRomData.Motion.AccelerationDelta16Point16);
-        planetVelocityWhole = unchecked((short)(SnesSixteenSixteen.WholeOf(velocity)));
-        planetVelocityFraction = unchecked((ushort)velocity);
-        mode7 = mode7.WithX(AddSignedFixed(mode7.X, velocity));
+        planetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
+        mode7 = mode7.WithX(AddSignedFixed(mode7.X, planetVelocity.RawValue));
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
             (cinematicFrame & 3) == 0 &&
             mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)

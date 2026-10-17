@@ -1,6 +1,10 @@
 namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>Typed corpse state for one dead Zoomer, Ripper, or Skree.</summary>
+/// <summary>
+/// Typed corpse state for one dead Zoomer, Ripper, or Skree. The function and the pre-rot count are values the
+/// cartridge keeps in the enemy's common record, so they are emptied with that record when the corpse's slot is
+/// cleared (<see cref="ClearWithRecord"/>).
+/// </summary>
 public sealed class DeadTourianCorpseEnemyState
 {
     /// <summary>Captures the selected corpse variant's rot schedule, callback profile and artwork for one slot.</summary>
@@ -16,8 +20,10 @@ public sealed class DeadTourianCorpseEnemyState
         Variant = variant;
     }
 
-    /// <summary>Owning room slot, whose variable A holds the bank-$A9 wait, pre-rot, rotting, or completed no-operation function; state is registered for this slot until room reset.</summary>
+    /// <summary>Owning room slot; state is registered for this slot until room reset.</summary>
     public RoomEnemySlot Slot { get; }
+    /// <summary>The phase main AI runs; none once the record has been emptied.</summary>
+    public DeadTourianCorpseFunction? Function { get; internal set; }
     /// <summary>Corpse family selected by the enemy header, determining native callbacks and the tiled artwork layout.</summary>
     public DeadTourianCorpseSpecies Species { get; }
     /// <summary>Zero-based variant within the species, obtained by dividing the even native parameter-1 table-byte offset by two; Rippers allow 0–1, Zoomers and Skrees 0–2.</summary>
@@ -33,10 +39,10 @@ public sealed class DeadTourianCorpseEnemyState
     /// <summary>Byte displacement added when rows 6 or 7 move across an 8-pixel tile boundary: 84 for three-column Zoomer/Ripper blocks, 52 for two-column Skree blocks.</summary>
     public int WrapOffset { get; }
     /// <summary>
-    /// Pre-rot AI calls counted in slot variable B after solid Samus collision; the sixteenth switches to rotting and the
-    /// corpse never returns to the delay. Touch/shot callbacks enter rotting directly.
+    /// Pre-rot AI calls counted after solid Samus collision, from 0 through <see cref="LargestPreRotDelayCount"/>; the
+    /// sixteenth switches to rotting and the corpse never returns to the delay. Touch/shot callbacks enter rotting directly.
     /// </summary>
-    public int PreRotDelayCounter => Slot.VariableB;
+    public int PreRotDelayCounter { get; internal set; }
     /// <summary>The largest pre-rot count; the next call counts zero.</summary>
     internal const int LargestPreRotDelayCount = 65535;
     /// <summary>Port diagnostic count of shared rotting-scheduler calls for this corpse; the final completion call is included.</summary>
@@ -53,5 +59,12 @@ public sealed class DeadTourianCorpseEnemyState
 
     /// <summary>Counts one pre-rot AI call, wrapping from <see cref="LargestPreRotDelayCount"/> to zero.</summary>
     internal void CountPreRotDelayCall() =>
-        Slot.VariableB = checked((ushort)(PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1));
+        PreRotDelayCounter = PreRotDelayCounter == LargestPreRotDelayCount ? 0 : PreRotDelayCounter + 1;
+
+    /// <summary>Empties the function and pre-rot count, when the corpse's common record is emptied.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        PreRotDelayCounter = 0;
+    }
 }

@@ -1,17 +1,11 @@
 ﻿namespace SuperMetroid.Core.Enemies.Corpses;
 
-/// <summary>The dead Zoomer, Ripper and Skree corpses' native AI function pointers and installed art layouts.</summary>
+/// <summary>The dead Zoomer, Ripper and Skree corpses' header rot-trigger callbacks and installed art layouts.</summary>
 internal static class DeadTourianCorpseProfileDefinitions
 {
-    /// <summary>The shared inert AI function selected after all rotting rows finish.</summary>
-    internal const ushort NoOperationFunction = 0xda63;
-
     /// <summary>Dead Zoomer's callback addresses and three installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadZoomerProfile = new(
         DeadTourianCorpseSpecies.Zoomer,
-        WaitFunction: 0xda69,
-        PreRotFunction: 0xda94,
-        RottingFunction: 0xdad0,
         TouchAndShotFunction: 0xdcf8,
         PowerBombFunction: 0xdced,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)),
@@ -20,9 +14,6 @@ internal static class DeadTourianCorpseProfileDefinitions
     /// <summary>Dead Ripper's callback addresses and two installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
-        WaitFunction: 0xda73,
-        PreRotFunction: 0xda99,
-        RottingFunction: 0xdae6,
         TouchAndShotFunction: 0xdd08,
         PowerBombFunction: 0xdcfd,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)),
@@ -31,9 +22,6 @@ internal static class DeadTourianCorpseProfileDefinitions
     /// <summary>Dead Skree's callback addresses and three installed art variants.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
-        WaitFunction: 0xda6e,
-        PreRotFunction: 0xda9e,
-        RottingFunction: 0xdafc,
         TouchAndShotFunction: 0xdd18,
         PowerBombFunction: 0xdd0d,
         Variants: CorpseLayout(columns: 2, rows: 4, workBufferOffset: 0x0640, sheetSources: [0x02a0, 0x00e0, 0x01c0]),

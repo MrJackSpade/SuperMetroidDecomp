@@ -220,3 +220,15 @@ question; the answer is to do what the analyzer asks.
   (rooms $D461 and $D4C2), `RoomEnemyPopulationDefinitions`, and the population loader's clear-then-initialize order.
 - **Option taken:** keep the explicit model; retail gameplay is unchanged, and only non-retail population data (which
   the project's ROM revision never contains) now fails loudly instead of reading arbitrary enemy RAM.
+
+## 13. Ceres Mode 7 transfer source address read by the speed-booster residue
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Areas/Ceres/CeresMode7Transfer.cs` (`SourceOffset`), written at
+  `csharp/src/SuperMetroid.Core/Bosses/Ridley/CeresRidleyBehavior.cs:1637` into `Mode7TransferQueueResidue`.
+- **Conflict:** manifesto §3/§8 (no addresses in the simulation) against AGENTS.md "Emulation scope limits" and the
+  question-3 rule (a glitch effect is either bounded and reproduced from imported data, or closed): the bank-$A6
+  source address is stored because the speed-booster stage-five residue, a reproduced glitch, reads it.
+- **Evidence checked:** the rooms worker's report; question 3's answer and the SpaceTime/speed-booster precedent.
+- **Option taken:** left unchanged in this batch; the residue is treated like question 3 — the batch that owns the
+  speed-booster overrun establishes whether the residue's observable effect is bounded (then the address becomes an
+  imported typed reference) or closes it under the emulation scope limit.

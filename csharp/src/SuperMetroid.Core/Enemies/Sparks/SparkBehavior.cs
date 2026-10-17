@@ -63,8 +63,8 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Spark</c> at <c>$A8:E637</c>.</summary>
     internal void InitializeSpark(RoomEnemySlot slot)
     {
-        var state = new SparkEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new SparkEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Native masks the selector to two bits, but both tables contain only three authored
         // words. The compiled definition preserves selector three's two adjacent-code reads;
@@ -123,7 +123,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Spark function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Spark function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -131,27 +131,27 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reproduces <c>DEC; BEQ</c>. A zero countdown wraps to <c>$FFFF</c> and therefore does
     /// not expire for another 65,535 actor frames; it must not be treated as immediately due.
     /// </summary>
-    private static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
+    internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
     {
-        ushort decremented = unchecked((ushort)(state.FunctionTimer - 1));
-        if (decremented == 0)
+        NativeWordCounterStep step = state.FunctionTimer.Decrement();
+        if (step.IsZero)
             return true;
 
-        state.FunctionTimer = decremented;
+        state.FunctionTimer = step.Remaining;
         return false;
     }
 
     /// <summary>Ports <c>SetSparkFunctionTimer</c> at <c>$A8:E6F6</c>.</summary>
     private void SetSparkFunctionTimer(SparkEnemyState state, ushort additionalTime)
     {
-        ushort baseTime = state.BaseFunctionTime;
+        int baseTime = state.BaseFunctionTime;
         if (unchecked((short)baseTime) < 0)
         {
             Func<ushort> nextRandom = _room.Random.Generate;
-            baseTime = unchecked((ushort)((nextRandom() & 63) + 4));
+            baseTime = (nextRandom() & 63) + 4;
         }
 
-        state.FunctionTimer = unchecked((ushort)(baseTime + additionalTime));
+        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(baseTime + additionalTime)));
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>

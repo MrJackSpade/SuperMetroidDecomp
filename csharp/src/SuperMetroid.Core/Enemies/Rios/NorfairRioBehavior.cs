@@ -51,12 +51,13 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>NorfairRio_Init</c> at $A2:C242.</summary>
     internal void InitializeNorfairRio(RoomEnemySlot slot)
     {
-        var state = new NorfairRioEnemyState(slot)
+        var state = new NorfairRioEnemyState
         {
             AnimationSignal = false,
-            FollowerYOffset = 0,
+            FollowerOffset = Offset16<RoomPixels>.Zero,
+            IsFollower = (slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         if (state.IsFollower)
         {
@@ -186,7 +187,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
 
             default:
                 throw new InvalidDataException(
-                    $"Norfair Rio function $A2:{(ushort)state.Function:X4} is not translated.");
+                    $"Norfair Rio function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -199,25 +200,25 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AnimationSignal = true;
                 break;
             case NorfairRioCueKind.FlamesAt8:
-                state.FollowerYOffset = 8;
+                state.FollowerOffset = new Offset16<RoomPixels>(0, 8);
                 break;
             case NorfairRioCueKind.FlamesAt12:
-                state.FollowerYOffset = 12;
+                state.FollowerOffset = new Offset16<RoomPixels>(0, 12);
                 break;
             case NorfairRioCueKind.FlamesAtMinus12:
-                state.FollowerYOffset = unchecked((ushort)-12);
+                state.FollowerOffset = new Offset16<RoomPixels>(0, -12);
                 break;
             case NorfairRioCueKind.FlamesAt4:
-                state.FollowerYOffset = 4;
+                state.FollowerOffset = new Offset16<RoomPixels>(0, 4);
                 break;
             case NorfairRioCueKind.FlamesAt0:
-                state.FollowerYOffset = 0;
+                state.FollowerOffset = Offset16<RoomPixels>.Zero;
                 break;
             case NorfairRioCueKind.FlamesAtMinus4:
-                state.FollowerYOffset = unchecked((ushort)-4);
+                state.FollowerOffset = new Offset16<RoomPixels>(0, -4);
                 break;
             case NorfairRioCueKind.FlamesAtMinus16:
-                state.FollowerYOffset = unchecked((ushort)-16);
+                state.FollowerOffset = new Offset16<RoomPixels>(0, -16);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(NorfairRioCueKind)} {cue.Kind}.");
@@ -251,13 +252,12 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         // following child, +$7C0 reaches the parent's family-extra block: some_flag is the
         // installed-list word and field_4 is its signed follower Y offset. The drawing-queue
         // offsets in the same routine alias the parent's live X/Y position words.
-        NorfairRioProgram followerList = EnemyMath.IsNegative16(parentState.FollowerYOffset)
+        NorfairRioProgram followerList = parentState.FollowerOffset.Y < 0
             ? NorfairRioProgram.FlamesDescending
             : NorfairRioProgram.FlamesAscending;
         InstallNorfairRioInstructionList(follower, followerState, followerList);
         follower.Properties = follower.Properties.Without(EnemyProperties.Invisible);
-        follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, unchecked((ushort)(
-            parent.Position.Y.Whole + (short)parentState.FollowerYOffset))));
+        follower.Position = follower.Position.WithWhole(parent.Position.Whole + parentState.FollowerOffset);
     }
 
     /// <summary>Reverses vertical travel, installs the ascent animation, and enters the return state.</summary>

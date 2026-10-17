@@ -18,7 +18,7 @@ public sealed class AttractDemoInput
     public AttractDemoInput(AttractDemoScene scene)
     {
         Ensure.NotNull(scene);
-        Script.Load(DemoInputObjectDefinitions.StockAttract(scene.InputObject), scene.InputObject);
+        Script.Load(DemoInputObjectDefinitions.StockAttract(scene.InputObject));
         Script.Enable();
     }
 

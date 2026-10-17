@@ -57,7 +57,7 @@ internal sealed class IntroBabyDiscoveryState
 
         demo.Clear();
         demo.Enable();
-        demo.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery, initializationParameter: 0);
+        demo.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
     }
 
     /// <summary>Samus' scene state, carried from the earlier intro when supplied.</summary>

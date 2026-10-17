@@ -46,7 +46,7 @@ internal static class ElevatorInputDefinitionsVerification
             var samus = new SamusState();
             samus.Presentation.TileTransfers.BindArtwork(bodyArtwork);
             initialize(slot, samus);
-            AssertEqual(tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
+            AssertEqual((int)tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
             SnesButton opposite = (SnesButton)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));

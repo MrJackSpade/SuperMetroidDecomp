@@ -897,9 +897,9 @@ internal static class PaletteFxInstructionCodesVerification
             }
             if (frame == 16)
             {
-                AssertEqual((ushort)1, paletteFx.SamusInHeatPaletteIndex,
+                AssertEqual(1, paletteFx.SamusInHeatPaletteIndex,
                     "$F785 publishes its second heat phase on its own slot pass");
-                AssertEqual((ushort)0, paletteFx.PreviousSamusInHeatPaletteIndex,
+                AssertEqual(0, paletteFx.PreviousSamusInHeatPaletteIndex,
                     "shared heat owner has not consumed the later slot's phase in the same frame");
             }
         }
@@ -908,7 +908,7 @@ internal static class PaletteFxInstructionCodesVerification
             "retail Norfair heat owner carries quarter-units into whole damage");
         AssertEqual((ushort)0x4000, samus.LiquidPhysics.PeriodicSubDamage,
             "retail Norfair heat owner retains exact 16.16 fractional carry");
-        AssertEqual((ushort)1, paletteFx.PreviousSamusInHeatPaletteIndex,
+        AssertEqual(1, paletteFx.PreviousSamusInHeatPaletteIndex,
             "shared heat owner consumes $F785 phase on following frame");
         AssertEqual(2, damageSoundCount,
             "retail Norfair heat owner publishes on frame-eight boundaries");

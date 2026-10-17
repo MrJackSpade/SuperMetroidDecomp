@@ -452,9 +452,9 @@ internal sealed class RoomLoader
         _backgroundPhase.ExecuteBackgroundStreamRequests(requests, "upward source-door repair");
     }
 
-    /// <summary>CRE bitset selected from the pending door's destination room header.</summary>
-    public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
-        ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).CreBitset
+    /// <summary>Whether the pending door's destination room header selects the isolated door transition.</summary>
+    public bool PendingDoorDestinationUsesIsolatedDoorTransition => PendingDoorTransition is { } door
+        ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).UsesIsolatedDoorTransition
         : throw new InvalidOperationException("No pending door destination exists.");
 
     /// <summary>
@@ -462,13 +462,12 @@ internal sealed class RoomLoader
     /// BG2 is always disabled; BG1 is also disabled when either adjacent room requests the
     /// cartridge's CRE transition path.
     /// </summary>
-    internal void BeginDoorTransitionIrqDisplay(byte previousCreBitset, byte creBitset)
+    internal void BeginDoorTransitionIrqDisplay(bool sourceIsolated, bool destinationIsolated)
     {
         if (_room.DoorTransitionMainScreenLayers is not null)
             throw new InvalidOperationException("Door-transition IRQ display is already active.");
 
-        bool suppressBg1 =
-            ((previousCreBitset | creBitset) & RoomCreBitsets.SuppressDoorTransitionBg1) != 0;
+        bool suppressBg1 = sourceIsolated || destinationIsolated;
         _room.DoorTransitionMainScreenLayers = suppressBg1
             ? SnesMainScreenLayers.Obj
             : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;

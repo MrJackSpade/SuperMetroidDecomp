@@ -211,7 +211,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementMode = MochtroidMovementMode.TouchingSamus;
         SetMochtroidProgram(
             slot, state, MochtroidProgram.Attached);
-        state.AttachmentDamageTimer = unchecked((ushort)(state.AttachmentDamageTimer + 1));
+        state.CountAttachedUpdate();
 
         bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None;
         if (!applyCommonTouch)
@@ -222,7 +222,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
             if ((_frameContext._randomEnemyCounter & 7) == 7 && samus.Health >= 30)
                 _audio.QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
 
-            if (unchecked((short)(state.AttachmentDamageTimer - MochtroidAttachmentDamagePeriod)) >= 0)
+            if (state.HasReachedDamagePeriod(MochtroidAttachmentDamagePeriod))
             {
                 state.AttachmentDamageTimer = 0;
                 applyCommonTouch = true;

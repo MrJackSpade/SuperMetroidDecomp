@@ -17,9 +17,9 @@ public static class ZoaSpeedDefinitions
     /// Instructions normally select byte offsets 4, 8 and 12; initialization selects zero.
     /// All complete four-byte windows in the definition remain representable.
     /// </summary>
-    public static int Displacement(ushort byteOffset)
+    public static int Displacement(int byteOffset)
     {
-        if (byteOffset > 16)
+        if (byteOffset is < 0 or > 16)
             throw new ArgumentOutOfRangeException(nameof(byteOffset));
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         return unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(byteOffset), Word(byteOffset + 2))));

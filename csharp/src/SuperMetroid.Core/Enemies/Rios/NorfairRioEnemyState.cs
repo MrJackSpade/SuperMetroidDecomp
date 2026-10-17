@@ -3,18 +3,12 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// Typed projection of Norfair Rio's common A/B/F variables and three family-extra words.
-/// The extra words live in bank-$7E family RAM rather than the ordinary enemy record, so
-/// they remain explicit host fields while velocities/function stay backed by the slot.
+/// The state of one Norfair Rio, parent or flame follower. The velocity, function and follower selection are values
+/// the cartridge keeps in the enemy's common record, so they are emptied with that record when the enemy is killed
+/// (<see cref="ClearWithRecord"/>); the installed animation, handshake and flame offset outlive the kill.
 /// </summary>
 public sealed class NorfairRioEnemyState
 {
-    /// <summary>Native Rio slot holding the common velocities, function pointer, and population parameter.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Binds typed Rio state to its existing enemy slot.</summary>
-    internal NorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
-
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<NorfairRioProgram> Program { get; set; }
 
@@ -25,29 +19,25 @@ public sealed class NorfairRioEnemyState
     public bool AnimationSignal { get; internal set; }
 
     /// <summary>
-    /// Extra word $02: signed vertical placement of the follower half relative to its
-    /// parent. Ten private animation opcodes publish the offset directly from ROM lists.
+    /// The flame follower's placement relative to its parent; only Y is meaningful (-16 through 12 pixels). Private
+    /// animation cues publish it, and its sign selects the follower's ascending or descending flames.
     /// </summary>
-    public ushort FollowerYOffset { get; internal set; }
+    public Offset16<RoomPixels> FollowerOffset { get; internal set; }
 
-    /// <summary>Signed 8.8 velocity: the horizontal word is native common variable B and the vertical word variable A; the horizontal word feeds the 16.16 collision helper.</summary>
-    public EightEightVector<RoomPixels> Velocity
-    {
-        get => new(new SnesSignedEightEight(_slot.VariableB), new SnesSignedEightEight(_slot.VariableA));
-        internal set
-        {
-            _slot.VariableB = value.X.RawValue;
-            _slot.VariableA = value.Y.RawValue;
-        }
-    }
+    /// <summary>Signed 8.8 velocity; the horizontal component feeds the 16.16 collision helper.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Current indirect bank-$A2 AI address, native <c>Geruta.function</c> in the owning slot's variable F at <c>$0FB2,x</c>; shared by parent and flame-follower dispatch.</summary>
-    public NorfairRioEnemyFunction Function
-    {
-        get => (NorfairRioEnemyFunction)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
-    }
+    /// <summary>The behaviour shared by parent and flame-follower dispatch; none once a kill has emptied the record.</summary>
+    public NorfairRioEnemyFunction? Function { get; internal set; }
 
     /// <summary>Whether population parameter 1's sign bit selects the flame follower instead of the parent; a follower must immediately follow a parent of this same enemy definition.</summary>
-    public bool IsFollower => (_slot.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
+    public bool IsFollower { get; internal set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    internal void ClearWithRecord()
+    {
+        Velocity = new EightEightVector<RoomPixels>(0, 0);
+        Function = null;
+        IsFollower = false;
+    }
 }

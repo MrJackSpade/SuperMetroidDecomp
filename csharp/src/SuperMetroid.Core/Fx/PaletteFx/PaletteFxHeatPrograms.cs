@@ -81,7 +81,7 @@ public static class PaletteFxHeatPrograms
     };
 
     /// <summary>The program of heat <paramref name="phase"/> for <paramref name="suit"/>.</summary>
-    public static PaletteFxProgram Phase(PaletteFxHeatSuit suit, ushort phase)
+    public static PaletteFxProgram Phase(PaletteFxHeatSuit suit, int phase)
     {
         PaletteFxProgram[] programs = suit switch
         {
@@ -90,7 +90,7 @@ public static class PaletteFxHeatPrograms
             PaletteFxHeatSuit.Gravity => GravityPrograms,
             _ => throw new ArgumentOutOfRangeException(nameof(suit), suit, "Unknown heat suit."),
         };
-        if (phase >= programs.Length)
+        if (phase < 0 || phase >= programs.Length)
             throw new ArgumentOutOfRangeException(nameof(phase), phase, $"Norfair heat palette phase must be 0..{programs.Length - 1}.");
         return programs[phase];
     }

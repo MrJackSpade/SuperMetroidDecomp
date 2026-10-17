@@ -52,17 +52,15 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         int signedSpeed = facingRight
             ? WaverHorizontalSpeedFixed
             : -WaverHorizontalSpeedFixed;
-        var state = new WaverEnemyState(slot)
+        var state = new WaverEnemyState
         {
-            XSubvelocity = unchecked((ushort)signedSpeed),
-            XVelocity = unchecked((short)(SnesSixteenSixteen.WholeOf(signedSpeed))),
+            XVelocity = SnesSignedSixteenSixteen.FromRaw(signedSpeed),
             CurrentInstructionListIndex = WaverAnimationSelector.None,
-            Angle = 0,
+            Angle = SnesAngle.Zero,
             SpinFinished = false,
-            RequestedInstructionListIndex =
-                (WaverAnimationSelector)(slot.Parameter1 & 1),
+            RequestedInstructionListIndex = facingRight ? WaverAnimationSelector.FacingRight : WaverAnimationSelector.None,
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // The native initializer first installs the left steady animation and then invokes the
         // change detector. Parameter bit zero therefore changes only right-facing spawns;
@@ -80,8 +78,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Waver AI requires active room collision data.");
 
-        int horizontalDisplacement =
-            (SnesSixteenSixteen.FromWhole(state.XVelocity)) | state.XSubvelocity;
+        int horizontalDisplacement = state.XVelocity.RawValue;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
@@ -90,9 +87,7 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
             // `$A3:875F-$8781` negates the overlapping velocity bytes and writes them back
             // as two words. For every initialized Waver this is exactly a signed 16.16
             // negation; expressing that value directly preserves the native ±1.5 px/frame.
-            horizontalDisplacement = unchecked(-horizontalDisplacement);
-            state.XSubvelocity = unchecked((ushort)horizontalDisplacement);
-            state.XVelocity = unchecked((short)(SnesSixteenSixteen.WholeOf(horizontalDisplacement)));
+            state.XVelocity = SnesSignedSixteenSixteen.FromRaw(unchecked(-horizontalDisplacement));
             state.RequestedInstructionListIndex =
                 (state.RequestedInstructionListIndex ^ WaverAnimationSelector.FacingRight) &
                 WaverAnimationSelector.FacingRight;
@@ -101,23 +96,21 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         else
         {
             int verticalPixels = EnemyMath.ReadEightBitNegativeSineProduct(
-                state.Angle,
+                state.Angle.TableIndex,
                 WaverVerticalRadius);
             if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(verticalPixels)))
             {
-                // Vertical collision reflects the sine phase by half a turn. The explicit
-                // byte mask matters when a debugger has written high garbage into var3.
-                state.Angle = unchecked((ushort)(unchecked((byte)(state.Angle + EnemyByteAngleDefinitions.HalfTurn))));
+                state.ReflectWave();
             }
             else
             {
-                state.Angle = unchecked((ushort)(state.Angle + 2));
+                state.AdvanceWave();
             }
         }
 
-        // Once per half-wave, angle low seven bits equal $38. Waver temporarily swaps to
+        // Once per half-wave, the phase's position within its half-turn equals $38. Waver temporarily swaps to
         // the four-map spin list without changing the facing bit.
-        if ((state.Angle & EnemyByteAngleDefinitions.HalfWaveIndexMask) == 56)
+        if ((state.Angle.TableIndex & EnemyByteAngleDefinitions.HalfWaveIndexMask) == 56)
         {
             state.RequestedInstructionListIndex |= WaverAnimationSelector.Spinning;
             SetWaverProgram(slot, state);

@@ -8,12 +8,13 @@ namespace SuperMetroid.Core.Runtime.Attract;
 /// refer to the same pre-increment index, not the following scene's equipment.
 /// </summary>
 /// <remarks>
+/// <c>Duration</c> is the number of demo frames the scene plays before the attract sequence moves on.
 /// <c>CameraPosition</c> is the initial BG1 camera top-left; <c>SamusOffset</c> places Samus relative to
 /// the camera, X from the screen's horizontal centre and Y from its top.
 /// </remarks>
 public sealed record AttractDemoScene(
     ushort RoomPointer, ushort DoorPointer, Position16<RoomPixels> CameraPosition, Offset16<RoomPixels> SamusOffset,
-    ushort Duration, AttractDemoRoomSetup RoomSetupPointer, AttractDemoSamusSetup SamusSetupPointer,
+    int Duration, AttractDemoRoomSetup RoomSetupPointer, AttractDemoSamusSetup SamusSetupPointer,
     SuperMetroid.Core.Samus.SamusEquipmentFlags Items, int Missiles, int SuperMissiles, int PowerBombs,
     int Health, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeams, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeams, ushort InputObject)
 {

@@ -26,8 +26,8 @@ internal sealed class EnemyFrameResultBuilder
     /// <summary>Ceres Ridley started the escape.</summary>
     internal bool CeresEscapeStarted { get; set; }
 
-    /// <summary>The Shitroid's direct layer-one X write, if any.</summary>
-    internal ushort? LayerOneXOverride { get; set; }
+    /// <summary>The Shitroid's direct layer-one X write in room pixels, if any.</summary>
+    internal int? LayerOneXOverride { get; set; }
 
     /// <summary>Mother Brain's tube landed, deleting HDMA objects 0-3.</summary>
     internal bool DeleteLiquidHdmaObjects { get; set; }

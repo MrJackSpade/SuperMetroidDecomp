@@ -124,10 +124,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
             VramTransfers = DeadMonsterRottingDefinitions.ForTransferTable(definition.VramTransferPointer),
         };
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        slot.VariableA = profile.WaitFunction;
+        state.Function = DeadTourianCorpseFunction.Waiting;
         _extensions[slot.SlotIndex].Program = DeadSidehopperBehavior.StartDeadTourianProgram(slot, definition.InitialProgram);
         CorpseRottingTableProcessor.Initialize(state.RotTable);
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
@@ -137,35 +137,28 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunDeadTourianCorpseMain(RoomEnemySlot slot, SamusState? samus)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
-        DeadTourianCorpseProfile profile = state.Profile;
-        if (slot.VariableA == profile.WaitFunction)
+        switch (state.Function)
         {
-            if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.NativeIndex) == true)
-                slot.VariableA = profile.PreRotFunction;
-            return;
-        }
-
-        if (slot.VariableA == profile.PreRotFunction)
-        {
-            state.CountPreRotDelayCall();
-            if (state.PreRotDelayCounter >= 16)
-            {
-                slot.VariableA = profile.RottingFunction;
-                slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
-            }
-            return;
-        }
-
-        if (slot.VariableA == profile.RottingFunction)
-        {
-            RunDeadTourianCorpseRotting(slot, state);
-            return;
-        }
-
-        if (slot.VariableA != DeadTourianCorpseProfileDefinitions.NoOperationFunction)
-        {
-            throw new InvalidDataException(
-                $"Dead {profile.Species} function $A9:{slot.VariableA:X4} is not translated.");
+            case DeadTourianCorpseFunction.Waiting:
+                if (samus?.Kinematics.DidCollideWithSolidEnemy(slot.NativeIndex) == true)
+                    state.Function = DeadTourianCorpseFunction.PreRotDelay;
+                return;
+            case DeadTourianCorpseFunction.PreRotDelay:
+                state.CountPreRotDelayCall();
+                if (state.PreRotDelayCounter >= 16)
+                {
+                    state.Function = DeadTourianCorpseFunction.Rotting;
+                    slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
+                }
+                return;
+            case DeadTourianCorpseFunction.Rotting:
+                RunDeadTourianCorpseRotting(slot, state);
+                return;
+            case DeadTourianCorpseFunction.Finished:
+                return;
+            default:
+                throw new InvalidDataException(
+                    $"Dead {state.Profile.Species} function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -173,7 +166,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void TriggerDeadTourianCorpseRotting(RoomEnemySlot slot)
     {
         DeadTourianCorpseEnemyState state = RequireDeadTourianCorpseState(slot);
-        slot.VariableA = state.Profile.RottingFunction;
+        state.Function = DeadTourianCorpseFunction.Rotting;
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessOffScreen | EnemyProperties.IgnoreSamusCollision);
     }
@@ -199,7 +192,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             (yOffset, move) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, move),
             entryIndex => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
-            slot.VariableA = DeadTourianCorpseProfileDefinitions.NoOperationFunction;
+            state.Function = DeadTourianCorpseFunction.Finished;
         _deadMonsters.AppendVramTransfers(state.VramTransfers);
     }
 
@@ -275,12 +268,9 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Groups one corpse species' native callbacks with its tile-row layout and available art layouts.</summary>
+    /// <summary>Groups one corpse species' header rot-trigger callbacks with its tile-row layout and available art layouts.</summary>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
-        ushort WaitFunction,
-        ushort PreRotFunction,
-        ushort RottingFunction,
         ushort TouchAndShotFunction,
         ushort PowerBombFunction,
         DeadTourianCorpseVariant[] Variants,

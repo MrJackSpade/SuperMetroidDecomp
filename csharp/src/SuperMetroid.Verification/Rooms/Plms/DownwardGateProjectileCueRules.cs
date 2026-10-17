@@ -26,7 +26,7 @@ internal static class DownwardGateProjectileCueRules
             if (cue.Kind == DownwardGateProjectileCueKind.SetPreInstruction)
                 AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), (ushort)cue.PreInstruction, $"{at}: pre-instruction");
             else if (cue.Kind == DownwardGateProjectileCueKind.SetYVelocity)
-                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), cue.Value, $"{at}: Y velocity");
+                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), cue.YVelocity.RawValue, $"{at}: Y velocity");
         },
         cue => cue.Kind == DownwardGateProjectileCueKind.Delete);
 }

@@ -1,8 +1,8 @@
 namespace SuperMetroid.Core.Enemies.Choot;
 
 /// <summary>
-/// The Choot words kept per physical slot for the room rather than per occupant, like the native per-slot
-/// RAM they model: words an initializer does not write keep the previous occupant's values until room load.
+/// The Choot values kept per physical slot for the room rather than per occupant, like the native per-slot RAM they
+/// model: values an initializer does not write keep the previous occupant's until room load.
 /// </summary>
 internal sealed class ChootExtensionWords
 {
@@ -15,9 +15,9 @@ internal sealed class ChootExtensionWords
     /// <summary>Current origin advanced by the pattern's Y distance after each terminator.</summary>
     internal Position16<RoomPixels> FallingOrigin { get; set; }
 
-    /// <summary>Ascent speed-table cursor restored for each subsequent activation.</summary>
-    internal ushort InitialYSpeedTableIndex { get; set; }
+    /// <summary>Ascent quadratic-speed record index restored for each subsequent activation.</summary>
+    internal int InitialYSpeedTableIndex { get; set; }
 
     /// <summary>Parameter-two delay remaining before each armed Choot jumps.</summary>
-    internal ushort JumpDelayTimer { get; set; }
+    internal NativeCountdown JumpDelayTimer { get; set; }
 }

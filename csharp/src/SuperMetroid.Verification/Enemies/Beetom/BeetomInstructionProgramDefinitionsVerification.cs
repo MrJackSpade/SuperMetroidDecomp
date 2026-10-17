@@ -136,9 +136,10 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
             random = (ushort)value;
-            fixture.State.Direction = 0xffff;
+            bool expectedFacingRight = value % 2 == 1;
+            fixture.State.FacingRight = !expectedFacingRight;
             fixture.Choose(fixture.State);
-            AssertEqual((ushort)(value % 2), fixture.State.Direction, "Beetom direction preserves native low-bit mapping independently of selected action");
+            AssertEqual(expectedFacingRight, fixture.State.FacingRight, "Beetom facing preserves native low-bit mapping independently of selected action");
         }
     }
     /// <summary>Checks the native entry counts of the Beetom's five- and six-entry maps.</summary>

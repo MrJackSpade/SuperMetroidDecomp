@@ -72,12 +72,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Guards the initializer's simulated ascent and floor search against invalid room geometry.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
-    /// <summary>The words each physical slot keeps across Alcoon occupants for the current room.</summary>
-    private readonly AlcoonExtensionWords[] _extensions = NewExtensions();
 
-    /// <summary>Fresh, zeroed extension words for every physical slot.</summary>
-    private static AlcoonExtensionWords[] NewExtensions() =>
-        [.. Enumerable.Range(0, RoomEnemySystem.MaximumEnemyCount).Select(_ => new AlcoonExtensionWords())];
 
     /// <summary>Ports <c>InitAI_Alcoon</c> at <c>$A8:DCCD</c>, including its floor search.</summary>
     private void InitializeAlcoon(RoomEnemySlot slot, RoomLevelData? level)
@@ -88,8 +83,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Alcoon initialization requires the room's collision layer to simulate its landing.");
         }
 
-        var state = new AlcoonEnemyState(slot, _extensions[slot.SlotIndex]);
-        slot.SetSpeciesState(state);
+        var state = new AlcoonEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.StepCounter = NativeCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
@@ -119,7 +114,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             GuardAlcoonJumpSimulation(++iterations, slot);
         }
 
-        state.LandingYPosition = slot.Position.Y.Whole;
+        state.LandingPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
     }
 
@@ -154,7 +149,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Alcoon function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Alcoon function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -167,7 +162,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Alcoon proximity AI requires the active Samus actor.");
 
-        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.Position.Y.Whole))) >= 32)
+        if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.LandingPosition.Y - samus.Position.Y.Whole))) >= 32)
             return;
 
         ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.Position.X.Whole));
@@ -318,17 +313,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Velocity = new FixedVector<RoomPixels>(
             SnesSignedSixteenSixteen.Zero, SnesSignedSixteenSixteen.FromParts(-12, 0));
-        state.ClearedVariable = 0;
-        state.YAcceleration = 0;
-        state.YSubacceleration = 32768;
+        // The cartridge also clears a record word here that nothing reads.
+        state.YAcceleration = SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromWhole(1) / 2);
     }
 
     /// <summary>Adds the per-slot 16.16 acceleration to Alcoon's vertical velocity.</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
-        SnesSignedSixteenSixteen acceleration = SnesSignedSixteenSixteen.FromParts(
-            unchecked((short)state.YAcceleration), state.YSubacceleration);
-        state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + state.YAcceleration);
     }
 
     /// <summary>Integrates vertical velocity without collision during airborne ascent or retreat.</summary>
@@ -514,8 +506,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
         LastAlcoonSoundEffect = null;
-        for (int slotIndex = 0; slotIndex < _extensions.Length; slotIndex++)
-            _extensions[slotIndex] = new AlcoonExtensionWords();
     }
 
     /// <inheritdoc/>

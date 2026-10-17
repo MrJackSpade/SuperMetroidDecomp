@@ -3,52 +3,35 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.Rios;
 
 /// <summary>
-/// Named projection of Rio's six native AI variables. The properties deliberately remain
-/// backed by the physical enemy slot so a debugger watch agrees with WRAM $0FA8-$0FB2.
+/// The state of one Rio. The velocities, function and animation handshake are values the cartridge keeps in the
+/// enemy's common record, so they are emptied with that record when the enemy is killed (<see cref="ClearWithRecord"/>).
 /// </summary>
 public sealed class RioEnemyState
 {
-    /// <summary>Native enemy slot backing Rio's saved velocity, function, motion, and animation words.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Binds typed Rio state to its existing enemy slot.</summary>
-    internal RioEnemyState(RoomEnemySlot slot) => _slot = slot;
-
-    /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
+    /// <summary>Where the typed animation (#641) resumes.</summary>
     internal AnimationProgramCursor<RioProgram> Program { get; set; }
 
-    /// <summary>Horizontal velocity retained while the hovering phase temporarily stops X.</summary>
-    public ushort SavedHorizontalVelocity
-    {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
+    /// <summary>Signed 8.8 horizontal dive velocity retained while the hovering phase temporarily stops X.</summary>
+    public SnesSignedEightEight SavedHorizontalVelocity { get; internal set; }
 
-    /// <summary>Gets the bank-$A2 function pointer corresponding to native $0FAA,x Rio.function, backed by the physical slot and dispatched after the main AI's RNG advance.</summary>
-    public RioEnemyFunction Function
-    {
-        get => (RioEnemyFunction)_slot.VariableB;
-        internal set => _slot.VariableB = (ushort)value;
-    }
+    /// <summary>The behaviour dispatched after the main AI's RNG advance; none once a kill has emptied the record.</summary>
+    public RioEnemyFunction? Function { get; internal set; }
 
-    /// <summary>Signed 8.8 velocity: the horizontal word is native common variable D and the vertical word variable C; the horizontal word feeds the 16.16 collision helper.</summary>
-    public EightEightVector<RoomPixels> Velocity
-    {
-        get => new(new SnesSignedEightEight(_slot.VariableD), new SnesSignedEightEight(_slot.VariableC));
-        internal set
-        {
-            _slot.VariableD = value.X.RawValue;
-            _slot.VariableC = value.Y.RawValue;
-        }
-    }
+    /// <summary>Signed 8.8 velocity; the horizontal component feeds the 16.16 collision helper.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
 
-    /// <summary>Handshake set by the animation-finished cue ($A2:BBC3) and consumed by main AI.</summary>
-    public bool AnimationFinished
-    {
-        get => _slot.VariableE != 0;
-        internal set => _slot.VariableE = value ? (ushort)1 : (ushort)0;
-    }
+    /// <summary>Handshake set by the animation-finished cue and consumed by main AI.</summary>
+    public bool AnimationFinished { get; internal set; }
 
-    /// <summary>The last animation installed by Rio_6 (native variable F); none at room load.</summary>
+    /// <summary>The last animation installed by a behavioural transition; none at room load.</summary>
     internal RioProgram? InstalledProgram { get; set; }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record, when a kill empties that record.</summary>
+    internal void ClearWithRecord()
+    {
+        SavedHorizontalVelocity = default;
+        Function = null;
+        Velocity = new EightEightVector<RoomPixels>(0, 0);
+        AnimationFinished = false;
+    }
 }

@@ -54,16 +54,21 @@ internal static class DeadCorpseCounterVerification
         var state = new DeadTourianCorpseEnemyState(slot, profile.Species, 0,
             new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 }, profile, profile.Variants[0]);
 
-        slot.VariableB = 15;
+        state.PreRotDelayCounter = 15;
         state.CountPreRotDelayCall();
         AssertEqual(16, state.PreRotDelayCounter, "an ordinary pre-rot call counts one more");
-        AssertEqual((ushort)16, slot.VariableB, "the count stays in the corpse's slot variable");
 
-        slot.VariableB = DeadTourianCorpseEnemyState.LargestPreRotDelayCount;
+        state.PreRotDelayCounter = DeadTourianCorpseEnemyState.LargestPreRotDelayCount;
         state.CountPreRotDelayCall();
         AssertEqual(0, state.PreRotDelayCounter, "the largest count wraps to zero");
-        AssertEqual((ushort)0, slot.VariableB, "the wrapped count is stored in the slot variable");
-        Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation wraps from 65535 to 0.");
+
+        state.Function = DeadTourianCorpseFunction.PreRotDelay;
+        state.PreRotDelayCounter = 5;
+        slot.SetSpeciesState(state, state.ClearWithRecord);
+        slot.Clear();
+        AssertEqual(0, state.PreRotDelayCounter, "emptying the corpse's record empties its count");
+        AssertEqual(null, state.Function, "emptying the corpse's record empties its function");
+        Console.WriteLine("  Dead Tourian pre-rot delay: the named count operation wraps from 65535 to 0, and an emptied record empties it.");
     }
 
     /// <summary>Runs the corpse pre-rot counter checks; no cartridge is needed.</summary>

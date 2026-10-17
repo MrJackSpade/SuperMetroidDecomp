@@ -289,14 +289,15 @@ public sealed class SuperMetroidRuntime
     public SuperMetroid.Core.Gameplay.SuperMetroidGameState DispatchGameState { get; set; } = SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay;
 
     /// <summary>
-    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>. X-ray setup rejects every
+    /// Native power-bomb explosion status at WRAM <c>$0CE2</c>, 0 through 65535. X-ray setup rejects every
     /// nonzero phase. The getter reads the translated bank-$88 owner; the setter is a
     /// debugger seam for forcing preconditions without constructing an explosion.
     /// </summary>
-    public ushort PowerBombExplosionStatus
+    public int PowerBombExplosionStatus
     {
         get => BombProjectiles.PowerBombExplosion.Status;
-        set => BombProjectiles.PowerBombExplosion.SetStatusForDebugging(value);
+        set => BombProjectiles.PowerBombExplosion.SetStatusForDebugging(
+            checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
     }
 
     /// <summary>
@@ -304,8 +305,7 @@ public sealed class SuperMetroidRuntime
     /// <c>$80:90F4</c>, <c>$80:9176</c>): while the explosion status is negative every
     /// request is dropped after the occupancy check, whoever makes it.
     /// </summary>
-    public bool PowerBombExplosionSuppressesSounds =>
-        unchecked((short)PowerBombExplosionStatus) < 0;
+    public bool PowerBombExplosionSuppressesSounds => BombProjectiles.PowerBombExplosion.IsActive;
 
     /// <summary>Door-selected bank-$83/$88 gameplay BG3 effect.</summary>
     public RoomLayer3FxState RoomLayer3Fx { get; } = new();

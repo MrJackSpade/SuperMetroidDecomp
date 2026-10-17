@@ -1,29 +1,30 @@
 namespace SuperMetroid.Core.Enemies.Beetom;
 
 /// <summary>
-/// The Beetom words kept per physical slot for the room rather than per occupant, like the native per-slot
-/// RAM they model: words an initializer does not write keep the previous occupant's values until room load.
+/// The Beetom values kept per physical slot for the room rather than per occupant: values an initializer does not
+/// write keep the previous Beetom's until room load. A fresh Beetom touched before it first chooses an action
+/// therefore attaches facing the way the slot's previous Beetom last faced.
 /// </summary>
 internal sealed class BeetomExtensionWords
 {
-    /// <summary>speed indices for the short hop's target height.</summary>
-    internal ushort InitialShortLeapYSpeedIndex { get; set; }
+    /// <summary>The short hop's starting quadratic-speed record index.</summary>
+    internal int InitialShortLeapYSpeedIndex { get; set; }
 
-    /// <summary>speed indices for the long hop's target height.</summary>
-    internal ushort InitialLongLeapYSpeedIndex { get; set; }
+    /// <summary>The long hop's starting quadratic-speed record index.</summary>
+    internal int InitialLongLeapYSpeedIndex { get; set; }
 
-    /// <summary>speed indices for the lunge arc.</summary>
-    internal ushort InitialLungeYSpeedIndex { get; set; }
+    /// <summary>The lunge's starting quadratic-speed record index.</summary>
+    internal int InitialLungeYSpeedIndex { get; set; }
 
-    /// <summary>Native rising/falling phase flags for active Beetom arcs.</summary>
-    internal ushort FallingFlag { get; set; }
+    /// <summary>Whether the current arc has passed its apex.</summary>
+    internal bool Falling { get; set; }
 
-    /// <summary>Native flags indicating which Beetoms currently drain Samus.</summary>
-    internal ushort AttachedFlag { get; set; }
+    /// <summary>Whether the Beetom is attached to Samus.</summary>
+    internal bool AttachedToSamus { get; set; }
 
-    /// <summary>travel directions, also used for post-drain throws.</summary>
-    internal ushort Direction { get; set; }
+    /// <summary>Whether the Beetom faces right rather than left.</summary>
+    internal bool FacingRight { get; set; }
 
-    /// <summary>offset captured when Beetom first attaches to Samus.</summary>
+    /// <summary>The Samus-minus-Beetom offset captured when the Beetom first attaches.</summary>
     internal Offset16<RoomPixels> InitialAttachmentOffset { get; set; }
 }

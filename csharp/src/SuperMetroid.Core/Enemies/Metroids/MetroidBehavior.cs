@@ -316,9 +316,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                 ? MetroidBehaviorDefinitions.VariaDrainFraction
                 : MetroidBehaviorDefinitions.PowerSuitDrainFraction;
-        ushort oldAccumulator = state.DrainAccumulator;
-        state.DrainAccumulator = unchecked((ushort)(oldAccumulator - drainRate));
-        if (oldAccumulator >= drainRate)
+        if (!state.DrainBorrows(drainRate))
             return;
 
         // Samus_DealDamage(1) performs a saturating subtract and deliberately does not

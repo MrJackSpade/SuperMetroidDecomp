@@ -44,8 +44,17 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     internal IReadOnlyList<(long Sample, byte Voices)> KeyOns => keyOns;
 
     /// <summary>Each allocated channel's first repeated state (E1, E2) and its voice.</summary>
-    internal IReadOnlyList<(long First, long Second, int Voice)> ChannelLoops =>
-        [.. channelLoops.Where(loop => loop.HasValue).Select(loop => loop.Value)];
+    internal IReadOnlyList<(long First, long Second, int Voice)> ChannelLoops => [.. FoundChannelLoops()];
+
+    /// <summary>The channels' loops found so far, in channel order.</summary>
+    private IEnumerable<(long First, long Second, int Voice)> FoundChannelLoops()
+    {
+        foreach ((long First, long Second, int Voice)? loop in channelLoops)
+        {
+            if (loop is { } found)
+                yield return found;
+        }
+    }
 
     /// <summary>Whether every channel the sound allocated has repeated its own state.</summary>
     internal bool AllChannelLoopsFound { get; private set; }

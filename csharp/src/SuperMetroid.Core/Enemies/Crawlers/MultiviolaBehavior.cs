@@ -37,8 +37,8 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>InitAI_Multiviola</c> at $A2:B3E0.</summary>
     internal static void InitializeMultiviola(RoomEnemySlot slot)
     {
-        var state = new MultiviolaEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new MultiviolaEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Retail redundantly performs the same magnitude calculation here and again at the
         // beginning of every main-AI call. Preserve the visible variable writes: debugging

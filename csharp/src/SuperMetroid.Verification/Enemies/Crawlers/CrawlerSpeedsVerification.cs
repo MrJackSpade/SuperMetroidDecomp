@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Enemies.Crawlers;
+using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled crawler and Yard velocity definitions against
 /// native speed tables and production sign application.</summary>
@@ -64,5 +65,14 @@ internal static class CrawlerSpeedsVerification
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler invalid speed");
         AssertThrows<InvalidDataException>(() => YardVelocityDefinitions.Apply(1, 8), "Yard invalid direction");
         Console.WriteLine("Compiled crawling speeds: both 32-word copies, 384 real resets, 262144 sentinel resets and 524288 Yard sign pairs match native values without a bus.");
+    }
+
+    /// <summary>Runs the focused compiled crawler speed check.</summary>
+    [VerificationCommand("--compiled-crawler-speeds")]
+    internal static int CompiledCrawlerSpeedsCommand()
+    {
+        SuiteTimingVerification.Suite(nameof(VerifyCompiledCrawlerSpeeds), () => VerifyCompiledCrawlerSpeeds(
+            CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

@@ -98,6 +98,8 @@ internal static class NativeEnemyFamilyStateImport
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(slot.VariableF));
         }
+        if (slot.EntityState<MultiviolaEntity, MultiviolaEnemyState>() is { } multiviola)
+            multiviola.Velocity = FixedVector<RoomPixels>.FromWords(slot.VariableC, slot.VariableD, slot.VariableE, slot.VariableF);
         if (slot.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
         {
             crawler.Velocity = new(new SnesSignedEightEight(slot.VariableA), new SnesSignedEightEight(slot.VariableB));

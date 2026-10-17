@@ -33,4 +33,14 @@ internal static class SpacePirateHitboxes
         }
         return false;
     }
+
+    /// <summary>
+    /// Whether <paramref name="callback"/> is one of the Pirate shot callbacks the hitboxes select, which normal bombs
+    /// dispatch like the common one.
+    /// </summary>
+    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
+    internal static bool OwnsShotCallback(EnemyInteractionCallback? callback) =>
+        callback is EnemyInteractionCallback.SpacePirateShot or
+            EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot or
+            EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot;
 }

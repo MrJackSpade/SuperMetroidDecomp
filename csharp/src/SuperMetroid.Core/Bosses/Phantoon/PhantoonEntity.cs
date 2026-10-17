@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyContactHooks
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyContactHooks, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
@@ -63,4 +63,14 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public void ResolveAfterSamusContact(SamusState samus)
     {
     }
+
+    /// <summary>Only the body's Samus contact enters the extended-spritemap walker; its weapon collision is the encounter's own resolver.</summary>
+    public override EnemyCapabilities Capabilities =>
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.ExtendedSamusHitboxes : EnemyCapabilities.None;
+
+    /// <summary>The body's shot callback, which normal bombs dispatch like the common one.</summary>
+    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
+    /// <param name="callbackPointer">The selected callback pointer.</param>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody && callback == EnemyInteractionCallback.PhantoonShot;
 }

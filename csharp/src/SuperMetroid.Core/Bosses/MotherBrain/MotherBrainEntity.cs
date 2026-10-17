@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
@@ -50,4 +50,15 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
         bool found = room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
         return new("Mother Brain body", found, writes);
     }
+
+    /// <summary>The body's and head's shots enter the extended-spritemap walker; their contact and the tubes' use the header radius.</summary>
+    public override EnemyCapabilities Capabilities =>
+        Slot.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+
+    /// <summary>The body's and head's own shot callbacks, which normal bombs dispatch like the common one.</summary>
+    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
+    /// <param name="callbackPointer">The selected callback pointer.</param>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody && callback == EnemyInteractionCallback.MotherBrainBodyShot ||
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead && callback == EnemyInteractionCallback.MotherBrainHeadShot;
 }

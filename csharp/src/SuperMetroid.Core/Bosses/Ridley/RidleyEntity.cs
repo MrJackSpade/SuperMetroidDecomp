@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class RidleyEntity(
     RidleyBehavior ridley, CeresRidleyBehavior ceres, RidleyEncounter encounter, RoomEnemySlot slot, EnemyCommonParticipation common)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation,
-        IEnemyExtendedHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks
+        IEnemyExtendedHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotCallback
 {
     /// <summary>Whether the occupant is one of the two Ridley bodies rather than the breakup actor.</summary>
     private bool IsBody => Slot.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
@@ -78,4 +78,17 @@ internal sealed class RidleyEntity(
         if (IsBody)
             ceres.DrawRidleySupplementalSprites(oam, Slot, camera);
     }
+
+    /// <summary>
+    /// Only Lower Norfair Ridley's shots enter the extended-spritemap walker; its contact, Ceres Ridley's collision and the
+    /// breakup actor's take neither.
+    /// </summary>
+    public override EnemyCapabilities Capabilities =>
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+
+    /// <summary>Both Ridley bodies' shot callback, which normal bombs dispatch like the common one.</summary>
+    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
+    /// <param name="callbackPointer">The selected callback pointer.</param>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        IsBody && callback == EnemyInteractionCallback.RidleyShot;
 }

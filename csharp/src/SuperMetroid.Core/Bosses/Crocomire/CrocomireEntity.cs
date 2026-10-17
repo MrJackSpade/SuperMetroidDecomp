@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IEnemyBg2Frames
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
@@ -57,4 +57,14 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
         bool found = room.InstalledArtwork.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
         return new("Crocomire body", found, writes);
     }
+
+    /// <summary>The body's and tongue's contact and shots both enter the extended-spritemap walker over their own hitboxes.</summary>
+    public override EnemyCapabilities Capabilities =>
+        EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes;
+
+    /// <summary>Crocomire's hitbox shot callbacks, which are selected by pointer because they are not named callbacks.</summary>
+    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
+    /// <param name="callbackPointer">The selected callback pointer.</param>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        Enum.IsDefined((CrocomireHitboxShotCallback)callbackPointer);
 }

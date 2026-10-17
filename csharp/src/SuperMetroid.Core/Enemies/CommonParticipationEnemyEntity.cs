@@ -1,14 +1,15 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// An entity whose reactions, AI-state handlers and collision capabilities are the shared ones (#1312). A species entity
-/// derives from it and implements its own participations; an override replaces a shared answer where the species owns it.
+/// An entity whose reactions and AI-state handlers are the shared ones (#1312). A species entity derives from it and
+/// implements its own participations; an override replaces a shared answer where the species owns it. It takes only the
+/// common collision paths until the species overrides <see cref="Capabilities"/>, and it owns no private shot callback
+/// unless the species implements <see cref="IEnemyPrivateShotCallback"/>.
 /// </summary>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation the system composes.</param>
 internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, EnemyCommonParticipation common)
-    : IEnemyHurtAi, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction,
-        IEnemyPrivateShotCallback
+    : IEnemyHurtAi, IEnemyFrozenAi, IEnemyTouchReaction, IEnemyShotReaction, IEnemyBombReaction, IEnemyPowerBombReaction
 {
     /// <summary>The slot the enemy occupies; the shared predicates read its live state.</summary>
     protected RoomEnemySlot Slot { get; } = slot;
@@ -17,7 +18,7 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, Enemy
     protected EnemyCommonParticipation Common { get; } = common;
 
     /// <inheritdoc/>
-    public virtual EnemyCapabilities Capabilities { get; } = EnemyCapabilityCatalog.For(slot.EnemyDefinitionPointer);
+    public virtual EnemyCapabilities Capabilities => EnemyCapabilities.None;
 
     /// <inheritdoc/>
     public virtual EnemyHurtAiHandler? FindHurt() => Common.FindHurt(Slot);
@@ -46,8 +47,4 @@ internal abstract class CommonParticipationEnemyEntity(RoomEnemySlot slot, Enemy
 
     /// <inheritdoc/>
     public virtual EnemyPowerBombReaction? FindPowerBomb() => Common.FindPowerBomb(Slot);
-
-    /// <inheritdoc/>
-    public virtual bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
-        EnemyCapabilityCatalog.OwnsPrivateShotCallback(Slot, callback, callbackPointer);
 }

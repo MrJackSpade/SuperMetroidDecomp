@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames
+    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
@@ -53,4 +53,14 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
         bool found = room.InstalledArtwork.DraygonBg2Frames?.TryGet(selected, out writes) == true;
         return new("Draygon", found, writes);
     }
+
+    /// <summary>Only the body's contact and shots enter the extended-spritemap walker over its own hitboxes.</summary>
+    public override EnemyCapabilities Capabilities =>
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+
+    /// <summary>The body's shot callback and its dud shot, which normal bombs dispatch like the common one.</summary>
+    /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
+    /// <param name="callbackPointer">The selected callback pointer.</param>
+    public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback, ushort callbackPointer) =>
+        Slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody && callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot;
 }

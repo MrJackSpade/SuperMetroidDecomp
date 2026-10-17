@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Rooms;
 public sealed record CartridgeRoomState(
     ushort Pointer,
     int CompressedLevelDataAddress,
-    byte GraphicsSet,
-    byte MusicDataIndex,
-    byte MusicTrackIndex,
+    int GraphicsSet,
+    int MusicDataIndex,
+    int MusicTrackIndex,
     ushort FxPointer,
     ushort EnemyPopulationPointer,
     ushort EnemyTilesetPointer,
@@ -18,6 +18,15 @@ public sealed record CartridgeRoomState(
     ushort BackgroundDataPointer,
     ushort SetupCodePointer)
 {
+    /// <summary>The room state's graphics theme, 0 through 255.</summary>
+    public int GraphicsSet { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, GraphicsSet);
+
+    /// <summary>The music data set the room state selects, 0 through 255.</summary>
+    public int MusicDataIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, MusicDataIndex);
+
+    /// <summary>The music track the room state selects within its data set, 0 through 255.</summary>
+    public int MusicTrackIndex { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, MusicTrackIndex);
+
     /// <summary>Typed mutually exclusive identity of the selected room-main callback.</summary>
     public RoomMainCallback MainCallback =>
         RoomCallbackDefinitions.ResolveMain(MainCodePointer);

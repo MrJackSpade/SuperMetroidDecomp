@@ -56,7 +56,7 @@ internal static class RoomAssetRomDataVerification
         {
             foreach (RoomStateSelectionContext context in BuildRoomStateAuditContexts())
             {
-                graphicsSets.Add(SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet);
+                graphicsSets.Add(checked((byte)SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, roomPointer, context).State.GraphicsSet));
             }
         }
 

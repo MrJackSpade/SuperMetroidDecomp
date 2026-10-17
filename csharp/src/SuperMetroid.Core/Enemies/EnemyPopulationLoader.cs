@@ -35,8 +35,8 @@ internal sealed class EnemyPopulationLoader
     public ushort PopulationPointer { get; internal set; }
     /// <summary>Bank-$B4 enemy graphics-set identity supplied by the current room state, matching native EnemySetPointer ($07D1); an empty population does not load that set.</summary>
     public ushort TilesetPointer { get; internal set; }
-    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota.</summary>
-    public byte DeathQuota { get; private set; }
+    /// <summary>Required room kill count from the nonempty population's terminator for enemy-clear triggers; native empty-population initialization retains the previous quota. 0 through 255.</summary>
+    public int DeathQuota { get; private set; }
 
     /// <summary>
     /// Appends enemy tile DMAs after the standard OBJ transfer queued by room setup.

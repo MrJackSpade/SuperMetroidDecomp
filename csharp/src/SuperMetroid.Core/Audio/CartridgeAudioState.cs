@@ -133,7 +133,7 @@ public sealed class CartridgeAudioState
         QueueMusic(command, delay, requireFreeSlot: false);
 
     /// <summary>Queues the data-bank and track operations performed by ordinary room loading.</summary>
-    public void QueueRoomMusic(byte dataIndex, byte trackIndex)
+    public void QueueRoomMusic(int dataIndex, int trackIndex)
     {
         // LoadRoomMusic first silences the current track and uploads a changed nonzero
         // room data set. LoadNewMusicTrackIfChanged then queues the room's selected track.
@@ -161,7 +161,7 @@ public sealed class CartridgeAudioState
     /// A zero room track inherits the current track; otherwise compare the native
     /// data/track pair and preserve the track byte until bank-$80 dispatch masks it.
     /// </summary>
-    internal void QueueRoomMusicTrack(byte dataIndex, byte trackIndex)
+    internal void QueueRoomMusicTrack(int dataIndex, int trackIndex)
     {
         if (trackIndex != 0 && (dataIndex != MusicDataIndex || trackIndex != MusicTrackIndex))
             QueueMusicDelayed(
@@ -173,12 +173,12 @@ public sealed class CartridgeAudioState
     /// Queues only $82:E071's changed nonzero music data bank. Saved-game loading
     /// shares this operation but lets the appearance coroutine schedule its own tracks.
     /// </summary>
-    public bool QueueRoomMusicData(byte dataIndex)
+    public bool QueueRoomMusicData(int dataIndex)
     {
         if (dataIndex == 0 || dataIndex == MusicDataIndex)
             return false;
         QueueMusicDelayed8(MusicCommand.Stop);
-        QueueMusicDelayed8(MusicCommand.LoadData(dataIndex));
+        QueueMusicDelayed8(MusicCommand.LoadData(checked((byte)dataIndex)));
         return true;
     }
 

@@ -268,9 +268,9 @@ public static class RoomTilesetDefinitions
     };
 
     /// <summary>Selects block, character and palette resources for the room state's native graphics theme.</summary>
-    public static TilesetDefinition Get(byte graphicsSet)
+    public static TilesetDefinition Get(int graphicsSet)
     {
-        if (graphicsSet >= Count)
+        if ((uint)graphicsSet >= Count)
             throw new InvalidDataException($"Graphics set ${graphicsSet:X2} is outside the compiled retail tileset table.");
         var theme = (Theme)graphicsSet;
         return new(            (int)SelectBlockSource(theme), (int)SelectCharacterSource(theme), (int)SelectPaletteSource(theme));

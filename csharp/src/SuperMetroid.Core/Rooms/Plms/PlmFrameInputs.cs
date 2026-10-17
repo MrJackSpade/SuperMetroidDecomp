@@ -12,8 +12,8 @@ public readonly record struct PlmFrameInputs
     /// <summary>The room's kill count (<see cref="Enemies.EnemyRoomStatus.EnemiesKilled"/>), 0 through 65535.</summary>
     public required int EnemyDeaths { get; init; }
 
-    /// <summary>Enemy death quota.</summary>
-    public required byte EnemyDeathQuota { get; init; }
+    /// <summary>The room's kill-count requirement for enemy-clear triggers, 0 through 255.</summary>
+    public required int EnemyDeathQuota { get; init; }
 
     /// <summary>Controller new input.</summary>
     public required SnesButton ControllerNewInput { get; init; }

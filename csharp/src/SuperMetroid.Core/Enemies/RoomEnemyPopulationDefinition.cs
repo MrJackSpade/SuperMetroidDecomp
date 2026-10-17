@@ -16,6 +16,6 @@ public sealed class RoomEnemyPopulationDefinition
     public ushort Pointer { get; }
     /// <summary>Read-only ordered placements compiled from native 16-byte records, excluding the $FFFF terminator; order controls initialization and slot allocation.</summary>
     public ReadOnlyMemory<RoomEnemyPopulationRecord> Records => records;
-    /// <summary>Literal byte following the $FFFF terminator, used as the room kill-count requirement for nonempty populations; an empty load does not publish this byte.</summary>
-    public byte DeathQuota { get; }
+    /// <summary>Literal byte following the $FFFF terminator, used as the room kill-count requirement for nonempty populations; an empty load does not publish it. 0 through 255.</summary>
+    public int DeathQuota { get; }
 }

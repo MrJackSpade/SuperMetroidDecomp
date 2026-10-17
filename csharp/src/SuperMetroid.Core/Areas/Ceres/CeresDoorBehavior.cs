@@ -317,7 +317,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A6:F850 selects six colors by NMI counter bits 3..5. Enemy FrameCounter advances
         // at the same accepted-frame cadence in this runtime, so slot zero is the shared
         // timebase for the room-owned palette cycle.
-        ushort frame = _slotTable._slots[0].FrameCounter;
+        int frame = _slotTable._slots[0].FrameCounter;
 
         // AnimateCeresElevatorPlatform at $A6:F8F1 does not belong to either arrival
         // projectile. It survives their touchdown deletion because the rotating-room door

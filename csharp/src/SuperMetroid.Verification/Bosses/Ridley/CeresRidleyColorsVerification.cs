@@ -243,9 +243,9 @@ internal static class CeresRidleyColorsVerification
                 owner.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
                 owner.Presentation._cgram = palette;
             }
-            var nativeTick = new Action<RidleyEnemyState, ushort>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
-            var stockTick = new Action<RidleyEnemyState, ushort>(stockEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
-            var editedTick = new Action<RidleyEnemyState, ushort>(editedEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var nativeTick = new Action<RidleyEnemyState, int>(nativeEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var stockTick = new Action<RidleyEnemyState, int>(stockEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
+            var editedTick = new Action<RidleyEnemyState, int>(editedEnemy.CeresRidleyBehavior.UpdateCeresSelfDestructPalette);
             var nativeState = new RidleyEnemyState();
             var stockState = new RidleyEnemyState();
             var editedState = new RidleyEnemyState();

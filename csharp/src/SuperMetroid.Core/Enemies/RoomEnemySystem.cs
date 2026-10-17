@@ -949,7 +949,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
                 if (ranActorAi)
                 {
-                    slot.FrameCounter = unchecked((ushort)(slot.FrameCounter + 1));
+                    slot.FrameCounter = NativeWordCounter.IncrementWord(slot.FrameCounter);
                     // `$A0:8FF7` skips the instruction interpreter whenever frozen bit
                     // four is present, even if lower-priority hurt bit two selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here

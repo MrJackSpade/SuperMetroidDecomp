@@ -217,7 +217,7 @@ public sealed class BabyMetroidCutsceneState
         MotherBrainRainbowBeamAttackSequence motherBrain,
         Position16<RoomPixels> head,
         Position16<RoomPixels> layer1 = default,
-        ushort enemyFrameCounter = 0,
+        int enemyFrameCounter = 0,
         ushort randomNumber = 0)
     {
         Ensure.NotNull(samus);

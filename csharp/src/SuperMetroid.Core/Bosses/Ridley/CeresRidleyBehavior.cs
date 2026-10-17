@@ -480,7 +480,7 @@ internal sealed class CeresRidleyBehavior
     internal static void UpdateRidleyHurtFlashPalettes(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        ushort enemyMainExecutionCounter)
+        int enemyMainExecutionCounter)
     {
         state.CommonDrawPaletteIndex = new SnesObjAttributeWord(!slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
@@ -1850,7 +1850,7 @@ internal sealed class CeresRidleyBehavior
     }
 
     /// <summary>Ports the three-color alarm palette cycle at $A6:C19C.</summary>
-    internal void UpdateCeresSelfDestructPalette(RidleyEnemyState state, ushort frameCounter)
+    internal void UpdateCeresSelfDestructPalette(RidleyEnemyState state, int frameCounter)
     {
         if ((frameCounter & 3) != 0)
             return;

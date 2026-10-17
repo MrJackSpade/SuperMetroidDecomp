@@ -657,7 +657,7 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 enemies.Presentation._cgram = cgram;
-                Action<RidleyEnemyState, ushort> update = enemies.CeresRidleyBehavior.UpdateCeresSelfDestructPalette;
+                Action<RidleyEnemyState, int> update = enemies.CeresRidleyBehavior.UpdateCeresSelfDestructPalette;
                 var state = new RidleyEnemyState { CeresEscapePaletteFrame = 15 };
                 for (ushort nmi = 0; nmi < 64; nmi++)
                 {

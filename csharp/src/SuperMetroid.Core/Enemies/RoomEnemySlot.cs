@@ -134,8 +134,15 @@ public sealed class RoomEnemySlot
     public ushort PaletteIndex { get; internal set; }
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
     public ushort VramTilesIndex { get; internal set; }
-    /// <summary>Enemy.layer at +$22: drawing-queue layer word, initialized from the definition's byte-sized layer.</summary>
-    public ushort Layer { get; internal set; }
+    /// <summary>
+    /// Enemy.layer at +$22, 0 through 65535: drawing-queue layer word, initialized from the definition's byte-sized
+    /// layer; the draw queue reads its low three bits.
+    /// </summary>
+    public int Layer
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Enemy.flashTimer at +$24: hurt-flash countdown consumed by enemy processing and palette selection; reaching the native threshold clears hurt-AI dispatch.</summary>
     public NativeCountdown FlashTimer { get; internal set; }
     /// <summary>Enemy.freezeTimer at +$26: remaining freeze-processing countdown; frozen palette blinking and thaw decisions read the same native word.</summary>
@@ -144,8 +151,15 @@ public sealed class RoomEnemySlot
     public NativeCountdown InvincibilityTimer { get; internal set; }
     /// <summary>Enemy.shakeTimer at +$2A: remaining draw calls applying the enemy's one-pixel horizontal shake, decremented during drawing.</summary>
     public NativeCountdown ShakeTimer { get; internal set; }
-    /// <summary>Enemy.frameCounter at +$2C: wrapping enemy-processing counter used by actor behavior and drawing, independent of the global NMI counter.</summary>
-    public ushort FrameCounter { get; internal set; }
+    /// <summary>
+    /// Enemy.frameCounter at +$2C, 0 through 65535: wrapping enemy-processing counter used by actor behavior and
+    /// drawing, independent of the global NMI counter.
+    /// </summary>
+    public int FrameCounter
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>The definition's hurt duration, 0 through 255, copied into the slot when it is populated.</summary>
     public int HurtAiTime
     {

@@ -1219,7 +1219,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus Samus knockback direction", samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", samus.HurtFlashCounter, NativeSnapshotMemory.HurtFlashCounter);
-            Check("Samus fractional health word", samus.SubunitHealth, NativeSnapshotMemory.SubunitHealth);
+            Check("Samus fractional health word", checked((ushort)samus.SubunitHealth), NativeSnapshotMemory.SubunitHealth);
             Check("Samus selected HUD weapon", samus.SelectedHudItem.ToNativeWord(), NativeSnapshotMemory.SelectedHudItem);
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
             Check("Samus acceleration mode", samus.HorizontalSpeed.AccelerationMode, NativeSnapshotMemory.AccelerationMode);
@@ -1458,7 +1458,7 @@ internal static class RidleyFullMovieVerification
                 AssertTrue(W(NativeSnapshotMemory.PowerBombArmedFlag) == 0 &&
                     W(NativeSnapshotMemory.PowerBombExplosionStatus) == 0,
                     "Movie now activates a power bomb; add its full live-state mapping");
-                Check("BombSpreadChargeTimeoutCounter", samus.BombSpreadChargeTimeoutCounter, NativeSnapshotMemory.BombSpreadChargeTimeout);
+                Check("BombSpreadChargeTimeoutCounter", checked((ushort)samus.BombSpreadChargeTimeoutCounter), NativeSnapshotMemory.BombSpreadChargeTimeout);
                 Check("PoseTransitionShotDirection", samus.PoseTransitionShotDirection, NativeSnapshotMemory.PoseShotDirection);
                 Check("HyperBeam", SamusSnapshotWords.EncodeHyperBeam(samus.HyperBeamEnabled), NativeSnapshotMemory.HyperBeam);
                 if (samus.ResumeChargingBeamSound != SamusSnapshotWords.DecodeResumeChargingBeamSound(W(NativeSnapshotMemory.ResumeChargeSound)))

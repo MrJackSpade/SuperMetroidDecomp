@@ -175,13 +175,13 @@ public sealed class SamusState
     public SamusCeresRidleyEjectionState CeresRidleyEjection { get; } = new();
 
     /// <summary>
-    /// Compatibility/debugger view of <c>samus_x_speed_divisor</c> at WRAM <c>$0A66</c>.
-    /// The backing word belongs to <see cref="HorizontalSpeed"/>, just as the native word
-    /// is both a movement-speed divisor and the no-FX animation delay buffer.
+    /// The X-speed divisor, 0 through 65535, as Samus's own view of <see cref="SamusHorizontalSpeedState.SpeedDivisor"/>:
+    /// the one stored value is both a movement-speed divisor and the no-FX animation delay buffer, and its setter
+    /// rejects values outside that range.
     /// </summary>
-    public ushort XSpeedDivisor
+    public int XSpeedDivisor
     {
-        get => checked((ushort)HorizontalSpeed.SpeedDivisor);
+        get => HorizontalSpeed.SpeedDivisor;
         set => HorizontalSpeed.SpeedDivisor = value;
     }
 
@@ -195,11 +195,48 @@ public sealed class SamusState
     public int PreviousHealthForHurtCheck { get; set; } = 99;
 
     /// <summary>
-    /// Fractional energy word consumed by `$90:E9CE` before the whole-energy subtraction.
-    /// Ordinary HUD/debug output shows only <see cref="Health"/>, but lava/acid damage uses
-    /// this word's borrow so sub-energy cannot be rounded independently on every frame.
+    /// Fractional energy, 0 through 65535 in units of 1/65536 of one <see cref="Health"/> unit. Ordinary HUD and
+    /// debug output shows only <see cref="Health"/>, but periodic damage borrows from this fraction
+    /// (<see cref="TakeFractionalEnergyDamage"/>) so sub-energy cannot be rounded independently on every frame.
+    /// The setter rejects values outside the range.
     /// </summary>
-    public ushort SubunitHealth { get; set; }
+    public int SubunitHealth
+    {
+        get => _subunitHealth;
+        set => _subunitHealth = Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, value);
+    }
+
+    /// <summary>Backing value of <see cref="SubunitHealth"/>, always 0 through 65535.</summary>
+    private int _subunitHealth;
+
+    /// <summary>How many <see cref="SubunitHealth"/> units make one <see cref="Health"/> unit.</summary>
+    private const int SubunitsPerHealthUnit = 65536;
+
+    /// <summary>
+    /// Takes periodic damage as <c>$90:E9CE</c> does: the fractional damage comes off <see cref="SubunitHealth"/>
+    /// first, and when it takes the fraction below zero the fraction wraps to the remainder and one more whole unit is
+    /// owed; the whole damage and that borrowed unit then come off <see cref="Health"/>. A result below zero energy
+    /// clamps both the energy and its fraction to zero instead.
+    /// </summary>
+    /// <param name="subunitDamage">Fractional damage, 0 through 65535 subunits.</param>
+    /// <param name="wholeDamage">Whole damage in energy units, zero or more.</param>
+    internal void TakeFractionalEnergyDamage(int subunitDamage, int wholeDamage)
+    {
+        Ensure.BetweenInclusive(0, SubunitsPerHealthUnit - 1, subunitDamage);
+        Ensure.AtLeastZero(wholeDamage);
+        int subunit = SubunitHealth - subunitDamage;
+        int borrowed = subunit < 0 ? 1 : 0;
+        int health = Health - wholeDamage - borrowed;
+        if (health < 0)
+        {
+            SubunitHealth = 0;
+            Health = 0;
+            return;
+        }
+
+        SubunitHealth = subunit + borrowed * SubunitsPerHealthUnit;
+        Health = health;
+    }
 
     /// <summary>Maximum normal energy at WRAM `$09C4`; defaults to the initial 99.</summary>
     public int MaxHealth { get; set; } = 99;
@@ -291,7 +328,19 @@ public sealed class SamusState
     /// selected the transition. Keeping it separate from the beam flare counter prevents a
     /// mid-air morph from accidentally cancelling ordinary arm-cannon charge state.
     /// </summary>
-    public ushort BombSpreadChargeTimeoutCounter { get; set; }
+    /// <remarks>
+    /// Updates of Down held while a spread is charged, 0 through 65535; the setter rejects values outside that range.
+    /// Its only advance stops once bits six and seven are both set, so it never passes 65535 and never wraps; the
+    /// clears and the native snapshot import are its other producers.
+    /// </remarks>
+    public int BombSpreadChargeTimeoutCounter
+    {
+        get => _bombSpreadChargeTimeoutCounter;
+        set => _bombSpreadChargeTimeoutCounter = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="BombSpreadChargeTimeoutCounter"/>, always 0 through 65535.</summary>
+    private int _bombSpreadChargeTimeoutCounter;
 
     /// <summary>
     /// WRAM <c>$0B5E</c>, <c>PoseTransitionShotDirection</c>. A pose initializer can
@@ -324,13 +373,20 @@ public sealed class SamusState
     public SamusEquipmentFlags CollectedItems { get; set; }
 
     /// <summary>
-    /// WRAM <c>samus_special_super_palette_flags</c>. Ordinary Metroid command $12 writes
-    /// one while attached; bank-$91 palette handling then increments the word every frame,
-    /// alternating the speed-boost and normal suit palettes until command $13 clears it.
-    /// Bit $8000 belongs to the separate drained/rainbow sequence modeled by
-    /// <see cref="Drained"/> and is therefore never synthesized by Metroid AI.
+    /// The Metroid-attachment palette phase, 0 through 65535 (native <c>samus_special_super_palette_flags</c>). Zero
+    /// is inactive. Ordinary Metroid command $12 writes one while attached; bank-$91 palette handling then advances
+    /// the phase every frame, alternating the speed-boost and normal suit palettes until command $13 clears it. A
+    /// phase of 32768 or more is the separate drained/rainbow branch modeled by <see cref="Drained"/>: Metroid AI
+    /// never produces it and the alternation never advances it. The setter rejects values outside the range.
     /// </summary>
-    public ushort SpecialSuperPaletteFlags { get; internal set; }
+    public int SpecialSuperPaletteFlags
+    {
+        get => _specialSuperPaletteFlags;
+        internal set => _specialSuperPaletteFlags = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>Backing value of <see cref="SpecialSuperPaletteFlags"/>, always 0 through 65535.</summary>
+    private int _specialSuperPaletteFlags;
 
     /// <summary>
     /// Morph-ball bounce state at WRAM <c>$0B20</c>: zero is not bouncing, one is the first
@@ -751,12 +807,19 @@ level, probe, amount, scanLeftToRight, plms);
         Presentation.InitializeAnimation(initialFrame: 0);
     }
 
-    /// <summary>Absolute previous-Y word written by a pose-collision correction this frame.</summary>
-    private ushort? _poseCollisionPreviousYPosition;
+    /// <summary>
+    /// Absolute previous whole-pixel Y, 0 through 65535, written by a pose-collision correction this frame; null when
+    /// nothing wrote it. Only <see cref="WritePreviousYPosition"/> stores it, and its readers wrap its sum with the
+    /// alignment delta at sixteen bits, as the room coordinate does.
+    /// </summary>
+    private int? _poseCollisionPreviousYPosition;
     /// <summary>Relative previous-Y correction accumulated while preserving feet across a pose change.</summary>
     private int _poseAlignmentPreviousYDelta;
-    /// <summary>Absolute previous-X word written by a room or pose owner this frame.</summary>
-    private ushort? _previousXPositionWrite;
+    /// <summary>
+    /// Absolute previous whole-pixel X, 0 through 65535, written by a room or pose owner this frame; null when nothing
+    /// wrote it. Only <see cref="WritePreviousXPosition"/> stores it.
+    /// </summary>
+    private int? _previousXPositionWrite;
     /// <summary>Masked writes to previous X/Y fractions $0B12/$0B16; zero masks mean no write.</summary>
     private PreviousFractionWrites _previousFractionWrites;
 
@@ -808,7 +871,7 @@ level, probe, amount, scanLeftToRight, plms);
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
     internal (ushort X, ushort Y) PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => (
-        _previousXPositionWrite ?? previous.X.Whole,
+        checked((ushort)(_previousXPositionWrite ?? previous.X.Whole)),
         unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>
@@ -819,7 +882,7 @@ level, probe, amount, scanLeftToRight, plms);
     {
         ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
-        ushort xPosition = _previousXPositionWrite ?? previous.X.Whole;
+        ushort xPosition = checked((ushort)(_previousXPositionWrite ?? previous.X.Whole));
         ushort xSubposition = _previousFractionWrites.X.ApplyTo(previous.X.Fraction);
         ushort ySubposition = _previousFractionWrites.Y.ApplyTo(previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;

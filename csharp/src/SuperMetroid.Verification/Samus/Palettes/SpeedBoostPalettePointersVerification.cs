@@ -51,9 +51,35 @@ internal static class SpeedBoostPalettePointersVerification
                 AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
                     installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
-            AssertEqual((ushort)2, samus.SpecialSuperPaletteFlags,
+            AssertEqual(2, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");
         }
+
+        // The last alternating phase still draws and advances onto the drained/rainbow branch, which the
+        // alternation then leaves alone: the cartridge's signed test stops the phase there instead of wrapping.
+        const int LastAlternatingPhase = 32767;
+        var lastPhase = new SamusState
+        {
+            SpecialSuperPaletteFlags = LastAlternatingPhase,
+            Presentation = { FullBodyCycleColors = cycleColors },
+        };
+        AssertTrue(SamusSpecialSuperPalette.Update(new SnesCgram(), lastPhase),
+            "the last alternating phase still owns the palette");
+        AssertEqual(LastAlternatingPhase + 1, lastPhase.SpecialSuperPaletteFlags,
+            "the last alternating phase advances onto the drained branch");
+        AssertTrue(!SamusSpecialSuperPalette.Update(new SnesCgram(), lastPhase),
+            "the drained branch is not the Metroid alternation");
+        AssertEqual(LastAlternatingPhase + 1, lastPhase.SpecialSuperPaletteFlags,
+            "the alternation leaves the drained branch's phase alone");
+        var highestPhase = new SamusState
+        {
+            SpecialSuperPaletteFlags = ushort.MaxValue,
+            Presentation = { FullBodyCycleColors = cycleColors },
+        };
+        AssertTrue(!SamusSpecialSuperPalette.Update(new SnesCgram(), highestPhase),
+            "the highest stored phase is the drained branch too");
+        AssertEqual((int)ushort.MaxValue, highestPhase.SpecialSuperPaletteFlags,
+            "the highest stored phase does not wrap to zero");
         AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
             new SnesCgram(), new SamusState { SpecialSuperPaletteFlags = 1 }),
             "Metroid attachment requires installed Speed Booster colors");

@@ -1117,6 +1117,7 @@ internal static void VerifySamusAtmosphericEffects()
     AssertEqual(0x8000, samus.SubunitHealth, "fractional energy retains wrapped half");
     AssertEqual(0, samus.LiquidPhysics.PeriodicSubDamage,
         "periodic consumer clears fractional accumulator");
+    VerifyPeriodicDamageFractionalBorrow();
 
     // Type-four slot zero begins with timer two. First update decrements/draws frame zero and
     // applies +1/-1 motion before clipping. The next call reloads ROM timer zero, advances to
@@ -1555,6 +1556,48 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
     {
         Suite(nameof(VerifySamusAerialMovement), () => VerifySamusAerialMovement());
         return 0;
+    }
+
+    /// <summary>
+    /// Confirms the periodic-damage consumer's fractional-energy borrow through <c>ApplyPeriodicDamage</c>: a fraction
+    /// that covers the damage is reduced without a borrow, one that does not wraps to the remainder and costs one
+    /// more whole unit, and a borrow or whole damage that would take energy below zero clamps energy and its
+    /// fraction to zero.
+    /// </summary>
+    private static void VerifyPeriodicDamageFractionalBorrow()
+    {
+        const int QuarterUnit = 16384;
+        const int HalfUnit = 32768;
+        const int ThreeQuarterUnits = 49152;
+        var samus = new SamusState { EquippedItems = 0 };
+
+        samus.Health = 50;
+        samus.SubunitHealth = ThreeQuarterUnits;
+        samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 1);
+        samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
+        AssertEqual(49, samus.Health, "a covered fraction takes only the whole damage");
+        AssertEqual(QuarterUnit, samus.SubunitHealth, "a covered fraction keeps its remainder without borrowing");
+
+        samus.Health = 50;
+        samus.SubunitHealth = QuarterUnit;
+        samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 1);
+        samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
+        AssertEqual(48, samus.Health, "an uncovered fraction borrows one more whole unit");
+        AssertEqual(ThreeQuarterUnits, samus.SubunitHealth, "an uncovered fraction wraps to the remainder");
+
+        samus.Health = 0;
+        samus.SubunitHealth = 0;
+        samus.LiquidPhysics.AccumulatePeriodicDamage(HalfUnit, 0);
+        samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
+        AssertEqual(0, samus.Health, "a borrow from zero energy clamps energy to zero");
+        AssertEqual(0, samus.SubunitHealth, "a fatal borrow clears the fraction instead of wrapping it");
+
+        samus.Health = 1;
+        samus.SubunitHealth = HalfUnit;
+        samus.LiquidPhysics.AccumulatePeriodicDamage(0, 2);
+        samus.LiquidPhysics.ApplyPeriodicDamage(samus, timeIsFrozen: false);
+        AssertEqual(0, samus.Health, "whole damage beyond the remaining energy clamps energy to zero");
+        AssertEqual(0, samus.SubunitHealth, "fatal whole damage clears the fraction too");
     }
 
     /// <summary>Checks movement effects from the room's atmosphere.</summary>

@@ -52,7 +52,7 @@ internal static class NormalSuitPalettePointersVerification
                         SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort))) & 0x7fff),
                     installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
                     $"normal suit CGRAM selection {selection}, color {color} matches ROM");
-            AssertEqual((ushort)3, samus.SpecialSuperPaletteFlags,
+            AssertEqual(3, samus.SpecialSuperPaletteFlags,
                 "special palette counter increments");
         }
         Console.WriteLine("Normal suit palettes: four equipment cases match ROM and live CGRAM with no CPU bus.");

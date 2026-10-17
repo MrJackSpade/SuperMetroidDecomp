@@ -232,7 +232,7 @@ public sealed class SamusLiquidPhysicsState
     {
         Ensure.NotNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
-            return samus.XSpeedDivisor;
+            return checked((ushort)samus.XSpeedDivisor);
 
         ushort bottomMinusOne = unchecked((ushort)(
             samus.Position.Y.Whole + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
@@ -241,7 +241,7 @@ public sealed class SamusLiquidPhysicsState
         {
             SamusLiquidMedium.Water => 3,
             SamusLiquidMedium.LavaOrAcid => 2,
-            SamusLiquidMedium.Air => samus.XSpeedDivisor,
+            SamusLiquidMedium.Air => checked((ushort)samus.XSpeedDivisor),
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         };
     }
@@ -348,7 +348,7 @@ public sealed class SamusLiquidPhysicsState
 
         // `$90:8078` publishes the X-speed divisor and clears the remembered medium. Only
         // water (bit zero set) owns an exit splash; lava/acid simply clears `$0AD2`.
-        samus.AnimationFrameBuffer = samus.XSpeedDivisor;
+        samus.AnimationFrameBuffer = checked((ushort)samus.XSpeedDivisor);
         bool exitedWater = LiquidPhysicsType == SamusLiquidMedium.Water;
         LiquidPhysicsType = SamusLiquidMedium.Air;
         if (exitedWater)
@@ -375,10 +375,12 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         SamusMovementType previousMovementType,
         SamusPoseId previousPose,
-        ushort impactYSpeed,
-        ushort impactYSubspeed)
+        int impactYSpeed,
+        int impactYSubspeed)
     {
         Ensure.NotNull(samus);
+        Ensure.BetweenInclusive(0, ushort.MaxValue, impactYSpeed);
+        Ensure.BetweenInclusive(0, ushort.MaxValue, impactYSubspeed);
 
         // `$91:F046-$F074` ends the spin-loop sound separately from the impact. The test is
         // on PREVIOUS movement type and pose because landing selection has not run yet.
@@ -590,18 +592,7 @@ public sealed class SamusLiquidPhysicsState
         if (unchecked((short)appliedDamage) < 0)
             throw new InvalidDataException("Periodic whole damage overflowed into the signed-negative range.");
 
-        int subunitResult = samus.SubunitHealth - appliedSubDamage;
-        samus.SubunitHealth = unchecked((ushort)subunitResult);
-        int healthResult = samus.Health - appliedDamage - (subunitResult < 0 ? 1 : 0);
-        if (healthResult < 0)
-        {
-            samus.SubunitHealth = 0;
-            samus.Health = 0;
-        }
-        else
-        {
-            samus.Health = healthResult;
-        }
+        samus.TakeFractionalEnergyDamage(appliedSubDamage, appliedDamage);
 
         PeriodicSubDamage = 0;
         PeriodicDamage = 0;

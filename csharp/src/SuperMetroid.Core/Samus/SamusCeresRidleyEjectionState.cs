@@ -25,9 +25,10 @@ public sealed class SamusCeresRidleyEjectionState
     public bool InitializationPending { get; private set; }
 
     /// <summary>
-    /// Native <c>samus_var62</c>: one pushes toward the left wall, two toward the right.
+    /// The wall the shove carries Samus toward (native <c>samus_var62</c>); <see cref="CeresRidleyShoveDirection.None"/>
+    /// until initialization chooses a side and again once wall contact ends the shove.
     /// </summary>
-    public ushort PushDirection { get; private set; }
+    public CeresRidleyShoveDirection PushDirection { get; private set; }
 
     /// <summary>
     /// <c>SetSamusToBePushedOutOfCeresRidleysWay</c> ($90:E119): installs the handlers
@@ -92,8 +93,8 @@ public sealed class SamusCeresRidleyEjectionState
             // rightward branch because the native BMI tests a signed `(screenX - 128)`.
             ushort screenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
             PushDirection = unchecked((short)(screenX - 128)) < 0
-                ? (ushort)1
-                : (ushort)2;
+                ? CeresRidleyShoveDirection.Left
+                : CeresRidleyShoveDirection.Right;
             samus.Kinematics.YSpeed = TerminalDownwardSpeed;
             samus.Kinematics.YSubspeed = 0;
 
@@ -110,7 +111,7 @@ public sealed class SamusCeresRidleyEjectionState
             samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = horizontalSpeed.CalculateBaseSpeed(
             samus.PoseMetadata.ReadMovementType());
-        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == 1, samus, baseSpeed);
+        var requestedX = SamusHorizontalDisplacement.Toward(PushDirection == CeresRidleyShoveDirection.Left, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
 
         if (horizontal.Collided)
@@ -124,7 +125,7 @@ public sealed class SamusCeresRidleyEjectionState
             // never sets knockback direction `$0A52`, so `$90:DDE9` does not convert the
             // hurt pose; `$53/$54` remains for the ordinary movement handler.
             IsActive = false;
-            PushDirection = 0;
+            PushDirection = CeresRidleyShoveDirection.None;
             samus.Kinematics.YSpeed = 0;
             samus.Kinematics.YSubspeed = 0;
             samus.Kinematics.YDirection = SamusVerticalDirection.None;

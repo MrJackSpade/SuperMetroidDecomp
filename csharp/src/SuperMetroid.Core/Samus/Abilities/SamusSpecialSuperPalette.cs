@@ -10,6 +10,12 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// </summary>
 public static class SamusSpecialSuperPalette
 {
+    /// <summary>
+    /// The first phase the cartridge's signed test reads as negative: the drained/rainbow branch, which this
+    /// alternation neither draws nor advances.
+    /// </summary>
+    private const int FirstDrainedBranchPhase = 32768;
+
     /// <returns>True when the special branch owned—and wrote—the visible Samus palette.</returns>
     public static bool Update(
         SnesCgram cgram,
@@ -18,21 +24,22 @@ public static class SamusSpecialSuperPalette
         Ensure.NotNull(cgram);
         Ensure.NotNull(samus);
 
-        ushort flags = samus.SpecialSuperPaletteFlags;
-        if (flags == 0 || unchecked((short)flags) < 0)
+        int phase = samus.SpecialSuperPaletteFlags;
+        if (phase == 0 || phase >= FirstDrainedBranchPhase)
             return false;
 
         ushort suitOffset = samus.EquippedItems.GetSuitPaletteTableOffset();
-        ushort palettePointer = (flags & 1) != 0
+        ushort palettePointer = (phase & 1) != 0
             ? SamusPaletteRomData.FullBodyCycles.SpeedBoostPalettePointer(suitOffset)
             : SamusPaletteRomData.Common.NormalSuitPalettePointer(suitOffset);
-        if ((flags & 1) == 0)
+        if ((phase & 1) == 0)
             SamusNormalSuitPalette.Load(cgram, samus.EquippedItems, samus.Presentation.SuitColors);
         else
             (samus.Presentation.FullBodyCycleColors ?? throw new InvalidOperationException(
                 "Metroid-attachment palette requires installed Samus full-body cycle colors."))
                 .Apply(cgram, palettePointer);
-        samus.SpecialSuperPaletteFlags = unchecked((ushort)(flags + 1));
+        // The phase is below the drained branch here, so advancing it never wraps.
+        samus.SpecialSuperPaletteFlags = phase + 1;
         return true;
     }
 }

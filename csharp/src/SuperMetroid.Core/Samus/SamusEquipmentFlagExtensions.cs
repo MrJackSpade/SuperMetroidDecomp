@@ -3,8 +3,8 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
-/// Queries over Samus's equipment and beam flags, and their one conversion to the native WRAM/SRAM word (#1323).
-/// The enums keep <see cref="ushort"/> as their underlying type, so unnamed bits stay representable.
+/// Queries over Samus's equipment and beam flags. Their conversion to the native word is
+/// <see cref="SamusEquipmentWordCodec"/>'s alone.
 /// </summary>
 public static class SamusEquipmentFlagExtensions
 {
@@ -19,12 +19,6 @@ public static class SamusEquipmentFlagExtensions
     /// <param name="flags">One or more beam bits to test.</param>
     /// <returns><see langword="true"/> when the two sets share any set bit.</returns>
     public static bool HasAny(this SamusBeamFlags beams, SamusBeamFlags flags) => (beams & flags) != 0;
-
-    /// <summary>The item set as the 16-bit word WRAM, SRAM and cartridge tables use.</summary>
-    public static ushort ToNativeWord(this SamusEquipmentFlags items) => (ushort)items;
-
-    /// <summary>The beam set as the 16-bit word WRAM, SRAM and cartridge tables use.</summary>
-    public static ushort ToNativeWord(this SamusBeamFlags beams) => (ushort)beams;
 
     /// <summary>
     /// Resolves the byte offset used by every native suit-palette pointer table. Gravity

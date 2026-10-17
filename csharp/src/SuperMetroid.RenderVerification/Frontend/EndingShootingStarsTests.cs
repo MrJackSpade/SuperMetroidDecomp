@@ -54,7 +54,7 @@ internal static class EndingShootingStarsTests
             }
         }
         Require(stars.Stars[1].Position.Whole == new Position16<ScreenPixels>(128, 128) && stars.Stars[1].Velocity.X.RawValue == 0 &&
-            stars.Stars[1].IndexAndFrame == 1 && stars.Stars[1].Timer.RawValue == 32, "Offscreen reset restarts animation without its initial delay");
+            !stars.Stars[1].Delayed && stars.Stars[1].AnimationFrame == 0 && stars.Stars[1].Timer.RawValue == 32, "Offscreen reset restarts animation without its initial delay");
         using (var saved = new MemoryStream())
         {
             DebuggerObjectGraphSerializer.Serialize(saved, stars);

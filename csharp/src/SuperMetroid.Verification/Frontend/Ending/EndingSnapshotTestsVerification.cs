@@ -143,7 +143,10 @@ internal static class EndingSnapshotTestsVerification
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = legacy.Presentation.CaptureRenderSnapshot();
                     var expectedOam = referenceJump.Draw(rewardArt);
-                    AssertEqual(referenceJump.ObjectSelection, jumpFrame.ObjectSelection,
+                    AssertEqual(referenceJump.FallingSheetSelected
+                            ? EndingCreditsRomData.Rendering.FallingRewardObjectSelection
+                            : EndingCreditsRomData.Rendering.RewardObjectSelection,
+                        jumpFrame.ObjectSelection,
                         "live reward switches OBJ sheet on the same native flight frame");
                     // The live ending also appends the restored shooting stars.
                     // Compare the reference jump actors, including packed X/size bits,

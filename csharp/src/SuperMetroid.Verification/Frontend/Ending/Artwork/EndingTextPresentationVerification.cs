@@ -49,11 +49,8 @@ internal static class EndingTextPresentationVerification
             ushort[] installedTilemap = Enumerable.Repeat(
                 EndingCreditsRomData.Rendering.BlankTile,
                 EndingCreditsRomData.Rendering.TilemapWords).ToArray();
-            ushort pointer = sequence == EndingTextSequence.ItemPercentage
-                ? EndingCreditsRomData.Instructions.ItemPercentageText
-                : EndingCreditsRomData.Instructions.SeeYouNextMissionText;
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = installedTilemap, InstructionPointer = pointer, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
+            var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = installedTilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
             var installedVram = new SnesVram();
             for (int frame = 0; !installed.Completed; frame++)
             {
@@ -80,12 +77,12 @@ internal static class EndingTextPresentationVerification
         AssertEqual(EndingTextDefinitions.ResultBlankWord,
             edited.BuildResultPanel()[EndingTextDefinitions.ResultProducedBy.Column + 4],
             "shorter producer text clears the remainder of its bounded panel");
-        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.PercentageSmall),
+        AssertEqual(new SnesBgTilemapWord(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.PercentageSmall)),
             edited.Compile(EndingTextSequence.ItemPercentage)[0].TopWord,
             "edited percentage text reaches its live program");
 
         var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
-                EndingCreditsRomData.Rendering.TilemapWords).ToArray(), InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
+                EndingCreditsRomData.Rendering.TilemapWords).ToArray(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new SnesVram());
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
@@ -146,7 +143,7 @@ internal static class EndingTextPresentationVerification
         File.WriteAllText(replacement, document.ToJsonString(ArtworkJson.Options));
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
-        AssertEqual(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.FinalLarge),
+        AssertEqual(new SnesBgTilemapWord(EndingTextDefinitions.CompileGlyph('T', EndingTextStyle.FinalLarge)),
             edited.EndingText.Compile(EndingTextSequence.FinalMessage)[0].TopWord,
             "catalog override changes installed ending text");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,

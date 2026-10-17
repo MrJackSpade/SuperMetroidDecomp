@@ -94,7 +94,7 @@ internal static class EndingRewardGestureVerification
                     firstMotion = true;
                 }
                 minimumY = Math.Min(minimumY, jump.BodyY);
-                if (!switched && jump.ObjectSelection == 3)
+                if (!switched && jump.FallingSheetSelected)
                 {
                     AssertTrue(jump.BodyY < -80, "native reward sheet switches only beyond the upper screen edge");
                     switched = true;

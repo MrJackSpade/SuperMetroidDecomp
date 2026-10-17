@@ -21,7 +21,7 @@ internal sealed class EndingCreditsPresentation
     {
         if (_ending.UsesExplosionFinaleDisplay) return _ending.CaptureExplosionFinale();
         var layers = new List<RenderLayer>();
-        byte objectSelection = CurrentEscapeObjectSelection;
+        byte objectSelection = ObjectSelection(CurrentEscapeObjectSheet);
         OamBuffer oam;
         if (_ending.endingLogo is not null)
         {
@@ -29,8 +29,7 @@ internal sealed class EndingCreditsPresentation
                 layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
                     new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
             layers.Add(new ObjRenderLayer(_ending.endingLogo.CrossfadeStarted));
-            layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
-                new Position16<BgPlanePixels>(0, _ending.postCreditsVerticalScroll), new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight)), null));
+            layers.Add(PostCreditsLayer());
             return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram,
                 PrepareSprites()), layers.ToArray(), 3, _ending.brightness);
         }
@@ -44,12 +43,12 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
             return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, PrepareSprites()), layers.ToArray(),
-                CurrentRewardObjectSelection, _ending.brightness);
+                ObjectSelection(CurrentRewardObjectSheet), _ending.brightness);
         }
         if (_ending.Phase == EndingCreditsPhase.Credits)
         {
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
-                EndingCreditsRomData.Rendering.CreditsCharacterWord, new Position16<BgPlanePixels>(0, _ending.Credits.VerticalScroll), new Extent16<TilemapCells>(32, 32), null));
+                EndingCreditsRomData.Rendering.CreditsCharacterWord, _ending.Credits.ScrollPosition, new Extent16<TilemapCells>(32, 32), null));
             // Credits intentionally do not run the sprite draw routine.
             oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         }
@@ -57,17 +56,15 @@ internal sealed class EndingCreditsPresentation
         {
             if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank)
             {
-                objectSelection = CurrentRewardObjectSelection;
+                objectSelection = ObjectSelection(CurrentRewardObjectSheet);
                 if (_ending.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                     layers.Add(new ObjPriorityRenderLayer(0));
                 if (PostCreditsBackgroundEnabled)
-                    layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
-                        CurrentPostCreditsCharacterWord, new Position16<BgPlanePixels>(0, _ending.postCreditsVerticalScroll), new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight)), null));
+                    layers.Add(PostCreditsLayer());
                 if (_ending.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                     layers.Add(new BgSubscreenAddRenderLayer(EndingWavySamusDefinitions.TilemapWord,
                         EndingWavySamusDefinitions.CharacterWord,
-                        new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
-                            new Position16<BgPlanePixels>(0, _ending.postCreditsVerticalScroll), new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight)), null))
+                        PostCreditsLayer())
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
                             EndingCreditsRomData.Timing.WaitingBackdropFrames - _ending.phaseTimer)));
             }
@@ -103,7 +100,7 @@ internal sealed class EndingCreditsPresentation
                 else layers.Add(new ObjRenderLayer(RewardSubscreenAddition, _ending.FlyawayFixedColor));
             }
             if (_ending.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
-                layers.Add(new FixedColorAddRenderLayer(_ending.whiteFlashColor, _ending.whiteFlashColor, _ending.whiteFlashColor));
+                layers.Add(EndingCreditsState.WhiteAddition(_ending.whiteFlashColor));
         }
         return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, oam), layers.ToArray(), objectSelection, _ending.brightness);
     }
@@ -113,17 +110,27 @@ internal sealed class EndingCreditsPresentation
     {
         get
         {
-            short a = Scale(ReadSine(unchecked((byte)(_ending.PostShot.Angle + SnesAngle.QuarterTurn.TableIndex))), (ushort)_ending.PostShot.Scale);
-            short b = Scale(ReadSine(_ending.PostShot.Angle), (ushort)_ending.PostShot.Scale);
+            short a = Scale(ReadSine(_ending.PostShot.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), _ending.PostShot.Scale);
+            short b = Scale(ReadSine(_ending.PostShot.Angle.TableIndex), _ending.PostShot.Scale);
             return new(a, b, unchecked((short)-b), a,
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
                 new Offset16<Mode7Pixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
         }
     }
 
-    /// <summary>Selects cloud OBJ tiles before the explosion and escape OBJ tiles afterward.</summary>
-    internal byte CurrentEscapeObjectSelection => _ending.Phase < EndingCreditsPhase.FadeInZebesExplosion
-        ? EndingCreditsRomData.Rendering.CloudObjectSelection : EndingCreditsRomData.Rendering.EscapeObjectSelection;
+    /// <summary>Selects the cloud sheet before the explosion and the explosion sheet afterward.</summary>
+    internal EndingObjectSheet CurrentEscapeObjectSheet => _ending.Phase < EndingCreditsPhase.FadeInZebesExplosion
+        ? EndingObjectSheet.Clouds : EndingObjectSheet.Explosion;
+
+    /// <summary>The OBJ selection the render snapshot needs to draw actors from <paramref name="sheet"/>.</summary>
+    internal static byte ObjectSelection(EndingObjectSheet sheet) => sheet switch
+    {
+        EndingObjectSheet.Clouds => EndingCreditsRomData.Rendering.CloudObjectSelection,
+        EndingObjectSheet.Explosion => EndingCreditsRomData.Rendering.EscapeObjectSelection,
+        EndingObjectSheet.Reward => EndingCreditsRomData.Rendering.RewardObjectSelection,
+        EndingObjectSheet.RewardFalling => EndingCreditsRomData.Rendering.FallingRewardObjectSelection,
+        _ => throw new ArgumentOutOfRangeException(nameof(sheet), sheet, "Undefined ending object sheet."),
+    };
 
     /// <summary>Whether atmospheric scenes use the Mode 7 wrap policy from SetupPpu_5_Mode7.</summary>
     private bool AtmosphericMapWraps => _ending.Phase < EndingCreditsPhase.FadeInZebesExplosion;
@@ -156,12 +163,16 @@ internal sealed class EndingCreditsPresentation
         || _ending.Phase == EndingCreditsPhase.PostCreditsShootingStars
         || (_ending.Phase == EndingCreditsPhase.PostCreditsReward && _ending.EndingReward != EndingReward.Armored);
 
-    /// <summary>VRAM map base for the waiting backdrop or uploaded result panel.</summary>
-    private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
-        ? EndingCreditsRomData.Rendering.WaitingTilemapWord : _ending.postCreditsUploadWord;
-    /// <summary>VRAM character base matching the selected post-credit BG map.</summary>
-    private ushort CurrentPostCreditsCharacterWord => UsesWaitingBackground
-        ? EndingCreditsRomData.Rendering.WaitingCharacterWord : EndingCreditsRomData.Rendering.PostCreditsCharacterWord;
+    /// <summary>The post-credits background plane: the waiting backdrop, or the uploaded text map at its current scroll and height.</summary>
+    private Bg4BppRenderLayer PostCreditsLayer()
+    {
+        var size = new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight));
+        return UsesWaitingBackground
+            ? new(EndingCreditsRomData.Rendering.WaitingTilemapWord, EndingCreditsRomData.Rendering.WaitingCharacterWord,
+                _ending.postCreditsScroll, size, null)
+            : new(EndingVram.TextTilemapWord(_ending.postCreditsTextTilemap), EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
+                _ending.postCreditsScroll, size, null);
+    }
 
     /// <summary>Builds scene OAM at the simulation display boundary without advancing sprite state.</summary>
     internal OamBuffer PrepareSprites()
@@ -195,11 +206,11 @@ internal sealed class EndingCreditsPresentation
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>
     internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
-    /// <summary>Uses the reward jump's OBJ selection when active, otherwise the default reward bank.</summary>
-    private byte CurrentRewardObjectSelection => _ending.rewardJump?.ObjectSelection
-        ?? EndingCreditsRomData.Rendering.RewardObjectSelection;
+    /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
+    private EndingObjectSheet CurrentRewardObjectSheet => _ending.rewardJump?.FallingSheetSelected == true
+        ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward;
 
-    /// <summary>Multiplies a signed Mode 7 component by the scene's 8.8 zoom scalar.</summary>
-    private static short Scale(short component, ushort scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
+    /// <summary>Multiplies a signed Mode 7 component by the scene's positive 8.8 zoom scalar.</summary>
+    private static short Scale(short component, int scalar) =>
+        unchecked((short)SnesEightEight.Multiply(component, scalar));
 }

@@ -11,10 +11,10 @@ internal sealed class EndingShootingStars
     {
         for (int index = 0; index < stars.Length; index++)
         {
-            Reset(ref stars[index], (ushort)index);
+            Reset(ref stars[index]);
             ushort delay = EndingShootingStarDefinitions.Records[index].Delay;
             if (delay == 0) continue;
-            stars[index].IndexAndFrame |= EndingShootingStarDefinitions.Delayed;
+            stars[index].Delayed = true;
             stars[index].Timer = NativeCountdown.FromRaw(delay);
         }
     }
@@ -26,17 +26,18 @@ internal sealed class EndingShootingStars
         {
             ref EndingShootingStar star = ref stars[index];
             var definition = EndingShootingStarDefinitions.Records[index];
-            if ((short)star.IndexAndFrame < 0)
+            if (star.Delayed)
             {
                 star.Timer = star.Timer.Decrement().Remaining;
                 if (!star.Timer.IsNegative) continue;
                 star.Timer = NativeCountdown.Start(EndingShootingStarDefinitions.InitialTimer);
-                star.IndexAndFrame = (ushort)index;
+                star.Delayed = false;
+                star.AnimationFrame = 0;
                 // Expiring delay skips motion, but joins the same call's drawing pass.
             }
             else
             {
-                int multiplier = (SnesLittleEndian.HighByteInPlace(star.IndexAndFrame)) >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
+                int multiplier = star.AnimationFrame >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
                 star.Velocity += definition.Acceleration * multiplier;
                 star.Position = star.Position.Advance(star.Velocity.ToSixteenSixteen());
             }
@@ -45,14 +46,14 @@ internal sealed class EndingShootingStars
             if (whole.X is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue ||
                 whole.Y is < EndingShootingStarDefinitions.SpriteOffset or > byte.MaxValue)
             {
-                Reset(ref star, (ushort)index);
+                Reset(ref star);
                 continue;
             }
             star.Timer = star.Timer.Decrement().Remaining;
             if ((short)star.Timer.RawValue <= 0)
             {
                 star.Timer = NativeCountdown.FromRaw(definition.Period);
-                star.IndexAndFrame = unchecked((ushort)(star.IndexAndFrame + EndingShootingStarDefinitions.AnimationIncrement));
+                star.AnimationFrame++;
             }
         }
     }
@@ -62,17 +63,15 @@ internal sealed class EndingShootingStars
     {
         foreach (var star in stars)
         {
-            if ((short)star.IndexAndFrame < 0 || (SnesLittleEndian.HighByteInPlace(star.IndexAndFrame)) == 0) continue;
-            int frame = star.IndexAndFrame >> 9;
+            if (star.Delayed || star.AnimationFrame == 0) continue;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attribute(frame));
+            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attribute(star.AnimationFrame));
         }
     }
 
-    /// <summary>Returns a star to the shared origin with its initial animation timer and original index.</summary>
-    private static void Reset(ref EndingShootingStar star, ushort index) => star = new()
+    /// <summary>Returns a star to the shared origin, undelayed, at the start of its animation lead-in.</summary>
+    private static void Reset(ref EndingShootingStar star) => star = new()
     {
-        IndexAndFrame = index,
         Position = new(new(EndingShootingStarDefinitions.Origin, 0), new(EndingShootingStarDefinitions.Origin, 0)),
         Timer = NativeCountdown.Start(EndingShootingStarDefinitions.InitialTimer)
     };

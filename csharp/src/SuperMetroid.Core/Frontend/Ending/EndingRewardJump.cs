@@ -20,8 +20,8 @@ internal sealed class EndingRewardJump
     private int uploads;
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
     public bool ShotRequested { get; private set; }
-    /// <summary>OBJ selection set when the body crosses the graphics sheet switch height.</summary>
-    public byte ObjectSelection { get; private set; }
+    /// <summary>Set when the body crosses the graphics sheet switch height and Samus is drawn from her falling sheet.</summary>
+    public bool FallingSheetSelected { get; private set; }
     /// <summary>Whole-pixel body height used to select the falling and landed instruction lists.</summary>
     public short BodyY => unchecked((short)body.WholePosition.Y);
 
@@ -55,7 +55,7 @@ internal sealed class EndingRewardJump
             Move(body);
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
             {
-                ObjectSelection = 3;
+                FallingSheetSelected = true;
                 body.SetAttributes(SnesObjPalettes.Index6);
                 body.Start(CinematicSpriteProgram.Falling);
                 body.PreInstructionPointerForDiscovery((ushort)EndingRewardJumpPreInstruction.Landing);

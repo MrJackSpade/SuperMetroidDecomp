@@ -423,7 +423,7 @@ internal static void VerifyEndingCreditsState()
 
     var percentageTilemap = new ushort[0x400];
     Array.Fill(percentageTilemap, (ushort)0x007f);
-    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = percentageTilemap, InstructionPointer = 0xdfdb, Inventory = new EndingInventorySnapshot(
+    var percentage = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = percentageTilemap, Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
             MaxMissiles: 230,

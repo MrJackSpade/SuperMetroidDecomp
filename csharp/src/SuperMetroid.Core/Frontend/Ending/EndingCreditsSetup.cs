@@ -5,11 +5,11 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>The game-completion facts the ending credits present (#633).</summary>
 internal sealed record EndingCreditsSetup
 {
-    /// <summary>Game time hours.</summary>
-    public required ushort GameTimeHours { get; init; }
+    /// <summary>Clear-time hours: the game clock's hours (at most 99) or the configured override's whole hours.</summary>
+    public required int GameTimeHours { get; init; }
 
-    /// <summary>Game time minutes.</summary>
-    public required ushort GameTimeMinutes { get; init; }
+    /// <summary>Clear-time minutes, 0 through 59.</summary>
+    public required int GameTimeMinutes { get; init; }
 
     /// <summary>Inventory.</summary>
     public EndingInventorySnapshot Inventory { get; init; } = default;

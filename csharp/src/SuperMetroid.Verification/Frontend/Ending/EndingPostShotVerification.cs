@@ -37,7 +37,7 @@ internal static class EndingPostShotVerification
         {
             shot.Step(vram, cgram);
             AssertEqual(Math.Max(24, 2304 - Math.Min(frame, 36) * 64), shot.Scale, "native post-shot scale trajectory");
-            AssertEqual(unchecked((byte)(-8 * Math.Min(frame, 36))), shot.Angle, "native post-shot rotation trajectory");
+            AssertEqual(SnesAngle.FromTableIndex(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
             AssertEqual(frame == 216, shot.ReadyForWhiteFlash, "white-flash handoff follows a full 180-frame hold");
             AssertEqual(Math.Clamp(frame - 47, 0, 6), shot.Uploads, "logo uploads wait for Samus fade, one transfer per frame");

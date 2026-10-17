@@ -29,8 +29,8 @@ public sealed class SamusVisorPaletteState
     public ushort PackedTimerIndex { get; private set; } =
         SamusPaletteRomData.Visor.NormalRoomReset;
 
-    /// <summary>Low byte at WRAM <c>$0A72</c>.</summary>
-    public byte Timer => unchecked((byte)PackedTimerIndex);
+    /// <summary>Calls left before the next visor colour, held in the packed word's low byte.</summary>
+    public int Timer => unchecked((byte)PackedTimerIndex);
 
     /// <summary>High byte at WRAM <c>$0A73</c>; this is a byte offset, not an ordinal.</summary>
     public byte PaletteByteOffset => SnesLittleEndian.HighByte(PackedTimerIndex);
@@ -90,7 +90,7 @@ public sealed class SamusVisorPaletteState
             nextOffset < SamusPaletteRomData.Visor.CycleEndByteOffset
                 ? nextOffset
                 : SamusPaletteRomData.Visor.CycleFirstByteOffset));
-        PackedTimerIndex = unchecked((ushort)(SnesLittleEndian.Word(Timer, storedNextOffset)));
+        PackedTimerIndex = SnesLittleEndian.Word(unchecked((byte)PackedTimerIndex), storedNextOffset);
 
         return new SamusVisorPaletteStepResult();
     }

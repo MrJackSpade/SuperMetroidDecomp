@@ -127,7 +127,7 @@ internal static class PauseMenuVerification
         AssertEqual(unchecked((ushort)-24), pause.MapScroll.Y,
             "downloaded pause map vertical centering");
         AssertEqual(new Position16<OamPixels>(116, 64), pause.LastIndicatorOrigin, "pause map marker origin");
-        AssertEqual(0x5f, pause.LastIndicatorSpritemapId, "pause map marker initial frame");
+        AssertEqual(SuperMetroid.Core.Frontend.Map.MapSpriteId.IndicatorFrame0, pause.LastMapIndicatorSprite, "pause map marker initial frame");
         // The fixture retains the five retail Crateria destination labels (22 OBJ parts).
         AssertEqual(23, pause.LastRenderedSpriteCount, "pause marker plus downloaded destination labels OAM count");
         AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(805) & 0x1c00,
@@ -143,7 +143,7 @@ internal static class PauseMenuVerification
         AssertEqual(PauseEquipmentCategory.Suits, pause.SelectedCategory, "pause Right moves to suits/misc category");
         AssertEqual(2, pause.SelectedItem, "pause Right selects first collected Morph Ball item");
         pause.Render();
-        AssertEqual((int)PauseSelectorDefinitions.NativeSpriteId(PauseEquipmentCategory.Suits), pause.LastIndicatorSpritemapId, "pause selector category base ID");
+        AssertEqual(PauseEquipmentCategory.Suits, pause.LastSelectorCategory, "pause selector drawn for the suits category");
         AssertEqual(new Position16<OamPixels>(0x90, 0x70), pause.LastIndicatorOrigin, "pause Morph selector origin");
         AssertEqual(1, pause.LastRenderedSpriteCount, "pause equipment selector OAM count");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(805) & 0x1c00,

@@ -88,8 +88,10 @@ internal sealed class PauseMenuState
     private bool plasmaLabelOverrunActive;
     /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
     internal Position16<OamPixels> lastIndicatorOrigin;
-    /// <summary>Last native marker or selector sprite identity for diagnostics.</summary>
-    internal ushort lastIndicatorSpritemapId;
+    /// <summary>Pose of the Samus map marker when it was the last indicator drawn, for diagnostics; null after a selector draw.</summary>
+    internal MapSpriteId? lastMapIndicatorSprite;
+    /// <summary>Category of the equipment selector when it was the last indicator drawn, for diagnostics; null after a map-marker draw.</summary>
+    internal PauseEquipmentCategory? lastSelectorCategory;
 
     /// <summary>Creates the isolated pause PPU image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -578,7 +580,8 @@ internal sealed class PauseMenuState
         Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition).ToOam();
         lastIndicatorOrigin = origin;
         MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
-        lastIndicatorSpritemapId = (ushort)indicator;
+        lastMapIndicatorSprite = indicator;
+        lastSelectorCategory = null;
         DrawMenuSpritemap(
             indicator,
             origin,
@@ -636,9 +639,10 @@ internal sealed class PauseMenuState
             "Pause selector requires installed presentation assets.")).PauseSelectors;
         var point = selector.Anchor(selectedCategory, selectedItem);
         lastIndicatorOrigin = point;
-        // Diagnostic identity denotes the native category binding, not an
-        // author-supplied ROM index. Custom phases may use different artwork.
-        lastIndicatorSpritemapId = PauseSelectorDefinitions.NativeSpriteId(selectedCategory);
+        // The diagnostic records the category binding, not the authored artwork,
+        // because custom phases may draw different compositions.
+        lastSelectorCategory = selectedCategory;
+        lastMapIndicatorSprite = null;
         selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
@@ -1004,11 +1008,11 @@ internal sealed class PauseMenuState
     private bool reserveArrowLatchedEnabled;
     /// <summary>Whether the last arrow color request used its animated palette.</summary>
     private bool reserveArrowLatchedAnimated;
-    /// <summary>NMI frame retained for reproducing the arrow's current color on rebind.</summary>
-    private byte reserveArrowLatchedFrame;
+    /// <summary>Eight-bit frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
+    private int reserveArrowLatchedFrame;
 
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
-    private void UpdateReserveArrow(byte nmiFrameCounter8)
+    private void UpdateReserveArrow(int nmiFrameCounter8)
     {
         bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
         bool animated = inTanks && SelectedReserveItem == PauseReserveItem.Mode &&
@@ -1018,7 +1022,7 @@ internal sealed class PauseMenuState
     }
 
     /// <summary>Applies reserve-arrow tile and palette state, then latches it for content rebinds.</summary>
-    private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
+    private void SetReserveArrow(bool enabled, bool animated = false, int nmiFrameCounter8 = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
@@ -1053,8 +1057,8 @@ internal sealed class PauseMenuState
                 preserveAttributes: true);
     }
 
-    /// <summary>Accepted NMI phase retained so repeated renders cannot advance tank fill flicker.</summary>
-    private byte pauseNmiFrameCounter8;
+    /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>
+    private int pauseNmiFrameCounter8;
 
     /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
     private void DrawReserveTanks()

@@ -11,11 +11,11 @@ public sealed class PauseReserveTankPresentation
     internal readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
     /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     internal readonly FrameSet frames;
-    /// <summary>OBJ palette bits applied to every reserve-strip part.</summary>
-    private readonly ushort paletteBits;
+    /// <summary>Object attributes selecting the OBJ palette applied to every reserve-strip part, with no tile, priority or flip.</summary>
+    private readonly SnesObjAttributeWord objectPalette;
     /// <summary>Stores independent anchor edits, frame art, and selected reserve palette.</summary>
     private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
-    { this.anchorOverrides = anchorOverrides; this.frames = frames; paletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+    { this.anchorOverrides = anchorOverrides; this.frames = frames; objectPalette = SnesObjAttributeWord.Create(0, palette, 0); }
 
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
     /// <param name="index">Zero-based tank or trailing-cap position from 0 through 5.</param>
@@ -48,9 +48,9 @@ public sealed class PauseReserveTankPresentation
             _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {nativeIdentity}."),
         };
         Position16<OamPixels> origin = anchor;
-        if (frame is not null) frame.DrawOnScreen(oam, origin, paletteBits);
+        if (frame is not null) frame.DrawOnScreen(oam, origin, objectPalette.PaletteBits);
         else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), 0,
-            SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(paletteBits),
+            SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(objectPalette.PaletteBits),
             origin);
     }
     /// <summary>Loads and validates the reserve-strip palette, six anchors, and ten named sprite frames.</summary>

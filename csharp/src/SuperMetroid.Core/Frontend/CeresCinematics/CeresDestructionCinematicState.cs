@@ -57,12 +57,16 @@ internal sealed class CeresDestructionCinematicState
 
     /// <summary>Signed 16.16 camera offset applied to the Mode-7 Ceres or Zebes scene.</summary>
     internal FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-44), 0), new(unchecked((ushort)-112), 0));
-    /// <summary>Native 8.8 Mode-7 scale used to construct the scene matrix.</summary>
-    internal ushort zoom = CeresDestructionRomData.Motion.IdentityScale;
+    /// <summary>
+    /// Mode-7 scene scale in 1/256 units (256 is identity). Every producer keeps it within zero through
+    /// <see cref="CeresDestructionRomData.Motion.FarZebesScaleLimit"/> plus one fast step, and the only decrease
+    /// is guarded by the minimum-scale test, so it never wraps.
+    /// </summary>
+    internal int zoom = CeresDestructionRomData.Motion.IdentityScale;
     /// <summary>Mode-7 rotation angle sampled from the compiled signed sine table.</summary>
     private SnesAngle angle;
-    /// <summary>PPU master brightness stepped by the slow scene fades.</summary>
-    private byte brightness;
+    /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
+    private int brightness;
     /// <summary>Alternating-call delay between brightness changes.</summary>
     private int fadeCounter = 1;
     /// <summary>Phase-specific hold or mosaic size countdown.</summary>
@@ -71,14 +75,17 @@ internal sealed class CeresDestructionCinematicState
     private int musicQueueTimer = 14;
     /// <summary>Completed <c>$8B:C11B</c> NMI waits; setup follows the last wait.</summary>
     private int initialNmiWaits;
-    /// <summary>Shared cinematic frame word incremented after phase dispatch and before actor handling.</summary>
-    private ushort cinematicFrameCounter;
+    /// <summary>
+    /// Cinematic updates elapsed, incremented after phase dispatch and before actor handling. Only its phase
+    /// within a four-update cycle is read, which a wider counter preserves exactly.
+    /// </summary>
+    private int cinematicFrameCounter;
     /// <summary>Calls elapsed for the staggered and repeating Ceres explosion spawner.</summary>
     private int explosionSpawnerFrame;
     /// <summary>Cycles the authored offsets for repeating small explosions.</summary>
     private int explosionOffsetIndex;
-    /// <summary>Native countdown carried between repeating explosion spawn calls.</summary>
-    private ushort explosionRepeatCountdown;
+    /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
+    private NativeCountdown explosionRepeatCountdown;
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
     private bool usesMode7 = true;
     /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
@@ -246,7 +253,7 @@ internal sealed class CeresDestructionCinematicState
                 StepSlowFadeIn();
                 if (brightness == 15)
                 {
-                    explosionRepeatCountdown = CeresExplosionDefinitions.RepeatingCountdownSeed;
+                    explosionRepeatCountdown = NativeCountdown.Start(CeresExplosionDefinitions.RepeatingCountdownSeed);
                     Phase = CeresDestructionPhase.ApproachExplosion;
                 }
                 break;
@@ -277,8 +284,7 @@ internal sealed class CeresDestructionCinematicState
                 }
                 else
                 {
-                    zoom = unchecked((ushort)(
-                        zoom - CeresDestructionRomData.Motion.SlowScaleStep));
+                    zoom -= CeresDestructionRomData.Motion.SlowScaleStep;
                 }
                 break;
 
@@ -327,7 +333,7 @@ internal sealed class CeresDestructionCinematicState
                 background = background.WithY(IntroCinematicMotion.AddSignedSixteenSixteen(background.Y, CeresDestructionRomData.Motion.EighthPixel16Point16));
                 background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, CeresDestructionRomData.Motion.NegativeHalfPixel16Point16));
                 if (zoom < CeresDestructionRomData.Motion.ZebesApproachScaleLimit)
-                    zoom = unchecked((ushort)(zoom + 4));
+                    zoom += 4;
                 else
                     Phase = CeresDestructionPhase.FlyingTowardZebesB;
                 StepZebesActors(slidingAway: false);
@@ -342,7 +348,7 @@ internal sealed class CeresDestructionCinematicState
                 }
                 else
                 {
-                    zoom = unchecked((ushort)(zoom + CeresDestructionRomData.Motion.SlowScaleStep));
+                    zoom += CeresDestructionRomData.Motion.SlowScaleStep;
                     angle = angle.AddTableUnits(-1);
                 }
                 StepZebesActors(slidingAway: false);
@@ -353,7 +359,7 @@ internal sealed class CeresDestructionCinematicState
                 background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, CeresDestructionRomData.Motion.EighthPixel16Point16));
                 if (zoom < CeresDestructionRomData.Motion.FarZebesScaleLimit)
                 {
-                    zoom = unchecked((ushort)(zoom + CeresDestructionRomData.Motion.FastScaleStep));
+                    zoom += CeresDestructionRomData.Motion.FastScaleStep;
                 }
                 else
                 {
@@ -534,7 +540,7 @@ internal sealed class CeresDestructionCinematicState
         if (fadeCounter-- > 0)
             return;
         fadeCounter = 1;
-        brightness = (byte)Math.Min(15, brightness + 1);
+        brightness = Math.Min(15, brightness + 1);
     }
 
     /// <summary>Lowers brightness on alternating calls and reports the first fully black frame.</summary>
@@ -543,7 +549,7 @@ internal sealed class CeresDestructionCinematicState
         if (fadeCounter-- > 0)
             return false;
         fadeCounter = 1;
-        brightness = (byte)Math.Max(0, brightness - 1);
+        brightness = Math.Max(0, brightness - 1);
         return brightness == 0;
     }
 
@@ -915,7 +921,7 @@ internal sealed class CeresDestructionCinematicState
     /// <summary>Reads the compiled signed sine quadrant used by Ceres Mode-7 motion.</summary>
     internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
-    /// <summary>Applies native 8.8 matrix scaling with signed 16-bit truncation.</summary>
-    private static short Scale(short component, ushort scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
+    /// <summary>Applies 8.8 matrix scaling with signed 16-bit truncation; the scale stays below 32768.</summary>
+    private static short Scale(short component, int scalar) =>
+        unchecked((short)(SnesEightEight.Multiply(component, scalar)));
 }

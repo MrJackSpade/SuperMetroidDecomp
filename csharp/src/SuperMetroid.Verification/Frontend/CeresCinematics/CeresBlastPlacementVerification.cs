@@ -12,11 +12,11 @@ internal static class CeresBlastPlacementVerification
     /// <summary>Checks the five initial-blast vertical offsets at $8B:C47F.</summary>
     internal static void VerifyCeresInitialBlastY(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc47f, 5, i => unchecked((ushort)CeresExplosionDefinitions.InitialExplosion(i).Offset.Y));
     /// <summary>Checks the five initial-blast delay words at $8B:C46B.</summary>
-    internal static void VerifyCeresInitialBlastDelay(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc46b, 5, i => CeresExplosionDefinitions.InitialExplosion(i).DelayFrames);
+    internal static void VerifyCeresInitialBlastDelay(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc46b, 5, i => checked((ushort)CeresExplosionDefinitions.InitialExplosion(i).DelayFrames));
     /// <summary>Checks the four final-blast horizontal offsets at $8B:C572.</summary>
     internal static void VerifyCeresFinalBlastX(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc572, 4, i => unchecked((ushort)CeresExplosionDefinitions.FinalExplosion(i).Offset.X));
     /// <summary>Checks the four final-blast delay words at $8B:C56A.</summary>
-    internal static void VerifyCeresFinalBlastDelay(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc56a, 4, i => CeresExplosionDefinitions.FinalExplosion(i).DelayFrames);
+    internal static void VerifyCeresFinalBlastDelay(ISnesAddressSpace rom) => VerifyCeresBlastField(rom, 0x8bc56a, 4, i => checked((ushort)CeresExplosionDefinitions.FinalExplosion(i).DelayFrames));
 
     /// <summary>Compares each source word and requires out-of-range blast indices to name the index parameter.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres blast field")]

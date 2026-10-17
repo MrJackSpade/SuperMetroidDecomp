@@ -40,16 +40,17 @@ internal static class CeresExplosionDefinitions
     internal const ushort RepeatingCountdownSeed = 1;
 
     /// <summary>Native spawner events, with repeating pre-instruction before final-wave instruction.</summary>
-    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref ushort countdown)
+    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref NativeCountdown countdown)
     {
         bool repeat = false;
         if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame)
         {
-            countdown = unchecked((ushort)(countdown - 1));
-            if ((short)countdown <= 0)
+            NativeWordCounterStep step = countdown.Decrement();
+            countdown = step.Remaining;
+            if (step.IsZeroOrNegative)
             {
                 repeat = true;
-                countdown = RepeatingPeriodFrames;
+                countdown = NativeCountdown.Start(RepeatingPeriodFrames);
             }
         }
         return new(frame == FrameOf(SpawnerMilestone.InitialWave), repeat,
@@ -131,7 +132,7 @@ internal static class CeresExplosionDefinitions
             throw new ArgumentOutOfRangeException(nameof(index));
         int x = index == 4 ? 0 : 16 * (1 - 2 * (index & 1));
         int y = index < 2 ? -x : x;
-        return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 16 * index));
+        return new(new((short)x, (short)y), index == 0 ? 1 : 16 * index);
     }
 
     /// <summary>$8B:C4EB-$C50A, the repeating burst's eight chosen screen-space positions.</summary>
@@ -201,6 +202,6 @@ internal static class CeresExplosionDefinitions
         int magnitude = 8 + 4 * (index & 1);
         int x = index < 2 ? magnitude : -magnitude;
         int y = FinalBurstHeights[index];
-        return new(new((short)x, (short)y), (ushort)(index == 0 ? 1 : 1 << (index + 1)));
+        return new(new((short)x, (short)y), index == 0 ? 1 : 1 << (index + 1));
     }
 }

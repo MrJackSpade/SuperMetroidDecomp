@@ -20,8 +20,11 @@ public sealed class CeresDepartureState
     /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
     public NativeCountdown HoldFramesRemaining { get; private set; }
 
-    /// <summary>Low nibble of native INIDISP while state $21 fades out.</summary>
-    public byte Brightness { get; private set; } = 15;
+    /// <summary>
+    /// Master brightness during the state-$21 fade, from fifteen (full) down to zero (forced blank); every step is
+    /// guarded by the level above one, so the value never leaves that range.
+    /// </summary>
+    public int Brightness { get; private set; } = 15;
 
     /// <summary>Starts state $20 from the room main's one-frame request.</summary>
     /// <exception cref="InvalidOperationException">The departure has already begun or completed; a state instance admits the sequence only once.</exception>
@@ -71,7 +74,7 @@ public sealed class CeresDepartureState
         // rather than a representable brightness zero, which is exposed here as Complete.
         if (Brightness > 1)
         {
-            Brightness = NativeWordCounter.DecrementByte(Brightness);
+            Brightness--;
             return false;
         }
 

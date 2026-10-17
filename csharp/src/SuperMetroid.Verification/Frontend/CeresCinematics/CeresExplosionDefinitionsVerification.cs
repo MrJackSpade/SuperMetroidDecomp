@@ -85,7 +85,7 @@ internal static class CeresExplosionDefinitionsVerification
                 $"repeating explosion {index} X offset");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((0x8bc4ed + index * 4)), unchecked((ushort)placement.Offset.Y),
                 $"repeating explosion {index} Y offset");
-            AssertEqual((ushort)1, placement.DelayFrames,
+            AssertEqual(1, placement.DelayFrames,
                 $"repeating explosion {index} initial instruction delay");
         }
 

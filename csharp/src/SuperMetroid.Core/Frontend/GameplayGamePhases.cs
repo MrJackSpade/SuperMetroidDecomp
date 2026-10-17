@@ -129,7 +129,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AllowCeresElevatorDeparture = false }, Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
         bool ceresReachedForcedBlank = session.ceresDeparture.StepFadeAfterGameplay();
-        session.ApplyDisplayBrightness(session.ceresDeparture.Brightness);
+        session.ApplyDisplayBrightness(checked((byte)session.ceresDeparture.Brightness));
         if (ceresReachedForcedBlank)
         {
             // GameState_33 saves the live area-six/station-zero slot only after

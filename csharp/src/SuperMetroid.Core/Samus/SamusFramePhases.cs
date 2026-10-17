@@ -399,11 +399,12 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
             // mirror are normally equivalent. Publish them before bank-$90 alpha
             // so malformed callback-table entries can perform their literal WRAM
             // writes, then reclaim ownership only when such a write occurred.
-            _system.WritePersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
+            var progressionMirror = new SuperMetroid.Core.Saves.SaveMirrorMemory(RuntimeMemory.RequireBus(_addressSpace));
+            _system.WritePersistentMirror(progressionMirror);
             SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = _plms,
-                ProgressionMirror = new SuperMetroid.Core.Saves.SaveMirrorMemory(RuntimeMemory.RequireBus(_addressSpace)) }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
+                ProgressionMirror = progressionMirror }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);
             if (projectileFrame.PersistentMemoryCorrupted)
-                _system.LoadPersistentMirror(RuntimeMemory.RequireBus(_addressSpace));
+                _system.LoadPersistentMirror(progressionMirror);
 
             if (!_freeze.TimeIsFrozen)
                 _bombProjectiles.ResolveSamusOverlap(samus, _projectiles.Firing.ProjectileInvincibilityTimer.RawValue);

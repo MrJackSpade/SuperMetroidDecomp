@@ -50,8 +50,8 @@ internal static class SaveSchemaTranslationVerification
         AssertEqual(27, restoredSamus.ReserveMissiles, "reserve missiles reach the live Samus owner");
         AssertEqual(65535, restoredSystem.LoadedItemCount, "item load count reaches live progression owner");
         AssertTrue(loaded.JapaneseText && targetSaves.HasCompletedGame, "language and completion survive save load");
-        restoredSystem.WritePersistentMirror(target);
-        var mirror = new Bank80SystemState(); mirror.LoadPersistentMirror(target);
+        restoredSystem.WritePersistentMirror(new SaveMirrorMemory(target));
+        var mirror = new Bank80SystemState(); mirror.LoadPersistentMirror(new SaveMirrorMemory(target));
         AssertEqual(65535, mirror.LoadedItemCount, "native mirror retains translated item count");
 
         Suite(nameof(VerifyNamedSaveRuntime), () => VerifyNamedSaveRuntime(bus, ram));

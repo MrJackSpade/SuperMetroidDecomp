@@ -103,7 +103,7 @@ internal static class SpacetimeBeamVerification
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
-        system.WritePersistentMirror(bus);
+        system.WritePersistentMirror(new SaveMirrorMemory(bus));
         FillProgressionPadding(bus, 0xa5);
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
         SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = new SaveMirrorMemory(bus) }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
@@ -116,14 +116,14 @@ internal static class SpacetimeBeamVerification
         AssertEqual(0x8e3eec21u, HashWram(bus),
             "native frame-zero progression hash remains the A5 baseline");
 
-        system.WritePersistentMirror(bus);
+        system.WritePersistentMirror(new SaveMirrorMemory(bus));
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
         SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, ProgressionMirror = new SaveMirrorMemory(bus) }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         AssertTrue(released.PersistentMemoryCorrupted,
             "prior shot's inherited Y=$912F crosses the persistent mirror");
-        system.LoadPersistentMirror(bus);
+        system.LoadPersistentMirror(new SaveMirrorMemory(bus));
         AssertEqual(0x2c169a4au, HashWram(bus),
             "retail frame-one progression hash");
         AssertEqual((ushort)0x0880, system.SavedLoadingGameState,

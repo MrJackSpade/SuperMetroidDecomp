@@ -165,10 +165,8 @@ public sealed class Bank80SystemState
     /// Invalid native callbacks operate on this shared WRAM rather than on domain objects.
     /// Untranslated padding bytes are deliberately left untouched.
     /// </summary>
-    public void WritePersistentMirror(ISnesMemoryBus bus)
+    public void WritePersistentMirror(SaveMirrorMemory mirror)
     {
-        Ensure.NotNull(bus);
-        var mirror = new SaveMirrorMemory(bus);
         mirror.Events.CopyFrom(_events);
         Span<byte> bossBytes = stackalloc byte[AreaCount];
         for (int area = 0; area < AreaCount; area++)
@@ -187,10 +185,8 @@ public sealed class Bank80SystemState
     /// Reclaims the translated owners after native-compatible WRAM corruption. This is a
     /// raw load, not bitwise gameplay API use: every cartridge-written bit must survive.
     /// </summary>
-    public void LoadPersistentMirror(ISnesMemoryBus bus)
+    public void LoadPersistentMirror(SaveMirrorMemory mirror)
     {
-        Ensure.NotNull(bus);
-        var mirror = new SaveMirrorMemory(bus);
         mirror.Events.CopyTo(_events);
         Span<byte> bossBytes = stackalloc byte[AreaCount];
         mirror.BossBits.CopyTo(bossBytes);

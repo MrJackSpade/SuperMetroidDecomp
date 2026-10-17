@@ -111,16 +111,18 @@ internal static class SporeSpawnAnimationsVerification
                             AssertEqual(operand, (ushort)cue.Function, $"{at}: function");
                             break;
                         case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
-                            AssertEqual(operand, cue.Value, $"{at}: maximum X radius");
-                            AssertEqual(cartridge.ReadCartridgeWord(address + 4), cue.AngleDelta, $"{at}: angle delta");
+                            AssertEqual((int)operand, cue.MaximumXRadius, $"{at}: maximum X radius in pixels");
+                            AssertEqual((int)unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.AngleDelta, $"{at}: signed angle delta");
                             break;
                         case SporeSpawnCueKind.SetSporeGeneration:
+                            AssertEqual(operand != 0, cue.SporeGenerationSuppressed, $"{at}: spore generation stopped");
+                            break;
                         case SporeSpawnCueKind.QueueSound:
-                            AssertEqual(operand, cue.Value, $"{at}: operand");
+                            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operand), cue.Sound, $"{at}: library-two sound");
                             break;
                         case SporeSpawnCueKind.LoadDeathPalette:
                         case SporeSpawnCueKind.LoadDeathTargetPalette:
-                            AssertEqual(operand, checked((ushort)(cue.Value * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
+                            AssertEqual(operand, checked((ushort)(cue.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
                             break;
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));

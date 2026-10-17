@@ -60,27 +60,33 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort SporeSpawnDeathCenterX = 128;
     /// <summary>Fixed vertical arena center used for hardening and the death trajectory.</summary>
     private const ushort SporeSpawnDeathCenterY = 624;
+    /// <summary>Horizontal sway amplitude in room pixels the descent leaves for the fight's first sway.</summary>
+    private const int SporeSpawnDescentMaximumXRadius = 48;
+    /// <summary>Sway amplitude in room pixels below which each closing widens the sway.</summary>
+    private const int SporeSpawnWidenedRadiusLimit = 40;
+    /// <summary>Room pixels each closing adds to a sway narrower than the limit.</summary>
+    private const int SporeSpawnRadiusWidening = 8;
     /// <summary>Ceiling Y coordinate anchoring the four stalk projectiles.</summary>
     private const ushort SporeSpawnCeilingY = 560;
 
     /// <summary>Frame-local drop publications from boss death and individual spores.</summary>
     internal readonly List<SporeSpawnDropRequest> _sporeSpawnDropRequests = new();
 
-    /// <summary>Last library-two sound requested by the boss or one of its instructions.</summary>
-    public ushort? LastSporeSpawnSoundEffectLibrary2 { get; private set; }
+    /// <summary>Last sound requested by the boss or one of its instructions in the current enemy frame.</summary>
+    public SoundEffectId? LastSporeSpawnSoundEffect { get; private set; }
 
     /// <summary>Removes boss state and clears pending PLM, sound, and drop publications on room load.</summary>
     internal void ResetSporeSpawnRoomState()
     {
         _sporeSpawn = null;
-        LastSporeSpawnSoundEffectLibrary2 = null;
+        LastSporeSpawnSoundEffect = null;
         _sporeSpawnDropRequests.Clear();
     }
 
     /// <summary>Clears one-frame publications before the next enemy update.</summary>
     internal void BeginSporeSpawnFrame()
     {
-        LastSporeSpawnSoundEffectLibrary2 = null;
+        LastSporeSpawnSoundEffect = null;
         _sporeSpawnDropRequests.Clear();
     }
 
@@ -212,9 +218,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             body.InstructionTimer = NativeCountdown.Start(1);
         }
 
-        state.MaximumXRadius = 48;
+        state.MaximumXRadius = SporeSpawnDescentMaximumXRadius;
         state.AngleDelta = 1;
-        state.Angle = 192;
+        state.Angle = SnesAngle.ThreeQuarterTurn;
     }
 
     /// <summary>Ports the table-backed ellipse in <c>SporeSpawn_Func_2</c> at $A5:EB52.</summary>
@@ -223,16 +229,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWholeX(unchecked((ushort)(
             state.MovementCenter.X +
-            EnemyMath.ReadEightBitCosineProduct(state.Angle, state.MaximumXRadius))));
+            EnemyMath.ReadEightBitCosineProduct(state.Angle.TableIndex, checked((ushort)state.MaximumXRadius)))));
         body.Position = body.Position.WithWholeY(unchecked((ushort)(
             state.MovementCenter.Y +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                unchecked((ushort)(2 * (state.Angle - 64))),
+                unchecked((ushort)(2 * (state.Angle.TableIndex - SnesAngle.QuarterTurn.TableIndex))),
                 unchecked((ushort)(state.MaximumXRadius - 16))))));
 
-        // Only the low byte of the signed delta participates, and the resulting angle is
-        // truncated to a byte before being stored back to the native word.
-        state.Angle = unchecked((byte)(state.Angle + (byte)state.AngleDelta));
+        // The phase advances by the signed delta and wraps around the turn.
+        state.Angle = state.Angle.AddTableUnits(state.AngleDelta);
     }
 
     /// <summary>Ports <c>SporeSpawn_Func_3</c> at $A5:EB9B.</summary>
@@ -240,7 +245,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         byte direction = unchecked((byte)(64 - EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole))))));
-        state.DeathAngle = direction;
+        state.DeathAngle = SnesAngle.FromTableIndex(direction);
         state.DeathVelocityMagnitude = new(
             SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 64)),
             SnesSignedSixteenSixteen.FromRaw(EnemyMath.ReadUnsignedSineMagnitudeProduct(direction, 1, 128)));
@@ -251,10 +256,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         SporeSpawnEnemyState state)
     {
-        int xDisplacement = unchecked((byte)(state.DeathAngle + 64)) >= 128
+        int xDisplacement = EnemyMath.CosineIsNegative(state.DeathAngle.TableIndex)
             ? -state.DeathVelocityMagnitude.X.RawValue
             : state.DeathVelocityMagnitude.X.RawValue;
-        int yDisplacement = unchecked((byte)(state.DeathAngle + 128)) >= 128
+        int yDisplacement = EnemyMath.SineIsNegative(state.DeathAngle.TableIndex)
             ? -state.DeathVelocityMagnitude.Y.RawValue
             : state.DeathVelocityMagnitude.Y.RawValue;
         body.Position = body.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
@@ -494,17 +499,15 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             // current sign. At exactly 400 it leaves the existing delta untouched.
             if (body.Health < 400)
             {
-                state.AngleDelta = unchecked((short)state.AngleDelta) < 0
-                    ? unchecked((ushort)-2)
-                    : (ushort)2;
+                state.AngleDelta = state.AngleDelta < 0 ? -2 : 2;
             }
 
             // Only the first damaging hit during an open phase reverses direction and
             // closes the head. Opcode $E771 clears this guard when the list permits it.
-            if (state.DamagedFlag == 0)
+            if (!state.Damaged)
             {
-                state.AngleDelta = unchecked((ushort)-state.AngleDelta);
-                state.DamagedFlag = 1;
+                state.AngleDelta = -state.AngleDelta;
+                state.Damaged = true;
                 state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.CloseAndMove);
                 body.InstructionTimer = NativeCountdown.Start(1);
 
@@ -538,7 +541,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.DeathStarted = true;
-        state.SporeGenerationFlag = 0;
+        state.SporeGenerationSuppressed = false;
         body.InvincibilityTimer = NativeCountdown.Start(0);
         body.FlashTimer = NativeCountdown.Start(0);
         body.AiStates = EnemyAiStates.None;
@@ -563,18 +566,18 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (cue.Kind)
         {
             case SporeSpawnCueKind.IncreaseMaxXRadius:
-                if (unchecked((short)(state.MaximumXRadius - 40)) < 0)
-                    state.MaximumXRadius = unchecked((ushort)(state.MaximumXRadius + 8));
+                if (state.MaximumXRadius < SporeSpawnWidenedRadiusLimit)
+                    state.MaximumXRadius += SporeSpawnRadiusWidening;
                 return;
             case SporeSpawnCueKind.ClearDamagedFlag:
-                state.DamagedFlag = 0;
+                state.Damaged = false;
                 return;
             case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
-                state.MaximumXRadius = cue.Value;
+                state.MaximumXRadius = cue.MaximumXRadius;
                 state.AngleDelta = cue.AngleDelta;
                 return;
             case SporeSpawnCueKind.SetSporeGeneration:
-                state.SporeGenerationFlag = cue.Value;
+                state.SporeGenerationSuppressed = cue.SporeGenerationSuppressed;
                 return;
             case SporeSpawnCueKind.Harden:
                 body.Position = body.Position.WithWhole(new(SporeSpawnDeathCenterX, SporeSpawnDeathCenterY));
@@ -583,7 +586,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                     .Without(EnemyProperties.IgnoreSamusCollision);
                 return;
             case SporeSpawnCueKind.QueueSound:
-                LastSporeSpawnSoundEffectLibrary2 = cue.Value;
+                LastSporeSpawnSoundEffect = cue.Sound ?? throw new InvalidDataException("A Spore Spawn sound cue carries no sound.");
                 return;
             case SporeSpawnCueKind.RequestDeathDrops:
                 RequestSporeSpawnDeathDrops(state);
@@ -592,10 +595,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = cue.Function;
                 return;
             case SporeSpawnCueKind.LoadDeathPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.Value), targetOnly: false);
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), targetOnly: false);
                 return;
             case SporeSpawnCueKind.LoadDeathTargetPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.Value), targetOnly: true);
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), targetOnly: true);
                 return;
             case SporeSpawnCueKind.SpawnHardeningDust:
                 SpawnSporeSpawnHardeningDust(state);
@@ -609,7 +612,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>The source byte offset of death-palette fade step <paramref name="step"/>, as the native operand gives it.</summary>
-    private static ushort DeathPaletteRow(ushort step) => checked((ushort)(step * SporeSpawnColorRomData.FrameByteCount));
+    private static ushort DeathPaletteRow(int step) => checked((ushort)(step * SporeSpawnColorRomData.FrameByteCount));
 
     /// <summary>Ports <c>SporeSpawn_Func_7</c> at $A5:EE4A.</summary>
     internal void LoadSporeSpawnHealthPalette(ushort sourceByteOffset)
@@ -677,7 +680,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 128 - 64))),
             MiscDustAnimation.BigDustCloud);
-        LastSporeSpawnSoundEffectLibrary2 = SporeSpawnSoundDefinitions.HardeningDust;
+        LastSporeSpawnSoundEffect = SporeSpawnSoundDefinitions.HardeningDust;
     }
 
     /// <summary>Uses one RNG word to place a dying explosion sprite and request its sound.</summary>
@@ -688,7 +691,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             new(unchecked((ushort)(state.Body.Position.X.Whole + random % 128 - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + SnesLittleEndian.HighByte(random) % 64 - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
             graphicsIndex: 0);
-        LastSporeSpawnSoundEffectLibrary2 = SporeSpawnSoundDefinitions.DyingExplosion;
+        LastSporeSpawnSoundEffect = SporeSpawnSoundDefinitions.DyingExplosion;
     }
 
     /// <summary>Generates sixteen RNG-positioned boss drops and marks the death drop as requested.</summary>
@@ -789,7 +792,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(
             "A Spore Spawn ceiling emitter survived without its owning boss state.");
-        if (state.SporeGenerationFlag != 0)
+        if (state.SporeGenerationSuppressed)
             return;
 
         if (spawner.Variable1 == 0)
@@ -849,7 +852,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastSporeSpawnSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastSporeSpawnSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
@@ -871,9 +875,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            foreach (SporeSpawnCollisionHitbox hitbox in
-                     SporeSpawnCollisionDefinitions.HitboxesAt(
-                         component.HitboxPointer))
+            foreach (SporeSpawnCollisionHitbox hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentX + hitbox.Left));
                 ushort top = unchecked((ushort)(componentY + hitbox.Top));
@@ -881,7 +883,9 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = probe.SelectShotCallback
+                    ? SporeSpawnHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
+                    : SporeSpawnHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
                 return true;
             }
         }

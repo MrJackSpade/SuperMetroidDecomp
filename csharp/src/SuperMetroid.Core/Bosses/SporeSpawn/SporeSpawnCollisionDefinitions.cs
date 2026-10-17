@@ -10,19 +10,19 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// </summary>
 internal static class SporeSpawnCollisionDefinitions
 {
-    /// <summary>Bank $A5 touch callback for active Spore Spawn shell and vulnerable point.</summary>
-    private const ushort Touch = EnemyAiCodePointers.BankA5.SporeSpawnTouch;
-    /// <summary>Bank $A5 shot callback for the exposed vulnerable point.</summary>
-    private const ushort Shot = EnemyAiCodePointers.BankA5.SporeSpawnShot;
-    /// <summary>Inactive head touch callback used before Spore Spawn opens.</summary>
-    private const ushort NoOp = EnemyAiCodePointers.BankA0.NoOp;
+    /// <summary>Spore Spawn's contact reaction, on the active shell and vulnerable point.</summary>
+    private const SporeSpawnHitboxTouch Touch = SporeSpawnHitboxTouch.Contact;
+    /// <summary>Spore Spawn's shot reaction, on the exposed vulnerable point.</summary>
+    private const SporeSpawnHitboxShot Shot = SporeSpawnHitboxShot.Vulnerable;
+    /// <summary>The inactive head's touch reaction before Spore Spawn opens.</summary>
+    private const SporeSpawnHitboxTouch NoOp = SporeSpawnHitboxTouch.Inert;
     /// <summary>
     /// Samus projectile family bits 8-10: the vulnerable core accepts any projectile with one set, besides a charged
     /// beam (<c>SporeSpawn_Shot</c>).
     /// </summary>
     internal const ushort AcceptedFamilyBits = 0x0700;
-    /// <summary>Dud shot callback for shell rectangles and the inactive trailing point.</summary>
-    private const ushort Dud = EnemyAiCodePointers.BankA0.DudShot;
+    /// <summary>The dud shot reaction of shell rectangles and the inactive trailing point.</summary>
+    private const SporeSpawnHitboxShot Dud = SporeSpawnHitboxShot.Dud;
 
     /// <summary>The two single-head root frames that precede the opening sequence.</summary>
     private enum HeadRootFrame : ushort
@@ -38,14 +38,20 @@ internal static class SporeSpawnCollisionDefinitions
     private const ushort FirstFullyOpenFrame = 0xef3d;
 
     /// <summary>Native zero-offset head followed by its inner vulnerable point when the head is open.</summary>
-    internal readonly record struct ComponentSequence(ushort Head, ushort InnerPoint)
+    /// <param name="Head">The head's rectangles.</param>
+    /// <param name="InnerPoint">The trailing vulnerable point's rectangles, or null while the head is closed.</param>
+    internal readonly record struct ComponentSequence(
+        IReadOnlyList<SporeSpawnCollisionHitbox> Head, IReadOnlyList<SporeSpawnCollisionHitbox>? InnerPoint)
     {
         /// <summary>Gets one head component or a head plus trailing vulnerable point.</summary>
-        internal int Length => InnerPoint == 0 ? 1 : 2;
-        /// <summary>Gets a zero-offset component with its native hitbox-list pointer.</summary>
-        internal SporeSpawnCollisionComponent this[int index] => (uint)index < Length
-            ? new(Offset16<RoomPixels>.Zero, index == 0 ? Head : InnerPoint)
-            : throw new IndexOutOfRangeException();
+        internal int Length => InnerPoint is null ? 1 : 2;
+        /// <summary>Gets a zero-offset component with its hitbox list.</summary>
+        internal SporeSpawnCollisionComponent this[int index] => index switch
+        {
+            0 => new(Offset16<RoomPixels>.Zero, Head),
+            1 when InnerPoint is { } innerPoint => new(Offset16<RoomPixels>.Zero, innerPoint),
+            _ => throw new IndexOutOfRangeException(),
+        };
         /// <summary>Enumerates the frame's head and optional inner point in native order.</summary>
         public Enumerator GetEnumerator() => new(this);
         /// <summary>Allocation-free traversal of a frame's one or two collision components.</summary>
@@ -60,10 +66,10 @@ internal static class SporeSpawnCollisionDefinitions
         }
     }
     /// <summary>Builds the trailing vulnerable rectangle with active or dud shot response.</summary>
-    private static SporeSpawnCollisionHitbox InnerPoint(ushort shot) => new(-15, -24, 14, 23, Touch, shot);
+    private static SporeSpawnCollisionHitbox InnerPoint(SporeSpawnHitboxShot shot) => new(-15, -24, 14, 23, Touch, shot);
 
     /// <summary>Head rectangles shared by the closed and open lists, which differ only in touch AI.</summary>
-    private static SporeSpawnCollisionHitbox[] Head(ushort touch) =>
+    private static SporeSpawnCollisionHitbox[] Head(SporeSpawnHitboxTouch touch) =>
         [new(-41, -30, 41, 30, touch, Dud), new(-16, -45, 15, -30, touch, Dud)];
 
     /// <summary>Two closed-head shell rectangles without an active touch response.</summary>
@@ -110,6 +116,10 @@ internal static class SporeSpawnCollisionDefinitions
     internal static bool IsFrame(ushort pointer) =>
         Enum.IsDefined((HeadRootFrame)pointer) || IsOpeningFrame(pointer) || IsFullyOpenFrame(pointer);
 
+    /// <summary>The opening poses' head lists, in pose order; the moving heads follow the wider first pose.</summary>
+    private static readonly SporeSpawnCollisionHitbox[][] OpeningHeadLists =
+        [ExtendedHeadList, MovingHead0List, MovingHead1List, MovingHead2List, MovingHead3List, MovingHead4List, MovingHead5List];
+
     /// <summary>
     /// $A5:EE65..EEE5 and EF3D..EF61: dead/closed roots contain one head;
     /// opening roots advance the head geometry while the inner point oscillates B,C,D,C.
@@ -123,48 +133,26 @@ internal static class SporeSpawnCollisionDefinitions
             var root = (HeadRootFrame)pointer;
             return root switch
             {
-                HeadRootFrame.Dead => new((ushort)SporeSpawnHitboxList.ClosedHead, 0),
-                HeadRootFrame.Closed => new((ushort)SporeSpawnHitboxList.OpenHead, 0),
+                HeadRootFrame.Dead => new(ClosedHeadList, null),
+                HeadRootFrame.Closed => new(OpenHeadList, null),
                 _ => throw new InvalidOperationException($"Undefined {nameof(HeadRootFrame)} {(int)root}."),
             };
         }
         if (IsFullyOpenFrame(pointer))
-            return new((ushort)SporeSpawnHitboxList.MovingHead5, InnerPointForPhase((pointer - FirstFullyOpenFrame) / 18));
+            return new(MovingHead5List, InnerPointForPhase((pointer - FirstFullyOpenFrame) / 18));
         if (IsOpeningFrame(pointer))
         {
             int opening = (pointer - FirstOpeningFrame) / 18;
-            ushort head = opening == 0 ? (ushort)SporeSpawnHitboxList.ExtendedHead
-                : opening < 5 ? (ushort)((ushort)SporeSpawnHitboxList.MovingHead0 + (opening - 1) * 50)
-                : (ushort)((ushort)SporeSpawnHitboxList.MovingHead4 + (opening - 5) * 50);
-            return new(head, InnerPointForPhase(opening % 4));
+            return new(OpeningHeadLists[opening], InnerPointForPhase(opening % 4));
         }
         throw new InvalidDataException(
             $"Spore Spawn frame $A5:{pointer:X4} has no compiled collision identity.");
     }
 
-    /// <summary>Selects active, dud, or mirrored trailing-point hitboxes by opening phase.</summary>
-    private static ushort InnerPointForPhase(int phase) => phase switch
+    /// <summary>Selects the active or dud trailing-point hitboxes by opening phase; the mirrored point shares the active list.</summary>
+    private static SporeSpawnCollisionHitbox[] InnerPointForPhase(int phase) => phase switch
     {
-        0 => (ushort)SporeSpawnHitboxList.TrailingShotPoint,
-        2 => (ushort)SporeSpawnHitboxList.TrailingDudPoint,
-        _ => (ushort)SporeSpawnHitboxList.MirroredTrailingShotPoint,
+        2 => DudPointList,
+        _ => ShotPointList,
     };
-    /// <summary>Gets the fixed physical rectangles and callbacks for a native hitbox-list pointer.</summary>
-    internal static ReadOnlySpan<SporeSpawnCollisionHitbox> HitboxesAt(
-        ushort pointer) =>
-        ClosedNativeWords.Decode<SporeSpawnHitboxList>(pointer, "Spore Spawn hitbox list") switch
-        {
-            SporeSpawnHitboxList.ClosedHead => ClosedHeadList,
-            SporeSpawnHitboxList.OpenHead => OpenHeadList,
-            SporeSpawnHitboxList.ExtendedHead => ExtendedHeadList,
-            SporeSpawnHitboxList.MovingHead0 => MovingHead0List,
-            SporeSpawnHitboxList.MovingHead1 => MovingHead1List,
-            SporeSpawnHitboxList.MovingHead2 => MovingHead2List,
-            SporeSpawnHitboxList.MovingHead3 => MovingHead3List,
-            SporeSpawnHitboxList.TrailingShotPoint or SporeSpawnHitboxList.MirroredTrailingShotPoint => ShotPointList,
-            SporeSpawnHitboxList.TrailingDudPoint => DudPointList,
-            SporeSpawnHitboxList.MovingHead4 => MovingHead4List,
-            SporeSpawnHitboxList.MovingHead5 => MovingHead5List,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SporeSpawnHitboxList)} {pointer:X4}."),
-        };
 }

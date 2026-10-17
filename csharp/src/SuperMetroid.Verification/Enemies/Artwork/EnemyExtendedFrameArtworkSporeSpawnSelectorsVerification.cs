@@ -144,7 +144,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             NativeBodyInstruction(steps, state), slot.InstructionTimer.RawValue,
             slot.SpritemapPointer, slot.Position.Whole,
             checked((ushort)slot.Health), slot.Properties.ToNativeWord(), slot.ExtraProperties.ToNativeWord(),
-            (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle, state.MaximumXRadius,
+            (state ?? throw new InvalidOperationException("Verification requires state.")).Function, state.Angle.TableIndex, checked((ushort)state.MaximumXRadius),
             state.DeathStarted, state.DeathDropRequested);
     }
 

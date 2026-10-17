@@ -366,3 +366,24 @@ Commit and push that update too.
   - No new owner question.
   - Final census: 633 sites (Core 461: SME6347 424, SME6292 12, SME6341 10, SME6342 6, SME6346 5, SME6349 4;
     AssetExtraction 172, all SME6347), down from 752. No project other than Android fails to compile.
+- 2026-10-17, single-agent run continued (from `98c61fa0c`, 633 sites):
+  - `f3d410bc5` + `a78a2f56c` AssetExtraction audio unit: the managed SPC driver and S-DSP hold their registers as
+    ints with every wrap through `SpcDriverWrap`; snapshots go through `SpcDriverSnapshot`; manifest and instrument
+    records are validated ints. AssetExtraction SME6347 172 -> 0. `a78a2f56c` repairs a CS8629 build error the first
+    commit introduced (the compile-error tool does not report warnings the build treats as errors; build the
+    affected projects with `dotnet build -p:RunAnalyzers=false` before committing).
+  - `653044bf4` Samus liquid physics: Core SME6347 424 -> 419.
+  - `dfc52cc0b` Gunship/Kago countdowns: SME6349 4 -> 0.
+  - `90015e05f` Bank80 progression mirror takes `SaveMirrorMemory`: SME6292 12 -> 10.
+  - `3ce385084` room block BTS (`RoomBlockBehavior`, `RoomBlockBehaviorCodec`): SME6347 419 -> 413.
+  - `762d5882c` enemies' last queued library-two sounds as `SoundEffectId?`: SME6347 413 -> 403.
+  - `2010a2e1a` flip flags at their encoding owners: SME6346 5 -> 2.
+  - `6ec7d4554` HUD tilemap words, COLDATA writes, timer palette, grapple transfer length: SME6347 403 -> 392.
+  - Pre-existing failure, not from this run: `--samus-atmospheric-cadence` fails its null-pointer WRAM check at
+    `8d7d6c424` too; the check predates #1318 stage 5 (type two draws nothing).
+  - Left: SME6346 Beetom/Shaktool (family slot words, 5.3); SME6341 Fake Kraid / old Tourian shaft (address-keyed
+    instruction mechanics); SME6342 overrun bytes (owner question 3; the HUD posture bytes matter only as zero or
+    nonzero, so an import-pipeline table is the bounded route); SME6292 bus fields (SpaceTime overrun path);
+    `ScreenFade` packed byte counters; `Position16`/`Extent16` X/Y (about 3500 Core uses); Samus speed pairs; room
+    and frame identity (Q5, Q7); Samus projectiles (Q2); per-family enemy state (5.3).
+  - Final census: 420 sites, all Core (SME6347 392, SME6292 10, SME6341 10, SME6342 6, SME6346 2), down from 633; AssetExtraction 0.

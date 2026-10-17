@@ -1243,14 +1243,12 @@ internal sealed class CeresRidleyBehavior
             }
         }
 
-        // Enemy one is the ordinary Ridley-room door. Its $F69F instruction sets variable
-        // B when the common enemy pass intentionally hides the actor; $A6:A2FA then draws
-        // this fixed overlay after the Baby. This is a native cross-slot draw hook, not a
-        // replacement for the door actor's own instruction interpreter.
+        // Enemy one is the ordinary Ridley-room door. Its $F69F instruction hands its
+        // drawing to Ridley's scene when the common enemy pass intentionally hides the actor;
+        // $A6:A2FA then draws this fixed overlay after the Baby. This is a native cross-slot
+        // draw hook, not a replacement for the door actor's own instruction interpreter.
         RoomEnemySlot door = _slotTable._slots[1];
-        if (door.EnemyDefinitionPointer ==
-                EnemyDefinitionId.CeresDoor &&
-            door.VariableB != 0)
+        if (door.Entity is IDrawnByCeresRidleyScene { HandsDrawingToRidley: true })
         {
             // The private Ceres hook does not call WriteEnemyOAM and therefore owns a
             // second, cartridge-authored quake adjustment at `$A6:A2F2-$A314`. Its `Y`

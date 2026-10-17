@@ -142,8 +142,8 @@ internal static class LookupStream2Verification
                 Check(Load());
                 visual[index] = original;
                 // Gameplay geometry must not follow an independently edited display anchor.
-                AssertEqual(ChozoCarryMotionDefinitions.Read(10).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
-                AssertEqual(ChozoCarryMotionDefinitions.Read(12).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
+                AssertEqual(ChozoCarryMotionDefinitions.Read(5).Velocity, (short)-0x300, "Chozo edited art does not move carry mechanics");
+                AssertEqual(ChozoCarryMotionDefinitions.Read(6).Velocity, (short)-0xe00, "Chozo edited art does not alter late support displacement");
             }
         }
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
@@ -1073,7 +1073,7 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
         Action<RoomEnemySlot> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
-        Action<RoomEnemySlot, YardEnemyState, ushort> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
+        Action<RoomEnemySlot, YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState(slot);
         for (ushort parameter = 0; parameter < 32; parameter++)
@@ -1807,8 +1807,8 @@ internal static class LookupStream2Verification
             var calculated = WreckedShipGhostAppearanceDefinitions.SpawnOffset(index);
             AssertEqual(originalX, calculated.X, "Ghost original horizontal spawn offset");
             AssertEqual(originalY, calculated.Y, "Ghost original vertical spawn offset");
-            state.SpawnColumnOffset = (ushort)(4 * (index % 3));
-            state.SpawnRowOffset = (ushort)(12 * (index / 3));
+            state.SpawnColumn = index % 3;
+            state.SpawnRow = index / 3;
             spawn(slot, state, new(32, 65520));
             AssertEqual(unchecked((ushort)(32 + originalX)), slot.Position.X.Whole, "Ghost actual wrapped spawn X");
             AssertEqual(unchecked((ushort)(65520 + originalY)), slot.Position.Y.Whole, "Ghost actual wrapped spawn Y");
@@ -1822,10 +1822,10 @@ internal static class LookupStream2Verification
             AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
             state.PhaseTimer = NativeCountdown.Start(1);
-            state.FlickerTableOffset = (ushort)offset;
+            state.FlickerTableOffset = offset;
             flicker(slot, state);
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
-            AssertEqual(original < 0 ? (ushort)0 : (ushort)(offset + 2), state.FlickerTableOffset, "Ghost actual next offset including odd folding");
+            AssertEqual(original < 0 ? 0 : offset + 2, state.FlickerTableOffset, "Ghost actual next offset including odd folding");
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
             AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToNativeWord(), "Ghost actual visibility preserves unrelated flags");
         }
@@ -1834,7 +1834,7 @@ internal static class LookupStream2Verification
         slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible);
         flicker(slot, state);
         AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
-        AssertEqual((ushort)2, state.FlickerTableOffset, "Ghost no early interval advance");
+        AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
         AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToNativeWord(), "Ghost no early visibility change");
         state.PhaseTimer = NativeCountdown.Start(0);
         flicker(slot, state);
@@ -1842,9 +1842,9 @@ internal static class LookupStream2Verification
         state.PhaseTimer = NativeCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
-        state.SpawnColumnOffset = 1;
-        state.SpawnRowOffset = 0;
-        AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost unaligned spawn class remains rejected");
+        state.SpawnColumn = 3;
+        state.SpawnRow = 0;
+        AssertThrows<InvalidDataException>(() => spawn(slot, state, Position16<RoomPixels>.Zero), "Ghost out-of-range spawn class remains rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(-1), "Ghost spawn lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.SpawnOffset(9), "Ghost spawn upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => WreckedShipGhostAppearanceDefinitions.FlickerDuration(-1), "Ghost flicker lower bound");

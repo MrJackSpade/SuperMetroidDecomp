@@ -23,7 +23,9 @@ internal static class ChozoStatueAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    // The native operands are the footstep's signed X word and the carry record's byte offset.
+                    'F' => unchecked((ushort)cue.FootstepOffset.X),
+                    'R' => checked((ushort)(cue.CarryRecord * 2)),
                     'E' => (ushort)cue.PreInstruction,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");

@@ -47,22 +47,25 @@ public static class ChozoCarryMotionDefinitions
         int bob = local is >= 4 and < 12 ? 2 - Math.Abs(2 - local % 4) : 0;
         return (short)(-23 - bob);
     }
-    /// <summary>$AA:E630/E670/E6B0: one of 32 velocity/X-joint/Y-joint records, selected by an even byte offset.</summary>
+    /// <summary>The carry-motion records: sixteen facing left, then their sixteen mirrors facing right.</summary>
+    public const int RecordCount = 32;
+
+    /// <summary>$AA:E630/E670/E6B0: one of 32 velocity/X-joint/Y-joint records, selected by its record number.</summary>
     /// <remarks>
     /// The carried-Samus X field at <c>$AA:E670</c> is exactly
     /// <c>sign * (local == 0 ? 28 : local == 1 ? 30 : 32)</c>, where
-    /// <c>local = (byteOffset / 2) &amp; 15</c> and sign is negative for the
+    /// <c>local = record % 16</c> and sign is negative for the
     /// first sixteen records, positive for the second. All 32 native words
     /// match the pinned NTSC J/U v1.0 ROM. The caller adds this signed whole
     /// pixel offset after moving the statue, with 16-bit position wrapping.
-    /// Odd and post-table offsets are rejected. Investigation: #625 / #666.
+    /// Records outside the table are rejected. Investigation: #625 / #666.
     /// </remarks>
-    public static (short Velocity, short SamusX, short SamusY) Read(ushort byteOffset)
+    public static (short Velocity, short SamusX, short SamusY) Read(int record)
     {
-        if ((byteOffset & 1) != 0 || byteOffset > 62)
-            throw new InvalidDataException($"Chozo carry offset {byteOffset:X4} is outside its 32 records.");
-        int index = byteOffset >> 1;
-        int local = index & 15;
+        if (record is < 0 or >= RecordCount)
+            throw new InvalidDataException($"Chozo carry record {record} is outside its {RecordCount} records.");
+        int index = record;
+        int local = index % 16;
         int sign = index < 16 ? -1 : 1;
         int x = local == 0 ? 28 : local == 1 ? 30 : 32;
         return ((short)(sign * Magnitude(local)), (short)(sign * x), SamusYOffset(local));

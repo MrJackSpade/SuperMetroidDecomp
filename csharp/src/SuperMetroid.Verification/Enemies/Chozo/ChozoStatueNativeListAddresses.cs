@@ -4,7 +4,8 @@ namespace SuperMetroid.Verification.Enemies.Chozo;
 
 /// <summary>
 /// The native bank-$AA lists the Chozo statue ROM oracle (#641) walks: each program's entry point and the owner
-/// instructions the lists use, with the cue each must become and its operand roles (T target, A alternate, V value).
+/// instructions the lists use, with the cue each must become and its operand roles (E pre-instruction, F footstep offset,
+/// R carry record).
 /// Only verification reads them; the port runs typed programs.
 /// </summary>
 internal static class ChozoStatueNativeListAddresses
@@ -34,8 +35,8 @@ internal static class ChozoStatueNativeListAddresses
         [0xe43d] = (ChozoStatueCueKind.UnlockSamus, ""),
         [0xe57f] = (ChozoStatueCueKind.PlayGrabSound, ""),
         [0xe587] = (ChozoStatueCueKind.PlayFootstepSound, ""),
-        [0xe58f] = (ChozoStatueCueKind.Footstep, "V"),
-        [0xe5d8] = (ChozoStatueCueKind.Move, "V"),
+        [0xe58f] = (ChozoStatueCueKind.Footstep, "F"),
+        [0xe5d8] = (ChozoStatueCueKind.Move, "R"),
         [0xe6f0] = (ChozoStatueCueKind.ReleaseSamus, ""),
     };
 }

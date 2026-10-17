@@ -82,7 +82,7 @@ internal static class LowerNorfairHandVerification
         for (int frame = 0; frame < 3000 && !runtime.Player.GroundedSamusMovementEnabled; frame++)
         {
             runtime.StepFrame(0);
-            if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueFxTimer != 0)
+            if (!sawStartCommand && runtime.Enemies.ChozoStatueBehavior.ChozoStatueAcidLoweringStarted)
             {
                 sawStartCommand = true;
                 AssertEqual((ushort)32, runtime.RoomLayer3Fx.Timer.RawValue, "start instruction writes live delay once");

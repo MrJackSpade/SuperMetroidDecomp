@@ -18,25 +18,36 @@ public sealed class ChozoStatueState
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<ChozoStatueProgram> Program { get; set; }
 
-    /// <summary>Movement-table byte offset consumed by instruction $AA:E5D8.</summary>
-    public ushort MovementTableOffset
+    /// <summary>
+    /// The carry-motion record, 0 through 31, the statue last moved by (instruction $AA:E5D8). Variable C keeps the
+    /// cartridge's byte offset of that record, twice the record, for other enemies' aliased enemy-RAM reads.
+    /// </summary>
+    public int CarryRecord
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => _slot.VariableC / 2;
+        internal set => _slot.VariableC = checked((ushort)(2 * Ensure.BetweenInclusive(0, ChozoCarryMotionDefinitions.RecordCount - 1, value)));
     }
 
-    /// <summary>Native variable A, initialized to -$0100 when Wrecked Ship wakes.</summary>
-    public ushort VariableA
+    /// <summary>
+    /// Variable A as a signed value: the Wrecked Ship wake writes -256 to it. Nothing in the statue reads it back and
+    /// its meaning is unresolved; it is kept, as the signed word the cartridge stores, for other enemies' aliased
+    /// enemy-RAM reads.
+    /// </summary>
+    public int UnresolvedWakeValueA
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
+        get => unchecked((short)_slot.VariableA);
+        internal set => _slot.VariableA = unchecked((ushort)checked((short)value));
     }
 
-    /// <summary>Native variable B, initialized to +$0100 when Wrecked Ship wakes.</summary>
-    public ushort VariableB
+    /// <summary>
+    /// Variable B as a signed value: the Wrecked Ship wake writes +256 to it. Nothing in the statue reads it back and
+    /// its meaning is unresolved; it is kept, as the signed word the cartridge stores, for other enemies' aliased
+    /// enemy-RAM reads.
+    /// </summary>
+    public int UnresolvedWakeValueB
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => unchecked((short)_slot.VariableB);
+        internal set => _slot.VariableB = unchecked((ushort)checked((short)value));
     }
 
     /// <summary>The literal bank-$AA pre-instruction pointer stored in variable F.</summary>

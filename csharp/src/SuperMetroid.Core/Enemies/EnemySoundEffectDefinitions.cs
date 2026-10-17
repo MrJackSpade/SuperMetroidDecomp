@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -6,10 +7,10 @@ namespace SuperMetroid.Core.Enemies;
 internal static class EnemySoundEffectDefinitions
 {
     /// <summary>Library-two sound queued when Alcoon emerges near Samus.</summary>
-    internal const ushort AlcoonEmergeSound = 0x005e;
+    internal static readonly SoundEffectId AlcoonEmergeSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005e);
 
     /// <summary>Library-two sound queued by each fireball instruction.</summary>
-    internal const ushort AlcoonFireSound = 0x003f;
+    internal static readonly SoundEffectId AlcoonFireSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x003f);
 
     /// <summary>Library-two cue replacing the impact cue when the boulder breaks into dust.</summary>
     internal const ushort BoulderBreakSound = 0x0043;
@@ -72,19 +73,19 @@ internal static class EnemySoundEffectDefinitions
     internal const ushort EyeDeactivationSound = 0x0071;
 
     /// <summary>Library-two cue emitted when a live bug's sound countdown reaches zero.</summary>
-    internal const ushort KagoBugSoundEffect = 0x006c;
+    internal static readonly SoundEffectId KagoBugSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x006c);
 
     /// <summary>Library-two landing cue published when the falling top reaches its target.</summary>
     internal const ushort KzanLandingSoundEffect = 0x001b;
 
     /// <summary>Library-two selector $64 is published when the Rio starts its return.</summary>
-    internal const ushort LowerNorfairRioReturnSound = 0x0064;
+    internal static readonly SoundEffectId LowerNorfairRioReturnSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0064);
 
     /// <summary>Library-two sound requested by the spinning animation instruction.</summary>
-    internal const ushort MamaTurtleSpinSound = 0x003a;
+    internal static readonly SoundEffectId MamaTurtleSpinSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x003a);
 
     /// <summary>Library-two sound requested on Mama's hover collision with a wall.</summary>
-    internal const ushort MamaTurtleWallSound = 0x001b;
+    internal static readonly SoundEffectId MamaTurtleWallSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x001b);
 
     /// <summary>Library-two sound from the private tail of Oum shot handling.</summary>
     internal const ushort MaridiaLargeSnailShotSound = 0x0057;
@@ -93,22 +94,22 @@ internal static class EnemySoundEffectDefinitions
     internal const ushort MaridiaLargeSnailSplashSound = 0x000e;
 
     /// <summary>Library-two sound selected by Metroid's private animation bytecode.</summary>
-    internal const ushort MetroidAnimationSoundEffect = 0x0050;
+    internal static readonly SoundEffectId MetroidAnimationSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0050);
 
     /// <summary>Library-two sound queued when an unfrozen Metroid recoils.</summary>
-    internal const ushort MetroidRecoilSoundEffect = 0x005a;
+    internal static readonly SoundEffectId MetroidRecoilSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005a);
 
     /// <summary>Library-two sound emitted when a parent begins its jump.</summary>
-    internal const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
+    internal static readonly SoundEffectId NorfairLavaJumpingEnemyJumpSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x000d);
 
     /// <summary>Library-two sound queued when a takeoff becomes a dive.</summary>
-    internal const ushort NorfairRioDiveSound = 0x0065;
+    internal static readonly SoundEffectId NorfairRioDiveSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0065);
 
     /// <summary>Library-two sound requested when the shared Pirate/Mother Brain laser launches.</summary>
     internal const ushort PirateMotherBrainLaserSound = 0x0067;
 
     /// <summary>Library-two sound requested when an on-screen Rio begins its dive.</summary>
-    internal const ushort RioDiveSound = 0x0065;
+    internal static readonly SoundEffectId RioDiveSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0065);
 
     /// <summary>Library-two sound queued when an on-screen shutter begins moving.</summary>
     internal const ushort ShutterActivationSound = 0x000e;
@@ -141,10 +142,10 @@ internal static class EnemySoundEffectDefinitions
     internal const ushort DeathContactKilledSound = 0x000b;
 
     /// <summary>Library-two sound queued as a Metaree or Skree releases its dive.</summary>
-    internal const ushort DiveSound = 0x005b;
+    internal static readonly SoundEffectId DiveSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005b);
 
     /// <summary>Library-two sound queued as a Metaree or Skree hits the floor and burrows.</summary>
-    internal const ushort BurrowSound = 0x005c;
+    internal static readonly SoundEffectId BurrowSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005c);
 
     /// <summary>Library-two sound queued with every eighth finished Dead Torizo rot row.</summary>
     internal const ushort DeadTorizoRotSound = 0x0010;

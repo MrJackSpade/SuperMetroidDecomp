@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -507,7 +508,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Last library-two Alcoon emerge or volley sound this enemy pass, using the Max6 queue entry; null means no current-pass request.</summary>
-    public ushort? LastAlcoonSoundEffect { get; private set; }
+    public SoundEffectId? LastAlcoonSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
@@ -526,6 +527,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastAlcoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastAlcoonSoundEffect, maximumQueued: 6);
     }
 }

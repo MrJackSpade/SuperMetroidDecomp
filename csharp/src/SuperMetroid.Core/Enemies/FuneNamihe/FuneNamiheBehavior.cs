@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 ﻿using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
@@ -62,7 +63,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Most recent library-two spit sound requested by opcode $A8:9625. Audio mixing is an
     /// outer frontend concern, so the actor publishes the exact sound number for that seam.
     /// </summary>
-    public ushort? LastFuneNamiheSoundEffect { get; private set; }
+    public SoundEffectId? LastFuneNamiheSoundEffect { get; private set; }
 
     /// <summary>Decodes species, facing, cooldown, and Y proximity from population parameters, then installs the corresponding idle list.</summary>
     internal static void InitializeFuneNamihe(RoomEnemySlot slot)
@@ -313,6 +314,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastFuneNamiheSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastFuneNamiheSoundEffect, maximumQueued: 6);
     }
 }

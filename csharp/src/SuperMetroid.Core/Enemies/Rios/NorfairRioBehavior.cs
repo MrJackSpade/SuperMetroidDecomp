@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -39,7 +40,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort NorfairRioGravity = 32;
 
     /// <summary>Most recent library-two dive sound request produced during this frame.</summary>
-    public ushort? LastNorfairRioSoundEffect { get; private set; }
+    public SoundEffectId? LastNorfairRioSoundEffect { get; private set; }
 
     /// <summary>Clears per-slot Rio state and the last dive sound when leaving a room.</summary>
     internal void ResetNorfairRioRoomState()
@@ -378,6 +379,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastNorfairRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastNorfairRioSoundEffect, maximumQueued: 6);
     }
 }

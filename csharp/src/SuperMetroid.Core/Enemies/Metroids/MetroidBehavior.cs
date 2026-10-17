@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -78,7 +79,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal readonly List<MetroidDropRequest> _metroidDropRequests = new();
 
     /// <summary>Most recent library-two Metroid sound requested during this enemy frame.</summary>
-    public ushort? LastMetroidSoundEffectLibrary2 { get; private set; }
+    public SoundEffectId? LastMetroidSoundEffectLibrary2 { get; private set; }
 
 
     /// <summary>Ports <c>Metroid_Init</c> at <c>$A3:EA4F</c>.</summary>
@@ -596,7 +597,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastMetroidSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastMetroidSoundEffectLibrary2, maximumQueued: 6);
     }
 
     /// <summary>Routes ordinary projectile hits to Metroid-specific frozen and nonfrozen shot handling.</summary>

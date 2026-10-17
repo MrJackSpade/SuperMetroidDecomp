@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -39,7 +40,7 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
 
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
-    public ushort? LastRioSoundEffect { get; private set; }
+    public SoundEffectId? LastRioSoundEffect { get; private set; }
 
     /// <summary>Discards prior Rio slot states and pending dive sound.</summary>
     internal void ResetRioRoomState()
@@ -315,6 +316,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastRioSoundEffect, maximumQueued: 6);
     }
 }

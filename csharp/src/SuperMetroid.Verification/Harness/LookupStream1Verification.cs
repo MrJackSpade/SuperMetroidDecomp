@@ -394,7 +394,7 @@ internal static class LookupStream1Verification
             EnemyInstructionRunner.Process(arguments);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
-            AssertEqual((ushort?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2, "Native loop callback sound");
+            AssertEqual((int?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2?.Value, "Native loop callback sound");
             AssertEqual(Word(0xa30000 | (root + 2)), slot.SpritemapPointer, "Callback loops to first timed record");
             AssertEqual(Word(0xa30000 | root), slot.InstructionTimer.RawValue, "Loop reload preserves first native hold");
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 ﻿using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
@@ -35,7 +36,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = unchecked((ushort)-1024);
 
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
-    public ushort? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
+    public SoundEffectId? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
     /// <summary>Discards prior room state and its pending jump sound.</summary>
     internal void ResetNorfairLavaJumpingEnemyRoomState()
@@ -281,6 +282,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastNorfairLavaJumpingEnemySoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastNorfairLavaJumpingEnemySoundEffect, maximumQueued: 6);
     }
 }

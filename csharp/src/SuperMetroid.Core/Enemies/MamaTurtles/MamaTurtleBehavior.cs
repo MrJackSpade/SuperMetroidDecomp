@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -107,7 +108,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Last library-two sound requested by this family during the enemy frame.</summary>
-    public ushort? LastMamaTurtleSoundEffect { get; private set; }
+    public SoundEffectId? LastMamaTurtleSoundEffect { get; private set; }
 
     /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
     private static void InitializeMamaTurtle(RoomEnemySlot slot)
@@ -965,6 +966,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastMamaTurtleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastMamaTurtleSoundEffect, maximumQueued: 6);
     }
 }

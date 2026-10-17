@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -31,7 +32,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         for (ushort index = 0; index < 8; index++)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa3ead6 + index * 2)),
-                MetroidBehaviorDefinitions.RandomCrySoundEffect(index),
+                MetroidBehaviorDefinitions.RandomCrySoundEffect(index).Value,
                 $"Metroid random cry {index}");
         }
 
@@ -108,8 +109,8 @@ internal static class MetroidBehaviorDefinitionsVerification
 
             EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
 
-            AssertEqual(MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
-                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2 ?? ushort.MaxValue,
+            AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
+                enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,
                 $"production Metroid random cry {random}");
             AssertEqual(16, slot.InstructionTimer.RawValue,
                 $"production Metroid script timer {random}");

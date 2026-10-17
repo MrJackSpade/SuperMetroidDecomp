@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -219,7 +220,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort KagoBugSourceHomingDistance = 48;
 
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
-    public ushort? LastKagoBugSoundEffect { get; private set; }
+    public SoundEffectId? LastKagoBugSoundEffect { get; private set; }
 
     /// <summary>Ports <c>EprojInit_KagosBugs</c> at <c>$86:D088</c>.</summary>
     internal bool SpawnKagoBug(RoomEnemySlot source)
@@ -416,6 +417,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastKagoBugSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        audio.QueueEnemySoundIfAny(LastKagoBugSoundEffect, maximumQueued: 6);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Enemies.FuneNamihe;
 
 /// <summary>Compiled cartridge identities and animation selection for Fune/Namihe.</summary>
@@ -16,7 +17,7 @@ internal static class FuneNamiheDefinitions
     internal const ushort FacingRightCursorDelta = 2;
 
     /// <summary>Sound effect $1F in library two, queued when either actor spits.</summary>
-    internal const ushort SpitSoundEffect = 0x001f;
+    internal static readonly SoundEffectId SpitSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x001f);
 
     /// <summary>$A8:96D3-$A8:96E2 selects species, activity and facing.
     /// The cursor advances by two for right-facing and four for idle programs.</summary>

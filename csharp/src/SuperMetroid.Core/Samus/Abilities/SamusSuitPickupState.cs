@@ -81,13 +81,25 @@ public sealed class SamusSuitPickupState
     public EightEightVector<ScreenPixels> LightBeamWideningVelocity { get; private set; }
 
     /// <summary>Raw COLDATA red byte, including its component-enable bit.</summary>
-    public byte FixedColorRed { get; private set; }
+    public int FixedColorRed
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
     /// <summary>Raw COLDATA green byte, including its component-enable bit.</summary>
-    public byte FixedColorGreen { get; private set; }
+    public int FixedColorGreen
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
     /// <summary>Raw COLDATA blue byte, including its component-enable bit.</summary>
-    public byte FixedColorBlue { get; private set; }
+    public int FixedColorBlue
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
 
     /// <summary>Light-beam outline and progress produced by the most recent stage.</summary>
     public SamusSuitPickupBeam Beam { get; private set; }
@@ -430,7 +442,7 @@ public sealed class SamusSuitPickupState
         SamusPaletteRomData.SuitPickup.GravityBlue);
 
     /// <summary>Decrements each fixed-color component by one until it reaches its target.</summary>
-    private void StepColorDownToward(byte red, byte green, byte blue)
+    private void StepColorDownToward(int red, int green, int blue)
     {
         if (FixedColorRed != red) FixedColorRed = NativeWordCounter.DecrementByte(FixedColorRed);
         if (FixedColorGreen != green) FixedColorGreen = NativeWordCounter.DecrementByte(FixedColorGreen);
@@ -438,11 +450,10 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Advances a raw fixed-color component by two without overshooting its stage target.</summary>
-    private static byte AddTwoAndClamp(byte value, byte target)
+    private static int AddTwoAndClamp(int value, int target)
     {
         if (value == target)
             return value;
-        int advanced = value + 2;
-        return unchecked((byte)Math.Min(advanced, target));
+        return Math.Min(value + 2, target);
     }
 }

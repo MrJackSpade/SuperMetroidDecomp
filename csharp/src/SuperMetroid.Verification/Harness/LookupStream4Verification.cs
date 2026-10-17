@@ -1374,7 +1374,7 @@ internal static class LookupStream4Verification
             }
             using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);byte[] bytes=output.ToArray();var selected=GameplayHudPresentation.Load(new MemoryStream(bytes));
             AssertEqual(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)),selected.ContentIdentity,"Icon exact document hash");
-            ushort[] tiles=Enumerable.Repeat(selected.Blank,96).ToArray();int nativeIndex=0;
+            ushort[] tiles=Enumerable.Repeat(selected.Blank.Raw,96).ToArray();int nativeIndex=0;
             for(int item=0;item<5;item++)
             {
                 var icon=document.Icons[GameplayHudDefinitions.IconName(item)];int width=item==0?3:2;
@@ -1396,7 +1396,7 @@ internal static class LookupStream4Verification
         for(int item=0;item<5;item++)
         {
             var document=RequiredJson.Deserialize<GameplayHudPresentationDocument>(json,ArtworkJson.Options);string name=GameplayHudDefinitions.IconName(item);var icon=document.Icons[name];document.Icons[name]=icon with{Anchor=icon.Anchor with{X=(ushort)(icon.Anchor.X+1)}};
-            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
+            using var output=new MemoryStream();GameplayHudPresentation.Write(output,document);var selected=GameplayHudPresentation.Load(new MemoryStream(output.ToArray()));ushort[] tiles=Enumerable.Repeat(selected.Blank.Raw,96).ToArray();selected.TryApplyIcon(tiles,item);int width=item==0?3:2;
             for(int cell=0;cell<width*2;cell++)AssertEqual(Word(icon.Cells[cell]),tiles[(icon.Anchor.Y+cell/width)*32+icon.Anchor.X+1+cell%width],"Independent supplied icon anchor");
         }
         foreach(int invalid in new[]{-1,5,int.MinValue,int.MaxValue})AssertThrows<ArgumentOutOfRangeException>(()=>GameplayHudDefinitions.IconWord(invalid,0),"Icon item domain");

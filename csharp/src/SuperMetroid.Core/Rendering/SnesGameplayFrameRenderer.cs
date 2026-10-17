@@ -475,7 +475,7 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>Replicates low color bits to expand one SNES five-bit channel to host eight-bit color.</summary>
-    internal static byte ExpandFiveBit(byte value) =>
+    internal static byte ExpandFiveBit(int value) =>
         Bgr555.ExpandChannel(value);
 
     /// <summary>One signed 8.8 screen-space direction vector reconstructed from `$91:C9D4`.</summary>

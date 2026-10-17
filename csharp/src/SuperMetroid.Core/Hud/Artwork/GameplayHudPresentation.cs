@@ -36,9 +36,9 @@ public sealed class GameplayHudPresentation
         templateOverrides = new();
         for (int index = 0; index < template.Length; index++)
             if (template[index] != GameplayHudDefinitions.TemplateWord(index)) templateOverrides.Add(index, template[index]);
-        Blank = CompileCell(document.Blank, "HUD blank");
-        FilledEnergyTank = CompileCell(document.EnergyTanks.Filled, "filled energy tank");
-        EmptyEnergyTank = CompileCell(document.EnergyTanks.Empty, "empty energy tank");
+        Blank = new SnesBgTilemapWord(CompileCell(document.Blank, "HUD blank"));
+        FilledEnergyTank = new SnesBgTilemapWord(CompileCell(document.EnergyTanks.Filled, "filled energy tank"));
+        EmptyEnergyTank = new SnesBgTilemapWord(CompileCell(document.EnergyTanks.Empty, "empty energy tank"));
         energyTankAnchors = CompileAnchors(document.EnergyTanks.Anchors, GameplayHudDefinitions.EnergyTankCount, "energy tank",
             tank => GameplayHudDefinitions.EnergyTankCell(tank));
         healthDigits = CompileDigitOverrides(document.Digits.Health, "health digits");
@@ -86,11 +86,11 @@ public sealed class GameplayHudPresentation
         }
     }
     /// <summary>Gets the tilemap word used to clear mutable HUD cells.</summary>
-    public ushort Blank { get; }
+    public SnesBgTilemapWord Blank { get; }
     /// <summary>Gets the tilemap word for a filled energy tank.</summary>
-    public ushort FilledEnergyTank { get; }
+    public SnesBgTilemapWord FilledEnergyTank { get; }
     /// <summary>Gets the tilemap word for an empty energy tank.</summary>
-    public ushort EmptyEnergyTank { get; }
+    public SnesBgTilemapWord EmptyEnergyTank { get; }
     /// <summary>Gets the BG palette index applied to the selected item icon.</summary>
     public int SelectedPalette { get; }
     /// <summary>Gets the BG palette index applied to deselected item icons.</summary>
@@ -124,7 +124,7 @@ public sealed class GameplayHudPresentation
         ValidateTilemap(tiles);
         CompiledIcon icon = Icon(itemIndex);
         int first = Index(icon.Anchor);
-        if (new SnesBgTilemapWord(tiles[first]).CharacterIndex != new SnesBgTilemapWord(Blank).CharacterIndex)
+        if (new SnesBgTilemapWord(tiles[first]).CharacterIndex != Blank.CharacterIndex)
             return;
         for (int y = 0; y < CompiledIcon.Height; y++)
         for (int x = 0; x < icon.Width; x++)
@@ -141,7 +141,7 @@ public sealed class GameplayHudPresentation
         int fullTanks = health / 100;
         int tankCount = Math.Min(maxHealth / 100, GameplayHudDefinitions.EnergyTankCount);
         for (int tank = 0; tank < tankCount; tank++)
-            tiles[EnergyTankCell(tank)] = tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank;
+            tiles[EnergyTankCell(tank)] = (tank < fullTanks ? FilledEnergyTank : EmptyEnergyTank).Raw;
         DrawDigits(tiles, healthDigits, health % 100, HealthAnchor, 2);
     }
 
@@ -179,7 +179,7 @@ public sealed class GameplayHudPresentation
     {
         ValidateTilemap(tiles);
         for (int cell = 0; cell < GameplayHudDefinitions.AutoReserveCellCount; cell++)
-            tiles[AutoReserveCell(cell)] = Blank;
+            tiles[AutoReserveCell(cell)] = Blank.Raw;
     }
 
     /// <summary>Applies a palette to every nonblank cell of the selected item icon.</summary>
@@ -197,7 +197,7 @@ public sealed class GameplayHudPresentation
         for (int x = 0; x < icon.Width; x++)
         {
             int destination = Index(icon.Anchor + new Offset16<TilemapCells>(checked((short)x), checked((short)y)));
-            if (tiles[destination] != Blank)
+            if (tiles[destination] != Blank.Raw)
                 tiles[destination] = new SnesBgTilemapWord(tiles[destination]).WithPaletteIndex(palette).Raw;
         }
     }

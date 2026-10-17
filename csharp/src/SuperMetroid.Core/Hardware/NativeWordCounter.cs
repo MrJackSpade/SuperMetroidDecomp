@@ -15,6 +15,11 @@ public static class NativeWordCounter
     public static byte DecrementByte(byte value) => unchecked((byte)(value - 1));
 
     /// <summary>
+    /// Executes one 8-bit <c>DEC</c> of a byte held as an int, 0 through 255, wrapping <c>$00</c> to <c>$FF</c>.
+    /// </summary>
+    public static int DecrementByte(int value) => (Ensure.BetweenInclusive(0, byte.MaxValue, value) - 1) & byte.MaxValue;
+
+    /// <summary>
     /// Executes one 8-bit <c>DEC</c> of <paramref name="word"/>'s low byte, as the cartridge does for a
     /// byte countdown packed beside independent state. The low byte wraps from <c>$00</c> to <c>$FF</c>
     /// without borrowing into the high byte, which is kept unchanged; the step's flags are byte-width.

@@ -22,7 +22,7 @@ public sealed class EscapeTimerPresentation
         this.frames = frames;
         this.anchors = anchors;
         DigitSpacing = digitSpacing;
-        Palette = checked((byte)palette);
+        Palette = Ensure.BetweenInclusive(0, byte.MaxValue, palette);
         spriteFrames = EscapeTimerPresentationDefinitions.FrameNames.ToDictionary(name => name,
             name => (frames.TryGetValue(name, out var supplied) ? supplied : EscapeTimerPresentationDefinitions.DefaultFrame(name))
                 .ToFrame(name, EscapeTimerPresentationDefinitions.FirstCharacter), StringComparer.Ordinal);
@@ -31,7 +31,7 @@ public sealed class EscapeTimerPresentation
     /// <summary>Horizontal pixel displacement from each pair's tens-digit origin to its ones-digit origin; stock spacing is eight pixels.</summary>
     public int DigitSpacing { get; }
     /// <summary>The shared OBJ palette 0..7, applied only to parts that inherit their palette.</summary>
-    public byte Palette { get; }
+    public int Palette { get; }
 
     /// <summary>Publishes the timer as whole-frame draws while retaining live BCD/countdown state.</summary>
     /// <param name="timer">Live timer supplying packed-BCD minutes, seconds and centiseconds and the integer pixel origin of its moving position.</param>

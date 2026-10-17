@@ -51,7 +51,7 @@ internal static class VramDmaArtworkChecks
         // eager legacy-queue rewriting performed by the Grapple property setter.
         var pending = new VramWriteQueue();
         var first = GrappleTileDefinitions.Transfers[0];
-        pending.Enqueue(first.ByteCount, first.SourceAddress, VramDmaDestination.FromNative(0));
+        pending.Enqueue(checked((ushort)first.ByteCount), first.SourceAddress, VramDmaDestination.FromNative(0));
         runtime.Artwork.GrappleArtwork = Grapple(2);
         pending.DrainTo(runtime.Vram, memory, runtime.Artwork);
         VramDmaContractChecks.Require(runtime.Vram.ReadByte(0) == 0 && runtime.Vram.ReadByte(1) == 255,

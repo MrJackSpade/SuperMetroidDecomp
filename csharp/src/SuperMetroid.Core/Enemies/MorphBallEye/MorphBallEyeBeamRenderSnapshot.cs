@@ -21,6 +21,16 @@ public readonly record struct MorphBallEyeBeamRenderSnapshot(
     Position16<RoomPixels> WorldPosition,
     SnesAngle Angle,
     int AngularWidth,
-    byte Red,
-    byte Green,
-    byte Blue);
+    int Red,
+    int Green,
+    int Blue)
+{
+    /// <summary>The raw COLDATA red write, 0 through 255.</summary>
+    public int Red { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Red);
+
+    /// <summary>The raw COLDATA green write, 0 through 255.</summary>
+    public int Green { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Green);
+
+    /// <summary>The raw COLDATA blue write, 0 through 255.</summary>
+    public int Blue { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Blue);
+}

@@ -42,6 +42,9 @@ the option the cleanup continued with. None of them stopped the run.
 
 - **File and site:** `csharp/src/SuperMetroid.Core/Samus/Projectiles/SpacetimeBeamCopyDefinitions.cs:28` (SME6342),
   about 28 KB of bank-$80 program bytes committed as source so the SpaceTime beam's copy overrun can be reproduced.
+  Same shape, smaller: `csharp/src/SuperMetroid.Core/Samus/Abilities/SpeedBoosterPaletteOverrunDefinitions.cs:19`
+  (SME6342), the 32 bank-$9B grapple-handler bytes read as sixteen colours by the speed-booster palette overrun;
+  its correct move is the extraction (`SamusFullBodyCycleColorExtractor`) reading them from the player's ROM.
 - **Conflict:** manifesto §1 ("Nothing extracted from the ROM is ever committed") and AGENTS.md "Emulation scope
   limits" (behaviour that needs unbounded memory corruption is out of scope and is closed, not approximated)
   against the existing tree, which implements the overrun from committed ROM bytes. Removing it changes what the
@@ -70,3 +73,35 @@ the option the cleanup continued with. None of them stopped the run.
   narrow-storage findings at the typed members without changing what any other reader of the word observes. The
   move to per-family owned state, and an explicit model of the Evir read, is recorded as the next step for the
   enemy subsystem and is not taken during this run.
+
+## 5. Enemy slot frame identity: `RoomEnemySlot.SpritemapPointer`
+
+- **File and site:** `DraygonFrame.cs:10`, `KraidPartFrame.cs:11`, `CrocomireBodyFrame.cs:11`,
+  `PhantoonPartFrame.cs:11`, the Mother Brain/Baby/Zebetite frame records and `BabyMetroidFrame.cs:10`: each
+  exposes `ushort Spritemap`, the cartridge address of its extended spritemap, because the shared
+  `RoomEnemySlot.SpritemapPointer` stores that word and shared drawing (`EnemySpritemapDraw`,
+  `IEnemyBg2Frames.FindBg2Frame`), collision lookups (`ComponentsAt(ushort)`) and `EnemyProgramAnimation.Run(...,
+  Func<TFrame, ushort>)` consume it.
+- **Red flag:** the fix replaces the shared enemy slot's frame representation for every boss family at once (a
+  typed frame identity in the slot, drawing resolving artwork by frame, collision keyed by frame, the address map
+  living only in extraction and the oracles). That is a whole-subsystem representation change.
+- **Evidence checked:** Kraid, Crocomire, Mother Brain, Phantoon and Draygon worker reports, all of which left this
+  row for the same reason; one worker's attempt to convert the property to a method was rejected as rule evasion.
+- **Option taken:** proceed with the destination shape as one cross-family batch once the per-family encoding
+  batches are committed: the slot holds a typed frame reference, the families' frame records stop exposing an
+  address, and the address-to-frame mapping moves to the extraction and ROM oracles.
+
+## 6. Cinematic sprite scratch word and pre-instruction pointer (Intro, Ceres, Ending)
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Frontend/Intro/IntroDiscoverySprite.cs:60` (`GeneralTimer`) and
+  `:73` (`PreInstructionPointer`); consumers in `Frontend/Ending/EndingCreditsState.cs` (1043, 1408-1409, 1451,
+  1455-1456), `Frontend/Ending/EndingRewardJump.cs:122` and the Ceres cinematics.
+- **Red flag:** `GeneralTimer` is one multipurpose word serving as a program loop counter, egg-particle table
+  indices, the Rinka spawn parameter, and the stars' and Ending sprites' 8.8 velocities; `PreInstructionPointer` is
+  an address identity beside the typed `ListPreInstruction`. Typing them replaces the shared cinematic sprite
+  representation across three subsystems.
+- **Evidence checked:** the Intro worker's report; `docs/cartridge-encoding.md` (per-family typed state is the
+  destination); the typed `ListPreInstruction` already in the tree.
+- **Option taken:** one coordinated batch with ownership over Intro, Ceres and Ending: the loop counter becomes a
+  private countdown in the sprite, each other use becomes a typed field on its owner, and the pre-instruction
+  address becomes the owner's typed pre-instruction.

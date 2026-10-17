@@ -30,7 +30,7 @@ internal static class EvirInitTimerVerification
             int byteOffset = relative % 0x40;
             ushort word = byteOffset switch
             {
-                0x1f => aliased.PaletteIndex,
+                0x1f => checked((ushort)aliased.PaletteIndex),
                 0x3f => aliased.Parameter2,
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };

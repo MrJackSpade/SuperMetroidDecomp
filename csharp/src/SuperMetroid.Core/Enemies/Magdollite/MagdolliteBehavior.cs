@@ -110,7 +110,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // its OBJ palette. Model the resulting singleton hook, not nine independent cycles.
         _magdollitePaletteAnimationInstalled = true;
         int paletteNumber = new SuperMetroid.Core.Hardware.SnesObjAttributeWord(
-            slot.PaletteIndex).PaletteIndex;
+            checked((ushort)slot.PaletteIndex)).PaletteIndex;
         _magdollitePaletteBaseColor =
             (paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase) / sizeof(ushort);
         _magdollitePaletteAnimationTimer = NativeCountdown.Start(8);

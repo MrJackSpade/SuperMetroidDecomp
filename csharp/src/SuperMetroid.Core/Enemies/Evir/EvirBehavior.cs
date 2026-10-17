@@ -123,7 +123,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             ushort value = source.Field switch
             {
                 EvirHalfCycleSourceField.PopulationParameter2 => enemy.Parameter2,
-                EvirHalfCycleSourceField.Palette => enemy.PaletteIndex,
+                EvirHalfCycleSourceField.Palette => checked((ushort)enemy.PaletteIndex),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };
             return NativeCountdown.Start(SnesLittleEndian.HighByte(value) / 2);

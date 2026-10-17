@@ -342,7 +342,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the body-only private tail of <c>EnemyTouch_Powamp</c>.</summary>
     private void ResolvePowampTouch(RoomEnemySlot body, SamusState samus)
     {
-        ushort originalPalette = body.PaletteIndex;
+        int originalPalette = body.PaletteIndex;
         _collision.ResolveNormalEnemyTouch(body, samus);
         if (body.Health != 0)
             return;

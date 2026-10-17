@@ -485,7 +485,7 @@ internal sealed class CeresRidleyBehavior
         state.CommonDrawPaletteIndex = new SnesObjAttributeWord(!slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
                 ? (ushort)0
-                : slot.PaletteIndex);
+                : checked((ushort)slot.PaletteIndex));
 
         state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0

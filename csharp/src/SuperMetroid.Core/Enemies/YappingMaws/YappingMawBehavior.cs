@@ -93,7 +93,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             Origin = slot.Position.Whole,
             ActivationDistance = slot.Parameter1,
             RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames),
-            OriginalPalette = SnesObjAttributeWord.FromPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits),
+            OriginalPalette = SnesObjAttributeWord.FromPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits),
         };
         slot.SetSpeciesState(state);
 

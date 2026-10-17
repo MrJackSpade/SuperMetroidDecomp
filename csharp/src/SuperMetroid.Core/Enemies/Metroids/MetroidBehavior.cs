@@ -251,10 +251,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             state.OuterBodyA.GraphicsIndex =
                 new SnesObjAttributeWord(state.OuterBodyA.GraphicsIndex)
-                    .WithPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits);
+                    .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
             state.OuterBodyB.GraphicsIndex =
                 new SnesObjAttributeWord(state.OuterBodyB.GraphicsIndex)
-                    .WithPaletteBits(new SnesObjAttributeWord(slot.PaletteIndex).PaletteBits);
+                    .WithPaletteBits(new SnesObjAttributeWord(checked((ushort)slot.PaletteIndex)).PaletteBits);
             return;
         }
 

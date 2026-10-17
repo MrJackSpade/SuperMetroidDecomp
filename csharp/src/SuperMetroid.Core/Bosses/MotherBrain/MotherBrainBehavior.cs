@@ -479,7 +479,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
             (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
-            head.VramTilesIndex,
+            checked((ushort)head.VramTilesIndex),
             camera);
 
         if (!state.DrawNeck || state.Body.Properties.HasAny(EnemyProperties.Invisible))
@@ -505,7 +505,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 spritemapPointer: MotherBrainVisualDefinitions.NeckJoint.Pointer,
                 segment + neckShake,
                 state.NeckPalette.PaletteBits,
-                head.VramTilesIndex,
+                checked((ushort)head.VramTilesIndex),
                 camera);
         }
     }

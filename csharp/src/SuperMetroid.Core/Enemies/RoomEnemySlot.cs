@@ -131,9 +131,17 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Enemy.palette at +$1E: native OBJ palette attribute bits, normally the graphics-set palette index shifted left nine, rather than a CGRAM color index.</summary>
-    public ushort PaletteIndex { get; internal set; }
+    public int PaletteIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Enemy.GFXOffset at +$20: sprite character-index offset assigned by the graphics set, in 32-byte planar tile units.</summary>
-    public ushort VramTilesIndex { get; internal set; }
+    public int VramTilesIndex
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>
     /// Enemy.layer at +$22, 0 through 65535: drawing-queue layer word, initialized from the definition's byte-sized
     /// layer; the draw queue reads its low three bits.

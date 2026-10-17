@@ -114,7 +114,7 @@ internal sealed class EnemyDrawList
                     drawHooks.DrawBeforeBody(oam, camera);
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
-                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = slot.SpritemapPointer, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = slot.VramTilesIndex });
+                    _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = slot.SpritemapPointer, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = checked((ushort)slot.VramTilesIndex) });
                     continue;
                 }
 
@@ -137,7 +137,7 @@ internal sealed class EnemyDrawList
                         if (((componentOrigin.X + 128) & EnemyDrawMasks.OffscreenBits) != 0 ||
                             ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
                             continue;
-                        oam.AddEnemySpritemap(component.Parts, componentOrigin, drawPaletteIndex, slot.VramTilesIndex,
+                        oam.AddEnemySpritemap(component.Parts, componentOrigin, drawPaletteIndex, checked((ushort)slot.VramTilesIndex),
                             clipVerticalWrap: true,
                             originYIsOnScreen: (SnesLittleEndian.HighByte(componentOrigin.Y)) == 0);
                     }
@@ -189,6 +189,6 @@ internal sealed class EnemyDrawList
             return EnemyFrozenPaletteDefinitions.PaletteBits;
         }
 
-        return slot.PaletteIndex;
+        return checked((ushort)slot.PaletteIndex);
     }
 }

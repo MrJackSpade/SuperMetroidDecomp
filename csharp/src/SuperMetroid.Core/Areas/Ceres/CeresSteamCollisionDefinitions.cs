@@ -13,10 +13,6 @@ internal static class CeresSteamCollisionDefinitions
     /// <summary>Native bank of the extended maps at $A6:F142-$F250.</summary>
     internal const byte Bank = 0xa6;
 
-    /// <summary>Native touch callback invoked when a damaging steam plume hits Samus.</summary>
-    private const ushort Touch = EnemyAiCodePointers.BankA6.CeresSteamTouch;
-    /// <summary>Native no-op shot callback for steam collision rectangles.</summary>
-    private const ushort Shot = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>First ten-byte extended frame, ExtendedSpritemap_CeresSteam_Up_0 at $A6:F142.</summary>
     private const ushort FirstFrame = 0xf142;
@@ -33,26 +29,26 @@ internal static class CeresSteamCollisionDefinitions
         new CollisionRecordRun<CeresSteamCollisionHitbox>(EmptyHitboxes,
         [
             [],
-            [new(-8, -16, 7, -1, Touch, Shot)],
-            [new(-8, -23, 7, -2, Touch, Shot)],
-            [new(-8, -32, 7, -8, Touch, Shot)],
-            [new(-8, -40, 7, -16, Touch, Shot)],
-            [new(-8, -40, 6, -24, Touch, Shot)],
-            [new(-16, -8, -1, 7, Touch, Shot)],
-            [new(-24, -8, -2, 7, Touch, Shot)],
-            [new(-32, -7, -9, 7, Touch, Shot)],
-            [new(-40, -9, -17, 5, Touch, Shot)],
-            [new(-40, -11, -26, 2, Touch, Shot)],
-            [new(-8, 0, 7, 14, Touch, Shot)],
-            [new(-8, 0, 7, 23, Touch, Shot)],
-            [new(-8, 8, 7, 31, Touch, Shot)],
-            [new(-8, 15, 7, 39, Touch, Shot)],
-            [new(-8, 23, 6, 38, Touch, Shot)],
-            [new(0, -8, 15, 7, Touch, Shot)],
-            [new(1, -8, 23, 7, Touch, Shot)],
-            [new(9, -8, 31, 7, Touch, Shot)],
-            [new(18, -9, 38, 5, Touch, Shot)],
-            [new(25, -11, 40, 3, Touch, Shot)],
+            [new(-8, -16, 7, -1)],
+            [new(-8, -23, 7, -2)],
+            [new(-8, -32, 7, -8)],
+            [new(-8, -40, 7, -16)],
+            [new(-8, -40, 6, -24)],
+            [new(-16, -8, -1, 7)],
+            [new(-24, -8, -2, 7)],
+            [new(-32, -7, -9, 7)],
+            [new(-40, -9, -17, 5)],
+            [new(-40, -11, -26, 2)],
+            [new(-8, 0, 7, 14)],
+            [new(-8, 0, 7, 23)],
+            [new(-8, 8, 7, 31)],
+            [new(-8, 15, 7, 39)],
+            [new(-8, 23, 6, 38)],
+            [new(0, -8, 15, 7)],
+            [new(1, -8, 23, 7)],
+            [new(9, -8, 31, 7)],
+            [new(18, -9, 38, 5)],
+            [new(25, -11, 40, 3)],
         ]));
 
     /// <summary>Twenty-eight contiguous extended-frame pointers in native direction and pose order.</summary>

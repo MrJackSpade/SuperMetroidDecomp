@@ -147,8 +147,8 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 2))), box.Top, "steam top");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 4))), box.Right, "steam right");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((record + 6))), box.Bottom, "steam bottom");
-                AssertEqual(rom.ReadCartridgeWord((record + 8)), box.TouchAi, "steam touch callback");
-                AssertEqual(rom.ReadCartridgeWord((record + 10)), box.ShotAi, "steam shot callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 8)), CeresSteamHitboxCallbackCodec.TouchCallbackWord, "steam touch callback");
+                AssertEqual(rom.ReadCartridgeWord((record + 10)), CeresSteamHitboxCallbackCodec.ShotCallbackWord, "steam shot callback");
             }
         }
         AssertThrows<InvalidDataException>(

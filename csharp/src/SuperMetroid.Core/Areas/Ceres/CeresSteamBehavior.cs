@@ -222,7 +222,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = CeresSteamHitboxCallbackCodec.ToCallbackWord(probe.SelectShotCallback);
                 return true;
             }
         }

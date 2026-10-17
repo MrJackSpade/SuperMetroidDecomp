@@ -40,9 +40,6 @@ public sealed class PhantoonEnemyState
         return ref PartPrograms[offset];
     }
 
-    /// <summary>Native enemy-BG2 tilemap byte count at WRAM <c>$7E:19F6</c>.</summary>
-    public ushort Bg2TilemapSize { get; internal set; }
-
     /// <summary>
     /// Modeled BG2 scroll registers written after the body has moved: camera minus body plus
     /// forty whole pixels on each axis when ordinary synchronization runs.
@@ -66,22 +63,25 @@ public sealed class PhantoonEnemyState
     /// <summary>Last delayed music request issued by Phantoon's private AI.</summary>
     public MusicCommand? MusicRequest { get; internal set; }
 
-    /// <summary>Materialization sound-table cursor and most recent library-two request.</summary>
-    public ushort MaterializationSoundIndex { get; internal set; }
-    /// <summary>Gets the most recent library-two materialization sound requested by the private instruction stream, cleared at the next body pass.</summary>
-    public ushort? LastMaterializationSound { get; internal set; }
+    /// <summary>Position zero through two in the repeating three-sound materialization cycle; the next materialization plays this one and advances it.</summary>
+    public int MaterializationSoundIndex { get; internal set; }
+    /// <summary>Gets the most recent materialization sound requested by the private instruction stream, cleared at the next body pass.</summary>
+    public SoundEffectId? LastMaterializationSound { get; internal set; }
 
-    /// <summary>Last library-two combat sound and exact post-vulnerability damage.</summary>
-    public ushort? LastCombatSoundEffect { get; internal set; }
+    /// <summary>Last combat sound requested this frame: a shot cry, death explosion or dying cry.</summary>
+    public SoundEffectId? LastCombatSoundEffect { get; internal set; }
     /// <summary>Gets the count of projectile collisions accepted by the vulnerable body path, including hits whose vulnerability produces zero damage.</summary>
     public int AcceptedProjectileHits { get; internal set; }
 
-    /// <summary>Death choreography observability: physical explosions and mosaic register.</summary>
+    /// <summary>Death choreography observability: physical explosions and mosaic size.</summary>
     public int DeathExplosionRequests { get; internal set; }
     /// <summary>Gets the number of death-explosion requests that allocated a physical effect actor.</summary>
     public int DeathExplosionsSpawned { get; internal set; }
-    /// <summary>Gets the live native MOSAIC register byte, retaining both the high-nibble block size and low-nibble layer enables before display latching.</summary>
-    public byte MosaicRegister { get; internal set; }
+    /// <summary>
+    /// Gets the live BG2 mosaic block size in screen pixels before display latching: one (no quantization) until
+    /// the dying fade grows it one pixel every sixteenth frame up to sixteen, and one again once the body is cleared.
+    /// </summary>
+    public int MosaicBlockSize { get; internal set; } = 1;
 
     /// <summary>Final Wrecked Ship activation effects owned outside the enemy record.</summary>
     public bool MainScreenBg2Enabled { get; internal set; }

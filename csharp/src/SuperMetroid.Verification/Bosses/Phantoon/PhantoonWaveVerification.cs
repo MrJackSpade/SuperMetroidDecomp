@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Diagnostics.SaveStates;
 
 namespace SuperMetroid.Verification.Bosses.Phantoon;
@@ -53,7 +54,26 @@ internal static class PhantoonWaveVerification
         AssertTrue(wave.DisplayedScrolls is null, "deleted wave stops on next display latch");
         Suite(nameof(VerifyPhantoonBlendingLifecycle), () => VerifyPhantoonBlendingLifecycle(boss));
         Suite(nameof(VerifyPhantoonFadeColors), () => VerifyPhantoonFadeColors());
+        Suite(nameof(VerifyPhantoonDeathMosaicSizes), () => VerifyPhantoonDeathMosaicSizes());
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch and debugger round-trip agree.");
+    }
+
+    /// <summary>
+    /// Checks that each death-mosaic step the eye's counter takes, from the first value to the last, is published as
+    /// the same BG2 block size the PPU decodes from that MOSAIC value.
+    /// </summary>
+    private static void VerifyPhantoonDeathMosaicSizes()
+    {
+        int steps = 0;
+        for (int mosaic = PhantoonDeathDefinitions.InitialMosaicRegister;
+             mosaic <= PhantoonDeathDefinitions.FinalMosaicRegister;
+             mosaic += PhantoonDeathDefinitions.MosaicSizeStep)
+        {
+            AssertEqual(BackgroundMosaicSampling.ForBg2((byte)mosaic).Size, PhantoonBehavior.MosaicBlockSizeOf((byte)mosaic),
+                $"death mosaic step {steps} block size");
+            steps++;
+        }
+        AssertEqual(16, steps, "the death mosaic grows through all sixteen block sizes");
     }
 
     /// <summary>Checks captured native palette colors that distinguish signed rounding and fade denominator.</summary>
@@ -84,14 +104,14 @@ internal static class PhantoonWaveVerification
         }
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.Configuration, "flag takes priority over delete control");
-        blend.LatchDisplay(0x42);
-        boss.MosaicRegister = 0x52;
+        blend.LatchDisplay(mosaicBlockSize: 5);
+        boss.MosaicBlockSize = 6;
         boss.SemiTransparent = false;
         boss.Mouth.Parameter1 = 0x8001;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "nonzero low byte retains current room default, not previous blend");
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
-        AssertEqual(0x42, blend.DisplayedMosaic, "live mosaic change waits for next accepted NMI");
+        AssertEqual(5, blend.DisplayedMosaicBlockSize, "live mosaic size change waits for next accepted NMI");
         boss.Mouth.Parameter1 = 0x8000;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "zero low byte hides body");
@@ -107,6 +127,6 @@ internal static class PhantoonWaveVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBlendingState>(stream);
         restored.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
-        AssertEqual(0x42, restored.DisplayedMosaic, "display mosaic survives debugger roundtrip");
+        AssertEqual(5, restored.DisplayedMosaicBlockSize, "display mosaic size survives debugger roundtrip");
     }
 }

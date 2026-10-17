@@ -13,36 +13,38 @@ internal static class PhantoonSoundDefinitions
     internal static SoundEffectId CasualFlame => SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x1d);
 
     /// <summary>Library-2 sound $73, queued when a shot hurts or kills Phantoon (<c>Phantoon_Shot</c>, $A7:DD9B).</summary>
-    internal const ushort ShotCry = 0x0073;
+    internal static readonly SoundEffectId ShotCry = new(SoundEffectLibrary.Library2, 0x73);
 
     /// <summary>Library-2 sound $7E, queued as the dying Phantoon turns wavy (<c>Phantoon_WavyDyingPhantoonAndCry</c>, $A7:DA51).</summary>
-    internal const ushort DyingCry = 0x007e;
+    internal static readonly SoundEffectId DyingCry = new(SoundEffectLibrary.Library2, 0x7e);
 
     /// <summary>Library-2 sound $24, queued after a big death explosion.</summary>
-    internal const ushort BigDeathExplosionSound = 0x0024;
+    internal static readonly SoundEffectId BigDeathExplosionSound = new(SoundEffectLibrary.Library2, 0x24);
 
     /// <summary>Library-2 sound $2B, queued after any other death explosion.</summary>
-    internal const ushort DeathExplosionSound = 0x002b;
+    internal static readonly SoundEffectId DeathExplosionSound = new(SoundEffectLibrary.Library2, 0x2b);
 
     /// <summary>$A7:CF6B, SpawnCasualFlame: QueueSound_Lib3_Max6 request capacity.</summary>
     internal const byte CasualFlameQueueCapacity = 6;
 
     /// <summary>
-    /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>, queued from
-    /// sound library two in a repeating three-callback cycle.
+    /// <c>Phantoon_MaterializationSFX</c> at <c>$A7:CDED-$A7:CDF2</c>: the library-two sounds queued in a repeating
+    /// three-callback cycle.
     /// </summary>
-    private const ushort FirstMaterializationSound = 0x0079;
+    private static readonly SoundEffectId[] MaterializationSounds =
+    [
+        new(SoundEffectLibrary.Library2, 0x79),
+        new(SoundEffectLibrary.Library2, 0x7a),
+        new(SoundEffectLibrary.Library2, 0x7b),
+    ];
 
-    /// <summary>Returns the materialization sound for a native zero-through-two index.</summary>
-    internal static ushort MaterializationSound(ushort index)
-    {
-        if (index >= 3)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(index), index,
-                "Phantoon materialization sound index must be zero through two.");
-        }
+    /// <summary>The number of sounds in the materialization cycle.</summary>
+    internal static int MaterializationSoundCount => MaterializationSounds.Length;
 
-        return (ushort)(FirstMaterializationSound + index);
-    }
+    /// <summary>Returns the materialization sound at a zero-through-two cycle position.</summary>
+    internal static SoundEffectId MaterializationSound(int index) =>
+        (uint)index < (uint)MaterializationSounds.Length
+            ? MaterializationSounds[index]
+            : throw new ArgumentOutOfRangeException(
+                nameof(index), index, "Phantoon materialization sound index must be zero through two.");
 }

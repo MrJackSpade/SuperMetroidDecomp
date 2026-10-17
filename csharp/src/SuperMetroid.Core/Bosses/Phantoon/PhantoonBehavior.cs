@@ -75,7 +75,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         Phantoon = new PhantoonEnemyState(body)
         {
-            Bg2TilemapSize = 864,
             BackgroundTilemapPrepared = true,
         };
 
@@ -1620,8 +1619,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Tentacles.Parameter1 = PhantoonWaveRomData.DeathMode;
         state.Wave.Begin(PhantoonWaveRomData.DeathMode);
         body.VariableF = (ushort)PhantoonAiFunction.DyingFadeOut;
-        state.Eye.VariableC = 2;
-        state.MosaicRegister = 2;
+        state.Eye.VariableC = PhantoonDeathDefinitions.InitialMosaicRegister;
+        state.MosaicBlockSize = MosaicBlockSizeOf(PhantoonDeathDefinitions.InitialMosaicRegister);
 
         // The body remains the BG2 producer. Eye/tentacle/mouth become invisible and ignore
         // Samus while preserving every unrelated raw property bit exactly as $DA6C does.
@@ -1661,7 +1660,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
             mosaic = unchecked((byte)(mosaic + PhantoonDeathDefinitions.MosaicSizeStep));
             eye.VariableC = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(eye.VariableC)) | mosaic));
-            state.MosaicRegister = mosaic;
+            state.MosaicBlockSize = MosaicBlockSizeOf(mosaic);
             return;
         }
 
@@ -1670,12 +1669,18 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             body.VariableF = (ushort)PhantoonAiFunction.AlmostDead;
     }
 
+    /// <summary>
+    /// The BG2 mosaic block size in screen pixels a death-mosaic step on the eye's counter shows: the counter's
+    /// high nibble is the size minus one, and every step also enables BG2, so the size alone carries the display.
+    /// </summary>
+    internal static int MosaicBlockSizeOf(byte mosaic) => (mosaic >> PhantoonDeathDefinitions.MosaicSizeShift) + 1;
+
     /// <summary>Clears the visible enemy BG2 page and starts the 60-frame power delay.</summary>
     private void ClearPhantoonDeathGraphics(
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        state.MosaicRegister = 0;
+        state.MosaicBlockSize = 1;
         state.Eye.Parameter1 = 0;
         state.SemiTransparent = false;
         state.Mouth.Parameter1 = PhantoonBlendingRomData.DeleteControlWord;
@@ -1797,7 +1802,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     PhantoonSoundDefinitions.MaterializationSound(
                         state.MaterializationSoundIndex);
                 state.MaterializationSoundIndex++;
-                if (state.MaterializationSoundIndex >= 3)
+                if (state.MaterializationSoundIndex >= PhantoonSoundDefinitions.MaterializationSoundCount)
                     state.MaterializationSoundIndex = 0;
                 return;
 
@@ -2261,10 +2266,10 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        if (Phantoon?.LastMaterializationSound is ushort phantoonMaterialization)
-            audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, phantoonMaterialization), maximumQueued: 6);
-        if (Phantoon?.LastCombatSoundEffect is ushort phantoonCombat)
-            audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, phantoonCombat), maximumQueued: 6);
+        if (Phantoon?.LastMaterializationSound is { } phantoonMaterialization)
+            audio.QueueEnemySound(phantoonMaterialization, maximumQueued: 6);
+        if (Phantoon?.LastCombatSoundEffect is { } phantoonCombat)
+            audio.QueueEnemySound(phantoonCombat, maximumQueued: 6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

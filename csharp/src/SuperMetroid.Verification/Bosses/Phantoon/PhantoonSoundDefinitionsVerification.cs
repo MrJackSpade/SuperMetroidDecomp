@@ -17,9 +17,11 @@ internal static class PhantoonSoundDefinitionsVerification
     internal static void VerifyPhantoonSoundDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa7cded;
-        for (ushort index = 0; index < 3; index++)
+        AssertEqual(3, PhantoonSoundDefinitions.MaterializationSoundCount, "Phantoon materialization cycle length");
+        for (int index = 0; index < 3; index++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2);
+            SoundEffectId expected = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + index * 2));
             AssertEqual(expected, PhantoonSoundDefinitions.MaterializationSound(index),
                 $"Phantoon materialization sound {index}");
         }
@@ -40,14 +42,14 @@ internal static class PhantoonSoundDefinitionsVerification
         enemies.PhantoonBehavior.Phantoon = state;
         Action<RoomEnemySlot, PhantoonPartCue> process = enemies.PhantoonBehavior.ApplyPhantoonPartCue;
 
-        for (ushort call = 0; call < 6; call++)
+        for (int call = 0; call < 6; call++)
         {
-            ushort index = (ushort)(call % 3);
+            int index = call % 3;
             process(body, PhantoonPartCue.PlayMaterializationSound);
             AssertEqual(PhantoonSoundDefinitions.MaterializationSound(index),
                 (state.LastMaterializationSound ?? throw new InvalidOperationException("Verification requires state.LastMaterializationSound.")),
                 $"Phantoon materialization callback {call} sound");
-            AssertEqual((ushort)((index + 1) % 3), state.MaterializationSoundIndex,
+            AssertEqual((index + 1) % 3, state.MaterializationSoundIndex,
                 $"Phantoon materialization callback {call} next index");
         }
 

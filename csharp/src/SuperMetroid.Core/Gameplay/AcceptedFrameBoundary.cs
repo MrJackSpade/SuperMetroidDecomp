@@ -156,7 +156,7 @@ internal sealed class AcceptedFrameBoundary
         RoomLayer3FxRenderSnapshot? roomLayer3Fx = _roomLayer3Fx.CaptureForDisplay();
         _enemies.DisplaySources.Phantoon?.Wave.LatchDisplay();
         if (_enemies.DisplaySources.Phantoon is { } phantoonDisplay)
-            phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
+            phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicBlockSize);
         _tourianStatues.LatchDisplay();
         _display.Latched = new GameplayNmiDisplayLatch(
             ppu,

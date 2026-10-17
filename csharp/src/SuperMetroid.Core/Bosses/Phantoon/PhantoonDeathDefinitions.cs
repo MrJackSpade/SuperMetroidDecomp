@@ -11,4 +11,10 @@ internal static class PhantoonDeathDefinitions
 
     /// <summary>One mosaic size step in the MOSAIC register's high nibble.</summary>
     internal const byte MosaicSizeStep = 16;
+
+    /// <summary>The eye's first death-mosaic value: the smallest size, applied to BG2 (bit $02).</summary>
+    internal const byte InitialMosaicRegister = 0x02;
+
+    /// <summary>Bits below the mosaic size nibble in the eye's mosaic counter.</summary>
+    internal const int MosaicSizeShift = 4;
 }

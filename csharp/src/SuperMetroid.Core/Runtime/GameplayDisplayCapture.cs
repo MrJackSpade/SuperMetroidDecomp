@@ -139,7 +139,7 @@ public static class GameplayDisplayCapture
             Windows: displayedWindows.Windows,
             MainScreenWindowMask:
                 (SnesMainScreenLayers)(displayedWindows.MainScreenWindow & TmLayerBits),
-            Bg2Mosaic: BackgroundMosaicSampling.ForBg2(latched.Phantoon?.Mosaic ?? 0));
+            Bg2Mosaic: latched.Phantoon is { } phantoonDisplay ? new BackgroundMosaicSampling(phantoonDisplay.MosaicBlockSize) : default);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         IReadOnlyList<ushort>? phantoonScrolls = latched.Phantoon?.Scrolls;

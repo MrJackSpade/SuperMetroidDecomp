@@ -45,7 +45,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new PuyoEnemyState
         {
             YSpeedTableIndex = 0,
-            HopCooldownTimer = NativeCountdown.FromRaw(slot.Parameter1),
+            HopCooldownTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter1)),
             Function = PuyoEnemyFunction.Grounded,
             // InitAI never writes the airborne function or the inactive extended words. The room loader's
             // cleared enemy allocation therefore leaves them empty until InitiateHop owns
@@ -101,7 +101,7 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.Function = PuyoEnemyFunction.Airborne;
-        state.HopCooldownTimer = NativeCountdown.FromRaw(slot.Parameter1);
+        state.HopCooldownTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter1));
         state.HoppingAnimationActive = true;
         InitiatePuyoHop(slot, state, samus);
     }

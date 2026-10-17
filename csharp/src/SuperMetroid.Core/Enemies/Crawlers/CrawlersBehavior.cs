@@ -88,7 +88,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Crawler speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
             }
-            ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+            ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
             slot.VariableA = velocity;
             slot.VariableB = velocity;
         }
@@ -125,7 +125,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         slot.InstructionTimer = NativeCountdown.Start(1);
-        ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+        ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
         switch (slot.Properties.FamilyData & 3)
         {
@@ -461,7 +461,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"Crawler instruction-table offset ${slot.Parameter2:X4} is invalid.");
         }
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
-            slot.Parameter2, orientation));
+            checked((ushort)slot.Parameter2), orientation));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
     }

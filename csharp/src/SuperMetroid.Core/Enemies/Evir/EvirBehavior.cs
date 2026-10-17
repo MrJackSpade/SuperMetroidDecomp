@@ -122,7 +122,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemySlot enemy = _slotTable._slots[source.SlotIndex];
             ushort value = source.Field switch
             {
-                EvirHalfCycleSourceField.PopulationParameter2 => enemy.Parameter2,
+                EvirHalfCycleSourceField.PopulationParameter2 => checked((ushort)enemy.Parameter2),
                 EvirHalfCycleSourceField.Palette => checked((ushort)enemy.PaletteIndex),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };

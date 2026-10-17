@@ -34,7 +34,7 @@ public sealed class GrowingShutterEnemyState
     /// </summary>
     public NativeCountdown ActivationTimer
     {
-        get => NativeCountdown.FromRaw(_slot.Parameter1);
+        get => NativeCountdown.FromRaw(checked((ushort)_slot.Parameter1));
         internal set => _slot.Parameter1 = value.RawValue;
     }
 

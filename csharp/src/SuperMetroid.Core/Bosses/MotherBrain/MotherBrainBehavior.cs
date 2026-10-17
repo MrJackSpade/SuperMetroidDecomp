@@ -2272,7 +2272,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case MotherBrainTubeFunction.MainTube_WaitingToFall:
                 // The main tube's fall delay counts down in parameter two and expires when it passes zero.
-                NativeWordCounterStep fallDelay = NativeCountdown.FromRaw(tube.Parameter2).Decrement();
+                NativeWordCounterStep fallDelay = NativeCountdown.FromRaw(checked((ushort)tube.Parameter2)).Decrement();
                 tube.Parameter2 = fallDelay.Remaining.RawValue;
                 if (fallDelay.IsNonNegative)
                     return;

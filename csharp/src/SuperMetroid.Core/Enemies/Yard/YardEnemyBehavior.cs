@@ -85,7 +85,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Yard initialization direction ${direction:X4} exceeds its eight ROM entries.");
         }
-        ValidateYardSpeedIndex(slot.Parameter1);
+        ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
 
         var state = new YardEnemyState(slot)
         {
@@ -117,8 +117,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, int direction)
     {
-        ValidateYardSpeedIndex(slot.Parameter1);
-        ushort speed = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+        ValidateYardSpeedIndex(checked((ushort)slot.Parameter1));
+        ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
         state.CrawlingVelocity = YardVelocityDefinitions.Apply(speed, direction);
     }
 

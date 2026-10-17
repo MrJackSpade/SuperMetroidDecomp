@@ -98,7 +98,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
             return;
 
-        state.JumpDelayTimer = NativeCountdown.FromRaw(slot.Parameter2);
+        state.JumpDelayTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter2));
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 

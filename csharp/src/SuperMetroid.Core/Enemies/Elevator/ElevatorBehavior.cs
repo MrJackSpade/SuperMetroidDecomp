@@ -149,7 +149,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         {
             if (samus is null)
                 throw new InvalidOperationException("Arriving elevator initialization requires Samus state.");
-            slot.Position = slot.Position.WithWholeY(slot.Parameter2);
+            slot.Position = slot.Position.WithWholeY(checked((ushort)slot.Parameter2));
             PinSamusToElevator(slot, samus);
             _arrivalPlacementSlot = slot.SlotIndex;
         }

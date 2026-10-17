@@ -76,7 +76,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         statue.InstructionTimer = NativeCountdown.Start(1);
         statue.Timer = NativeCountdown.Start(0);
         _extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
-            TourianEntranceStatueAnimationDefinitions.InitialProgram(statue.Parameter1));
+            TourianEntranceStatueAnimationDefinitions.InitialProgram(checked((ushort)statue.Parameter1)));
 
         // Only the first of the three enemy records creates the fixed screen actors. The
         // native allocator searches from slot $22 down, so this exact call order gives the

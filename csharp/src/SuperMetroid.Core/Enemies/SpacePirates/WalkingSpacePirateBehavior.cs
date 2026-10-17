@@ -403,7 +403,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         // deliberately replaces it with A05B. The three two-frame muzzle maps are thus
         // stationary until list opcode A050 installs and immediately executes movement.
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
-        projectile.Variable0 = source.Parameter1;
+        projectile.Variable0 = checked((ushort)source.Parameter1);
 
         // A009 replaces the projectile definition's property word with enemy damage OR
         // $1000. The source palette/VRAM are *not* copied: SpawnEprojWithRoomGfx passes a

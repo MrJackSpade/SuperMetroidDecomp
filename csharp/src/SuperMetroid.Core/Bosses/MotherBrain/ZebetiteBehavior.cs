@@ -253,7 +253,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        ushort linkedIndex = struck.Parameter2;
+        ushort linkedIndex = checked((ushort)struck.Parameter2);
         if (linkedIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize ||
             linkedIndex % RoomEnemySystem.NativeSlotSize != 0)
         {

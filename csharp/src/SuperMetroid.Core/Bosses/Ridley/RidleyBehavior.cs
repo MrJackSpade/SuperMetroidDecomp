@@ -1481,13 +1481,13 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyEnemyState state)
     {
         RidleyExplosionPart part = ClosedNativeWords.Decode<RidleyExplosionPart>(
-            fragment.Parameter1, "Ridley explosion part");
+            checked((ushort)fragment.Parameter1), "Ridley explosion part");
 
         fragment.InstructionTimer = NativeCountdown.Start(1);
         fragment.Timer = NativeCountdown.Start(0);
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
-        fragment.VariableF = RidleyExplosionDefinitions.GetPart(fragment.Parameter1).Lifetime;
+        fragment.VariableF = RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Parameter1)).Lifetime;
 
         ushort random = _room.Random.Generate();
         ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));

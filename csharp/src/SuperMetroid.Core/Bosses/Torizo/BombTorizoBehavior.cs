@@ -1749,7 +1749,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(torizo.VramTilesIndex | torizo.PaletteIndex)));
 
         projectile.Variable1 = TorizoMotionDefinitions.EggHatchTimer;
-        projectile.Variable0 = torizo.Parameter1;
+        projectile.Variable0 = checked((ushort)torizo.Parameter1);
         InitializeTorizoRandomizedProjectile(
             projectile,
             torizo,

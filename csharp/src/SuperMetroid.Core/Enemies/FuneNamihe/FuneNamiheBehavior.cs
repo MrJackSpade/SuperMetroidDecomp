@@ -263,7 +263,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((source.Parameter1 & FuneNamiheParameterMasks.VariantBits) != 0)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
-        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(source.Parameter2);
+        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(checked((ushort)source.Parameter2));
         projectile.Velocity = new(new SnesSignedEightEight(velocities.Right), new SnesSignedEightEight(velocities.Left));
     }
 

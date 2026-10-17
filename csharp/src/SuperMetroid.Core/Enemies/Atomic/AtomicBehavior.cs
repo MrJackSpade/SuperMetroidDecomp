@@ -26,7 +26,7 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(slot.Parameter1));
+        state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(checked((ushort)slot.Parameter1)));
 
         // Parameter two is an index into the shared eight-byte linear-speed record:
         // positive whole/fraction followed by its ROM-generated negative whole/fraction.

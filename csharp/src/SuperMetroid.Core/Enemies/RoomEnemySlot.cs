@@ -178,9 +178,17 @@ public sealed class RoomEnemySlot
     /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>
     internal int HurtFlashFrames => HurtAiTime == 0 ? 4 : HurtAiTime;
     /// <summary>Enemy.init0 at +$3C: mutable first actor-specific parameter initialized from the room population record.</summary>
-    public ushort Parameter1 { get; internal set; }
+    public int Parameter1
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Enemy.init1 at +$3E: mutable second actor-specific parameter initialized from the room population record.</summary>
-    public ushort Parameter2 { get; internal set; }
+    public int Parameter2
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Enemy.var0 at +$30: first actor-owned working word; its timer, pointer, or arithmetic meaning depends on the active enemy AI.</summary>
     public ushort VariableA { get; internal set; }
     /// <summary>Enemy.var1 at +$32: second actor-owned working word, preserving native sixteen-bit wrapping across actor phases.</summary>

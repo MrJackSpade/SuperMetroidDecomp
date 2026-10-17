@@ -31,7 +31,7 @@ internal static class EvirInitTimerVerification
             ushort word = byteOffset switch
             {
                 0x1f => checked((ushort)aliased.PaletteIndex),
-                0x3f => aliased.Parameter2,
+                0x3f => checked((ushort)aliased.Parameter2),
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
             AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), (runtime.Enemies.EvirStates[slot.SlotIndex] ?? throw new InvalidOperationException("Verification requires runtime.Enemies.EvirStates[slot.SlotIndex].")).MovementTimer.RawValue,

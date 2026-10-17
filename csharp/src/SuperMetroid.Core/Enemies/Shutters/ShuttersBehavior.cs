@@ -42,7 +42,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.PlaceSectionOrigins(growsUp);
         state.GrowthLevel = 0;
 
-        (short growthWhole, ushort growthFraction) = GrowingShutterDefinitions.Speed(slot.Parameter2);
+        (short growthWhole, ushort growthFraction) = GrowingShutterDefinitions.Speed(checked((ushort)slot.Parameter2));
         state.GrowthSpeed = SnesSignedSixteenSixteen.FromParts(growthWhole, growthFraction);
 
         slot.ExtraProperties = default;
@@ -263,7 +263,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
-        state.FunctionTimer = NativeCountdown.FromRaw(slot.Parameter2);
+        state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter2));
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(checked((short)state.TravelDistance), 0);
@@ -828,7 +828,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.TravelDistance = SnesLittleEndian.HighByte(slot.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
-        state.FunctionTimer = NativeCountdown.FromRaw(slot.Parameter2);
+        state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Parameter2));
 
         Position16<RoomPixels> spawn = slot.Position.Whole;
         var travel = new Offset16<RoomPixels>(0, checked((short)state.TravelDistance));

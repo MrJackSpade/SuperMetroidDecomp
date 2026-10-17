@@ -151,7 +151,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // remains mutable after load. RoomEnemySlot.Parameter1 is that exact WRAM field.
         // The earlier population "init" word seeds Enemy.instList before initialization;
         // it is not the variant despite its host-side historical name.
-        ushort variant = slot.Parameter1;
+        ushort variant = checked((ushort)slot.Parameter1);
 
         CeresDoorInitializationDefinition initialization =
             CeresDoorInitializationDefinitions.For(variant);

@@ -71,7 +71,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.PaletteIndex = 0;
 
         EscapeEtecoonInitialization initialization =
-            EscapeEtecoonDefinitions.Initialization(slot.Parameter1);
+            EscapeEtecoonDefinitions.Initialization(checked((ushort)slot.Parameter1));
         slot.Position = slot.Position.WithWhole(initialization.Position);
         state.PreInstruction = initialization.PreInstruction;
         state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(initialization.Program);

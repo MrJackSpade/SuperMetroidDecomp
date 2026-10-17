@@ -63,7 +63,7 @@ public sealed class PhantoonWaveHdmaState
             return;
         }
         Phase = (Phase + 2 * boss.Mouth.VariableF) & PhantoonWaveRomData.PhaseMask;
-        PhantoonWaveTable.Build(boss.Eye.Parameter1, checked((ushort)Phase), boss.Mouth.VariableD,
+        PhantoonWaveTable.Build(checked((ushort)boss.Eye.Parameter1), checked((ushort)Phase), boss.Mouth.VariableD,
             boss.Bg2Scroll.X, _cycle.AsSpan(0, _cycleLength));
     }
 

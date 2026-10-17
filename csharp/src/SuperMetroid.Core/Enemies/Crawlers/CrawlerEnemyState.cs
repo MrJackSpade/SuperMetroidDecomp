@@ -47,6 +47,17 @@ public sealed class CrawlerEnemyState
     public ushort FallingYVelocity { get; internal set; }
     /// <summary>Attached bank-$A3 AI target saved when an earthquake or repeated outside turns start a fall; restored on terrain landing for either shared crawlers or orange Zoomer. Native $7E:7806,x.</summary>
     public CrawlerEnemyFunction NonFallingFunction { get; internal set; }
-    /// <summary>Count of successive updates whose attachment probe misses the surface; contact resets it, and the fourth miss selects falling rather than another outside-corner turn. Native $7E:7808,x.</summary>
-    public ushort ConsecutiveTurnCounter { get; internal set; }
+    /// <summary>
+    /// Count of successive updates whose attachment probe misses the surface, 0 through 4 in play: contact and landing
+    /// reset it, and the fourth miss selects falling rather than another outside-corner turn. Native $7E:7808,x. The
+    /// setter accepts the whole word range so the turn routines' wrapped increment is preserved exactly.
+    /// </summary>
+    public int ConsecutiveTurnCounter
+    {
+        get => _consecutiveTurnCounter;
+        internal set => _consecutiveTurnCounter = checked((ushort)value);
+    }
+
+    /// <summary>Backing count for <see cref="ConsecutiveTurnCounter"/>, always a valid word value.</summary>
+    private int _consecutiveTurnCounter;
 }

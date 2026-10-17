@@ -34,24 +34,35 @@ public sealed class RipperVariantEnemyState
         internal set => _slot.VariableD = value;
     }
 
-    /// <summary>Common variable E: byte offset into <c>$A0:8187</c>.</summary>
-    public ushort SpeedTableByteOffset
+    /// <summary>
+    /// Common variable E: the selected linear-speed record's offset into <c>$A0:8187</c>, eight bytes
+    /// per record, set by initialization (wrapping at the word boundary there) and read back when the
+    /// velocity pair is loaded. The slot word holds it exactly, so aliased reads of slot memory see the
+    /// native word.
+    /// </summary>
+    public int SpeedTableByteOffset
     {
         get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        internal set => _slot.VariableE = checked((ushort)value);
     }
 
-    /// <summary>GRipper extra word $00: exclusive left patrol reversal threshold.</summary>
-    public ushort MinimumXPosition
+    /// <summary>
+    /// GRipper extra word $00: exclusive left patrol reversal threshold, a room X coordinate in pixels
+    /// from population parameter one. The patrol compares it with a wrapped signed word subtraction.
+    /// </summary>
+    public int MinimumXPosition
     {
         get => _words.MinimumXPosition;
-        internal set => _words.MinimumXPosition = value;
+        internal set => _words.MinimumXPosition = checked((ushort)value);
     }
 
-    /// <summary>GRipper extra word $01: inclusive right patrol reversal threshold.</summary>
-    public ushort MaximumXPosition
+    /// <summary>
+    /// GRipper extra word $01: inclusive right patrol reversal threshold, a room X coordinate in pixels
+    /// from population parameter two. The patrol compares it with a wrapped signed word subtraction.
+    /// </summary>
+    public int MaximumXPosition
     {
         get => _words.MaximumXPosition;
-        internal set => _words.MaximumXPosition = value;
+        internal set => _words.MaximumXPosition = checked((ushort)value);
     }
 }

@@ -29,12 +29,14 @@ public sealed class BlueBrinstarFaceBlockEnemyState
     }
 
     /// <summary>
-    /// Native variable B, written only after Samus passes the vertical range test. Retaining
-    /// the wrapped 16-bit subtraction makes left-side deltas directly comparable to WRAM.
+    /// Native variable B: Samus's signed horizontal distance in room pixels from the face block,
+    /// written only after Samus passes the vertical range test; negative when Samus is to the left.
+    /// The room-coordinate subtraction wraps at the word boundary, so the setter accepts either the
+    /// signed distance or its wrapped word and the slot holds the native word exactly.
     /// </summary>
-    public ushort LastHorizontalDelta
+    public int LastHorizontalDelta
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => unchecked((short)_slot.VariableB);
+        internal set => _slot.VariableB = unchecked((ushort)value);
     }
 }

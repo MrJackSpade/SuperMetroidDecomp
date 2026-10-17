@@ -43,27 +43,32 @@ public sealed class FuneNamiheEnemyState
     }
 
     /// <summary>
-    /// Variable D: the complete low nibble of population parameter one. Zero selects Fune;
-    /// every nonzero value selects Namihe, exactly as the native BEQ test does.
+    /// Variable D: the complete low nibble of population parameter one, 0 through 15. Zero selects Fune;
+    /// every nonzero value selects Namihe, exactly as the native BEQ test does. The slot word holds the
+    /// value exactly, so aliased reads of slot memory see the native word.
     /// </summary>
-    public ushort VariantIndex
+    public int VariantIndex
     {
         get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        internal set => _slot.VariableD = checked((ushort)value);
     }
 
-    /// <summary>Variable E: Fune's incrementing cooldown counter.</summary>
-    public ushort CooldownTimer
+    /// <summary>
+    /// Variable E: Fune's incrementing cooldown count of waiting updates, compared with
+    /// <see cref="CooldownTime"/> and reset to zero when the wait ends. The slot word holds the
+    /// count exactly; the waiting routine's increment wraps it at the word boundary.
+    /// </summary>
+    public int CooldownTimer
     {
         get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        internal set => _slot.VariableE = checked((ushort)value);
     }
 
-    /// <summary>Variable F: cooldown target from parameter one's high byte.</summary>
-    public ushort CooldownTime
+    /// <summary>Variable F: the number of updates Fune waits, initialized from parameter one's high byte.</summary>
+    public int CooldownTime
     {
         get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        internal set => _slot.VariableF = checked((ushort)value);
     }
 
     /// <summary>The shared initializer treats any nonzero variant nibble as Namihe.</summary>

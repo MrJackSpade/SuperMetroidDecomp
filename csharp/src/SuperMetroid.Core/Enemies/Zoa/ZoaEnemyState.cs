@@ -34,14 +34,14 @@ public sealed class ZoaEnemyState
     public ZoaAnimationSelector InstructionListTableIndex
     {
         get => (ZoaAnimationSelector)_slot.VariableC;
-        internal set => _slot.VariableC = (ushort)value;
+        internal set => _slot.VariableC = value.ToNativeWord();
     }
 
     /// <summary>Last installed animation selector, initially zero; $A3:B537 compares it with the requested selector so unchanged lists keep their timer and loop state.</summary>
     public ZoaAnimationSelector PreviousInstructionListTableIndex
     {
         get => (ZoaAnimationSelector)_slot.VariableD;
-        internal set => _slot.VariableD = (ushort)value;
+        internal set => _slot.VariableD = value.ToNativeWord();
     }
 
     /// <summary>Same-bank AI dispatch word in slot variable F, initialized to wait and transitioned through rise, horizontal launch, and offscreen return to wait.</summary>

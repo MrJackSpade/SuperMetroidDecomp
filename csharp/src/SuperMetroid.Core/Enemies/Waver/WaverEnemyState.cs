@@ -36,7 +36,7 @@ public sealed class WaverEnemyState
     public WaverAnimationSelector CurrentInstructionListIndex
     {
         get => (WaverAnimationSelector)_slot.VariableC;
-        internal set => _slot.VariableC = (ushort)value;
+        internal set => _slot.VariableC = value.ToNativeWord();
     }
 
     /// <summary>Byte angle advanced by two per unobstructed frame.</summary>
@@ -59,6 +59,6 @@ public sealed class WaverEnemyState
     public WaverAnimationSelector RequestedInstructionListIndex
     {
         get => (WaverAnimationSelector)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        internal set => _slot.VariableF = value.ToNativeWord();
     }
 }

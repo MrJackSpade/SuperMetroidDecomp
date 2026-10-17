@@ -111,7 +111,7 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var finale = legacy.Presentation.CaptureRenderSnapshot();
                     var backgrounds = finale.LayersOf<Bg4BppRenderLayer>();
-                    AssertTrue(backgrounds.Select(bg => bg.TilemapWord).SequenceEqual(new ushort[] { 0x7800, 0x7400, 0x7800, 0x7400 }),
+                    AssertTrue(backgrounds.Select(bg => bg.TilemapWord).SequenceEqual(new[] { 0x7800, 0x7400, 0x7800, 0x7400 }),
                         "native explosion finale selects both background maps in main-screen priority order");
                     AssertTrue(backgrounds.All(bg => bg.CharacterWord == 0x4000), "explosion finale uses Mode1 character base, not stale Mode7 decoding");
                     AssertTrue(!finale.Layers.Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),

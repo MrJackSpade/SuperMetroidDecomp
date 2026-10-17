@@ -45,7 +45,7 @@ internal static class PauseSnapshotTestsVerification
         gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayout.HudTilemapWord, 1);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram });
         var pages = new HashSet<int>();
-        var levels = new HashSet<byte>();
+        var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)
         {
             Rgba32[] expected = pause.Render();

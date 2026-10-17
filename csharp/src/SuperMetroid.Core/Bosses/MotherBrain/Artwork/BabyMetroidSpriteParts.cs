@@ -68,7 +68,7 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
             // The native negative-Y dome has nine identical half-parts across all
             // three poses. Match complete supplied records, including orientation;
             // edited parts remain local and never mutate another pose's component.
-            if (unchecked((sbyte)part.Y) < 0)
+            if (part.Y.IsNegative)
             {
                 for (int candidate = 0; candidate < bodyTemplate.halfParts.Length; candidate++)
                 {

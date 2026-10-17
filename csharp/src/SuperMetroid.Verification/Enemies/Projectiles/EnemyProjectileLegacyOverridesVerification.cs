@@ -87,7 +87,7 @@ internal static class EnemyProjectileLegacyOverridesVerification
             {
                 SpriteVisualPart part = expected[index];
                 AssertEqual(part.OffsetX, actual[index].X.SignedOffset, context + " X");
-                AssertEqual(unchecked((byte)(sbyte)part.OffsetY), actual[index].Y, context + " Y");
+                AssertEqual(part.OffsetY, actual[index].Y.SignedOffset, context + " Y");
                 AssertEqual(part.TileRow * EnemyProjectileSpritemapDefinitions.TileColumns + part.TileColumn,
                     actual[index].Attributes.TileNumber, context + " tile");
                 AssertEqual((part.Palette ?? throw new InvalidOperationException("Verification requires part.Palette.")), actual[index].Attributes.PaletteIndex, context + " palette");

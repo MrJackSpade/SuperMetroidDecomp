@@ -55,14 +55,14 @@ public sealed class GameplayWindowRegisterCache
     public SnesMainScreenLayers MainScreen
     {
         get => (SnesMainScreenLayers)Read(GameplayWindowRegisterLayout.MainScreen);
-        set => Write(GameplayWindowRegisterLayout.MainScreen, (byte)value);
+        set => Write(GameplayWindowRegisterLayout.MainScreen, value.ToNativeByte());
     }
 
     /// <summary>The cached subscreen designation (TS).</summary>
     public SnesMainScreenLayers Subscreen
     {
         get => (SnesMainScreenLayers)Read(GameplayWindowRegisterLayout.Subscreen);
-        set => Write(GameplayWindowRegisterLayout.Subscreen, (byte)value);
+        set => Write(GameplayWindowRegisterLayout.Subscreen, value.ToNativeByte());
     }
 
     /// <summary>
@@ -98,17 +98,17 @@ public sealed class GameplayWindowRegisterCache
     {
         Write(GameplayWindowRegisterLayout.GameplayMainScreen, Read(GameplayWindowRegisterLayout.MainScreen));
         Displayed = new(new(
-            Read(GameplayWindowRegisterLayout.Window12Selection),
-            Read(GameplayWindowRegisterLayout.Window34Selection),
-            Read(GameplayWindowRegisterLayout.ObjectColorSelection),
+            (SnesWindowSelectionPair)Read(GameplayWindowRegisterLayout.Window12Selection),
+            (SnesWindowSelectionPair)Read(GameplayWindowRegisterLayout.Window34Selection),
+            (SnesWindowSelectionPair)Read(GameplayWindowRegisterLayout.ObjectColorSelection),
             Read(GameplayWindowRegisterLayout.FirstLeft),
             Read(GameplayWindowRegisterLayout.FirstRight),
             Read(GameplayWindowRegisterLayout.SecondLeft),
             Read(GameplayWindowRegisterLayout.SecondRight),
             Read(GameplayWindowRegisterLayout.BackgroundLogic),
             Read(GameplayWindowRegisterLayout.ObjectColorLogic)),
-            Read(GameplayWindowRegisterLayout.MainScreen),
-            Read(GameplayWindowRegisterLayout.MainScreenWindow));
+            (SnesMainScreenLayers)Read(GameplayWindowRegisterLayout.MainScreen),
+            (SnesMainScreenLayers)Read(GameplayWindowRegisterLayout.MainScreenWindow));
     }
 
     /// <summary>Validates and converts a native shadow address to the cache's zero-based offset.</summary>

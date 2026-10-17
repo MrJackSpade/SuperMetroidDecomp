@@ -37,11 +37,12 @@ internal static class WindowRegisterCacheVerification
         state.WriteByte(0x6C, 0x91);
         state.LatchNmi();
         var first = state.Displayed;
-        AssertEqual(new SnesWindowRegisters(0x34, 0x12, 0, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xCD),
+        AssertEqual(new SnesWindowRegisters((SnesWindowSelectionPair)0x34, (SnesWindowSelectionPair)0x12,
+                SnesWindowSelectionPair.None, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xCD),
             first.Windows, "all uploaded window bytes");
-        AssertEqual((byte)0xAB, first.MainScreen, "upload retains unused TM bits");
+        AssertEqual((SnesMainScreenLayers)0xAB, first.MainScreen, "upload retains unused TM bits");
         AssertEqual((byte)0xAB, state.ReadByte(0x6A), "accepted NMI copies gameplay_TM");
-        AssertEqual((byte)0x91, first.MainScreenWindow, "upload retains literal TMW");
+        AssertEqual((SnesMainScreenLayers)0x91, first.MainScreenWindow, "upload retains literal TMW");
         // The displayed snapshot carries no TS/TSW; their cached gameplay bytes keep the
         // initialized values independently of the neighboring gameplay_TM write.
         AssertEqual((byte)4, state.ReadByte(GameplayWindowRegisterAddresses.Subscreen),
@@ -52,8 +53,9 @@ internal static class WindowRegisterCacheVerification
         AssertEqual(first, state.Displayed, "later cached writes cannot mutate displayed frame");
         AssertEqual((byte)0xAB, state.ReadByte(0x6A), "initialization does not overwrite gameplay_TM");
         state.LatchNmi();
-        AssertEqual((byte)19, state.Displayed.MainScreen, "next accepted NMI publishes new TM");
-        AssertEqual((byte)0xCD, state.Displayed.Windows.ObjectColorLogic, "logic survives next initialization");
+        AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj, state.Displayed.MainScreen,
+            "next accepted NMI publishes new TM");
+        AssertEqual(0xCD, state.Displayed.Windows.ObjectColorLogic, "logic survives next initialization");
         AssertThrows<ArgumentOutOfRangeException>(() => state.WriteWord(0x6D, 0xFFFF), "reject cross-owner word");
         AssertEqual((byte)0, state.ReadByte(0x6D), "invalid word has no partial mutation");
         AssertThrows<ArgumentOutOfRangeException>(() => state.WriteByte(0x5F, 1), "reject prior owner");

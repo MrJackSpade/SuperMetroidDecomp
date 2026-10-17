@@ -58,7 +58,7 @@ internal static class GameplayRenderAllocationVerification
         RenderFrameSnapshot[] packets = [
             new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, new Offset16<Mode7Pixels>(0, 0), new Offset16<Mode7Pixels>(0, 0)), 3, 15)),
             new(identity, new Mode7ObjRenderSnapshot(memory, null, 3, 9,
-                Enumerable.Repeat(new SuperMetroid.Core.Rendering.TitleGradientLine(1, 2, 3, 0xa1), 224).ToArray()), new byte[] { 11 }),
+                Enumerable.Repeat(new SuperMetroid.Core.Rendering.TitleGradientLine(1, 2, 3, SuperMetroid.Core.Rendering.ColorMathControlFlags.Subtract | SuperMetroid.Core.Rendering.ColorMathControlFlags.Backdrop | SuperMetroid.Core.Rendering.ColorMathControlFlags.Bg1), 224).ToArray()), new byte[] { 11 }),
             new(identity, new LayeredRenderSnapshot(memory, [], 3, 15)),
             new(identity, new SuperMetroid.Core.Hardware.Rgba32(90, 130, 210), new byte[] { 7 })
         ];

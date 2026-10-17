@@ -13,13 +13,13 @@ public static class TitleGradientColorMath
     {
         if (objectPalette is > 7) throw new ArgumentOutOfRangeException(nameof(objectPalette));
         // Bit tests, not Enum.HasFlag: unoptimized JIT code boxes HasFlag's operands on every pixel.
-        var control = (ColorMathControlFlags)line.Control;
+        ColorMathControlFlags control = line.Control;
         bool enabled = objectPalette.HasValue
             ? objectPalette >= 4 && (control & ColorMathControlFlags.Obj) != 0
             : (control & ColorMathControlFlags.Bg1) != 0;
         if (!enabled || pixel.A == 0) return pixel;
         bool subtract = (control & ColorMathControlFlags.Subtract) != 0;
-        byte Component(byte source, byte color)
+        byte Component(byte source, int color)
         {
             int value = subtract ? Math.Max(0, (source >> 3) - color) : Math.Min(31, (source >> 3) + color);
             return (byte)((value << 3) | (value >> 2));

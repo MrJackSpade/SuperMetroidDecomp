@@ -49,7 +49,7 @@ internal static class RenderFrameSnapshotWriter
         writer.Write(RenderPacketFormat.Version);
         writer.Write(frame.Identity.Sequence);
         writer.Write(frame.Identity.Generation);
-        writer.Write(frame.Identity.SimulationFrame);
+        writer.Write(checked((ushort)frame.Identity.SimulationFrame));
         WriteCount(writer, frame.BrightnessPasses.Length);
         writer.Write(frame.BrightnessPasses);
         if (frame.SolidColor is { } color)
@@ -61,8 +61,8 @@ internal static class RenderFrameSnapshotWriter
         {
             writer.Write((byte)RenderPacketKind.Mode7Obj);
             WriteMemory(writer, mode7.Memory);
-            writer.Write(mode7.ObjectSelection);
-            writer.Write(mode7.Brightness);
+            writer.Write(checked((byte)mode7.ObjectSelection));
+            writer.Write(checked((byte)mode7.Brightness));
             writer.Write(mode7.Background.HasValue);
             if (mode7.Background is { } bg)
             {
@@ -74,15 +74,15 @@ internal static class RenderFrameSnapshotWriter
             writer.Write(mode7.Gradient.Length != 0);
             foreach (var line in mode7.Gradient)
             {
-                writer.Write(line.Red); writer.Write(line.Green); writer.Write(line.Blue); writer.Write(line.Control);
+                writer.Write(checked((byte)line.Red)); writer.Write(checked((byte)line.Green)); writer.Write(checked((byte)line.Blue)); writer.Write(line.Control.ToNativeByte());
             }
         }
         else if (frame.Layers is { } layers)
         {
             writer.Write((byte)RenderPacketKind.Layered);
             WriteMemory(writer, layers.Memory);
-            writer.Write(layers.ObjectSelection);
-            writer.Write(layers.Brightness);
+            writer.Write(checked((byte)layers.ObjectSelection));
+            writer.Write(checked((byte)layers.Brightness));
             WriteCount(writer, layers.Layers.Length);
             foreach (RenderLayer layer in layers.Layers) WriteLayer(writer, layer);
         }
@@ -234,15 +234,15 @@ internal static class RenderFrameSnapshotWriter
     {
         OrdinaryGameplayRegisters r = layer.Registers;
         WritePosition(writer, r.Bg1Scroll); WritePosition(writer, r.Bg2Scroll);
-        WriteMapSize(writer, r.Bg2MapSize); writer.Write(r.Bg2TilemapWord);
-        writer.Write(r.Bg1CharacterWord); writer.Write(r.Bg2CharacterWord); writer.Write(r.HudCharacterWord);
+        WriteMapSize(writer, r.Bg2MapSize); writer.Write(checked((ushort)r.Bg2TilemapWord));
+        writer.Write(checked((ushort)r.Bg1CharacterWord)); writer.Write(checked((ushort)r.Bg2CharacterWord)); writer.Write(checked((ushort)r.HudCharacterWord));
         writer.Write((byte)r.MainScreenLayers);
         WriteScrolls(writer, layer.Bg2LineScrolls.Horizontal);
         WriteScrolls(writer, layer.Bg2LineScrolls.Vertical);
         SnesWindowRegisters w = r.Windows;
-        writer.Write(w.Window12Selection); writer.Write(w.Window34Selection); writer.Write(w.ObjectColorSelection);
-        writer.Write(w.FirstLeft); writer.Write(w.FirstRight); writer.Write(w.SecondLeft); writer.Write(w.SecondRight);
-        writer.Write(w.BackgroundLogic); writer.Write(w.ObjectColorLogic);
+        writer.Write(w.Window12Selection.ToNativeByte()); writer.Write(w.Window34Selection.ToNativeByte()); writer.Write(w.ObjectColorSelection.ToNativeByte());
+        writer.Write(checked((byte)w.FirstLeft)); writer.Write(checked((byte)w.FirstRight)); writer.Write(checked((byte)w.SecondLeft)); writer.Write(checked((byte)w.SecondRight));
+        writer.Write(checked((byte)w.BackgroundLogic)); writer.Write(checked((byte)w.ObjectColorLogic));
         writer.Write((byte)r.MainScreenWindowMask);
         writer.Write((byte)r.Bg2Mosaic.Size);
         WriteScrolls(writer, layer.MainScreenLayersByLine);
@@ -263,10 +263,10 @@ internal static class RenderFrameSnapshotWriter
             case GameplayColorMathRenderLayer gameplayXray:
                 writer.Write((byte)RenderPacketLayerKind.XrayGameplay);
                 WriteGameplayLayer(writer, gameplayXray.Gameplay);
-                foreach (XrayWindowLine line in gameplayXray.Lines) { writer.Write(line.Left); writer.Write(line.Right); }
+                foreach (XrayWindowLine line in gameplayXray.Lines) { writer.Write(checked((byte)line.Left)); writer.Write(checked((byte)line.Right)); }
                 writer.Write(gameplayXray.RevealBlocks); writer.Write((byte)gameplayXray.ColorMath);
                 writer.Write(gameplayXray.AddSubscreen);
-                writer.Write(gameplayXray.FixedRed); writer.Write(gameplayXray.FixedGreen); writer.Write(gameplayXray.FixedBlue);
+                writer.Write(checked((byte)gameplayXray.FixedRed)); writer.Write(checked((byte)gameplayXray.FixedGreen)); writer.Write(checked((byte)gameplayXray.FixedBlue));
                 writer.Write(gameplayXray.Subscreen is not null);
                 if (gameplayXray.Subscreen is { } bg3) WriteLayer(writer, bg3);
                 writer.Write(gameplayXray.SubscreenUsesBg2);
@@ -275,18 +275,18 @@ internal static class RenderFrameSnapshotWriter
                 writer.Write((byte)RenderPacketLayerKind.WindowedScene);
                 writer.Write(window.Left); writer.Write(window.Top); writer.Write(window.Right); writer.Write(window.Bottom);
                 WriteMemory(writer, window.Scene.Memory);
-                writer.Write(window.Scene.ObjectSelection); writer.Write(window.Scene.Brightness);
+                writer.Write(checked((byte)window.Scene.ObjectSelection)); writer.Write(checked((byte)window.Scene.Brightness));
                 WriteCount(writer, window.Scene.Layers.Length);
                 foreach (RenderLayer child in window.Scene.Layers) WriteLayer(writer, child);
                 break;
             case BgSubscreenAddRenderLayer sub:
                 writer.Write((byte)(sub.VerticalScroll != 0 ? RenderPacketLayerKind.ScrolledBg4SubscreenAdd
                     : sub.FourBpp ? RenderPacketLayerKind.Bg4SubscreenAdd : RenderPacketLayerKind.BgSubscreenAdd));
-                writer.Write(sub.TilemapWord); writer.Write(sub.CharacterWord); writer.Write(sub.MainCoverage is not null);
+                writer.Write(checked((ushort)sub.TilemapWord)); writer.Write(checked((ushort)sub.CharacterWord)); writer.Write(sub.MainCoverage is not null);
                 if (sub.MainCoverage is { } coverage) WriteLayer(writer, coverage);
                 writer.Write(sub.IncludeObjects);
                 writer.Write(sub.MainObjects);
-                if (sub.VerticalScroll != 0) writer.Write(sub.VerticalScroll);
+                if (sub.VerticalScroll != 0) writer.Write(checked((ushort)sub.VerticalScroll));
                 writer.Write(!sub.Scrolls.IsEmpty);
                 foreach (Position16<BgPlanePixels> line in sub.Scrolls) WritePosition(writer, line);
                 break;
@@ -296,7 +296,7 @@ internal static class RenderFrameSnapshotWriter
                 break;
             case Bg2BppColorMathRenderLayer bgMath:
                 writer.Write((byte)RenderPacketLayerKind.BgColorMath);
-                writer.Write(bgMath.TilemapWord); writer.Write(bgMath.CharacterWord);
+                writer.Write(checked((ushort)bgMath.TilemapWord)); writer.Write(checked((ushort)bgMath.CharacterWord));
                 writer.Write(bgMath.MapHeightTiles); writer.Write(bgMath.FirstScanline); writer.Write((byte)bgMath.Operation);
                 foreach (Position16<BgPlanePixels> line in bgMath.Scrolls) WritePosition(writer, line);
                 break;
@@ -309,8 +309,8 @@ internal static class RenderFrameSnapshotWriter
                 writer.Write((byte)RenderPacketLayerKind.ScanlineColorAdd);
                 foreach (ColorAddWindow line in windows.Windows)
                 {
-                    writer.Write(line.Left); writer.Write(line.Right);
-                    writer.Write(line.Red); writer.Write(line.Green); writer.Write(line.Blue);
+                    writer.Write(checked((byte)line.Left)); writer.Write(checked((byte)line.Right));
+                    writer.Write(checked((byte)line.Red)); writer.Write(checked((byte)line.Green)); writer.Write(checked((byte)line.Blue));
                 }
                 break;
             case OrdinaryGameplayRenderLayer gameplay:
@@ -319,14 +319,14 @@ internal static class RenderFrameSnapshotWriter
                 break;
             case Bg2BppViewportRenderLayer bg:
                 writer.Write((byte)RenderPacketLayerKind.Bg2Viewport);
-                writer.Write(bg.TilemapWord); writer.Write(bg.CharacterWord); writer.Write(bg.VerticalScroll);
+                writer.Write(checked((ushort)bg.TilemapWord)); writer.Write(checked((ushort)bg.CharacterWord)); writer.Write(checked((ushort)bg.VerticalScroll));
                 writer.Write(bg.TransparentColorZero);
                 writer.Write((byte)(bg.Priority is null ? RenderPacketPriority.All
                     : bg.Priority.Value ? RenderPacketPriority.High : RenderPacketPriority.Low));
                 break;
             case FixedColorAddRenderLayer color:
                 writer.Write((byte)RenderPacketLayerKind.FixedColorAdd);
-                writer.Write(color.Red); writer.Write(color.Green); writer.Write(color.Blue);
+                writer.Write(checked((byte)color.Red)); writer.Write(checked((byte)color.Green)); writer.Write(checked((byte)color.Blue));
                 break;
             case Mode7RenderLayer layer7:
                 writer.Write((byte)(layer7.AddBg1Subscreen ? RenderPacketLayerKind.Mode7Bg1Add
@@ -342,21 +342,21 @@ internal static class RenderFrameSnapshotWriter
                 writer.Write(objLayer.FixedColor is not null);
                 if (objLayer.FixedColor is { } fixedObj)
                 {
-                    writer.Write(fixedObj.Red); writer.Write(fixedObj.Green); writer.Write(fixedObj.Blue);
+                    writer.Write(checked((byte)fixedObj.Red)); writer.Write(checked((byte)fixedObj.Green)); writer.Write(checked((byte)fixedObj.Blue));
                 }
                 break;
             case ObjPriorityRenderLayer obj:
                 writer.Write((byte)RenderPacketLayerKind.ObjPriority);
-                writer.Write(obj.Priority);
+                writer.Write(checked((byte)obj.Priority));
                 writer.Write(obj.FixedColor is not null);
                 if (obj.FixedColor is { } priorityColor)
                 {
-                    writer.Write(priorityColor.Red); writer.Write(priorityColor.Green); writer.Write(priorityColor.Blue);
+                    writer.Write(checked((byte)priorityColor.Red)); writer.Write(checked((byte)priorityColor.Green)); writer.Write(checked((byte)priorityColor.Blue));
                 }
                 break;
             case Bg4BppRenderLayer bg:
                 writer.Write((byte)RenderPacketLayerKind.Bg4Bpp);
-                writer.Write(bg.TilemapWord); writer.Write(bg.CharacterWord);
+                writer.Write(checked((ushort)bg.TilemapWord)); writer.Write(checked((ushort)bg.CharacterWord));
                 WritePosition(writer, bg.Scroll);
                 WriteMapSize(writer, bg.MapSize);
                 writer.Write((byte)(bg.Priority is null ? RenderPacketPriority.All
@@ -364,7 +364,7 @@ internal static class RenderFrameSnapshotWriter
                 break;
             case Bg2BppRenderLayer bg:
                 writer.Write((byte)RenderPacketLayerKind.Bg2Bpp);
-                writer.Write(bg.TilemapWord); writer.Write(bg.CharacterWord);
+                writer.Write(checked((ushort)bg.TilemapWord)); writer.Write(checked((ushort)bg.CharacterWord));
                 writer.Write(bg.RowCount); writer.Write(bg.Priority);
                 break;
             default:
@@ -379,11 +379,11 @@ internal static class RenderFrameSnapshotWriter
         writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
         WriteOffset(writer, m.Center);
         WriteOffset(writer, m.Scroll); writer.Write((byte)Mode7OverflowPolicy.FromRegisters(m));
-        writer.Write(layer.HudTilemapWord); writer.Write(layer.HudCharacterWord); writer.Write(layer.HudScanlines);
+        writer.Write(checked((ushort)layer.HudTilemapWord)); writer.Write(checked((ushort)layer.HudCharacterWord)); writer.Write(layer.HudScanlines);
         writer.Write(layer.Floor.HasValue);
         if (layer.Floor is { } f)
         {
-            writer.Write(f.FirstScanline); writer.Write(f.TilemapWord); writer.Write(f.CharacterWord);
+            writer.Write(f.FirstScanline); writer.Write(checked((ushort)f.TilemapWord)); writer.Write(checked((ushort)f.CharacterWord));
             WritePosition(writer, f.Scroll);
             WriteMapSize(writer, f.MapSize);
         }

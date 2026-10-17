@@ -54,7 +54,7 @@ internal static class FirefleaFxVerification
             AssertEqual(shade | 0x40, fixedColor.Blue, $"Fireflea third COLDATA write frame {frame}");
         }
         ushort timer = fx.Fireflea.Timer;
-        byte red = fixedColor.Red;
+        int red = fixedColor.Red;
         for (int frame = 0; frame < 100; frame++) fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
         AssertEqual(timer, fx.Fireflea.Timer, "X-ray frozen time retains flashing phase");
         AssertEqual(red, fixedColor.Red, "X-ray frozen time retains fixed color");
@@ -72,7 +72,7 @@ internal static class FirefleaFxVerification
                 AssertEqual(shade | 0x40, fixedColor.Blue, $"death offset {level}, frame {frame}: green");
                 AssertEqual(level, fx.Fireflea.Darkness, "enemy death offset reaches the Fireflea FX state");
             }
-            byte retained = fixedColor.Red;
+            int retained = fixedColor.Red;
             fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true, FirefleaDarknessLevel = level });
             AssertEqual(retained, fixedColor.Red, "frozen death level retains its exact shade");
         }
@@ -140,7 +140,7 @@ internal static class FirefleaFxVerification
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
         runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true, FirefleaDarknessLevel = 6 });
-        byte shade = runtime.RoomLayer3Fx.FixedColors.Snapshot().RedIntensity;
+        int shade = runtime.RoomLayer3Fx.FixedColors.Snapshot().RedIntensity;
         AssertEqual(18, shade, "retail darkness table seeds a shade above X-ray's minimum");
         // The blend selector and COLDATA shadows reach the PPU at the accepted NMI (#1307).
         runtime.FrameBoundary.BeginAcceptedFrame(0);

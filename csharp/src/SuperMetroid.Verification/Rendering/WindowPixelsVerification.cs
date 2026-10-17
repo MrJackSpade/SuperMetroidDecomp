@@ -37,8 +37,8 @@ internal static class WindowPixelsVerification
         for (int operation = 0; operation < 4; operation++)
         for (int mask = 0; mask < 16; mask++)
         {
-            var windows = new SnesWindowRegisters(0x3a, 0x0a, 0x0b, 32, 96, 64, 128,
-                (byte)(operation * 0x55), (byte)operation);
+            var windows = new SnesWindowRegisters((SnesWindowSelectionPair)0x3a, (SnesWindowSelectionPair)0x0a,
+                (SnesWindowSelectionPair)0x0b, 32, 96, 64, 128, operation * 0x55, operation);
             var admission = (SnesMainScreenLayers)((mask & 7) | ((mask & 8) << 1));
             Rgba32[] actual = Draw(layers, windows, admission);
             var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11), new Extent16<TilemapCells>(64, 32),

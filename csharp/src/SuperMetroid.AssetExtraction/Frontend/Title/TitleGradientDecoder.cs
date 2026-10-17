@@ -28,7 +28,7 @@ public static class TitleGradientDecoder
             if ((write & 0x20) != 0) red = component; // cartridge-encoding: allow(Register) - COLDATA red-select bit
             if ((write & 0x40) != 0) green = component; // cartridge-encoding: allow(Register) - COLDATA green-select bit
             if ((write & 0x80) != 0) blue = component; // cartridge-encoding: allow(Register) - COLDATA blue-select bit
-            result[line] = new(red, green, blue, control[line]);
+            result[line] = new(red, green, blue, (ColorMathControlFlags)control[line]);
         }
         return result;
     }

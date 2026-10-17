@@ -9,10 +9,18 @@ namespace SuperMetroid.Core.Hardware;
 /// Destination word address; bit 15 selects a 32-word rather than one-word increment.
 /// </param>
 public readonly record struct VramWriteEntry(
-    ushort SizeInBytes,
+    int SizeInBytes,
     int SourceAddress,
     ushort EncodedVramDestination)
 {
+    /// <summary>The largest byte count the sixteen-bit DMA size register holds.</summary>
+    public const int MaximumSizeInBytes = ushort.MaxValue;
+
+    /// <summary>DMA byte count written to <c>DAS1</c>, 0 through <see cref="MaximumSizeInBytes"/>.</summary>
+    public int SizeInBytes { get; } = SizeInBytes is >= 0 and <= MaximumSizeInBytes
+        ? SizeInBytes
+        : throw new ArgumentOutOfRangeException(nameof(SizeInBytes), SizeInBytes, "A queued DMA moves 0 through 65535 bytes.");
+
     /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
     public VramAssetId AssetId { get; init; }
 

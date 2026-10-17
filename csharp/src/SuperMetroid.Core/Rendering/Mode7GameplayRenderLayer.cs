@@ -6,10 +6,10 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
 {
     /// <summary>Gets the native integer Mode 7 transform and overflow policy; sampling uses physical screen coordinates even below the HUD band.</summary>
     public Mode7RenderRegisters Registers { get; }
-    /// <summary>Gets the VRAM word base of the unscrolled 32-column BG3 HUD tilemap, whose color-zero pixels remain opaque.</summary>
-    public ushort HudTilemapWord { get; }
-    /// <summary>Gets the VRAM word base of the HUD's 2-bpp eight-pixel characters, not a physical byte offset.</summary>
-    public ushort HudCharacterWord { get; }
+    /// <summary>Gets the VRAM word base of the unscrolled 32-column BG3 HUD tilemap, 0 through <see cref="VramWordRange.MaximumWord"/>, whose color-zero pixels remain opaque.</summary>
+    public int HudTilemapWord { get; }
+    /// <summary>Gets the VRAM word base of the HUD's 2-bpp eight-pixel characters, 0 through <see cref="VramWordRange.MaximumWord"/>.</summary>
+    public int HudCharacterWord { get; }
     /// <summary>Gets the number of top-of-screen scanlines occupied by the opaque HUD, 0..224 in multiples of eight; zero disables the HUD band.</summary>
     public int HudScanlines { get; }
     /// <summary>Gets the optional bottom Mode-1 BG2/OBJ band; null lets Mode 7 and OBJ continue to the bottom of the viewport.</summary>
@@ -22,8 +22,8 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
     /// <param name="hudScanlines">Top HUD height, from zero through 224 physical scanlines and divisible by eight.</param>
     /// <param name="floor">Optional value-copied lower band; its first scanline must follow the HUD and be below 224, with each map dimension either 32 or 64 tiles.</param>
     /// <exception cref="ArgumentOutOfRangeException">The HUD height or supplied floor boundary/map dimensions are invalid.</exception>
-    public Mode7GameplayRenderLayer(Mode7RenderRegisters registers, ushort hudTilemapWord,
-        ushort hudCharacterWord, int hudScanlines, Mode1FloorBand? floor = null)
+    public Mode7GameplayRenderLayer(Mode7RenderRegisters registers, int hudTilemapWord,
+        int hudCharacterWord, int hudScanlines, Mode1FloorBand? floor = null)
     {
         if (hudScanlines < 0 || hudScanlines > SnesPpuLayout.ScreenHeightPixels ||
             hudScanlines % SnesPpuLayout.BackgroundTileSizePixels != 0)
@@ -32,8 +32,8 @@ public sealed record Mode7GameplayRenderLayer : RenderLayer
             f.MapSize.X is not (32 or 64) || f.MapSize.Y is not (32 or 64)))
             throw new ArgumentOutOfRangeException(nameof(floor));
         Registers = registers;
-        HudTilemapWord = hudTilemapWord;
-        HudCharacterWord = hudCharacterWord;
+        HudTilemapWord = VramWordRange.Require(hudTilemapWord);
+        HudCharacterWord = VramWordRange.Require(hudCharacterWord);
         HudScanlines = hudScanlines;
         Floor = floor;
     }

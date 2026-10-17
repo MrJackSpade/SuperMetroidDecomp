@@ -5,7 +5,13 @@ namespace SuperMetroid.Core.Hardware;
 /// byte reads as its decimal value in hexadecimal (59 is stored as $59). The 65C816's decimal mode does arithmetic on
 /// it digit by digit.
 /// </summary>
+/// <remarks>
+/// This type is the single owner of the packed-BCD encoding and of the processor's decimal-mode subtraction over it,
+/// including its borrow that wraps through 99 and its result for nondecimal nibbles; the byte it stores is that
+/// encoding, and callers use <see cref="FromDecimal"/>, <see cref="Value"/> and <see cref="Subtract"/>.
+/// </remarks>
 /// <param name="Raw">The packed byte.</param>
+[SnesEncodingOwner]
 public readonly record struct PackedBcd(byte Raw)
 {
     /// <summary>The number of values one nibble holds: a digit's place value in the packed byte.</summary>

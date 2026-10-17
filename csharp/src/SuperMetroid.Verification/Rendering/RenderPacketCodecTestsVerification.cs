@@ -93,6 +93,7 @@ internal static class RenderPacketCodecTestsVerification
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionThree),
             "version-three cannot claim a version-four viewport operation");
         VerifyBg2ViewportPackets();
+        VerifyRenderPacketFieldWidths(memory);
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 
@@ -139,5 +140,83 @@ internal static class RenderPacketCodecTestsVerification
             AssertTrue(expected.SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
                 $"2bpp viewport scroll={scroll}, transparent={transparent}, priority={priority}");
         }
+    }
+
+    /// <summary>
+    /// Confirms the packet writer still emits every typed render field at its packet width. The reader consumes each
+    /// field at a fixed width and rejects trailing or missing bytes, so a field written wider or narrower fails the round
+    /// trip; the digest comparison then proves every value survives. Each field carries its largest legal value, so a
+    /// field that no longer fits its packet width fails the writer's checked conversion.
+    /// </summary>
+    [PpuLayoutBoundary("exact hardware test: checks native VRAM words and window register values")]
+    private static void VerifyRenderPacketFieldWidths(PpuMemorySnapshot memory)
+    {
+        const int lastWord = VramWordRange.MaximumWord;
+        const int lastColumn = XrayWindowLine.MaximumColumn;
+        var windows = new SnesWindowRegisters(SnesWindowSelectionPair.LowerEnableFirst | SnesWindowSelectionPair.UpperInvertSecond,
+            SnesWindowSelectionPair.UpperEnableSecond, SnesWindowSelectionPair.LowerInvertFirst,
+            lastColumn, 1, 2, lastColumn, SnesWindowRegisters.MaximumLogic, SnesWindowRegisters.MaximumLogic);
+        var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(1, 2), new Position16<Bg2Pixels>(3, 4),
+            new Extent16<TilemapCells>(64, 32), lastWord, lastWord - 1, lastWord - 2, lastWord - 3,
+            SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj, Windows: windows,
+            MainScreenWindowMask: SnesMainScreenLayers.Bg2);
+        var lines = Enumerable.Repeat(new XrayWindowLine(lastColumn, 1), SnesPpuLayout.ScreenHeightPixels).ToArray();
+        var subscreen = new Bg2BppColorMathRenderLayer(lastWord, lastWord - 4, 32, 32, ExpandedColorMathOperation.Add,
+            new Position16<BgPlanePixels>[SnesPpuLayout.ScreenHeightPixels]);
+        var gameplay = new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers), lines, true,
+            new ColorMathRegisters { ColorMath = SnesColorMathControl.Backdrop, AddSubscreen = true,
+                FixedRed = Bgr555.MaxChannel, FixedGreen = 1, FixedBlue = 2 }, subscreen);
+        var coverage = new Bg4BppRenderLayer(lastWord, lastWord - 5, new Position16<BgPlanePixels>(5, 6),
+            new Extent16<TilemapCells>(32, 64), true);
+        var white = new FixedColorAddRenderLayer(Bgr555.MaxChannel, 1, 2);
+        var colorWindows = Enumerable.Repeat(new ColorAddWindow(1, lastColumn, byte.MaxValue, 1, 2),
+            SnesPpuLayout.ScreenHeightPixels).ToArray();
+        var layered = new RenderFrameSnapshot(new(5, 1, RenderFrameIdentity.MaximumSimulationFrame), new LayeredRenderSnapshot(memory,
+            new RenderLayer[]
+            {
+                gameplay,
+                new BgSubscreenAddRenderLayer(lastWord, lastWord - 6, coverage, FourBpp: true, IncludeObjects: true,
+                    MainObjects: true, VerticalScroll: Bg2BppViewportRenderLayer.MaximumScroll),
+                new Bg2BppViewportRenderLayer(lastWord, lastWord - 7, Bg2BppViewportRenderLayer.MaximumScroll, true, false),
+                coverage,
+                new Bg2BppRenderLayer(lastWord, lastWord - 8, SnesPpuLayout.ScreenHeightPixels / SnesPpuLayout.BackgroundTileSizePixels, true),
+                white,
+                new ObjPriorityRenderLayer(ObjPriorityRenderLayer.MaximumPriority, white),
+                new ObjRenderLayer(FixedColor: white),
+                new ScanlineColorAddRenderLayer(colorWindows),
+            }, LayeredRenderSnapshot.MaximumObjectSelection, SnesPpuLayout.MaximumMasterBrightness));
+        RenderFrameSnapshot restoredLayered = RoundTripRenderPacket(layered);
+        var restoredLayers = (restoredLayered.Layers ?? throw new InvalidOperationException("A layered packet restores layers.")).Layers;
+        var restoredGameplay = (GameplayColorMathRenderLayer)restoredLayers[0];
+        AssertEqual(registers, restoredGameplay.Gameplay.Registers, "ordinary gameplay words and window registers survive at packet width");
+        AssertEqual(lines[0], restoredGameplay.Lines[0], "window edges survive at packet width");
+        AssertEqual(Bgr555.MaxChannel, restoredGameplay.FixedRed, "fixed-color intensity survives at packet width");
+        AssertEqual(coverage, (Bg4BppRenderLayer)restoredLayers[3], "4-bpp plane words survive at packet width");
+        AssertEqual(white, (FixedColorAddRenderLayer)restoredLayers[5], "fixed-color addition survives at packet width");
+        AssertEqual(ObjPriorityRenderLayer.MaximumPriority, ((ObjPriorityRenderLayer)restoredLayers[6]).Priority,
+            "OBJ priority survives at packet width");
+        AssertEqual(colorWindows[0], ((ScanlineColorAddRenderLayer)restoredLayers[8]).Windows[0], "colour windows survive at packet width");
+
+        var floor = new Mode1FloorBand(200, lastWord, lastWord - 9, new Position16<Bg2Pixels>(7, 8), new Extent16<TilemapCells>(32, 32));
+        var mode7Gameplay = new Mode7GameplayRenderLayer(default, lastWord, lastWord - 10, 32, floor);
+        RenderFrameSnapshot restoredMode7Gameplay = RoundTripRenderPacket(new RenderFrameSnapshot(new(6, 1, 0),
+            new LayeredRenderSnapshot(memory, new RenderLayer[] { mode7Gameplay }, 0, 0)));
+        AssertEqual(mode7Gameplay, (restoredMode7Gameplay.Layers ?? throw new InvalidOperationException("A layered packet restores layers.")).Layers[0],
+            "Mode 7 HUD and floor words survive at packet width");
+
+        var gradient = new[]
+        {
+            new TitleGradientLine(Bgr555.MaxChannel, 1, 2, ColorMathControlFlags.Subtract | ColorMathControlFlags.Backdrop | ColorMathControlFlags.Bg1),
+            new TitleGradientLine(3, Bgr555.MaxChannel, 4, ColorMathControlFlags.Backdrop | ColorMathControlFlags.Obj | ColorMathControlFlags.Bg1),
+        };
+        TitleGradientLine[] gradientLines = Enumerable.Range(0, SnesPpuLayout.ScreenHeightPixels)
+            .Select(line => gradient[line % 2]).ToArray();
+        var title = new RenderFrameSnapshot(new(7, 1, 1), new Mode7ObjRenderSnapshot(memory, null,
+            LayeredRenderSnapshot.MaximumObjectSelection, SnesPpuLayout.MaximumMasterBrightness, gradientLines));
+        Mode7ObjRenderSnapshot restoredTitle = RoundTripRenderPacket(title).Mode7
+            ?? throw new InvalidOperationException("A Mode 7 packet restores its composition.");
+        AssertTrue(restoredTitle.Gradient.SequenceEqual(gradientLines), "title gradient lines survive at packet width");
+        AssertEqual(LayeredRenderSnapshot.MaximumObjectSelection, restoredTitle.ObjectSelection, "OBSEL survives at packet width");
+        Console.WriteLine("  Display fixture widths: every typed render field round-trips at its packet width.");
     }
 }

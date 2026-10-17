@@ -20,6 +20,11 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks extracted title graphics, palettes, and HDMA gradient through installed presentation and retail oracles.</summary>
 internal static class TitleGradientVerification
 {
+    /// <summary>The title's upper CGADSUB setting: subtract the fixed color from BG1 and the backdrop.</summary>
+    private const ColorMathControlFlags SubtractFromBackground = ColorMathControlFlags.Subtract | ColorMathControlFlags.Backdrop | ColorMathControlFlags.Bg1;
+    /// <summary>The title's lower CGADSUB setting: add the fixed color to BG1, the backdrop and the OBJs.</summary>
+    private const ColorMathControlFlags AddToBackgroundAndObjects = ColorMathControlFlags.Backdrop | ColorMathControlFlags.Obj | ColorMathControlFlags.Bg1;
+
     /// <summary>Creates the production title owner with selected installed graphics, palette, and gradient overrides.</summary>
     private static TitleSequenceState CreateTitlePresentationFixture(TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
@@ -36,20 +41,20 @@ internal static class TitleGradientVerification
         Suite(nameof(VerifyExtractedTitleGradient), () => VerifyExtractedTitleGradient(bus));
         // Independently transcribed boundaries from $8C:BC7D and $88:EB95.
         var lines = TitleGradientDecoder.Decode(bus, 0);
-        AssertEqual(new TitleGradientLine(15, 15, 15, 0xa1), lines[0], "title gradient starts subtracting fifteen");
-        AssertEqual(new TitleGradientLine(14, 14, 14, 0xa1), lines[4], "title gradient advances after four scanlines");
-        AssertEqual(new TitleGradientLine(0, 0, 0, 0xa1), lines[121], "last subtractive title line");
-        AssertEqual(new TitleGradientLine(0, 0, 0, 0x31), lines[122], "first additive title line");
-        AssertEqual(new TitleGradientLine(0, 1, 1, 0x31), lines[132], "lower title cyan band begins");
-        AssertEqual(new TitleGradientLine(0, 2, 2, 0x31), lines[144], "second lower cyan band begins");
+        AssertEqual(new TitleGradientLine(15, 15, 15, SubtractFromBackground), lines[0], "title gradient starts subtracting fifteen");
+        AssertEqual(new TitleGradientLine(14, 14, 14, SubtractFromBackground), lines[4], "title gradient advances after four scanlines");
+        AssertEqual(new TitleGradientLine(0, 0, 0, SubtractFromBackground), lines[121], "last subtractive title line");
+        AssertEqual(new TitleGradientLine(0, 0, 0, AddToBackgroundAndObjects), lines[122], "first additive title line");
+        AssertEqual(new TitleGradientLine(0, 1, 1, AddToBackgroundAndObjects), lines[132], "lower title cyan band begins");
+        AssertEqual(new TitleGradientLine(0, 2, 2, AddToBackgroundAndObjects), lines[144], "second lower cyan band begins");
         for (ushort zoom = 0; zoom < 256; zoom++)
         {
             var actual = TitleGradientDecoder.Decode(bus, zoom);
             var nibble = TitleGradientDecoder.Decode(bus, (ushort)(zoom & 0xf0));
             if (!actual.SequenceEqual(nibble))
                 throw new InvalidDataException("Title gradient index used low zoom bits.");
-            AssertEqual((byte)0xa1, actual[121].Control, "zoom preserves subtractive boundary");
-            AssertEqual((byte)0x31, actual[122].Control, "zoom preserves additive boundary");
+            AssertEqual(SubtractFromBackground, actual[121].Control, "zoom preserves subtractive boundary");
+            AssertEqual(AddToBackgroundAndObjects, actual[122].Control, "zoom preserves additive boundary");
         }
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
@@ -506,7 +511,7 @@ internal static class TitleGradientVerification
         var priorities = new byte[pixels.Length];
         var palettes = new byte[pixels.Length];
         var color = new Rgba32(0, 0, 0, 255);
-        var additive = new TitleGradientLine(0, 1, 1, 0x31);
+        var additive = new TitleGradientLine(0, 1, 1, AddToBackgroundAndObjects);
         for (byte palette = 0; palette < 8; palette++)
         {
             oam.BeginFrame();
@@ -518,11 +523,11 @@ internal static class TitleGradientVerification
             AssertEqual(byte.MaxValue, palettes[8], "transparent pixel has no palette owner");
             AssertEqual(palette < 4 ? color : new Rgba32(0, 8, 8, 255),
                 TitleGradientColorMath.Apply(color, additive, palettes[0]), "title OBJ palette eligibility");
-            AssertEqual(color, TitleGradientColorMath.Apply(color, new(15, 15, 15, 0xa1), palette),
+            AssertEqual(color, TitleGradientColorMath.Apply(color, new(15, 15, 15, SubtractFromBackground), palette),
                 "upper title subtraction excludes every OBJ palette");
         }
         AssertEqual(new Rgba32(247, 247, 247, 255),
-            TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
+            TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, SubtractFromBackground)), "native five-bit subtraction");
     }
 
     /// <summary>Records title source addresses during extraction or forbids those addresses during installed rendering.</summary>

@@ -48,7 +48,7 @@ public static class RenderFrameSnapshotCodec
                     {
                         gradient = new SuperMetroid.Core.Rendering.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
                         for (int i = 0; i < gradient.Length; i++)
-                            gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+                            gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), (ColorMathControlFlags)reader.ReadByte());
                     }
                     frame = new(identity, new Mode7ObjRenderSnapshot(memory, bg, obsel, brightness, gradient), fades);
                 }
@@ -181,7 +181,8 @@ public static class RenderFrameSnapshotCodec
         {
             registers = registers with
             {
-                Windows = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(),
+                Windows = new((SnesWindowSelectionPair)reader.ReadByte(), (SnesWindowSelectionPair)reader.ReadByte(),
+                    (SnesWindowSelectionPair)reader.ReadByte(), reader.ReadByte(),
                     reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()),
                 MainScreenWindowMask = (SnesMainScreenLayers)reader.ReadByte(),
             };

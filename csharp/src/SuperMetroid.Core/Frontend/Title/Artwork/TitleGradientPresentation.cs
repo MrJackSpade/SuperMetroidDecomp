@@ -75,10 +75,10 @@ public sealed class TitleGradientPresentation
                         "and an eight-bit color-math control value.");
                 }
                 variants[variant][line] = new(
-                    (byte)value.Red,
-                    (byte)value.Green,
-                    (byte)value.Blue,
-                    (byte)value.ColorMathControl);
+                    value.Red,
+                    value.Green,
+                    value.Blue,
+                    (ColorMathControlFlags)value.ColorMathControl);
             }
         }
         return new TitleGradientPresentation(variants);

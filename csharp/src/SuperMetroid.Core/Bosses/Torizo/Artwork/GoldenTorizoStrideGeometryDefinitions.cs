@@ -72,7 +72,7 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     }
 
     /// <summary>Retains each authored foot tile's non-X appearance while deriving its planted origin.</summary>
-    private readonly record struct FootAppearance(ushort XFlags, byte Y, SnesObjAttributeWord Attributes)
+    private readonly record struct FootAppearance(ushort XFlags, SnesSpritemapYByte Y, SnesObjAttributeWord Attributes)
     {
         /// <summary>Separates high X/size flags from the nine-bit authored local coordinate.</summary>
         internal static FootAppearance From(EnemySpritemapPart part) =>

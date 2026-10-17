@@ -119,7 +119,7 @@ internal static class EndingCloudPlacementVerification
             if (color != 0) wrappedBackground[y * 256 + x] = memory.Cgram.GetRgba(color);
         }
         if (checkWrapping) background = wrappedBackground;
-        var objects = SnesObjRenderer.RenderResolved(memory.Sprites.Oam, memory.Vram, memory.Cgram, snapshot.ObjectSelection);
+        var objects = SnesObjRenderer.RenderResolved(memory.Sprites.Oam, memory.Vram, memory.Cgram, checked((byte)snapshot.ObjectSelection));
         var expected = SnesLayerCompositor.CreateBackdrop(memory.Cgram, 256 * 224);
         // D6xx: TM=BG1|OBJ, TS=BG1, CGWSEL=2, CGADSUB=BG1|OBJ.
         // All four cloud actors use palette five, which is eligible for OBJ math.

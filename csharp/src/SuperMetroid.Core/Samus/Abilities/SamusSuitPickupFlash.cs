@@ -9,10 +9,10 @@ public readonly record struct SamusSuitPickupFlash(
 {
     /// <summary>Builds the flash from the three fixed-color bytes the NMI latched for the suit pickup.</summary>
     /// <param name="beam">Outline and progress of the light beam.</param>
-    /// <param name="red">Latched red byte, including its select bit.</param>
-    /// <param name="green">Latched green byte, including its select bit.</param>
-    /// <param name="blue">Latched blue byte, including its select bit.</param>
-    public SamusSuitPickupFlash(SamusSuitPickupBeam beam, byte red, byte green, byte blue)
+    /// <param name="red">Latched red COLDATA write, including its select bit.</param>
+    /// <param name="green">Latched green COLDATA write, including its select bit.</param>
+    /// <param name="blue">Latched blue COLDATA write, including its select bit.</param>
+    public SamusSuitPickupFlash(SamusSuitPickupBeam beam, int red, int green, int blue)
         : this(beam, new FixedColorRegisterSnapshot(red, green, blue))
     {
     }

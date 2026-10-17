@@ -36,7 +36,7 @@ internal static class WaterfallRoomsVerification
             runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = runtime.Room.LoadedCamera.PixelPosition, TimeIsFrozen = false, MainGameLoopCarry = true });
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var registers = runtime.GameplayWindows.DisplayedGameplayWindowRegisters;
-            AssertEqual((byte)0x11, registers.MainScreen, "waterfall native TM");
+            AssertEqual(SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj, registers.MainScreen, "waterfall native TM");
             AssertEqual((byte)0x06, runtime.CachedGameplaySubscreen, "waterfall native TS");
             var snapshot = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())
                 ?? throw new InvalidDataException("Waterfall room capture is absent.");

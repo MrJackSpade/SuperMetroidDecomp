@@ -65,11 +65,11 @@ public sealed class VramWriteQueue
     /// Queues a transfer from an owned staging buffer that stands for the WRAM at <paramref name="nativeSourceAddress"/>.
     /// The buffer is read when the queue drains; the native address stays on the record for debugger comparison.
     /// </summary>
-    public void EnqueueStaging(ushort sizeInBytes, int nativeSourceAddress, VramStagingBuffer staging, int offset,
+    public void EnqueueStaging(int sizeInBytes, int nativeSourceAddress, VramStagingBuffer staging, int offset,
         VramDmaDestination destination)
     {
         Ensure.NotNull(staging);
-        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        if (sizeInBytes is <= 0 or > VramWriteEntry.MaximumSizeInBytes) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         if (offset < 0 || offset + sizeInBytes > staging.Length)
             throw new ArgumentOutOfRangeException(nameof(offset), offset, $"Transfer {offset}+{sizeInBytes} exceeds the {staging.Length}-byte staging buffer.");
         Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination.Encoded) { Staging = staging, StagingOffset = offset });

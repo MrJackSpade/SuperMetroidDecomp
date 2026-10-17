@@ -158,7 +158,7 @@ public sealed class SnesVram
     public void ExecuteQueuedMemoryWrite(
         ISnesMutableMemory memory,
         int sourceAddress,
-        ushort sizeInBytes,
+        int sizeInBytes,
         ushort encodedDestination)
     {
         Ensure.NotNull(memory);
@@ -166,6 +166,8 @@ public sealed class SnesVram
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "A zero size is the original queue terminator, not a transfer.");
+        if (sizeInBytes is < 0 or > VramWriteEntry.MaximumSizeInBytes)
+            throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, "A queued DMA moves at most 65535 bytes.");
 
         ExecuteDmaWrite(
             memory,

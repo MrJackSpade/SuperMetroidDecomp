@@ -46,7 +46,7 @@ public static class SnesGameplayFrameRenderer
             windowMasks.Clear();
         else
             for (int x = 0; x < Width; x++)
-                windowMasks[x] = registers.Windows.MaskedLayers((byte)x, registers.MainScreenWindowMask);
+                windowMasks[x] = registers.Windows.MaskedLayers(x, registers.MainScreenWindowMask);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
         // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
         // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
@@ -113,9 +113,9 @@ public static class SnesGameplayFrameRenderer
         ReadOnlySpan<ushort> bg2HorizontalScrollByLine = layer.Bg2LineScrolls.Horizontal;
         ReadOnlySpan<ushort> bg2VerticalScrollByLine = layer.Bg2LineScrolls.Vertical;
         Extent16<TilemapCells> bg2TilemapSize = registers.Bg2MapSize;
-        ushort bg1CharacterBaseWord = registers.Bg1CharacterWord;
-        ushort bg2CharacterBaseWord = registers.Bg2CharacterWord;
-        ushort bg2TilemapBaseWord = registers.Bg2TilemapWord;
+        int bg1CharacterBaseWord = registers.Bg1CharacterWord;
+        int bg2CharacterBaseWord = registers.Bg2CharacterWord;
+        int bg2TilemapBaseWord = registers.Bg2TilemapWord;
         SnesMainScreenLayers mainScreenLayers = registers.MainScreenLayers;
         int bg2FirstScanline = registers.Bg2FirstScanline;
         int bg2EndScanline = registers.Bg2EndScanline;
@@ -262,7 +262,7 @@ public static class SnesGameplayFrameRenderer
         ReadOnlySpan<byte> vram,
         ReadOnlySpan<Rgba32> palette,
         SnesBgTilemapWord entry,
-        ushort characterBaseWord,
+        int characterBaseWord,
         Position16<CharacterPixels> pixel,
         out Rgba32 color,
         out bool highPriority)
@@ -302,7 +302,7 @@ public static class SnesGameplayFrameRenderer
         Span<Rgba32> output,
         SnesVram vram,
         SnesCgram cgram,
-        ushort characterBaseWord = GameplayVramLayout.HudCharacterWord)
+        int characterBaseWord = GameplayVramLayout.HudCharacterWord)
     {
         SnesBgTilemapRenderer.Render2Bpp(output[..(HudHeight * Width)], vram, cgram, new BgVramAddresses { TilemapBaseWord = GameplayVramLayout.HudTilemapWord, CharacterBaseWord = characterBaseWord }, rowCount: 4);
     }

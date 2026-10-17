@@ -178,7 +178,7 @@ public sealed class EnemyProjectileSpritemapCatalog
                 (part.FlipY ? SnesTileFlipFlags.Vertical : 0);
             parts[index] = new EnemySpritemapPart(
                 SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
-                unchecked((byte)(sbyte)part.OffsetY),
+                SnesSpritemapYByte.Create(part.OffsetY),
                 SnesObjAttributeWord.Create(
                     part.TileRow * EnemyProjectileSpritemapDefinitions.TileColumns +
                         part.TileColumn,

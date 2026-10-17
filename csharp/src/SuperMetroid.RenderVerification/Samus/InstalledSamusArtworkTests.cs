@@ -174,7 +174,7 @@ internal static class InstalledSamusArtworkTests
             queue.Enqueue(length, source, VramDmaDestination.FromNative(destination));
             VramWriteEntry pending = queue.Entries.Single();
             queue.DrainTo(a, memory, new SamusQueuedArtwork(fixture.Stock));
-            queue.Enqueue(pending.SizeInBytes, pending.SourceAddress, VramDmaDestination.FromNative(pending.EncodedVramDestination));
+            queue.Enqueue(checked((ushort)pending.SizeInBytes), pending.SourceAddress, VramDmaDestination.FromNative(pending.EncodedVramDestination));
             Require(queue.Entries.Single() == pending, $"{name}: replacement changed queued transfer");
             queue.DrainTo(b, memory, new SamusQueuedArtwork(fixture.Edited));
             Require(queue.Entries.Count == 0 && queue.TailInBytes == 0, $"{name}: NMI did not clear queue");

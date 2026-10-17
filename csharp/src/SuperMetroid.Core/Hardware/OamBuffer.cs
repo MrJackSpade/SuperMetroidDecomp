@@ -146,7 +146,7 @@ public sealed class OamBuffer
         bool clipVerticalWrap, bool originYIsOnScreen)
     {
         SnesSpritemapXWord encodedXOffset = part.X;
-        byte encodedYOffset = part.Y;
+        byte encodedYOffset = part.Y.Raw;
         ushort calculatedX = unchecked((ushort)(origin.X + encodedXOffset.Raw));
         int unsignedYSum = unchecked((byte)origin.Y) + encodedYOffset;
         byte calculatedY;

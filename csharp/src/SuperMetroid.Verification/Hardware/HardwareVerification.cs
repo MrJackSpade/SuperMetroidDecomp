@@ -244,6 +244,11 @@ internal static void VerifyVramWriteQueue()
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(0, 0x808000, VramDmaDestination.FromNative(0)), "zero-size VRAM entry rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(1, 0x1000000, VramDmaDestination.FromNative(0)), "25-bit VRAM source rejected");
+    AssertEqual(VramWriteEntry.MaximumSizeInBytes, new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes, 0, 0).SizeInBytes,
+        "the largest sixteen-bit DMA byte count is a queued size");
+    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes + 1, 0, 0),
+        "a queued size beyond the sixteen-bit DMA byte count is rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(-1, 0, 0), "a negative queued size is rejected");
 
     // A direct channel DAS of zero is not the queue's zero-word terminator. Hardware
     // decrements the sixteen-bit counter through all $10000 values, while A1T and VMADD

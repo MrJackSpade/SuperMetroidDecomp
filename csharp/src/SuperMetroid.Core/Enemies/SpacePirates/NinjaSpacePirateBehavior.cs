@@ -97,7 +97,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             : slot.Position.X.Whole;
         ushort requestedHalfSpan = unchecked((ushort)(requestedRight - requestedLeft));
         requestedHalfSpan >>= 1;
-        state.PostsMidpointX = unchecked((ushort)(requestedLeft + requestedHalfSpan));
+        state.PostsMidpoint = new(unchecked((ushort)(requestedLeft + requestedHalfSpan)), 0);
 
         // `$B2:F632` truncates the half-span to one byte before moving it to the high byte.
         // The do/while always executes once, including a zero-span debug population.
@@ -112,12 +112,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         while (unchecked((short)(accumulatedDistance - distanceInSubpixels)) < 0);
 
         state.CalculatedSpinJumpSpeed = speed;
-        ushort adjustedHalfSpan = SnesLittleEndian.HighByte(accumulatedDistance);
-        state.RightPostX = unchecked((ushort)(state.PostsMidpointX + adjustedHalfSpan));
-        state.LeftPostX = unchecked((ushort)(state.PostsMidpointX - adjustedHalfSpan));
-        slot.Position = slot.Position.WithX(new(startsAtLeft ? state.LeftPostX : state.RightPostX, 0));
+        short adjustedHalfSpan = SnesLittleEndian.HighByte(accumulatedDistance);
+        var halfSpan = new Offset16<RoomPixels>(adjustedHalfSpan, 0);
+        state.RightPost = state.PostsMidpoint + halfSpan;
+        state.LeftPost = state.PostsMidpoint - halfSpan;
+        slot.Position = slot.Position.WithX(new((startsAtLeft ? state.LeftPost : state.RightPost).X, 0));
         state.Function = NinjaSpacePirateFunction.NoOperation;
-        state.SpawnY = slot.Position.Y.Whole;
+        state.SpawnPosition = slot.Position.Whole;
 
         // Native copies the gold non-ninja Pirate's color image, not this actor's initial
         // room-graphics palette. Share that installed image so the same authored edit
@@ -296,7 +297,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if (Math.Abs(unchecked((short)(state.PostsMidpointX - samus.Position.X.Whole))) >=
+        if (Math.Abs((state.PostsMidpoint - samus.Position.Whole).X) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return false;
@@ -305,7 +306,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         InstallNinjaPirateInstruction(
             slot,
             state,
-            slot.Position.X.Whole == state.LeftPostX
+            slot.Position.X.Whole == state.LeftPost.X
                 ? NinjaSpacePirateProgram.SpinJumpRight
                 : NinjaSpacePirateProgram.SpinJumpLeft);
         return true;
@@ -320,7 +321,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         if ((slot.FrameCounter & 63) != 0)
             return;
 
-        if (slot.Position.X.Whole == state.LeftPostX)
+        if (slot.Position.X.Whole == state.LeftPost.X)
         {
             if (unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0)
                 return;
@@ -352,7 +353,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        if (Math.Abs(unchecked((short)(state.PostsMidpointX - samus.Position.X.Whole))) >=
+        if (Math.Abs((state.PostsMidpoint - samus.Position.Whole).X) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return;
@@ -369,7 +370,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         InstallNinjaPirateInstruction(
             slot,
             state,
-            slot.Position.X.Whole == state.LeftPostX
+            slot.Position.X.Whole == state.LeftPost.X
                 ? NinjaSpacePirateProgram.DivekickRightJump
                 : NinjaSpacePirateProgram.DivekickLeftJump);
     }
@@ -381,17 +382,17 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         bool movingRight,
         bool rising)
     {
-        int xPixels = SnesEightEight.WholeOf(state.Speed);
+        int xPixels = SnesEightEight.WholeOf(state.Speed.RawValue);
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (movingRight ? xPixels : -xPixels))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole +
             (rising ? -NinjaPirateSpinVerticalPixels : NinjaPirateSpinVerticalPixels))));
 
         if (rising)
         {
-            state.Speed = unchecked((ushort)(state.Speed + 32));
+            state.ChangeSpeed(32);
             bool crossedMidpoint = movingRight
-                ? unchecked((short)(slot.Position.X.Whole - state.PostsMidpointX)) >= 0
-                : unchecked((short)(slot.Position.X.Whole - state.PostsMidpointX)) < 0;
+                ? (slot.Position.Whole - state.PostsMidpoint).X >= 0
+                : (slot.Position.Whole - state.PostsMidpoint).X < 0;
             if (crossedMidpoint)
             {
                 state.Function = movingRight
@@ -401,12 +402,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             return;
         }
 
-        state.Speed = unchecked((ushort)(state.Speed - 32));
-        if (state.Speed != 0)
+        state.ChangeSpeed(-32);
+        if (state.Speed.RawValue != 0)
             return;
 
         state.Function = NinjaSpacePirateFunction.NoOperation;
-        slot.Position = slot.Position.WithWholeX(movingRight ? state.RightPostX : state.LeftPostX);
+        slot.Position = slot.Position.WithWholeX((movingRight ? state.RightPost : state.LeftPost).X);
         InstallNinjaPirateInstruction(
             slot,
             state,
@@ -416,18 +417,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
-    /// <summary>Sets dive speed and a side-dependent target midway between a post and the patrol center.</summary>
-    private static void InitializeNinjaPirateDive(
-        NinjaSpacePirateEnemyState state,
-        bool movingRight)
-    {
-        state.Speed = NinjaPirateInitialDiveSpeed;
-        state.DiveTargetX = movingRight
-            ? unchecked((ushort)(state.LeftPostX +
-                ((ushort)(state.PostsMidpointX - state.LeftPostX) >> 1)))
-            : unchecked((ushort)(state.PostsMidpointX +
-                ((ushort)(state.RightPostX - state.PostsMidpointX) >> 1)));
-    }
+    /// <summary>
+    /// Sets the divekick's initial rising speed. The cartridge also stores a target midway between a post and the
+    /// patrol centre, which nothing reads; it is not kept.
+    /// </summary>
+    private static void InitializeNinjaPirateDive(NinjaSpacePirateEnemyState state) =>
+        state.Speed = new SnesSignedEightEight(NinjaPirateInitialDiveSpeed);
 
     /// <summary>Rises until signed speed turns negative, then switches to the descent list.</summary>
     private static void StepNinjaPirateDiveJump(
@@ -435,9 +430,9 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateEnemyState state,
         bool movingRight)
     {
-        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed)))));
-        state.Speed = unchecked((ushort)(state.Speed - 64));
-        if (unchecked((short)state.Speed) >= 0)
+        slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed.RawValue)))));
+        state.ChangeSpeed(-64);
+        if (state.Speed.SignedRawValue >= 0)
             return;
 
         state.Function = movingRight
@@ -449,7 +444,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             movingRight
                 ? NinjaSpacePirateProgram.DivekickRightDive
                 : NinjaSpacePirateProgram.DivekickLeftDive);
-        state.Speed = NinjaPirateInitialDiveSpeed;
+        state.Speed = new SnesSignedEightEight(NinjaPirateInitialDiveSpeed);
     }
 
     /// <summary>Moves horizontally and descends with native packed speed until floor or speed ends the dive.</summary>
@@ -472,12 +467,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         // the low byte as only the low eight bits of the fractional word. This odd packing is
         // preserved literally; treating Speed as a conventional 8.8 fixed value is subtly
         // different from the 65816 register setup at $B2:F9CB/$FA9F.
-        int displacement = (SnesSixteenSixteen.FromWhole(SnesEightEight.WholeOf(state.Speed))) | (SnesEightEight.FractionOf(state.Speed));
+        int displacement = (SnesSixteenSixteen.FromWhole(SnesEightEight.WholeOf(state.Speed.RawValue))) | (SnesEightEight.FractionOf(state.Speed.RawValue));
         bool landed = _terrain.MoveEnemyVertically(level, slot, displacement);
         if (!landed)
         {
-            state.Speed = unchecked((ushort)(state.Speed - 64));
-            landed = unchecked((short)state.Speed) < 0 || SnesUnsignedEightEight.Whole(state.Speed) == 0;
+            state.ChangeSpeed(-64);
+            landed = state.Speed.SignedRawValue < 0 || SnesUnsignedEightEight.Whole(state.Speed.RawValue) == 0;
         }
         if (!landed)
             return;
@@ -492,7 +487,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 ? NinjaSpacePirateProgram.WalkToRightPost
                 : NinjaSpacePirateProgram.WalkToLeftPost);
         // $B2:FA0E/$FAE2 store the spawn row's whole Y only; the dive's Y fraction stays.
-        slot.Position = slot.Position.WithWholeY(state.SpawnY);
+        slot.Position = slot.Position.WithWholeY(state.SpawnPosition.Y);
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
@@ -505,12 +500,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole +
             (movingRight ? NinjaPirateReturnWalkPixels : -NinjaPirateReturnWalkPixels))));
         bool reachedPost = movingRight
-            ? unchecked((short)(slot.Position.X.Whole - state.RightPostX)) >= 0
-            : unchecked((short)(slot.Position.X.Whole - state.LeftPostX)) < 0;
+            ? (slot.Position.Whole - state.RightPost).X >= 0
+            : (slot.Position.Whole - state.LeftPost).X < 0;
         if (!reachedPost)
             return;
 
-        slot.Position = slot.Position.WithWholeX(movingRight ? state.RightPostX : state.LeftPostX);
+        slot.Position = slot.Position.WithWholeX((movingRight ? state.RightPost : state.LeftPost).X);
         InstallNinjaPirateInstruction(
             slot,
             state,
@@ -546,7 +541,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     internal void SpawnNinjaPirateClaw(
         RoomEnemySlot source,
         NinjaSpacePirateEnemyState state,
-        ushort direction,
+        bool throwsRight,
         Offset16<RoomPixels> spawnOffset)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -558,10 +553,10 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
             RoomEnemyProjectileKind.PirateClaw,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
-        projectile.DirectionParameter = direction;
-        projectile.InstructionPointer = direction == 0
-            ? SpacePirateProjectileInstructionProgramDefinitions.ClawLeft
-            : SpacePirateProjectileInstructionProgramDefinitions.ClawRight;
+        projectile.DirectionParameter = throwsRight ? (ushort)1 : (ushort)0;
+        projectile.InstructionPointer = throwsRight
+            ? SpacePirateProjectileInstructionProgramDefinitions.ClawRight
+            : SpacePirateProjectileInstructionProgramDefinitions.ClawLeft;
         projectile.InstructionTimer = NativeCountdown.Start(1);
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_86A05B;
         projectile.Variable0 = 2048;
@@ -615,13 +610,15 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 state.Function = cue.Function;
                 return null;
             case NinjaSpacePirateCueKind.SetPalette:
-                slot.PaletteIndex = cue.Value;
+                slot.PaletteIndex = (cue.Palette ?? throw new InvalidOperationException(
+                    "A ninja Space Pirate palette cue carries no palette.")).PaletteBits;
                 return null;
             case NinjaSpacePirateCueKind.PlaySound:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = cue.Value;
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = cue.Sound ?? throw new InvalidOperationException(
+                    "A ninja Space Pirate sound cue carries no sound.");
                 return null;
             case NinjaSpacePirateCueKind.ThrowClaw:
-                SpawnNinjaPirateClaw(slot, state, cue.Value, new Offset16<RoomPixels>(cue.Offset, cue.OffsetY));
+                SpawnNinjaPirateClaw(slot, state, cue.ThrowsRight, new Offset16<RoomPixels>(cue.Offset, cue.OffsetY));
                 return null;
             case NinjaSpacePirateCueKind.StartActive:
                 if (samus is null)
@@ -638,13 +635,13 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 // after the idle animation explicitly installed the no-op function.
                 return state.ActiveProgram;
             case NinjaSpacePirateCueKind.ResetSpeed:
-                state.Speed = 0;
+                state.Speed = default;
                 return null;
             case NinjaSpacePirateCueKind.StartLeftDivekick:
-                InitializeNinjaPirateDive(state, movingRight: false);
+                InitializeNinjaPirateDive(state);
                 return null;
             case NinjaSpacePirateCueKind.StartRightDivekick:
-                InitializeNinjaPirateDive(state, movingRight: true);
+                InitializeNinjaPirateDive(state);
                 return null;
             default:
                 throw new InvalidOperationException($"The ninja Space Pirates' animations have no {cue.Kind} cue.");

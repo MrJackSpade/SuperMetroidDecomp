@@ -98,7 +98,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemySlot source = enemies.SlotTable.Slots[0];
             source.Position = source.Position.WithWhole(new(128, 96));
             var state = new NinjaSpacePirateEnemyState(source);
-            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, state, direction, Offset16<RoomPixels>.Zero);
+            enemies.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(source, state, throwsRight: direction != 0, Offset16<RoomPixels>.Zero);
             RoomEnemyProjectileSlot claw = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
             AssertEqual(program, claw.InstructionPointer,
@@ -114,7 +114,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         RoomEnemySystem deleteSystem = NewSystem();
         RoomEnemySlot deleteSource = deleteSystem.SlotTable.Slots[0];
         var deleteState = new NinjaSpacePirateEnemyState(deleteSource);
-        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, deleteState, (ushort)0, Offset16<RoomPixels>.Zero);
+        deleteSystem.NinjaSpacePirateBehavior.SpawnNinjaPirateClaw(deleteSource, deleteState, throwsRight: false, Offset16<RoomPixels>.Zero);
         RoomEnemyProjectileSlot deleting = deleteSystem.Projectiles.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.PirateClaw);
         deleting.StartAnimation(EnemyProjectileDeleteAnimation.Instance);

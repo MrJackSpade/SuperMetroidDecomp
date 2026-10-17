@@ -3,9 +3,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// Debugger-facing view of the native wall Pirate work words. Variables A-F remain backed
-/// directly by the enemy slot, while the three bank-$7E:7800 scratch arrays are retained as
-/// explicit host fields because they do not have ordinary per-slot variable aliases.
+/// Debugger-facing view of the wall Pirate's state. Variables A-F remain backed directly by the enemy slot, whose words
+/// other enemies can read as enemy RAM, so each typed view keeps its word exact; the jump endpoints and angular step
+/// are the Pirate's own state, which nothing else reads.
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
@@ -25,11 +25,14 @@ public sealed class WallSpacePirateEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Debug-only destination X written by the two prepare-jump opcodes.</summary>
-    public ushort WallJumpDestinationX
+    /// <summary>
+    /// The room position the prepare-jump cues aim the jump at (slot variable B): the departure X plus or minus
+    /// parameter two. Only the X axis is stored; no gameplay reads it back.
+    /// </summary>
+    public Position16<RoomPixels> WallJumpDestination
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => new(_slot.VariableB, 0);
+        internal set => _slot.VariableB = value.X;
     }
 
     /// <summary>Binary direction in slot variable C; starts downward, reverses on a blocked vertical move, and is reselected from RNG bit zero by the climb-list direction opcodes.</summary>
@@ -53,19 +56,23 @@ public sealed class WallSpacePirateEnemyState
         }
     }
 
-    /// <summary>Slot variable F's byte-angle phase, wrapping over 0..255: starts at $40 for a rightward jump or $C0 for a leftward jump and advances after each whole-position calculation.</summary>
-    public ushort WallJumpArcAngle
+    /// <summary>
+    /// The jump ellipse's angle in slot variable F, which wraps over a whole turn: a quarter turn for a rightward jump or
+    /// three quarters for a leftward jump, stepped after each position calculation. A rightward jump steps down through
+    /// zero to its endpoint, so the wrap is load-bearing. The slot word holds the angle's table index.
+    /// </summary>
+    public SnesAngle WallJumpArcAngle
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => SnesAngle.FromTableIndex(checked((byte)_slot.VariableF));
+        internal set => _slot.VariableF = value.TableIndex;
     }
 
-    /// <summary>Native $7E:8000 per-enemy rightward endpoint: $BE for slow jumps or $C0 for fast jumps; equality after decreasing the angle installs the right-wall landing list.</summary>
-    public ushort RightJumpTargetAngle { get; internal set; }
-    /// <summary>Native $7E:8002 per-enemy leftward endpoint: $42 for slow jumps or $40 for fast jumps; equality after increasing the angle installs the left-wall landing list.</summary>
-    public ushort LeftJumpTargetAngle { get; internal set; }
-    /// <summary>Native $7E:8004 per-enemy byte-angle increment magnitude, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
-    public ushort JumpAngleDelta { get; internal set; }
+    /// <summary>The rightward jump's endpoint, table index 190 for slow jumps or 192 for fast ones; reaching it installs the right-wall landing.</summary>
+    public SnesAngle RightJumpTargetAngle { get; internal set; }
+    /// <summary>The leftward jump's endpoint, table index 66 for slow jumps or 64 for fast ones; reaching it installs the left-wall landing.</summary>
+    public SnesAngle LeftJumpTargetAngle { get; internal set; }
+    /// <summary>Table units the jump angle steps each update, two for slow or four for fast jumps; subtracted when jumping right and added when jumping left.</summary>
+    public int JumpAngleDelta { get; internal set; }
     /// <summary>Host diagnostic count of successfully allocated lasers since this enemy state was initialized; shared projectile-pool exhaustion does not increment it.</summary>
     public int SpawnedLaserCount { get; internal set; }
 }

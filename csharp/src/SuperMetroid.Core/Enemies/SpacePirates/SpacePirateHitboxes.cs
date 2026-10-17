@@ -15,21 +15,22 @@ internal static class SpacePirateHitboxes
                      enemy.SpritemapPointer))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (SpacePirateCollisionHitbox hitbox in
-                     SpacePirateCollisionDefinitions.HitboxesAt(
-                         component.HitboxPointer))
+            IReadOnlyList<SpacePirateCollisionHitbox> hitboxes = component.Hitboxes;
+            for (int index = 0; index < hitboxes.Count; index++)
             {
+                SpacePirateCollisionHitbox hitbox = hitboxes[index];
                 ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
                 ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
                 ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
                 ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = probe.SelectShotCallback
+                    ? SpacePirateHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
+                    : SpacePirateHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
                 return true;
             }
         }
         return false;
-    
     }
 }

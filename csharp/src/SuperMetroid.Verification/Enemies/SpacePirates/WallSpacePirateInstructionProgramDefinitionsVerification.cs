@@ -58,6 +58,8 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             frames: 260));
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: false));
         Suite(nameof(VerifyCollisionReversal), () => VerifyCollisionReversal(onRightWall: true));
+        Suite(nameof(VerifyJumpAngleWrap), () => VerifyJumpAngleWrap(jumpingRight: true));
+        Suite(nameof(VerifyJumpAngleWrap), () => VerifyJumpAngleWrap(jumpingRight: false));
 
         Console.WriteLine("Wall space pirate: programs and their cues pass through real behavior.");
 
@@ -83,7 +85,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                 $"wall Pirate {(movingRight ? "right" : "left")} attack jump handoff");
             AssertEqual(1, state.SpawnedLaserCount,
                 $"wall Pirate {(movingRight ? "right" : "left")} laser count");
-            AssertEqual((ushort)0x0066, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
+            AssertEqual(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateJumpSound), (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"wall Pirate {(movingRight ? "right" : "left")} jump sound");
         }
 
@@ -129,6 +131,39 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
                     : new AnimationProgramCursor<WallSpacePirateProgram>(WallSpacePirateProgram.MovingUpLeftWallLoop, 1),
                 state.Program,
                 $"wall Pirate {(onRightWall ? "right" : "left")} collision installs upward list");
+        }
+
+        // A fast jump steps its angle four table units per update through the turn's wrap: a rightward jump from a
+        // quarter turn down through zero to three quarters, a leftward one from three quarters up through zero to a
+        // quarter. It lands on the update the angle reaches its endpoint, thirty-two updates in, and not before.
+        void VerifyJumpAngleWrap(bool jumpingRight)
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot slot,
+                WallSpacePirateEnemyState state, SamusState samus) = CreateSystem();
+            AssertEqual(4, state.JumpAngleDelta, "the fixture Pirate makes fast jumps");
+            SnesAngle start = jumpingRight ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
+            WallSpacePirateProgram landing = jumpingRight
+                ? WallSpacePirateProgram.LandedOnRightWall
+                : WallSpacePirateProgram.LandedOnLeftWall;
+            state.Function = jumpingRight ? WallSpacePirateFunction.WallJumpingRight : WallSpacePirateFunction.WallJumpingLeft;
+            state.WallJumpArcAngle = start;
+            state.WallJumpArcCenter = slot.Position.Whole;
+            state.Program = AnimationProgramCursor<WallSpacePirateProgram>.Start(
+                jumpingRight ? WallSpacePirateProgram.FireAndJumpRight : WallSpacePirateProgram.FireAndJumpLeft);
+            var frame = new ClockedEnemyAiFrame(
+                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus, Level = level },
+                new FrameCounters(0));
+            for (int update = 1; update <= 32; update++)
+            {
+                WallSpacePirateBehavior.RunWallSpacePirateMainAi(slot, frame);
+                SnesAngle expected = start.AddTableUnits(jumpingRight ? -4 * update : 4 * update);
+                AssertEqual(expected, state.WallJumpArcAngle,
+                    $"wall Pirate {(jumpingRight ? "right" : "left")} jump angle after update {update} wraps around the turn");
+                AssertEqual(update == 32, state.Program == AnimationProgramCursor<WallSpacePirateProgram>.Start(landing),
+                    $"wall Pirate {(jumpingRight ? "right" : "left")} jump lands only at its endpoint, update {update}");
+            }
+            AssertEqual(jumpingRight ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn, state.WallJumpArcAngle,
+                $"wall Pirate {(jumpingRight ? "right" : "left")} jump ends at its endpoint angle");
         }
 
         (RoomEnemySystem Enemies, RoomEnemySlot Slot,

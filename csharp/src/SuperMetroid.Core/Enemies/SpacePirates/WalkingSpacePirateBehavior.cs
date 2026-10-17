@@ -45,10 +45,10 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 RequireWalkingSpacePirateState(slot).Function = cue.Function;
                 return null;
             case WalkingSpacePirateCueKind.FireLaserLeft:
-                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), movingRight: false, cue.Value);
+                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), movingRight: false, cue.LaserHeight);
                 return null;
             case WalkingSpacePirateCueKind.FireLaserRight:
-                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), movingRight: true, cue.Value);
+                SpawnWalkingSpacePirateLaser(slot, RequireWalkingSpacePirateState(slot), movingRight: true, cue.LaserHeight);
                 return null;
             case WalkingSpacePirateCueKind.ChooseMovement:
                 return SelectWalkingSpacePirateMovement(slot, samus);
@@ -82,7 +82,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// Last library-two sound requested by the shared Pirate/Mother-Brain laser initializer
     /// or a Space Pirate instruction during this frame.
     /// </summary>
-    public ushort? LastSpacePirateSoundEffect { get; internal set; }
+    public SoundEffectId? LastSpacePirateSoundEffect { get; internal set; }
 
     /// <summary>Recognizes the six walking variants that share patrol AI and laser behavior.</summary>
     internal static bool IsWalkingSpacePirateDefinition(EnemyDefinitionId definition) => definition is
@@ -110,8 +110,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
         // Native ADC/SBC wrap at 16 bits. A modded patrol radius can therefore straddle the
         // world-coordinate seam; keeping ushort arithmetic preserves its signed CMP behavior.
-        state.RightPostXPosition = unchecked((ushort)(slot.Position.X.Whole + slot.Parameter2));
-        state.LeftPostXPosition = unchecked((ushort)(slot.Position.X.Whole - slot.Parameter2));
+        state.RightPost = new(unchecked((ushort)(slot.Position.X.Whole + slot.Parameter2)), 0);
+        state.LeftPost = new(unchecked((ushort)(slot.Position.X.Whole - slot.Parameter2)), 0);
     }
 
     /// <summary>Ports <c>MainAI_PirateWalking</c> at <c>$B2:FD32</c>.</summary>
@@ -191,7 +191,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 slot,
                 displacement: WalkingPirateLeftStepDisplacement);
             if (!hitWall &&
-                unchecked((short)(slot.Position.X.Whole - state.LeftPostXPosition)) >= 0)
+                (slot.Position.Whole - state.LeftPost).X >= 0)
             {
                 return;
             }
@@ -230,7 +230,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 level,
                 slot,
                 displacement: WalkingPirateRightStepDisplacement) &&
-            unchecked((short)(slot.Position.X.Whole - state.RightPostXPosition)) < 0)
+            (slot.Position.Whole - state.RightPost).X < 0)
         {
             return;
         }
@@ -339,9 +339,9 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         RoomEnemySlot source,
         WalkingSpacePirateEnemyState state,
         bool movingRight,
-        ushort yOffset)
+        short laserHeight)
     {
-        if (!SpawnSpacePirateLaser(source, movingRight, yOffset))
+        if (!SpawnSpacePirateLaser(source, movingRight, laserHeight))
             return;
 
         state.SpawnedLaserCount++;
@@ -355,7 +355,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     internal bool SpawnSpacePirateLaser(
         RoomEnemySlot source,
         bool movingRight,
-        ushort yOffset)
+        short laserHeight)
     {
         RoomEnemyProjectileSlot? projectile = SpawnPirateMotherBrainLaser(
             source,
@@ -363,12 +363,13 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
                 unchecked((ushort)(
                     source.Position.X.Whole +
                     (movingRight ? WalkingPirateLaserMuzzleXOffset : -WalkingPirateLaserMuzzleXOffset))),
-                unchecked((ushort)(source.Position.Y.Whole - yOffset))),
+                unchecked((ushort)(source.Position.Y.Whole - laserHeight))),
             movingRight);
         if (projectile is null)
             return false;
 
-        LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.PirateMotherBrainLaserSound;
+        LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
+            SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound);
         return true;
     }
 
@@ -555,7 +556,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             };
             c.Projectiles.EnemyImpacts.ReflectFromEnemy(c.Samus ?? throw new InvalidOperationException("A reflected beam reinherits Samus's movement and requires her."),
                 c.Projectile.SlotIndex);
-            LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WalkingPirateReflectSound;
+            LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
+                SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WalkingPirateReflectSound);
             return true;
         }
         return false;
@@ -564,6 +566,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastSpacePirateSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastSpacePirateSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

@@ -3,9 +3,9 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.SpacePirates;
 
 /// <summary>
-/// Debugger-facing projection of one walking Space Pirate's native state. The patrol limits
-/// deliberately remain wrapped 16-bit world coordinates because population parameter two
-/// is added/subtracted without clamping by <c>$B2:FD02</c>.
+/// Debugger-facing projection of one walking Space Pirate's native state. The patrol posts are room positions that
+/// wrap at sixteen bits, because population parameter two is added and subtracted without clamping by
+/// <c>$B2:FD02</c>; the walk compares the Pirate with them by the wrapped spatial difference.
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
@@ -25,18 +25,24 @@ public sealed class WalkingSpacePirateEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Left patrol post stored in native variable E.</summary>
-    public ushort LeftPostXPosition
+    /// <summary>
+    /// Left patrol post in native variable E. Only the X axis is stored and meaningful: a leftward walk turns back once
+    /// the Pirate passes it.
+    /// </summary>
+    public Position16<RoomPixels> LeftPost
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => new(_slot.VariableE, 0);
+        internal set => _slot.VariableE = value.X;
     }
 
-    /// <summary>Right patrol post stored in native variable F.</summary>
-    public ushort RightPostXPosition
+    /// <summary>
+    /// Right patrol post in native variable F. Only the X axis is stored and meaningful: a rightward walk turns back
+    /// once the Pirate reaches it.
+    /// </summary>
+    public Position16<RoomPixels> RightPost
     {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
+        get => new(_slot.VariableF, 0);
+        internal set => _slot.VariableF = value.X;
     }
 
     /// <summary>Successful allocations from the actor's three-shot firing animations.</summary>

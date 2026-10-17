@@ -6,6 +6,7 @@ using static SuperMetroid.Verification.Enemies.Artwork.ExtendedCollisionReferenc
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -30,6 +31,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
             "compiled Space Pirate extended-frame count");
         AssertEqual(147, SpacePirateCollisionDefinitions.ListCount,
             "compiled Space Pirate hitbox-list count");
+        CollisionRecordRuns<SpacePirateCollisionHitbox> nativeLists = NativeHitboxLists();
         int componentCount = 0;
         var nativeRanges = new HashSet<int>();
         for (int index = 0; index < SpacePirateCollisionDefinitions.FrameCount;
@@ -53,7 +55,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(record + 2))))),
                     component.Offset.Y, "Space Pirate native collision-component Y");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(record + 6)))),
-                    component.HitboxPointer,
+                    NativeListPointer(nativeLists, component.Hitboxes),
                     "Space Pirate native component hitbox identity");
                 componentCount++;
             }
@@ -91,8 +93,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         for (int index = 0; index < SpacePirateCollisionDefinitions.ListCount;
              index++)
         {
-            SpacePirateCollisionList list =
-                SpacePirateCollisionDefinitions.List(index);
+            SpacePirateCollisionList list = new(nativeLists.PointerAt(index), nativeLists.RecordAt(index));
             AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | list.Pointer), list.Rectangles.Length,
                 $"Space Pirate hitbox $B2:{list.Pointer:X4} rectangle count");
             Block(list.Pointer, 2 + list.Rectangles.Length * 12);
@@ -110,9 +111,9 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 6))))),
                     expected.Bottom, "Space Pirate native hitbox bottom");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 8)))),
-                    expected.TouchAi, "Space Pirate native touch callback");
+                    SpacePirateHitboxCallbackCodec.ToCallbackWord(expected.Touch), "Space Pirate native touch callback");
                 AssertEqual(rom.ReadCartridgeWordFixedBank(0xb20000 | (unchecked((ushort)(address + 10)))),
-                    expected.ShotAi, "Space Pirate native shot callback");
+                    SpacePirateHitboxCallbackCodec.ToCallbackWord(expected.Shot), "Space Pirate native shot callback");
                 rectangleCount++;
             }
         }
@@ -121,15 +122,10 @@ internal static class SpacePirateCollisionDefinitionsVerification
         AssertThrows<InvalidDataException>(
             () => SpacePirateCollisionDefinitions.ComponentsAt(0x8000),
             "unknown Space Pirate frame rejects instead of reading ROM");
-        AssertThrows<InvalidDataException>(
-            () => SpacePirateCollisionDefinitions.HitboxesAt(0x8000),
-            "unknown Space Pirate hitbox rejects instead of reading ROM");
         ushort warmedFrame = SpacePirateCollisionDefinitions.Frame(0).Pointer;
-        ushort warmedList = SpacePirateCollisionDefinitions.List(0).Pointer;
         _ = SpacePirateCollisionDefinitions.ComponentsAt(warmedFrame).Length;
-        _ = SpacePirateCollisionDefinitions.HitboxesAt(warmedList).Length;
-        _ = MeasureLookupAllocation(warmedFrame, warmedList);
-        (long allocated, int lookupChecksum) = MeasureLookupAllocation(warmedFrame, warmedList);
+        _ = MeasureLookupAllocation(warmedFrame);
+        (long allocated, int lookupChecksum) = MeasureLookupAllocation(warmedFrame);
         AssertTrue(lookupChecksum > 0, "Space Pirate lookup probe consumes data");
         AssertEqual(0L, allocated,
             "warmed Space Pirate collision lookups allocate no frame storage");
@@ -138,14 +134,15 @@ internal static class SpacePirateCollisionDefinitionsVerification
         // surrounding reference fixture are outside the allocation interval.
         [System.Runtime.CompilerServices.MethodImpl(
             System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
-        static (long Allocated, int Checksum) MeasureLookupAllocation(ushort frame, ushort list)
+        static (long Allocated, int Checksum) MeasureLookupAllocation(ushort frame)
         {
             long before = GC.GetAllocatedBytesForCurrentThread();
             int checksum = 0;
             for (int index = 0; index < 65536; index++)
             {
-                checksum += SpacePirateCollisionDefinitions.ComponentsAt(frame).Length;
-                checksum += SpacePirateCollisionDefinitions.HitboxesAt(list).Length;
+                ReadOnlySpan<SpacePirateCollisionComponent> components = SpacePirateCollisionDefinitions.ComponentsAt(frame);
+                checksum += components.Length;
+                checksum += components[0].Hitboxes.Count;
             }
             return (GC.GetAllocatedBytesForCurrentThread() - before, checksum);
         }
@@ -168,9 +165,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 foreach (SpacePirateCollisionComponent component in
                          frame.Components)
                 {
-                    foreach (SpacePirateCollisionHitbox hitbox in
-                             SpacePirateCollisionDefinitions.HitboxesAt(
-                                 component.HitboxPointer))
+                    foreach (SpacePirateCollisionHitbox hitbox in component.Hitboxes)
                     {
                         ushort componentX = unchecked((ushort)(originX + component.Offset.X));
                         ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
@@ -257,6 +252,32 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 : ExtendedHitboxWalker.Find(enemies, arguments);
             return (hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));
         }
+    }
+
+    /// <summary>Lays the catalog's hitbox lists over the oracle's native runs, so each list's bank-$B2 address derives from its run.</summary>
+    private static CollisionRecordRuns<SpacePirateCollisionHitbox> NativeHitboxLists()
+    {
+        var runs = new List<CollisionRecordRun<SpacePirateCollisionHitbox>>();
+        int first = 0;
+        foreach ((ushort start, int count) in SpacePirateHitboxListNativeAddresses.Runs)
+        {
+            runs.Add(new(start, SpacePirateCollisionDefinitions.HitboxLists[first..(first + count)]));
+            first += count;
+        }
+        AssertEqual(SpacePirateCollisionDefinitions.HitboxLists.Length, first,
+            "native Space Pirate hitbox-list runs cover every catalog list");
+        return CollisionRecordRuns<SpacePirateCollisionHitbox>.HitboxLists([.. runs]);
+    }
+
+    /// <summary>The native bank-$B2 address of the catalog hitbox list a collision component references.</summary>
+    private static ushort NativeListPointer(
+        CollisionRecordRuns<SpacePirateCollisionHitbox> nativeLists,
+        IReadOnlyList<SpacePirateCollisionHitbox> hitboxes)
+    {
+        int index = Array.FindIndex(SpacePirateCollisionDefinitions.HitboxLists, list => ReferenceEquals(list, hitboxes));
+        return index >= 0
+            ? nativeLists.PointerAt(index)
+            : throw new InvalidDataException("A Space Pirate collision component references a list outside the catalog.");
     }
 
     /// <summary>Rejects runtime reads of the exact native frame and list byte ranges already compiled into the Pirate catalog.</summary>

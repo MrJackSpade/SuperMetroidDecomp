@@ -81,9 +81,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         // The USA/Japan build uses byte angles. Bit fifteen selects 63 two-step frames;
         // clearing it selects 32 four-step frames with adjusted endpoints. These values are
         // not approximations: they are the literal $BE/$42/$02 and $C0/$40/$04 branches.
-        state.RightJumpTargetAngle = slowJump ? (ushort)190 : (ushort)192;
-        state.LeftJumpTargetAngle = slowJump ? (ushort)66 : (ushort)64;
-        state.JumpAngleDelta = slowJump ? (ushort)2 : (ushort)4;
+        state.RightJumpTargetAngle = SnesAngle.FromTableIndex(slowJump ? (byte)190 : (byte)192);
+        state.LeftJumpTargetAngle = SnesAngle.FromTableIndex(slowJump ? (byte)66 : (byte)64);
+        state.JumpAngleDelta = slowJump ? 2 : 4;
 
         SnapWallSpacePirateXToTile(slot);
     }
@@ -145,8 +145,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = unchecked((byte)(
-            state.WallJumpArcAngle - state.JumpAngleDelta));
+        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(-state.JumpAngleDelta);
         if (state.WallJumpArcAngle != state.RightJumpTargetAngle)
             return;
 
@@ -163,8 +162,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = unchecked((byte)(
-            state.WallJumpArcAngle + state.JumpAngleDelta));
+        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(state.JumpAngleDelta);
         if (state.WallJumpArcAngle != state.LeftJumpTargetAngle)
             return;
 
@@ -186,11 +184,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
             state.WallJumpArcCenter.X +
             EnemyMath.ReadEightBitNegativeSineProduct(
-                state.WallJumpArcAngle,
+                state.WallJumpArcAngle.TableIndex,
                 (ushort)(slot.Parameter2 >> 1)))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
             state.WallJumpArcCenter.Y -
-            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2)))));
+            EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle.TableIndex, (ushort)(slot.Parameter2 >> 2)))));
     }
 
     /// <summary>Allows the fire-and-jump sequence when Samus is within the strict vertical detection band.</summary>
@@ -223,7 +221,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
         RoomLevelData? level,
-        ushort signedPixelDisplacement,
+        short downwardPixels,
         bool onRightWall)
     {
         if (level is null)
@@ -232,7 +230,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 "Wall Space Pirate climbing requires room collision data.");
         }
 
-        int displacement = SnesSixteenSixteen.FromWhole((short)signedPixelDisplacement);
+        int displacement = SnesSixteenSixteen.FromWhole(downwardPixels);
         if (!_terrain.MoveEnemyVertically(level, slot, displacement))
             return null;
 
@@ -282,11 +280,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         int signedHalfSpan = jumpingRight
             ? slot.Parameter2 >> 1
             : -(slot.Parameter2 >> 1);
-        state.WallJumpDestinationX = unchecked((ushort)(slot.Position.X.Whole + signedSpan));
+        state.WallJumpDestination = new(unchecked((ushort)(slot.Position.X.Whole + signedSpan)), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),
             slot.Position.Y.Whole);
-        state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
+        state.WallJumpArcAngle = jumpingRight ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
     }
 
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
@@ -300,7 +298,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, movingRight, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;
-            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateLaserSound;
+            _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
+                SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateLaserSound);
         }
     }
 
@@ -315,9 +314,9 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         switch (cue.Kind)
         {
             case WallSpacePirateCueKind.ClimbLeftWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.Value, onRightWall: false);
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, onRightWall: false);
             case WallSpacePirateCueKind.ClimbRightWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.Value, onRightWall: true);
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, onRightWall: true);
             case WallSpacePirateCueKind.ChooseLeftWallDirection:
                 return RandomizeWallSpacePirateClimbDirection(state, onRightWall: false);
             case WallSpacePirateCueKind.ChooseRightWallDirection:
@@ -338,7 +337,8 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 state.Function = cue.Function;
                 return null;
             case WallSpacePirateCueKind.PlayAttackSound:
-                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = EnemySoundEffectDefinitions.WallPirateJumpSound;
+                _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.WallPirateJumpSound);
                 return null;
             default:
                 throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue.Kind} cue.");

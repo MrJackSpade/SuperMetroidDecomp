@@ -103,6 +103,10 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             NinjaSpacePirateFunction.DivekickRightDive));
         Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: false));
         Suite(nameof(VerifyDiveLanding), () => VerifyDiveLanding(movingRight: true));
+        Suite(nameof(VerifyDivekickRiseSpeed), () => VerifyDivekickRiseSpeed(movingRight: false));
+        Suite(nameof(VerifyDivekickRiseSpeed), () => VerifyDivekickRiseSpeed(movingRight: true));
+        Suite(nameof(VerifyDiveSpeedWrap), () => VerifyDiveSpeedWrap(movingRight: false));
+        Suite(nameof(VerifyDiveSpeedWrap), () => VerifyDiveSpeedWrap(movingRight: true));
 
         Console.WriteLine("Ninja space pirate: programs and their cues pass through real behavior.");
 
@@ -116,15 +120,76 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             const ushort diveFraction = 1920;
             slot.Position = slot.Position.WithFractionY(diveFraction);
             // One speed step left: the dive ends after this movement, wherever it is.
-            state.Speed = 64;
+            state.Speed = new SnesSignedEightEight(64);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
                 new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
             enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight);
             AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,
                 state.Function, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
-            AssertEqual(state.SpawnY, slot.Position.Y.Whole, "the landing restores the spawn row");
+            AssertEqual(state.SpawnPosition.Y, slot.Position.Y.Whole, "the landing restores the spawn row");
             // This last descent adds the speed's low byte to the fraction ($B2:F9D5) before the landing.
             AssertEqual((ushort)(diveFraction + 64), slot.Position.Y.Fraction, "the landing keeps the dive's Y fraction");
+        }
+
+        // Drives the divekick rise through production main AI. Each update raises the Pirate by the speed's whole
+        // pixels and lowers the 8.8 speed by 64; the rise ends on the update the sixteen-bit speed word turns
+        // negative, which switches to the dive and restores the initial speed. The expectation is the native word
+        // arithmetic, computed here independently of the production speed type.
+        void VerifyDivekickRiseSpeed(bool movingRight)
+        {
+            const ushort initialDiveSpeed = 1536;
+            const int speedStep = 64;
+            (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState samus) = CreateSystem();
+            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
+                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
+            NinjaSpacePirateFunction rising = movingRight ? NinjaSpacePirateFunction.DivekickRightJump : NinjaSpacePirateFunction.DivekickLeftJump;
+            NinjaSpacePirateFunction diving = movingRight ? NinjaSpacePirateFunction.DivekickRightDive : NinjaSpacePirateFunction.DivekickLeftDive;
+            state.Function = rising;
+            state.Speed = new SnesSignedEightEight(initialDiveSpeed);
+            var frame = new ClockedEnemyAiFrame(
+                new RoomEnemyFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, Samus = samus },
+                new FrameCounters(0));
+            ushort nativeSpeed = initialDiveSpeed;
+            int risingUpdates = 0;
+            for (int update = 1; update <= 40; update++)
+            {
+                ushort expectedY = unchecked((ushort)(slot.Position.Y.Whole - nativeSpeed / 256));
+                nativeSpeed = unchecked((ushort)(nativeSpeed - speedStep));
+                bool riseEnds = unchecked((short)nativeSpeed) < 0;
+                enemies.NinjaSpacePirateBehavior.RunNinjaSpacePirateMainAi(slot, frame);
+                AssertEqual(expectedY, slot.Position.Y.Whole, $"ninja divekick rise update {update} climbs by the speed's whole pixels");
+                if (!riseEnds)
+                {
+                    AssertEqual(new SnesSignedEightEight(nativeSpeed), state.Speed, $"ninja divekick rise update {update} lowers the speed by 64");
+                    AssertEqual(rising, state.Function, $"ninja divekick rise update {update} keeps rising while the speed is not negative");
+                    risingUpdates++;
+                    continue;
+                }
+
+                AssertEqual(ushort.MaxValue + 1 - speedStep, (int)nativeSpeed, "the native speed word wraps below zero on the last rising update");
+                AssertEqual(diving, state.Function, $"ninja divekick rise ends on update {update}, when the speed turns negative");
+                AssertEqual(new SnesSignedEightEight(initialDiveSpeed), state.Speed, "the dive starts again from the initial speed");
+                break;
+            }
+            AssertEqual(initialDiveSpeed / speedStep, risingUpdates, "the rise lasts until the speed passes zero");
+        }
+
+        // Drives the production dive with a zero speed: the update lowers it by 64, so the speed word wraps to its
+        // negative raw value and that negative speed lands the dive, exactly as the native word does.
+        void VerifyDiveSpeedWrap(bool movingRight)
+        {
+            (RoomEnemySystem enemies, RoomEnemySlot slot, SamusState _) = CreateSystem();
+            NinjaSpacePirateEnemyState state = enemies.NinjaSpacePirateStates[0]
+                ?? throw new InvalidOperationException("Verification requires the initialized ninja state.");
+            state.Speed = new SnesSignedEightEight(0);
+            var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
+                new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
+            ushort nativeSpeed = unchecked((ushort)(0 - 64));
+            enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight);
+            AssertEqual(nativeSpeed, state.Speed.RawValue, "the dive's speed word wraps from zero to its negative raw value");
+            AssertEqual((short)-64, state.Speed.SignedRawValue, "the wrapped dive speed reads as minus 64");
+            AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,
+                state.Function, "a negative dive speed lands the dive");
         }
 
         // Checks that a left or right claw attack spawns its first projectile at the correct horizontal offset.
@@ -157,7 +222,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
                 $"ninja Pirate dive program {program} function");
             AssertEqual((ushort)0x0e00, slot.PaletteIndex,
                 $"ninja Pirate dive program {program} palette");
-            AssertEqual((ushort)0x0066, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
+            AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"ninja Pirate dive program {program} sound");
         }
 

@@ -23,7 +23,7 @@ internal static class WalkingSpacePirateAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    'V' => unchecked((ushort)cue.LaserHeight),
                     'E' => (ushort)cue.Function,
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");

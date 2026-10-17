@@ -40,7 +40,7 @@ internal static class SpeedBoosterEchoStopVerification
         int starts = 0, stops = 0, stopRequests = 0, finalPeak = 0;
         // The queue rewrites a request every frame until the SPC echoes it ($82:8A55), so a request counts once,
         // when library three's port changes to its value.
-        byte library3Port = 0;
+        int library3Port = 0;
         for (int frame = 0; frame < 90; frame++)
         {
             samus.LiquidPhysics.BeginFrameSoundRequests();

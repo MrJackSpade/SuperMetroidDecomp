@@ -172,7 +172,7 @@ internal sealed class BeamFiring
                 {
                     return (
                         null,
-                        SoundEffectLibrary1Sounds.ChargeBeamStart.Value,
+                        checked((ushort)SoundEffectLibrary1Sounds.ChargeBeamStart.Value),
                         MaximumQueued: 9);
                 }
             }
@@ -224,7 +224,7 @@ internal sealed class BeamFiring
 
         return _charge.PreviousBeamChargeCounter >=
             SamusProjectileRomData.Beams.ChargeSoundStartCounter
-            ? (null, SoundEffectLibrary1Sounds.CancelAll.Value, MaximumQueued: 15)
+            ? (null, checked((ushort)SoundEffectLibrary1Sounds.CancelAll.Value), MaximumQueued: 15)
             : (null, 0, 0);
     }
 

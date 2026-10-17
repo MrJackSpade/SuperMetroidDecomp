@@ -21,14 +21,14 @@ public readonly record struct SoundEffectId
         // ordinary callers use one of the three named enum members.
         _ = SoundEffectLibraries.ToQueueIndex(library);
         Library = library;
-        Value = (byte)Ensure.BetweenInclusive(0, byte.MaxValue, value);
+        Value = Ensure.BetweenInclusive(0, byte.MaxValue, value);
     }
 
     /// <summary>The exclusive cartridge SFX library containing this sequence.</summary>
     public SoundEffectLibrary Library { get; }
 
-    /// <summary>The library-relative byte written to the corresponding SPC input port.</summary>
-    public byte Value { get; }
+    /// <summary>The library-relative request number, 0 through 255, written to the corresponding SPC input port.</summary>
+    public int Value { get; }
 
     /// <summary>
     /// Preserves a cartridge value after proving that it is a valid byte-sized SPC sequence

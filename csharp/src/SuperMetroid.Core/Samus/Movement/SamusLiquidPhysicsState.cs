@@ -89,7 +89,7 @@ public sealed class SamusLiquidPhysicsState
     /// of exact queue calls—most notably underwater Space Jump's library-one sound $2F—and
     /// the runtime already begins one shared publication window before movement.
     /// </remarks>
-    public void QueueMovementSound(SoundEffectId soundEffect, byte maximumQueued) =>
+    public void QueueMovementSound(SoundEffectId soundEffect, int maximumQueued) =>
         QueueSound(soundEffect, maximumQueued);
 
     /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
@@ -759,7 +759,7 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Publishes a bounded sound request marked for suppression while a Power Bomb is active.</summary>
-    private void QueueSound(SoundEffectId soundEffect, byte maximumQueued) =>
+    private void QueueSound(SoundEffectId soundEffect, int maximumQueued) =>
         _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued,
             SoundSuppressed: _audioPowerBomb?.IsActive == true));
 

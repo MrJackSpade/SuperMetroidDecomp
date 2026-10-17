@@ -69,7 +69,7 @@ internal static class MotherBrainLaterContactVerification
                 "Mother Brain body accepts the projectile collision callback");
             AssertEqual((ushort)1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Body blocks the beam or missile");
-            AssertEqual((ushort?)0x3d, enemies.Projectiles.LastEnemyProjectileDudSoundEffect, "Body emits native dud sound");
+            AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.DudShot, enemies.Projectiles.LastEnemyProjectileDudSoundEffect, "Body emits native dud sound");
         }
         AssertEqual(2, enemies.RoomSpriteObjects.Count(slot => slot.Kind == RoomSpriteObjectKind.EnemyProjectileDud),
             "Both beam and missile callbacks create their dud sprite");

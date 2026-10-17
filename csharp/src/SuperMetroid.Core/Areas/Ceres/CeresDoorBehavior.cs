@@ -137,7 +137,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// The view keeps its exact cadence observable to ROM-backed audits; active playback
     /// consumes the lossless <see cref="EnemyAudioQueue.SoundRequests"/> list.
     /// </summary>
-    public ushort? LastCeresDoorSoundEffectLibrary2 { get; private set; }
+    public SoundEffectId? LastCeresDoorSoundEffect { get; private set; }
 
     /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
     private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
@@ -306,9 +306,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // QueueSound_Lib2_Max6 runs even if the finite enemy-projectile pool was full and
         // could not allocate the visual effect, so publish the request unconditionally.
-        LastCeresDoorSoundEffectLibrary2 = SoundEffectLibrary2Sounds.CeresDoorExplosion.Value;
-        // New audio consumers use the lossless list; retain LastCeresDoorSoundEffectLibrary2
-        // as a debugger/test compatibility view until the older per-enemy seams are migrated.
+        // The request list carries the sound to the audio queue; this property is its debugger and test view.
+        LastCeresDoorSoundEffect = SoundEffectLibrary2Sounds.CeresDoorExplosion;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.CeresDoorExplosion, maximumQueued: 6);
     }
 
@@ -353,13 +352,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
     {
-        LastCeresDoorSoundEffectLibrary2 = null;
+        LastCeresDoorSoundEffect = null;
         _doorPrograms.Clear();
     }
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        LastCeresDoorSoundEffectLibrary2 = null;
+        LastCeresDoorSoundEffect = null;
     }
 }

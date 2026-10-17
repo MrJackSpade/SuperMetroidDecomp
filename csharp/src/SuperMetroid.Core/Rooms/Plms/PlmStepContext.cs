@@ -31,7 +31,7 @@ internal readonly record struct PlmStepContext(
         Plms.Drawing.DrawLevelWord(Level, Streamer, slot.BlockIndex, slot.RestoreLevelWord, View);
 
     /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="maximumQueued"/>.</summary>
-    internal void QueueSound(SoundEffectId sound, byte maximumQueued) =>
+    internal void QueueSound(SoundEffectId sound, int maximumQueued) =>
         Plms.Sounds._soundRequests.Add(Plms.Sounds.CreateSoundRequest(sound, MaximumQueued: maximumQueued));
 
     /// <summary>Moves the slot's origin by whole blocks, as the cartridge's move-PLM instructions do.</summary>

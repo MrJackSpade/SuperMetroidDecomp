@@ -40,8 +40,8 @@ internal static class AudioOverridesVerification
                 installation.AudioDirectory,
                 [new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, ReplacedTrack)],
                 [
-                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, SoundEffectLibrary1Sounds.PowerBeam.Value),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, SoundEffectLibrary.Library3, checked((byte)SoundEffectLibrary3Sounds.SpeedBoosterEcho.Value)),
                 ]);
         }
         ExportStock();

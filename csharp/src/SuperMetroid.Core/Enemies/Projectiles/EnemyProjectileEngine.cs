@@ -167,7 +167,7 @@ internal sealed class EnemyProjectileEngine
     /// Last library-one dud sound requested when an indestructible enemy projectile blocked
     /// a Samus shot. This is a frame publication; the audio mixer remains an outer seam.
     /// </summary>
-    public ushort? LastEnemyProjectileDudSoundEffect { get; internal set; }
+    public SoundEffectId? LastEnemyProjectileDudSoundEffect { get; internal set; }
 
     /// <summary>
     /// Ports <c>EprojProjCollDet</c> and <c>HandleEprojCollWithProj</c> at
@@ -224,7 +224,7 @@ internal sealed class EnemyProjectileEngine
 
                 if (enemyProjectile.CollisionOption == 1)
                 {
-                    LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;
+                    LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
                 }
                 else
                 {
@@ -1259,7 +1259,7 @@ internal sealed class EnemyProjectileEngine
             projectile.Position.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphicsIndex: 0);
-        LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot.Value;
+        LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
         projectile.Direction = unchecked((ushort)(projectile.Direction | SamusProjectileDirectionMasks.Spent));
     }
 
@@ -1287,7 +1287,8 @@ internal sealed class EnemyProjectileEngine
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEnemyProjectileDudSoundEffect, library: SoundEffectLibrary.Library1, maximumQueued: 3);
+        if (LastEnemyProjectileDudSoundEffect is { } dudSound)
+            audio.QueueEnemySound(dudSound, maximumQueued: 3);
     }
 
     /// <summary>Registers Skree/Metaree particle movement with falling acceleration and camera-square deletion.</summary>

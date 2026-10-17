@@ -64,7 +64,7 @@ internal sealed class EnemyAudioQueue
     /// Records an already-decoded cartridge queue call without assigning host-side meaning
     /// to its numeric sound ID. The bank-$80 queue remains the sole owner of arbitration.
     /// </summary>
-    internal void QueueEnemySound(SoundEffectId soundEffect, byte maximumQueued)
+    internal void QueueEnemySound(SoundEffectId soundEffect, int maximumQueued)
     {
         if (maximumQueued == 0)
             throw new ArgumentOutOfRangeException(nameof(maximumQueued), maximumQueued, "Queue capacity must be nonzero.");
@@ -77,7 +77,7 @@ internal sealed class EnemyAudioQueue
     internal void QueueLegacySound(
         ushort? soundId,
         SoundEffectLibrary library,
-        byte maximumQueued)
+        int maximumQueued)
     {
         if (soundId is ushort value)
             QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);

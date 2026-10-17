@@ -66,11 +66,11 @@ public static class ManagedAudioRegressionSmokeTest
 
         RunSoundScenario(
             "library-1-power-beam",
-            [(ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value)],
+            [(ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value))],
             tally);
         RunSoundScenario(
             "library-2-door",
-            [(ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value)],
+            [(ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value))],
             tally);
         RunSoundScenario(
             "library-3-cinematic",
@@ -79,8 +79,8 @@ public static class ManagedAudioRegressionSmokeTest
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
-                (ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value),
-                (ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value),
+                (ApuPort.SoundLibrary1, checked((byte)SoundEffectLibrary1Sounds.PowerBeam.Value)),
+                (ApuPort.SoundLibrary2, checked((byte)SoundEffectLibrary2Sounds.DoorOpening.Value)),
                 (ApuPort.SoundLibrary3, 0x23),
             ],
             tally,

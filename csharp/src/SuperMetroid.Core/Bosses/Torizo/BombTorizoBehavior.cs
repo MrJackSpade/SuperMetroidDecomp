@@ -759,7 +759,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 EnemyProjectileEngine.ClearPropertyFlags(projectile, cue.Properties);
                 return null;
             case TorizoProjectileCueKind.PlaySound:
-                _audio.QueueEnemySound(cue.Sound, checked((byte)cue.MaximumQueued));
+                _audio.QueueEnemySound(cue.Sound, cue.MaximumQueued);
                 return null;
             case TorizoProjectileCueKind.Delete:
                 projectile.Clear();

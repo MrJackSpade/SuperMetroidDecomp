@@ -27,7 +27,7 @@ internal sealed class EvidencedDoorMusicUploadNmis : IDoorMusicUploadNmiSource
     }
 
     /// <summary>Consumes the evidenced accepted-NMI count once, rejecting an unexpected or duplicate upload.</summary>
-    public int AcceptedNmisDuringUpload(byte musicDataIndex)
+    public int AcceptedNmisDuringUpload(int musicDataIndex)
     {
         if (expected == 0)
             throw new InvalidDataException(

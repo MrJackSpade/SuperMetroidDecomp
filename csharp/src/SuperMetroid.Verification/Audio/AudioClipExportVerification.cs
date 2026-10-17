@@ -43,8 +43,8 @@ internal static class AudioClipExportVerification
                     new AudioClipExporter.MusicKey(AudioBank.GreenBrinstar, GreenBrinstarPhaseExactTrack),
                 ],
                 [
-                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, effect.Value)),
-                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, SoundEffectLibrary2Sounds.Etecoon.Value),
+                    .. effects.Select(effect => new AudioClipExporter.SoundEffectKey(AudioBank.GreenBrinstar, effect.Library, checked((byte)effect.Value))),
+                    new AudioClipExporter.SoundEffectKey(AudioBank.EmptyCrateria, SoundEffectLibrary.Library2, checked((byte)SoundEffectLibrary2Sounds.Etecoon.Value)),
                 ]);
             ClipAudioCatalog clips = ClipAudioCatalog.Load(scratch.FullName);
             AssertEqual(catalog.ContentIdentity, clips.Manifest.SourceContentIdentity, "clips name the catalog they were rendered from");

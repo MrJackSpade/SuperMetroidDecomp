@@ -14,13 +14,13 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="InputPort">The CPU-to-APU input port a port write targets.</param>
 /// <param name="Value">
 /// What a port write carries: a track for the music port, a library-relative request for a
-/// sound-effect port, zero to clear either.
+/// sound-effect port, zero to clear either; 0 through 255.
 /// </param>
 internal readonly record struct CartridgeAudioCommand(
     CartridgeAudioCommandKind Kind,
     AudioBank Bank,
     ApuPort InputPort,
-    byte Value)
+    int Value)
 {
     /// <summary>Creates an upload command installing one audio bank.</summary>
     public static CartridgeAudioCommand Upload(AudioBank bank) =>
@@ -29,5 +29,5 @@ internal readonly record struct CartridgeAudioCommand(
     /// <summary>Creates a CPU-to-APU write for one of ports zero through three.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is outside 0 through 255.</exception>
     public static CartridgeAudioCommand WritePort(ApuPort port, int value) =>
-        new(CartridgeAudioCommandKind.WritePort, default, port, (byte)Ensure.BetweenInclusive(0, byte.MaxValue, value));
+        new(CartridgeAudioCommandKind.WritePort, default, port, Ensure.BetweenInclusive(0, byte.MaxValue, value));
 }

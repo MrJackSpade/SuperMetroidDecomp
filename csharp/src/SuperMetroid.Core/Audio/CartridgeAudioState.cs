@@ -64,7 +64,7 @@ public sealed class CartridgeAudioState
     internal bool DoorTransitionSoundsDisabled { get; set; }
 
     /// <summary>Music-data set most recently uploaded by a processed queue command.</summary>
-    public byte MusicDataIndex { get; private set; }
+    public int MusicDataIndex { get; private set; }
 
     /// <summary>Track most recently written to APU port zero, 0 through 127.</summary>
     public int MusicTrackIndex { get; private set; }
@@ -223,7 +223,7 @@ public sealed class CartridgeAudioState
     }
 
     /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
-    public void QueueSound(SoundEffectId soundEffect, byte maximumQueued)
+    public void QueueSound(SoundEffectId soundEffect, int maximumQueued)
         => QueueSoundAndGetAccumulator(soundEffect, maximumQueued);
 
     /// <summary>
@@ -240,7 +240,7 @@ public sealed class CartridgeAudioState
     /// after the occupancy threshold. Suppression leaves the queue unchanged.
     /// </param>
     public ushort QueueSoundAndGetAccumulator(
-        SoundEffectId soundEffect, byte maximumQueued, bool soundSuppressed = false)
+        SoundEffectId soundEffect, int maximumQueued, bool soundSuppressed = false)
     {
         if (maximumQueued is < 1 or > AudioRomData.Queues.MaximumSoundOccupancy)
         {
@@ -252,9 +252,9 @@ public sealed class CartridgeAudioState
         int occupancy = (_soundWritePositions[queue] - _soundReadPositions[queue]) &
             AudioRomData.Queues.SoundIndexMask;
         if (occupancy >= maximumQueued)
-            return SnesLittleEndian.Word(unchecked((byte)occupancy), soundEffect.Value);
+            return SnesLittleEndian.Word(unchecked((byte)occupancy), checked((byte)soundEffect.Value));
 
-        ushort accumulator = SnesLittleEndian.Word(soundEffect.Value, unchecked((byte)occupancy));
+        ushort accumulator = SnesLittleEndian.Word(checked((byte)soundEffect.Value), unchecked((byte)occupancy));
         if (soundSuppressed || DoorTransitionSoundsDisabled)
             return accumulator;
 
@@ -265,11 +265,11 @@ public sealed class CartridgeAudioState
         {
             // A full native ring retains the lower-numbered (higher-priority) request.
             if (soundEffect.Value < _soundQueues[queue, write])
-                _soundQueues[queue, write] = soundEffect.Value;
+                _soundQueues[queue, write] = checked((byte)soundEffect.Value);
             return accumulator;
         }
 
-        _soundQueues[queue, write] = soundEffect.Value;
+        _soundQueues[queue, write] = checked((byte)soundEffect.Value);
         _soundWritePositions[queue] = next;
         _soundQueues[queue, next] = 0;
         return accumulator;

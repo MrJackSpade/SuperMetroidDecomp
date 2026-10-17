@@ -16,7 +16,7 @@ internal static class AudioBankTransitionVerification
         var dsp = new ManagedSnesDsp(ram);
         var positive = new ManagedPcmSample("positive", 32000, Enumerable.Repeat((short)8000, 16).ToArray(), 0);
         dsp.SetSampleBank(new ManagedPcmSampleBank("before-upload", 0,
-            new Dictionary<byte, ManagedPcmSample> { [0] = positive }));
+            new Dictionary<int, ManagedPcmSample> { [0] = positive }));
         ConfigureAudibleVoiceZero(dsp);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         dsp.WriteRegister((byte)DspGlobalRegister.KeyOff, 1);
@@ -27,7 +27,7 @@ internal static class AudioBankTransitionVerification
         ram[ushort.MaxValue] = 0;
         ram[8] = 1;
         dsp.SetSampleBank(new ManagedPcmSampleBank("after-upload", 0,
-            new Dictionary<byte, ManagedPcmSample> { [1] = positive }));
+            new Dictionary<int, ManagedPcmSample> { [1] = positive }));
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         dsp.WriteRegister((byte)DspGlobalRegister.EndFlags, 0);
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();

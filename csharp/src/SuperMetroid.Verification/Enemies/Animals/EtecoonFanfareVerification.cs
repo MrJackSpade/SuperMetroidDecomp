@@ -61,7 +61,7 @@ internal static class EtecoonFanfareVerification
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0x200, 0xb00), TimeIsFrozen = false, Samus = samus, Level = level });
         AssertEqual(0, enemies.Audio.SoundRequests.Count, "next frame does not repeat fanfare");
         var channels = renderer.PlayerForVerification.soundChannels;
-        var notes = new HashSet<byte>();
+        var notes = new HashSet<int>();
         int peak = 0;
         for (int frame = 0; frame < 240; frame++)
         {

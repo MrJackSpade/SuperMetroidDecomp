@@ -23,7 +23,7 @@ internal static class SpcSoundPoliciesVerification
         // 17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/sound library N.asm.
         byte Read(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         int Word(int address) => SnesLittleEndian.Word(Read(address), Read(address + 1));
-        Action<int, ManagedSpcSoundLibrary, byte> applyPolicy = ManagedSpcPlayer.ConfigureSoundLibrary;
+        Action<int, ManagedSpcSoundLibrary, int> applyPolicy = ManagedSpcPlayer.ConfigureSoundLibrary;
         var checkedVoicePolicies = new HashSet<byte>();
         for (int command = 1; command <= count; command++)
         {

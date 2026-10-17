@@ -57,7 +57,7 @@ internal static class SpcMusicDefinitionCodec
             switch (instruction.Operation)
             {
                 case AudioMusicInstructionOperations.PlayPhrase:
-                    if ((SnesLittleEndian.HighByte(instruction.Value)) < SpcDriverDefinitions.Music.PatternPointerHighByteMinimum ||
+                    if ((SnesLittleEndian.HighByte(checked((ushort)instruction.Value))) < SpcDriverDefinitions.Music.PatternPointerHighByteMinimum ||
                         instruction.Target is not null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -81,7 +81,7 @@ internal static class SpcMusicDefinitionCodec
                     WriteWord(bytes, instruction.Value);
                     break;
                 case AudioMusicInstructionOperations.Repeat:
-                    if ((SnesLittleEndian.HighByte(instruction.Value)) != 0 || instruction.Value == 0 ||
+                    if ((SnesLittleEndian.HighByte(checked((ushort)instruction.Value))) != 0 || instruction.Value == 0 ||
                         MusicTrackControls.TryDecode(instruction.Value, out _) || instruction.Target is null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -135,7 +135,7 @@ internal static class SpcMusicDefinitionCodec
                         (SpcMusicEffect)instruction.Opcode) ||
                     instruction.Arguments.Count != SpcMusicTables.EffectByteLength(effectIndex))
                     throw InvalidProgramInstruction(program, instruction);
-                bytes.Add(instruction.Opcode);
+                bytes.Add(checked((byte)instruction.Opcode));
                 for (int index = 0; index < instruction.Arguments.Count; index++)
                     bytes.Add(instruction.Arguments[index]);
                 continue;
@@ -144,7 +144,7 @@ internal static class SpcMusicDefinitionCodec
             if (instruction.Operation != expected || instruction.Opcode < SpcDriverDefinitions.Music.CommandMarker ||
                 instruction.Arguments.Count != 0)
                 throw InvalidProgramInstruction(program, instruction);
-            bytes.Add(instruction.Opcode);
+            bytes.Add(checked((byte)instruction.Opcode));
         }
         if (!ended)
             throw new InvalidDataException($"Music program '{program.Id}' has no end instruction.");
@@ -175,7 +175,7 @@ internal static class SpcMusicDefinitionCodec
             for (int channel = 0; channel < phrase.ChannelPrograms.Count; channel++)
             {
                 string? programId = phrase.ChannelPrograms[channel];
-                ushort address = 0;
+                int address = 0;
                 if (programId is not null)
                 {
                     if (!programs.TryGetValue(programId, out AudioMusicProgramMetadata? program))
@@ -185,8 +185,8 @@ internal static class SpcMusicDefinitionCodec
                     }
                     address = program.Address;
                 }
-                bytes[channel * 2] = unchecked((byte)address);
-                bytes[channel * 2 + 1] = SnesLittleEndian.HighByte(address);
+                bytes[channel * 2] = SnesLittleEndian.LowByte(checked((ushort)address));
+                bytes[channel * 2 + 1] = SnesLittleEndian.HighByte(checked((ushort)address));
             }
             Merge(writes, phrase.Address, bytes, phrase.Id);
         }
@@ -346,7 +346,7 @@ internal static class SpcMusicDefinitionCodec
     }
 
     /// <summary>Distinguishes pitched notes, tie, rest, and percussion in the note opcode range.</summary>
-    private static string GetNoteOperation(byte opcode)
+    private static string GetNoteOperation(int opcode)
     {
         if (Enum.IsDefined((NoteCommand)opcode))
         {
@@ -421,10 +421,11 @@ internal static class SpcMusicDefinitionCodec
     }
 
     /// <summary>Appends a native little-endian word to an encoded music stream.</summary>
-    private static void WriteWord(List<byte> bytes, ushort value)
+    private static void WriteWord(List<byte> bytes, int value)
     {
-        bytes.Add(unchecked((byte)value));
-        bytes.Add(SnesLittleEndian.HighByte(value));
+        ushort word = checked((ushort)value);
+        bytes.Add(SnesLittleEndian.LowByte(word));
+        bytes.Add(SnesLittleEndian.HighByte(word));
     }
 
     /// <summary>Creates a diagnostic for a track operation with invalid operand shape.</summary>

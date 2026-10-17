@@ -48,9 +48,9 @@ public sealed class ManagedSnesDsp
     /// <summary>Current signed sample from the noise shift register.</summary>
     private short noiseSample;
     /// <summary>Noise clock period selected by FLG.</summary>
-    private ushort noiseRate;
+    private int noiseRate;
     /// <summary>Cycles elapsed toward the next noise shift-register step.</summary>
-    private ushort noiseCounter;
+    private int noiseCounter;
     /// <summary>Whether echo feedback may be written into APU RAM.</summary>
     private bool echoWrites;
     /// <summary>Left filtered echo gain added to the final mix.</summary>
@@ -60,17 +60,17 @@ public sealed class ManagedSnesDsp
     /// <summary>Gain applied when feeding filtered echo back into RAM.</summary>
     private sbyte feedbackVolume;
     /// <summary>Echo buffer base address from the DSP ESA register.</summary>
-    private ushort echoBufferAddress;
+    private int echoBufferAddress;
     /// <summary>Number of stereo echo words in the configured delay loop.</summary>
-    private ushort echoDelay;
+    private int echoDelay;
     /// <summary>Echo positions remaining before the ring returns to its base.</summary>
-    private ushort echoRemaining;
+    private int echoRemaining;
     /// <summary>Current stereo word offset within the echo buffer.</summary>
-    private ushort echoBufferIndex;
+    private int echoBufferIndex;
     /// <summary>Current position in the eight-tap FIR history ring.</summary>
-    private byte firBufferIndex;
+    private int firBufferIndex;
     /// <summary>Native stereo frames currently written to the gameplay output buffer.</summary>
-    private ushort sampleOffset;
+    private int sampleOffset;
 
     /// <summary>Creates a reset DSP bound to the supplied complete 64-KiB APU RAM image.</summary>
     public ManagedSnesDsp(byte[] apuRam)
@@ -89,7 +89,7 @@ public sealed class ManagedSnesDsp
     /// selects one sound-effect channel's voice to render it as its own looping layer. Masked voices
     /// still run, so pitch modulation and echo input are unchanged.
     /// </summary>
-    internal byte OutputVoices { get; set; } = byte.MaxValue;
+    internal int OutputVoices { get; set; } = byte.MaxValue;
 
     /// <summary>Restores the hardware-facing DSP state used by the translated SPC reset vector.</summary>
     public void Reset()
@@ -148,10 +148,10 @@ public sealed class ManagedSnesDsp
                 voice.VolumeRight = unchecked((sbyte)value);
                 break;
             case DspVoiceRegister.PitchLow:
-                voice.Pitch = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(voice.Pitch) & SnesDspRegisterLayout.Fields.PitchMask | value));
+                voice.Pitch = SnesLittleEndian.HighByteInPlace(checked((ushort)voice.Pitch)) & SnesDspRegisterLayout.Fields.PitchMask | value;
                 break;
             case DspVoiceRegister.PitchHigh:
-                voice.Pitch = unchecked((ushort)(SnesLittleEndian.Word(SnesLittleEndian.LowByte(voice.Pitch), value) & SnesDspRegisterLayout.Fields.PitchMask));
+                voice.Pitch = SnesLittleEndian.Word(SnesLittleEndian.LowByte(checked((ushort)voice.Pitch)), value) & SnesDspRegisterLayout.Fields.PitchMask;
                 break;
             case DspVoiceRegister.SourceNumber:
                 voice.SourceNumber = value;
@@ -296,7 +296,7 @@ public sealed class ManagedSnesDsp
         {
             sampleBuffer[sampleOffset * 2] = unchecked((short)totalLeft);
             sampleBuffer[sampleOffset * 2 + 1] = unchecked((short)totalRight);
-            sampleOffset++;
+            sampleOffset = SpcDriverWrap.Word(sampleOffset + 1);
         }
     }
 
@@ -377,7 +377,7 @@ public sealed class ManagedSnesDsp
             ? (ushort)0
             : voice.AdsrRates[(int)voice.AdsrState];
         if (voice.AdsrState != EnvelopeState.Release && !direct && rate != 0)
-            voice.RateCounter++;
+            voice.RateCounter = SpcDriverWrap.Word(voice.RateCounter + 1);
         if (voice.AdsrState == EnvelopeState.Release ||
             (!direct && rate != 0 && voice.RateCounter >= rate))
         {
@@ -467,7 +467,7 @@ public sealed class ManagedSnesDsp
     private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
-        if (voice.ReleasedBrrCursor is ushort releasedCursor)
+        if (voice.ReleasedBrrCursor is int releasedCursor)
         {
             AdvanceReleasedBrr(voiceIndex, releasedCursor);
             return;
@@ -534,7 +534,7 @@ public sealed class ManagedSnesDsp
 
     /// <summary>Reads a source's loop pointer from the live BRR directory in audio RAM.</summary>
     [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM sample directory loop pointers")]
-    private ushort ReadLoopAddress(byte source)
+    private ushort ReadLoopAddress(int source)
     {
         int directory = SnesLittleEndian.Word(0, registers[(byte)DspGlobalRegister.SourceDirectory]) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
@@ -546,7 +546,7 @@ public sealed class ManagedSnesDsp
     /// released voice. Predictor samples cannot affect output, echo or pitch modulation
     /// at zero gain; KON clears this state and starts a fully validated PCM voice.
     /// </summary>
-    private void AdvanceReleasedBrr(int index, ushort cursor)
+    private void AdvanceReleasedBrr(int index, int cursor)
     {
         Voice voice = voices[index];
         if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
@@ -555,14 +555,14 @@ public sealed class ManagedSnesDsp
             registers[(byte)DspGlobalRegister.EndFlags] |= unchecked((byte)(1 << index));
         }
         voice.PreviousFlags = unchecked((byte)(apuRam[cursor] & DspBrrLayout.HeaderFlagsMask));
-        voice.ReleasedBrrCursor = unchecked((ushort)(cursor + DspBrrLayout.BlockBytes));
+        voice.ReleasedBrrCursor = SpcDriverWrap.Word(cursor + DspBrrLayout.BlockBytes);
     }
 
     /// <summary>Advances the noise shift register at the configured DSP clock period.</summary>
     private void HandleNoise()
     {
         if (noiseRate != 0)
-            noiseCounter++;
+            noiseCounter = SpcDriverWrap.Word(noiseCounter + 1);
         if (noiseRate == 0 || noiseCounter < noiseRate)
             return;
         int bit = (noiseSample & 1) ^ ((noiseSample >> 1) & 1);
@@ -615,8 +615,8 @@ public sealed class ManagedSnesDsp
             WriteWord(unchecked((ushort)(address + 2)), unchecked((ushort)inputRight));
         }
         firBufferIndex = unchecked((byte)((firBufferIndex + 1) & 7));
-        echoBufferIndex++;
-        echoRemaining = NativeWordCounter.Decrement(echoRemaining).Value;
+        echoBufferIndex = SpcDriverWrap.Word(echoBufferIndex + 1);
+        echoRemaining = SpcDriverWrap.Word(echoRemaining - 1);
         if (echoRemaining == 0)
         {
             echoRemaining = echoDelay;
@@ -654,43 +654,43 @@ public sealed class ManagedSnesDsp
     private sealed class Voice
     {
         /// <summary>Fourteen-bit playback pitch written through the two voice registers.</summary>
-        public ushort Pitch;
+        public int Pitch;
         /// <summary>Fractional sample cursor advanced by scaled pitch each DSP cycle.</summary>
-        public ushort PitchCounter;
+        public int PitchCounter;
         /// <summary>Whether the preceding voice's output modulates this pitch.</summary>
         public bool PitchModulation;
         /// <summary>Three retained samples plus the next sixteen-sample interpolation window.</summary>
         public short[] DecodeBuffer { get; } = new short[19];
         /// <summary>Live BRR directory source number used at key-on and loop boundaries.</summary>
-        public byte SourceNumber;
+        public int SourceNumber;
         /// <summary>Decoded PCM source currently bound to this voice.</summary>
         public ManagedPcmSample? Sample;
         /// <summary>Next sample index within the bound PCM source.</summary>
         public int SampleCursor;
         /// <summary>Previous BRR END and LOOP flags used when the next window starts.</summary>
-        public byte PreviousFlags;
+        public int PreviousFlags;
         /// <summary>BRR header cursor for a silent released voice whose PCM mapping vanished.</summary>
-        public ushort? ReleasedBrrCursor;
+        public int? ReleasedBrrCursor;
         /// <summary>Routes the shared noise sample into this voice instead of PCM.</summary>
         public bool UseNoise;
         /// <summary>Rate periods for attack, decay, sustain, and gain modes.</summary>
         public ushort[] AdsrRates { get; } = new ushort[4];
         /// <summary>Cycles accumulated toward the next non-release envelope step.</summary>
-        public ushort RateCounter;
+        public int RateCounter;
         /// <summary>Current attack, decay, sustain, gain, or release phase.</summary>
         public EnvelopeState AdsrState;
         /// <summary>Gain threshold at which decay changes to sustain.</summary>
-        public ushort SustainLevel;
+        public int SustainLevel;
         /// <summary>Selects GAIN behavior instead of ADSR rates.</summary>
         public bool UseGain;
         /// <summary>Stepped GAIN mode selected by the GAIN register.</summary>
-        public byte GainMode;
+        public int GainMode;
         /// <summary>Applies a constant gain immediately instead of using a rate counter.</summary>
         public bool DirectGain;
         /// <summary>Constant envelope level selected by direct GAIN mode.</summary>
-        public ushort GainValue;
+        public int GainValue;
         /// <summary>Current eleven-bit envelope amplitude.</summary>
-        public ushort Gain;
+        public int Gain;
         /// <summary>Interpolated sample after envelope scaling, used for mixing and pitch modulation.</summary>
         public short SampleOutput;
         /// <summary>Signed left-channel voice volume.</summary>

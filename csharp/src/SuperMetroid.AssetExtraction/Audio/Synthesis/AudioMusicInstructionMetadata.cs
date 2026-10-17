@@ -1,3 +1,5 @@
+using SuperMetroid.Core;
+
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
 /// <summary>
@@ -6,6 +8,10 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// </summary>
 public sealed record AudioMusicInstructionMetadata(
     string Operation,
-    byte Opcode,
+    int Opcode,
     IReadOnlyList<byte> Timing,
-    IReadOnlyList<byte> Arguments);
+    IReadOnlyList<byte> Arguments)
+{
+    /// <summary>The command's opcode byte, 0 through 255.</summary>
+    public int Opcode { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Opcode);
+}

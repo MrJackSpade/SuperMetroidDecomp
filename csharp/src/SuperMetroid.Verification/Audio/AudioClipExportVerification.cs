@@ -213,7 +213,7 @@ internal static class AudioClipExportVerification
         }
 
         /// <inheritdoc />
-        public void KeysPublished(byte keyOn, byte keyOff)
+        public void KeysPublished(int keyOn, int keyOff)
         {
             if (StartSample is null && started(player))
                 StartSample = tickSample;

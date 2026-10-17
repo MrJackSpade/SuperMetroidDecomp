@@ -21,7 +21,7 @@ internal static class SpcPanInterpolationVerification
         byte Instruction(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         var player = new ManagedSpcPlayer();
         byte[] ram = player.ram;
-        Action<ManagedSpcMusicChannel, ushort> write = player.WriteVolume;
+        Action<ManagedSpcMusicChannel, int> write = player.WriteVolume;
         var channel = new ManagedSpcMusicChannel { FinalVolume = 255 };
         for (int index = 0; index <= 256; index++)
             ram[0x1e1d + index] = rom.ReadCartridgeByte(0xcf8a25 + index);
@@ -51,7 +51,7 @@ internal static class SpcPanInterpolationVerification
             // copy of the host expression. X=0 selects this fixture's first channel.
             ram[0x10] = (byte)pan;
             ram[0x11] = SnesLittleEndian.HighByte(pan);
-            ram[0x321] = channel.FinalVolume;
+            ram[0x321] = checked((byte)channel.FinalVolume);
             byte a = 0, y = 0;
             bool carry = false;
             int pc = 0x1c4f;

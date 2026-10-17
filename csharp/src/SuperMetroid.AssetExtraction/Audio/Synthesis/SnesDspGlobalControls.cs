@@ -13,10 +13,10 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
         side == DspStereoSide.Left ? DspGlobalRegister.EchoVolumeLeft : DspGlobalRegister.EchoVolumeRight, unchecked((byte)volume));
 
     /// <summary>KON ($4C): starts the selected voices.</summary>
-    public void KeyOn(DspVoiceMask voices) => Write(DspGlobalRegister.KeyOn, voices.Bits);
+    public void KeyOn(DspVoiceMask voices) => Write(DspGlobalRegister.KeyOn, voices);
 
     /// <summary>KOFF ($5C): releases the selected voices.</summary>
-    public void KeyOff(DspVoiceMask voices) => Write(DspGlobalRegister.KeyOff, voices.Bits);
+    public void KeyOff(DspVoiceMask voices) => Write(DspGlobalRegister.KeyOff, voices);
 
     /// <summary>FLG ($6C): control bits and noise rate.</summary>
     public void WriteFlags(DspFlags flags) => Write(DspGlobalRegister.Flags, flags.Value);
@@ -25,13 +25,13 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
     public void WriteEchoFeedback(sbyte feedback) => Write(DspGlobalRegister.EchoFeedback, unchecked((byte)feedback));
 
     /// <summary>PMON ($2D): voices whose pitch the previous voice's output modulates.</summary>
-    public void WritePitchModulation(DspVoiceMask voices) => Write(DspGlobalRegister.PitchModulation, voices.Bits);
+    public void WritePitchModulation(DspVoiceMask voices) => Write(DspGlobalRegister.PitchModulation, voices);
 
     /// <summary>NON ($3D): voices that play noise instead of their sample.</summary>
-    public void WriteNoiseEnable(DspVoiceMask voices) => Write(DspGlobalRegister.NoiseEnable, voices.Bits);
+    public void WriteNoiseEnable(DspVoiceMask voices) => Write(DspGlobalRegister.NoiseEnable, voices);
 
     /// <summary>EON ($4D): voices fed into the echo buffer.</summary>
-    public void WriteEchoEnable(DspVoiceMask voices) => Write(DspGlobalRegister.EchoEnable, voices.Bits);
+    public void WriteEchoEnable(DspVoiceMask voices) => Write(DspGlobalRegister.EchoEnable, voices);
 
     /// <summary>DIR ($5D): the APU RAM page of the BRR sample directory.</summary>
     public void WriteSourceDirectory(byte page) => Write(DspGlobalRegister.SourceDirectory, page);
@@ -53,4 +53,7 @@ internal readonly struct SnesDspGlobalControls(ManagedSnesDsp dsp)
 
     /// <summary>Writes a typed global register at its exact DSP address.</summary>
     private void Write(DspGlobalRegister register, byte value) => dsp.WriteRegister((byte)register, value);
+
+    /// <summary>Writes a voice-set register; the mask's bits are one register byte.</summary>
+    private void Write(DspGlobalRegister register, DspVoiceMask voices) => Write(register, (byte)voices.Bits);
 }

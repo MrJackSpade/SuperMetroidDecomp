@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Audio;
 public static class SoundEffectVoicesCodec
 {
     /// <summary>The voice set a renderer voice mask names; every bit of the mask is a voice.</summary>
-    public static SoundEffectVoices FromVoiceMask(byte mask) => (SoundEffectVoices)mask;
+    public static SoundEffectVoices FromVoiceMask(int mask) => (SoundEffectVoices)Ensure.BetweenInclusive(0, byte.MaxValue, mask);
 
     /// <summary>The renderer voice mask holding exactly <paramref name="voices"/>.</summary>
     public static byte ToVoiceMask(this SoundEffectVoices voices) => (byte)voices;

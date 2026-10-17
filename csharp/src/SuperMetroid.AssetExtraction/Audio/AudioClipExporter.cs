@@ -31,7 +31,11 @@ internal static class AudioClipExporter
     /// <param name="Context">The music bank uploaded after the common upload, or null for the common upload alone.</param>
     /// <param name="Library">The effect's library.</param>
     /// <param name="Command">The effect's request byte.</param>
-    internal sealed record SoundEffectKey(AudioBank? Context, SoundEffectLibrary Library, byte Command);
+    internal sealed record SoundEffectKey(AudioBank? Context, SoundEffectLibrary Library, int Command)
+    {
+        /// <summary>The effect's request byte, 0 through 255.</summary>
+        public int Command { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Command);
+    }
 
     /// <summary>Renders every track and every effect in every bank context of the catalog in <paramref name="audioDirectory"/> into it.</summary>
     /// <exception cref="InvalidDataException">A track has no period, or an effect does not render as its program structure requires.</exception>
@@ -167,9 +171,9 @@ internal static class AudioClipExporter
     /// configuration from each possible priority and low-health mode shows whether it sets them or
     /// keeps them, and the rejection rule shows which states it ignores.
     /// </summary>
-    internal static SoundEffectClipPolicy Policy(int libraryIndex, byte command, byte configuration)
+    internal static SoundEffectClipPolicy Policy(int libraryIndex, int command, int configuration)
     {
-        ManagedSpcSoundLibrary Configure(byte priority, byte mode)
+        ManagedSpcSoundLibrary Configure(int priority, int mode)
         {
             var library = new ManagedSpcSoundLibrary { Priority = priority, Mode = mode };
             ManagedSpcPlayer.ConfigureSoundLibrary(libraryIndex, library, configuration);

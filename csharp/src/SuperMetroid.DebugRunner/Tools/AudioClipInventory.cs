@@ -214,7 +214,7 @@ internal static class AudioClipInventory
     private sealed record SoundEffectRow(
         AudioBank? Context,
         SoundEffectLibrary Library,
-        byte Command,
+        int Command,
         long? ActiveFrames,
         IReadOnlyList<long> LayerFrames,
         IReadOnlyList<string> LayerHashes,

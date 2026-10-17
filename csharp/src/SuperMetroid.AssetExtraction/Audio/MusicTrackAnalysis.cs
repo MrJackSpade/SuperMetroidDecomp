@@ -90,7 +90,7 @@ internal sealed record MusicTrackAnalysis(
         /// <summary>First arrival of each phrase state (tempo phase excluded), by state key.</summary>
         private readonly Dictionary<string, long> arrivals = [];
         /// <summary>Phrase starts per top-level record address, bounding a non-repeating search.</summary>
-        private readonly Dictionary<ushort, int> passes = [];
+        private readonly Dictionary<int, int> passes = [];
         /// <summary>Reusable snapshot buffer.</summary>
         private readonly List<byte> state = [];
         /// <summary>The renderer whose frame count positions each tick.</summary>
@@ -132,7 +132,7 @@ internal sealed record MusicTrackAnalysis(
                 return;
             }
             arrivals[key] = tickSample;
-            ushort pointer = player.ReadMusicTopLevelPointer();
+            int pointer = player.ReadMusicTopLevelPointer();
             int count = passes.GetValueOrDefault(pointer) + 1;
             passes[pointer] = count;
             if (count > NonRepeatingPassLimit)
@@ -140,7 +140,7 @@ internal sealed record MusicTrackAnalysis(
         }
 
         /// <inheritdoc />
-        public void KeysPublished(byte keyOn, byte keyOff)
+        public void KeysPublished(int keyOn, int keyOff)
         {
             ManagedSpcPlayer player = Required(renderer).Player;
             if (player.musicPortToSnes != 0)

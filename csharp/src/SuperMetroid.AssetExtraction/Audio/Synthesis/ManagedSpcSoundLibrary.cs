@@ -5,49 +5,42 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal sealed class ManagedSpcSoundLibrary
 {
     /// <summary>Preemption level selected by the incoming sound command.</summary>
-    internal byte Priority;
+    internal int Priority;
     /// <summary>Twice the next logical SFX channel index during hardware voice assignment.</summary>
-    internal byte ChannelIndexTimesTwo;
+    internal int ChannelIndexTimesTwo;
     /// <summary>SPC work-RAM address of the current channel's allocated hardware-voice bit.</summary>
-    internal ushort ChannelVoiceBitsetPointer;
+    internal int ChannelVoiceBitsetPointer;
     /// <summary>Sound effect currently playing in this library.</summary>
-    internal byte CurrentSound;
+    internal int CurrentSound;
     /// <summary>SPC work-RAM address of the current channel's inverse voice mask.</summary>
-    internal ushort ChannelVoiceMaskPointer;
+    internal int ChannelVoiceMaskPointer;
     /// <summary>SPC work-RAM address of the current channel's hardware voice index.</summary>
-    internal ushort ChannelVoiceIndexPointer;
+    internal int ChannelVoiceIndexPointer;
     /// <summary>Library-three low-health or cancellation mode selected by its command.</summary>
-    internal byte Mode;
+    internal int Mode;
     /// <summary>Pointer to the selected sound's table of per-channel instruction streams.</summary>
-    internal ushort CurrentPointer;
+    internal int CurrentPointer;
     /// <summary>Bit mask of hardware voices currently borrowed by this library.</summary>
-    internal byte EnabledVoices;
+    internal int EnabledVoices;
     /// <summary>Number of hardware voices still requested by the new sound's configuration.</summary>
-    internal byte VoicesToSetup;
+    internal int VoicesToSetup;
     /// <summary>Next logical channel to receive a free hardware voice.</summary>
-    internal byte ChannelIndex;
+    internal int ChannelIndex;
     /// <summary>Shifted occupancy mask used while scanning hardware voices from high to low.</summary>
-    internal byte VoicesRemaining;
+    internal int VoicesRemaining;
     /// <summary>Selected sound's index within the library's pointer table.</summary>
-    internal byte CurrentSoundIndex;
+    internal int CurrentSoundIndex;
     /// <summary>Descending hardware voice number examined during allocation.</summary>
-    internal byte VoiceId;
+    internal int VoiceId;
     /// <summary>Marks that the current sound's channels and borrowed voices have been initialized.</summary>
-    internal byte InitializationFlag;
+    internal int InitializationFlag;
     /// <summary>DSP register-pair index assigned to the currently allocated voice.</summary>
-    internal byte VoiceIndex;
+    internal int VoiceIndex;
 
     /// <summary>Appends every field of this sound-effect library, in declaration order, to a driver-state snapshot (#1305).</summary>
     internal void WriteState(List<byte> state)
     {
-        state.AddRange([Priority, ChannelIndexTimesTwo, CurrentSound, Mode, EnabledVoices, VoicesToSetup, ChannelIndex, VoicesRemaining, CurrentSoundIndex, VoiceId, InitializationFlag, VoiceIndex]);
-        state.Add(SnesLittleEndian.LowByte(ChannelVoiceBitsetPointer));
-        state.Add(SnesLittleEndian.HighByte(ChannelVoiceBitsetPointer));
-        state.Add(SnesLittleEndian.LowByte(ChannelVoiceMaskPointer));
-        state.Add(SnesLittleEndian.HighByte(ChannelVoiceMaskPointer));
-        state.Add(SnesLittleEndian.LowByte(ChannelVoiceIndexPointer));
-        state.Add(SnesLittleEndian.HighByte(ChannelVoiceIndexPointer));
-        state.Add(SnesLittleEndian.LowByte(CurrentPointer));
-        state.Add(SnesLittleEndian.HighByte(CurrentPointer));
+        SpcDriverSnapshot.AddBytes(state, [Priority, ChannelIndexTimesTwo, CurrentSound, Mode, EnabledVoices, VoicesToSetup, ChannelIndex, VoicesRemaining, CurrentSoundIndex, VoiceId, InitializationFlag, VoiceIndex]);
+        SpcDriverSnapshot.AddWords(state, [ChannelVoiceBitsetPointer, ChannelVoiceMaskPointer, ChannelVoiceIndexPointer, CurrentPointer]);
     }
 }

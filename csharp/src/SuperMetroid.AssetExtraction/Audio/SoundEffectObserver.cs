@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio;
 /// </summary>
 /// <param name="libraryIndex">The library's zero-based queue index.</param>
 /// <param name="command">The request byte.</param>
-internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpcDriverObserver
+internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcDriverObserver
 {
     /// <summary>Most channels any library allocates (library 1).</summary>
     private const int MaximumChannels = 4;
@@ -22,7 +22,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
     /// <summary>First arrival of each channel's own poll states, by state key.</summary>
     private readonly Dictionary<string, long>[] channelStates = [[], [], [], []];
     /// <summary>Each channel's first repeated state and voice, once found.</summary>
-    private readonly (long First, long Second, byte Voice)?[] channelLoops = new (long, long, byte)?[MaximumChannels];
+    private readonly (long First, long Second, int Voice)?[] channelLoops = new (long, long, int)?[MaximumChannels];
     /// <summary>The renderer whose frame count positions each tick.</summary>
     private SpcAudioClipRenderer? renderer;
     /// <summary>Native sample position of the tick being serviced.</summary>
@@ -44,8 +44,8 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
     internal IReadOnlyList<(long Sample, byte Voices)> KeyOns => keyOns;
 
     /// <summary>Each allocated channel's first repeated state (E1, E2) and its voice.</summary>
-    internal IReadOnlyList<(long First, long Second, byte Voice)> ChannelLoops =>
-        [.. channelLoops.OfType<(long First, long Second, byte Voice)>()];
+    internal IReadOnlyList<(long First, long Second, int Voice)> ChannelLoops =>
+        [.. channelLoops.Where(loop => loop.HasValue).Select(loop => loop.Value)];
 
     /// <summary>Whether every channel the sound allocated has repeated its own state.</summary>
     internal bool AllChannelLoopsFound { get; private set; }
@@ -74,7 +74,7 @@ internal sealed class SoundEffectObserver(int libraryIndex, byte command) : ISpc
     }
 
     /// <inheritdoc />
-    public void KeysPublished(byte keyOn, byte keyOff)
+    public void KeysPublished(int keyOn, int keyOff)
     {
         ManagedSpcPlayer player = MusicTrackAnalysis.Required(renderer).Player;
         ManagedSpcSoundLibrary library = player.soundLibraries[libraryIndex];

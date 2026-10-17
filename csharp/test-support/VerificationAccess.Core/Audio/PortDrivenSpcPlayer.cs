@@ -39,5 +39,5 @@ internal sealed class PortDrivenSpcPlayer
 
     /// <summary>Reads one SPC-to-CPU port: the sequencer's music echo or a sound-effect acknowledgement.</summary>
     internal byte ReadPort(ApuPort port) =>
-        port == ApuPort.Music ? Player.musicPortToSnes : ports.ReadSoundEffectPort(port);
+        port == ApuPort.Music ? checked((byte)Player.musicPortToSnes) : ports.ReadSoundEffectPort(port);
 }

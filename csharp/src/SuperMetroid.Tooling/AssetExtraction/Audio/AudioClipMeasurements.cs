@@ -102,7 +102,7 @@ internal static class AudioClipMeasurements
         }
 
         /// <inheritdoc />
-        public void KeysPublished(byte keyOn, byte keyOff)
+        public void KeysPublished(int keyOn, int keyOff)
         {
         }
 

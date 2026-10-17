@@ -49,7 +49,7 @@ internal static class AudioInstrumentsVerification
                 AssertEqual(instrument.Gain,
                     rawPlayer.ReadApuByteForVerification(address + 3),
                     $"{bank.Name} instrument {instrument.Instrument} gain");
-                AssertEqual(SnesLittleEndian.HighByte(instrument.PitchBase),
+                AssertEqual(SnesLittleEndian.HighByte(checked((ushort)instrument.PitchBase)),
                     rawPlayer.ReadApuByteForVerification(address + 4),
                     $"{bank.Name} instrument {instrument.Instrument} pitch high");
                 AssertEqual(unchecked((byte)instrument.PitchBase),
@@ -108,7 +108,7 @@ internal static class AudioInstrumentsVerification
             {
                 int address = SpcDriverDefinitions.Ram.InstrumentTable +
                     index * SpcDriverDefinitions.Ram.InstrumentRecordSize;
-                AssertEqual(SnesLittleEndian.HighByte(installed[index].PitchBase),
+                AssertEqual(SnesLittleEndian.HighByte(checked((ushort)installed[index].PitchBase)),
                     editedRenderer.PlayerForVerification.ReadApuByteForVerification(address + 4),
                     $"edited title instrument {index} pitch high");
                 AssertEqual(unchecked((byte)installed[index].PitchBase),

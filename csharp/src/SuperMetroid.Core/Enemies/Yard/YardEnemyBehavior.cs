@@ -468,7 +468,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | checked((byte)state.AirborneFacingDirection)));
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
-        CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot);
+        state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingVelocity);
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??

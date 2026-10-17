@@ -1072,7 +1072,7 @@ internal static class LookupStream2Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
-        Action<RoomEnemySlot> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
+        Func<RoomEnemySlot, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>> reset = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties;
         Action<RoomEnemySlot, YardEnemyState, int> setYard = YardEnemyBehavior.SetYardCrawlingVelocities;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState(slot);
@@ -1085,10 +1085,10 @@ internal static class LookupStream2Verification
             for (ushort property = 0; property < 4; property++)
             {
                 slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
-                reset(slot);
-                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, slot.VariableA,
+                EightEightVector<RoomPixels> velocity = reset(slot, default);
+                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
-                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, slot.VariableB,
+                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue,
                     "Actual crawler reset Y magnitude");
             }
             for (ushort direction = 0; direction < 8; direction++)

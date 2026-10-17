@@ -89,7 +89,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             var enemies = new RoomEnemySystem();
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Parameter2 = speciesOffset;
-            var state = new CrawlerEnemyState(slot);
+            var state = new CrawlerEnemyState();
 
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffff));
             setHorizontal(slot, state);

@@ -15,7 +15,8 @@ internal static class CrawlerSpeedsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
-        var reset = new Action<RoomEnemySlot>(CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
+        var reset = new Func<RoomEnemySlot, EightEightVector<RoomPixels>, EightEightVector<RoomPixels>>(
+            CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
         var setYard = new Action<RoomEnemySlot, YardEnemyState, int>(YardEnemyBehavior.SetYardCrawlingVelocities);
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState(slot);
@@ -28,11 +29,9 @@ internal static class CrawlerSpeedsVerification
             for (ushort property = 0; property < 4; property++)
             {
                 slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
-                slot.VariableA = 123;
-                slot.VariableB = 456;
-                reset(slot);
-                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, slot.VariableA, "Real crawler X reset without bus");
-                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, slot.VariableB, "Real crawler Y reset without bus");
+                EightEightVector<RoomPixels> velocity = reset(slot, new(new SnesSignedEightEight(123), new SnesSignedEightEight(456)));
+                AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue, "Real crawler X reset without bus");
+                AssertEqual(property == 2 ? unchecked((ushort)-expected) : expected, velocity.Y.RawValue, "Real crawler Y reset without bus");
             }
             for (ushort direction = 0; direction < 8; direction++)
             {
@@ -49,11 +48,10 @@ internal static class CrawlerSpeedsVerification
             for (ushort property = 0; property < 4; property++)
             {
                 slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(property));
-                slot.VariableA = (ushort)magnitude;
-                slot.VariableB = (ushort)~magnitude;
-                reset(slot);
-                AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, slot.VariableA, "Crawler sentinel X sign");
-                AssertEqual(property == 2 ? unchecked((ushort)-(ushort)~magnitude) : (ushort)~magnitude, slot.VariableB, "Crawler sentinel Y sign");
+                EightEightVector<RoomPixels> velocity = reset(slot,
+                    new(new SnesSignedEightEight((ushort)magnitude), new SnesSignedEightEight((ushort)~magnitude)));
+                AssertEqual(property == 0 ? unchecked((ushort)-magnitude) : (ushort)magnitude, velocity.X.RawValue, "Crawler sentinel X sign");
+                AssertEqual(property == 2 ? unchecked((ushort)-(ushort)~magnitude) : (ushort)~magnitude, velocity.Y.RawValue, "Crawler sentinel Y sign");
             }
             for (ushort direction = 0; direction < 8; direction++)
             {

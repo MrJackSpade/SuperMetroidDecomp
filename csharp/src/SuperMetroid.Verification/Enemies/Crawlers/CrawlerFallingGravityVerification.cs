@@ -13,7 +13,7 @@ internal static class CrawlerFallingGravityVerification
     /// </summary>
     internal static void VerifyCrawlerFallingGravity()
     {
-        var state = new CrawlerEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
+        var state = new CrawlerEnemyState();
         for (int update = 1; update <= 8; update++)
         {
             state.ApplyFallingGravity();

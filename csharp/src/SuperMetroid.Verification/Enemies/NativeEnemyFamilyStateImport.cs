@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Choot;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Enemies.Crawlers;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.FaceBlocks;
@@ -96,6 +97,11 @@ internal static class NativeEnemyFamilyStateImport
             skultera.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableE), slot.VariableD);
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(slot.VariableF));
+        }
+        if (slot.EntityState<CrawlerEntity, CrawlerEnemyState>() is { } crawler)
+        {
+            crawler.Velocity = new(new SnesSignedEightEight(slot.VariableA), new SnesSignedEightEight(slot.VariableB));
+            crawler.Function = slot.VariableF == 0 ? null : (CrawlerEnemyFunction)slot.VariableF;
         }
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz && slot.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
         {

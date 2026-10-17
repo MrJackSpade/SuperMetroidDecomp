@@ -57,7 +57,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerAnimationFamily animationFamily,
         ushort? speciesInstructionOffset = null)
     {
-        var state = new CrawlerEnemyState(slot);
+        var state = new CrawlerEnemyState();
         Bind(slot, state);
 
         if (speciesInstructionOffset is ushort offset)
@@ -75,11 +75,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
-        ResetCrawlerVelocitiesFromProperties(slot);
+        state.Velocity = ResetCrawlerVelocitiesFromProperties(slot, state.Velocity);
     }
 
     /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
-    internal static void ResetCrawlerVelocitiesFromProperties(RoomEnemySlot slot)
+    /// <returns>The reset velocity: <paramref name="velocity"/> or the parameter's speed on both axes, signed by the properties.</returns>
+    internal static EightEightVector<RoomPixels> ResetCrawlerVelocitiesFromProperties(
+        RoomEnemySlot slot, EightEightVector<RoomPixels> velocity)
     {
         if (slot.Parameter1 != CrawlerSpeedDefinitions.PreserveVelocity)
         {
@@ -88,9 +90,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidDataException(
                     $"Crawler speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
             }
-            ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
-            slot.VariableA = velocity;
-            slot.VariableB = velocity;
+            ushort speed = CrawlerSpeedDefinitions.ForParameter(checked((ushort)slot.Parameter1));
+            velocity = new(new SnesSignedEightEight(speed), new SnesSignedEightEight(speed));
         }
 
         // The low two population-property bits encode which side of the starting block the
@@ -98,12 +99,13 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (slot.Properties.FamilyData & 3)
         {
             case 0:
-                slot.VariableA = Negate16(slot.VariableA);
+                velocity = velocity.ReversedX();
                 break;
             case 2:
-                slot.VariableB = Negate16(slot.VariableB);
+                velocity = velocity.ReversedY();
                 break;
         }
+        return velocity;
     }
 
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
@@ -115,7 +117,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 $"HZoomer speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
         }
 
-        var state = new CrawlerEnemyState(slot)
+        var state = new CrawlerEnemyState
         {
             Function = CrawlerEnemyFunction.HZoomerInstructionPending,
         };
@@ -167,7 +169,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"HZoomer function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"HZoomer function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -313,7 +315,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Crawler function $A3:{(ushort)state.Function:X4} is not translated.");
+                    $"Crawler function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 
@@ -507,7 +509,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
     private static void Bind(RoomEnemySlot slot, CrawlerEnemyState state) =>
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
     /// <summary>Adds a whole-pixel probe margin in the direction of a signed eight-eight velocity.</summary>
     internal static int Shift8AddMagnitude(ushort velocity, int wholePixels)

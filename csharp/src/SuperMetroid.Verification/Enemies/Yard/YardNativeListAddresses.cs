@@ -4,7 +4,8 @@ namespace SuperMetroid.Verification.Enemies.Yard;
 
 /// <summary>
 /// The native bank-$A3 lists the Yard ROM oracle (#641) walks: each program's entry point and the owner
-/// instructions the lists use, with the cue each must become and its operand roles (T target, A alternate, V value).
+/// instructions the lists use, with the cue each must become and its operand roles (D direction, E movement function,
+/// N hiding target, S and Y signed X and Y offsets).
 /// Only verification reads them; the port runs typed programs.
 /// </summary>
 internal static class YardNativeListAddresses
@@ -63,7 +64,7 @@ internal static class YardNativeListAddresses
     {
         [0xcc36] = (YardCueKind.SetMovementFunction, "E"),
         [0xcc3f] = (YardCueKind.SetHidingProgram, "N"),
-        [0xcc48] = (YardCueKind.SetDirection, "V"),
+        [0xcc48] = (YardCueKind.SetDirection, "D"),
         [0xcc5f] = (YardCueKind.MoveBy, "SY"),
         [0xcc78] = (YardCueKind.RepeatPreviousPoseUnlessContinuing, ""),
     };

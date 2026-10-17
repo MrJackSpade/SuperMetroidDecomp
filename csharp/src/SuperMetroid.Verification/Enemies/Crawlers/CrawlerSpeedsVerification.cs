@@ -16,7 +16,7 @@ internal static class CrawlerSpeedsVerification
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
         var reset = new Action<RoomEnemySlot>(CrawlersBehavior.ResetCrawlerVelocitiesFromProperties);
-        var setYard = new Action<RoomEnemySlot, YardEnemyState, ushort>(YardEnemyBehavior.SetYardCrawlingVelocities);
+        var setYard = new Action<RoomEnemySlot, YardEnemyState, int>(YardEnemyBehavior.SetYardCrawlingVelocities);
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
         var yard = new YardEnemyState(slot);
         for (ushort parameter = 0; parameter < 32; parameter++)

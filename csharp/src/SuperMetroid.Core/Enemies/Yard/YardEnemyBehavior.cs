@@ -54,9 +54,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.HidingProgram = cue.OptionalTarget;
                 return null;
             case YardCueKind.SetDirection:
-                if (cue.Value >= 8)
-                    throw new InvalidDataException($"Yard animation selected invalid direction {cue.Value}.");
-                state.Direction = cue.Value;
+                if ((uint)cue.Direction >= 8)
+                    throw new InvalidDataException($"Yard animation selected invalid direction {cue.Direction}.");
+                state.Direction = cue.Direction;
                 state.AirborneFacingDirection = YardDirectionDefinitions.ForDirection(state.Direction).AirborneFacingDirection;
                 return null;
             case YardCueKind.MoveBy:
@@ -115,7 +115,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
     /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
-    internal static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, ushort direction)
+    internal static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, int direction)
     {
         ValidateYardSpeedIndex(slot.Parameter1);
         ushort speed = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
@@ -291,8 +291,9 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!surfaceCollision)
         {
-            state.ConsecutiveTurnCounter = unchecked((ushort)(state.ConsecutiveTurnCounter + 1));
-            if (unchecked((short)(state.ConsecutiveTurnCounter - 4)) >= 0)
+            // The count stays within one through four, so the cartridge's signed word comparison is an ordinary one.
+            state.ConsecutiveTurnCounter++;
+            if (state.ConsecutiveTurnCounter >= 4)
             {
                 DropYard(slot, state);
                 return;
@@ -356,7 +357,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort next = unchecked((ushort)(state.TurnTransitionDisableCounter + 1));
+        int next = state.TurnTransitionDisableCounter + 1;
         if (next >= 16)
         {
             state.TurnTransitionDisabled = false;
@@ -403,7 +404,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                 // whole pixel away from a conventional 32-bit negation when low word is 0.
                 state.AirborneVelocity = state.AirborneVelocity.WithX(NegateWordsSeparately(state.AirborneVelocity.X));
                 state.BouncedHorizontally = true;
-                LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
+                LastYardSoundEffect = YardBounceSound;
             }
             else
             {
@@ -585,7 +586,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         if (kickRequested)
         {
             KickYardIntoAir(slot, state, samus);
-            LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
+            LastYardSoundEffect = YardBounceSound;
             return;
         }
 
@@ -599,7 +600,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         _collision.ResolveNormalEnemyTouch(slot, samus);
-        slot.Parameter1 = state.IdleCrawlingSpeedIndex;
+        slot.Parameter1 = checked((ushort)state.IdleCrawlingSpeedIndex);
         if (state.Behavior != YardBehavior.NormalCrawling)
             TurnYardAround(slot, state);
         state.Behavior = YardBehavior.NormalCrawling;
@@ -629,12 +630,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.Behavior is not (YardBehavior.Dropped or YardBehavior.Kicked))
             ShootYardIntoAir(slot, state, samus);
-        LastYardSoundEffect = EnemySoundEffectDefinitions.YardBounceSound;
+        LastYardSoundEffect = YardBounceSound;
     }
-
-    /// <summary>Recombines native whole and fraction velocity words without losing their signed 16.16 bit pattern.</summary>
-    internal static int ComposeSignedFixed(ushort whole, ushort fraction) =>
-        unchecked((int)((SnesSixteenSixteen.FromWhole((uint)whole)) | fraction));
 
     /// <summary>Finds the state paired with a live Yard slot and rejects an uninitialized callback.</summary>
     internal static YardEnemyState RequireYardState(RoomEnemySlot slot) =>
@@ -695,8 +692,12 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             context => ResolveYardTouch(context.Slot, RequireYardState(context.Slot), context.Samus, context.ControllerInput));
     }
 
+    /// <summary>Library-two sound $70 queued by a Yard shell kick, launch or wall bounce.</summary>
+    private static readonly SoundEffectId YardBounceSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.YardBounceSound);
+
     /// <summary>Last library-two $70 Yard shell kick, launch, or wall-bounce sound this enemy pass, using the Max3 queue entry; cleared before the next pass.</summary>
-    public ushort? LastYardSoundEffect { get; private set; }
+    public SoundEffectId? LastYardSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
@@ -713,6 +714,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastYardSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 3);
+        if (LastYardSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 3);
     }
 }

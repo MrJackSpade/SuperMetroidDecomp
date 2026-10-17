@@ -32,7 +32,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingLeft)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideUpMovingLeft)),
-            Cue(new(K.SetDirection, Value: 6)),
+            Cue(new(K.SetDirection, Direction: 6)),
             Show(0, 9),
             Show(1, 13),
             Show(2, 9),
@@ -54,7 +54,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingDown)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideLeftMovingDown)),
-            Cue(new(K.SetDirection, Value: 3)),
+            Cue(new(K.SetDirection, Direction: 3)),
             Show(6, 9),
             Show(7, 13),
             Show(8, 9),
@@ -76,7 +76,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingRight)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideDownMovingRight)),
-            Cue(new(K.SetDirection, Value: 5)),
+            Cue(new(K.SetDirection, Direction: 5)),
             Show(12, 9),
             Show(13, 13),
             Show(14, 9),
@@ -98,7 +98,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingUp)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideRightMovingUp)),
-            Cue(new(K.SetDirection, Value: 0)),
+            Cue(new(K.SetDirection, Direction: 0)),
             Show(18, 9),
             Show(19, 13),
             Show(20, 9),
@@ -120,7 +120,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideUpMovingRight)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideUpMovingRight)),
-            Cue(new(K.SetDirection, Value: 7)),
+            Cue(new(K.SetDirection, Direction: 7)),
             Show(32, 9),
             Show(33, 13),
             Show(34, 9),
@@ -142,7 +142,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideRightMovingDown)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideRightMovingDown)),
-            Cue(new(K.SetDirection, Value: 1)),
+            Cue(new(K.SetDirection, Direction: 1)),
             Show(38, 9),
             Show(39, 13),
             Show(40, 9),
@@ -164,7 +164,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideDownMovingLeft)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideDownMovingLeft)),
-            Cue(new(K.SetDirection, Value: 4)),
+            Cue(new(K.SetDirection, Direction: 4)),
             Show(44, 9),
             Show(45, 13),
             Show(46, 9),
@@ -186,7 +186,7 @@ internal static class YardAnimations
         [
             Cue(new(K.SetMovementFunction, MovementFunction: YardMovementFunction.CrawlingUpsideLeftMovingUp)),
             Cue(new(K.SetHidingProgram, OptionalTarget: P.HidingUpsideLeftMovingUp)),
-            Cue(new(K.SetDirection, Value: 2)),
+            Cue(new(K.SetDirection, Direction: 2)),
             Show(50, 9),
             Show(51, 13),
             Show(52, 9),

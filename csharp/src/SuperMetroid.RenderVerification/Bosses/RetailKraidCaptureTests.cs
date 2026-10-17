@@ -61,9 +61,9 @@ internal static class RetailKraidCaptureTests
         {
             int waiting = 0;
             // The attack enters with a roar timer before its first head frame selects a mouth
-            // shape; until then the hitbox words still hold their initial values.
+            // shape; until then no frame is displayed, or the closed mouth's has no shape.
             while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
-                && KraidMouthHitboxDefinitions.IsDefined(boss.InvulnerableMouthHitbox)) && waiting++ < 1400)
+                && boss.DisplayedHeadFrame is { } shown && KraidMouthHitboxDefinitions.IsDefined(shown.InvulnerableHitbox)) && waiting++ < 1400)
                 runtime.StepFrame(0);
             if (waiting >= 1400) throw new InvalidOperationException("Kraid never opened its mouth.");
             StrikeMouth(bus, runtime, body, boss);
@@ -92,7 +92,7 @@ internal static class RetailKraidCaptureTests
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
         int deathWait = 0;
         while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
-            && boss.InvulnerableMouthHitbox != ushort.MaxValue) && deathWait++ < 1400)
+            && boss.DisplayedHeadFrame is not { InvulnerableHitbox: ushort.MaxValue }) && deathWait++ < 1400)
             runtime.StepFrame(0);
         if (deathWait >= 1400) throw new InvalidOperationException("Kraid death fixture never reached an open mouth.");
         // Shorten combat only, as in the established runtime audit. The lethal hit
@@ -140,7 +140,8 @@ internal static class RetailKraidCaptureTests
         // Match the established audit: stage a missile at the open-mouth hitbox, then use
         // the real collision/damage dispatcher to initiate growth. Resolve the shape exactly
         // as collision does: compiled $A7:9788 records or a live bank-$A7 low-half alias.
-        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(boss.InvulnerableMouthHitbox);
+        var (left, top, bottom) = KraidMouthHitboxDefinitions.ResolveCollision(
+            boss.DisplayedHeadFrame is { } shown ? shown.InvulnerableHitbox : default);
         var shots = InstalledFixtures.CreateProjectileSystem();
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;

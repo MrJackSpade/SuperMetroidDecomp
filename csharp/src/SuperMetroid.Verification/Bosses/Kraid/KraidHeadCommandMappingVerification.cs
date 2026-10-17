@@ -18,17 +18,28 @@ internal static class KraidHeadCommandMappingVerification
             ushort opcode = Word(pointer);
             KraidHeadInstructionDefinition command = opcode switch
             {
-                0xffff => new((ushort)pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0),
-                0xaf94 => new((ushort)pointer, KraidHeadInstructionKind.RoarSound, 0, 0, 0, 0, Word(0xaf96)),
-                0xaf9f => new((ushort)pointer, KraidHeadInstructionKind.DyingSound, 0, 0, 0, 0, Word(0xafa1)),
+                0xffff => new((ushort)pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0, 0),
+                0xaf94 => new((ushort)pointer, KraidHeadInstructionKind.RoarSound, 0, 0, 0, 0, Word(0xaf96), 0),
+                0xaf9f => new((ushort)pointer, KraidHeadInstructionKind.DyingSound, 0, 0, 0, 0, Word(0xafa1), 0),
                 < 0x8000 => new((ushort)pointer, KraidHeadInstructionKind.Frame, opcode,
-                    Word(pointer + 2), Word(pointer + 4), Word(pointer + 6), 0),
+                    Word(pointer + 2), Word(pointer + 4), Word(pointer + 6), 0, 0),
                 _ => throw new InvalidDataException($"Unknown native Kraid head opcode {opcode:X4}."),
             };
             expected.Add(command);
             pointer += opcode < 0x8000 ? 8 : 2;
         }
         AssertEqual(28, expected.Count, "Independent Kraid head stream command count");
+        // A frame's mouth stage is its tilemap's rank among the head's distinct tilemaps: the closed mouth is the
+        // lowest, and each further stage of opening is the next.
+        List<ushort> stageTilemaps = [.. expected.Where(command => command.Kind == KraidHeadInstructionKind.Frame)
+            .Select(command => command.Tilemap).Distinct().Order()];
+        AssertEqual(KraidHeadInstructionDefinitions.FullyOpenMouthStage + 1, stageTilemaps.Count,
+            "Independent Kraid head stream shows one tilemap per mouth stage");
+        for (int command = 0; command < expected.Count; command++)
+        {
+            if (expected[command].Kind == KraidHeadInstructionKind.Frame)
+                expected[command] = expected[command] with { MouthStage = stageTilemaps.IndexOf(expected[command].Tilemap) };
+        }
         AssertEqual(expected.Count, KraidHeadInstructionDefinitions.All.Length, "Calculated head command count");
         int index = 0;
         foreach (KraidHeadInstructionDefinition actual in KraidHeadInstructionDefinitions.All)

@@ -3,15 +3,15 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <summary>Two physical components calculated on access; an unsuccessful lookup returns an empty sequence.</summary>
 internal readonly record struct KraidFootComponentSequence(int Frame, int Length)
 {
-    /// <summary>Calculates the fixed or moving component's offset with their shared hitbox list.</summary>
+    /// <summary>Calculates the fixed or moving component's offset with their shared rectangle.</summary>
     internal KraidFootCollisionComponent this[int index]
     {
         get
         {
             if ((uint)index >= (uint)Length) throw new IndexOutOfRangeException();
             return index == 0
-                ? new(new(KraidFootCollisionDefinitions.FirstX(Frame), KraidFootCollisionDefinitions.FirstY(Frame)), KraidFootCollisionDefinitions.HitboxList)
-                : new(new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame)), KraidFootCollisionDefinitions.HitboxList);
+                ? new(new(KraidFootCollisionDefinitions.FirstX(Frame), KraidFootCollisionDefinitions.FirstY(Frame)), KraidFootCollisionDefinitions.SharedHitboxes)
+                : new(new(KraidFootCollisionDefinitions.SecondX(Frame), KraidFootCollisionDefinitions.SecondY(Frame)), KraidFootCollisionDefinitions.SharedHitboxes);
         }
     }
     /// <summary>Enumerates the calculated components without a stored frame array.</summary>

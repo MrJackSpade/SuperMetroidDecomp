@@ -34,11 +34,14 @@ public sealed class FakeKraidEnemyState
         internal set => _slot.VariableC = unchecked((ushort)value);
     }
 
-    /// <summary>Frames/steps remaining before the next forced walk reversal.</summary>
-    public ushort WalkStepTimer
+    /// <summary>
+    /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero; a cleared
+    /// timer wraps instead and counts down from the full word.
+    /// </summary>
+    public NativeCountdown WalkStepTimer
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => NativeCountdown.FromRaw(_slot.VariableD);
+        internal set => _slot.VariableD = value.RawValue;
     }
 
     /// <summary>Number of animation decision points before the next spit attack.</summary>

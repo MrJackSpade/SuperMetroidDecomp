@@ -64,6 +64,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertEqual(stockResult, editedResult, "head interpretation result is not editable");
                 AssertAnimationValues(baseline.Body, changed.Body, "Kraid head tick " + tick);
                 AssertAnimationValues(baseline.State, changed.State, "Kraid head tick " + tick);
+                AssertEqual(baseline.State.DisplayedHeadFrame, changed.State.DisplayedHeadFrame,
+                    "Kraid head tick " + tick + " displayed head frame is not editable");
                 AssertTrue(workingBody.SequenceEqual(baseline.State.BackgroundTilemapWords) &&
                     workingBody.SequenceEqual(changed.State.BackgroundTilemapWords),
                     "head DMA must not overwrite the WRAM body-map source");
@@ -100,9 +102,11 @@ internal static class KraidInstalledPresentationHeadClockVerification
                 AssertEqual((ushort)(nextEvent - tick), baseline.Body.VariableC, "native countdown on every hold tick");
                 KraidHeadInstructionDefinition displayed = commands.Take(cursor).Last(item => item.Kind == KraidHeadInstructionKind.Frame);
                 AssertEqual((ushort)(displayed.Pointer + 8), baseline.Body.VariableB, "head cursor holds until next event");
-                AssertEqual(physical, baseline.State.CurrentHeadTilemap, "compiled physical head selector survives art replacement");
-                AssertEqual(outer, baseline.State.VulnerableMouthHitbox, "outer mouth window follows compiled admission");
-                AssertEqual(inner, baseline.State.InvulnerableMouthHitbox, "inner mouth window follows compiled admission");
+                KraidHeadInstructionDefinition shown = baseline.State.DisplayedHeadFrame
+                    ?? throw new InvalidOperationException("Verification requires a displayed Kraid head frame.");
+                AssertEqual(physical, shown.Tilemap, "compiled physical head selector survives art replacement");
+                AssertEqual(outer, shown.VulnerableHitbox, "outer mouth window follows compiled admission");
+                AssertEqual(inner, shown.InvulnerableHitbox, "inner mouth window follows compiled admission");
                 AssertEqual(soundCount, baseline.State.RoarRequestCount, "roar callback count on every tick");
                 AssertEqual(uploadCount, baseline.State.HeadTilemapUploadCount, "no extra head upload during hold");
                 AssertTrue(expectedStock.SequenceEqual(baseline.Vram.Bytes), "exact stock head DMA and untouched VRAM");

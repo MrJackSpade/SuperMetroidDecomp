@@ -100,7 +100,7 @@ internal static class KraidReportedCollisionsVerification
             runtime.Projectiles.Reset();
             body.Position = body.Position.WithWhole(new(176, 457));
             body.VariableA = (ushort)KraidAiFunction.RaiseBody;
-            state.VulnerableMouthHitbox = state.InvulnerableMouthHitbox = 0;
+            state.DisplayedHeadFrame = null;
             runtime.Enemies.KraidBehavior.RunKraidRiseFunction(body, state, samus);
             AssertEqual(KraidHeadInstructionDefinitions.RoarContinuation, body.VariableB, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
@@ -122,6 +122,20 @@ internal static class KraidReportedCollisionsVerification
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
             AssertEqual((ushort)492, samus.Position.Y.Whole, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");
+        });
+        Check("Kraid body ejection limit", () =>
+        {
+            // The same contact as above, with the limit below the eight-pixel push: Samus stops at the limit's Y.
+            Position16<RoomPixels> smallFormLimit = state.EjectionLimit;
+            state.EjectionLimit = new Position16<RoomPixels>(0, 496);
+            body.Position = body.Position.WithWhole(new(176, 592));
+            body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
+            state.ThinkingTimer = NativeCountdown.Start(100);
+            ResetSamus(180, 500);
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>((ushort)0, (ushort)384), null, null, null);
+            state.EjectionLimit = smallFormLimit;
+            AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid still ejects Samus eight pixels left");
+            AssertEqual((ushort)496, samus.Position.Y.Whole, "Kraid's upward push stops at the ejection limit's Y");
         });
         if (failures.Count != 0) throw new AggregateException("Kraid reported collisions", failures);
         return 0;

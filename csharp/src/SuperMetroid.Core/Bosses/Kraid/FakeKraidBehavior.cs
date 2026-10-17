@@ -58,7 +58,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
                 // inclusive 256x256 native screen rectangle.
                 if (FakeKraidOriginIsOnScreen(slot, camera))
-                    LastFakeKraidSoundEffect = FakeKraidSpitSound;
+                    LastFakeKraidSoundEffect = KraidSoundDefinitions.MiniKraidCry;
                 return null;
             case FakeKraidCueKind.SpitLeft:
                 SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: false);
@@ -71,13 +71,20 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Library-two cry requested only when Mini-Kraid's origin is on screen.</summary>
-    private const ushort FakeKraidSpitSound = 0x0016;
-    /// <summary>Library-two cue used by Mini-Kraid's spike launch.</summary>
-    private const ushort FakeKraidSpikeSound = 0x003f;
+    /// <summary>Fewest frames a spike clock waits after it fires before it can fire again.</summary>
+    private const int MinimumSpikeReloadFrames = 16;
 
-    /// <summary>Last library-two sound requested by Fake Kraid during this enemy frame.</summary>
-    public ushort? LastFakeKraidSoundEffect { get; private set; }
+    /// <summary>Number of distinct random extra frames (zero through sixty-three) added to a spike clock's reload.</summary>
+    private const int SpikeReloadRandomSpread = 64;
+
+    /// <summary>Whole pixels per frame a body spike travels horizontally, toward the side Mini-Kraid faces.</summary>
+    private const int SpikePixelsPerFrame = 2;
+
+    /// <summary>Sub-pixel steps in one whole pixel of a projectile's 8.8 velocity.</summary>
+    private const int SubpixelsPerPixel = 256;
+
+    /// <summary>Last sound requested by Fake Kraid during this enemy frame, or null when it requested none.</summary>
+    public SoundEffectId? LastFakeKraidSoundEffect { get; private set; }
 
 
     /// <summary>Ports <c>FakeKraid_Init</c> at <c>$A6:9A58</c>.</summary>
@@ -97,7 +104,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // isolated callers that did not expose that native seam.
         ushort random = ReadFakeKraidRandomNumber();
         ushort seedDelay = unchecked((ushort)((random & 3) + 2));
-        state.WalkStepTimer = seedDelay;
+        state.WalkStepTimer = NativeCountdown.FromRaw(seedDelay);
         state.SpitDecisionTimer = NativeCountdown.FromRaw(seedDelay);
         state.SpikeTimers[0] = unchecked((ushort)(seedDelay + 64));
         state.SpikeTimers[1] = unchecked((ushort)(seedDelay + 96));
@@ -135,12 +142,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        state.SpikeTimers[timerIndex] = unchecked((ushort)(
-            (ReadFakeKraidRandomNumber() & 0x003f) + 16));
+        // The reload keeps the random word's low six bits: sixteen to seventy-nine frames.
+        state.SpikeTimers[timerIndex] = checked((ushort)(
+            ReadFakeKraidRandomNumber() % SpikeReloadRandomSpread + MinimumSpikeReloadFrames));
         if (SpawnFakeKraidSpike(slot, state, timerIndex) &&
             FakeKraidOriginIsOnScreen(slot, camera))
         {
-            LastFakeKraidSoundEffect = FakeKraidSpikeSound;
+            LastFakeKraidSoundEffect = KraidSoundDefinitions.MiniKraidSpikeLaunch;
         }
     }
 
@@ -159,17 +167,17 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.SpitDecisionTimer = state.SpitDecisionTimer.DecrementToZero();
 
-        // C's post-decrement comparison is exact here: when the old value is one, reload
-        // seven through ten and reverse without moving. Otherwise attempt the signed four-
-        // pixel 16.16 displacement and reverse only if the room collision helper reports a
-        // wall. A wrapped zero timer therefore still performs the attempted step.
-        ushort oldWalkTimer = state.WalkStepTimer;
-        state.WalkStepTimer = unchecked((ushort)(oldWalkTimer - 1));
-        bool reverse = oldWalkTimer == 1;
+        // The step expires when the decrement reaches zero: reload seven through ten and
+        // reverse without moving. Otherwise attempt the signed four-pixel 16.16
+        // displacement and reverse only if the room collision helper reports a wall. A
+        // cleared timer wraps rather than expiring, so it still performs the attempted step.
+        NativeWordCounterStep walkStep = state.WalkStepTimer.Decrement();
+        state.WalkStepTimer = walkStep.Remaining;
+        bool reverse = walkStep.IsZero;
         if (reverse)
         {
-            state.WalkStepTimer = unchecked((ushort)(
-                (ReadFakeKraidRandomNumber() & 3) + 7));
+            state.WalkStepTimer = NativeCountdown.Start(
+                (ReadFakeKraidRandomNumber() & 3) + 7);
         }
         else
         {
@@ -273,9 +281,11 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         short yOffset = FakeKraidProjectileDefinitions.SpikeYOffset(row);
         projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(source.Position.X.Whole, unchecked((ushort)(source.Position.Y.Whole + yOffset))));
-        projectile.Velocity = new(new SnesSignedEightEight(kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
-            ? unchecked((ushort)-0x0200)
-            : (ushort)0x0200), new SnesSignedEightEight(0));
+        int spikePixelsPerFrame = kind == RoomEnemyProjectileKind.FakeKraidSpikeLeft
+            ? -SpikePixelsPerFrame
+            : SpikePixelsPerFrame;
+        projectile.Velocity = new(SnesSignedEightEight.FromSignedRaw(checked((short)(spikePixelsPerFrame * SubpixelsPerPixel))),
+            new SnesSignedEightEight(0));
         state.SpawnedSpikeCount++;
         return true;
     }
@@ -466,6 +476,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastFakeKraidSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastFakeKraidSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

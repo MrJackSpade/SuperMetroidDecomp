@@ -104,8 +104,11 @@ internal static class KraidFootCollisionDefinitions
         return true;
     }
 
-    /// <summary>$A7:9453 contains one centered six-pixel-radius rectangle with background touch/no-op shot.</summary>
+    /// <summary>The single shared rectangle every foot component collides with.</summary>
+    internal static KraidFootHitboxSequence SharedHitboxes => new(1);
+
+    /// <summary>$A7:9453 contains one centered six-pixel-radius rectangle with ordinary touch and inert shot reactions.</summary>
     internal static KraidFootHitboxSequence HitboxesAt(ushort pointer) =>
-        pointer == HitboxList ? new(1) : throw new InvalidDataException(
+        pointer == HitboxList ? SharedHitboxes : throw new InvalidDataException(
             $"Kraid-foot hitbox list $A7:{pointer:X4} is not compiled.");
 }

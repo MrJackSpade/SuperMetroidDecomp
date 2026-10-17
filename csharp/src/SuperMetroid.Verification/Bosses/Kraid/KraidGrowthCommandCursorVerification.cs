@@ -43,12 +43,12 @@ internal static class KraidGrowthCommandCursorVerification
         body.VariableB = 0x96e2;
         execute(body, state);
         AssertEqual((ushort)0x96ea, body.VariableB, "head interpreter leaves the next cursor on the roar command");
-        ushort displayed = state.CurrentHeadTilemap;
+        KraidHeadInstructionDefinition? displayed = state.DisplayedHeadFrame;
         foot.VariableA = (ushort)KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
         AssertEqual((ushort)0x96f4, body.VariableB, "native command-cursor growth resumes at the closing-mouth frame");
         AssertEqual((ushort)64, body.VariableC, "native quick-kill growth delay is preserved");
-        AssertEqual(displayed, state.CurrentHeadTilemap, "growth selection does not advance the displayed head");
+        AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Parts[0].NextFunction, "growth schedules camera release");
         AssertEqual((ushort)180, body.VariableF, "growth function timer");
         AssertEqual((ushort)KraidAiFunction.NoOperation, foot.VariableA, "growth stops the foot lunge");

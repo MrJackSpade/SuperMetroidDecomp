@@ -71,7 +71,7 @@ internal static class KraidNailSiblingVerification
         Action<RoomEnemySlot, KraidPartState> initialize = enemies.KraidBehavior.InitializeKraidNailFlight;
         foreach (int slot in new[] { 6, 7 })
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
-        foreach (ushort siblingFlag in new ushort[] { 0, 1, 2, 65535 })
+        foreach (bool siblingAlternate in new[] { false, true })
         {
             var nail = enemies.SlotTable.Slots[slot];
             var sibling = enemies.SlotTable.Slots[13 - slot];
@@ -79,9 +79,9 @@ internal static class KraidNailSiblingVerification
             random = (ushort)raw;
             sibling.VariableE = (ushort)raw;
             nail.VariableE = unchecked((ushort)~raw);
-            state.Parts[sibling.SlotIndex].AlternateSpawnFlag = siblingFlag;
-            part.AlternateSpawnFlag = siblingFlag == 1 ? (ushort)0 : (ushort)1;
-            bool diagonal = (random & 1) == 0 || siblingFlag == 1;
+            state.Parts[sibling.SlotIndex].AlternateSpawn = siblingAlternate;
+            part.AlternateSpawn = !siblingAlternate;
+            bool diagonal = (random & 1) == 0 || siblingAlternate;
             int table = (short)sibling.VariableE < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
             nail.VariableB = nail.VariableD = ushort.MaxValue;
@@ -90,12 +90,12 @@ internal static class KraidNailSiblingVerification
             AssertEqual((ushort)0, nail.VariableD, "Launch clears old Y fraction");
             AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, nail.VariableE, "Nail launch Y velocity comes from sibling sign");
             AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, nail.VariableC, "Nail launch X velocity and horizontal override");
-            AssertEqual((ushort)(diagonal ? 0 : 1), part.AlternateSpawnFlag, "Nail spawn mode consults sibling flag, writes own flag");
-            AssertEqual(siblingFlag, state.Parts[sibling.SlotIndex].AlternateSpawnFlag, "Sibling flag remains unchanged");
+            AssertEqual(!diagonal, part.AlternateSpawn, "Nail spawn mode consults sibling flag, writes own flag");
+            AssertEqual(siblingAlternate, state.Parts[sibling.SlotIndex].AlternateSpawn, "Sibling flag remains unchanged");
             AssertEqual((ushort)raw, sibling.VariableE, "Sibling velocity remains unchanged");
             AssertEqual((ushort)(diagonal ? KraidAiFunction.FingernailFire : KraidAiFunction.FingernailWaitForLint), nail.VariableA, "Sibling choice selects actual launch phase");
         }
-        Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and four sibling flags match native launch handoff without ROM access.");
+        Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and both sibling spawn modes match native launch handoff without ROM access.");
     }
 
     /// <summary>Reads native nail launch words solely as the verification oracle.</summary>

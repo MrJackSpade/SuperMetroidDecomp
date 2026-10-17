@@ -4,9 +4,8 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
-/// Per-physical-slot projection of Kraid's bank-$7E extended workspace. Native code obtains
-/// these words by adding the enemy's byte index to the shared `$7800` base; keeping one
-/// typed record per slot exposes the same aliasing without flattening it into mystery fields.
+/// One Kraid part's own state beside its enemy slot: the body, arm, three lints, foot and two fingernails each have
+/// one, in that slot order.
 /// </summary>
 public sealed class KraidPartState
 {
@@ -14,28 +13,18 @@ public sealed class KraidPartState
     internal AnimationProgramCursor<KraidPartProgram> Cursor { get; set; }
 
     /// <summary>
-    /// Native `$7E:7800 + slot` aliases a function pointer with the second-phase foot's
-    /// think timer. The raw word remains visible; the typed view is used only on functions.
+    /// Gets the function a part's function timer installs when it expires. The cartridge keeps it in the same word as
+    /// <see cref="ThinkTimer"/>; no part reads one after writing the other (the foot writes its think timer whenever it
+    /// starts a second-phase walk and its next function whenever it starts a timed phase), so each is held on its own.
     /// </summary>
-    public ushort NextWord { get; internal set; }
+    public KraidAiFunction NextFunction { get; internal set; }
 
-    /// <summary>Gets the second-phase foot's think-timer view of the shared next-word alias.</summary>
-    public NativeCountdown ThinkTimer
-    {
-        get => NativeCountdown.FromRaw(NextWord);
-        internal set => NextWord = value.RawValue;
-    }
-
-    /// <summary>Gets the typed function view of the shared next-word alias when the current part treats it as a bank-$A7 pointer.</summary>
-    public KraidAiFunction NextFunction
-    {
-        get => (KraidAiFunction)NextWord;
-        internal set => NextWord = (ushort)value;
-    }
+    /// <summary>Gets the second-phase foot's think timer, which expires when its decrement reaches zero.</summary>
+    public NativeCountdown ThinkTimer { get; internal set; }
 
     /// <summary>
-    /// Fingernail side-selection word stored in the otherwise shared health-threshold area.
-    /// It alternates body-side and fixed-left spawns when the sampled RNG chooses that path.
+    /// Gets whether this fingernail's last launch was the fixed-left spawn rather than the body-side one. A nail
+    /// launches body-side whenever its sibling's last launch was fixed-left.
     /// </summary>
-    public ushort AlternateSpawnFlag { get; internal set; }
+    public bool AlternateSpawn { get; internal set; }
 }

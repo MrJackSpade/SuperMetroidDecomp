@@ -27,8 +27,8 @@ internal static class KraidHeadInstructionDefinitions
     /// <summary>$A7:976C, continuation installed after the dying entry frame.</summary>
     public const ushort DeathContinuation = 0x976c;
 
-    /// <summary>$A7:A0C8, the fully open mouth tilemap used by the rock emitter.</summary>
-    public const ushort OpenMouthTilemap = 0xa0c8;
+    /// <summary>The mouth stage of a fully open head frame, the stage whose timer paces the spat rocks.</summary>
+    public const int FullyOpenMouthStage = 3;
 
     /// <summary>Timer from the first roar record at $A7:96D2.</summary>
     public const ushort RoarEntryTimer = 10;
@@ -100,7 +100,7 @@ internal static class KraidHeadInstructionDefinitions
     private static KraidHeadInstructionDefinition MouthFrame(ushort pointer, ushort duration, int stage) =>
         Frame(pointer, duration, (ushort)(ClosedMouthTilemap + 0x300 * stage),
             (ushort)(VulnerableHitboxStart + 8 * stage),
-            stage == 0 ? ushort.MaxValue : (ushort)(InvulnerableHitboxStart + 8 * (stage - 1)));
+            stage == 0 ? ushort.MaxValue : (ushort)(InvulnerableHitboxStart + 8 * (stage - 1)), stage);
 
     /// <summary>Resolves one exact private-program cursor and rejects adjacent data/code.</summary>
     public static KraidHeadInstructionDefinition Resolve(ushort pointer)
@@ -174,26 +174,27 @@ internal static class KraidHeadInstructionDefinitions
             _ => new(0x96f4, 64),
         };
 
-    /// <summary>Packages one timed head frame with its selected tilemap and two collision shapes.</summary>
+    /// <summary>Packages one timed head frame with its selected tilemap, two collision shapes and mouth stage.</summary>
     private static KraidHeadInstructionDefinition Frame(
         ushort pointer,
         ushort duration,
         ushort tilemap,
         ushort vulnerableHitbox,
-        ushort invulnerableHitbox) =>
+        ushort invulnerableHitbox,
+        int mouthStage) =>
         new(pointer, KraidHeadInstructionKind.Frame, duration, tilemap,
-            vulnerableHitbox, invulnerableHitbox, 0);
+            vulnerableHitbox, invulnerableHitbox, 0, mouthStage);
 
     /// <summary>Packages a two-byte roar command without frame duration or collision operands.</summary>
     private static KraidHeadInstructionDefinition Sound(
         ushort pointer,
         KraidHeadInstructionKind kind,
         ushort soundId) =>
-        new(pointer, kind, 0, 0, 0, 0, soundId);
+        new(pointer, kind, 0, 0, 0, 0, soundId, 0);
 
     /// <summary>Marks the end cursor of a private head program.</summary>
     private static KraidHeadInstructionDefinition End(ushort pointer) =>
-        new(pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0);
+        new(pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0, 0);
 
 
 }

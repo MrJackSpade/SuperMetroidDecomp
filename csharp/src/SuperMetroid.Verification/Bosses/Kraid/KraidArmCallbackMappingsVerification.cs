@@ -11,12 +11,17 @@ internal static class KraidArmCallbackMappingsVerification
 {
     /// <summary>Checks the touch callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback));
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false,
+            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollisionDefinitions.TouchCallback(rectangle))));
     /// <summary>Checks the shot callback selected for every native arm rectangle.</summary>
     internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback));
+        Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true,
+            rectangle => KraidHitboxCallbackCodec.ToCallbackWord(KraidArmCollisionDefinitions.ShotCallback(rectangle))));
 
-    /// <summary>Compares 24 compiled callback records with the corresponding ROM hitbox fields and bounds.</summary>
+    /// <summary>
+    /// Compares the 24 compiled rectangles' typed reactions, converted through the callback codec the shared walker
+    /// uses, with the corresponding ROM hitbox callback fields and bounds.
+    /// </summary>
     private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)
     {
         var selectedLists = new SortedSet<ushort>();
@@ -39,7 +44,9 @@ internal static class KraidArmCallbackMappingsVerification
                 AssertEqual(actual[index], box, "Arm rectangle enumeration order");
                 ushort expected = ReadKraidArmInstructionWord(rom, (ushort)(pointer + 2 + 12 * index + (shot ? 10 : 8)));
                 AssertEqual(expected, calculate(rectangle), "Original arm callback field");
-                AssertEqual(expected, shot ? box.ShotAi : box.TouchAi, "Arm callback through rectangle view");
+                AssertEqual(expected, shot
+                    ? KraidHitboxCallbackCodec.ToCallbackWord(box.Shot)
+                    : KraidHitboxCallbackCodec.ToCallbackWord(box.Touch), "Arm callback through rectangle view");
                 index++;
                 rectangle++;
             }

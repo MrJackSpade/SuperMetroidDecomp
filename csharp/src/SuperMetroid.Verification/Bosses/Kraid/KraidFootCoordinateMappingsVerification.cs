@@ -49,9 +49,14 @@ internal static class KraidFootCoordinateMappingsVerification
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1))));
         var boxes = KraidFootCollisionDefinitions.HitboxesAt(0x9453);
         AssertEqual((int)Word(0x9453), boxes.Length, "Native shared rectangle count");
-        var expected = new KraidFootCollisionHitbox(unchecked((short)Word(0x9455)), unchecked((short)Word(0x9457)),
-            unchecked((short)Word(0x9459)), unchecked((short)Word(0x945b)), Word(0x945d), Word(0x945f));
-        AssertEqual(expected, boxes[0], "Original shared hitbox fields");
+        KraidFootCollisionHitbox shared = boxes[0];
+        AssertEqual(unchecked((short)Word(0x9455)), shared.Left, "Original shared hitbox left");
+        AssertEqual(unchecked((short)Word(0x9457)), shared.Top, "Original shared hitbox top");
+        AssertEqual(unchecked((short)Word(0x9459)), shared.Right, "Original shared hitbox right");
+        AssertEqual(unchecked((short)Word(0x945b)), shared.Bottom, "Original shared hitbox bottom");
+        AssertEqual(Word(0x945d), KraidHitboxCallbackCodec.ToCallbackWord(shared.Touch), "Original shared hitbox touch callback");
+        AssertEqual(Word(0x945f), KraidHitboxCallbackCodec.ToCallbackWord(shared.Shot), "Original shared hitbox shot callback");
+        KraidFootCollisionHitbox expected = shared;
         int count = 0;
         foreach (var box in boxes) { AssertEqual(expected, box, "Shared rectangle enumeration"); count++; }
         AssertEqual(1, count, "One enumerated rectangle");
@@ -70,7 +75,8 @@ internal static class KraidFootCoordinateMappingsVerification
             foreach (var component in components)
             {
                 AssertEqual(components[count], component, "Calculated component enumeration");
-                AssertEqual(Word(raw + 8 + 8 * count), component.HitboxPointer, "Original component hitbox selector");
+                AssertEqual(KraidFootCollisionDefinitions.HitboxesAt(Word(raw + 8 + 8 * count)), component.Hitboxes,
+                    "Rectangles the original component hitbox selector names");
                 count++;
             }
             AssertEqual(2, count, "Two enumerated foot components");

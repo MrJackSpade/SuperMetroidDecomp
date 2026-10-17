@@ -85,12 +85,8 @@ internal static class KraidHeadInstructionsVerification
                     $"Kraid command ${definition.Pointer:X4} reaches timed frame");
                 AssertEqual(displayed.Duration, body.VariableC,
                     $"Kraid command ${definition.Pointer:X4} installs duration");
-                AssertEqual(displayed.Tilemap, state.CurrentHeadTilemap,
-                    $"Kraid command ${definition.Pointer:X4} installs tilemap");
-                AssertEqual(displayed.VulnerableHitbox, state.VulnerableMouthHitbox,
-                    $"Kraid command ${definition.Pointer:X4} installs vulnerable hitbox");
-                AssertEqual(displayed.InvulnerableHitbox, state.InvulnerableMouthHitbox,
-                    $"Kraid command ${definition.Pointer:X4} installs invulnerable hitbox");
+                AssertEqual((KraidHeadInstructionDefinition?)displayed, state.DisplayedHeadFrame,
+                    $"Kraid command ${definition.Pointer:X4} displays its frame: tilemap, both mouth shapes and stage");
                 AssertEqual(unchecked((ushort)(displayed.Pointer + 8)), body.VariableB,
                     $"Kraid command ${definition.Pointer:X4} advances cursor");
                 AssertEqual(1, state.HeadTilemapUploadCount,

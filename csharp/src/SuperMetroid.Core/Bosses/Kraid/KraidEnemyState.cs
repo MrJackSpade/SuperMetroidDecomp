@@ -12,32 +12,78 @@ public sealed class KraidEnemyState
         .Select(_ => new KraidPartState())
         .ToArray();
 
-    /// <summary>Gets the retained native word at $7E:7802; mouth-reopen continuations write two at $A7:AF24/$BC58 without an established broader meaning.</summary>
-    public ushort Unknown2 { get; internal set; }
+    /// <summary>
+    /// An unresolved encounter value: mouth-reopen continuations set it to two ($A7:AF24/$BC58) and nothing reads it.
+    /// It holds zero or two.
+    /// </summary>
+    public int Unknown2 { get; internal set; }
     /// <summary>Gets the body think countdown selected from the native random-delay table and consumed before the next mouth attack.</summary>
     public NativeCountdown ThinkingTimer { get; internal set; }
-    /// <summary>Gets the minimum whole-pixel world Y allowed when Kraid's body ejects Samus; growth changes the floor-relative clamp from 324 to 164.</summary>
-    public ushort MinimumYPositionForEjection { get; internal set; }
-    /// <summary>Gets the native mouth-reopen word: low bits retain collision/reopen state and the high byte counts pending reopen continuations.</summary>
+    /// <summary>
+    /// Gets the room position whose Y is the highest Samus may be pushed to when Kraid's body ejects her: Y 324 for the
+    /// small form and 164 once growth raises the clamp. Only the Y axis is meaningful; Samus's position is compared with
+    /// it by the wrapped spatial difference on Y.
+    /// </summary>
+    public Position16<RoomPixels> EjectionLimit { get; internal set; }
+    /// <summary>Gets the mouth's shot latches: a charged hit this pass, an armed reopen and a pending reopen.</summary>
     public KraidMouthFlags MouthFlags { get; internal set; }
+    /// <summary>
+    /// Gets the number of mouth reopens still pending, from zero to two hundred fifty-five. A charged body hit arms
+    /// three; each reopen continuation removes one.
+    /// </summary>
+    public int PendingMouthReopens { get; internal set; }
     /// <summary>Health captured by the living initializer before combat can change it.</summary>
     public int InitialHealth { get; internal set; }
     /// <summary>Returns the cartridge threshold for the selected eighth of the initializer's captured health.</summary>
     /// <param name="index">A zero-based table index from zero through seven, selecting one through eight eighths.</param>
     /// <returns>The initial health truncated to one eighth, multiplied by the selected number of eighths.</returns>
     public int HealthEighthThreshold(int index) => KraidHealthThresholdDefinitions.Eighth(InitialHealth, index);
-    /// <summary>Gets the second-phase whole-pixel walking target; the native unused move-right instruction also reuses this word as a countdown.</summary>
-    public ushort TargetX { get; internal set; }
-    /// <summary>Gets the hurt-palette countdown phase, normally started at six by a vulnerable mouth hit and decremented by its frame timer.</summary>
-    public ushort HurtFrame { get; internal set; }
+    /// <summary>
+    /// Gets the room position the second-phase body walks to: X from 208 to 384. Only the X axis is meaningful; the
+    /// body's position is compared with it by the wrapped spatial difference on X.
+    /// </summary>
+    public Position16<RoomPixels> WalkTarget { get; internal set; }
+    /// <summary>Gets the hurt-palette phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
+    public int HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-palette phases, normally reloaded to two and reused by background fades during death.</summary>
     public NativeCountdown HurtFrameTimer { get; internal set; }
-    /// <summary>Gets the bank-$A7 tilemap offset selected by the current private eight-byte head instruction.</summary>
-    public ushort CurrentHeadTilemap { get; internal set; }
-    /// <summary>Gets the native bank-$A7 mouth-hitbox record offset accepting damaging shots for the current head frame.</summary>
-    public ushort VulnerableMouthHitbox { get; internal set; }
-    /// <summary>Gets the native bank-$A7 mouth-hitbox record offset used for nondamaging shot reactions in the current head frame.</summary>
-    public ushort InvulnerableMouthHitbox { get; internal set; }
+    /// <summary>
+    /// The head frame Kraid is showing, which selects the head tilemap, the two mouth shapes and the mouth stage; null
+    /// until the head program shows its first frame.
+    /// </summary>
+    internal KraidHeadInstructionDefinition? DisplayedHeadFrame { get; set; }
+
+    /// <summary>Moves the hurt-palette phase one step toward zero; the caller has established the phase is running.</summary>
+    internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0
+        ? HurtFrame - 1
+        : throw new InvalidOperationException($"Stepping Kraid's hurt phase {HurtFrame} breaks its caller's running-phase guard.");
+
+    /// <summary>
+    /// Arms three mouth reopens. The cartridge merges the count bitwise into what remains, which from any count it
+    /// reaches (zero to three) leaves three.
+    /// </summary>
+    internal void ArmMouthReopens() => PendingMouthReopens |= ArmedMouthReopens;
+
+    /// <summary>
+    /// Removes one pending mouth reopen. The count wraps from zero to two hundred fifty-five as the cartridge's count
+    /// byte does; every caller reaches here only while a reopen is pending.
+    /// </summary>
+    internal void RemoveOneMouthReopen() => PendingMouthReopens = PendingMouthReopens == 0
+        ? MaximumPendingMouthReopens
+        : PendingMouthReopens - 1;
+
+    /// <summary>Clears every mouth latch and the pending reopen count together, as the cartridge clears their shared word.</summary>
+    internal void ClearMouthReactions()
+    {
+        MouthFlags = KraidMouthFlags.None;
+        PendingMouthReopens = 0;
+    }
+
+    /// <summary>The reopen count a charged body hit arms.</summary>
+    private const int ArmedMouthReopens = 3;
+
+    /// <summary>The largest pending reopen count; one below zero wraps to it.</summary>
+    private const int MaximumPendingMouthReopens = 255;
 
     /// <summary>
     /// Native $7E:2000-$2FFF combined BG2 tilemap. Keeping this surface separate from

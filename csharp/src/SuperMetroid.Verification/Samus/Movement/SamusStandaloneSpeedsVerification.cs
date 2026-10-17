@@ -16,7 +16,8 @@ internal static class SamusStandaloneSpeedsVerification
         static SpeedTableEntry Read(Func<int, byte> readByte, int a)
         {
             ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(readByte(a + offset), readByte(a + offset + 1)));
-            return new(Word(0), Word(2), Word(4), Word(6), Word(8), Word(10));
+            SnesSignedSixteenSixteen Pair(int offset) => SnesSignedSixteenSixteen.FromParts(unchecked((short)Word(offset)), Word(offset + 2));
+            return new(Pair(0), Pair(4), Pair(8));
         }
         var actual = new SamusHorizontalSpeedState();
         var reference = new SamusHorizontalSpeedState();

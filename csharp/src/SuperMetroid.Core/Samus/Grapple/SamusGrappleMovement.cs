@@ -613,10 +613,10 @@ public static class SamusGrappleMovement
         // Facing left is knocked right and facing right is knocked left. Start owns the
         // authentic pose, animation, vertical speed, contact-damage cancellation, and
         // hurt-flash side effects instead of duplicating those writes here.
-        ushort knockbackXDirection = SamusPoseMetadata.IsFacingLeft(samus.Pose)
-            ? (ushort)1
-            : (ushort)0;
-        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = 5 });
+        KnockbackHorizontalDirection knockbackXDirection = SamusPoseMetadata.IsFacingLeft(samus.Pose)
+            ? KnockbackHorizontalDirection.Right
+            : KnockbackHorizontalDirection.Left;
+        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = NativeCountdown.Start(5) });
     }
 
     /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens a 30-update wall-jump window.</summary>

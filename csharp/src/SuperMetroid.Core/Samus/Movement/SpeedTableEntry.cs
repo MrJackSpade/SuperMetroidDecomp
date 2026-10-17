@@ -1,14 +1,14 @@
 namespace SuperMetroid.Core.Samus.Movement;
 
-/// <summary>One native 12-byte <c>SamusSpeedTableEntry</c> from cartridge bank $90.</summary>
+/// <summary>One horizontal speed record for a movement type: per-frame acceleration, speed cap and deceleration.</summary>
+/// <param name="Acceleration">Whole and fractional pixels per frame added to base speed while accelerating.</param>
+/// <param name="MaximumSpeed">Whole and fractional pixels per frame that accelerated base speed is capped at.</param>
+/// <param name="Deceleration">Whole and fractional pixels per frame removed from base speed while decelerating.</param>
 public readonly record struct SpeedTableEntry(
-    ushort Acceleration,
-    ushort AccelerationSubspeed,
-    ushort MaximumSpeed,
-    ushort MaximumSubspeed,
-    ushort Deceleration,
-    ushort DecelerationSubspeed)
+    SnesSignedSixteenSixteen Acceleration,
+    SnesSignedSixteenSixteen MaximumSpeed,
+    SnesSignedSixteenSixteen Deceleration)
 {
-    /// <summary>All six table fields are little-endian 16-bit words.</summary>
+    /// <summary>Size of one record in the cartridge's speed tables: three whole/fraction word pairs.</summary>
     public const int ByteCount = 12;
 }

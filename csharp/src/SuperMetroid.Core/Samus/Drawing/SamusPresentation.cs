@@ -692,7 +692,7 @@ internal sealed class SamusPresentation
     {
         Ensure.NotNull(sprites);
 
-        if (unchecked((short)_samus.HorizontalSpeed.SpeedEchoIndex) < 0)
+        if (_samus.HorizontalSpeed.SpeedEchoesDeparting)
         {
             // `$90:87D3` walks slot one before slot zero. Movement is a draw-handler side
             // effect in the retail game, so do not advance it earlier in StepFrame: frames

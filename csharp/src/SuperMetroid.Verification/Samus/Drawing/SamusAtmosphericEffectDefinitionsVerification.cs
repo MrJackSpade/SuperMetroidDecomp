@@ -84,7 +84,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
                 Kinematics = { Radius = new(5, 12) },
             };
-            samus.LiquidPhysics.SpawnWaterSplash(samus, (SamusMovementType)movement, samus.Kinematics.BottomPixel);
+            samus.LiquidPhysics.SpawnWaterSplash(samus, (SamusMovementType)movement, samus.Kinematics.BottomPixel.Y);
 
             WaterSplashKind expected =
                 SamusAtmosphericEffectDefinitions.WaterSplashFor((SamusMovementType)movement);

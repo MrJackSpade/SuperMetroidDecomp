@@ -181,7 +181,7 @@ public sealed class SamusState
     /// </summary>
     public ushort XSpeedDivisor
     {
-        get => HorizontalSpeed.SpeedDivisor;
+        get => checked((ushort)HorizontalSpeed.SpeedDivisor);
         set => HorizontalSpeed.SpeedDivisor = value;
     }
 

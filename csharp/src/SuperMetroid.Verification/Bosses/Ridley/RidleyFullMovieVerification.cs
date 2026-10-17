@@ -1175,12 +1175,12 @@ internal static class RidleyFullMovieVerification
             Check("Samus ExtraYDisplacement", unchecked((ushort)samus.Kinematics.ExtraDisplacement.Y.WholePixels), NativeSnapshotMemory.ExtraYDisplacement);
             Check("Samus ExtraYDisplacementFraction", samus.Kinematics.ExtraDisplacement.Y.Fraction, NativeSnapshotMemory.ExtraYDisplacementFraction);
             Check("Samus SlopeCollisionEnable", samus.Kinematics.HorizontalSlopeCollisionEnable, NativeSnapshotMemory.SlopeCollisionEnable);
-            Check("Samus SpeedDivisor", samus.HorizontalSpeed.SpeedDivisor, NativeSnapshotMemory.SpeedDivisor);
+            Check("Samus SpeedDivisor", checked((ushort)samus.HorizontalSpeed.SpeedDivisor), NativeSnapshotMemory.SpeedDivisor);
             Check("Samus ContactDamageIndex", (ushort)samus.HorizontalSpeed.ContactDamageIndex, NativeSnapshotMemory.ContactDamageIndex);
             Check("Samus MorphBallBounceState", (ushort)samus.MorphBallBounceState, NativeSnapshotMemory.MorphBallBounceState);
             Check("Samus BombJumpDirection", samus.BombJumpDirection, NativeSnapshotMemory.BombJumpDirection);
             Check("Samus running momentum", samus.HorizontalSpeed.HasRunningMomentum ? (ushort)1 : (ushort)0, NativeSnapshotMemory.Momentum);
-            Check("Samus speed boost counter", samus.HorizontalSpeed.SpeedBoostCounter, NativeSnapshotMemory.BoostCounter);
+            Check("Samus speed boost counter", checked((ushort)samus.HorizontalSpeed.SpeedBoostCounter), NativeSnapshotMemory.BoostCounter);
             Check("Samus horizontal speed table", samus.HorizontalSpeed.ActiveSpeedTableBaseAddress, NativeSnapshotMemory.HorizontalSpeedTable);
             AssertEqual(memory[NativeSnapshotMemory.HorizontalDecelerationMultiplier], samus.HorizontalSpeed.DecelerationMultiplier,
                 $"update {frame}: Samus horizontal deceleration multiplier");

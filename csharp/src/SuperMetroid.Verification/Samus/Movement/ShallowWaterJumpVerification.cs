@@ -18,7 +18,7 @@ internal static class ShallowWaterJumpVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var scenario = new ShallowWaterJumpScenario(CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true));
         var samus = scenario.Samus;
-        AssertEqual(447, samus.Kinematics.BottomPixel, "standing feet occupy the pixel below the water surface");
+        AssertEqual(447, samus.Kinematics.BottomPixel.Y, "standing feet occupy the pixel below the water surface");
         AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType, "standing water contact is preserved");
         var (rows, apex) = scenario.Jump();
         AssertEqual(0x01530000u, apex, "cartridge jump reaches the room ceiling at Y=339");

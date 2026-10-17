@@ -758,7 +758,9 @@ public static class SamusAerialMovement
         if (!probe.Collided)
             return default;
 
-        ushort distance = unchecked((ushort)Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement)));
+        // The accepted whole travel is a signed word, so its magnitude is at most 32768 and the
+        // distance holds the exact value the native unsigned word would.
+        int distance = Math.Abs(SnesSixteenSixteen.WholeOf(probe.AcceptedDisplacement));
         ushort firstEligibleFrame = SamusPoseMetadata.IsScrewAttackPose(samus.Pose)
             ? (ushort)27
             : (ushort)11;

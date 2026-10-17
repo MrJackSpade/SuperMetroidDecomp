@@ -117,11 +117,12 @@ internal static void VerifySamusHorizontalSpeed()
     AssertEqual(0x909f61, speed.ResolveEntryAddress(movementType: SamusMovementType.Running), "running speed entry pointer chain");
 
     SpeedTableEntry entry = speed.ReadEntry(movementType: SamusMovementType.Running);
-    AssertEqual(0x0000, entry.Acceleration, "running acceleration whole word");
-    AssertEqual(0x3000, entry.AccelerationSubspeed, "running acceleration fraction");
-    AssertEqual(0x0002, entry.MaximumSpeed, "running maximum whole word");
-    AssertEqual(0xc000, entry.MaximumSubspeed, "running maximum fraction");
-    AssertEqual(0x8000, entry.DecelerationSubspeed, "running deceleration fraction");
+    AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0x3000), entry.Acceleration,
+        "running accelerates by three sixteenths of a pixel per frame");
+    AssertEqual(SnesSignedSixteenSixteen.FromParts(2, 0xc000), entry.MaximumSpeed,
+        "running caps at two and three quarter pixels per frame");
+    AssertEqual(SnesSignedSixteenSixteen.FromParts(0, 0x8000), entry.Deceleration,
+        "running decelerates by half a pixel per frame");
 
     // Four acceleration calls produce 0.C000 exactly. Fifteen calls would reach 2.D000,
     // so the native quirked comparison clamps that result down to the table's 2.C000 cap.
@@ -341,9 +342,9 @@ internal static void VerifySamusHorizontalSpeed()
         "CancelSpeedBoost publishes normal-suit palette restoration");
     AssertEqual(0xffff, booster.SpeedEchoIndex,
         "right-facing cancellation enters high-bit echo departure");
-    AssertEqual(8, booster.FirstSpeedEchoXSpeed,
+    AssertEqual(new Offset16<RoomPixels>(8, 0), booster.FirstSpeedEchoVelocity,
         "right-facing first departure speed is positive eight");
-    AssertEqual(8, booster.SecondSpeedEchoXSpeed,
+    AssertEqual(new Offset16<RoomPixels>(8, 0), booster.SecondSpeedEchoVelocity,
         "right-facing second departure speed is positive eight");
 
     // `$90:87D3-$90:884B` advances slot one, then slot zero as an actual draw side effect.
@@ -368,7 +369,7 @@ internal static void VerifySamusHorizontalSpeed()
     // Samus_CancelSpeedBoost is called every applicable standing/turn frame. Its BMI guard
     // must preserve an already-running departure even if the new pose faces the other way.
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(8, booster.FirstSpeedEchoXSpeed,
+    AssertEqual(new Offset16<RoomPixels>(8, 0), booster.FirstSpeedEchoVelocity,
         "repeated cancellation cannot reverse an active departure");
     AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
         "right departure slot one clears on crossing");
@@ -394,9 +395,9 @@ internal static void VerifySamusHorizontalSpeed()
         first: new(150, 90),
         second: new(154, 94));
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
-    AssertEqual(unchecked((ushort)-8), leftDeparture.FirstSpeedEchoXSpeed,
+    AssertEqual(new Offset16<RoomPixels>(-8, 0), leftDeparture.FirstSpeedEchoVelocity,
         "left-facing first departure speed is negative eight");
-    AssertEqual(unchecked((ushort)-8), leftDeparture.SecondSpeedEchoXSpeed,
+    AssertEqual(new Offset16<RoomPixels>(-8, 0), leftDeparture.SecondSpeedEchoVelocity,
         "left-facing second departure speed is negative eight");
     AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
         "left departure slot one remains before crossing");

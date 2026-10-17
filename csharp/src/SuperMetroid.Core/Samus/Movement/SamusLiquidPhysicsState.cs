@@ -104,14 +104,14 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Validated retail-area projection used by area-only consumers.</summary>
     public AreaId AreaIndex => RoomIdentity.Area;
 
-    /// <summary>Per-area room-index projection used by native room tables.</summary>
-    public byte RoomIndex => RoomIdentity.RoomIndex;
-
     /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
     public bool CinematicFunctionActive { get; set; }
 
-    /// <summary>Nonzero boss ID suppresses ordinary footstep audio.</summary>
-    public ushort BossId { get; set; }
+    /// <summary>
+    /// Whether the room's boss identity is set; a boss room suppresses ordinary footstep audio.
+    /// No producer in the port sets it, so footsteps play in boss rooms.
+    /// </summary>
+    public bool BossPresent { get; set; }
 
     /// <summary>Configures water words while preserving the ordinary or statue room's native FX identity.</summary>
     public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0, RoomFxType type = RoomFxType.Water)
@@ -182,7 +182,7 @@ public sealed class SamusLiquidPhysicsState
     public bool IsTopBoundarySubmerged(SamusState samus)
     {
         Ensure.NotNull(samus);
-        return DetermineRawMediumAtBoundary(samus.Kinematics.TopBoundary) != SamusLiquidMedium.Air;
+        return DetermineRawMediumAtBoundary(samus.Kinematics.TopBoundary.Y) != SamusLiquidMedium.Air;
     }
 
     /// <summary>
@@ -272,8 +272,8 @@ public sealed class SamusLiquidPhysicsState
         // Samus_Animate's FX handlers call $90:EC3E, whose occupied bottom
         // pixel is Y + pose radius - 1. The exclusive collision boundary would
         // enter liquid one frame early and can prematurely cancel lava momentum.
-        ushort bottom = samus.Kinematics.BottomPixel;
-        ushort top = samus.Kinematics.TopBoundary;
+        ushort bottom = samus.Kinematics.BottomPixel.Y;
+        ushort top = samus.Kinematics.TopBoundary.Y;
         RoomFxType fxKind = FxType;
         bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
 
@@ -332,7 +332,7 @@ public sealed class SamusLiquidPhysicsState
             SamusLiquidDamageRate damageRate = fxKind == RoomFxType.Lava
                 ? SamusLiquidDamageDefinitions.Lava
                 : SamusLiquidDamageDefinitions.Acid;
-            AccumulatePeriodicDamage(damageRate.SubDamage, damageRate.WholeDamage);
+            AccumulatePeriodicDamage(checked((ushort)damageRate.SubDamage), checked((ushort)damageRate.WholeDamage));
             if ((nmiFrameCounter & 7) == 0 && samus.Health >= 71)
                 QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 45), maximumQueued: 3);
 
@@ -475,7 +475,7 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        if (RoomIndex >= 16)
+        if (RoomIdentity.RoomIndex >= 16)
         {
             DeleteLandingPair();
             return;
@@ -484,7 +484,7 @@ public sealed class SamusLiquidPhysicsState
         // The cartridge duplicates this room policy for running footsteps and landing
         // effects. Preserve its BIT priority even though retail rows contain one bit each.
         CrateriaAtmosphericEffectFlags roomFlags =
-            SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIndex);
+            SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity.RoomIndex);
         if ((roomFlags & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
@@ -719,10 +719,10 @@ public sealed class SamusLiquidPhysicsState
             {
                 useWetFootsteps = false;
             }
-            else if (RoomIndex < 16)
+            else if (RoomIdentity.RoomIndex < 16)
             {
                 CrateriaAtmosphericEffectFlags specialType =
-                    SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIndex);
+                    SamusAtmosphericEffectDefinitions.ForCrateriaRoom(RoomIdentity.RoomIndex);
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
@@ -744,7 +744,7 @@ public sealed class SamusLiquidPhysicsState
         // a stored shinespark, and boost stage four each suppress library-three sound $06.
         // This is $0A68, not $0AD0: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
-            BossId == 0 &&
+            !BossPresent &&
             samus.InputSnapshot.SharedShineTimer == 0 &&
             (samus.HorizontalSpeed.SpeedBoostCounter & 1 << 10) == 0)
         {

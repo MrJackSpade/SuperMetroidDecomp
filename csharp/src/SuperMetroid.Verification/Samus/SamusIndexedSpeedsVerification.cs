@@ -15,7 +15,10 @@ internal static class SamusIndexedSpeedsVerification
     {
         SpeedTableEntry Read(int a)
         {
-            return new(CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 0), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 2), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 4), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 6), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 8), CartridgeImportSource.Require(rom).ReadCartridgeWord(a + 10));
+            SnesSignedSixteenSixteen Pair(int offset) => SnesSignedSixteenSixteen.FromParts(
+                unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset)),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord(a + offset + 2));
+            return new(Pair(0), Pair(4), Pair(8));
         }
         var speed = new SamusHorizontalSpeedState();
         // Unaligned/non-catalog spans can overlap known words, so classify each

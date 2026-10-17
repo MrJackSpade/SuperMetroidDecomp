@@ -159,10 +159,12 @@ public sealed class SamusKinematicsState
     public uint VerticalSpeedFixed => (SnesSixteenSixteen.FromWhole((uint)YSpeed)) | YSubspeed;
 
     /// <summary>
-    /// Whole-pixel top collision boundary returned by <c>Get_Samus_Top_Boundary</c>.
-    /// Liquid and wall-jump code deliberately samples this separately from Samus's feet.
+    /// Top-centre point of the collision box: Samus's whole X and her whole-pixel top
+    /// boundary, wrapping in room space. Liquid code deliberately samples this separately
+    /// from Samus's feet.
     /// </summary>
-    public ushort TopBoundary => unchecked((ushort)(Position.Y.Whole - Radius.Y));
+    public Position16<RoomPixels> TopBoundary =>
+        new(Position.X.Whole, unchecked((ushort)(Position.Y.Whole - Radius.Y)));
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
@@ -170,8 +172,12 @@ public sealed class SamusKinematicsState
     /// </summary>
     public ushort BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
 
-    /// <summary>Inclusive bottom pixel, matching $90:EC3E when radius reflects the current pose.</summary>
-    public ushort BottomPixel => unchecked((ushort)(BottomBoundary - 1));
+    /// <summary>
+    /// Bottom-centre occupied point: Samus's whole X and the last pixel row her collision box
+    /// covers, one above the exclusive bottom boundary, wrapping in room space.
+    /// </summary>
+    public Position16<RoomPixels> BottomPixel =>
+        new(Position.X.Whole, unchecked((ushort)(BottomBoundary - 1)));
 
     /// <summary>Publishes the result of one directional bank-$A0 solid-enemy probe.</summary>
     internal void RecordSolidEnemyCollision(

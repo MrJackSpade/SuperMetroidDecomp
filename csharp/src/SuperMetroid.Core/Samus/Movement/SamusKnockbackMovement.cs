@@ -52,7 +52,7 @@ public static class SamusKnockbackMovement
             return false;
         }
 
-        return Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer.RawValue }, level, nmiFrameCounter, plms);
+        return Start(samus, controllerInput, KnockbackLaunch.FromPendingHit(samus), level, nmiFrameCounter, plms);
     }
 
     /// <summary>
@@ -73,9 +73,10 @@ public static class SamusKnockbackMovement
     {
 
         Ensure.NotNull(samus);
-        if (launch.KnockbackXDirection > 1)
+        Ensure.NotNull(launch);
+        if (!Enum.IsDefined(launch.KnockbackXDirection))
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
-        if (launch.KnockbackTimer == 0)
+        if (launch.KnockbackTimer.IsZero)
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackTimer));
         if (samus.KnockbackActive || samus.KnockbackDirection != 0)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
@@ -124,7 +125,7 @@ public static class SamusKnockbackMovement
         // Enemy contact has already established `$18AA` before `$90:DDE9` selects a pose.
         // Turning, grapple, current knockback, damage boost, and special type-$1B bodies all
         // return carry clear: they retain the timer/flicker but do not install `$90:DF38`.
-        samus.KnockbackTimer = NativeCountdown.FromRaw(launch.KnockbackTimer);
+        samus.KnockbackTimer = launch.KnockbackTimer;
         if (suppressesKnockback)
             return false;
 
@@ -164,7 +165,8 @@ level, targetPose, nmiFrameCounter, plms))
         // when choosing a ball's vertical branch: right-facing ball art always gets up-right
         // direction two, and left-facing art gets up-left direction one. Humanoid `$91:EDB0`
         // retains the unusual forward-held selection of down-left/down-right directions.
-        samus.KnockbackXDirection = launch.KnockbackXDirection;
+        // Samus still holds the cartridge's left/right word: zero for left, one for right.
+        samus.KnockbackXDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Right ? (ushort)1 : (ushort)0;
         if (morphed)
         {
             samus.KnockbackDirection = facingLeft ? (ushort)1 : (ushort)2;
@@ -174,7 +176,7 @@ level, targetPose, nmiFrameCounter, plms))
             bool forwardHeld = facingLeft
                 ? (controllerInput & SnesButton.Left) != 0
                 : (controllerInput & SnesButton.Right) != 0;
-            samus.KnockbackDirection = launch.KnockbackXDirection == 0
+            samus.KnockbackDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
                 ? forwardHeld ? (ushort)4 : (ushort)1
                 : forwardHeld ? (ushort)5 : (ushort)2;
         }

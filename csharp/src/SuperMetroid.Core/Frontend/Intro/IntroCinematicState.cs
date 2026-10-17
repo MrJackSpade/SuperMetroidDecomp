@@ -1125,7 +1125,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
             !samus.KnockbackTimer.IsZero &&
             samus.KnockbackDirection == 0)
         {
-            SamusKnockbackMovement.Start(samus, demoInput, new KnockbackLaunch { KnockbackXDirection = samus.KnockbackXDirection, KnockbackTimer = samus.KnockbackTimer.RawValue });
+            SamusKnockbackMovement.Start(samus, demoInput, KnockbackLaunch.FromPendingHit(samus));
             transitionAccepted = true;
         }
 

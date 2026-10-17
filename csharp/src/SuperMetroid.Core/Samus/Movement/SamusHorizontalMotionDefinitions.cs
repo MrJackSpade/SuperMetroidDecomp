@@ -24,17 +24,17 @@ internal static class SamusHorizontalMotionDefinitions
         int row = offset / SpeedTableEntry.ByteCount;
         bool air = row < AirRecordCount;
         bool water = false;
-        ushort deceleration;
+        ushort decelerationFraction;
         if (air)
         {
-            deceleration = 0x8000;
+            decelerationFraction = 0x8000;
         }
         else
         {
             row -= AirRecordCount;
             water = row < LiquidRecordCount;
             if (!water) row -= LiquidRecordCount;
-            deceleration = water ? (ushort)0x0800 : (ushort)0x4000;
+            decelerationFraction = water ? (ushort)0x0800 : (ushort)0x4000;
         }
         uint maximum = (SamusMovementType)row switch
         {
@@ -76,16 +76,24 @@ internal static class SamusHorizontalMotionDefinitions
                 SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special => 0xc000u,
             _ => throw new InvalidOperationException($"Undefined SamusMovementType {(SamusMovementType)row}."),
         };
-        entry = new(SnesFixedPosition.WholeOf(unchecked((int)acceleration)), (ushort)acceleration,
-            SnesFixedPosition.WholeOf(unchecked((int)maximum)), (ushort)maximum, 0, deceleration);
+        entry = new(
+            SnesSignedSixteenSixteen.FromRaw(unchecked((int)acceleration)),
+            SnesSignedSixteenSixteen.FromRaw(unchecked((int)maximum)),
+            SnesSignedSixteenSixteen.FromParts(0, decelerationFraction));
         return true;
     }
 
     /// <summary>$90:9F25 XAccelSpeeds_DiagonalBombJump: acceleration, maximum and deceleration whole/fraction pairs.</summary>
-    private static readonly SpeedTableEntry DiagonalBombJump = new(0, 0x3000, 3, 0, 0, 0x0800);
+    private static readonly SpeedTableEntry DiagonalBombJump = new(
+        Acceleration: SnesSignedSixteenSixteen.FromParts(0, 0x3000),
+        MaximumSpeed: SnesSignedSixteenSixteen.FromParts(3, 0),
+        Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x0800));
 
     /// <summary>$90:9F31/$9F3D/$9F49 XAccelSpeeds_DisconnectGrappleInAir/InWater/InLavaAcid: three identical authored records.</summary>
-    private static readonly SpeedTableEntry GrappleRelease = new(0, 0x3000, 15, 0, 0, 0x1000);
+    private static readonly SpeedTableEntry GrappleRelease = new(
+        Acceleration: SnesSignedSixteenSixteen.FromParts(0, 0x3000),
+        MaximumSpeed: SnesSignedSixteenSixteen.FromParts(15, 0),
+        Deceleration: SnesSignedSixteenSixteen.FromParts(0, 0x1000));
 
     /// <summary>
     /// Recognizes exact standalone entry addresses. Unknown/unaligned addresses are not

@@ -92,8 +92,8 @@ internal static class ChargeFlarePlacementVerification
         AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Visual shift retains sprite count");
         for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
         {
-            AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Editable placement shifts the actual flare OBJ seven pixels");
-            AssertEqual(original.GetEntry(i).Y, changed.GetEntry(i).Y, "X-only flare edit preserves Y");
+            AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Editable placement shifts the actual flare OBJ seven pixels");
+            AssertEqual(original.GetEntry(i).Position.Y, changed.GetEntry(i).Position.Y, "X-only flare edit preserves Y");
         }
         AssertTrue(beforeSamus.SequenceEqual(GraphDigest(subject)) && beforeSystem.SequenceEqual(GraphDigest(system)), "Flare art edit changes neither Samus physics nor any projectile/timer state");
         foreach (bool hyper in new[] { false, true })
@@ -116,7 +116,7 @@ internal static class ChargeFlarePlacementVerification
             AssertTrue(original.LastFinalizedSpriteCount > 0, "Public normal/Hyper flare producer emits visible components");
             AssertEqual(original.LastFinalizedSpriteCount, changed.LastFinalizedSpriteCount, "Public flare placement preserves component admission");
             for (int i = 0; i < original.LastFinalizedSpriteCount; i++)
-                AssertEqual((original.GetEntry(i).X + 7) & 511, changed.GetEntry(i).X, "Public normal/Hyper path forwards selected placement to all components");
+                AssertEqual((original.GetEntry(i).Position.X + 7) & 511, changed.GetEntry(i).Position.X, "Public normal/Hyper path forwards selected placement to all components");
             AssertTrue(GraphDigest(originalSystem).SequenceEqual(GraphDigest(editedSystem)), "Normal/Hyper flare visual edits retain identical complete post-tick simulation state");
         }
         document.Required("offsets").AsObject().Remove(ChargeFlarePlacementDefinitions.Key(false, 0));

@@ -134,7 +134,7 @@ internal static class AnimatedTileInstructionCodesVerification
             AssertEqual(WreckedShipTreadmillRomData.TransferByteCount, entry.SizeInBytes,
                 $"{direction} retail transfer size {frame}");
             AssertEqual(WreckedShipTreadmillRomData.EncodedVramDestination,
-                entry.EncodedVramDestination,
+                entry.Destination.Encoded,
                 $"{direction} retail VRAM destination {frame}");
         }
 

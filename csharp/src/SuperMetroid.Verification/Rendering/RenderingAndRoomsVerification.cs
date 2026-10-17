@@ -273,7 +273,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     hud.QueueUpload(queue);
     AssertEqual(HudState.MutableByteCount, (int)queue.Entries[0].SizeInBytes, "HUD queue transfer size");
     AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue keeps the native $7E:C608 source on its record");
-    AssertEqual(HudState.VramDestination, queue.Entries[0].EncodedVramDestination, "HUD queue VRAM destination");
+    AssertEqual(HudState.VramDestination, queue.Entries[0].Destination.Encoded, "HUD queue VRAM destination");
     queue.DrainTo(vram, ReferenceMutableMemory.From(bus));
     AssertEqual(0x0f, vram.ReadByte(HudState.VramDestination * 2), "HUD first tilemap low byte reaches VRAM");
     AssertEqual(0x2c, vram.ReadByte(HudState.VramDestination * 2 + 1), "HUD first tilemap high byte reaches VRAM");
@@ -1394,21 +1394,21 @@ internal static void VerifyScrollingSkyState()
 
     AssertEqual(new Position16<Bg2Pixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
     AssertEqual(4, writes.Entries.Count, "$88:AFA3 four sky transfers");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, 0x4820), writes.Entries[0], "sky upper first row");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, 0x4840), writes.Entries[1], "sky upper second row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, VramDmaDestination.FromNative(0x4820)), writes.Entries[0], "sky upper first row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, VramDmaDestination.FromNative(0x4840)), writes.Entries[1], "sky upper second row");
 
     // Chunk index five is the intentional table-adjacency wrap to tilemap zero.
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab1c0, 0x4c20), writes.Entries[2], "sky wrapped lower first row");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab200, 0x4c40), writes.Entries[3], "sky wrapped lower second row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab1c0, VramDmaDestination.FromNative(0x4c20)), writes.Entries[2], "sky wrapped lower first row");
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab200, VramDmaDestination.FromNative(0x4c40)), writes.Entries[3], "sky wrapped lower second row");
 
     // At camera Y=0, the native indexed read reaches the fixed word at $88:AF9A.
     // The compiled catalog preserves that top-of-room overread without a ROM bus.
     var topSky = new ScrollingSkyState();
     var topWrites = new VramWriteQueue();
     topSky.ProcessFrame(layer1YPosition: 0, timeIsFrozen: false, topWrites);
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab526, 0x4fc0), topWrites.Entries[0],
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab526, VramDmaDestination.FromNative(0x4fc0)), topWrites.Entries[0],
         "sky Y=0 wrapped compiled pointer");
-    AssertEqual(new VramWriteEntry(0x0040, 0x8ab900, 0x4bc0), topWrites.Entries[2],
+    AssertEqual(new VramWriteEntry(0x0040, 0x8ab900, VramDmaDestination.FromNative(0x4bc0)), topWrites.Entries[2],
         "sky Y=0 lower row remains in chunk zero");
 
     // The $02E0 section aliases data slot eight, which already received the $0238 row's

@@ -93,7 +93,7 @@ internal static class InstalledPowerBombIsolationTests
                             ColorAddWindow center = second.Windows[112];
                             if (center.Left <= 128 && center.Right >= 128)
                                 Require(SoftwareFrameSnapshotRenderer.Render(packet)[112 * packet.Size.X + 128] ==
-                                    new Rgba32(center.Red, center.Green, center.Blue), context + ": edited RGB did not reach pixels");
+                                    new Rgba32(checked((byte)center.Red), checked((byte)center.Green), checked((byte)center.Blue)), context + ": edited RGB did not reach pixels");
                         }
                         comparisons++;
                     } while (baseline.IsActive);

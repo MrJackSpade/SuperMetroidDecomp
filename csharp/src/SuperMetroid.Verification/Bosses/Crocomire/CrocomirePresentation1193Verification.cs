@@ -73,7 +73,7 @@ internal static class CrocomirePresentation1193Verification
             var result = game.Step(0);
             if (spikes)
             {
-                var uploads = runtime.VramWrites.Entries.Where(write => write.EncodedVramDestination == 0x3d60).ToArray();
+                var uploads = runtime.VramWrites.Entries.Where(write => write.Destination.Encoded == 0x3d60).ToArray();
                 AssertEqual(frame % 8 == 0 ? 1 : 0, uploads.Length,
                     $"Crocomire spikes queue one native frame at tick {frame}");
                 if (uploads.Length != 0)
@@ -114,11 +114,11 @@ internal static class CrocomirePresentation1193Verification
                 (runtime.Room.ActiveDoor ?? throw new InvalidOperationException("Verification requires runtime.Room.ActiveDoor.")).Pointer, runtime.Room.LoadedRoom.AreaIndex);
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.AnimatedTiles;
             game.Step(0);
-            AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.EncodedVramDestination == 0x3d60),
+            AssertEqual(false, runtime.VramWrites.Entries.Any(write => write.Destination.Encoded == 0x3d60),
                 "X-ray's animation-disable word suspends spikes at the actual runtime seam");
             samus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.None;
             game.Step(0);
-            AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.EncodedVramDestination == 0x3d60).SourceAddress,
+            AssertEqual(0x879d84, runtime.VramWrites.Entries.Single(write => write.Destination.Encoded == 0x3d60).SourceAddress,
                 "Re-enabled spikes resume the pending first frame");
             runtime.RoomSpikes.LoadRoom(0, 0, AreaId.Norfair);
             var clearedWrites = new VramWriteQueue();

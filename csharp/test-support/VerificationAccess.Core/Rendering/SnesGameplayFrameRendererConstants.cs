@@ -378,9 +378,9 @@ internal static class SnesGameplayFrameRendererConstants
             {
                 Rgba32 source = frame[row + screenX];
                 frame[row + screenX] = new Rgba32(
-                    SaturatingAdd(source.R, window.Red),
-                    SaturatingAdd(source.G, window.Green),
-                    SaturatingAdd(source.B, window.Blue),
+                    SaturatingAdd(source.R, checked((byte)window.Red)),
+                    SaturatingAdd(source.G, checked((byte)window.Green)),
+                    SaturatingAdd(source.B, checked((byte)window.Blue)),
                     source.A);
             }
         }

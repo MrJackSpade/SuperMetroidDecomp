@@ -1636,7 +1636,7 @@ internal static class LookupStream2Verification
                 var actual = enemies.LastDeadTorizoVramTransfers[phase * 7 + index];
                 AssertEqual(rows[index].SizeInBytes, actual.SizeInBytes, "Dead Torizo queued size");
                 AssertEqual(rows[index].SourceAddress, actual.SourceAddress, "Dead Torizo queued live WRAM source");
-                AssertEqual(rows[index].EncodedVramDestination, actual.EncodedVramDestination, "Dead Torizo queued VRAM destination");
+                AssertEqual(rows[index].EncodedVramDestination, actual.Destination.Encoded, "Dead Torizo queued VRAM destination");
             }
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[-1]; }, "Dead Torizo negative row");
             AssertThrows<IndexOutOfRangeException>(() => { _ = rows[7]; }, "Dead Torizo past last row");
@@ -1662,7 +1662,7 @@ internal static class LookupStream2Verification
             AssertEqual(VramAssetId.GunshipLiftoffFirstTiles + enumerated, transfer.Asset, "Gunship typed transfer identity");
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             append(slot, queue);
-            AssertEqual(destination, queue.Entries[enumerated].EncodedVramDestination, "Gunship actual queued destination");
+            AssertEqual(destination, queue.Entries[enumerated].Destination.Encoded, "Gunship actual queued destination");
             AssertEqual(source, queue.Entries[enumerated].SourceAddress, "Gunship actual queued source");
             enumerated++;
         }

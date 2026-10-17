@@ -576,7 +576,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
-    AssertEqual(89, shakenOam.GetEntry(0).X,
+    AssertEqual(89, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one clear adds one X pixel");
     AssertEqual(1, ripper.ShakeTimer.RawValue, "enemy draw consumes one shake tick");
 
@@ -585,7 +585,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayers(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
-    AssertEqual(87, shakenOam.GetEntry(0).X,
+    AssertEqual(87, shakenOam.GetEntry(0).Position.X,
         "enemy shake frame-counter bit one set subtracts one X pixel");
     AssertEqual(1, ripper.ShakeTimer.RawValue, "negative enemy draw consumes one shake tick");
 
@@ -814,7 +814,7 @@ static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom
         if (size == 0) return records;
         records.Add(new VramWriteEntry(size,
             CartridgeImportSource.Require(rom).ReadCartridgeLong((pointer + 2)),
-            CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 5))));
+            VramDmaDestination.FromNative(CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + 5)))));
     }
     throw new InvalidDataException("Native Ceres transfer fixture lacks a terminator.");
 }
@@ -931,7 +931,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         doorOam.BeginFrame();
         enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(doorOam, new(0, 0));
         doorOam.FinalizeFrame();
-        AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).X,
+        AssertEqual(100 + expectedDoorOffsets[timer], doorOam.GetEntry(0).Position.X,
             $"Ceres private door hook byte-indexed quake phase {timer}");
     }
     overlayDoor.Bind(0, overlayDoor.Definition);
@@ -1256,7 +1256,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         }
         else
             AssertEqual(expected.SourceAddress, actual.SourceAddress, $"Ceres transfer {index} native source");
-        AssertEqual(expected.EncodedVramDestination, actual.EncodedVramDestination,
+        AssertEqual(expected.Destination.Encoded, actual.Destination.Encoded,
             $"Ceres transfer {index} native destination");
     }
     AssertEqual(VramAssetId.EscapeTimerFirstTiles, escapeWrites.Entries[0].AssetId,
@@ -1265,7 +1265,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres second timer record selects installed artwork");
     AssertEqual(0xa6c164, escapeWrites.Entries[^1].SourceAddress,
         "Ceres EMERGENCY text uses the cartridge tilemap words");
-    AssertEqual(0x50cb, escapeWrites.Entries[^1].EncodedVramDestination,
+    AssertEqual(0x50cb, escapeWrites.Entries[^1].Destination.Encoded,
         "Ceres EMERGENCY text targets BG1 row six");
     AssertEqual(6, state.FunctionTimer.RawValue,
         "Ceres self-destruct reaches the native 128-frame English hold");

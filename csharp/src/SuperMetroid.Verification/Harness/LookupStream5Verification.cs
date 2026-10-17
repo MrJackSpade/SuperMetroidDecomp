@@ -480,7 +480,7 @@ internal static class LookupStream5Verification
             AssertEqual(1, queue.Entries.Count, "Actual emergency producer queues one installed page");
             VramWriteEntry entry = queue.Entries[0];
             AssertEqual(ReadVerificationWord(rom, 0xa6c15d), entry.SizeInBytes, "Native emergency byte extent");
-            AssertEqual(ReadVerificationWord(rom, 0xa6c162), entry.EncodedVramDestination, "Native emergency BG destination");
+            AssertEqual(ReadVerificationWord(rom, 0xa6c162), entry.Destination.Encoded, "Native emergency BG destination");
             AssertEqual(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, entry.SourceAddress, "Actual emergency source identity");
             AssertTrue(result.TryResolve(entry.SourceAddress, entry.SizeInBytes, out var queued), "Actual emergency transfer resolves installed words");
             for (int index = 0; index < source.Pages["emergency"].Length; index++)

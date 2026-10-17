@@ -1297,7 +1297,7 @@ internal static class RoomPlmPopulationVerification
         oam.FinalizeFrame();
         AssertTrue(Enumerable.Range(0, oam.LastFinalizedSpriteCount)
             .Select(oam.GetEntry)
-            .Any(entry => entry.X == 0x0030 && entry.Y == 0x40),
+            .Any(entry => entry.Position.X == 0x0030 && entry.Position.Y == 0x40),
             "save electricity reaches the ordinary room enemy-projectile draw path");
     }
 

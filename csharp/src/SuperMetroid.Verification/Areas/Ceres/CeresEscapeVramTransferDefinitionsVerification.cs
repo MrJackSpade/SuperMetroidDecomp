@@ -90,7 +90,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 VramWriteEntry entry = queue.Entries[index];
                 AssertEqual(expected.ByteCount, entry.SizeInBytes,
                     $"Ceres transfer ${expected.Pointer:X4} queued byte count");
-                AssertEqual(expected.DestinationWord, entry.EncodedVramDestination,
+                AssertEqual(expected.DestinationWord, entry.Destination.Encoded,
                     $"Ceres transfer ${expected.Pointer:X4} queued destination");
                 if (expected.Pointer is 0xc4cb or 0xc4d2)
                 {
@@ -118,7 +118,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
                 $"Ceres Japanese transfer {index} byte count");
             AssertEqual(expected.SourceAddress, actual.SourceAddress,
                 $"Ceres Japanese transfer {index} source");
-            AssertEqual(expected.DestinationWord, actual.EncodedVramDestination,
+            AssertEqual(expected.DestinationWord, actual.Destination.Encoded,
                 $"Ceres Japanese transfer {index} destination");
         }
         system.Presentation.EscapeTimerArtwork = null;

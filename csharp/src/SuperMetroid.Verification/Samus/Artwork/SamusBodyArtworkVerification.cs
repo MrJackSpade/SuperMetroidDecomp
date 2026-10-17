@@ -483,8 +483,8 @@ internal static class SamusBodyArtworkVerification
             "stock and edited covers both emit a visible OBJ");
         int originalSignedX = unchecked((sbyte)stockArmX);
         int editedSignedX = unchecked((sbyte)(unchecked((byte)(stockArmX + 1))));
-        AssertEqual(originalArmOam.GetEntry(0).X + editedSignedX - originalSignedX,
-            editedArmOam.GetEntry(0).X,
+        AssertEqual(originalArmOam.GetEntry(0).Position.X + editedSignedX - originalSignedX,
+            editedArmOam.GetEntry(0).Position.X,
             "edited arm-cannon pose offset moves the production OAM entry on screen");
         AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(unchecked((ushort)selectedArmTileSource)),
             editedArmFrame.Draws[0].Draw.Artwork.Id.Variant,

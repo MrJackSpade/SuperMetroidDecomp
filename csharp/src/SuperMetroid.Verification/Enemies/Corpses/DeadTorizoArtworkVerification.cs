@@ -175,7 +175,7 @@ internal static class DeadTorizoArtworkVerification
             for (int index = 0; index < 7; index++, address += 8)
                 nativeTransfers.Add(new VramWriteEntry(rom.ReadCartridgeWord(address),
                     (int)new SnesAddress(SnesLittleEndian.HighByte(rom.ReadCartridgeWord(address + 2)), rom.ReadCartridgeWord(address + 4)),
-                    rom.ReadCartridgeWord((address + 6))));
+                    VramDmaDestination.FromNative(rom.ReadCartridgeWord((address + 6)))));
             AssertEqual((ushort)0, rom.ReadCartridgeWord(address), "native corpse queue terminates after seven entries");
             buildInstalled((installed.DeadTorizo ?? throw new InvalidOperationException("Verification requires installed.DeadTorizo.")));
             AssertTrue(nativeTransfers.SequenceEqual(

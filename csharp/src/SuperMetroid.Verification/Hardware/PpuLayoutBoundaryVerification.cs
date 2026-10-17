@@ -181,7 +181,7 @@ internal static class PpuLayoutBoundaryVerification
         SnesObjAttributeWord attributes = SnesObjAttributeWord.Create(0x1c3, paletteIndex: 6, priority: 2, SnesTileFlipFlags.Horizontal);
         oam.AddRawSmallSprite(new Position16<OamPixels>(0x01f0, 0x0080), attributes);
         OamEntry entry = oam.GetEntry(0);
-        AssertEqual(new OamEntry(0x1f0, 0x80, 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
+        AssertEqual(new OamEntry(new Position16<OamPixels>(0x1f0, 0x80), 0x1c3, 6, 2, FlipX: true, FlipY: false, IsLarge: false), entry,
             "an object's position and attributes round-trip through OAM");
 
         var registers = new GameplayWindowRegisterCache();
@@ -291,7 +291,7 @@ internal static class PpuLayoutBoundaryVerification
         // OBJ0 small/X<256 = 00, OBJ1 X>=256 = 01, OBJ2 large = 10, OBJ3 X>=256 = 01.
         AssertEqual((byte)0b01_10_01_00, high[0], "OBJs 0-3 share the first high-table byte, two bits each");
         AssertEqual((byte)0b00_00_00_01, high[1], "OBJ 4 starts the second high-table byte");
-        AssertEqual(0x1ff, oam.GetEntry(3).X, "X bit 8 decodes from the high table");
+        AssertEqual(0x1ff, oam.GetEntry(3).Position.X, "X bit 8 decodes from the high table");
         AssertTrue(oam.GetEntry(2).IsLarge, "the size bit decodes from the high table");
     }
 

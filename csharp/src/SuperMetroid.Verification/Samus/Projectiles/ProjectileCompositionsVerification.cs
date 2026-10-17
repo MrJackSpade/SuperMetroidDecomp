@@ -442,7 +442,7 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
         var flareOam = new OamBuffer();
         compositionEdited.FlareCompositions.Draw(0, flareOam, new(100, 100));
-        AssertEqual(117, flareOam.GetEntry(0).X, "Installed flare composition emits selected part offset");
+        AssertEqual(117, flareOam.GetEntry(0).Position.X, "Installed flare composition emits selected part offset");
         File.WriteAllText(compositionStock, "broken stock");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal corrupt stock");
         File.Move(compositionStock, compositionStock + ".invalid");

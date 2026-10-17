@@ -233,8 +233,9 @@ public sealed class OamBuffer
             SnesLittleEndian.Word(_lowTable[lowOffset + 2], _lowTable[lowOffset + 3]));
 
         return new OamEntry(
-            X: _lowTable[lowOffset] + (highPair.XHigh ? ByteRange : 0),
-            Y: _lowTable[lowOffset + 1],
+            Position: new Position16<OamPixels>(
+                checked((ushort)(_lowTable[lowOffset] + (highPair.XHigh ? ByteRange : 0))),
+                _lowTable[lowOffset + 1]),
             TileNumber: attributes.TileNumber,
             Palette: attributes.PaletteIndex,
             Priority: attributes.Priority,

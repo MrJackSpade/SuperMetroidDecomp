@@ -132,8 +132,8 @@ internal static class GrappleFlarePresentationVerification
             AssertEqual((a.LastFinalizedSpriteCount * 4), (c.LastFinalizedSpriteCount * 4), "Grapple art edit preserves sprite count");
             for (int i = 0; i < (a.LastFinalizedSpriteCount * 4) / 4; i++)
             {
-                AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "Grapple emits edited visual part offsets");
-                AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Grapple X-only visual edit preserves Y");
+                AssertEqual((a.GetEntry(i).Position.X + 7) & 511, c.GetEntry(i).Position.X, "Grapple emits edited visual part offsets");
+                AssertEqual(a.GetEntry(i).Position.Y, c.GetEntry(i).Position.Y, "Grapple X-only visual edit preserves Y");
             }
             AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(actual)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Flare edits preserve complete Samus/Grapple state including physical origins and timers");
             cases++;

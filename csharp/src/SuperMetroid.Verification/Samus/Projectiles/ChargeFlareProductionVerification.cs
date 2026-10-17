@@ -53,8 +53,8 @@ internal static class ChargeFlareProductionVerification
                 AssertEqual(a.LastFinalizedSpriteCount, c.LastFinalizedSpriteCount, "Edited flare producer preserves component count");
                 for (int i = 0; i < a.LastFinalizedSpriteCount; i++)
                 {
-                    AssertEqual((a.GetEntry(i).X + 7) & 511, c.GetEntry(i).X, "All emitted normal/Hyper components consume edited composition");
-                    AssertEqual(a.GetEntry(i).Y, c.GetEntry(i).Y, "Composition X edit preserves emitted Y");
+                    AssertEqual((a.GetEntry(i).Position.X + 7) & 511, c.GetEntry(i).Position.X, "All emitted normal/Hyper components consume edited composition");
+                    AssertEqual(a.GetEntry(i).Position.Y, c.GetEntry(i).Position.Y, "Composition X edit preserves emitted Y");
                 }
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(compiled)) && GraphDigest(native).SequenceEqual(GraphDigest(changed)), "All projectile, flare-counter and animation state remains identical after visual replacement");
                 ticks++;

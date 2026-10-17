@@ -56,13 +56,12 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
     /// Queues a native corpse transfer record whose source lies in one of the surfaces; the queue reads the surface when
     /// it drains, as the cartridge's NMI DMA reads WRAM.
     /// </summary>
-    [PpuLayoutBoundary("codec: native corpse DMA records' VRAM destinations")]
     internal void EnqueueNativeTransfer(VramWriteQueue queue, VramWriteEntry transfer)
     {
         Ensure.NotNull(queue);
         (VramStagingBuffer buffer, int offset) = Resolve(transfer.SourceAddress, transfer.SizeInBytes);
         queue.EnqueueStaging(transfer.SizeInBytes, transfer.SourceAddress, buffer, offset,
-            VramDmaDestination.FromNative(transfer.EncodedVramDestination));
+            transfer.Destination);
     }
 
     /// <summary>Uploads a native transfer whose source lies in one of the surfaces immediately, as Mother Brain's does.</summary>

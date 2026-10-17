@@ -175,7 +175,7 @@ internal static class RoomSkyTilemapsVerification
             {
                 AssertTrue(wrappedRow.ZeroFill, "ocean wrapped top row is queued blank");
                 AssertEqual((byte)0,
-                    installedOceanVram.Bytes[(wrappedRow.EncodedVramDestination & 0x7fff) * 2],
+                    installedOceanVram.Bytes[(wrappedRow.Destination.Encoded & 0x7fff) * 2],
                     "ocean wrapped top row ignores the WRAM its native pointer names");
             }
         }
@@ -197,8 +197,8 @@ internal static class RoomSkyTilemapsVerification
         var editedRowVram = new SnesVram();
         editedQueue.DrainTo(editedRowVram, ReferenceMutableMemory.From(guard),
             new SkyPageProvider(new RoomSkyTilemapCatalog(pages)));
-        AssertTrue(editedRowVram.ReadWord(firstRow.EncodedVramDestination) !=
-                nativeRowVram.ReadWord(firstRow.EncodedVramDestination),
+        AssertTrue(editedRowVram.ReadWord(firstRow.Destination.Encoded) !=
+                nativeRowVram.ReadWord(firstRow.Destination.Encoded),
             "editing a sky page changes the visible queued row at its native destination");
         Console.WriteLine("  Scrolling sky: seven literal pages roundtrip exactly; land/ocean " +
             "per-frame NMI transfers use installed art, ocean's wrapped top row is blank, and an edit reaches the queued row.");

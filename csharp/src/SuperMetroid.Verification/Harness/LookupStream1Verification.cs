@@ -595,10 +595,10 @@ internal static class LookupStream1Verification
         var queue = new VramWriteQueue(); stock.QueueTo(queue);
         AssertEqual(2, queue.Entries.Count, "Original two-page queue count");
         AssertEqual((ushort)512, queue.Entries[0].SizeInBytes, "First page size");
-        AssertEqual((ushort)0x7e00, queue.Entries[0].EncodedVramDestination, "First page destination");
+        AssertEqual((ushort)0x7e00, queue.Entries[0].Destination.Encoded, "First page destination");
         AssertEqual(VramAssetId.EscapeTimerFirstTiles, queue.Entries[0].AssetId, "First typed page identity");
         AssertEqual((ushort)288, queue.Entries[1].SizeInBytes, "Second page size");
-        AssertEqual((ushort)0x7f00, queue.Entries[1].EncodedVramDestination, "Second page destination");
+        AssertEqual((ushort)0x7f00, queue.Entries[1].Destination.Encoded, "Second page destination");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, queue.Entries[1].AssetId, "Second typed page identity");
         var nativeQueue = new VramWriteQueue();
         AssertTrue(stock.TryQueueNativeTransfer(nativeQueue, 0xb0c000, 512, 0x7e00) && stock.TryQueueNativeTransfer(nativeQueue, 0xb0c200, 288, 0x7f00), "Native queue descriptors accepted");
@@ -1703,8 +1703,8 @@ internal static class LookupStream1Verification
             AssertTrue(actual.LastFinalizedSpriteCount > 0, "Focused flare placement fixture emits its native sprite");
             for (int index = 0; index < actual.LastFinalizedSpriteCount; index++)
             {
-                AssertEqual((actual.GetEntry(index).X + 7) & 511, edited.GetEntry(index).X, "Actual flare uses independently edited placement");
-                AssertEqual(actual.GetEntry(index).Y, edited.GetEntry(index).Y, "X edit preserves actual flare Y");
+                AssertEqual((actual.GetEntry(index).Position.X + 7) & 511, edited.GetEntry(index).Position.X, "Actual flare uses independently edited placement");
+                AssertEqual(actual.GetEntry(index).Position.Y, edited.GetEntry(index).Position.Y, "X edit preserves actual flare Y");
             }
         }
         Console.WriteLine("Beam/Grapple flare origins:128 direct native words, zero stock overrides,128 independent edits, bounded aliases and four actual OAM fixtures pass.");
@@ -2976,8 +2976,8 @@ internal static class LookupStream1Verification
                 OamBuffer cannonOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, Position16<RoomPixels>.Zero, 0));
                 AssertEqual(1, cannonOam.LastFinalizedSpriteCount, "Actual cover draw publication");
                 OamEntry cannonEntry = cannonOam.GetEntry(0);
-                AssertEqual(128 + x, cannonEntry.X, "Actual native cover X");
-                AssertEqual(128 + y - graphics, (int)cannonEntry.Y, "Actual native cover Y including pose origin");
+                AssertEqual(128 + x, cannonEntry.Position.X, "Actual native cover X");
+                AssertEqual(128 + y - graphics, (int)cannonEntry.Position.Y, "Actual native cover Y including pose origin");
                 draws++;
             }
         }

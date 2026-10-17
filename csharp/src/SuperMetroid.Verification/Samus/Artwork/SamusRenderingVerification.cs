@@ -160,16 +160,16 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(7, oam.LastFinalizedSpriteCount, "Samus pose 1 emits four top and three bottom OBJs");
 
     OamEntry firstTop = oam.GetEntry(0);
-    AssertEqual(121, firstTop.X, "Samus top OBJ signed X offset");
-    AssertEqual(120, firstTop.Y, "Samus top OBJ signed Y offset");
+    AssertEqual(121, firstTop.Position.X, "Samus top OBJ signed X offset");
+    AssertEqual(120, firstTop.Position.Y, "Samus top OBJ signed Y offset");
     AssertTrue(firstTop.IsLarge, "Samus top OBJ preserves ROM size bit");
     AssertEqual(4, firstTop.Palette, "Samus top OBJ preserves ROM palette");
     AssertEqual(2, firstTop.Priority, "Samus top OBJ preserves ROM priority");
     AssertEqual(0, firstTop.TileNumber, "Samus top OBJ tile number");
 
     OamEntry firstBottom = oam.GetEntry(4);
-    AssertEqual(113, firstBottom.X, "Samus bottom OBJ signed X offset");
-    AssertEqual(144, firstBottom.Y, "Samus bottom OBJ positive Y offset");
+    AssertEqual(113, firstBottom.Position.X, "Samus bottom OBJ signed X offset");
+    AssertEqual(144, firstBottom.Position.Y, "Samus bottom OBJ positive Y offset");
     AssertEqual(8, firstBottom.TileNumber, "Samus bottom OBJ tile number");
 
     // The verified ordinary transition applies pose $09 after movement/animation and before
@@ -237,8 +237,8 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(0x0062, samus.Presentation.BottomSpritemapIndex, "power-suit forward bottom spritemap index");
     AssertEqual(3, oam.LastFinalizedSpriteCount, "power-suit forward top/chest/bottom OAM order");
     OamEntry chestCover = oam.GetEntry(1);
-    AssertEqual(121, chestCover.X, "forward chest-cover X is Samus screen X minus seven");
-    AssertEqual(117, chestCover.Y, "forward chest-cover Y is Samus screen Y minus seventeen");
+    AssertEqual(121, chestCover.Position.X, "forward chest-cover X is Samus screen X minus seven");
+    AssertEqual(117, chestCover.Position.Y, "forward chest-cover Y is Samus screen Y minus seventeen");
     AssertEqual(0x21, chestCover.TileNumber, "forward chest-cover tile number");
     AssertEqual(4, chestCover.Palette, "forward chest-cover palette");
     AssertEqual(3, chestCover.Priority, "forward chest-cover priority");
@@ -437,7 +437,7 @@ internal static void VerifySamusRenderingSlice()
     oam = oamFrame.FinalizeAsOam();
     AssertEqual(0xfa83, samus.Presentation.SpritemapPosition.Y,
         "normal-jump landing frame zero preserves unaligned word subtraction");
-    AssertEqual(0x83, oam.GetEntry(0).Y,
+    AssertEqual(0x83, oam.GetEntry(0).Position.Y,
         "landing OAM exposes low-byte three-pixel visual nudge");
 
     samus.AnimationFrame = 1;
@@ -580,8 +580,8 @@ internal static void VerifySamusArmCannon()
     AssertEqual(1, coverFrame.Draws.Length, "open cover publishes one draw");
     AssertEqual(1, oam.LastFinalizedSpriteCount, "cover stands for exactly one OAM record");
     OamEntry cover = oam.GetEntry(0);
-    AssertEqual(135, cover.X, "cover X includes signed pose offset and camera");
-    AssertEqual(125, cover.Y,
+    AssertEqual(135, cover.Position.X, "cover X includes signed pose offset and camera");
+    AssertEqual(125, cover.Position.Y,
         "cover Y includes signed offset, graphics origin, and camera");
     // Direction two's retail attributes $281F: tile $1F, palette four, priority two, no flips.
     AssertEqual(0x1f, cover.TileNumber, "direction two attributes select cover OAM tile slot");

@@ -56,7 +56,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             AssertEqual(transfer.Asset, stockQueue.Entries[index].AssetId,
                 $"takeoff frame {index} is a typed installed upload");
             AssertEqual(transfer.DestinationWord,
-                stockQueue.Entries[index].EncodedVramDestination,
+                stockQueue.Entries[index].Destination.Encoded,
                 $"takeoff frame {index} keeps the compiled VRAM target");
             nativeQueue.Enqueue(GunshipLiftoffTransferDefinitions.ByteCount,
                 transfer.SourceAddress, VramDmaDestination.FromNative(transfer.DestinationWord));

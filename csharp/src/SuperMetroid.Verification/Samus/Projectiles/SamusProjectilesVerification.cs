@@ -409,9 +409,9 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         OamEntry baselineEntry = baselineMode7FlareOam.GetEntry(entry);
         OamEntry rotatedEntry = rotatedMode7FlareOam.GetEntry(entry);
-        AssertEqual((baselineEntry.X - 8) & 0x01ff, rotatedEntry.X,
+        AssertEqual((baselineEntry.Position.X - 8) & 0x01ff, rotatedEntry.Position.X,
             $"Mode 7 charge-flare OBJ {entry} receives transformed center X");
-        AssertEqual(unchecked((byte)(baselineEntry.Y + 8)), rotatedEntry.Y,
+        AssertEqual(unchecked((byte)(baselineEntry.Position.Y + 8)), rotatedEntry.Position.Y,
             $"Mode 7 charge-flare OBJ {entry} receives transformed center Y");
     }
     AssertSamusPosition(

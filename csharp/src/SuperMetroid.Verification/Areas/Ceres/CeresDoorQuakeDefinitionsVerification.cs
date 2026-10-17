@@ -73,8 +73,8 @@ internal static class CeresDoorQuakeDefinitionsVerification
             oam.BeginFrame();
             enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(oam, new(0, 0));
             oam.FinalizeFrame();
-            baseX ??= oam.GetEntry(0).X;
-            AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).X,
+            baseX ??= oam.GetEntry(0).Position.X;
+            AssertEqual(baseX.Value + expectedOffsets[phase], oam.GetEntry(0).Position.X,
                 $"Ceres private door production OAM phase {phase}");
         }
 
@@ -106,9 +106,9 @@ internal static class CeresDoorQuakeDefinitionsVerification
         editedOverlay.BeginFrame();
         enemies.CeresRidleyBehavior.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, new(0, 0));
         editedOverlay.FinalizeFrame();
-        AssertEqual(nativeOverlay.GetEntry(0).X, editedOverlay.GetEntry(0).X,
+        AssertEqual(nativeOverlay.GetEntry(0).Position.X, editedOverlay.GetEntry(0).Position.X,
             "private-overlay visual edit preserves the native quake/X coordinate");
-        AssertEqual(nativeOverlay.GetEntry(0).Y + 1, editedOverlay.GetEntry(0).Y,
+        AssertEqual(nativeOverlay.GetEntry(0).Position.Y + 1, editedOverlay.GetEntry(0).Position.Y,
             "private-overlay visual edit changes only its authored Y offset");
         AssertEqual((ushort)1, door.VariableB,
             "private-overlay visual edit preserves the door's control flag");

@@ -680,8 +680,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(4, (grappleFlareOam.LastFinalizedSpriteCount * 4),
         "grapple flare appends one ROM-authored OAM entry");
     OamEntry grappleFlare = grappleFlareOam.GetEntry(0);
-    AssertEqual(100, grappleFlare.X, "grapple flare spritemap X offset");
-    AssertEqual(100, grappleFlare.Y, "grapple flare signed Y offset");
+    AssertEqual(100, grappleFlare.Position.X, "grapple flare spritemap X offset");
+    AssertEqual(100, grappleFlare.Position.Y, "grapple flare signed Y offset");
     AssertEqual(0x56, grappleFlare.TileNumber, "grapple flare retains ROM tile bits");
     AssertEqual(2, grappleFlare.Palette, "grapple flare retains ROM palette bits");
     AssertEqual(3, grappleFlare.Priority, "grapple flare retains ROM priority bits");
@@ -724,8 +724,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
         OamEntry entry = grappleOam.GetEntry(segment);
         AssertOamEntry(
             new OamEntry(
-                94,
-                (byte)(99 - segment * 8),
+                new Position16<OamPixels>(94, (ushort)(99 - segment * 8)),
                 expectedTiles[segment],
                 5,
                 3,
@@ -736,8 +735,8 @@ firingLevel, cancelledSamus, controllerInput: 0);
             $"grapple segment {segment} complete OBJ");
     }
     OamEntry grappleEndpoint = grappleOam.GetEntry(6);
-    AssertEqual(95, grappleEndpoint.X, "grapple endpoint screen X");
-    AssertEqual(50, grappleEndpoint.Y, "grapple endpoint screen Y");
+    AssertEqual(95, grappleEndpoint.Position.X, "grapple endpoint screen X");
+    AssertEqual(50, grappleEndpoint.Position.Y, "grapple endpoint screen Y");
     AssertEqual(0x20, grappleEndpoint.TileNumber, "grapple endpoint tile");
 
     // `$9B:BFA5` still uploads both graphics blocks and increments flare time when length

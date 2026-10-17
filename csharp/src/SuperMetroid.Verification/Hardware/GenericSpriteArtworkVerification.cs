@@ -150,8 +150,8 @@ internal static class GenericSpriteArtworkVerification
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;
-            AssertEqual(hide ? 0x180 : 17, actual.GetEntry(0).X, "generic origin-wrap X parking");
-            AssertEqual((byte)(hide ? 224 : origin + offset), actual.GetEntry(0).Y, "generic origin-wrap Y parking");
+            AssertEqual(hide ? 0x180 : 17, actual.GetEntry(0).Position.X, "generic origin-wrap X parking");
+            AssertEqual((byte)(hide ? 224 : origin + offset), actual.GetEntry(0).Position.Y, "generic origin-wrap Y parking");
             AssertTrue(actual.GetEntry(0).IsLarge, "generic origin-wrap retains sprite size");
             wrapCases++;
         }

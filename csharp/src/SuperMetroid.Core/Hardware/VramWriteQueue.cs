@@ -50,7 +50,7 @@ public sealed class VramWriteQueue
         if ((uint)sourceAddress > SnesBusLayout.MaximumAddress)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "Source must be a 24-bit SNES CPU address.");
 
-        Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination.Encoded));
+        Append(new VramWriteEntry(sizeInBytes, sourceAddress, destination));
     }
 
     /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
@@ -58,7 +58,7 @@ public sealed class VramWriteQueue
     {
         if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        Append(new VramWriteEntry(sizeInBytes, 0, destination.Encoded) { AssetId = asset });
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { AssetId = asset });
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public sealed class VramWriteQueue
         if (sizeInBytes is <= 0 or > VramWriteEntry.MaximumSizeInBytes) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
         if (offset < 0 || offset + sizeInBytes > staging.Length)
             throw new ArgumentOutOfRangeException(nameof(offset), offset, $"Transfer {offset}+{sizeInBytes} exceeds the {staging.Length}-byte staging buffer.");
-        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination.Encoded) { Staging = staging, StagingOffset = offset });
+        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { Staging = staging, StagingOffset = offset });
     }
 
     /// <summary>
@@ -84,14 +84,14 @@ public sealed class VramWriteQueue
         Ensure.NotNull(words);
         if (sizeInBytes == 0 || (sizeInBytes & 1) != 0 || sizeInBytes > words.Length * sizeof(ushort))
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), sizeInBytes, $"Transfer must be a nonzero whole number of the table's {words.Length} words.");
-        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination.Encoded) { StagingWords = words });
+        Append(new VramWriteEntry(sizeInBytes, nativeSourceAddress, destination) { StagingWords = words });
     }
 
     /// <summary>Queues a transfer of <paramref name="sizeInBytes"/> zero bytes, for a source the port does not model.</summary>
     public void EnqueueZeroFill(ushort sizeInBytes, VramDmaDestination destination)
     {
         if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
-        Append(new VramWriteEntry(sizeInBytes, 0, destination.Encoded) { ZeroFill = true });
+        Append(new VramWriteEntry(sizeInBytes, 0, destination) { ZeroFill = true });
     }
 
     /// <summary>Adds one packed-size record only when the two-byte NMI terminator still fits.</summary>
@@ -135,20 +135,20 @@ public sealed class VramWriteQueue
         {
             VramWriteEntry entry = _entries[index];
             if (entry.Staging is { } staging)
-                vram.ExecuteQueuedAssetWrite(staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes), entry.EncodedVramDestination);
+                vram.ExecuteQueuedAssetWrite(staging.Bytes.Slice(entry.StagingOffset, entry.SizeInBytes), entry.Destination.Encoded);
             else if (entry.StagingWords is { } words)
-                vram.ExecuteQueuedAssetWrite(LittleEndianBytes(words, entry.SizeInBytes), entry.EncodedVramDestination);
+                vram.ExecuteQueuedAssetWrite(LittleEndianBytes(words, entry.SizeInBytes), entry.Destination.Encoded);
             else if (entry.ZeroFill)
-                vram.ExecuteQueuedAssetWrite(new byte[entry.SizeInBytes], entry.EncodedVramDestination);
+                vram.ExecuteQueuedAssetWrite(new byte[entry.SizeInBytes], entry.Destination.Encoded);
             else if (entry.AssetId == VramAssetId.None)
             {
                 if (assets is IInstalledArtworkTransferSource artwork &&
                     artwork.TryResolve(entry.SourceAddress, entry.SizeInBytes,
                         out ReadOnlyMemory<byte> selected))
-                    vram.ExecuteQueuedAssetWrite(selected.Span, entry.EncodedVramDestination);
+                    vram.ExecuteQueuedAssetWrite(selected.Span, entry.Destination.Encoded);
                 else
                     vram.ExecuteQueuedMemoryWrite(memory, entry.SourceAddress, entry.SizeInBytes,
-                        entry.EncodedVramDestination);
+                        entry.Destination.Encoded);
             }
             else
             {
@@ -156,7 +156,7 @@ public sealed class VramWriteQueue
                 ReadOnlyMemory<byte> data = assets.Resolve(entry.AssetId);
                 if (data.Length != entry.SizeInBytes)
                     throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
-                vram.ExecuteQueuedAssetWrite(data.Span, entry.EncodedVramDestination);
+                vram.ExecuteQueuedAssetWrite(data.Span, entry.Destination.Encoded);
             }
         }
 

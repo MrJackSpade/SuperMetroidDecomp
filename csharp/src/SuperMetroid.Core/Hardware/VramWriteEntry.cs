@@ -5,13 +5,11 @@ namespace SuperMetroid.Core.Hardware;
 /// </summary>
 /// <param name="SizeInBytes">DMA byte count written to <c>DAS1</c>.</param>
 /// <param name="SourceAddress">24-bit CPU bus address written to <c>A1T1/A1B1</c>.</param>
-/// <param name="EncodedVramDestination">
-/// Destination word address; bit 15 selects a 32-word rather than one-word increment.
-/// </param>
+/// <param name="Destination">Where the transfer lands in VRAM, and the increment it writes with.</param>
 public readonly record struct VramWriteEntry(
     int SizeInBytes,
     int SourceAddress,
-    ushort EncodedVramDestination)
+    VramDmaDestination Destination)
 {
     /// <summary>The largest byte count the sixteen-bit DMA size register holds.</summary>
     public const int MaximumSizeInBytes = ushort.MaxValue;

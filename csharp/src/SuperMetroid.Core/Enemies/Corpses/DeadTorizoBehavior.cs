@@ -359,7 +359,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         foreach (DeadTorizoVramTransferDefinition record in
                  DeadTorizoVramTransferDefinitions.ForHalf(state.UploadsOddTransferHalf))
             _deadTorizoFrameVramTransfers.Add(new VramWriteEntry(
-                record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
+                record.SizeInBytes, record.SourceAddress, record.Destination));
     }
 
     /// <summary>Queues this frame's corpse DMA descriptors at their native VRAM destinations.</summary>

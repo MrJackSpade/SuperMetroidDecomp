@@ -244,11 +244,11 @@ internal static void VerifyVramWriteQueue()
     AssertEqual(0, queue.Entries.Count, "drain clears typed records");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(0, 0x808000, VramDmaDestination.FromNative(0)), "zero-size VRAM entry rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => queue.Enqueue(1, 0x1000000, VramDmaDestination.FromNative(0)), "25-bit VRAM source rejected");
-    AssertEqual(VramWriteEntry.MaximumSizeInBytes, new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes, 0, 0).SizeInBytes,
+    AssertEqual(VramWriteEntry.MaximumSizeInBytes, new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes, 0, VramDmaDestination.FromNative(0)).SizeInBytes,
         "the largest sixteen-bit DMA byte count is a queued size");
-    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes + 1, 0, 0),
+    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(VramWriteEntry.MaximumSizeInBytes + 1, 0, VramDmaDestination.FromNative(0)),
         "a queued size beyond the sixteen-bit DMA byte count is rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(-1, 0, 0), "a negative queued size is rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => new VramWriteEntry(-1, 0, VramDmaDestination.FromNative(0)), "a negative queued size is rejected");
 
     // A direct channel DAS of zero is not the queue's zero-word terminator. Hardware
     // decrements the sixteen-bit counter through all $10000 values, while A1T and VMADD
@@ -655,21 +655,21 @@ internal static void VerifyOamSpritemapPacking()
     DrawImportedSpritemap(bus, oam, 0x808000, origin: new(0x00fe, 0x0001), paletteBits: 0x0a00);
 
     OamEntry first = oam.GetEntry(0);
-    AssertEqual(0x103, first.X, "OAM first 9-bit X");
-    AssertEqual(0xff, first.Y, "OAM negative Y wraps above screen");
+    AssertEqual(0x103, first.Position.X, "OAM first 9-bit X");
+    AssertEqual(0xff, first.Position.Y, "OAM negative Y wraps above screen");
     AssertTrue(first.IsLarge, "OAM size bit extracted from encoded X word");
     AssertEqual(5, first.Palette, "OAM caller palette replaces source palette");
     AssertEqual(0x0aa, first.TileNumber, "OAM tile number retained");
 
     OamEntry second = oam.GetEntry(1);
-    AssertEqual(0x0ee, second.X, "OAM signed 9-bit negative X offset");
-    AssertEqual(0x21, second.Y, "OAM positive Y offset");
+    AssertEqual(0x0ee, second.Position.X, "OAM signed 9-bit negative X offset");
+    AssertEqual(0x21, second.Position.Y, "OAM positive Y offset");
     AssertTrue(!second.IsLarge, "OAM second size bit clear");
     AssertEqual(0x03, oam.HighTable[0], "OAM four-sprite shared high byte");
 
     oam.FinalizeFrame();
     AssertEqual(2, oam.LastFinalizedSpriteCount, "OAM finalized used count");
-    AssertEqual(0xf0, oam.GetEntry(2).Y, "OAM first unused sprite parked offscreen");
+    AssertEqual(0xf0, oam.GetEntry(2).Position.Y, "OAM first unused sprite parked offscreen");
     AssertEqual(0, oam.NextByteOffset, "OAM finalization resets stack pointer");
     AssertEqual(OamBuffer.UploadByteCount, oam.CreateUploadPayload().Length, "OAM DMA payload size");
 
@@ -684,8 +684,8 @@ internal static void VerifyOamSpritemapPacking()
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x808100, origin: new(0, 0x00c0), paletteBits: 0);
     OamEntry clipped = oam.GetEntry(0);
-    AssertEqual(0x180, clipped.X, "vertically clipped OAM X park position");
-    AssertEqual(0xe0, clipped.Y, "vertically clipped OAM Y park position");
+    AssertEqual(0x180, clipped.Position.X, "vertically clipped OAM X park position");
+    AssertEqual(0xe0, clipped.Position.Y, "vertically clipped OAM Y park position");
 
     // Enemy projectiles use the distinct bank-$8D loader at `$81:8C0A/$81:8C7F`.
     // The first entry is large/+5 X/-2 Y; the second is small/-16 X/+2 Y. Source
@@ -700,15 +700,15 @@ internal static void VerifyOamSpritemapPacking()
         graphicsIndex: 0x0a04,
         originYIsOnScreen: true);
     OamEntry enemyFirst = oam.GetEntry(0);
-    AssertEqual(0x103, enemyFirst.X, "enemy-projectile complete encoded X addition");
-    AssertEqual(0xf0, enemyFirst.Y, "on-screen origin hides uncrossed negative Y");
+    AssertEqual(0x103, enemyFirst.Position.X, "enemy-projectile complete encoded X addition");
+    AssertEqual(0xf0, enemyFirst.Position.Y, "on-screen origin hides uncrossed negative Y");
     AssertTrue(enemyFirst.IsLarge, "enemy-projectile size comes from encoded X bit fifteen");
     AssertEqual(0x013, enemyFirst.TileNumber, "enemy-projectile base tile uses addition");
     AssertEqual(5, enemyFirst.Palette, "enemy-projectile graphics palette OR");
     AssertEqual(2, enemyFirst.Priority, "enemy-projectile source priority survives palette OR");
     OamEntry enemySecond = oam.GetEntry(1);
-    AssertEqual(0x0ee, enemySecond.X, "enemy-projectile signed nine-bit negative X");
-    AssertEqual(0x03, enemySecond.Y, "on-screen origin retains uncrossed positive Y");
+    AssertEqual(0x0ee, enemySecond.Position.X, "enemy-projectile signed nine-bit negative X");
+    AssertEqual(0x03, enemySecond.Position.Y, "on-screen origin retains uncrossed positive Y");
     AssertTrue(!enemySecond.IsLarge, "enemy-projectile small size bit");
     AssertEqual(0x002, enemySecond.TileNumber, "enemy-projectile ADC tile carry");
 
@@ -721,9 +721,9 @@ internal static void VerifyOamSpritemapPacking()
         origin: new(0, 0xffff),
         graphicsIndex: 0,
         originYIsOnScreen: false);
-    AssertEqual(0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Position.Y,
         "off-screen origin hides negative piece that remains above screen");
-    AssertEqual(0x01, oam.GetEntry(1).Y,
+    AssertEqual(0x01, oam.GetEntry(1).Position.Y,
         "off-screen origin admits positive piece crossing into screen");
 
     // Ordinary enemies use a third, deliberately separate common writer at $81:8AB8.
@@ -735,15 +735,15 @@ internal static void VerifyOamSpritemapPacking()
     oam.BeginFrame();
     DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0x00fe, 0x0001), PaletteBits = 0x0e00, BaseTileIndex = 4 });
     OamEntry roomEnemyFirst = oam.GetEntry(0);
-    AssertEqual(0x103, roomEnemyFirst.X, "room-enemy complete encoded X addition");
-    AssertEqual(0xff, roomEnemyFirst.Y, "room-enemy negative Y wraps without parking");
+    AssertEqual(0x103, roomEnemyFirst.Position.X, "room-enemy complete encoded X addition");
+    AssertEqual(0xff, roomEnemyFirst.Position.Y, "room-enemy negative Y wraps without parking");
     AssertTrue(roomEnemyFirst.IsLarge, "room-enemy size comes from encoded X bit fifteen");
     AssertEqual(0x014, roomEnemyFirst.TileNumber, "room-enemy graphics-set tile-base addition");
     AssertEqual(7, roomEnemyFirst.Palette, "room-enemy selected OBJ palette OR");
     AssertEqual(2, roomEnemyFirst.Priority, "room-enemy source priority survives palette OR");
     OamEntry roomEnemySecond = oam.GetEntry(1);
-    AssertEqual(0x0ee, roomEnemySecond.X, "room-enemy signed nine-bit negative X");
-    AssertEqual(0x03, roomEnemySecond.Y, "room-enemy positive Y offset");
+    AssertEqual(0x0ee, roomEnemySecond.Position.X, "room-enemy signed nine-bit negative X");
+    AssertEqual(0x03, roomEnemySecond.Position.Y, "room-enemy positive Y offset");
     AssertEqual(0x002, roomEnemySecond.TileNumber, "room-enemy tile overflow wraps at nine bits");
     AssertEqual(2, roomEnemySecond.Priority,
         "room-enemy tile-base ADC carry reaches the attribute high byte");
@@ -754,16 +754,16 @@ internal static void VerifyOamSpritemapPacking()
     // while an off-screen origin admits only the positive piece that did carry to Y=$01.
     oam.BeginFrame();
     DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0x0001), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
-    AssertEqual(0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Position.Y,
         "extended enemy on-screen origin parks uncrossed negative piece");
-    AssertEqual(0x03, oam.GetEntry(1).Y,
+    AssertEqual(0x03, oam.GetEntry(1).Position.Y,
         "extended enemy on-screen origin retains positive piece");
 
     oam.BeginFrame();
     DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0xffff), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = false });
-    AssertEqual(0xf0, oam.GetEntry(0).Y,
+    AssertEqual(0xf0, oam.GetEntry(0).Position.Y,
         "extended enemy off-screen origin parks negative piece that remains above screen");
-    AssertEqual(0x01, oam.GetEntry(1).Y,
+    AssertEqual(0x01, oam.GetEntry(1).Position.Y,
         "extended enemy off-screen origin admits positive piece crossing onto screen");
 
     Console.WriteLine(

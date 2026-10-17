@@ -56,9 +56,9 @@ internal static class EscapeTimerPresentationVerification
             "timer PNG first record uses typed installed artwork");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, queued.Entries[1].AssetId,
             "timer PNG second record uses typed installed artwork");
-        AssertEqual(EscapeTimerTileAtlasFormat.FirstDestinationWord, queued.Entries[0].EncodedVramDestination,
+        AssertEqual(EscapeTimerTileAtlasFormat.FirstDestinationWord, queued.Entries[0].Destination.Encoded,
             "timer PNG first record retains native destination");
-        AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].EncodedVramDestination,
+        AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].Destination.Encoded,
             "timer PNG second record retains native destination");
         var timerVram = new SnesVram();
         queued.DrainTo(timerVram, ReferenceMutableMemory.From(NewForbiddenMapBus()), original);

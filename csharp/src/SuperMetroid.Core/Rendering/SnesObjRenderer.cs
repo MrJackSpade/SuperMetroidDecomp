@@ -168,8 +168,9 @@ public static class SnesObjRenderer
         // OAM X is a signed/modular 9-bit coordinate: $1F0 means -16. Y is similarly an
         // 8-bit coordinate, but the visible NTSC field ends at 223, so $E0-$FF wraps above
         // the screen. Converting before clipping naturally draws partially visible OBJs.
-        int objectX = entry.X >= XRange / 2 ? entry.X - XRange : entry.X;
-        int objectY = entry.Y >= SnesPpuLayout.ScreenHeightPixels ? entry.Y - YRange : entry.Y;
+        Position16<OamPixels> position = entry.Position;
+        int objectX = position.X >= XRange / 2 ? position.X - XRange : position.X;
+        int objectY = position.Y >= SnesPpuLayout.ScreenHeightPixels ? position.Y - YRange : position.Y;
 
         for (int destinationY = 0; destinationY < objectHeight; destinationY++)
         {

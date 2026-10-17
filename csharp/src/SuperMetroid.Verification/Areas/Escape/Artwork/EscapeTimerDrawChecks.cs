@@ -37,7 +37,7 @@ internal static class EscapeTimerDrawChecks
         {
             OamEntry entry = native.GetEntry(index);
             int size = entry.IsLarge ? 16 : 8;
-            expected.Add(new(new((short)(entry.X >= 256 ? entry.X - 512 : entry.X), (short)(entry.Y >= 224 ? entry.Y - 256 : entry.Y)), size,
+            expected.Add(new(new((short)(entry.Position.X >= 256 ? entry.Position.X - 512 : entry.Position.X), (short)(entry.Position.Y >= 224 ? entry.Position.Y - 256 : entry.Position.Y)), size,
                 entry.TileNumber, entry.Palette, entry.Priority, entry.FlipX, entry.FlipY));
         }
         var actual = new List<Sprite>();

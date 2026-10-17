@@ -44,7 +44,7 @@ internal sealed class DeadMonsterFrame
     {
         foreach (DeadMonsterVramTransferDefinition record in transfers)
             VramTransfers.Add(new VramWriteEntry(
-                record.SizeInBytes, record.SourceAddress, record.EncodedVramDestination));
+                record.SizeInBytes, record.SourceAddress, record.Destination));
     }
 
     /// <summary>

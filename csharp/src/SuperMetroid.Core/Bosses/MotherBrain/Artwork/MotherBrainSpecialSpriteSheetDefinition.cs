@@ -25,7 +25,7 @@ public readonly record struct MotherBrainSpecialSpriteSheetDefinition(
         : throw new IndexOutOfRangeException();
 
     /// <summary>Checks the cartridge's page alignment, size and destination.</summary>
-    public int ResolvePage(uint sourceAddress, int byteCount, ushort destinationWord)
+    public int ResolvePage(uint sourceAddress, int byteCount, int destinationWord)
     {
         if (!ContainsSource(sourceAddress))
             throw new InvalidDataException(

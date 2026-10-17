@@ -396,7 +396,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         DeadSidehopperEnemyState victimState = RequireDeadSidehopperState(victim);
         victimState.PaletteStage = 1;
-        state.VictimActivationFlag = 1;
+        state.VictimActivationFlag = true;
     }
 
     /// <summary>Ports shot callback <c>$A9:DD1D</c>.</summary>

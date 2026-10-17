@@ -134,8 +134,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new BabyTurtleEnemyState(slot)
         {
-            SpawnXPosition = slot.Position.X.Whole,
-            SpawnTopBoundary = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)),
+            SpawnTopCenter = new Position16<RoomPixels>(
+                slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
             Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus,
             Velocity = new Offset16<RoomPixels>(unchecked((short)slot.Parameter1), 0),
         };
@@ -220,7 +220,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             BabyTurtleEnemyState childState = RequireBabyTurtleState(child);
             child.PaletteIndex = mama.PaletteIndex;
             child.VramTilesIndex = mama.VramTilesIndex;
-            childState.ParentNativeIndex = mama.NativeIndex;
+            childState.ParentSlotIndex = mama.SlotIndex;
         }
 
         state.Function = MamaTurtleAiFunction.Asleep;
@@ -623,11 +623,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         ushort previousY = baby.Position.Y.Whole;
-        baby.Position = baby.Position.WithWholeY(state.SpawnTopBoundary);
+        baby.Position = baby.Position.WithWholeY(state.SpawnTopCenter.Y);
         _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level, baby, SnesSixteenSixteen.FromWhole(state.Velocity.X));
 
-        RoomEnemySlot parentSlot = _slotTable.SlotFromNativeIndex(state.ParentNativeIndex);
+        RoomEnemySlot parentSlot = _slotTable.Slots[state.ParentSlotIndex];
         MamaTurtleEnemyState parent = RequireMamaTurtleState(parentSlot);
         if (parent.Function != MamaTurtleAiFunction.Asleep)
             return;
@@ -650,7 +650,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot baby,
         BabyTurtleEnemyState state)
     {
-        short signedDifference = unchecked((short)(state.SpawnXPosition - baby.Position.X.Whole));
+        short signedDifference = unchecked((short)(state.SpawnTopCenter.X - baby.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= BabyTurtleTravelDistance)
         {
@@ -809,11 +809,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves the child's native parent slot and rejects a non-Mama occupant.</summary>
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
-        RoomEnemySlot parent = _slotTable.SlotFromNativeIndex(child.ParentNativeIndex);
+        RoomEnemySlot parent = _slotTable.Slots[child.ParentSlotIndex];
         if (parent.EnemyDefinitionPointer != EnemyDefinitionId.MamaTurtle)
         {
             throw new InvalidDataException(
-                $"Baby Turtle parent index ${child.ParentNativeIndex:X4} names enemy " +
+                $"Baby Turtle parent slot {child.ParentSlotIndex} names enemy " +
                 $"${(int)parent.EnemyDefinitionPointer:X4}, not Mama Turtle.");
         }
         return RequireMamaTurtleState(parent);

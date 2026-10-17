@@ -56,8 +56,11 @@ public sealed class BabyMetroidCutsceneState
     /// </summary>
     public bool HitFlashPaletteShown { get; private set; }
 
-    /// <summary>Enemy graphics offset selecting the four transferred Baby tile rows.</summary>
-    public ushort GraphicsOffset { get; private set; }
+    /// <summary>
+    /// Tile base and attribute fragment the enemy drawer applies to every Baby spritemap entry: tile 160, where the
+    /// four transferred Baby tile rows live, plus one priority-field step for the fatal blow.
+    /// </summary>
+    public SnesObjAttributeWord GraphicsOffset { get; private set; }
 
     /// <summary>The Baby's current program.</summary>
     public MotherBrainBabyProgram Program { get; private set; }
@@ -178,7 +181,7 @@ public sealed class BabyMetroidCutsceneState
             EnemyProperties.BlocksPlasmaBeam |
             EnemyProperties.ProcessInstructions);
         HitFlashPaletteShown = false;
-        GraphicsOffset = 160;
+        GraphicsOffset = SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 0);
         SetProgram(MotherBrainBabyProgram.Initial);
         CrySoundEnabled = true;
         HealthBasedPaletteEnabled = false;
@@ -346,7 +349,7 @@ public sealed class BabyMetroidCutsceneState
             {
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
                 Position = Position.WithWhole(head + ShakingOffsets[shakingIndex] + BrainLatchOffset);
-                if (motherBrain.Phase2CorpseState != 0)
+                if (motherBrain.Phase2CorpseState != MotherBrainPhase2CorpseState.Living)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
                     FunctionTimer = NativeCountdown.Start(64);
@@ -600,7 +603,7 @@ public sealed class BabyMetroidCutsceneState
                     // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,
                     // clears velocity, remembers the shake origin, and falls through into
                     // the first of 17 fatal-blow shake calls.
-                    GraphicsOffset = 4256;
+                    GraphicsOffset = SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 1);
                     SetProgram(MotherBrainBabyProgram.TakingFatalBlow);
                     Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;

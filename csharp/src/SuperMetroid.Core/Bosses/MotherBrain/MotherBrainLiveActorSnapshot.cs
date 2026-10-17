@@ -9,8 +9,8 @@ internal sealed record MotherBrainLiveActorSnapshot
     /// <summary>Body pose.</summary>
     public required MotherBrainBodyPose BodyPose { get; init; }
 
-    /// <summary>Form.</summary>
-    public required ushort Form { get; init; }
+    /// <summary>The live encounter stage, which the sequence's shot reactions and footsteps branch on.</summary>
+    public required MotherBrainForm Form { get; init; }
 
     /// <summary>Exact body enemy property word touched by `$A9:AEE1` and `$A9:AFF7`. Keeping the raw flags avoids guessing names for engine-wide enemy-property bits before bank `$A0` is fully translated: death sets `$0400`, then fade completion sets `$0100` and clears `$2000` with the cartridge's literal OR/AND sequence.</summary>
     public required SuperMetroid.Core.Enemies.EnemyPropertyWord BodyProperties { get; init; }
@@ -31,10 +31,10 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required SuperMetroid.Core.Enemies.EnemyExtraPropertyWord BrainExtraProperties { get; init; }
 
     /// <summary>Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final beam has already lowered it to <c>$3000</c> before the Baby interrupts the body.</summary>
-    public required ushort LowerNeckAngle { get; init; }
+    public required SnesAngle LowerNeckAngle { get; init; }
 
     /// <summary>Upper neck angle, correspondingly lowered to <c>$2000</c>.</summary>
-    public required ushort UpperNeckAngle { get; init; }
+    public required SnesAngle UpperNeckAngle { get; init; }
 
     /// <summary>Neck movement enabled.</summary>
     public required bool NeckMovementEnabled { get; init; }

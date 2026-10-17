@@ -8,9 +8,9 @@ internal static class MotherBrainShotReaction
 {
     /// <summary>Updates phase-two/three walk credit after a shot and signals recoil only on form-four Hyper Beam underflow.</summary>
     public static MotherBrainShotReactionResult Resolve(
-        ushort form,
+        MotherBrainForm form,
         MotherBrainProjectileType projectileType,
-        ushort walkCounter)
+        MotherBrainWalkCredit walkCredit)
     {
         // `$B58E` masks the projectile type to three bits before indexing an eight-byte
         // table. Validate the host enum so a caller cannot smuggle a larger value past it.
@@ -29,15 +29,15 @@ internal static class MotherBrainShotReaction
                 MotherBrainProjectileType.BeamExplosion => 0,
             _ => throw new ArgumentOutOfRangeException(nameof(projectileType), projectileType, "Undefined projectile class."),
         };
-        if (form == 4 && reactionType == 2)
+        if (form == MotherBrainForm.ThirdPhase && reactionType == 2)
         {
             // `$B5A9`: BPL keeps the nonnegative remainder without recoil, which is why
             // sustained Hyper Beam fire first consumes accumulated walk credit. On underflow
             // the counter is replaced by zero, not the wrapped subtraction.
-            ushort candidate = unchecked((ushort)(walkCounter - 266));
-            return unchecked((short)candidate) >= 0
-                ? new MotherBrainShotReactionResult(candidate, HyperBeamRecoil: false)
-                : new MotherBrainShotReactionResult(0, HyperBeamRecoil: true);
+            return walkCredit.CoversShot(MotherBrainWalkCredit.HyperBeamShotCost)
+                ? new MotherBrainShotReactionResult(
+                    walkCredit.SpendForShot(MotherBrainWalkCredit.HyperBeamShotCost), HyperBeamRecoil: false)
+                : new MotherBrainShotReactionResult(MotherBrainWalkCredit.Empty, HyperBeamRecoil: true);
         }
 
         // DEC turns reaction one into zero, sending either missile kind directly to the
@@ -45,11 +45,10 @@ internal static class MotherBrainShotReaction
         // one. Both nonzero cases subtract `$0100` and clamp signed underflow to zero.
         reactionType = NativeWordCounter.Decrement(reactionType).Value;
         if (reactionType == 0)
-            return new MotherBrainShotReactionResult(0, HyperBeamRecoil: false);
+            return new MotherBrainShotReactionResult(MotherBrainWalkCredit.Empty, HyperBeamRecoil: false);
 
-        ushort genericCandidate = unchecked((ushort)(walkCounter - 256));
         return new MotherBrainShotReactionResult(
-            unchecked((short)genericCandidate) >= 0 ? genericCandidate : (ushort)0,
+            walkCredit.SpendForShot(MotherBrainWalkCredit.StepCredit),
             HyperBeamRecoil: false);
     }
 }

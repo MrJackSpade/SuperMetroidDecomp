@@ -98,11 +98,11 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         CheckLiveTarget(ShitroidColorTarget.DeadSidehopper, 0xf0);
         for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
         {
-            state.PaletteTimerAndPhase = (ushort)((frame + 7) & 7);
+            state.PalettePhase = (frame + 7) % 8;
+            state.PaletteTimer = 0;
             enemies.ShitroidBehavior.StepShitroidNormalPalette(state);
-            AssertEqual(SnesLittleEndian.Word(unchecked((byte)frame), unchecked((byte)state.PaletteDelay)),
-                state.PaletteTimerAndPhase,
-                $"Shitroid normal frame {frame} retains native timer/phase selection");
+            AssertEqual(frame, state.PalettePhase, $"Shitroid normal frame {frame} advances to the next palette phase");
+            AssertEqual(state.PaletteDelay, state.PaletteTimer, $"Shitroid normal frame {frame} reloads the palette timer");
             for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
                 AssertEqual(colors.NormalColor(frame, color), cgram.Colors[165 + color],
                     $"live Shitroid normal frame {frame} color {color}");

@@ -45,7 +45,7 @@ public sealed class ZebetiteEnemyState
     public ZebetiteGenerationFlags GenerationFlags
     {
         get => (ZebetiteGenerationFlags)_slot.VariableF;
-        internal set => _slot.VariableF = (ushort)value;
+        internal set => _slot.VariableF = value.ToNativeWord();
     }
 
     /// <summary>Where this half's health program resumes (#641).</summary>

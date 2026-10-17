@@ -24,25 +24,30 @@ public sealed class BabyTurtleEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Gets the parent Mama Turtle's native enemy-record byte index.</summary>
-    public ushort ParentNativeIndex
+    /// <summary>
+    /// The parent Mama Turtle's physical slot index. Variable B keeps the slot's record offset so code that reads
+    /// the slot by offset still sees it; this view converts in both directions and rejects a misaligned offset.
+    /// </summary>
+    public int ParentSlotIndex
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => _slot.VariableB % RoomEnemySystem.NativeSlotSize == 0
+            ? _slot.VariableB / RoomEnemySystem.NativeSlotSize
+            : throw new InvalidDataException($"Baby Turtle parent offset {_slot.VariableB} is not a slot boundary.");
+        internal set => _slot.VariableB = checked((ushort)(value * RoomEnemySystem.NativeSlotSize));
     }
 
-    /// <summary>Gets the horizontal spawn position used by the child's shell path.</summary>
-    public ushort SpawnXPosition
+    /// <summary>
+    /// The child's spawn point: its spawn X, which the crawl turns around 48 pixels from, and the top of its spawn
+    /// hitbox, which the crawl holds it to. Variables C and D keep the two coordinates.
+    /// </summary>
+    public Position16<RoomPixels> SpawnTopCenter
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Gets the upper boundary of the child's spawn hitbox.</summary>
-    public ushort SpawnTopBoundary
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => new(_slot.VariableC, _slot.VariableD);
+        internal set
+        {
+            _slot.VariableC = value.X;
+            _slot.VariableD = value.Y;
+        }
     }
 
     /// <summary>

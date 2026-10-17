@@ -128,7 +128,7 @@ internal static class RoomPlmSystemAccess
         internal bool MotherBrainGlassWasLoaded => self.MotherBrainGlass._motherBrainGlassWasLoaded;
 
         /// <summary>Current native room argument, retained after the header deletes itself.</summary>
-        internal ushort MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
+        internal int MotherBrainGlassRoomArgument => MotherBrainGlassSlot(self) is { } slot
             ? slot.RoomArgument
             : self.MotherBrainGlass._motherBrainGlassLastRoomArgument;
 

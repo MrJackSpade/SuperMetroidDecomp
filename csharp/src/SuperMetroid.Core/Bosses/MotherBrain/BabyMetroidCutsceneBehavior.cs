@@ -199,7 +199,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
         slot.PaletteIndex = baby.HitFlashPaletteShown ? (ushort)0 : EnemyPaletteBits.Palette7;
-        slot.VramTilesIndex = baby.GraphicsOffset;
+        slot.VramTilesIndex = baby.GraphicsOffset.Raw;
         slot.Health = baby.Health;
     }
 

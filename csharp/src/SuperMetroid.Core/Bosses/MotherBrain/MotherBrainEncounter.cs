@@ -109,7 +109,7 @@ internal sealed class MotherBrainEncounter
             return;
         }
         if (_presentation.EscapeTimerArtwork?.TryLoadNativeTransfer(
-            _presentation.Vram, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), transfer.VramDestination) == true)
+            _presentation.Vram, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), checked((ushort)transfer.VramDestination)) == true)
             return;
         if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.
         {
@@ -122,7 +122,7 @@ internal sealed class MotherBrainEncounter
         }
         // The mutable $7E:9000 corpse buffer reaches VRAM through the ordinary mode-1 DMA.
         _room.Staging.LoadNativeTransfer(_presentation.Vram,
-            unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination);
+            unchecked((int)transfer.SourceAddress), transfer.Size, checked((ushort)transfer.VramDestination));
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

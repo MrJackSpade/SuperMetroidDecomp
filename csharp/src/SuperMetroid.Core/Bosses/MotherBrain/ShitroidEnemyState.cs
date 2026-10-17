@@ -37,11 +37,24 @@ public sealed class ShitroidEnemyState
         }
     }
 
-    /// <summary>Low-byte palette phase and high-byte delay timer in variable D.</summary>
-    public ushort PaletteTimerAndPhase
+    /// <summary>
+    /// Membrane palette-cycle phase, 0 through 7. It shares variable D with <see cref="PaletteTimer"/>; each view
+    /// rewrites only its own half so the slot word stays exact for code that reads the slot by offset.
+    /// </summary>
+    public int PalettePhase
     {
-        get => Slot.VariableD;
-        internal set => Slot.VariableD = value;
+        get => SnesLittleEndian.LowByte(Slot.VariableD);
+        internal set => Slot.VariableD = SnesLittleEndian.Word(checked((byte)value), SnesLittleEndian.HighByte(Slot.VariableD));
+    }
+
+    /// <summary>
+    /// Updates left before the membrane palette advances to its next phase; each update decrements it until zero,
+    /// and the advance reloads it from <see cref="PaletteDelay"/>. It shares variable D with <see cref="PalettePhase"/>.
+    /// </summary>
+    public int PaletteTimer
+    {
+        get => SnesLittleEndian.HighByte(Slot.VariableD);
+        internal set => Slot.VariableD = SnesLittleEndian.Word(SnesLittleEndian.LowByte(Slot.VariableD), checked((byte)value));
     }
 
     /// <summary>Updates between palette-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
@@ -78,7 +91,7 @@ public sealed class ShitroidEnemyState
     /// dead-sidehopper palette stage through <c>ActivateDeadSidehopperVictim</c>; retaining
     /// this value on the boss state makes that cross-slot side effect directly auditable.
     /// </summary>
-    public ushort VictimActivationFlag { get; internal set; }
+    public bool VictimActivationFlag { get; internal set; }
     /// <summary>Mutable target palette storage used by encounter palette updates.</summary>
     internal Span<Bgr555> MutableTargetPalette => _targetPalette;
 }

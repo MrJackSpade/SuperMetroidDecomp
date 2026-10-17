@@ -79,7 +79,8 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
     AssertEqual(0x3800, baby.Properties.ToNativeWord(), "Baby population/init property OR");
     AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
-    AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
+    AssertEqual(SuperMetroid.Core.Hardware.SnesObjAttributeWord.Create(tileNumber: 160, paletteIndex: 0, priority: 0), baby.GraphicsOffset,
+        "Baby draws from transferred tile 160 at the base priority");
     AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
     FixedPosition<RoomPixels> BabyPoint() => baby.Position;
@@ -173,7 +174,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
         "Mother Brain taken-aback setup falls through into regain balance");
     AssertEqual(0x002f, motherBrain.FunctionTimer.RawValue,
         "Mother Brain first regain call decrements $30 to $2F");
-    AssertEqual(3, motherBrain.Body.Form, "Baby drain changes Mother Brain form to three");
+    AssertEqual(MotherBrainForm.DrainedByBabyMetroid, motherBrain.Body.Form, "Baby drain changes Mother Brain to her drained form");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.LowerNeckMovementIndex,
         "Mother Brain taken-aback lower neck index");
     AssertEqual(MotherBrainNeckMovement.Raise, motherBrain.UpperNeckMovementIndex,

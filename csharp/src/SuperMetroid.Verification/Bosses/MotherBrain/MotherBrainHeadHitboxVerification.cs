@@ -39,7 +39,7 @@ internal static class MotherBrainHeadHitboxVerification
 
         // The movie's frame: second form, head at ($7C,$58) when the beam at ($9E,$81) reaches
         // it. A 16-pixel radius test misses by one pixel (41 > 40); the hitbox overlaps.
-        state.Form = 2;
+        state.Form = MotherBrainForm.SecondPhase;
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
         head.InvincibilityTimer = NativeCountdown.Start(0);

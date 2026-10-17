@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>
@@ -16,7 +14,7 @@ internal static class MotherBrainCollisionDefinitions
     /// <summary>$A9:A4AC, <c>Hitbox_MotherBrainBody_0</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA4AC =
     [
-        new(-20, -21, 16, 23, EnemyAiCodePointers.BankA9.MotherBrainHeadTouch, EnemyAiCodePointers.BankA9.MotherBrainHeadShot),
+        new(-20, -21, 16, 23, MotherBrainHitboxTouch.Head, MotherBrainHitboxShot.Head),
     ];
 
     /// <summary>$A9:A4C8, <c>Hitbox_MotherBrainBody_2</c>.</summary>
@@ -26,7 +24,7 @@ internal static class MotherBrainCollisionDefinitions
     /// <summary>$A9:A4CA, <c>Hitbox_MotherBrainBody_3</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA4CA =
     [
-        new(-23, -1, 23, 7, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(-23, -1, 23, 7, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A4D8, <c>Hitbox_MotherBrainBody_4</c>.</summary>
@@ -36,49 +34,49 @@ internal static class MotherBrainCollisionDefinitions
     /// <summary>$A9:A4DA, <c>Hitbox_MotherBrainBody_5</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA4DA =
     [
-        new(-23, -2, 23, 7, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(-23, -2, 23, 7, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A4E8, <c>Hitbox_MotherBrainBody_6</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA4E8 =
     [
-        new(-32, -24, 20, 52, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
-        new(-24, -42, 13, -25, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(-32, -24, 20, 52, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
+        new(-24, -42, 13, -25, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A504, <c>Hitbox_MotherBrainBody_8</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA504 =
     [
-        new(4, -59, 28, -24, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
-        new(28, -41, 57, -30, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
+        new(28, -41, 57, -30, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A51E, <c>Hitbox_MotherBrainBody_9</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA51E =
     [
-        new(4, -59, 28, -24, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
-        new(28, -41, 54, -30, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
+        new(28, -41, 54, -30, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A538, <c>Hitbox_MotherBrainBody_A</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA538 =
     [
-        new(4, -59, 28, -24, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
-        new(29, -43, 45, -24, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
+        new(29, -43, 45, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A552, <c>Hitbox_MotherBrainBody_B</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA552 =
     [
-        new(4, -59, 28, -24, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
-        new(29, -48, 68, -40, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
+        new(29, -48, 68, -40, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:A56C, <c>Hitbox_MotherBrainBody_C</c>.</summary>
     private static readonly MotherBrainCollisionHitbox[] ListA56C =
     [
-        new(4, -59, 28, -24, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
-        new(28, -41, 58, -31, EnemyAiCodePointers.BankA9.MotherBrainBodyTouch, EnemyAiCodePointers.BankA9.MotherBrainBodyShot),
+        new(4, -59, 28, -24, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
+        new(28, -41, 58, -31, MotherBrainHitboxTouch.Body, MotherBrainHitboxShot.Body),
     ];
 
     /// <summary>$A9:9FA0, <c>ExtendedSpritemap_MotherBrainBody_Standing</c>.</summary>

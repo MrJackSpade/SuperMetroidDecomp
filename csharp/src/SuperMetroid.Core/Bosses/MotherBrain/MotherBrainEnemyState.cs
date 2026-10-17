@@ -29,11 +29,11 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public MotherBrainCorpseRottingState CorpseRotting { get; } = new();
 
-    /// <summary>Mother Brain form word: zero is glass/first phase, one begins fake death.</summary>
-    public ushort Form { get; internal set; }
+    /// <summary>The encounter stage that shot, bomb and footstep handling branch on; the glass phase at room entry.</summary>
+    public MotherBrainForm Form { get; internal set; }
 
-    /// <summary>Native shared hitbox-enable word, initialized to two.</summary>
-    public ushort HitboxesEnabled { get; internal set; }
+    /// <summary>The contact regions that currently hurt Samus: the brain alone at room entry, all three from the ascent.</summary>
+    public MotherBrainHitboxParts HitboxesEnabled { get; internal set; }
 
     /// <summary>The body record's bank-$A9 function pointer, selecting first-phase, resurrection, combat, or cutscene control for its next AI turn.</summary>
     public MotherBrainBodyFunction Function { get; internal set; }
@@ -95,11 +95,11 @@ public sealed class MotherBrainEnemyState
     /// <summary>True after all <c>$800</c> enemy-BG2 words have been filled with tile <c>$0338</c>.</summary>
     public bool BackgroundTilemapPrepared { get; internal set; }
 
-    /// <summary>Palette selector shared by the four neck segments.</summary>
-    public ushort NeckPaletteIndex { get; internal set; }
+    /// <summary>OBJ palette selection shared by the five neck joints; converted to palette bits only when drawn.</summary>
+    public SnesObjAttributeWord NeckPalette { get; internal set; }
 
-    /// <summary>Palette selector applied by the custom brain drawing routine.</summary>
-    public ushort BrainPaletteIndex { get; internal set; }
+    /// <summary>OBJ palette selection the custom brain draw applies outside its white hurt-flash frames.</summary>
+    public SnesObjAttributeWord BrainPalette { get; internal set; }
 
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
@@ -164,10 +164,10 @@ public sealed class MotherBrainEnemyState
     /// <summary>Joint 4's wrapping world-pixel position relative to joint 2; the articulated head follows its X and its Y minus twenty-one pixels.</summary>
     public Position16<RoomPixels> NeckSegment4 { get; internal set; }
 
-    /// <summary>8.8-style angle words and dispatch indices used by both neck halves.</summary>
-    public ushort LowerNeckAngle { get; internal set; }
-    /// <summary>Upper-neck angle in native 8.8 angle units; its high byte selects the 256-entry trigonometric cycle for joints 3 and 4.</summary>
-    public ushort UpperNeckAngle { get; internal set; }
+    /// <summary>Lower-neck angle; the neck dispatchers add and subtract the angular speed with full-turn wraparound, and its table index places joints 0 through 2.</summary>
+    public SnesAngle LowerNeckAngle { get; internal set; }
+    /// <summary>Upper-neck angle; moved with full-turn wraparound like the lower angle, and its table index places joints 3 and 4.</summary>
+    public SnesAngle UpperNeckAngle { get; internal set; }
     /// <summary>Neck angular speed in 8.8 angle units, added or subtracted by both neck motion dispatchers each enabled update; every producer writes a positive speed of at most $0900.</summary>
     public int NeckAngleDelta { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
@@ -178,10 +178,16 @@ public sealed class MotherBrainEnemyState
     public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
     /// <summary>
-    /// Pointer to the next seven-byte entry in the multi-frame sprite-tile transfer list.
-    /// Zero means no list is active, exactly matching native WRAM <c>$7E:8004</c>.
+    /// The next of the twelve leg-artwork pages the ascent loads, one per call. Zero both starts the list and is the
+    /// resting value after the final page, because a list that is not running starts from the first page.
     /// </summary>
-    public ushort SpriteTileTransferEntryPointer { get; internal set; }
+    public int NextLegTilePage
+    {
+        get;
+        internal set => field = (uint)value < MotherBrainLegTileTransferDefinitions.PageCount
+            ? value
+            : throw new ArgumentOutOfRangeException(nameof(value), value, "Mother Brain has twelve leg-artwork pages.");
+    }
 
     /// <summary>True while bank-$88's rising layer-mask object is alive.</summary>
     public bool RisingHdmaActive { get; internal set; }
@@ -236,8 +242,8 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int DroolProjectileParameter { get; internal set; }
 
-    /// <summary>Native phase-two walking/shot-reaction accumulator.</summary>
-    public ushort WalkCounter { get; internal set; }
+    /// <summary>Walk credit: standing turns earn it toward a forward step and the player's hits spend it.</summary>
+    public MotherBrainWalkCredit WalkCounter { get; internal set; }
 
     /// <summary>
     /// Native <c>attackPhase</c> dispatch index used by <c>$A9:B64B</c>. Head animation

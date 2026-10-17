@@ -39,7 +39,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             Body.AiBank = Body.Definition.Bank;
             Body.Position = Body.Position.WithWhole(new(128, 128));
             Body.PaletteIndex = Body.VramTilesIndex = 0;
-            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = 3 };
+            State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };
             Inner.Enemies.MotherBrainEncounter.MotherBrain = State;
             Inner.Enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)ScrollCalls.Add;
             Inner.Enemies.Drawing.Enqueue(0, Body.NativeIndex);

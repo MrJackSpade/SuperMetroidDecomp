@@ -53,10 +53,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
         {
             Ensure.NotNull(bus);
             Ensure.NotNull(samus);
-            if (self.NeckMovementEnabled != 0)
+            if (self.NeckMovementEnabled)
             {
-                ushort lowerAngle = self.LowerNeckAngle;
-                ushort upperAngle = self.UpperNeckAngle;
+                SnesAngle lowerAngle = self.LowerNeckAngle;
+                SnesAngle upperAngle = self.UpperNeckAngle;
                 MotherBrainNeckMovement lowerIndex = self.LowerNeckMovementIndex;
                 MotherBrainNeckMovement upperIndex = self.UpperNeckMovementIndex;
                 MotherBrainNeckKinematics.StepAngles(

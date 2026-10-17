@@ -33,8 +33,11 @@ internal sealed class MotherBrainGlassPlms
     private int _motherBrainGlassSlotIndex = -1;
     /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
     internal bool _motherBrainGlassWasLoaded;
-    /// <summary>Last shot count retained when the glass PLM's physical slot has been deleted.</summary>
-    internal ushort _motherBrainGlassLastRoomArgument;
+    /// <summary>
+    /// Glass hit count retained after the glass PLM's physical slot has been deleted. Only glass-phase head hits
+    /// add to it, so it stays far below the slot word's range; nothing in play reads it back.
+    /// </summary>
+    internal int _motherBrainGlassLastRoomArgument;
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>
@@ -88,8 +91,7 @@ internal sealed class MotherBrainGlassPlms
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot))
             slot.RoomArgument = unchecked((ushort)(slot.RoomArgument + 1));
         else
-            _motherBrainGlassLastRoomArgument = unchecked((ushort)(
-                _motherBrainGlassLastRoomArgument + 1));
+            _motherBrainGlassLastRoomArgument++;
     }
 
     /// <summary>Clears shard spawn requests before processing the next room frame.</summary>

@@ -767,16 +767,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances the eight-phase membrane colors and paces cries when the Zebetite palette allows it.</summary>
     internal void StepShitroidNormalPalette(ShitroidEnemyState state)
     {
-        byte timer = SnesLittleEndian.HighByte(state.PaletteTimerAndPhase);
-        if (timer != 0)
+        if (state.PaletteTimer != 0)
         {
-            state.PaletteTimerAndPhase = unchecked((ushort)(
-                state.PaletteTimerAndPhase - 256));
+            state.PaletteTimer--;
             return;
         }
 
-        byte phase = unchecked((byte)((state.PaletteTimerAndPhase + 1) & 7));
-        state.PaletteTimerAndPhase = SnesLittleEndian.Word(phase, unchecked((byte)state.PaletteDelay));
+        int phase = (state.PalettePhase + 1) % 8;
+        state.PalettePhase = phase;
+        state.PaletteTimer = state.PaletteDelay;
         if (phase == 5 && state.CryEnabled)
         {
             state.CryCounter++;

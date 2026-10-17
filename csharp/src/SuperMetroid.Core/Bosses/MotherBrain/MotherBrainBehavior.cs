@@ -166,9 +166,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         _motherBrainEncounter.MotherBrain = new MotherBrainEnemyState(body)
         {
-            Form = 0,
+            Form = MotherBrainForm.Glass,
             EnableUnpauseHook = false,
-            HitboxesEnabled = 2,
+            HitboxesEnabled = MotherBrainHitboxParts.Brain,
             BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn,
             Function = MotherBrainBodyFunction.FirstPhase,
             BackgroundTilemapPrepared = true,
@@ -218,8 +218,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
         head.PaletteIndex = EnemyPaletteBits.Palette1;
         state.Head = head;
-        state.NeckPaletteIndex = EnemyPaletteBits.Palette1;
-        state.BrainPaletteIndex = EnemyPaletteBits.Palette1;
+        state.NeckPalette = SnesObjPalettes.Index1;
+        state.BrainPalette = SnesObjPalettes.Index1;
         SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
     }
 
@@ -392,7 +392,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Mother Brain and Rinka alias native slot-zero variable $1D. Publish the
                 // shared word before later enemy slots can keep drawing replaced tile art.
                 _rinkaBehavior._rinkaTerminationFlag = true;
-                state.Form = 1;
+                state.Form = MotherBrainForm.FakeDeath;
                 state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
 
                 // MotherBrain_SealWall at `$AD:E396` creates both dust puffs before its
@@ -478,7 +478,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             head.Position.Whole + brainShake,
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
-            (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPaletteIndex,
+            (head.FlashTimer.RawValue & 1) != 0 ? (ushort)0 : state.BrainPalette.PaletteBits,
             head.VramTilesIndex,
             camera);
 
@@ -504,7 +504,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 oam,
                 spritemapPointer: MotherBrainVisualDefinitions.NeckJoint.Pointer,
                 segment + neckShake,
-                state.NeckPaletteIndex,
+                state.NeckPalette.PaletteBits,
                 head.VramTilesIndex,
                 camera);
         }
@@ -558,8 +558,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.NeckMovementEnabled)
         {
-            ushort lowerAngle = state.LowerNeckAngle;
-            ushort upperAngle = state.UpperNeckAngle;
+            SnesAngle lowerAngle = state.LowerNeckAngle;
+            SnesAngle upperAngle = state.UpperNeckAngle;
             MotherBrainNeckMovement lowerIndex = state.LowerNeckMovementIndex;
             MotherBrainNeckMovement upperIndex = state.UpperNeckMovementIndex;
             MotherBrainNeckKinematics.StepAngles(
@@ -1294,8 +1294,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        ushort enabled = state.HitboxesEnabled;
-        if ((enabled & 1) != 0 && ResolveMotherBrainSamusCollisionPart(
+        MotherBrainHitboxParts enabled = state.HitboxesEnabled;
+        if ((enabled & MotherBrainHitboxParts.Body) != 0 && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
                 MotherBrainContactPart.Body,
@@ -1304,9 +1304,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return true;
         }
 
-        enabled >>= 1;
         RoomEnemySlot head = state.Head;
-        if ((enabled & 1) != 0 && ResolveMotherBrainSamusCollisionPart(
+        if ((enabled & MotherBrainHitboxParts.Brain) != 0 && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
                 MotherBrainContactPart.Brain,
@@ -1315,8 +1314,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return true;
         }
 
-        enabled >>= 1;
-        if ((enabled & 1) != 0)
+        if ((enabled & MotherBrainHitboxParts.Neck) != 0)
         {
             // Native tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
@@ -1417,7 +1415,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Mother Brain head shot AI ran for a slot not linked to the loaded body.");
         }
         SamusProjectileFamily family = projectileType.Family;
-        if (state.Form != 0)
+        if (state.Form != MotherBrainForm.Glass)
         {
             ResolveMotherBrainLaterFormHeadShot(
                 state,
@@ -1516,10 +1514,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 throw new InvalidOperationException(
                     "Mother Brain received a form-four beam without its phase-three state owner.");
             }
-            state.WalkCounter = reaction.WalkCounter;
+            state.WalkCounter = reaction.WalkCredit;
         }
 
-        if (state.Form == 1)
+        if (state.Form == MotherBrainForm.FakeDeath)
         {
             _projectiles.CreateEnemyProjectileDudShot(projectile);
             return;
@@ -1576,13 +1574,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 "Mother Brain head normal-bomb AI ran for a slot not linked to the loaded body.");
         }
 
-        if (state.Form == 0)
+        if (state.Form == MotherBrainForm.Glass)
             return;
 
-        state.WalkCounter = state.WalkCounter < 256
-            ? (ushort)0
-            : unchecked((ushort)(state.WalkCounter - 256));
-        if (state.Form == 1)
+        state.WalkCounter = state.WalkCounter.SpendStepForBomb();
+        if (state.Form == MotherBrainForm.FakeDeath)
             return;
 
         _collision.ApplyCommonNormalBombDamage(head, bomb, runGenericDeath: false);
@@ -1600,7 +1596,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             step.PhaseAfter != step.PhaseBefore)
         {
             _presentation.BossPalettes.MotherBrainCorpse.CopyFrom(_presentation.BossPalettes.MotherBrainBrain.Colors);
-            state.BrainPaletteIndex = sequence.BrainPaletteIndex;
+            state.BrainPalette = sequence.BrainPalette;
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }
@@ -2340,8 +2336,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.NeckSegment2Distance = 20;
         state.NeckSegment3Distance = 10;
         state.NeckSegment4Distance = 20;
-        state.LowerNeckAngle = 18432;
-        state.UpperNeckAngle = 20480;
+        state.LowerNeckAngle = SnesAngle.FromRaw(18432);
+        state.UpperNeckAngle = SnesAngle.FromRaw(20480);
         state.NeckAngleDelta = 256;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentDrawRows2And3;
         ExplodeMotherBrainTube(tube);
@@ -2919,25 +2915,20 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Drains the pending body sprite transfer and reports whether more VRAM work remains.</summary>
     internal bool ProcessMotherBrainSpriteTileTransfer(MotherBrainEnemyState state)
     {
-        int index = state.SpriteTileTransferEntryPointer == 0
-            ? 0
-            : MotherBrainLegTileTransferDefinitions.IndexOf(
-                state.SpriteTileTransferEntryPointer);
+        int index = state.NextLegTilePage;
         MotherBrainSpriteTileTransferRequest transfer =
             MotherBrainLegTileTransferDefinitions.Get(index);
         _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
 
         // Native checks the next record's zero terminator on the same call as
-        // page eleven. Preserve that same-frame completion and pointer reset.
+        // page eleven. Preserve that same-frame completion and list reset.
         if (index + 1 == MotherBrainLegTileTransferDefinitions.PageCount)
         {
-            state.SpriteTileTransferEntryPointer = 0;
+            state.NextLegTilePage = 0;
             return true;
         }
 
-        state.SpriteTileTransferEntryPointer = unchecked((ushort)(
-            MotherBrainLegTileTransferDefinitions.NativeListPointer +
-            (index + 1) * MotherBrainLegTileTransferDefinitions.RecordByteCount));
+        state.NextLegTilePage = index + 1;
         return false;
     }
 
@@ -2949,7 +2940,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         PublishMotherBrainBg2Scroll(state, new(unchecked((ushort)-27), unchecked((ushort)-217)));
-        state.HitboxesEnabled = 7;
+        state.HitboxesEnabled = MotherBrainHitboxParts.Body | MotherBrainHitboxParts.Brain | MotherBrainHitboxParts.Neck;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentStartMusicAndEarthquake;
     }
 
@@ -3040,7 +3031,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.BrainPaletteHandlingEnabled = true;
-        state.Form = 2;
+        state.Form = MotherBrainForm.SecondPhase;
         state.DroolGenerationEnabled = true;
         state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
         state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
@@ -3480,9 +3471,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // actual displacement remains bytecode-owned, which also keeps BG2 scroll aligned.
         if (state.Pose != MotherBrainBodyPose.Standing)
             return;
-        if (state.WalkCounter == 0)
+        if (state.WalkCounter.IsEmpty)
         {
-            state.WalkCounter = 1;
+            state.WalkCounter = MotherBrainWalkCredit.Of(1);
             if (state.Body.Position.X.Whole >= 48)
             {
                 SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkBackwardFast);
@@ -3491,8 +3482,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         else
         {
-            state.WalkCounter = unchecked((ushort)(state.WalkCounter + 6));
-            if (state.WalkCounter >= 256)
+            state.WalkCounter = state.WalkCounter.AddCredit(6);
+            if (!state.WalkCounter.BelowStep)
             {
                 StartMotherBrainForwardWalk(state);
                 return;
@@ -3510,7 +3501,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Starts the body animation and state for a forward step.</summary>
     private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
     {
-        state.WalkCounter = 128;
+        state.WalkCounter = MotherBrainWalkCredit.Of(128);
         if (state.Body.Position.X.Whole < 128)
             SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.WalkForwardMedium);
     }
@@ -3555,7 +3546,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Form three additionally queues library-three sound $16. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait opcode complete.
-        if (_motherBrainEncounter.MotherBrain?.Form == 3)
+        if (_motherBrainEncounter.MotherBrain?.Form == MotherBrainForm.DrainedByBabyMetroid)
             _motherBrainEncounter.MotherBrain.LastSoundEffectLibrary3 = SoundEffectLibrary3Sounds.MotherBrainFormThreeFootstep;
     }
 
@@ -4072,7 +4063,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         MotherBrainRainbowBeamAttackSequence sequence)
     {
         RoomEnemySlot head = state.Head;
-        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovementIndex = state.LowerNeckMovementIndex, UpperNeckMovementIndex = state.UpperNeckMovementIndex, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != 0 });
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovementIndex = state.LowerNeckMovementIndex, UpperNeckMovementIndex = state.UpperNeckMovementIndex, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != MotherBrainHitboxParts.None });
     }
 
     /// <summary>
@@ -4117,7 +4108,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // Republish it after every body call so either view observes the exact same counter.
         state.WalkCounter = sequence.Phase3WalkCounter;
         state.NeckAngleDelta = sequence.NeckAngleDelta;
-        state.NeckMovementEnabled = sequence.NeckMovementEnabled != 0;
+        state.NeckMovementEnabled = sequence.NeckMovementEnabled;
         state.LowerNeckMovementIndex = sequence.LowerNeckMovementIndex;
         state.UpperNeckMovementIndex = sequence.UpperNeckMovementIndex;
         if (sequence.Phase3NeckPhase == MotherBrainPhase3NeckPhase.HyperBeamRecoil &&
@@ -4140,7 +4131,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         // branch meaning. Preserve every nonzero cartridge value; only a translated clear
         // is allowed to collapse it to zero.
         if (!sequence.HitboxesEnabled)
-            state.HitboxesEnabled = 0;
+            state.HitboxesEnabled = MotherBrainHitboxParts.None;
         if (sequence.SmallPurpleBreathGenerationWriteCount != state.RainbowAppliedSmallPurpleBreathWrites)
         {
             state.SmallPurpleBreathGenerationEnabled = sequence.SmallPurpleBreathGenerationEnabled;
@@ -4164,7 +4155,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         ApplyMotherBrainRainbowPalette(state, current);
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
         // but $AD:E3D5 waits until the corpse-state word reaches final-combat state 2.
-        if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState >= 2)
+        if (sequence.HealthBasedPaletteHandlingEnabled && sequence.Phase2CorpseState == MotherBrainPhase2CorpseState.Revived)
             MotherBrainHealthPalette.Apply(_presentation.Cgram, state.Head.Health, _presentation.MotherBrainHealthColors);
         ApplyLiveMotherBrainDeath(state, sequence, current);
         if (current.SoundQueued)
@@ -4553,7 +4544,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = probe.SelectShotCallback
+                    ? MotherBrainHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
+                    : MotherBrainHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
                 return true;
             }
         }

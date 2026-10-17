@@ -24,8 +24,8 @@ public sealed class MotherBrainBodyAnimationState
     /// </summary>
     public MotherBrainBodyPose Pose { get; set; }
 
-    /// <summary>Phase/form word consulted by the native footstep sound gate.</summary>
-    public ushort Form { get; set; }
+    /// <summary>The encounter stage, consulted by shot reactions and the footstep sound gate.</summary>
+    public MotherBrainForm Form { get; set; }
 
     /// <summary>The body program most recently requested, or null before the first request.</summary>
     public MotherBrainBodyProgram? Program { get; private set; }

@@ -9,11 +9,26 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// </summary>
 internal static class MotherBrainNeckKinematics
 {
+    /// <summary>Lowest angle the lower neck bobs down to before reversing upward.</summary>
+    private static readonly SnesAngle LowerBobFloor = SnesAngle.FromRaw(10240);
+
+    /// <summary>Highest angle the lower neck reaches, both bobbing up and raising one way.</summary>
+    private static readonly SnesAngle LowerCeiling = SnesAngle.FromRaw(36864);
+
+    /// <summary>Angle at which a one-way lowering of the lower neck stops.</summary>
+    private static readonly SnesAngle LowerFloor = SnesAngle.FromRaw(12288);
+
+    /// <summary>Lowest angle the upper neck reaches, both bobbing down and lowering one way.</summary>
+    private static readonly SnesAngle UpperFloor = SnesAngle.FromRaw(8192);
+
+    /// <summary>How far the upper neck's raised limit leads the lower neck's angle, in 8.8 angle units.</summary>
+    private const int UpperLeadOverLower = 2048;
+
     /// <summary>Advances the lower and upper neck angles through bobbing or one-way raise/lower movement at <c>$A9:9072-$91B7</c>.</summary>
     /// <remarks>The upper dispatcher runs second and observes the lower angle and movement state changed in the same frame.</remarks>
     internal static void StepAngles(
-        ref ushort lowerAngle,
-        ref ushort upperAngle,
+        ref SnesAngle lowerAngle,
+        ref SnesAngle upperAngle,
         ref MotherBrainNeckMovement lowerMovementIndex,
         ref MotherBrainNeckMovement upperMovementIndex,
         int angleDelta,
@@ -26,10 +41,10 @@ internal static class MotherBrainNeckKinematics
                 break;
             case MotherBrainNeckMovement.BobDown: // Bob down to $2800, then reverse.
             {
-                ushort candidate = unchecked((ushort)(lowerAngle - angleDelta));
-                if (candidate < 10240)
+                SnesAngle candidate = lowerAngle.AddRaw(-angleDelta);
+                if (candidate.CompareTo(LowerBobFloor) < 0)
                 {
-                    candidate = 10240;
+                    candidate = LowerBobFloor;
                     lowerMovementIndex = MotherBrainNeckMovement.BobUp;
                 }
                 lowerAngle = candidate;
@@ -42,10 +57,10 @@ internal static class MotherBrainNeckKinematics
                 }
                 else
                 {
-                    ushort candidate = unchecked((ushort)(lowerAngle + angleDelta));
-                    if (candidate >= 36864)
+                    SnesAngle candidate = lowerAngle.AddRaw(angleDelta);
+                    if (candidate.CompareTo(LowerCeiling) >= 0)
                     {
-                        candidate = 36864;
+                        candidate = LowerCeiling;
                         lowerMovementIndex = MotherBrainNeckMovement.BobDown;
                     }
                     lowerAngle = candidate;
@@ -53,10 +68,10 @@ internal static class MotherBrainNeckKinematics
                 break;
             case MotherBrainNeckMovement.Lower: // One-way lower used by beam setup and the resurrection stretch.
             {
-                ushort candidate = unchecked((ushort)(lowerAngle - angleDelta));
-                if (candidate < 12288)
+                SnesAngle candidate = lowerAngle.AddRaw(-angleDelta);
+                if (candidate.CompareTo(LowerFloor) < 0)
                 {
-                    candidate = 12288;
+                    candidate = LowerFloor;
                     lowerMovementIndex = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
@@ -64,10 +79,10 @@ internal static class MotherBrainNeckKinematics
             }
             case MotherBrainNeckMovement.Raise: // One-way raise used by fake-death ascent and Baby interruptions.
             {
-                ushort candidate = unchecked((ushort)(lowerAngle + angleDelta));
-                if (candidate >= 36864)
+                SnesAngle candidate = lowerAngle.AddRaw(angleDelta);
+                if (candidate.CompareTo(LowerCeiling) >= 0)
                 {
-                    candidate = 36864;
+                    candidate = LowerCeiling;
                     lowerMovementIndex = MotherBrainNeckMovement.None;
                 }
                 lowerAngle = candidate;
@@ -92,10 +107,10 @@ internal static class MotherBrainNeckKinematics
                 }
                 else
                 {
-                    ushort candidate = unchecked((ushort)(upperAngle - angleDelta));
-                    if (candidate < 8192)
+                    SnesAngle candidate = upperAngle.AddRaw(-angleDelta);
+                    if (candidate.CompareTo(UpperFloor) < 0)
                     {
-                        candidate = 8192;
+                        candidate = UpperFloor;
                         upperMovementIndex = MotherBrainNeckMovement.BobUp;
                     }
                     upperAngle = candidate;
@@ -103,9 +118,9 @@ internal static class MotherBrainNeckKinematics
                 break;
             case MotherBrainNeckMovement.BobUp: // Follow eight angle units above the newly updated lower segment.
             {
-                ushort target = unchecked((ushort)(lowerAngle + 2048));
-                ushort candidate = unchecked((ushort)(upperAngle + angleDelta));
-                if (candidate >= target)
+                SnesAngle target = lowerAngle.AddRaw(UpperLeadOverLower);
+                SnesAngle candidate = upperAngle.AddRaw(angleDelta);
+                if (candidate.CompareTo(target) >= 0)
                 {
                     candidate = target;
                     upperMovementIndex = MotherBrainNeckMovement.BobDown;
@@ -115,10 +130,10 @@ internal static class MotherBrainNeckKinematics
             }
             case MotherBrainNeckMovement.Lower: // One-way lower to $2000.
             {
-                ushort candidate = unchecked((ushort)(upperAngle - angleDelta));
-                if (candidate < 8192)
+                SnesAngle candidate = upperAngle.AddRaw(-angleDelta);
+                if (candidate.CompareTo(UpperFloor) < 0)
                 {
-                    candidate = 8192;
+                    candidate = UpperFloor;
                     upperMovementIndex = MotherBrainNeckMovement.None;
                 }
                 upperAngle = candidate;
@@ -126,9 +141,9 @@ internal static class MotherBrainNeckKinematics
             }
             case MotherBrainNeckMovement.Raise: // One-way raise to lower angle + $0800.
             {
-                ushort target = unchecked((ushort)(lowerAngle + 2048));
-                ushort candidate = unchecked((ushort)(upperAngle + angleDelta));
-                if (candidate >= target)
+                SnesAngle target = lowerAngle.AddRaw(UpperLeadOverLower);
+                SnesAngle candidate = upperAngle.AddRaw(angleDelta);
+                if (candidate.CompareTo(target) >= 0)
                 {
                     candidate = target;
                     upperMovementIndex = MotherBrainNeckMovement.None;
@@ -143,14 +158,14 @@ internal static class MotherBrainNeckKinematics
     }
 
     /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA.</summary>
-    internal static MotherBrainNeckGeometry CalculateGeometry(Position16<RoomPixels> body, ushort lowerAngle, ushort upperAngle, MotherBrainNeckSegmentDistances distances)
+    internal static MotherBrainNeckGeometry CalculateGeometry(Position16<RoomPixels> body, SnesAngle lowerAngle, SnesAngle upperAngle, MotherBrainNeckSegmentDistances distances)
     {
         // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
         // individual segment equations auditable against the disassembly.
         Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-80, 46);
-        byte lower = SnesAngle.FromRaw(lowerAngle).TableIndex;
-        byte upper = SnesAngle.FromRaw(upperAngle).TableIndex;
+        byte lower = lowerAngle.TableIndex;
+        byte upper = upperAngle.TableIndex;
 
         Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, lower, distances.Segment0Distance);
         Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, lower, distances.Segment1Distance);

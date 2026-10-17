@@ -31,7 +31,7 @@ internal static class MotherBrainPlasmaImpactVerification
         head.Radius = new(16, 16);
         head.SpritemapPointer = 1;
         head.Health = 18000;
-        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = 2, WalkCounter = 0x1000 };
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { Head = head, Form = MotherBrainForm.SecondPhase, WalkCounter = MotherBrainWalkCredit.Of(4096) };
         enemies.MotherBrainEncounter.MotherBrain = state;
         ((List<ushort>)enemies.ProcessingWindow._interactiveEnemyIndexes).Add(head.NativeIndex);
         var samus = new SamusState();
@@ -45,7 +45,8 @@ internal static class MotherBrainPlasmaImpactVerification
         // The bank-$A0 walker only marks the shot; the next projectile pass removes it (#1269).
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState,
             "Mother Brain plasma-blocking property marks the shot for removal");
-        AssertEqual((ushort)0xf00, state.WalkCounter, "Accepted beam preserves native recoil bookkeeping");
+        AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
+            "Accepted beam spends one step of walk credit");
         AssertEqual(EnemyShotTiming.PlasmaInvincibilityFrames, head.InvincibilityTimer.RawValue,
             "The no-death damage tail grants Plasma's hit immunity");
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
@@ -54,18 +55,19 @@ internal static class MotherBrainPlasmaImpactVerification
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
             AssertEqual(0, Hit(), "The same shot cannot damage the head on a subsequent frame");
             AssertEqual((ushort)17550, head.Health, "Later overlap preserves health after the one impact");
-            AssertEqual((ushort)0xf00, state.WalkCounter, "Later overlap does not repeat recoil");
+            AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
+                "Later overlap does not spend walk credit again");
         }
         // Later checks are new shots after that immunity has run out.
         head.InvincibilityTimer = NativeCountdown.Start(0);
-        state.Form = 0;
+        state.Form = MotherBrainForm.Glass;
         SeedChargedPlasma();
         Hit();
         AssertEqual((ushort)17550, head.Health, "First form retains its missile-only damage restriction");
         head.InvincibilityTimer = NativeCountdown.Start(0);
-        state.Form = 4;
+        state.Form = MotherBrainForm.ThirdPhase;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
-        state.RainbowBeamSequence.Body.Form = 4;
+        state.RainbowBeamSequence.Body.Form = MotherBrainForm.ThirdPhase;
         SeedChargedPlasma();
         shot.Type = 0x9018; shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the

@@ -189,11 +189,8 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             bool completed = (bool)enemies.MotherBrainBehavior.ProcessMotherBrainSpriteTileTransfer(state);
             AssertEqual(page + 1 == MotherBrainLegTileTransferDefinitions.PageCount,
                 completed, $"Mother Brain leg transfer {page} completion frame");
-            ushort expectedPointer = completed ? (ushort)0 : unchecked((ushort)(
-                MotherBrainLegTileTransferDefinitions.NativeListPointer +
-                (page + 1) * MotherBrainLegTileTransferDefinitions.RecordByteCount));
-            AssertEqual(expectedPointer, state.SpriteTileTransferEntryPointer,
-                $"Mother Brain leg transfer {page} next native pointer");
+            AssertEqual(completed ? 0 : page + 1, state.NextLegTilePage,
+                $"Mother Brain leg transfer {page} next page, back to the first after the last");
             byte[] nativePixels = RomDataReader.ReadFixedBank(rom,
                 checked((int)nativeSource), compiled.Size);
             AssertTrue(vram.Bytes.Slice(compiled.VramDestination * 2, compiled.Size)
@@ -206,18 +203,13 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), terminator),
             "Mother Brain leg transfer page eleven is followed by native zero terminator");
 
-        state.SpriteTileTransferEntryPointer = unchecked((ushort)(
-            MotherBrainLegTileTransferDefinitions.NativeListPointer + 1));
-        try
-        {
-            enemies.MotherBrainBehavior.ProcessMotherBrainSpriteTileTransfer(state);
-        }
-        catch (InvalidDataException)
-        {
-            return;
-        }
-        throw new InvalidOperationException(
-            "Misaligned Mother Brain leg transfer pointer should fail explicitly.");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => state.NextLegTilePage = MotherBrainLegTileTransferDefinitions.PageCount,
+            "Mother Brain has no leg-artwork page past the twelfth");
+        AssertThrows<InvalidDataException>(
+            () => NativeSnapshotImportMotherBrainVerification.DecodeLegTilePage(unchecked((ushort)(
+                MotherBrainLegTileTransferDefinitions.NativeListPointer + 1))),
+            "a misaligned snapshot leg-transfer pointer is rejected at the import");
     }
 
     /// <summary>Requires installed escape-timer sheets for cartridge-backed requests while retaining live corpse-WRAM transfers.</summary>

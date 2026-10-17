@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, TourianUnlockBehavior unlock) : ITourianStatueActors
 {
     /// <inheritdoc/>
-    public ushort AnimationState
+    public TourianStatueAnimationState AnimationState
     {
         get => statue.TourianEntranceStatueAnimationState;
         set => statue.TourianEntranceStatueAnimationState = value;
@@ -27,7 +27,7 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     }
 
     /// <inheritdoc/>
-    public ushort WaterY { get => unlock.TourianStatueWaterY; set => unlock.TourianStatueWaterY = value; }
+    public Position16<RoomPixels> WaterSurface { get => unlock.TourianStatueWaterSurface; set => unlock.TourianStatueWaterSurface = value; }
 
     /// <inheritdoc/>
     public void SpawnUnlockEffect(ushort parameter, bool soul) => unlock.SpawnTourianUnlockEffect(parameter, soul);

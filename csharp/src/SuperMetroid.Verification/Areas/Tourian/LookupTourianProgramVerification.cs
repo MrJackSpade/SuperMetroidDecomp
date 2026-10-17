@@ -3,116 +3,203 @@ using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianDescriptorsVerification;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<
+    SuperMetroid.Core.Areas.Tourian.TourianStatueTileProgram,
+    SuperMetroid.Core.Areas.Tourian.TourianStatueTilePicture,
+    SuperMetroid.Core.Areas.Tourian.TourianStatueTileCue>;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
 
-/// <summary>Checks Tourian statue animated-tile instruction layouts against original bank-$87 programs.</summary>
+/// <summary>
+/// The ROM oracle for the Tourian statues' typed animated-tile programs: walks each statue's native bank-$87 list
+/// beside its typed programs and requires every frame's duration and picture, every branch target and every
+/// instruction's operand to match.
+/// </summary>
 internal static class LookupTourianProgramVerification
 {
-    /// <summary>Checks nine source operands per statue and read-only index bounds.</summary>
-    private static void VerifyTourianStatueSourceOperandPositions(ISnesAddressSpace rom)
-    {
-        foreach (ushort header in OriginalTourianObjects)
-        {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
-                out var definition), "Original statue resolves");
-            ushort[] expected = OriginalTourianFrames(rom, header).Select(x => x.Operand).ToArray();
-            AssertEqual(9, expected.Length, "Native timed-frame count");
-            AssertEqual(expected.Length, (definition ?? throw new InvalidOperationException("Verification requires definition.")).SourceOperandPointers.Count, "Calculated operand count");
-            AssertTrue(expected.SequenceEqual(definition.SourceOperandPointers), "Original enumerated operand positions");
-            for (int index = 0; index < expected.Length; index++)
-                AssertEqual(expected[index], definition.SourceOperandPointers[index], "Original indexed operand position");
-            foreach (int invalid in new[] { int.MinValue, -1, expected.Length, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => { _ = definition.SourceOperandPointers[invalid]; },
-                    "Original read-only list rejection bounds");
-        }
-    }
-
-    /// <summary>Compares compiled statue control opcodes with native instruction words.</summary>
-    private static void VerifyTourianStatueInstructionOpcodes(ISnesAddressSpace rom)
-    {
-        foreach (ushort header in OriginalTourianObjects)
-        foreach (var instruction in OriginalTourianInstructions(rom, header).Where(x => x.Code >= 0x8000))
-            VerifyTourianStatueOriginalWord(rom, header, instruction.Cursor);
-    }
-
-    /// <summary>Compares timed-frame durations after each statue program's initial frame.</summary>
-    private static void VerifyTourianStatueSubsequentDurations(ISnesAddressSpace rom)
-    {
-        foreach (ushort header in OriginalTourianObjects)
-        foreach (var frame in OriginalTourianInstructions(rom, header).Where(x => x.Code < 0x8000).Skip(1))
-            VerifyTourianStatueOriginalWord(rom, header, frame.Cursor);
-    }
-
-    /// <summary>Checks operands of statue branch and callback instructions.</summary>
-    private static void VerifyTourianStatueBranchDestinations(ISnesAddressSpace rom)
-    {
-        foreach (ushort header in OriginalTourianObjects)
-        foreach (var instruction in OriginalTourianInstructions(rom, header))
-        {
-            int operand = instruction.Code switch
-            {
-                0x813f or 0x8303 => 4,
-                0x80b7 or 0x833e => 2,
-                _ => 0,
-            };
-            if (operand != 0)
-                VerifyTourianStatueOriginalWord(rom, header, (ushort)(instruction.Cursor + operand));
-        }
-    }
-
-    /// <summary>Checks the shared busy flag after the statue-specific state-setting operation.</summary>
-    private static void VerifyTourianStatueBusyStateOperand(ISnesAddressSpace rom)
-    {
-        foreach (ushort header in OriginalTourianObjects)
-        {
-            var stateSets = OriginalTourianInstructions(rom, header).Where(x => x.Code == 0x8349).ToArray();
-            AssertEqual(2, stateSets.Length, "Native statue bit followed by shared busy flag");
-            VerifyTourianStatueOriginalWord(rom, header, (ushort)(stateSets[1].Cursor + 2));
-        }
-    }
-
-    /// <summary>Checks complete word ownership, including headers and instruction controls but excluding source art.</summary>
-    private static void VerifyTourianStatueMechanicsDomain(ISnesAddressSpace rom)
-    {
-        int total = 0;
-        foreach (ushort header in OriginalTourianObjects)
-        {
-            AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header,
-                out var definition), "Native statue resolves");
-            var expected = new HashSet<ushort> { header, (ushort)(header + 2), (ushort)(header + 4) };
-            foreach (var instruction in OriginalTourianInstructions(rom, header))
-                for (int offset = 0; offset < (instruction.Code < 0x8000 ? 2 : instruction.Width); offset += 2)
-                    expected.Add((ushort)(instruction.Cursor + offset));
-            for (int value = 0; value <= ushort.MaxValue; value++)
-            {
-                bool found = (definition ?? throw new InvalidOperationException("Verification requires definition.")).TryReadMechanicsWord((ushort)value, out ushort word);
-                AssertEqual(expected.Contains((ushort)value), found, "Complete native mechanics word domain");
-                if (!found) AssertEqual((ushort)0, word, "Odd, source and unrelated words preserve false/zero");
-            }
-            total += expected.Count;
-        }
-        AssertEqual(184, total, "All original mechanics words partitioned by named field/control proofs");
-    }
-
-    /// <summary>Compares one compiled statue control word with its native bank-$87 value.</summary>
-    private static void VerifyTourianStatueOriginalWord(ISnesAddressSpace rom, ushort header, ushort pointer)
-    {
-        AssertTrue(TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader((AnimatedTileObject)header, out var definition),
-            "Original statue resolves for control word");
-        AssertTrue((definition ?? throw new InvalidOperationException("Verification requires definition.")).TryReadMechanicsWord(pointer, out ushort actual), "Original control word is compiled");
-        AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");
-    }
-
-    /// <summary>Runs operand, opcode, duration, branch, state, and domain checks for Tourian statues.</summary>
+    /// <summary>Compares every statue's typed programs with its native list.</summary>
     internal static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
-        VerifyTourianStatueSourceOperandPositions(rom);
-        VerifyTourianStatueInstructionOpcodes(rom);
-        VerifyTourianStatueSubsequentDurations(rom);
-        VerifyTourianStatueBranchDestinations(rom);
-        VerifyTourianStatueBusyStateOperand(rom);
-        VerifyTourianStatueMechanicsDomain(rom);
+        int steps = 0;
+        foreach (ushort header in OriginalTourianObjects)
+            steps += CompareTourianStatuePrograms(rom, header, Resolve(header));
+        Console.WriteLine($"  Tourian statue programs: {OriginalTourianObjects.Length} statues ({steps} steps) match bank $87.");
     }
+
+    /// <summary>Decodes one statue's native list into its expected typed programs, compares them, and returns the step count.</summary>
+    private static int CompareTourianStatuePrograms(
+        ISnesAddressSpace rom, ushort header, TourianStatueAnimatedTileProgramDefinition definition)
+    {
+        var instructions = OriginalTourianInstructions(rom, header).ToList();
+        Dictionary<ushort, TourianStatueTileProgram> labels = ProgramLabels(rom, instructions);
+        var expected = new Dictionary<TourianStatueTileProgram, List<Step>>();
+        List<Step>? current = null;
+        int frames = 0;
+        foreach (var instruction in instructions)
+        {
+            string at = $"{definition.ObjectPointer} at $87:{instruction.Cursor:X4}";
+            if (labels.TryGetValue(instruction.Cursor, out TourianStatueTileProgram label))
+            {
+                // A program that has not jumped or stopped runs on into the next authored one.
+                current?.Add(Step.FallInto(label));
+                current = [];
+                expected.Add(label, current);
+            }
+            List<Step> steps = current ?? throw new InvalidOperationException($"{at}: instruction after a program end has no label.");
+            ushort operand = Word(rom, instruction.Cursor + 2);
+            if (instruction.Width == 4 && !Enum.IsDefined((AnimatedTileInstruction)instruction.Code))
+            {
+                steps.Add(Step.Show(Picture(definition, operand, at), instruction.Code));
+                frames++;
+                continue;
+            }
+            switch ((AnimatedTileInstruction)instruction.Code)
+            {
+                case AnimatedTileInstruction.SetTourianStatueAnimationState:
+                {
+                    var flags = (TourianStatueAnimationState)operand;
+                    if (flags == TourianStatueAnimationState.ReleaseInProgress)
+                        steps.Add(Cue(TourianStatueTileCueKind.ClaimRelease));
+                    else
+                    {
+                        AssertEqual(definition.AnimatingFlag, flags, $"{at}: statue animating flag");
+                        steps.Add(Cue(TourianStatueTileCueKind.MarkAnimating));
+                    }
+                    break;
+                }
+                case AnimatedTileInstruction.ResetTourianStatueAnimationState:
+                {
+                    var flags = (TourianStatueAnimationState)operand;
+                    if ((flags & TourianStatueAnimationState.ReleaseInProgress) != 0)
+                    {
+                        AssertEqual(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag, flags,
+                            $"{at}: release finish clears the turn with the statue's flag");
+                        steps.Add(Cue(TourianStatueTileCueKind.FinishRelease));
+                    }
+                    else
+                    {
+                        AssertEqual(definition.AnimatingFlag, flags, $"{at}: statue animating flag");
+                        steps.Add(Cue(TourianStatueTileCueKind.ClearAnimating));
+                    }
+                    break;
+                }
+                case AnimatedTileInstruction.GotoIfEventSet:
+                    AssertEqual(definition.GreyEvent, (EventNumber)operand, $"{at}: grey event");
+                    steps.Add(Cue(TourianStatueTileCueKind.GoToIfGrey,
+                        Label(labels, Word(rom, instruction.Cursor + 4), at)));
+                    break;
+                case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
+                    AssertEqual(definition.BossArea, (AreaId)SnesLittleEndian.HighByte(operand), $"{at}: boss area");
+                    AssertEqual(definition.DefeatedBossBits, (BossBits)SnesLittleEndian.LowByte(operand), $"{at}: boss bits");
+                    steps.Add(Cue(TourianStatueTileCueKind.GoToIfBossDefeated,
+                        Label(labels, Word(rom, instruction.Cursor + 4), at)));
+                    break;
+                case AnimatedTileInstruction.GotoIfTourianStatueBusy:
+                    steps.Add(Cue(TourianStatueTileCueKind.GoToIfReleaseInProgress, Label(labels, operand, at)));
+                    break;
+                case AnimatedTileInstruction.ClearThreePaletteColors:
+                    AssertEqual(definition.ClearedColorIndex * sizeof(ushort), (int)operand, $"{at}: cleared colour byte index");
+                    steps.Add(Cue(TourianStatueTileCueKind.ClearThreeColors));
+                    break;
+                case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
+                    AssertEqual(definition.UnlockEffectParameter, operand, $"{at}: eye-glow statue selector");
+                    steps.Add(Cue(TourianStatueTileCueKind.SpawnEyeGlow));
+                    break;
+                case AnimatedTileInstruction.SpawnTourianStatueSoul:
+                    AssertEqual(definition.UnlockEffectParameter, operand, $"{at}: soul statue selector");
+                    steps.Add(Cue(TourianStatueTileCueKind.SpawnSoul));
+                    break;
+                case AnimatedTileInstruction.SpawnPaletteFxObject:
+                    AssertEqual(definition.PaletteFxDefinition, operand, $"{at}: grey palette effect");
+                    steps.Add(Cue(TourianStatueTileCueKind.SpawnGreyPaletteFx));
+                    break;
+                case AnimatedTileInstruction.SetEvent:
+                    AssertEqual(definition.GreyEvent, (EventNumber)operand, $"{at}: grey event set");
+                    steps.Add(Cue(TourianStatueTileCueKind.SetGreyEvent));
+                    break;
+                case AnimatedTileInstruction.WriteEightTargetPaletteColors:
+                    AssertEqual(definition.GreyColorIndex * sizeof(ushort), (int)operand, $"{at}: grey colour byte index");
+                    steps.Add(Cue(TourianStatueTileCueKind.ApplyGreyColors));
+                    break;
+                case AnimatedTileInstruction.Goto:
+                    steps.Add(Step.GoTo(Label(labels, operand, at)));
+                    current = null;
+                    break;
+                case AnimatedTileInstruction.Delete:
+                    steps.Add(Step.Stop);
+                    current = null;
+                    break;
+                case AnimatedTileInstruction.WaitUntilAreaBossIsDead:
+                    throw new InvalidDataException($"{at}: statue lists do not wait for an area boss.");
+                default:
+                    throw new InvalidDataException($"{at}: undefined animated-tile instruction {instruction.Code:X4}.");
+            }
+        }
+        AssertTrue(current is null, $"{definition.ObjectPointer}: the native list ends with a jump or a delete");
+        AssertEqual(9, frames, $"{definition.ObjectPointer}: nine native timed frames");
+
+        int compared = 0;
+        AssertEqual(Enum.GetValues<TourianStatueTileProgram>().Length, expected.Count,
+            $"{definition.ObjectPointer}: every typed program is a native list entry");
+        foreach ((TourianStatueTileProgram program, List<Step> native) in expected)
+        {
+            IReadOnlyList<Step> typed = definition.Program.Steps(program);
+            AssertEqual(native.Count, typed.Count, $"{definition.ObjectPointer} {program}: step count");
+            for (int index = 0; index < native.Count; index++)
+                AssertEqual(native[index], typed[index], $"{definition.ObjectPointer} {program}: step {index}");
+            compared += native.Count;
+        }
+        return compared;
+    }
+
+    /// <summary>
+    /// Names each native list entry: the header's program pointer is <see cref="TourianStatueTileProgram.Entry"/>, and
+    /// the grey-event, boss-bit and unconditional branches enter the already-grey, release and idle programs.
+    /// </summary>
+    private static Dictionary<ushort, TourianStatueTileProgram> ProgramLabels(
+        ISnesAddressSpace rom, List<(ushort Cursor, ushort Code, int Width)> instructions)
+    {
+        var labels = new Dictionary<ushort, TourianStatueTileProgram> { [instructions[0].Cursor] = TourianStatueTileProgram.Entry };
+        foreach (var instruction in instructions)
+        {
+            var command = (AnimatedTileInstruction)instruction.Code;
+            if (command == AnimatedTileInstruction.GotoIfEventSet)
+                labels[Word(rom, instruction.Cursor + 4)] = TourianStatueTileProgram.AlreadyGrey;
+            else if (command == AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea)
+                labels[Word(rom, instruction.Cursor + 4)] = TourianStatueTileProgram.Release;
+            else if (command == AnimatedTileInstruction.Goto)
+                labels[Word(rom, instruction.Cursor + 2)] = TourianStatueTileProgram.Oscillate;
+        }
+        AssertEqual(Enum.GetValues<TourianStatueTileProgram>().Length, labels.Count, "four distinct native statue list entries");
+        return labels;
+    }
+
+    /// <summary>The program whose native list starts at <paramref name="target"/>.</summary>
+    private static TourianStatueTileProgram Label(Dictionary<ushort, TourianStatueTileProgram> labels, ushort target, string at)
+    {
+        AssertTrue(labels.TryGetValue(target, out TourianStatueTileProgram program), $"{at}: branch enters a named program");
+        return program;
+    }
+
+    /// <summary>The statue picture whose artwork window a native frame operand selects.</summary>
+    private static TourianStatueTilePicture Picture(TourianStatueAnimatedTileProgramDefinition definition, ushort operand, string at)
+    {
+        int source = RoomFxRomData.Banks.AnimatedTiles | operand;
+        TourianStatueTilePicture[] matches = [.. definition.Pictures.Where(picture =>
+            TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture) == source)];
+        AssertEqual(1, matches.Length, $"{at}: frame source selects exactly one statue picture");
+        return matches[0];
+    }
+
+    /// <summary>A cue step of <paramref name="kind"/>, continuing at <paramref name="target"/> when it branches.</summary>
+    private static Step Cue(TourianStatueTileCueKind kind, TourianStatueTileProgram target = default) =>
+        Step.Publish(new TourianStatueTileCue(kind, target));
+
+    /// <summary>The bank-$87 word at <paramref name="cursor"/>.</summary>
+    private static ushort Word(ISnesAddressSpace rom, int cursor) =>
+        ReadVerificationWord(rom, RoomFxRomData.Banks.AnimatedTiles | cursor);
 }

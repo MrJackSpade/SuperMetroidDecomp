@@ -1,40 +1,86 @@
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Areas.Tourian;
 
 /// <summary>
-/// Immutable engine-owned headers and control programs for the four Tourian entrance
-/// statue animated-tile objects in bank <c>$87</c>.
+/// The four Tourian entrance statues' animated-tile definitions: artwork transfer geometry and the operands their
+/// shared typed program (<see cref="TourianStatueTileAnimations"/>) acts on.
 /// </summary>
 /// <remarks>
-/// The nine frame-source operands in each program are presentation references in
+/// The pictures each program shows are presentation references in
 /// <see cref="SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueAnimatedTileArtworkDefinitions"/>.
-/// This catalog owns the instruction graph, timing, event routing, boss-bit
-/// tests, palette destinations, and effect parameters that make the sequence operate.
 /// </remarks>
 public static class TourianStatueAnimatedTileMechanicsDefinitions
 {
-    /// <summary>First timed source operand, $87:83B8 relative to Phantoon's $83AC entry.</summary>
-    internal const int FirstOscillatingSource = 0x0c;
-    /// <summary>First post-palette-clear source operand, $87:83E6 relative to $83AC.</summary>
-    internal const int FirstReleaseSource = 0x3a;
-    /// <summary>Source operand for the eye-glow wait, $87:83F2 relative to $83AC.</summary>
-    internal const int EyeGlowSource = 0x46;
-    /// <summary>Source operand for the soul/palette-FX wait, $87:83FE relative to $83AC.</summary>
-    internal const int SoulSource = 0x52;
     /// <summary>
-    /// Native boss identity selects its animation program, transfer geometry, event,
-    /// boss test and palette/effect destinations. These are semantic object cases,
-    /// not sampled numeric curves. The six-byte headers are $87:854C..8563 and their
-    /// 104-byte programs are $87:83AC..854B; unsupported ushort identities return null.
+    /// The statue identity selects its transfer geometry, event, boss test, palette destinations and effect
+    /// parameters. Animated-tile objects that are not statues return null.
     /// </summary>
     private static TourianStatueAnimatedTileProgramDefinition? SelectObject(AnimatedTileObject objectPointer) =>
         objectPointer switch
     {
-        AnimatedTileObject.TourianStatuePhantoon => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatuePhantoon, ProgramStart = 0x83ac, TransferByteCount = 0x0080, EncodedVramDestination = 0x7800, StatueStateBit = 0x0001, GreyEventNumber = 0x0006, FirstFrameDuration = 0x0006, PackedBossTest = 0x0301, ClearPaletteByteIndex = 0x0158, UnlockEffectParameter = 0x0000, PaletteFxDefinition = 0xf755, TargetPaletteByteIndex = 0x0140 }),
-        AnimatedTileObject.TourianStatueRidley => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatueRidley, ProgramStart = 0x8414, TransferByteCount = 0x0040, EncodedVramDestination = 0x7220, StatueStateBit = 0x0002, GreyEventNumber = 0x0007, FirstFrameDuration = 0x000a, PackedBossTest = 0x0201, ClearPaletteByteIndex = 0x0132, UnlockEffectParameter = 0x0002, PaletteFxDefinition = 0xf751, TargetPaletteByteIndex = 0x0120 }),
-        AnimatedTileObject.TourianStatueKraid => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatueKraid, ProgramStart = 0x847c, TransferByteCount = 0x0040, EncodedVramDestination = 0x0b40, StatueStateBit = 0x0004, GreyEventNumber = 0x0009, FirstFrameDuration = 0x0004, PackedBossTest = 0x0101, ClearPaletteByteIndex = 0x00f8, UnlockEffectParameter = 0x0006, PaletteFxDefinition = 0xf74d, TargetPaletteByteIndex = 0x00e0 }),
-        AnimatedTileObject.TourianStatueDraygon => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatueDraygon, ProgramStart = 0x84e4, TransferByteCount = 0x0080, EncodedVramDestination = 0x0ca0, StatueStateBit = 0x0008, GreyEventNumber = 0x0008, FirstFrameDuration = 0x0008, PackedBossTest = 0x0401, ClearPaletteByteIndex = 0x00d2, UnlockEffectParameter = 0x0004, PaletteFxDefinition = 0xf749, TargetPaletteByteIndex = 0x00c0 }),
+        AnimatedTileObject.TourianStatuePhantoon => new()
+        {
+            ObjectPointer = AnimatedTileObject.TourianStatuePhantoon,
+            TransferByteCount = 128,
+            EncodedVramDestination = 0x7800,
+            AnimatingFlag = TourianStatueAnimationState.PhantoonAnimating,
+            GreyEvent = EventNumber.PhantoonStatueGrey,
+            FirstFrameDuration = 6,
+            BossArea = AreaId.WreckedShip,
+            DefeatedBossBits = BossBits.AreaBoss,
+            ClearedColorIndex = 172,
+            UnlockEffectParameter = 0,
+            PaletteFxDefinition = 0xf755,
+            GreyColorIndex = 160,
+        },
+        AnimatedTileObject.TourianStatueRidley => new()
+        {
+            ObjectPointer = AnimatedTileObject.TourianStatueRidley,
+            TransferByteCount = 64,
+            EncodedVramDestination = 0x7220,
+            AnimatingFlag = TourianStatueAnimationState.RidleyAnimating,
+            GreyEvent = EventNumber.RidleyStatueGrey,
+            FirstFrameDuration = 10,
+            BossArea = AreaId.Norfair,
+            DefeatedBossBits = BossBits.AreaBoss,
+            ClearedColorIndex = 153,
+            UnlockEffectParameter = 2,
+            PaletteFxDefinition = 0xf751,
+            GreyColorIndex = 144,
+        },
+        AnimatedTileObject.TourianStatueKraid => new()
+        {
+            ObjectPointer = AnimatedTileObject.TourianStatueKraid,
+            TransferByteCount = 64,
+            EncodedVramDestination = 0x0b40,
+            AnimatingFlag = TourianStatueAnimationState.KraidAnimating,
+            GreyEvent = EventNumber.KraidStatueGrey,
+            FirstFrameDuration = 4,
+            BossArea = AreaId.Brinstar,
+            DefeatedBossBits = BossBits.AreaBoss,
+            ClearedColorIndex = 124,
+            UnlockEffectParameter = 6,
+            PaletteFxDefinition = 0xf74d,
+            GreyColorIndex = 112,
+        },
+        AnimatedTileObject.TourianStatueDraygon => new()
+        {
+            ObjectPointer = AnimatedTileObject.TourianStatueDraygon,
+            TransferByteCount = 128,
+            EncodedVramDestination = 0x0ca0,
+            AnimatingFlag = TourianStatueAnimationState.DraygonAnimating,
+            GreyEvent = EventNumber.DraygonStatueGrey,
+            FirstFrameDuration = 8,
+            BossArea = AreaId.Maridia,
+            DefeatedBossBits = BossBits.AreaBoss,
+            ClearedColorIndex = 105,
+            UnlockEffectParameter = 4,
+            PaletteFxDefinition = 0xf749,
+            GreyColorIndex = 96,
+        },
         AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or
             AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or
             AnimatedTileObject.UnusedCrateriaLava or AnimatedTileObject.BrinstarPlant or
@@ -61,7 +107,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         }
     }
 
-    /// <summary>Resolves one stock bank-$87 statue animated-tile object header.</summary>
+    /// <summary>Resolves one statue's animated-tile definition.</summary>
     public static bool TryResolveObjectHeader(
         AnimatedTileObject objectPointer,
         [NotNullWhen(true)] out TourianStatueAnimatedTileProgramDefinition? definition)

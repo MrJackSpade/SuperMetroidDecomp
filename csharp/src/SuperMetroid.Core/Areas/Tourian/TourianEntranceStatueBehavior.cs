@@ -42,16 +42,16 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     public short TourianEntranceStatueVerticalOffset { get; internal set; }
 
     /// <summary>
-    /// Native <c>tourian_entrance_statue_animstate</c>. Its producers live in the palette-
-    /// FX/HDMA unlocking sequence; zero is the retail room-load state.
+    /// The statues' shared animation state, set and cleared by the statue tile programs and the descent;
+    /// <see cref="TourianStatueAnimationState.None"/> is the room-load state.
     /// </summary>
-    public ushort TourianEntranceStatueAnimationState { get; internal set; }
+    public TourianStatueAnimationState TourianEntranceStatueAnimationState { get; internal set; }
 
     /// <summary>Clears the completion, palette-animation, and BG2 displacement latches on room load.</summary>
     internal void ResetTourianEntranceStatueRoomState()
     {
         TourianEntranceStatueFinished = false;
-        TourianEntranceStatueAnimationState = 0;
+        TourianEntranceStatueAnimationState = TourianStatueAnimationState.None;
         TourianEntranceStatueVerticalOffset = 0;
     }
 
@@ -123,7 +123,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
                 projectile.PreInstruction, "enemy-projectile pre-instruction") ==
                 EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess &&
-            TourianEntranceStatueAnimationState == 0)
+            TourianEntranceStatueAnimationState == TourianStatueAnimationState.None)
         {
             TourianEntranceStatueFinished = true;
         }

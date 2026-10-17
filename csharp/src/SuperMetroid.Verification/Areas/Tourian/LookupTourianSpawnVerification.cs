@@ -2,6 +2,8 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Areas.Tourian;
 
 /// <summary>Compares Tourian statue animated-object initialization with the
@@ -9,7 +11,7 @@ namespace SuperMetroid.Verification.Areas.Tourian;
 internal static class LookupTourianSpawnVerification
 {
     /// <summary>Reads the bounded bank-$8F spawn sequence and checks the
-    /// production objects preserve its order, pointers, and initial timer.</summary>
+    /// production objects preserve its order, entry programs, and initial timer.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue spawn order")]
     internal static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {
@@ -36,8 +38,10 @@ internal static class LookupTourianSpawnVerification
             var tile = objects[index];
             var definition = tile.Definition;
             AssertEqual(expected[index], (ushort)definition.ObjectPointer, "Native spawn/handler order");
-            AssertEqual(ReadVerificationWord(rom, 0x870000 | expected[index]),
-                tile.Pointer, "Original initial program");
+            // The program oracle proves the entry program starts at the header's native program pointer.
+            AssertEqual<AnimationProgramCursor<TourianStatueTileProgram>?>(
+                AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry),
+                tile.Cursor, "Spawned statue starts at its entry program");
             AssertEqual((ushort)1, tile.Timer.RawValue, "Spawned instruction timer");
         }
     }

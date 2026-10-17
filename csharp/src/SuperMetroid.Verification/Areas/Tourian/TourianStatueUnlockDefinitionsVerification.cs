@@ -77,7 +77,7 @@ internal static class TourianStatueUnlockDefinitionsVerification
             "Tourian statue eye positions: eight native words and all eight real eye/soul spawns pass with position tables forbidden.");
     }
 
-    /// <summary>Checks compiled statue control words and artwork selections, then runs the retail unlock sequence with source reads denied.</summary>
+    /// <summary>Checks the statues' typed programs and pictures against the cartridge, then runs the retail unlock sequence with program and artwork reads denied.</summary>
     private static void VerifyTourianStatueAnimatedTileMechanics(
         SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
@@ -85,67 +85,46 @@ internal static class TourianStatueUnlockDefinitionsVerification
         Suite(nameof(VerifyTourianStatueDescriptorFields), () => VerifyTourianStatueDescriptorFields(rom));
         Suite(nameof(VerifyTourianStatueProgramMappings), () => VerifyTourianStatueProgramMappings(rom));
         Suite(nameof(VerifyTourianStatueSpawnOrder), () => VerifyTourianStatueSpawnOrder(rom));
-        int mechanicsWordCount = 0;
-        int presentationWordCount = 0;
+        int pictureCount = 0;
         RoomFxAnimatedTileAtlas artwork = RoomFxAnimatedTileAtlas.Load(
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
+        foreach (TourianStatueTilePicture picture in definition.Pictures)
         {
-            mechanicsWordCount += 3; // Header fields are covered by the named descriptor proofs.
-
-            for (int programOffset = 0; programOffset <= 0x66; programOffset += 2)
-            {
-                ushort pointer = unchecked((ushort)(definition.ProgramStart + programOffset));
-                if (definition.SourceOperandPointers.Contains(pointer))
-                {
-                    AssertTrue(!definition.TryReadMechanicsWord(pointer, out _),
-                        $"statue $87:{(int)definition.ObjectPointer:X4} leaves source " +
-                        $"$87:{pointer:X4} presentation-owned");
-                    int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
-                        definition, pointer);
-                    byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.TransferByteCount);
-                    AssertTrue(artwork.TryResolve(source, native.Length,
-                            out ReadOnlyMemory<byte> installed) &&
-                        installed.Span.SequenceEqual(native),
-                        $"statue frame $87:{pointer:X4} preserves every cartridge pixel byte");
-                    presentationWordCount++;
-                    continue;
-                }
-
-                mechanicsWordCount++;
-            }
+            int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture);
+            byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.TransferByteCount);
+            AssertTrue(artwork.TryResolve(source, native.Length,
+                    out ReadOnlyMemory<byte> installed) &&
+                installed.Span.SequenceEqual(native),
+                $"statue {definition.ObjectPointer} picture {picture} preserves every cartridge pixel byte");
+            pictureCount++;
         }
 
         AssertEqual(4, TourianStatueAnimatedTileMechanicsDefinitions.All.Count(),
             "Tourian statue animated-tile object count");
-        AssertEqual(184, mechanicsWordCount,
-            "Tourian statue compiled mechanics word count");
-        AssertEqual(36, presentationWordCount,
-            "Tourian statue live presentation-source word count");
+        AssertEqual(16, pictureCount, "Tourian statue installed picture count");
+
+        // Every byte of the four native headers and lists, frame operands included, is the oracle's alone.
+        var programOffsets = new HashSet<int>();
+        foreach (ushort header in OriginalTourianObjects)
+        {
+            for (int offset = 0; offset < 3 * sizeof(ushort); offset++)
+                programOffsets.Add(header + offset);
+            foreach (var instruction in OriginalTourianInstructions(rom, header))
+                for (int offset = 0; offset < instruction.Width; offset++)
+                    programOffsets.Add(instruction.Cursor + offset);
+        }
 
         bool forbidArtworkReads = false;
-        var observedSourceOperands = new HashSet<ushort>();
         var guarded = new MutableCartridgeReadGuard(rom);
         guarded
             .Forbid(address => forbidArtworkReads &&
                     address >= TourianStatueAnimatedTileArtworkDefinitions.FirstSource &&
                     address < TourianStatueAnimatedTileArtworkDefinitions.SourceEnd,
                 address => $"Installed Tourian statue artwork read cartridge byte ${address:X6}.")
-            .Forbid(IsTourianStatueMechanicsByte,
-                address => $"Production read compiled Tourian statue mechanics byte {SnesAddress.FromBusAddress(address)}.")
-            .Observe(address => SnesAddress.FromBusAddress(address).Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles),
-                address =>
-                {
-                    ushort offset = SnesAddress.FromBusAddress(address).Offset;
-                    foreach (TourianStatueAnimatedTileProgramDefinition definition in
-                             TourianStatueAnimatedTileMechanicsDefinitions.All)
-                    foreach (ushort sourcePointer in definition.SourceOperandPointers)
-                    {
-                        if (offset == sourcePointer || offset == unchecked((ushort)(sourcePointer + 1)))
-                            observedSourceOperands.Add(sourcePointer);
-                    }
-                });
+            .Forbid(address => IsTourianStatueProgramByte(programOffsets, address),
+                address => $"Production read Tourian statue program byte {SnesAddress.FromBusAddress(address)}.");
         var runtime = CreateRetailRuntimeFixture(guarded, playerInvincibilityEnabled: true);
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
@@ -169,30 +148,26 @@ internal static class TourianStatueUnlockDefinitionsVerification
             "production Tourian sequence releases all four defeated-boss statues");
         AssertTrue(steps < 3000, "production Tourian sequence remains bounded");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            "production Tourian sequence performs no mechanics ROM reads");
-        AssertEqual(0, observedSourceOperands.Count,
-            "installed Tourian sequence reads no frame-source operands");
+            "production Tourian sequence performs no program or artwork ROM reads");
         Console.WriteLine(
-            $"Tourian statue animated tiles: 184 mechanics words and 36 art selections " +
-            $"compiled, with ROM-free art transfer; release completes in {steps} calls.");
+            $"Tourian statue animated tiles: typed programs and {pictureCount} pictures match the cartridge, " +
+            $"with ROM-free art transfer; release completes in {steps} calls.");
     }
 
-    /// <summary>Identifies either byte of a compiled bank-$87 statue control word for the runtime read guard.</summary>
-    private static bool IsTourianStatueMechanicsByte(int address)
+    /// <summary>Identifies a byte of a native bank-$87 statue header or list for the runtime read guard.</summary>
+    private static bool IsTourianStatueProgramByte(HashSet<int> programOffsets, int address)
     {
         SnesAddress snesAddress = SnesAddress.FromBusAddress(address);
         return snesAddress.Bank == SnesLittleEndian.BankByte(RoomFxRomData.Banks.AnimatedTiles) &&
-            TourianStatueAnimatedTileMechanicsDefinitions.All.Any(definition =>
-                definition.TryReadMechanicsWord(snesAddress.Offset, out _) ||
-                definition.TryReadMechanicsWord(unchecked((ushort)(snesAddress.Offset - 1)), out _));
+            programOffsets.Contains(snesAddress.Offset);
     }
 
     /// <summary>Checks that all four defeated-boss statue release events have been recorded.</summary>
     private static bool TourianStatueGreyEventsAreSet(SuperMetroidRuntime runtime) =>
-        runtime.System.HasEventRaw(0x0006) &&
-        runtime.System.HasEventRaw(0x0007) &&
-        runtime.System.HasEventRaw(0x0008) &&
-        runtime.System.HasEventRaw(0x0009);
+        runtime.System.HasEvent(EventNumber.PhantoonStatueGrey) &&
+        runtime.System.HasEvent(EventNumber.RidleyStatueGrey) &&
+        runtime.System.HasEvent(EventNumber.DraygonStatueGrey) &&
+        runtime.System.HasEvent(EventNumber.KraidStatueGrey);
 
     /// <summary>Forbids production reads of the migrated bank-$86 eye-coordinate tables.</summary>
     private static CartridgeReadGuard NewTourianStatueEyeReadGuard(ISnesAddressSpace source) =>

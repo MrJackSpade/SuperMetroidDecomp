@@ -28,7 +28,7 @@ internal static class TourianStatueXrayFreezeVerification
         runtime.Player.IntroducedSamus.InputLocked = true;
 
         var objects = runtime.TourianStatues.objects;
-        string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Pointer}/{o.Timer.RawValue}"));
+        string Snapshot() => string.Join(" ", objects.Select(o => $"{o.Cursor}/{o.Timer.RawValue}"));
 
         runtime.StepFrame(0);
         runtime.Player.IntroducedSamus.Xray.SuspendedSubsystems = XraySuspendedSubsystems.All;

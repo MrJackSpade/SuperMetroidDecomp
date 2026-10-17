@@ -59,15 +59,20 @@ public sealed class TourianStatueSequence
         _vramWrites = dependencies.VramWrites;
     }
 
-    /// <summary>One spawned statue animation's compiled program, next instruction pointer, and frame timer.</summary>
+    /// <summary>One spawned statue animation's definition, program position, and frame timer.</summary>
     internal sealed class TileObject
     {
         /// <summary>Program identity and installed transfer dimensions for this statue.</summary>
         public required TourianStatueAnimatedTileProgramDefinition Definition;
-        /// <summary>Next bank-$87 mechanics word.</summary>
-        public ushort Pointer;
+        /// <summary>Where the statue's typed program resumes; null once the program has stopped and the object is deleted.</summary>
+        public AnimationProgramCursor<TourianStatueTileProgram>? Cursor;
         /// <summary>Remaining duration of the current tile frame.</summary>
         public NativeCountdown Timer = NativeCountdown.Start(1);
+        /// <summary>
+        /// The same position as <see cref="Cursor"/> under the name <c>DoorAnimatedTilesVerification</c> still uses;
+        /// it goes once that verification reads <see cref="Cursor"/>.
+        /// </summary>
+        public AnimationProgramCursor<TourianStatueTileProgram>? Pointer => Cursor;
     }
     /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches native slot traversal and busy-bit ownership.</summary>
     internal readonly List<TileObject> objects = [];
@@ -128,19 +133,26 @@ public sealed class TourianStatueSequence
         Spawn(AnimatedTileObject.TourianStatueDraygon);
         Spawn(AnimatedTileObject.TourianStatueRidley);
 
-        // Resolve each native object header and start it at its compiled program entry.
+        // Resolve each statue's definition and start it at its program entry.
         void Spawn(AnimatedTileObject objectPointer)
         {
             if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
                     objectPointer, out TourianStatueAnimatedTileProgramDefinition? definition))
                 throw new InvalidDataException(
-                    $"Tourian statue animated-tile object $87:{(int)objectPointer:X4} is not cataloged.");
+                    $"Tourian statue animated-tile object {objectPointer} is not cataloged.");
 
-            objects.Add(new() { Definition = definition, Pointer = definition.ProgramStart });
+            objects.Add(new()
+            {
+                Definition = definition,
+                Cursor = AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry),
+            });
         }
     }
 
-    /// <summary>Runs AnimtilesHandler in native spawn order, retaining bytecode durations and branches.</summary>
+    /// <summary>
+    /// Runs AnimtilesHandler in native spawn order: each live statue counts its frame down and, when it expires,
+    /// advances its typed program to the next shown picture, running the program's cues on the way.
+    /// </summary>
     [PpuLayoutBoundary("codec: animated-tile instruction CGRAM index operand")]
     public void StepTiles()
     {
@@ -148,86 +160,82 @@ public sealed class TourianStatueSequence
         if (_tester.UnlockTourianEnabled) return;
         foreach (TileObject tile in objects)
         {
-            if (tile.Pointer == 0 || !(tile.Timer = tile.Timer.Decrement().Remaining).IsZero) continue;
-            for (int guard = 0; ; guard++)
+            if (tile.Cursor is not { } cursor || !(tile.Timer = tile.Timer.Decrement().Remaining).IsZero) continue;
+            // The statue programs load no loop counter; the program set still takes one.
+            NativeCountdown loopCounter = NativeCountdown.Start(0);
+            TourianStatueAnimatedTileProgramDefinition definition = tile.Definition;
+            AnimationProgramAdvance<TourianStatueTilePicture> advance = definition.Program.AdvanceTo(
+                ref cursor, ref loopCounter, (cue, _) => RunCue(definition, cue));
+            switch (advance.Kind)
             {
-                if (guard == 64) throw new InvalidDataException("Statue animated tile instruction loop exceeded its bound.");
-                ushort code = MechanicsWord(tile, tile.Pointer);
-                int operand = tile.Pointer + 2;
-                if (code < 0x8000)
-                {
-                    if (code == 0) throw new InvalidDataException("Zero-duration statue tile frame.");
-                    tile.Timer = NativeCountdown.FromRaw(code);
-                    int sourceAddress = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(
-                        tile.Definition, unchecked((ushort)operand));
+                case AnimationProgramAdvanceKind.Show:
+                    tile.Cursor = cursor;
+                    tile.Timer = NativeCountdown.Start(advance.Duration);
                     _vramWrites.Enqueue(
-                        tile.Definition.TransferByteCount,
-                        sourceAddress,
-                        tile.Definition.Destination);
-                    tile.Pointer += 4;
+                        checked((ushort)definition.TransferByteCount),
+                        TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, advance.Frame),
+                        definition.Destination);
                     break;
-                }
-                switch (ClosedNativeWords.Decode<AnimatedTileInstruction>(code, "animated-tile instruction"))
-                {
-                    case AnimatedTileInstruction.Delete:
-                        tile.Pointer = 0;
-                        break;
-                    case AnimatedTileInstruction.Goto:
-                        tile.Pointer = MechanicsWord(tile, operand);
-                        continue;
-                    case AnimatedTileInstruction.GotoIfEventSet:
-                        tile.Pointer = _system.HasEventRaw(MechanicsWord(tile, operand))
-                            ? MechanicsWord(tile, operand + 2)
-                            : (ushort)(operand + 4);
-                        continue;
-                    case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
-                        ushort bossTest = MechanicsWord(tile, operand);
-                        tile.Pointer = _system.HasAnyBossBits(
-                                SnesLittleEndian.HighByte(bossTest), (BossBits)(SnesLittleEndian.LowByte(bossTest)))
-                            ? MechanicsWord(tile, operand + 2)
-                            : (ushort)(operand + 4);
-                        continue;
-                    case AnimatedTileInstruction.SetEvent:
-                        _system.SetEventRaw(MechanicsWord(tile, operand));
-                        break;
-                    case AnimatedTileInstruction.GotoIfTourianStatueBusy:
-                        tile.Pointer = (_enemies.TourianStatue.AnimationState & TourianStatueRomData.Busy) != 0
-                            ? MechanicsWord(tile, operand)
-                            : (ushort)(operand + 2);
-                        continue;
-                    case AnimatedTileInstruction.SetTourianStatueAnimationState:
-                        _enemies.TourianStatue.AnimationState |= MechanicsWord(tile, operand);
-                        break;
-                    case AnimatedTileInstruction.ResetTourianStatueAnimationState:
-                        _enemies.TourianStatue.AnimationState &=
-                            (ushort)~MechanicsWord(tile, operand);
-                        break;
-                    case AnimatedTileInstruction.ClearThreePaletteColors:
-                        ushort clearPaletteByteIndex = MechanicsWord(tile, operand);
-                        // The colour index is animated-tile instruction data.
-                        new CgramPalettes(_cgram).All.Slice(clearPaletteByteIndex / 2, 3).Fill(Bgr555.Black);
-                        break;
-                    case AnimatedTileInstruction.WriteEightTargetPaletteColors:
-                        int greyDestination = MechanicsWord(tile, operand) / 2;
-                        (_enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
-                            "Tourian statue animation requires installed grey colors."))
-                            .ApplyGrey(_cgram, greyDestination);
-                        break;
-                    case AnimatedTileInstruction.SpawnPaletteFxObject:
-                        _roomPaletteFx.SpawnDefinition(
-                            MechanicsWord(tile, operand), _player.IntroducedSamus.EquippedItems);
-                        break;
-                    case AnimatedTileInstruction.SpawnTourianStatueEyeGlow:
-                    case AnimatedTileInstruction.SpawnTourianStatueSoul:
-                        _enemies.TourianStatue.SpawnUnlockEffect(
-                            MechanicsWord(tile, operand),
-                            code == (ushort)AnimatedTileInstruction.SpawnTourianStatueSoul);
-                        break;
-                    default:
-                        throw new NotSupportedException($"Statue animated tiles instruction $87:{code:X4} is not translated.");
-                }
-                if (tile.Pointer == 0) break;
-                tile.Pointer = (ushort)(operand + 2);
+                case AnimationProgramAdvanceKind.Stop:
+                    tile.Cursor = null;
+                    break;
+                case AnimationProgramAdvanceKind.Wait:
+                case AnimationProgramAdvanceKind.Hold:
+                default:
+                    throw new InvalidOperationException(
+                        $"Tourian statue {definition.ObjectPointer} program ended an advance with unauthored {advance.Kind}.");
+            }
+        }
+
+        // Runs one cue with the statue's operands; a branching cue whose condition holds returns where the program continues.
+        AnimationProgramCursor<TourianStatueTileProgram>? RunCue(
+            TourianStatueAnimatedTileProgramDefinition definition, TourianStatueTileCue cue)
+        {
+            ITourianStatueActors statue = _enemies.TourianStatue;
+            AnimationProgramCursor<TourianStatueTileProgram> branch =
+                AnimationProgramCursor<TourianStatueTileProgram>.Start(cue.Target);
+            switch (cue.Kind)
+            {
+                case TourianStatueTileCueKind.MarkAnimating:
+                    statue.AnimationState |= definition.AnimatingFlag;
+                    return null;
+                case TourianStatueTileCueKind.GoToIfGrey:
+                    return _system.HasEvent(definition.GreyEvent) ? branch : null;
+                case TourianStatueTileCueKind.GoToIfBossDefeated:
+                    return _system.HasAnyBossBits(definition.BossArea, definition.DefeatedBossBits) ? branch : null;
+                case TourianStatueTileCueKind.ClearAnimating:
+                    statue.AnimationState &= ~definition.AnimatingFlag;
+                    return null;
+                case TourianStatueTileCueKind.GoToIfReleaseInProgress:
+                    return (statue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != 0 ? branch : null;
+                case TourianStatueTileCueKind.ClaimRelease:
+                    statue.AnimationState |= TourianStatueAnimationState.ReleaseInProgress;
+                    return null;
+                case TourianStatueTileCueKind.ClearThreeColors:
+                    new CgramPalettes(_cgram).All.Slice(definition.ClearedColorIndex, 3).Fill(Bgr555.Black);
+                    return null;
+                case TourianStatueTileCueKind.SpawnEyeGlow:
+                    statue.SpawnUnlockEffect(definition.UnlockEffectParameter, soul: false);
+                    return null;
+                case TourianStatueTileCueKind.SpawnSoul:
+                    statue.SpawnUnlockEffect(definition.UnlockEffectParameter, soul: true);
+                    return null;
+                case TourianStatueTileCueKind.SpawnGreyPaletteFx:
+                    _roomPaletteFx.SpawnDefinition(definition.PaletteFxDefinition, _player.IntroducedSamus.EquippedItems);
+                    return null;
+                case TourianStatueTileCueKind.SetGreyEvent:
+                    _system.SetEvent(definition.GreyEvent);
+                    return null;
+                case TourianStatueTileCueKind.FinishRelease:
+                    statue.AnimationState &= ~(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag);
+                    return null;
+                case TourianStatueTileCueKind.ApplyGreyColors:
+                    (_enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
+                        "Tourian statue animation requires installed grey colors."))
+                        .ApplyGrey(_cgram, definition.GreyColorIndex);
+                    return null;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueTileCueKind)} {cue.Kind}.");
             }
         }
     }
@@ -236,14 +244,14 @@ public sealed class TourianStatueSequence
     public void StepDescent()
     {
         if (!Enabled) return;
-        _enemies.TourianStatue.WaterY = _roomLayer3Fx.CurrentYPosition;
+        _enemies.TourianStatue.WaterSurface = new(0, _roomLayer3Fx.CurrentYPosition);
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {
             if (!_system.HasEvent(EventNumber.PhantoonStatueGrey) || !_system.HasEvent(EventNumber.RidleyStatueGrey)
                 || !_system.HasEvent(EventNumber.DraygonStatueGrey) || !_system.HasEvent(EventNumber.KraidStatueGrey)) return;
-            _enemies.TourianStatue.AnimationState |= TourianStatueRomData.AllReleased;
-            if ((_enemies.TourianStatue.AnimationState & TourianStatueRomData.Busy) != 0) return;
+            _enemies.TourianStatue.AnimationState |= TourianStatueAnimationState.AllReleased;
+            if ((_enemies.TourianStatue.AnimationState & TourianStatueAnimationState.ReleaseInProgress) != 0) return;
             delay = TourianStatueRomData.DescentDelay;
             return;
         }
@@ -274,16 +282,5 @@ public sealed class TourianStatueSequence
         _enemies.TourianStatue.Finished = true;
         _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 0), RoomScrollState.Green);
         _room.LoadedCamera.Scrolls.SetLogicalState(new(0, 1), RoomScrollState.Green);
-    }
-    /// <summary>Reads an owned bank-$87 control word from the object's compiled program and rejects uncataloged addresses.</summary>
-    private static ushort MechanicsWord(TileObject tile, int pointer)
-    {
-        ushort bankPointer = unchecked((ushort)pointer);
-        if (tile.Definition.TryReadMechanicsWord(bankPointer, out ushort value))
-            return value;
-
-        throw new InvalidDataException(
-            $"Tourian statue object $87:{(int)tile.Definition.ObjectPointer:X4} reached " +
-            $"uncataloged mechanics word $87:{bankPointer:X4}.");
     }
 }

@@ -546,7 +546,7 @@ internal static class RidleyFullMovieVerification
         samus.Pose = SamusPoseId.SpringBallGroundRightPose;
         samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
-        samus.KnockbackActive = true; samus.KnockbackDirection = 2;
+        samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
         samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackTimer = NativeCountdown.Start(4);
         samus.InvincibilityTimer = NativeCountdown.Start(95);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = 5; samus.Kinematics.YSubspeed = 0;
@@ -1219,7 +1219,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus health", SamusQuantity.Encode(samus.Health), NativeSnapshotMemory.Health);
             Check("Samus general Samus damage immunity countdown", samus.InvincibilityTimer.RawValue, NativeSnapshotMemory.InvincibilityTimer);
             Check("Samus Samus knockback countdown", samus.KnockbackTimer.RawValue, NativeSnapshotMemory.KnockbackTimer);
-            Check("Samus Samus knockback direction", samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
+            Check("Samus Samus knockback direction", (ushort)samus.KnockbackDirection, NativeSnapshotMemory.KnockbackDirection);
             Check("Samus horizontal knockback direction", (ushort)samus.KnockbackXDirection, NativeSnapshotMemory.KnockbackXDirection);
             Check("Samus hurt palette/audio recovery countdown", checked((ushort)samus.HurtFlashCounter), NativeSnapshotMemory.HurtFlashCounter);
             Check("Samus fractional health word", checked((ushort)samus.SubunitHealth), NativeSnapshotMemory.SubunitHealth);

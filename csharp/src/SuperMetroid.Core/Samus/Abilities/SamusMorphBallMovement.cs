@@ -184,7 +184,7 @@ public static class SamusMorphBallMovement
         bool landed;
         bool hitCeiling;
         if (samus.MorphBallBounceState != SamusBallBounceState.None &&
-            samus.KnockbackDirection == 0 &&
+            samus.KnockbackDirection == Movement.SamusKnockbackDirection.None &&
             samus.Kinematics.ExtraDisplacement.Y != SnesSignedSixteenSixteen.Zero)
         {
             // `$90:91E5-$921D` gives an external producer priority over the rebound arc.

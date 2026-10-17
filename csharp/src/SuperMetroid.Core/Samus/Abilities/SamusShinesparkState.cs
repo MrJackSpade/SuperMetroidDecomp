@@ -323,7 +323,7 @@ public sealed class SamusShinesparkState
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.HorizontalSpeed.SpeedBoostCounter =
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;

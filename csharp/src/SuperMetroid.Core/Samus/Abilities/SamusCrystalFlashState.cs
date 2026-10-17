@@ -191,7 +191,7 @@ public sealed class SamusCrystalFlashState
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Raising;
         return true;

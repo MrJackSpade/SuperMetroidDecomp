@@ -518,7 +518,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     // input, `$91:EDB0` chooses up-right direction two and `$90:99D6` installs 5.0000.
     SamusKnockbackMovement.Start(samus, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right });
     AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
-    AssertEqual(2, samus.KnockbackDirection, "up-right knockback direction");
+    AssertEqual(SamusKnockbackDirection.UpRight, samus.KnockbackDirection, "up-right knockback direction");
     AssertEqual(KnockbackHorizontalDirection.Right, samus.KnockbackXDirection, "knockback X direction publication");
     AssertEqual(5, samus.KnockbackTimer.RawValue, "enemy hurt timer publication");
     AssertEqual(1, samus.HurtFlashCounter,
@@ -572,7 +572,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         "terrain hit interruption preserves ten-frame producer timer");
     AssertEqual(SamusPoseId.KnockbackRightPose, pendingTerrainHit.Pose,
         "terrain hit interruption installs visible hurt pose");
-    AssertEqual(1, pendingTerrainHit.KnockbackDirection,
+    AssertEqual(SamusKnockbackDirection.UpLeft, pendingTerrainHit.KnockbackDirection,
         "right-facing terrain contact launches up-left");
     AssertTrue(pendingTerrainHit.KnockbackActive,
         "terrain hit interruption installs special movement handler");
@@ -634,7 +634,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         samus.PoseMetadata.ReadMovementType(),
         "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
-    AssertEqual(2, samus.KnockbackDirection, "damage boost preserves knockback direction");
+    AssertEqual(SamusKnockbackDirection.UpRight, samus.KnockbackDirection, "damage boost preserves knockback direction");
     AssertEqual(4, samus.KnockbackTimer.RawValue, "damage boost preserves hurt timer");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost retains whole speed");
     AssertEqual(0xe400, samus.Kinematics.YSubspeed, "damage boost retains subspeed");
@@ -725,7 +725,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         "zero hurt timer ends special handler at interruption");
     AssertEqual(SamusPoseId.KnockbackRightPose, expires.Pose, "expiry command skips proposed falling pose");
     AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
-    AssertEqual(0, expires.KnockbackDirection, "expired knockback clears direction");
+    AssertEqual(SamusKnockbackDirection.None, expires.KnockbackDirection, "expired knockback clears direction");
 
     // `$90:DF15` republishes a ball's current pose rather than substituting `$53/$54`.
     // `$91:EE27` then ignores the hit side and held-forward rule when selecting vertical
@@ -757,7 +757,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
             pose,
             ball.Pose,
             $"morphed type ${(byte)ball.PoseMetadata.ReadMovementType():X2} retains pose");
-        AssertEqual(expectedDirection, ball.KnockbackDirection,
+        AssertEqual(expectedDirection, (ushort)ball.KnockbackDirection,
             $"morphed pose ${(int)pose:X2} chooses direction from facing only");
         AssertEqual(preservedFrame, ball.AnimationFrame,
             $"morphed pose ${(int)pose:X2} retains rolling animation frame");
@@ -844,7 +844,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x007a, 0x0696)),
-        KnockbackDirection = 5,
+        KnockbackDirection = SamusKnockbackDirection.DownRight,
         KnockbackTimer = NativeCountdown.Start(0),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
@@ -877,7 +877,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     {
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0696)),
-        KnockbackDirection = 5,
+        KnockbackDirection = SamusKnockbackDirection.DownRight,
         KnockbackTimer = NativeCountdown.Start(0),
     };
     sameRadiusExpiry.PoseHistory.PreviousPose = SamusPoseId.NormalJumpAimDownRightPose;

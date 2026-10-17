@@ -411,12 +411,8 @@ public sealed class SamusState
     /// <summary>Bomb command installed RTS pose input; independent of the current movement handler.</summary>
     public bool BombJumpPoseInputLocked { get; set; }
 
-    /// <summary>
-    /// WRAM `$0A52`: zero means no knockback, one/two mean up-left/up-right, and four/five
-    /// mean down-left/down-right. Value three is the retail routine's unused straight-up
-    /// table entry and is intentionally rejected by the translated live path.
-    /// </summary>
-    public ushort KnockbackDirection { get; set; }
+    /// <summary>Which way the pending or running knockback moves Samus, or none.</summary>
+    public Movement.SamusKnockbackDirection KnockbackDirection { get; set; }
 
     /// <summary>Which way the pending or active knockback moves Samus horizontally.</summary>
     public Movement.KnockbackHorizontalDirection KnockbackXDirection { get; set; }

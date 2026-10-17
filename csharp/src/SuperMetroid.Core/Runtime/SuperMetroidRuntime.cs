@@ -794,7 +794,7 @@ public sealed class SuperMetroidRuntime
                     previousCameraPoint,
                     currentCameraPoint,
                     new HorizontalCameraContext(
-                        KnockbackDirection: samus.KnockbackDirection,
+                        KnockedBack: samus.KnockbackDirection != Samus.Movement.SamusKnockbackDirection.None,
                         MovementType: samus.PoseMetadata.ReadMovementType(),
                         XAccelerationMode: samus.HorizontalSpeed.AccelerationMode,
                         PoseXDirection: samus.PoseMetadata.ReadPoseXDirection(),

@@ -28,19 +28,19 @@ public readonly record struct HorizontalCameraContext(
     /// knockback direction is a knockback, acceleration mode one is the turn that keeps the old momentum, and pose
     /// facing four is left.
     /// </summary>
-    /// <param name="KnockbackDirection">Samus's knockback direction word; zero means no knockback.</param>
+    /// <param name="KnockedBack">Whether a knockback is pending or running.</param>
     /// <param name="MovementType">Samus's movement type.</param>
     /// <param name="XAccelerationMode">Samus's horizontal acceleration mode word.</param>
     /// <param name="PoseXDirection">Samus's pose-definition facing byte.</param>
     /// <param name="CameraDistanceIndex">How far ahead of Samus the camera target sits.</param>
     public HorizontalCameraContext(
-        ushort KnockbackDirection,
+        bool KnockedBack,
         SamusMovementType MovementType,
         ushort XAccelerationMode,
         byte PoseXDirection,
         CameraDistanceMode CameraDistanceIndex)
         : this(
-            KnockedBack: KnockbackDirection != 0,
+            KnockedBack,
             MovementType,
             TurningAgainstMomentum: XAccelerationMode == TurningAccelerationMode,
             FacesLeft: PoseXDirection == LeftFacingPose,

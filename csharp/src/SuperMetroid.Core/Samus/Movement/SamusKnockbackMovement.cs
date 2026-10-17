@@ -46,7 +46,7 @@ public static class SamusKnockbackMovement
         // owns the special movement handler; it must finish instead of being restarted.
         if (samus.KnockbackTimer.IsZero ||
             timeIsFrozen ||
-            samus.KnockbackDirection != 0 ||
+            samus.KnockbackDirection != SamusKnockbackDirection.None ||
             samus.KnockbackActive)
         {
             return false;
@@ -78,7 +78,7 @@ public static class SamusKnockbackMovement
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackXDirection));
         if (launch.KnockbackTimer.IsZero)
             throw new ArgumentOutOfRangeException(nameof(launch.KnockbackTimer));
-        if (samus.KnockbackActive || samus.KnockbackDirection != 0)
+        if (samus.KnockbackActive || samus.KnockbackDirection != SamusKnockbackDirection.None)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
         SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
@@ -168,7 +168,7 @@ level, targetPose, nmiFrameCounter, plms))
         samus.KnockbackXDirection = launch.KnockbackXDirection;
         if (morphed)
         {
-            samus.KnockbackDirection = facingLeft ? (ushort)1 : (ushort)2;
+            samus.KnockbackDirection = facingLeft ? SamusKnockbackDirection.UpLeft : SamusKnockbackDirection.UpRight;
         }
         else
         {
@@ -176,8 +176,8 @@ level, targetPose, nmiFrameCounter, plms))
                 ? (controllerInput & SnesButton.Left) != 0
                 : (controllerInput & SnesButton.Right) != 0;
             samus.KnockbackDirection = launch.KnockbackXDirection == KnockbackHorizontalDirection.Left
-                ? forwardHeld ? (ushort)4 : (ushort)1
-                : forwardHeld ? (ushort)5 : (ushort)2;
+                ? forwardHeld ? SamusKnockbackDirection.DownLeft : SamusKnockbackDirection.UpLeft
+                : forwardHeld ? SamusKnockbackDirection.DownRight : SamusKnockbackDirection.UpRight;
         }
 
         // Enemy and enemy-projectile collision normally publish five, which is the default
@@ -227,8 +227,8 @@ level, targetPose, nmiFrameCounter, plms))
         Ensure.NotNull(samus);
         if (!samus.KnockbackActive)
             throw new InvalidOperationException("Knockback movement requires the special handler to be active.");
-        if (samus.KnockbackDirection is not (1 or 2 or 4 or 5))
-            throw new InvalidOperationException($"Invalid knockback direction ${samus.KnockbackDirection:X4}.");
+        if (samus.KnockbackDirection is not (SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight or SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight))
+            throw new InvalidOperationException($"Invalid knockback direction {samus.KnockbackDirection}.");
 
         // The movement pointer remains installed even on the zero-timer frame.
         // Expiry belongs to the post-animation hit interruption, not this mover.
@@ -246,14 +246,14 @@ level, targetPose, nmiFrameCounter, plms))
         if (horizontal.Collided)
             speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
 
-        BlockMoveResult vertical = samus.KnockbackDirection is 1 or 2
+        BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, nmiFrameCounter, plms)
             : MoveDownWithoutSpeedCalculation(level, samus, nmiFrameCounter, plms);
 
         // `$91:F010` observes these words inside downward collision, before `$90:DF6E`
         // clears them. Preserve the impact snapshot in the typed result so the runtime can
         // execute the shared landing-presentation routine at the same logical seam.
-        bool landed = samus.KnockbackDirection is 4 or 5 && vertical.Collided;
+        bool landed = samus.KnockbackDirection is SamusKnockbackDirection.DownLeft or SamusKnockbackDirection.DownRight && vertical.Collided;
         ushort impactYSpeed = samus.Kinematics.YSpeed;
         ushort impactYSubspeed = samus.Kinematics.YSubspeed;
 
@@ -358,7 +358,7 @@ level, targetPose, nmiFrameCounter, plms))
     public static bool IsExpiredHitInterruptionPending(SamusState samus)
     {
         Ensure.NotNull(samus);
-        return samus.KnockbackTimer.IsZero && samus.KnockbackDirection != 0;
+        return samus.KnockbackTimer.IsZero && samus.KnockbackDirection != SamusKnockbackDirection.None;
     }
 
     /// <summary>
@@ -408,7 +408,7 @@ level, targetPose, nmiFrameCounter, plms))
         // Exact `$91:F31D` cleanup shared by humanoid and morphed completion. The falling
         // flag has no independent host field yet; Y-direction two is its movement-visible
         // publication and is consumed by every translated normal/ball dispatcher.
-        samus.KnockbackDirection = 0;
+        samus.KnockbackDirection = SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         samus.MorphBallBounceState = SamusBallBounceState.None;
         samus.Kinematics.YSubspeed = 0;

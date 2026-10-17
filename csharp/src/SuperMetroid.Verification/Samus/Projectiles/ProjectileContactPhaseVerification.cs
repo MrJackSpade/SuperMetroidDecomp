@@ -57,7 +57,7 @@ internal static class ProjectileContactPhaseVerification
         {
             runtime.StepFrame(0);
             var actual = (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
-                samus.KnockbackTimer.RawValue, samus.KnockbackDirection);
+                samus.KnockbackTimer.RawValue, (ushort)samus.KnockbackDirection);
             Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer.RawValue} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");

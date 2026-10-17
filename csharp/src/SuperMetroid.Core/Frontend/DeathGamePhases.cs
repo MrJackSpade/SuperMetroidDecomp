@@ -112,7 +112,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
             if (session.deathFadeBrightness == 1)
                 session.deathFadeBrightness = 0;
             else if (session.deathFadeBrightness != 0)
-                session.deathFadeBrightness = NativeWordCounter.DecrementByte(session.deathFadeBrightness);
+                session.deathFadeBrightness--;
         }
         else
         {

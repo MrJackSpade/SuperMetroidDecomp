@@ -129,24 +129,24 @@ internal sealed class FrontendSession
     internal bool loadingExistingSave;
     /// <summary>Save state retained for restart after the Space-Time intro sequence.</summary>
     internal SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
-    /// <summary>Brightness during the fade into Landing Site or Ceres arrival.</summary>
-    internal byte postCeresFadeBrightness;
+    /// <summary>Brightness during the fade into Landing Site or Ceres arrival, 0 (black) through 15.</summary>
+    internal int postCeresFadeBrightness;
     /// <summary>Cadence counter for the post-Ceres fade.</summary>
     internal int postCeresFadeCounter = 1;
     /// <summary>Selects Ceres arrival rather than Landing Site at the fade destination.</summary>
     internal bool gameplayFadeLeadsToCeresArrival;
-    /// <summary>Gameplay brightness retained through pause and unpause fades.</summary>
-    internal byte pauseBrightness = PauseFadeTiming.FullyLit;
+    /// <summary>Gameplay brightness retained through pause and unpause fades, 0 (black) through 15.</summary>
+    internal int pauseBrightness = PauseFadeTiming.FullyLit;
     /// <summary>Palette transition for Samus's death sequence, when active.</summary>
     internal CartridgePaletteTransition? deathPaletteFade;
     /// <summary>Palette transition for the escape time-up sequence.</summary>
     internal CartridgePaletteTransition? timeUpPaletteFade;
-    /// <summary>Brightness during the death-state blackout.</summary>
-    internal byte deathFadeBrightness = 15;
+    /// <summary>Brightness during the death-state blackout, 0 (black) through 15.</summary>
+    internal int deathFadeBrightness = 15;
     /// <summary>Cadence counter for the death fade.</summary>
     internal int deathFadeCounter;
-    /// <summary>Brightness during the ending transition after Zebes escape.</summary>
-    internal byte endingFadeBrightness = 15;
+    /// <summary>Brightness during the ending transition after Zebes escape, 0 (black) through 15.</summary>
+    internal int endingFadeBrightness = 15;
     /// <summary>Cadence counter for the ending fade.</summary>
     internal int endingFadeCounter;
     /// <summary>The most recent update's ordered semantic audio events; the session has already rendered them.</summary>
@@ -318,15 +318,15 @@ internal sealed class FrontendSession
         GameState = SuperMetroidGameState.SamusEscapesFromZebes;
     }
     /// <summary>Writes frontend brightness and retains its last level for pause fades.</summary>
-    internal void ApplyDisplayBrightness(byte brightness)
+    internal void ApplyDisplayBrightness(int brightness)
     {
         // Every published level is a write of the brightness register $51; pause entry
         // fades from the last one.
         pauseBrightness = brightness;
-        display.ApplyBrightness(brightness);
+        display.ApplyBrightness(checked((byte)brightness));
     }
     /// <summary>Starts a pause fade from <paramref name="initialBrightness"/> with both fade words reloaded.</summary>
-    internal void BeginPauseFade(byte initialBrightness)
+    internal void BeginPauseFade(int initialBrightness)
     {
         pauseBrightness = initialBrightness;
         screenFade.Reload();

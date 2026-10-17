@@ -180,7 +180,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         if (session.endingFadeCounter-- <= 0)
         {
             session.endingFadeCounter = 0;
-            session.endingFadeBrightness = (byte)Math.Max(0, session.endingFadeBrightness - 1);
+            session.endingFadeBrightness = Math.Max(0, session.endingFadeBrightness - 1);
         }
         session.ApplyDisplayBrightness(session.endingFadeBrightness);
         if (session.endingFadeBrightness == 0)

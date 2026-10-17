@@ -89,7 +89,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
         if (session.postCeresFadeCounter-- <= 0)
         {
             session.postCeresFadeCounter = 1;
-            session.postCeresFadeBrightness = (byte)Math.Min(
+            session.postCeresFadeBrightness = Math.Min(
                 15,
                 session.postCeresFadeBrightness + 1);
             if (session.postCeresFadeBrightness == 15)

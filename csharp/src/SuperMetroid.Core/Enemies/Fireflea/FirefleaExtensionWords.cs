@@ -7,12 +7,12 @@ namespace SuperMetroid.Core.Enemies.Fireflea;
 /// </summary>
 internal sealed class FirefleaExtensionWords
 {
-    /// <summary>Lower vertical travel bound.</summary>
-    internal ushort MinimumYPosition { get; set; }
+    /// <summary>Upper vertical travel extent; only its Y is meaningful.</summary>
+    internal Position16<RoomPixels> MinimumYExtent { get; set; }
 
-    /// <summary>Upper vertical travel bound.</summary>
-    internal ushort MaximumYPosition { get; set; }
+    /// <summary>Lower vertical travel extent; only its Y is meaningful.</summary>
+    internal Position16<RoomPixels> MaximumYExtent { get; set; }
 
-    /// <summary>Current signed speed-table entries, toggled when a vertical bound is crossed.</summary>
-    internal ushort SpeedTableIndex { get; set; }
+    /// <summary>Byte offset of the current signed speed-table entry, toggled when a vertical extent is crossed.</summary>
+    internal int SpeedTableIndex { get; set; }
 }

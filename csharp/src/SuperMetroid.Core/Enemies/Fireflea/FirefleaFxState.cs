@@ -13,8 +13,8 @@ public sealed class FirefleaFxState
     /// <summary><c>FirefleaFlashing_Index</c>: the current flashing-table element index.</summary>
     public ushort Index { get; private set; }
 
-    /// <summary><c>FirefleaFlashing_DarknessLevel</c>: the level published from the enemy-owned death counter.</summary>
-    public ushort Darkness { get; private set; }
+    /// <summary><c>FirefleaFlashing_DarknessLevel</c>: the level published from the enemy-owned death counter, an even darkness-table byte offset 0 through 12.</summary>
+    public int Darkness { get; private set; }
 
     /// <summary>Seeds the initial flash duration, first shade index, and undarkened room state.</summary>
     internal void Initialize()
@@ -28,7 +28,7 @@ public sealed class FirefleaFxState
     /// Samples enemy-owned darkness, advances the flash clock unless frozen, and writes the shared fixed colour using
     /// native 16-bit shade addition, including the seventh offset value.
     /// </summary>
-    internal void Step(FixedColorState fixedColor, bool frozen, ushort darkness)
+    internal void Step(FixedColorState fixedColor, bool frozen, int darkness)
     {
         Ensure.NotNull(fixedColor);
         Darkness = darkness;

@@ -48,11 +48,12 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial
         // circle angle. Parameter two (`init1`) packs speed index low and radius index high.
-        ushort speedTableIndex = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter2)) * 8));
+        int speedTableIndex = SnesLittleEndian.LowByte(slot.Parameter2) * 8;
         if ((slot.Parameter1 & 1) == 0)
-            speedTableIndex = unchecked((ushort)(speedTableIndex + 4));
+            speedTableIndex += 4;
         state.SpeedTableIndex = speedTableIndex;
-        (state.AngleDelta, state.SubAngleDelta) = EnemyMath.ReadLinearEnemySpeed(speedTableIndex);
+        (short angularWhole, ushort angularFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableIndex));
+        state.AngularSpeed = SnesSignedSixteenSixteen.FromParts(angularWhole, angularFraction);
 
         byte radiusIndex = SnesLittleEndian.HighByte(slot.Parameter2);
         state.Radius = FirefleaMovementDefinitions.Radius(radiusIndex);
@@ -60,17 +61,19 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.UsesCircularMovement)
         {
             state.Center = slot.Position.Whole;
-            state.Angle = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Parameter1)));
+            state.Angle = SnesAngle.FromRaw(unchecked((ushort)(SnesLittleEndian.HighByteInPlace(slot.Parameter1))));
 
             // The initializer passes the complete 8.8 angle word to an eight-bit routine,
             // which reads its low byte. That is the retail missing-division bug; main AI
             // begins using the high byte on frame one and corrects the position immediately.
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle, state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.RawValue, checked((ushort)state.Radius)));
             return;
         }
 
-        state.MinimumYPosition = unchecked((ushort)(slot.Position.Y.Whole - state.Radius));
-        state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.Radius));
+        var spawnY = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
+        var reach = new Offset16<RoomPixels>(0, checked((short)state.Radius));
+        state.MinimumYExtent = spawnY - reach;
+        state.MaximumYExtent = spawnY + reach;
     }
 
     /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>, advancing circular angle or wrapped vertical travel.</summary>
@@ -78,20 +81,18 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (state.UsesCircularMovement)
         {
-            ushort angle = SnesAngle.FromRaw(state.Angle).TableIndex;
-            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(angle, state.Radius));
+            slot.Position = slot.Position.WithWhole(state.Center + EnemyMath.CircleOffset(state.Angle.TableIndex, checked((ushort)state.Radius)));
 
-            // `$A3:8E2D` performs an unaligned word read at var0+1. Combining the high byte
-            // of sub-angle with the low byte of whole-angle reproduces that exact signed 8.8
-            // delta, including negative half-speeds such as `$FF80`.
-            ushort packedDelta = unchecked((ushort)(
-                SnesEightEight.FromWhole(state.AngleDelta) | SnesLittleEndian.HighByte(state.SubAngleDelta)));
-            state.Angle = unchecked((ushort)(state.Angle + packedDelta));
+            // `$A3:8E2D` performs an unaligned word read at var0+1: the speed's middle sixteen
+            // bits, the high byte of its fraction under the low byte of its whole part. That
+            // reproduces the exact signed 8.8 delta, including negative half-speeds.
+            SnesSignedSixteenSixteen speed = state.AngularSpeed;
+            state.Angle = state.Angle.AddRaw(SnesEightEight.FromSixteenSixteen(speed.WholePixels, speed.Fraction));
             return;
         }
 
         (short wholeSpeed, ushort fractionalSpeed) =
-            EnemyMath.ReadLinearEnemySpeed(state.SpeedTableIndex);
+            EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.SpeedTableIndex));
         uint fixedY = slot.Position.Y.RawValue;
         int displacement = (SnesSixteenSixteen.FromWhole(wholeSpeed)) | fractionalSpeed;
         fixedY = unchecked(fixedY + (uint)displacement);
@@ -100,10 +101,8 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // Native CMP/BMI and CMP/BPL consume wrapped signed subtraction, not ordinary host
         // bounds comparisons. The actor is intentionally allowed to overshoot before XOR
         // bit two switches between the adjacent positive/negative table entries.
-        bool crossedMinimum = unchecked((short)(
-            slot.Position.Y.Whole - state.MinimumYPosition)) < 0;
-        bool reachedMaximum = unchecked((short)(
-            slot.Position.Y.Whole - state.MaximumYPosition)) >= 0;
+        bool crossedMinimum = (slot.Position.Whole - state.MinimumYExtent).Y < 0;
+        bool reachedMaximum = (slot.Position.Whole - state.MaximumYExtent).Y >= 0;
         if (crossedMinimum || reachedMaximum)
             state.SpeedTableIndex ^= 4;
     }

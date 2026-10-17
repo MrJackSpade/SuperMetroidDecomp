@@ -24,9 +24,9 @@ internal static class FirefleaFxDefinitions
     /// <remarks>Independently checked for #1165 against every original NTSC J/U v1.0
     /// word and pinned bank_88.asm. The six-frame timer and phase wrap are caller-owned;
     /// this exact integer wave requires no sampled floating-point construction.</remarks>
-    internal static ushort FlashingShade(ushort index)
+    internal static ushort FlashingShade(int index)
     {
-        if (index >= FlashCount)
+        if (index is < 0 or >= FlashCount)
         {
             throw new InvalidDataException(
                 $"Fireflea flashing index {index} is outside the {FlashCount}-entry native cycle.");
@@ -41,9 +41,9 @@ internal static class FirefleaFxDefinitions
     /// Offset 12 reads PHP/REP opcode bytes, not an extrapolated ramp value. The death
     /// counter permits that offset. Reject odd offsets and offsets above 12; retain the
     /// caller's wrapped 16-bit flash-plus-darkness addition before taking the high byte.</remarks>
-    internal static ushort DarknessShade(ushort byteOffset)
+    internal static ushort DarknessShade(int byteOffset)
     {
-        if ((byteOffset & 1) != 0 || byteOffset > 12)
+        if ((byteOffset & 1) != 0 || byteOffset is < 0 or > 12)
         {
             throw new InvalidDataException(
                 $"Fireflea darkness byte offset {byteOffset} is outside the retail 0-through-12 even domain.");

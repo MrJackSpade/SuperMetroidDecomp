@@ -41,7 +41,7 @@ internal static class ShutterRidingVerification
                 runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : (ushort)0);
             AssertEqual(VerticalShutterFunction.PermanentNoOp, (state ?? throw new InvalidOperationException("Verification requires state.")).Function,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
-            AssertEqual(state.MinimumYPosition, platform.Position.Y.Whole, "shutter reaches the authored upper Y");
+            AssertEqual(state.UpperEndpoint.Y, platform.Position.Y.Whole, "shutter reaches the authored upper Y");
             AssertEqual(0, platform.Position.Y.Whole - platform.Radius.Y - samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
                 "Morph Ball remains on the stopped shutter, not inside it");
             for (int frame = 0; frame < 30; frame++)

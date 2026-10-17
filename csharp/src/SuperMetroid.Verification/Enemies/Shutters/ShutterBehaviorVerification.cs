@@ -228,6 +228,58 @@ internal static class ShutterBehaviorVerification
         AssertEqual(left, state.LeftVelocity, "leftward velocity round-trips through its own slot words");
     }
 
+    /// <summary>
+    /// A vertical shutter's travel endpoints are room positions offset from its spawn position by the travel
+    /// distance, wrapping at sixteen bits: an upward shutter spawned five pixels below the room's top edge ends its
+    /// travel at the wrapped Y, and a downward one spawned near the bottom limit wraps past zero. Its two velocities
+    /// are the selected linear-speed record's downward and upward entries.
+    /// </summary>
+    internal static void VerifyVerticalShutterEndpoints()
+    {
+        const byte travelDistance = 16;
+        const byte speedIndex = 3;
+        const ushort spawnX = 100;
+        Confirm(primaryDirection: 0, spawnY: 5, expectedUpperY: 65525, expectedLowerY: 5);
+        Confirm(primaryDirection: 1, spawnY: 65530, expectedUpperY: 65530, expectedLowerY: 10);
+
+        static void Confirm(byte primaryDirection, ushort spawnY, ushort expectedUpperY, ushort expectedLowerY)
+        {
+            var enemies = new RoomEnemySystem();
+            enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
+            RoomEnemySlot slot = NewSlot(enemies, EnemyDefinitionId.ShutterShootable);
+            slot.Position = FixedPosition<RoomPixels>.FromWhole(new Position16<RoomPixels>(spawnX, spawnY));
+            slot.CurrentInstruction = SnesLittleEndian.Word(speedIndex, primaryDirection);
+            slot.Parameter1 = SnesLittleEndian.Word(0, travelDistance);
+            ShuttersBehavior.InitializeVerticalShutter(slot);
+            VerticalShutterEnemyState state = slot.SpeciesState<VerticalShutterEnemyState>()
+                ?? throw new InvalidOperationException("Verification requires the vertical shutter state.");
+            string context = $"primary direction {primaryDirection} at Y {spawnY}";
+            AssertEqual(new Position16<RoomPixels>(spawnX, expectedUpperY), state.UpperEndpoint, $"{context}: upper endpoint");
+            AssertEqual(new Position16<RoomPixels>(spawnX, expectedLowerY), state.LowerEndpoint, $"{context}: lower endpoint");
+            (short downWhole, ushort downFraction) = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8);
+            (short upWhole, ushort upFraction) = EnemyMath.ReadLinearEnemySpeed(speedIndex * 8 + 4);
+            AssertEqual(SnesSignedSixteenSixteen.FromParts(downWhole, downFraction), state.DownVelocity,
+                $"{context}: downward velocity is the speed record's first entry");
+            AssertEqual(SnesSignedSixteenSixteen.FromParts(upWhole, upFraction), state.UpVelocity,
+                $"{context}: upward velocity is the speed record's second entry");
+        }
+    }
+
+    /// <summary>
+    /// The downward and upward 16.16 velocities each round-trip exactly through their own pair of slot words,
+    /// including a negative whole word and a full fraction, and writing one leaves the other unchanged.
+    /// </summary>
+    internal static void VerifyVerticalShutterVelocityWords()
+    {
+        var state = new VerticalShutterEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        SnesSignedSixteenSixteen down = SnesSignedSixteenSixteen.FromParts(-2, 40000);
+        SnesSignedSixteenSixteen up = SnesSignedSixteenSixteen.FromParts(short.MinValue, ushort.MaxValue);
+        state.DownVelocity = down;
+        state.UpVelocity = up;
+        AssertEqual(down, state.DownVelocity, "downward velocity round-trips through its slot words");
+        AssertEqual(up, state.UpVelocity, "upward velocity round-trips through its own slot words");
+    }
+
     /// <summary>Number of authored growing-shutter speed records.</summary>
     private const int GrowingShutterSpeedRecordCount = 24;
 
@@ -241,6 +293,8 @@ internal static class ShutterBehaviorVerification
         Suite(nameof(VerifyGrowingShutterUpwardVelocity), () => VerifyGrowingShutterUpwardVelocity());
         Suite(nameof(VerifyHorizontalShutterEndpoints), () => VerifyHorizontalShutterEndpoints());
         Suite(nameof(VerifyHorizontalShutterVelocityWords), () => VerifyHorizontalShutterVelocityWords());
+        Suite(nameof(VerifyVerticalShutterEndpoints), () => VerifyVerticalShutterEndpoints());
+        Suite(nameof(VerifyVerticalShutterVelocityWords), () => VerifyVerticalShutterVelocityWords());
         Suite(nameof(ShutterAnimationsVerification.VerifyShutterAnimations), () => ShutterAnimationsVerification.VerifyShutterAnimations(rom));
         Suite(nameof(VerifyShutterExportFrames), () => VerifyShutterExportFrames(rom));
         return 0;

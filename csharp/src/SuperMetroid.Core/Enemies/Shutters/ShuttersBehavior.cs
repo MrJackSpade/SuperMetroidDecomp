@@ -811,10 +811,8 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ReactionDirection = state.PrimaryDirection;
 
         int speedRecordOffset = state.SpeedTableIndex * 8;
-        (state.DownVelocity, state.DownSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
-            unchecked((ushort)speedRecordOffset));
-        (state.UpVelocity, state.UpSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
-            unchecked((ushort)(speedRecordOffset + 4)));
+        state.DownVelocity = ReadShutterLinearSpeed(speedRecordOffset);
+        state.UpVelocity = ReadShutterLinearSpeed(speedRecordOffset + 4);
 
         state.MovedUpRestParameter = SnesLittleEndian.LowByte(slot.ExtraProperties.ToNativeWord());
         state.MovedDownRestParameter = SnesLittleEndian.HighByte(slot.ExtraProperties.ToNativeWord());
@@ -832,12 +830,14 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.HorizontalProximityOrWaitTime = slot.Parameter2;
         state.FunctionTimer = NativeCountdown.FromRaw(slot.Parameter2);
 
-        state.MinimumYPosition = slot.Position.Y.Whole;
-        state.MaximumYPosition = unchecked((ushort)(slot.Position.Y.Whole + state.TravelDistance));
+        Position16<RoomPixels> spawn = slot.Position.Whole;
+        var travel = new Offset16<RoomPixels>(0, checked((short)state.TravelDistance));
+        state.UpperEndpoint = spawn;
+        state.LowerEndpoint = spawn + travel;
         if (state.PrimaryDirection == 0)
         {
-            state.MaximumYPosition = slot.Position.Y.Whole;
-            state.MinimumYPosition = unchecked((ushort)(slot.Position.Y.Whole - state.TravelDistance));
+            state.LowerEndpoint = spawn;
+            state.UpperEndpoint = spawn - travel;
         }
 
         state.Function = VerticalShutterFunction.Initial;
@@ -953,7 +953,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
-    /// <summary>Moves toward minimum Y, carrying Samus when riding the shutter.</summary>
+    /// <summary>Moves toward the upper endpoint, carrying Samus when riding the shutter.</summary>
     private static void MoveVerticalShutterUp(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -961,15 +961,15 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousPosition = slot.Position.Whole;
         state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(slot, samus);
-        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromParts(state.UpVelocity, state.UpSubvelocity));
+        slot.Position = slot.Position.AdvanceY(state.UpVelocity);
         CarrySamusVertically(slot, state, samus);
 
-        if (unchecked((short)(state.MinimumYPosition - slot.Position.Y.Whole)) < 0)
+        if ((state.UpperEndpoint - slot.Position.Whole).Y < 0)
             return;
         StopVerticalShutterAfterUp(state);
     }
 
-    /// <summary>Moves toward maximum Y, carrying Samus when riding the shutter.</summary>
+    /// <summary>Moves toward the lower endpoint, carrying Samus when riding the shutter.</summary>
     private static void MoveVerticalShutterDown(
         RoomEnemySlot slot,
         VerticalShutterEnemyState state,
@@ -977,10 +977,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.PreviousPosition = slot.Position.Whole;
         state.MovingSamus = PlatformsBehavior.IsSamusRidingPlatform(slot, samus);
-        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromParts(state.DownVelocity, state.DownSubvelocity));
+        slot.Position = slot.Position.AdvanceY(state.DownVelocity);
         CarrySamusVertically(slot, state, samus);
 
-        if (unchecked((short)(state.MaximumYPosition - slot.Position.Y.Whole)) > 0)
+        if ((state.LowerEndpoint - slot.Position.Whole).Y > 0)
             return;
         StopVerticalShutterAfterDown(state);
     }

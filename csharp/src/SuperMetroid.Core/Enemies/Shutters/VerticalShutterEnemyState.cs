@@ -27,14 +27,33 @@ public sealed class VerticalShutterEnemyState
 
     /// <summary>Variable B: wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed underflow.</summary>
     public NativeCountdown FunctionTimer { get => NativeCountdown.FromRaw(_slot.VariableB); internal set => _slot.VariableB = value.RawValue; }
-    /// <summary>Variable C: low word of downward 16.16 pixels-per-update velocity, whose carry contributes to the whole-pixel movement.</summary>
-    public ushort DownSubvelocity { get => _slot.VariableC; internal set => _slot.VariableC = value; }
-    /// <summary>Variable D: signed high word of downward 16.16 pixels-per-update velocity from the common linear-speed table.</summary>
-    public short DownVelocity { get => unchecked((short)_slot.VariableD); internal set => _slot.VariableD = unchecked((ushort)value); }
-    /// <summary>Variable E: low word of the signed upward 16.16 velocity; it is added with the negative whole word, not independently negated.</summary>
-    public ushort UpSubvelocity { get => _slot.VariableE; internal set => _slot.VariableE = value; }
-    /// <summary>Variable F: signed high word of upward 16.16 pixels-per-update velocity.</summary>
-    public short UpVelocity { get => unchecked((short)_slot.VariableF); internal set => _slot.VariableF = unchecked((ushort)value); }
+    /// <summary>
+    /// Downward signed 16.16 velocity in pixels per update, from the common linear-speed table. Its fraction and
+    /// whole halves stay in variables C and D, which other enemies' aliased enemy-RAM reads can observe.
+    /// </summary>
+    public SnesSignedSixteenSixteen DownVelocity
+    {
+        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableD), _slot.VariableC);
+        internal set
+        {
+            _slot.VariableC = value.Fraction;
+            _slot.VariableD = value.WholeWord;
+        }
+    }
+
+    /// <summary>
+    /// Upward signed 16.16 velocity in pixels per update; its fraction is added together with the negative whole
+    /// part, not negated independently. The halves stay in variables E and F for the same aliased reads.
+    /// </summary>
+    public SnesSignedSixteenSixteen UpVelocity
+    {
+        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableF), _slot.VariableE);
+        internal set
+        {
+            _slot.VariableE = value.Fraction;
+            _slot.VariableF = value.WholeWord;
+        }
+    }
 
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record containing the downward and upward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
@@ -62,10 +81,10 @@ public sealed class VerticalShutterEnemyState
     public bool ShotActivated { get; internal set; }
     /// <summary>The shutter's whole-pixel position saved before its current move to derive the rider's wrapped vertical displacement.</summary>
     public Position16<RoomPixels> PreviousPosition { get; internal set; }
-    /// <summary>Upper whole-pixel travel boundary derived from spawn Y and travel distance; upward movement stops upon reaching or passing it.</summary>
-    public ushort MinimumYPosition { get; internal set; }
-    /// <summary>Lower whole-pixel travel boundary derived from spawn Y and travel distance; downward movement stops upon reaching or passing it.</summary>
-    public ushort MaximumYPosition { get; internal set; }
+    /// <summary>Upper whole-pixel travel endpoint derived from spawn position and travel distance; upward motion stops upon reaching or passing its Y.</summary>
+    public Position16<RoomPixels> UpperEndpoint { get; internal set; }
+    /// <summary>Lower whole-pixel travel endpoint derived from spawn position and travel distance; downward motion stops upon reaching or passing its Y.</summary>
+    public Position16<RoomPixels> LowerEndpoint { get; internal set; }
     /// <summary>Next reaction's direction selector, 0 through 255, initially the primary direction: zero moves up, any other value moves down, then bit zero is toggled.</summary>
     public int ReactionDirection { get; internal set; }
 }

@@ -141,12 +141,12 @@ internal static class ShutterNativeArc
         }
         var shutter = runtime.Enemies.VerticalShutterStates[0];
         Word(0xFA8, (ushort)(shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function);
-        Word(0xFB0, shutter.UpSubvelocity); Word(0xFB2, unchecked((ushort)shutter.UpVelocity));
-        Word(0xFAC, shutter.DownSubvelocity); Word(0xFAE, unchecked((ushort)shutter.DownVelocity));
+        Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.WholeWord);
+        Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.WholeWord);
         Word(0x780E, shutter.InitialFunctionTableOffset); Word(0x7818, shutter.ShotActivated ? 1 : 0);
-        Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.MaximumYPosition);
+        Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.LowerEndpoint.Y);
         Word(0x8000, shutter.ReactionDirection);
-        Word(0x781E, shutter.MinimumYPosition); Word(0x7810, shutter.MovedUpRestTime);
+        Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, shutter.MovedUpRestTime);
         File.WriteAllBytes(path, ram);
 
         void Word(int address, int value) => BinaryPrimitives.WriteUInt16LittleEndian(ram.AsSpan(address, 2), unchecked((ushort)value));

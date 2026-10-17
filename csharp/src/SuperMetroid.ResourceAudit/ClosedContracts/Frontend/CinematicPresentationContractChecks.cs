@@ -37,9 +37,9 @@ internal static class CinematicPresentationContractChecks
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteArtwork timerArtwork) {
                     palette.Apply(cgram);
                     gradient.Resolve(ushort.MaxValue);
-                    title.DrawSprite(TitleSequenceRomData.Sprites.SuperMetroidLogo, oam, default, 0);
-                    title.DrawSprite(TitleSequenceRomData.Sprites.Blank, oam, default, 0);
-                    title.DrawSprite(ushort.MaxValue, oam, default, 0);
+                    title.DrawSprite(TitleSprite.SuperMetroidLogo, oam, default, 0);
+                    title.DrawSprite((TitleSprite)(-1), oam, default, 0);
+                    title.DrawSprite((TitleSprite)31, oam, default, 0);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount);
                     caret.Draw(IntroCaretSpriteDefinitions.Still, oam, default, 0);
@@ -86,7 +86,7 @@ internal static class CinematicPresentationContractChecks
         Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlayTilemapCatalog.TryResolve") == 3,
             "unsupported overlay source/length queries validly return false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
-            "blank timed entries and arbitrary pointers must not be accepted as loaded title compositions");
+            "undefined title compositions must not be accepted as loaded title compositions");
 
         SyntaxTree externalUse = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Areas.Escape.Artwork;

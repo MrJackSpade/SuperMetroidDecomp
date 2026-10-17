@@ -18,6 +18,8 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Frontend/Title/Artwork/TitleSpriteDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCardStep.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSprite.cs"),
+             new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleCards.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Title/TitleSequenceRomData.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroEyeTilemapPresentation", "intro-complete-eye-rectangles", ["FrameWords"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEyeTilemapPresentation.cs")]),

@@ -11,8 +11,8 @@ public sealed class TitleGraphicsPresentation
 {
     /// <summary>Owned Mode-7 title characters and map, OBJ characters, and baby character page.</summary>
     private readonly byte[] mode7Characters, mode7Map, objectCharacters, babyCharacters;
-    /// <summary>Compiled OAM compositions keyed by cartridge-selected bank-$8C pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> sprites;
+    /// <summary>Compiled OAM compositions keyed by title composition.</summary>
+    private readonly Dictionary<TitleSprite, SpriteComposition> sprites;
 
     /// <summary>Retains validated title transfer bytes and compiled sprite compositions.</summary>
     private TitleGraphicsPresentation(
@@ -20,7 +20,7 @@ public sealed class TitleGraphicsPresentation
         byte[] mode7Map,
         byte[] objectCharacters,
         byte[] babyCharacters,
-        Dictionary<ushort, SpriteComposition> sprites)
+        Dictionary<TitleSprite, SpriteComposition> sprites)
     {
         this.mode7Characters = mode7Characters;
         this.mode7Map = mode7Map;
@@ -38,11 +38,11 @@ public sealed class TitleGraphicsPresentation
     /// <summary>Separate eight-bit Mode-7 character page for the baby Metroid scene.</summary>
     public ReadOnlySpan<byte> BabyCharacters => babyCharacters;
 
-    /// <summary>Draws one ROM-selected title frame from installed composition data.</summary>
-    public void DrawSprite(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>Draws one title composition from installed composition data.</summary>
+    public void DrawSprite(TitleSprite sprite, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (!sprites.TryGetValue(pointer, out SpriteComposition? composition))
-            throw new InvalidDataException($"Title spritemap $8C:{pointer:X4} is missing from installed artwork.");
+        if (!sprites.TryGetValue(sprite, out SpriteComposition? composition))
+            throw new InvalidDataException($"Title composition {sprite} is missing from installed artwork.");
         composition.DrawOnScreen(oam, origin, paletteBits);
     }
 
@@ -94,7 +94,7 @@ public sealed class TitleGraphicsPresentation
                 $"{TitleGraphicsFormat.MapWidth}x{TitleGraphicsFormat.MapHeight} cells, and eight-bit tile indexes.");
         }
 
-        Dictionary<ushort, SpriteComposition> sprites = CompileSprites(map.Sprites);
+        Dictionary<TitleSprite, SpriteComposition> sprites = CompileSprites(map.Sprites);
 
         return new TitleGraphicsPresentation(
             SnesMode7TileEncoder.Encode(mode7.Pixels, mode7.Size),
@@ -131,17 +131,17 @@ public sealed class TitleGraphicsPresentation
         json.Write(bytes);
     }
 
-    /// <summary>Validates the full native title-frame pointer set and compiles each editable part into OAM words.</summary>
-    private static Dictionary<ushort, SpriteComposition> CompileSprites(TitleSpriteFrame[]? frames)
+    /// <summary>Validates the full title composition set and compiles each editable part into OAM words.</summary>
+    private static Dictionary<TitleSprite, SpriteComposition> CompileSprites(TitleSpriteFrame[]? frames)
     {
         if (frames is null || frames.Length != TitleGraphicsFormat.SpriteFrameCount)
-            throw new InvalidDataException("Title composition requires all 31 cartridge-selected sprite frames.");
-        var result = new Dictionary<ushort, SpriteComposition>();
+            throw new InvalidDataException("Title composition requires all 31 title sprite frames.");
+        var result = new Dictionary<TitleSprite, SpriteComposition>();
         foreach (TitleSpriteFrame frame in frames)
         {
-            if (frame is null || frame.Pointer < SnesBusLayout.RomWindowStart || frame.Parts is null ||
+            if (frame is null || !Enum.IsDefined(frame.Sprite) || frame.Parts is null ||
                 frame.Parts.Length > TitleGraphicsFormat.MaximumSpriteParts)
-                throw new InvalidDataException("Title composition has an invalid frame pointer or part count.");
+                throw new InvalidDataException("Title composition has an undefined frame name or an invalid part count.");
             var parts = new CompiledSpritePart[frame.Parts.Length];
             for (int index = 0; index < parts.Length; index++)
             {
@@ -152,7 +152,7 @@ public sealed class TitleGraphicsPresentation
                     part.TileRow < 0 || part.TileRow >= TitleGraphicsFormat.ObjectTileRows ||
                     part.TileColumn % 16 > 16 - part.Size / 8 ||
                     part.TileRow > TitleGraphicsFormat.ObjectTileRows - part.Size / 8)
-                    throw new InvalidDataException($"Title frame $8C:{frame.Pointer:X4} part {index} is invalid.");
+                    throw new InvalidDataException($"Title frame {frame.Sprite} part {index} is invalid.");
                 int tile = part.TileRow * TitleGraphicsFormat.ObjectTileColumns + part.TileColumn;
                 var attributes = SnesObjAttributeWord.Create(tile, 0, part.Priority,
                     (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) |
@@ -160,17 +160,17 @@ public sealed class TitleGraphicsPresentation
                 parts[index] = new(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16),
                     unchecked((byte)(sbyte)part.OffsetY), attributes, InheritPalette: true);
             }
-            if (!result.TryAdd(checked((ushort)frame.Pointer), new SpriteComposition(parts)))
-                throw new InvalidDataException($"Duplicate title frame $8C:{frame.Pointer:X4}.");
+            if (!result.TryAdd(frame.Sprite, new SpriteComposition(parts)))
+                throw new InvalidDataException($"Duplicate title frame {frame.Sprite}.");
         }
-        // A correctly sized document can still replace a required selector with an
-        // unrelated identity. Validate the engine's whole selection set now, before
-        // any title frame runs, rather than failing later in DrawSprite.
-        foreach (ushort pointer in TitleSpriteDefinitions.NativePointers)
-            if (!result.ContainsKey(pointer))
+        // A correctly sized document can still repeat one composition in place of
+        // another. Validate the engine's whole composition set now, before any title
+        // frame runs, rather than failing later in DrawSprite.
+        foreach (TitleSprite sprite in TitleSpriteDefinitions.All)
+            if (!result.ContainsKey(sprite))
                 throw new InvalidDataException(
-                    $"Title composition is missing required frame $8C:{pointer:X4}; " +
-                    "keep the compiled frame identities when editing visual parts.");
+                    $"Title composition is missing required frame {sprite}; " +
+                    "keep the frame names when editing visual parts.");
         return result;
     }
 }

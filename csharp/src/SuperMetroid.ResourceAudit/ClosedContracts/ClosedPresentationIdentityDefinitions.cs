@@ -51,7 +51,7 @@ internal static class ClosedPresentationIdentityDefinitions
         ("EndingTextPresentation", "Compile", "sequence") => Enum.GetValues<EndingTextSequence>().Select(id => (int)id).ToArray(),
         ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.NativeId).ToArray(),
         ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
-        ("TitleGraphicsPresentation", "DrawSprite", "pointer") => TitleSpriteDefinitions.NativePointers.Select(pointer => (int)pointer).ToArray(),
+        ("TitleGraphicsPresentation", "DrawSprite", "sprite") => TitleSpriteDefinitions.All.Select(sprite => (int)sprite).ToArray(),
         ("IntroCaretSpritePresentation", "Draw", "pointer") => IntroCaretSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
         ("IntroMotherBrainSpritePresentation", "Draw", "pointer") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
         ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pointer") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),

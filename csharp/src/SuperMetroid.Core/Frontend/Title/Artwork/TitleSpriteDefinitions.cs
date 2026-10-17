@@ -1,32 +1,19 @@
 namespace SuperMetroid.Core.Frontend.Title.Artwork;
 
-/// <summary>Required title artwork identities selected by compiled title-card behavior.</summary>
+/// <summary>The complete set of title compositions the installed title artwork must provide.</summary>
 public static class TitleSpriteDefinitions
 {
-    /// <summary>
-    /// Enumerates the 31 distinct bank-$8C identities in native address order from the
-    /// calculated title-card layouts. Blank timed entries are not artwork.
-    /// </summary>
-    public static IEnumerable<ushort> NativePointers
-    {
-        get
-        {
-            yield return TitleSequenceRomData.Sprites.NintendoCopyright;
-            for (int frame = 3; frame < 9; frame++)
-                yield return Frame(TitleSequenceRomData.TextSequences.MetroidThree, frame);
-            yield return TitleSequenceRomData.Sprites.SuperMetroidLogo;
-            for (int frame = 1; frame <= 4; frame++)
-                yield return Frame(TitleSequenceRomData.TextSequences.Year, frame);
-            for (int frame = 0; frame < 8; frame++)
-                yield return Frame(TitleSequenceRomData.TextSequences.Nintendo, frame);
-            for (int frame = 0; frame < 8; frame++)
-                yield return Frame(TitleSequenceRomData.TextSequences.Presents, frame);
-            for (int frame = 0; frame < 3; frame++)
-                yield return Frame(TitleSequenceRomData.TextSequences.MetroidThree, frame);
-        }
-    }
-
-    /// <summary>The spritemap of the card's indexed timed frame.</summary>
-    private static ushort Frame(TitleTextSequenceDefinition sequence, int frame) =>
-        TitleCardDefinitions.Steps(sequence.Phase)[frame].Spritemap;
+    /// <summary>Every <see cref="TitleSprite"/>, each exactly once: the four cards' reveals, the logo and the copyright.</summary>
+    public static readonly IReadOnlyList<TitleSprite> All =
+    [
+        TitleSprite.YearReveal1, TitleSprite.YearReveal2, TitleSprite.YearReveal3, TitleSprite.YearReveal4,
+        TitleSprite.NintendoReveal1, TitleSprite.NintendoReveal2, TitleSprite.NintendoReveal3, TitleSprite.NintendoReveal4,
+        TitleSprite.NintendoReveal5, TitleSprite.NintendoReveal6, TitleSprite.NintendoReveal7, TitleSprite.NintendoReveal8,
+        TitleSprite.PresentsReveal1, TitleSprite.PresentsReveal2, TitleSprite.PresentsReveal3, TitleSprite.PresentsReveal4,
+        TitleSprite.PresentsReveal5, TitleSprite.PresentsReveal6, TitleSprite.PresentsReveal7, TitleSprite.PresentsReveal8,
+        TitleSprite.MetroidThreeReveal1, TitleSprite.MetroidThreeReveal2, TitleSprite.MetroidThreeReveal3,
+        TitleSprite.MetroidThreeReveal4, TitleSprite.MetroidThreeReveal5, TitleSprite.MetroidThreeReveal6,
+        TitleSprite.MetroidThreeReveal7, TitleSprite.MetroidThreeReveal8, TitleSprite.MetroidThreeReveal9,
+        TitleSprite.SuperMetroidLogo, TitleSprite.NintendoCopyright,
+    ];
 }

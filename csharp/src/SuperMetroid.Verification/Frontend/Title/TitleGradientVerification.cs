@@ -124,12 +124,15 @@ internal static class TitleGradientVerification
             "title extraction covers all cartridge-selected OBJ frames");
         ushort yearPointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             TitleSequenceRomData.TextSequences.Year.InstructionAddress + 6);
+        IReadOnlyDictionary<TitleSprite, ushort> spritemaps =
+            SuperMetroid.AssetExtraction.Frontend.Title.TitleSpriteExtractor.MapSprites(bus);
+        AssertEqual(yearPointer, spritemaps[TitleSprite.YearReveal1], "the year's first letter is the year card's first listed spritemap");
         // Independent native OBJ records retain the cartridge reference now that both
         // scene owners require installed graphics rather than a ROM-backed draw path.
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
             var nativeOam = new OamBuffer(); var installedOam = new OamBuffer();
-            int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, checked((ushort)frame.Pointer)));
+            int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]));
             ushort Word(int at) => (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1)));
             int count = Word(address);
             for (int part = 0; part < count; part++)
@@ -139,10 +142,10 @@ internal static class TitleGradientVerification
                     CpuBusRegionRead.Read(bus, record + 2), new SnesObjAttributeWord(Word(record + 3)).WithPaletteBits(0),
                     new Position16<OamPixels>(128, 112));
             }
-            presentation.DrawSprite(checked((ushort)frame.Pointer), installedOam, new(128, 112), 0);
+            presentation.DrawSprite(frame.Sprite, installedOam, new(128, 112), 0);
             AssertTrue(nativeOam.ImageEquals(installedOam), "Title composition matches independent native OBJ records");
         }
-        TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Pointer == yearPointer);
+        TitleSpriteFrame year = spriteDocument.Sprites.Single(frame => frame.Sprite == TitleSprite.YearReveal1);
         SpriteVisualPart originalPart = year.Parts[0];
         year.Parts[0] = originalPart with { OffsetX = originalPart.OffsetX + 8 };
         byte[] editedMap = JsonSerializer.SerializeToUtf8Bytes(spriteDocument, ArtworkJson.Options);

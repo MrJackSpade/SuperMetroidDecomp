@@ -46,12 +46,12 @@ public sealed class TitleSequenceState
     private int textCardStep;
     /// <summary>Frames left before the next title text list entry is interpreted.</summary>
     private int sequenceEntryTimer;
-    /// <summary>Spritemap selected by the active title text or logo entry.</summary>
-    internal ushort activeSpritemap;
+    /// <summary>Composition selected by the active title text or logo entry, or null while nothing is shown.</summary>
+    internal TitleSprite? activeSprite;
     /// <summary>Screen origin used when drawing the active title spritemap.</summary>
     internal Position16<ScreenPixels> activeOrigin;
-    /// <summary>Character and palette offset supplied to the title sprite drawer.</summary>
-    internal ushort activeCharacterOffset;
+    /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
+    internal SnesObjAttributeWord activeObjectPalette;
     /// <summary>Mode 7 background position whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<Mode7Pixels> mode7;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
@@ -232,9 +232,9 @@ public sealed class TitleSequenceState
                     zoom++;
                 if (zoom >= TitleSequenceRomData.Scenes.IdentityScale)
                 {
-                    activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
+                    activeSprite = TitleSprite.SuperMetroidLogo;
                     activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-                    activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
+                    activeObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
                     Phase = TitleSequencePhase.TitleLogoFade;
                     phaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
                 }
@@ -361,18 +361,18 @@ public sealed class TitleSequenceState
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
             ?? throw new InvalidOperationException("Title sprites require installed title artwork.");
         oam.BeginFrame();
-        if (activeSpritemap != TitleSequenceRomData.Sprites.Blank)
+        if (activeSprite is { } sprite)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
-            artwork.DrawSprite(activeSpritemap, oam,
-                activeOrigin.ToOam(), activeCharacterOffset);
+            artwork.DrawSprite(sprite, oam,
+                activeOrigin.ToOam(), activeObjectPalette.Raw);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
         {
-            artwork.DrawSprite(TitleSequenceRomData.Sprites.NintendoCopyright, oam,
+            artwork.DrawSprite(TitleSprite.NintendoCopyright, oam,
                 TitleSequenceRomData.Sprites.CopyrightOrigin.ToOam(),
                 TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
@@ -388,11 +388,11 @@ public sealed class TitleSequenceState
 
         while (true)
         {
-            TitleCardStep step = TitleCardDefinitions.Steps(textCard)[textCardStep++];
+            TitleCardStep step = TitleCards.Steps(textCard)[textCardStep++];
             if (step.Command is not { } command)
             {
                 sequenceEntryTimer = step.Duration;
-                activeSpritemap = step.Spritemap;
+                activeSprite = step.Sprite;
                 return;
             }
 
@@ -425,7 +425,7 @@ public sealed class TitleSequenceState
                     return;
 
                 case TitleSequenceInstruction.Delete:
-                    activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+                    activeSprite = null;
                     return;
 
                 default:
@@ -441,9 +441,9 @@ public sealed class TitleSequenceState
         textCard = definition.Phase;
         textCardStep = 0;
         sequenceEntryTimer = 1;
-        activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+        activeSprite = null;
         activeOrigin = definition.Origin;
-        activeCharacterOffset = definition.CharacterOffset;
+        activeObjectPalette = definition.CharacterOffset;
         mode7 = new(mode7.X.WithFraction(0), mode7.Y.WithFraction(0));
 
         // Initial PPU setup and each of the first three completed pan functions select
@@ -462,9 +462,9 @@ public sealed class TitleSequenceState
         new FrontendPalettes(cgram).WriteTitleCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
-        activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
+        activeSprite = TitleSprite.SuperMetroidLogo;
         activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-        activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
+        activeObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
         mode7BackgroundEnabled = true;
         mode7 = new(mode7.X.WithWhole(0), mode7.Y.WithWhole(0));
         zoom = TitleSequenceRomData.Scenes.IdentityScale;
@@ -532,6 +532,6 @@ public sealed class TitleSequenceState
         mode7BackgroundEnabled = true;
         zoom = definition.Scale;
         mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
-        activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+        activeSprite = null;
     }
 }

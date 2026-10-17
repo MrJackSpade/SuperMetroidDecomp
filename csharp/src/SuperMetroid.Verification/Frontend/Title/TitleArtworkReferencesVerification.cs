@@ -13,8 +13,8 @@ internal static class TitleArtworkReferencesVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyTitleArtworkReferences()
     {
-        var frames = TitleSpriteDefinitions.NativePointers
-            .Select(pointer => new TitleSpriteFrame { Pointer = pointer, Parts = [] }).ToArray();
+        var frames = TitleSpriteDefinitions.All
+            .Select(sprite => new TitleSpriteFrame { Sprite = sprite, Parts = [] }).ToArray();
         AssertEqual(TitleGraphicsFormat.SpriteFrameCount, frames.Length,
             "compiled title selectors require exactly 31 distinct artwork frames");
         var document = new TitleMode7MapDocument
@@ -31,22 +31,23 @@ internal static class TitleArtworkReferencesVerification
         _ = Load(document);
         using (var stream = new MemoryStream()) TitleGraphicsPresentation.WriteMap(stream, document);
         foreach (TitleSpriteFrame frame in frames)
-            Load(document).DrawSprite(checked((ushort)frame.Pointer), new OamBuffer(), new(0, 0), 0);
+            Load(document).DrawSprite(frame.Sprite, new OamBuffer(), new(0, 0), 0);
 
         // An unchanged frame count must not disguise one missing selector. Test every
         // compiled selector independently; the old loader accepted each substitution.
         for (int index = 0; index < frames.Length; index++)
         {
             TitleSpriteFrame[] replacement = (TitleSpriteFrame[])frames.Clone();
-            replacement[index] = replacement[index] with { Pointer = ushort.MaxValue };
+            // Repeating the next composition in this slot leaves this one missing at an unchanged count.
+            replacement[index] = replacement[index] with { Sprite = frames[(index + 1) % frames.Length].Sprite };
             TitleMode7MapDocument invalid = document with { Sprites = replacement };
             AssertThrows<InvalidDataException>(() => Load(invalid),
-                $"loading rejects missing title selector {frames[index].Pointer:X4} despite correct count");
+                $"loading rejects missing title composition {frames[index].Sprite} despite correct count");
             AssertThrows<InvalidDataException>(() =>
             {
                 using var stream = new MemoryStream();
                 TitleGraphicsPresentation.WriteMap(stream, invalid);
-            }, $"authoring rejects missing title selector {frames[index].Pointer:X4}");
+            }, $"authoring rejects missing title composition {frames[index].Sprite}");
         }
         _ = Load(document with { Sprites = frames.Reverse().ToArray() });
         var edited = (TitleSpriteFrame[])frames.Clone();
@@ -60,7 +61,7 @@ internal static class TitleArtworkReferencesVerification
         };
         TitleGraphicsPresentation selected = Load(document with { Sprites = edited });
         var oam = new OamBuffer();
-        selected.DrawSprite(checked((ushort)edited[0].Pointer), oam, new(20, 30), 0);
+        selected.DrawSprite(edited[0].Sprite, oam, new(20, 30), 0);
         AssertEqual(4, oam.NextByteOffset, "a required frame may still have editable OAM parts");
         AssertEqual((byte)23, oam.LowTable[0], "edited title X offset is applied");
         AssertEqual((byte)26, oam.LowTable[1], "edited title Y offset is applied");

@@ -75,8 +75,18 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Fractional X speed paired with leftward runs.</summary>
     private const ushort EtecoonLeftSubvelocity = 0;
 
+    /// <summary>Library-two sound queued when an Etecoon wakes near Samus.</summary>
+    private static readonly SoundEffectId EtecoonWakeSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EtecoonWakeSound);
+    /// <summary>Library-two sound queued at an audible teaching hop.</summary>
+    private static readonly SoundEffectId EtecoonJumpSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EtecoonJumpSound);
+    /// <summary>Library-two sound queued when an airborne Etecoon meets a wall.</summary>
+    private static readonly SoundEffectId EtecoonWallSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EtecoonWallSound);
+
     /// <summary>Most recent library-two Etecoon sound request during this frame.</summary>
-    public ushort? LastEtecoonSoundEffect { get; private set; }
+    public SoundEffectId? LastEtecoonSoundEffect { get; private set; }
 
     /// <summary>Ports <c>Etecoon_Init</c> at <c>$A7:E912</c>.</summary>
     internal static void InitializeEtecoon(RoomEnemySlot slot)
@@ -209,7 +219,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         if ((slot.Parameter2 & 3) == 0)
-            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonWakeSound;
+            LastEtecoonSoundEffect = EtecoonWakeSound;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.Flexing);
         state.FunctionTimer = NativeCountdown.Start(256);
     }
@@ -228,7 +238,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         state.Function = EtecoonAiFunction.InitialJump;
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
+            LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
     /// <summary>Finishes the initial hop and either faces nearby Samus or schedules another hop.</summary>
@@ -354,7 +364,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = NativeCountdown.Start(8);
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-                LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonWallSound;
+                LastEtecoonSoundEffect = EtecoonWallSound;
             return;
         }
 
@@ -580,7 +590,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
         slot.InstructionTimer = NativeCountdown.Start(1);
         if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-            LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
+            LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
     /// <summary>Starts the long run when Samus approaches; otherwise schedules another teaching hop.</summary>
@@ -605,7 +615,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonAnimations.AfterSleep(state.Program.Program));
             state.Function = EtecoonAiFunction.TeachingJump;
             if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
-                LastEtecoonSoundEffect = EnemySoundEffectDefinitions.EtecoonJumpSound;
+                LastEtecoonSoundEffect = EtecoonJumpSound;
         }
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
@@ -799,7 +809,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2,
-            maximumQueued: LastEtecoonSoundEffect == EnemySoundEffectDefinitions.EtecoonWakeSound ? (byte)15 : (byte)6);
+        if (LastEtecoonSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: sound == EtecoonWakeSound ? (byte)15 : (byte)6);
     }
 }

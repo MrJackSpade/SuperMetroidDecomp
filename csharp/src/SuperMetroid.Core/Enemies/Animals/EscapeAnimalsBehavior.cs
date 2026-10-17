@@ -75,7 +75,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(initialization.Position);
         state.PreInstruction = initialization.PreInstruction;
         state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(initialization.Program);
-        state.HorizontalSpeed = initialization.HorizontalSpeed;
+        state.Velocity = initialization.Velocity;
     }
 
     /// <summary>Ports <c>EscapeDachora_Init</c> at <c>$B3:EAE5</c>.</summary>
@@ -144,14 +144,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         // The stored speed is signed 8.8; Enemy_MoveRight_IgnoreSlopes receives signed
         // 16.16, hence the exact eight-bit shift. The event test is inside the collision
         // branch in the retail routine and must not turn an animal around in open space.
-        int horizontalDisplacement = SnesSixteenSixteen.FromEightEight((short)state.HorizontalSpeed);
+        int horizontalDisplacement = state.Velocity.X.ToSixteenSixteenDelta().RawValue;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, horizontalDisplacement))
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
-            state.HorizontalSpeed = unchecked((ushort)-state.HorizontalSpeed);
+            state.Velocity = state.Velocity.ReversedX();
             state.Program = AnimationProgramCursor<EscapeEtecoonProgram>.Start(HasCrittersEscaped()
                 ? EscapeEtecoonProgram.RunningForEscape
-                : unchecked((short)state.HorizontalSpeed) < 0
+                : state.Velocity.X.SignedRawValue < 0
                     ? EscapeEtecoonProgram.RunningLeftLowTide
                     : EscapeEtecoonProgram.RunningRightLowTide);
         }

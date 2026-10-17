@@ -18,11 +18,14 @@ public sealed class EscapeEtecoonEnemyState
     /// <summary>Projects escape Etecoon's common WRAM words without allocating parallel movement state.</summary>
     internal EscapeEtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Variable A, a signed 8.8 horizontal speed consumed by <c>$B3:E680</c>.</summary>
-    public ushort HorizontalSpeed
+    /// <summary>
+    /// The signed 8.8 walking velocity in pixels per update consumed by <c>$B3:E680</c>; only its X is meaningful. It
+    /// stays in variable A for other enemies' aliased enemy-RAM reads, and a wall reverses it by negating that word.
+    /// </summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => _slot.VariableA;
-        set => _slot.VariableA = value;
+        get => new(new SnesSignedEightEight(_slot.VariableA), default);
+        set => _slot.VariableA = value.X.RawValue;
     }
 
     /// <summary>Variable F, the literal bank-$B3 pre-instruction pointer.</summary>

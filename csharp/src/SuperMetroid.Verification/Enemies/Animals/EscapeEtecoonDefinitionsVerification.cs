@@ -43,7 +43,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 NativeEnemyProgramOracle.EntryOf(EscapeEtecoonNativeListAddresses.Entries, initialization.Program),
                 $"escape Etecoon role {role} instruction");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((speedTable + parameter)),
-                initialization.HorizontalSpeed,
+                initialization.Velocity.X.RawValue,
                 $"escape Etecoon role {role} speed");
         }
 
@@ -79,7 +79,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 $"production escape Etecoon selector {parameter} pre-instruction");
             AssertEqual(AnimationProgramCursor<EscapeEtecoonProgram>.Start(expected.Program), state.Program,
                 $"production escape Etecoon selector {parameter} program");
-            AssertEqual(expected.HorizontalSpeed, state.HorizontalSpeed,
+            AssertEqual(expected.Velocity, state.Velocity,
                 $"production escape Etecoon selector {parameter} speed");
             AssertEqual((EscapeEtecoonRole)(role * 2), (EscapeEtecoonRole)(parameter & 0xfffe),
                 $"escape Etecoon selector {parameter} role mask");

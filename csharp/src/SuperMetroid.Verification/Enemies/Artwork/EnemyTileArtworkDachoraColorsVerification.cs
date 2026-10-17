@@ -100,21 +100,21 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         var empty = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
-            state.Speed = 8;
-            state.Subspeed = 0;
-            state.PaletteAnimationTimer = SnesLittleEndian.Word(1, unchecked((byte)frame));
+            state.Speed = SnesSignedSixteenSixteen.FromParts(8, 0);
+            state.SetPaletteCycle(frame, ticks: 1);
             enemies.DachoraBehavior.AccelerateDachora(slot, state, empty);
             CheckLive(DachoraPalettePhase.Speed, frame);
         }
 
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
         {
-            state.PaletteAnimationTimer = SnesLittleEndian.Word(0, unchecked((byte)frame));
+            state.SetPaletteCycle(frame, ticks: 0);
             enemies.DachoraBehavior.StepDachoraShinePalette(slot, state);
             CheckLive(DachoraPalettePhase.Shine, frame);
-            AssertEqual(SnesLittleEndian.Word(0, unchecked((byte)((frame + 1) % 4))),
-                state.PaletteAnimationTimer,
+            AssertEqual((frame + 1) % 4, state.PaletteFrame,
                 $"Dachora shine frame {frame} retains native next-frame selection");
+            AssertEqual(0, state.PaletteTicks,
+                $"Dachora shine frame {frame} keeps no speed ticks");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Dachora color consumers avoid RGB5 and selector ROM reads");

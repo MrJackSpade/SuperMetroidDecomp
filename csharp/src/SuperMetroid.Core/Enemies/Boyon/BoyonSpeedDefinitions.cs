@@ -43,10 +43,10 @@ public static class BoyonSpeedDefinitions
     /// VerifyCompiledBoyonSpeeds checks all ROM bytes, all 65,536 input indices, and
     /// every low-byte multiplier through the real production calculation.
     /// </remarks>
-    public static byte Sample(ushort index) => index < StoredSampleCount
+    public static byte Sample(int index) => index < StoredSampleCount
         ? (byte)(index * (index + 1) / 2)
         : byte.MaxValue;
 
-    /// <summary>Only the low multiplier byte reaches WRMPYB; the result is an unsigned word.</summary>
-    public static ushort Multiply(ushort index, ushort multiplier) => (ushort)(Sample(index) * (byte)multiplier);
+    /// <summary>Only the multiplier's low byte reaches the multiply; the product is 0 through 65025.</summary>
+    public static int Multiply(int index, int multiplier) => Sample(index) * unchecked((byte)multiplier);
 }

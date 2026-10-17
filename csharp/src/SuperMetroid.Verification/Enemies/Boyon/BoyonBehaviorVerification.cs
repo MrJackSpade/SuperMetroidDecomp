@@ -36,9 +36,61 @@ internal static class BoyonBehaviorVerification
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(BoyonAnimations.Programs, BoyonProgram.BouncingLoop, BoyonFrameDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(bounce, EnemyInstructionRunner.LoopUpdates(BoyonAnimations.Programs, BoyonProgram.BouncingLoop)), "Boyon bounce loop");
         AssertTrue(bounce.Properties.HasAny(EnemyProperties.ProcessOffScreen), "Boyon bounce processes off screen");
-        AssertEqual((ushort?)BoyonNativeValues.BounceSound, bounceSystem.BoyonBehavior.LastBoyonSoundEffect, "Boyon bounce plays its sound");
+        AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, BoyonNativeValues.BounceSound),
+            bounceSystem.BoyonBehavior.LastBoyonSoundEffect, "Boyon bounce plays its library-two bounce sound");
         AssertTrue(!bounceState.BounceDisabled, "Boyon bounce permits the movement arc");
         Console.WriteLine("  Boyon behavior: the idle and bounce loops with their off-screen, sound and arc cues pass.");
+    }
+
+    /// <summary>
+    /// Rising past the top of the arc retreats the curve index from zero to 65535 and selects falling; the next falling
+    /// update advances it from 65535 back to zero. Both steps run through the production main AI, and the index's slot
+    /// variable holds the same word.
+    /// </summary>
+    internal static void VerifyBoyonCurveIndexWrapsAtTheTop()
+    {
+        (_, RoomEnemySlot slot, BoyonEnemyState state) = Create();
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
+        BoyonBehavior.RunBoyonMain(slot, state, samus);
+        state.BounceMovement = BoyonBounceMovement.Rising;
+        state.SpeedTableIndex = 0;
+
+        BoyonBehavior.RunBoyonMain(slot, state, samus);
+        AssertEqual(BoyonEnemyState.LargestSpeedTableIndex, state.SpeedTableIndex, "rising past entry zero wraps the curve index");
+        AssertEqual(BoyonEnemyState.LargestSpeedTableIndex, slot.VariableE, "the wrapped curve index stays in the slot variable");
+        AssertEqual(BoyonBounceMovement.Falling, state.BounceMovement, "rising past entry zero selects falling");
+
+        BoyonBehavior.RunBoyonMain(slot, state, samus);
+        AssertEqual(0, state.SpeedTableIndex, "the first falling update advances the wrapped index to entry zero");
+        AssertEqual(0, slot.VariableE, "the advanced curve index stays in the slot variable");
+        AssertEqual(BoyonBounceMovement.Falling, state.BounceMovement, "entry zero is above the baseline, so falling continues");
+        Console.WriteLine("  Boyon curve index: rising wraps it from zero to 65535 and falling advances it back to zero.");
+    }
+
+    /// <summary>
+    /// The first main-AI update derives the baseline curve index by accumulating speed until the distance reaches the jump
+    /// height, compared by the sign of the word difference. With multiplier one, height 32768 needs 144 entries, while
+    /// height 36864 already counts as reached after the first entry, because zero minus 36864 is a positive word.
+    /// </summary>
+    internal static void VerifyBoyonJumpHeightComparesByWordSign()
+    {
+        foreach ((int heightSelector, int expected) in new (int, int)[] { (5, 144), (6, 1) })
+        {
+            var enemies = new RoomEnemySystem();
+            RoomEnemySlot slot = enemies.SlotTable.Slots[0];
+            slot.Bind(EnemyDefinitionId.Boyon, slot.Definition);
+            slot.Parameter1 = checked((ushort)(heightSelector * 256));
+            slot.Parameter2 = 64;
+            slot.Position = slot.Position.WithWhole(new(256, 512));
+            BoyonBehavior.InitializeBoyon(slot);
+            BoyonEnemyState state = BoyonBehavior.RequireBoyonState(slot);
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
+
+            BoyonBehavior.RunBoyonMain(slot, state, samus);
+
+            AssertEqual(expected, state.InitialBounceSpeedTableIndex, $"Boyon baseline curve index for height selector {heightSelector}");
+        }
+        Console.WriteLine("  Boyon jump height: the derivation compares distance and height by the sign of their word difference.");
     }
 
     /// <summary>A Boyon with a 64-pixel trigger range after its real initializer.</summary>
@@ -62,6 +114,8 @@ internal static class BoyonBehaviorVerification
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyBoyonBehavior), () => VerifyBoyonBehavior());
+        Suite(nameof(VerifyBoyonCurveIndexWrapsAtTheTop), () => VerifyBoyonCurveIndexWrapsAtTheTop());
+        Suite(nameof(VerifyBoyonJumpHeightComparesByWordSign), () => VerifyBoyonJumpHeightComparesByWordSign());
         Suite(nameof(BoyonAnimationsVerification.VerifyBoyonAnimations), () => BoyonAnimationsVerification.VerifyBoyonAnimations(rom));
         Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
         return 0;

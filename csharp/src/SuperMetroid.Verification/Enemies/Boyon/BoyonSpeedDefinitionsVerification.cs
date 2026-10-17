@@ -33,7 +33,7 @@ internal static class BoyonSpeedDefinitionsVerification
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected multiplier unchanged");
         actor.Parameter1 = 0x900;
         AssertThrows<InvalidDataException>(() => initialize(actor), "Boyon rejected height unchanged");
-        Func<BoyonEnemyState, ushort> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
+        Func<BoyonEnemyState, int> multiply = BoyonBehavior.MultiplyBoyonCurveEntry;
         var state = new BoyonEnemyState(new RoomEnemySystem().SlotTable.Slots[0]);
         for (int index = 0; index <= ushort.MaxValue; index++)
         {

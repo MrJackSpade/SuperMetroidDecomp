@@ -40,8 +40,12 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
 
+    /// <summary>The library-two sound the start-bounce cue queues.</summary>
+    private static readonly SoundEffectId BoyonBounceSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.BoyonBounceSound);
+
     /// <summary>Last library-two bounce sound requested during the current enemy frame.</summary>
-    public ushort? LastBoyonSoundEffect { get; private set; }
+    public SoundEffectId? LastBoyonSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
     internal static void InitializeBoyon(RoomEnemySlot slot)
@@ -147,11 +151,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int guard = 0; guard < ushort.MaxValue; guard++)
         {
             state.Speed = MultiplyBoyonCurveEntry(state);
-            state.DistanceAccumulator = unchecked((ushort)(
-                state.DistanceAccumulator + state.Speed));
-            state.SpeedTableIndex = unchecked((ushort)(state.SpeedTableIndex + 1));
+            state.AccumulateBounceDistance(state.Speed);
+            state.AdvanceSpeedTableIndex();
 
-            if (!EnemyMath.IsNegative16(state.DistanceAccumulator - state.JumpHeight))
+            if (state.HasReachedJumpHeight)
             {
                 state.InitialBounceSpeedTableIndex = state.SpeedTableIndex;
                 state.BounceDisabled = true;
@@ -167,7 +170,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports falling movement at <c>$A2:8801</c>.</summary>
     private static void MoveBoyonFalling(RoomEnemySlot slot, BoyonEnemyState state)
     {
-        state.SpeedTableIndex = unchecked((ushort)(state.SpeedTableIndex + 1));
+        state.AdvanceSpeedTableIndex();
         state.Speed = MultiplyBoyonCurveEntry(state);
 
         // XBA/AND #$00FF discards the product's fractional byte. Boyon has no Y subposition
@@ -186,8 +189,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - (SnesEightEight.WholeOf(state.Speed)))));
-        state.SpeedTableIndex = NativeWordCounter.Decrement(state.SpeedTableIndex).Value;
-        if (EnemyMath.IsNegative16(state.SpeedTableIndex))
+        if (state.RetreatSpeedTableIndex())
             state.BounceMovement = BoyonBounceMovement.Falling;
     }
 
@@ -195,7 +197,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Recreates the native 8×8 unsigned multiply for the current curve index. Values after
     /// the stored table use the explicit saturated byte rather than reading adjacent ROM.
     /// </summary>
-    internal static ushort MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
+    internal static int MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
         BoyonSpeedDefinitions.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
 
     /// <summary>Ports <c>IsSamusWithinAPixelColumnsOfEnemy</c> for Boyon's init1 radius.</summary>
@@ -226,7 +228,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void StartBoyonBounce(BoyonEnemyState state)
     {
         state.BounceDisabled = false;
-        LastBoyonSoundEffect = EnemySoundEffectDefinitions.BoyonBounceSound;
+        LastBoyonSoundEffect = BoyonBounceSound;
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
@@ -257,6 +259,7 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastBoyonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastBoyonSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

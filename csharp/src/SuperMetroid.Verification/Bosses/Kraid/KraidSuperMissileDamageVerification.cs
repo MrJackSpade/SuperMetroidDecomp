@@ -39,7 +39,7 @@ internal static class KraidSuperMissileDamageVerification
         var body=runtime.Enemies.SlotTable.Slots[0];
         var state=(KraidEnemyState)(runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid."));
         body.VariableA=(ushort)KraidAiFunction.MainAttackWithMouthOpen;
-        body.VariableB=0x96f4;body.VariableC=64;
+        state.HeadProgram=RoarPastOpenPose;body.VariableC=64;
         (state ?? throw new InvalidOperationException("Verification requires state.")).DisplayedHeadFrame = FullyOpenRoarFrame();
         var words=new ushort[32*64];for(int i=32*32;i<33*32;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(32, 64), new RoomLevelPlanes(words, new byte[2048], new ushort[2048]), new byte[8]);
@@ -60,7 +60,7 @@ internal static class KraidSuperMissileDamageVerification
             var result=game.Step(frame is 0 or 24 ? SnesButton.X : (ushort)0);
             if(body.Health!=oldHealth || frame%8==0)
             {
-                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableHitbox:X4}");
+                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
                 foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type:X4} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.PreInstruction}");
             }
             if (frame is 8 or 32)
@@ -98,10 +98,11 @@ internal static class KraidSuperMissileDamageVerification
         return 0;
     }
 
-    /// <summary>The roar's fully open head frame: the open-mouth tilemap with its two open-mouth collision shapes.</summary>
-    private static KraidHeadInstructionDefinition FullyOpenRoarFrame() =>
-        KraidHeadInstructionDefinitions.All.First(command => command.Kind == KraidHeadInstructionKind.Frame &&
-            command.MouthStage == KraidHeadInstructionDefinitions.FullyOpenMouthStage);
+    /// <summary>The roar's fully open head pose, with its two open-mouth collision shapes.</summary>
+    private static KraidHeadFrame FullyOpenRoarFrame() => KraidHeadFrame.Open;
+
+    /// <summary>The roar cursor just past its fully open pose, where the native cursor stands during the open-mouth attack.</summary>
+    private static SuperMetroid.Core.Programs.AnimationProgramCursor<KraidHeadProgram> RoarPastOpenPose { get; } = new(KraidHeadProgram.Roar, 5);
 
     /// <summary>Checks count-bounded traversal, inactive slot handling, scratch-word rejection, and adjacent bomb slots.</summary>
     private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
@@ -115,7 +116,7 @@ internal static class KraidSuperMissileDamageVerification
             body.Position = body.Position.WithWhole(new(176, 592));
             body.Health = 1000;
             body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
-            body.VariableB = 0x96f4;
+            state.HeadProgram = RoarPastOpenPose;
             state.DisplayedHeadFrame = FullyOpenRoarFrame();
         }
         void Place(int index)

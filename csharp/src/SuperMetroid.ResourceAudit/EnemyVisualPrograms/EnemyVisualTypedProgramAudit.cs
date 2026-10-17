@@ -322,11 +322,12 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(WallSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/WallSpacePirateAnimations.cs");
         RequireTypedFrames(NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameDefinitions.Spritemap, NinjaSpacePirateFrameToolingDefinitions.Bank,
             nameof(NinjaSpacePirateAnimations), "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs");
-        var heads = KraidHeadInstructionDefinitions.All.ToArray();
-        foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))
-            report.Consumers.Add(new(nameof(KraidHeadInstructionDefinitions),
-                "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadInstructionDefinitions.cs",
+        int headPoses = Enum.GetValues<KraidHeadProgram>().Sum(program =>
+            KraidHeadAnimations.Programs.Steps(program).Count(step => step.Kind == AnimationProgramStepKind.Show));
+        for (int pose = 0; pose < headPoses; pose++)
+            report.Consumers.Add(new(nameof(KraidHeadAnimations),
+                "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadAnimations.cs",
                 "typed frame exported and required by installation admission"));
-        rows.Add(new(heads.Count(frame => frame.Kind == KraidHeadInstructionKind.Frame)));
+        rows.Add(new(headPoses));
     }
 }

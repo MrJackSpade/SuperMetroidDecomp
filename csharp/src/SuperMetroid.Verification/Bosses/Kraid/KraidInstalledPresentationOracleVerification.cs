@@ -53,32 +53,7 @@ internal static class KraidInstalledPresentationOracleVerification
         return (state, vram);
     }
 
-    /// <summary>Checks all 91 authored control words before the RAM-only clock fixture runs.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid head-program control words")]
-    internal static void VerifyKraidInstalledControlOracle(CartridgeImportAddressSpace source)
-    {
-        ushort Word(int address) => BinaryPrimitives.ReadUInt16LittleEndian(RomDataReader.ReadFixedBank(source, address, 2));
-        foreach (KraidHeadInstructionDefinition command in KraidHeadInstructionDefinitions.All)
-        {
-            int address = KraidBackgroundRomData.NativeBank | command.Pointer;
-            if (command.Kind == KraidHeadInstructionKind.Frame)
-            {
-                AssertEqual(Word(address), command.Duration, "compiled Kraid duration matches pinned cartridge");
-                AssertEqual(Word(address + 2), command.Tilemap, "compiled Kraid physical frame matches pinned cartridge");
-                AssertEqual(Word(address + 4), command.VulnerableHitbox, "compiled Kraid outer mouth matches pinned cartridge");
-                AssertEqual(Word(address + 6), command.InvulnerableHitbox, "compiled Kraid inner mouth matches pinned cartridge");
-            }
-            else if (command.Kind == KraidHeadInstructionKind.Terminate)
-                AssertEqual(ushort.MaxValue, Word(address), "compiled Kraid native termination");
-            else
-            {
-                // The two authored JSR targets load these sound immediates. Keep
-                // their native addresses in this import oracle, not production logic.
-                int callback = command.Kind == KraidHeadInstructionKind.RoarSound ? 0xaf94 : 0xaf9f;
-                AssertEqual((ushort)callback, Word(address), "compiled Kraid native sound callback");
-                AssertEqual(Word(KraidBackgroundRomData.NativeBank | (callback + 2)), command.SoundId,
-                    "compiled Kraid native sound immediate");
-            }
-        }
-    }
+    /// <summary>Checks every typed head step and cursor read against the authored control words before the RAM-only clock fixture runs.</summary>
+    internal static void VerifyKraidInstalledControlOracle(CartridgeImportAddressSpace source) =>
+        KraidHeadCommandMappingVerification.VerifyKraidHeadCommandMapping(source);
 }

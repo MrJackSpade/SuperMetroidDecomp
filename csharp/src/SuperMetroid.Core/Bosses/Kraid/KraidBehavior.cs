@@ -785,11 +785,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int lastSlot = shots.LastSlot;
         int mouthHits = 0;
-        ushort innerMouth = lastSlot == 0 ? ushort.MaxValue :
-            KraidHeadInstructionDefinitions.ReadCollisionHitbox(body.VariableB, innerMouth: true);
-        if (lastSlot != 0 && innerMouth != ushort.MaxValue)
+        KraidMouthHitbox? innerMouth = lastSlot == 0 ? null : KraidHeadAnimations.InnerMouthAt(state.HeadProgram);
+        if (innerMouth is { } inner)
         {
-            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, innerMouth);
+            KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, inner);
             for (int index = lastSlot; index >= 0; index--)
             {
                 KraidCollisionShot shot = shots.Read(index);
@@ -871,7 +870,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int bodyHits = 0;
         if (lastSlot != 0)
         {
-            ushort outerMouth = KraidHeadInstructionDefinitions.ReadCollisionHitbox(body.VariableB, innerMouth: false);
+            KraidMouthHitbox outerMouth = KraidHeadAnimations.OuterMouthAt(state.HeadProgram);
             KraidCollisionScratch scratch = LoadKraidCollisionScratch(body, outerMouth);
             for (int index = lastSlot; index >= 0; index--)
             {
@@ -900,10 +899,19 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         return bodyHits;
     }
 
-    /// <summary>Converts a mouth hitbox pointer into wrapped world-space collision bounds.</summary>
-    internal static KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer)
+    /// <summary>Converts a mouth shape into wrapped world-space collision bounds.</summary>
+    internal static KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, KraidMouthHitbox shape) =>
+        LoadKraidCollisionScratch(body, KraidMouthHitboxDefinitions.ResolveCollision(shape));
+
+    /// <summary>Converts a recorded native mouth-shape address into wrapped world-space collision bounds.</summary>
+    internal static KraidCollisionScratch LoadKraidCollisionScratch(RoomEnemySlot body, ushort pointer) =>
+        LoadKraidCollisionScratch(body, KraidMouthHitboxDefinitions.ResolveCollision(pointer));
+
+    /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position, wrapping as the cartridge does.</summary>
+    private static KraidCollisionScratch LoadKraidCollisionScratch(
+        RoomEnemySlot body, (short Left, short Top, short Bottom) shape)
     {
-        (short left, short top, short bottom) = KraidMouthHitboxDefinitions.ResolveCollision(pointer);
+        (short left, short top, short bottom) = shape;
         return new()
         {
             Left = unchecked((ushort)(body.Position.X.Whole + left)),
@@ -998,8 +1006,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
                 {
                     body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
-                    body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
-                    body.VariableC = KraidHeadInstructionDefinitions.RoarEntryTimer;
+                    state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+                    body.VariableC = KraidHeadAnimations.RoarEntryDuration;
                 }
                 return;
 
@@ -1094,8 +1102,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.ThinkingTimer.IsZero && (state.ThinkingTimer = state.ThinkingTimer.Decrement().Remaining).IsZero)
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
-            body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
-            body.VariableC = KraidHeadInstructionDefinitions.RoarEntryTimer;
+            state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+            body.VariableC = KraidHeadAnimations.RoarEntryDuration;
         }
     }
 
@@ -1128,7 +1136,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The open-mouth tilemap remains installed for 64 frames. Retail emits a rock on
         // every sixteenth timer value, including the entry frame after `$AF3D` reloads it.
-        if (state.DisplayedHeadFrame is { MouthStage: KraidHeadInstructionDefinitions.FullyOpenMouthStage } &&
+        if (state.DisplayedHeadFrame is { MouthStage: KraidHeadFrame.FullyOpenMouthStage } &&
             body.VariableC % 16 == 0)
         {
             state.SpitRockRequestCount++;
@@ -1153,43 +1161,60 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : headTimer.RawValue;
     }
 
-    /// <summary>Applies a Kraid head command and returns its next list position.</summary>
+    /// <summary>
+    /// Runs Kraid's head program to its next pose: cries on the way are announced, a pose installs its duration as the
+    /// head timer and uploads its image (the result is one), and a program's end leaves the cursor there (the result is
+    /// <see cref="ushort.MaxValue"/>).
+    /// </summary>
     internal ushort ExecuteKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
-        for (int commandCount = 0; commandCount < 16; commandCount++)
-        {
-            ushort cursor = body.VariableB;
-            KraidHeadInstructionDefinition instruction =
-                KraidHeadInstructionDefinitions.Resolve(cursor);
-            switch (instruction.Kind)
+        AnimationProgramCursor<KraidHeadProgram> cursor = state.HeadProgram ?? throw new InvalidDataException(
+            "Kraid's head program has not been started.");
+        NativeCountdown unusedLoopCounter = default;
+        AnimationProgramAdvance<KraidHeadFrame> advance = KraidHeadAnimations.Programs.AdvanceTo(
+            ref cursor, ref unusedLoopCounter, (cue, _) =>
             {
-                case KraidHeadInstructionKind.Terminate:
-                    return ushort.MaxValue;
+                PublishKraidHeadCue(cue, state);
+                return null;
+            });
+        state.HeadProgram = cursor;
+        switch (advance.Kind)
+        {
+            case AnimationProgramAdvanceKind.Hold:
+                return ushort.MaxValue;
 
-                case KraidHeadInstructionKind.RoarSound:
-                case KraidHeadInstructionKind.DyingSound:
-                    LastKraidSoundEffect = new KraidSoundRequest(
-                        SoundEffectId.FromCartridge(
-                            SoundEffectLibrary.Library2,
-                            instruction.SoundId));
-                    if (instruction.Kind == KraidHeadInstructionKind.RoarSound)
-                        state.RoarRequestCount++;
-                    body.VariableB = unchecked((ushort)(cursor + 2));
-                    continue;
+            case AnimationProgramAdvanceKind.Show:
+                body.VariableC = checked((ushort)advance.Duration);
+                state.DisplayedHeadFrame = advance.Frame;
+                TransferKraidHeadTilemap(state, KraidHeadFrameDefinitions.PresentationKey(advance.Frame));
+                return 1;
 
-                case KraidHeadInstructionKind.Frame:
-                    body.VariableC = instruction.Duration;
-                    state.DisplayedHeadFrame = instruction;
-                    body.VariableB = unchecked((ushort)(cursor + 8));
-                    TransferKraidHeadTilemap(state, instruction.Tilemap);
-                    return 1;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Stop:
+                throw new InvalidOperationException($"Kraid's head programs never {advance.Kind}.");
 
-                default:
-                    throw new InvalidDataException(
-                        $"Kraid head instruction kind {instruction.Kind} is not translated.");
-            }
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(AnimationProgramAdvanceKind)} {advance.Kind}.");
         }
-        throw new InvalidDataException("Kraid head instruction stream exceeded its command guard.");
+    }
+
+    /// <summary>Plays a head program's cry; a roar is also counted.</summary>
+    private void PublishKraidHeadCue(KraidHeadCue cue, KraidEnemyState state)
+    {
+        switch (cue)
+        {
+            case KraidHeadCue.Roar:
+                LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.HeadRoar);
+                state.RoarRequestCount++;
+                return;
+
+            case KraidHeadCue.DyingCry:
+                LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.HeadDyingCry);
+                return;
+
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(KraidHeadCue)} {cue}.");
+        }
     }
 
     /// <summary>Updates the mouth-open reaction after a damaging shot.</summary>
@@ -1218,8 +1243,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeKraidEyeGlow(RoomEnemySlot body, KraidEnemyState state)
     {
         body.VariableA = (ushort)KraidAiFunction.GlowEye;
-        body.VariableB = KraidHeadInstructionDefinitions.EyeGlowContinuation;
-        body.VariableC = KraidHeadInstructionDefinitions.EyeGlowEntryTimer;
+        state.HeadProgram = KraidHeadAnimations.EyeGlowAfterEntryFrame;
+        body.VariableC = KraidHeadAnimations.EyeGlowEntryDuration;
         GlowKraidEye(body, state);
     }
 
@@ -1294,8 +1319,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (changedChannels == 0)
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
-            body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
-            body.VariableC = KraidHeadInstructionDefinitions.RoarEntryTimer;
+            state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
+            body.VariableC = KraidHeadAnimations.RoarEntryDuration;
         }
     }
     // These collision checks belong to actor AI rather than generic interactive hitboxes.
@@ -1487,8 +1512,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         SetKraidPartProgram(_slotTable._slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
         _slotTable._slots[1].InstructionTimer = NativeCountdown.Start(1);
         body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;
-        body.VariableB = KraidHeadInstructionDefinitions.DeathContinuation;
-        body.VariableC = KraidHeadInstructionDefinitions.DeathEntryTimer;
+        state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
+        body.VariableC = KraidHeadAnimations.DeathEntryDuration;
         // $A7:C3A8-$C3E8 clear the fingernails' respawn bit, then run EnemyDeath for the
         // nails, then the three lints. A still holds each slot's native index, which
         // EnemyDeath treats as explosion type zero; every part leaves a death explosion.
@@ -1607,12 +1632,9 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         body.VariableF = 180;
         state.Parts[0].NextFunction = KraidAiFunction.GrowReleaseCamera;
 
-        ushort selectionWord = KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(
-            body.VariableB);
-        KraidHeadResumeDefinition resume =
-            KraidHeadInstructionDefinitions.GrowthResume(selectionWord);
-        body.VariableB = resume.Pointer;
-        body.VariableC = resume.Timer;
+        KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(state.HeadProgram).Growth;
+        state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
+        body.VariableC = checked((ushort)KraidHeadAnimations.GrowthResumeDelay(resume));
         _earthquake.EarthquakeType = 4;
         _earthquake.EarthquakeTimer = NativeCountdown.Start(340);
 
@@ -1765,7 +1787,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             nail.VariableF = unchecked((ushort)(64 + nailIndex * 64));
         }
         _slotTable._slots[1].VariableC = 1;
-        body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
+        state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
         RoomEnemySlot foot = _slotTable._slots[5];
         foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkToStart;
@@ -2478,7 +2500,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     // `$C97B` does not leave execution at setup routine `$ADE9`.
                     // That JSR immediately installs `$AEA4`, seeds the random thinking
                     // timer and selects roar list entry `$96DA` for the first attack.
-                    body.VariableB = KraidHeadInstructionDefinitions.RoarContinuation;
+                    state.HeadProgram = KraidHeadAnimations.RoarAfterEntryFrame;
                     SetupKraidFirstPhaseThinking(body, state);
 
                     // The foot owns first-phase lunges independently of the body thinker.

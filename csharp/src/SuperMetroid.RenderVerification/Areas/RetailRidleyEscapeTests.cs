@@ -30,7 +30,7 @@ internal static class RetailRidleyEscapeTests
             var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;
-            var matrices = new HashSet<(ushort, ushort, ushort, ushort)>();
+            var matrices = new HashSet<(SnesSignedEightEight, SnesSignedEightEight, SnesSignedEightEight, SnesSignedEightEight)>();
             var phases = new HashSet<RidleyAiFunction>();
             for (int tick = 0; tick < 6000; tick++)
             {

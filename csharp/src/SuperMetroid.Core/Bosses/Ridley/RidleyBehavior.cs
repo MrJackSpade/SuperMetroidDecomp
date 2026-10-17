@@ -205,7 +205,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         {
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
-            SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
+            SpritemapPaletteIndex = SnesObjPalettes.Index7,
             CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 1,
             FacingDirection = RidleyFacing.Right,
@@ -1700,8 +1700,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            foreach (RidleyCollisionHitbox hitbox in
-                     RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentX + hitbox.Left));
                 ushort top = unchecked((ushort)(componentY + hitbox.Top));
@@ -1709,7 +1708,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = RidleyHitboxCallbackCodec.ToCallbackWord(probe.SelectShotCallback);
                 return true;
             }
         }

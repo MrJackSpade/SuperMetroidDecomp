@@ -286,9 +286,7 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
-        ushort[] headPointers = KraidHeadInstructionDefinitions.All
-            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
-            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        ushort[] headPointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         var kraidHeadHashes = new Dictionary<ushort, string>();
         foreach (ushort pointer in headPointers)
         {
@@ -474,9 +472,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.TourianStatueColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
-        ushort[] expectedHeadPointers = KraidHeadInstructionDefinitions.All
-            .Where(frame => frame.Kind == KraidHeadInstructionKind.Frame)
-            .Select(frame => frame.Tilemap).Distinct().Order().ToArray();
+        ushort[] expectedHeadPointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(expectedHeadPointers))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)

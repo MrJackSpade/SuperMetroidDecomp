@@ -80,7 +80,7 @@ internal static class RidleySupplementalArtworkVerification
             MovementAnimationEnabled = 1,
             FacingDirection = facing,
             WingFrame = wingFrame,
-            SpritemapPaletteIndex = 0x0200,
+            SpritemapPaletteIndex = SnesObjPalettes.Index1,
             TailSegments = tailDirection is null ? [] :
                 [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 {

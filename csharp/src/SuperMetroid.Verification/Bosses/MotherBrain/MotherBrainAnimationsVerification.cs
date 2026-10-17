@@ -49,7 +49,7 @@ internal static class MotherBrainAnimationsVerification
         foreach ((int frame, int record) in RoomFlashRecords)
         {
             AssertEqual(MotherBrainRoomPaletteProgramDefinitions.FlashImageTicks, cartridge.ReadCartridgeWord(record), $"room flash frame {frame} duration");
-            AssertEqual(MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(frame), unchecked((ushort)(record + 2)),
+            AssertEqual(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(frame), unchecked((ushort)(record + 2)),
                 $"room flash frame {frame} palette operand");
         }
         AssertEqual(RoomFlashGoto.Opcode, cartridge.ReadCartridgeWord(RoomFlashLoop), "the room flash ends in a goto");

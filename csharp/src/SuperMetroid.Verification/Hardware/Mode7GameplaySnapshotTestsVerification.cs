@@ -61,8 +61,8 @@ internal static class Mode7GameplaySnapshotTestsVerification
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var getaway = runtime.Enemies.RidleyEncounter.CeresRidley;
         (getaway ?? throw new InvalidOperationException("Verification requires getaway.")).Mode7Active = true;
-        getaway.Mode7MatrixA = 240; getaway.Mode7MatrixB = 33;
-        getaway.Mode7MatrixC = unchecked((ushort)-33); getaway.Mode7MatrixD = 240;
+        getaway.Mode7MatrixA = SnesSignedEightEight.FromSignedRaw(240); getaway.Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(33);
+        getaway.Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(-33); getaway.Mode7MatrixD = SnesSignedEightEight.FromSignedRaw(240);
         getaway.Mode7Center = new Position16<Mode7Pixels>(128, 120);
         getaway.Mode7Offset = new Offset16<Mode7Pixels>(7, 19);
         // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
@@ -70,7 +70,7 @@ internal static class Mode7GameplaySnapshotTestsVerification
         Rgba32[] retail = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
         var retained = RoundTripRenderPacket(new(new(100, 1, 0), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame())));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");
-        getaway.Mode7Active = false; getaway.Mode7MatrixA = 0;
+        getaway.Mode7Active = false; getaway.Mode7MatrixA = default;
         runtime.Vram.LoadBytes(0, new byte[SnesPpuLayout.VramByteCount]);
         for (int i = 0; i < SnesPpuLayout.CgramColorCount; i++) runtime.Cgram.SetColor(i, new Bgr555(0, 0, 0));
         AssertTrue(retail.SequenceEqual(RenderForComparison(retained)), "Ridley packet survives mode exit and live memory replacement");

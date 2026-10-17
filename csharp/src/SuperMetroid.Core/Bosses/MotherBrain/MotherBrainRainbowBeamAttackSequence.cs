@@ -560,7 +560,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>Schedules phase-three inching and two retreat speeds only while the body is standing.</summary>
-    private bool StepPhase3WalkingHandler(ushort randomNumberSeed)
+    private bool StepPhase3WalkingHandler(MotherBrainRandomSample randomNumberSeed)
     {
         // `$C25A` refuses to call the walking function while body bytecode advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
@@ -590,7 +590,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     return false;
 
                 Phase3TargetXPosition = Body.Position.X + 1;
-                int forwardDelay = (randomNumberSeed & 2) + 4;
+                int forwardDelay = (randomNumberSeed.HasBit(1) ? 2 : 0) + 4;
 
                 // MakeMotherBrainWalkForwards reports carry only for a strictly overshot
                 // target or the independent X `$80` limit. Equality still requests a walk.
@@ -813,12 +813,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     }
 
     /// <summary>Uses the random low byte at or above $C0 to toggle a standing or leaning body list.</summary>
-    private bool MaybeRequestStandUpOrLeanDown(ushort randomNumberSeed)
+    private bool MaybeRequestStandUpOrLeanDown(MotherBrainRandomSample randomNumberSeed)
     {
         // `$A9:C1A7` ignores every pose except standing (zero) and leaning (six), and its
         // low-byte threshold is inclusive at `$C0`. A request still executes as body
         // instruction bytecode later in the enemy-processing stage.
-        if ((SnesLittleEndian.LowByte(randomNumberSeed)) < 192)
+        if (randomNumberSeed.LowByte < 192)
             return false;
 
         if (Body.Pose == MotherBrainBodyPose.Standing)
@@ -1386,7 +1386,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // 32nd enemy frame that idle route may ask the posture helper to alternate
                 // between standing and leaning down. This is visible body bytecode, not a
                 // direct pose assignment, so retain the separate instruction-stage delay.
-                if ((frame.RandomNumberSeed & 4095) < 4000)
+                if (frame.RandomNumberSeed.LowBits(12) < 4000)
                 {
                     if ((frame.EnemyFrameCounter & 31) == 0)
                         bodyPostureRequested = MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
@@ -1397,7 +1397,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
                 // bomb; all remaining admitted values still choose two onion rings.
                 if (CalculateFinishOffHealthThreshold(samus, 160) >= samus.Health ||
-                    (frame.RandomNumberSeed & 4095) < 4080)
+                    frame.RandomNumberSeed.LowBits(12) < 4080)
                 {
                     SetHeadProgram(MotherBrainHeadProgram.TwoOnionRingsPhase2);
                 }
@@ -1722,7 +1722,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack:
                 bodyPostureRequested = MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
-                if (unchecked((short)frame.RandomNumberSeed) < 0)
+                if (frame.RandomNumberSeed.IsNegative)
                 {
                     // A nonzero Baby enemy index selects `$9DB1`; zero instead targets Samus.
                     // This translated cutscene owns a spawned Baby, so retain the live actor
@@ -1803,10 +1803,10 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // AI therefore still sees pose zero on the call that requests a walk and may
                 // also select an attack, exactly as the source's post-handler `$C21B` load.
                 if (Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks ||
-                    unchecked((short)frame.RandomNumberSeed) >= 0)
+                    !frame.RandomNumberSeed.IsNegative)
                     break;
 
-                if ((SnesLittleEndian.LowByte(frame.RandomNumberSeed)) < 128)
+                if (frame.RandomNumberSeed.LowByte < 128)
                 {
                     SetHeadProgram(MotherBrainHeadProgram.BombPhase3);
                 }

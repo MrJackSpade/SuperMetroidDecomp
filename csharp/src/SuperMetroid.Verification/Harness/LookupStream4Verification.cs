@@ -1720,7 +1720,15 @@ internal static class LookupStream4Verification
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             AssertEqual(nativeFrames.Contains((ushort)pointer), RidleyCollisionDefinitions.HasFrame((ushort)pointer), "Calculated frame membership preserves complete native identity domain");
-        AssertTrue(nativeLists.SequenceEqual(RidleyCollisionDefinitions.HitboxPointers), "List identity enumeration derives the exact sorted native operand domain");
+        int compiledLists = RidleyCollisionDefinitions.FramePointers
+            .SelectMany(frame =>
+            {
+                var frameComponents = RidleyCollisionDefinitions.ComponentsAt(frame);
+                return Enumerable.Range(0, frameComponents.Length).Select(index => frameComponents[index].Hitboxes);
+            })
+            .Distinct(ReferenceEqualityComparer.Instance)
+            .Count();
+        AssertEqual(nativeLists.Count, compiledLists, "Components select one compiled list per distinct native hitbox list");
         foreach (int invalid in new[] { -1, nativeFrames.Count })
             AssertThrows<IndexOutOfRangeException>(() => _ = RidleyCollisionDefinitions.FramePointers[invalid], "Calculated frame view rejects out-of-range indices");
     }

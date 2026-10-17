@@ -2375,7 +2375,7 @@ internal static class LookupStream3Verification
             "stream 3 room flash keeps no per-instance selected paint");
         for (int frame = 0; frame < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount; frame++)
         {
-            ushort entry = checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart + frame * MotherBrainRoomColorRomDataTooling.TimedEntryByteCount));
+            ushort entry = checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList + frame * MotherBrainRoomColorRomDataTooling.TimedEntryByteCount));
             int operand = MotherBrainRoomColorRomData.SourceBank + entry + MotherBrainRoomColorRomDataTooling.PaletteOperandByteOffset;
             int source = (MotherBrainRoomColorRomData.SourceBank|CartridgeImportSource.Require(rom).ReadCartridgeWord(operand));
             var actual = new SnesCgram();
@@ -2393,7 +2393,7 @@ internal static class LookupStream3Verification
             }
         }
         foreach (int invalid in new[] { -1, 14, int.MaxValue })
-            AssertThrows<IndexOutOfRangeException>(() => _ = MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress(invalid),
+            AssertThrows<IndexOutOfRangeException>(() => _ = SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomColorExtractor.FlashPaletteOperandAddress(invalid),
                 "stream 3 room palette operand index bounds");
         for (int frame = 0; frame < 14; frame++)
             for (int color = 0; color < 24; color++)
@@ -2791,7 +2791,7 @@ internal static class LookupStream3Verification
         AssertEqual(0, MetadataShape.Fields(finalRoom.GetType(), fields).Count(field => field.FieldType == typeof(ushort)), "final-room paint choices live only in reviewed catalog");
         for (int color = 0; color < document.FinalRoom.Length; color++)
         {
-            int address = MotherBrainRoomColorRomData.SourceBank + MotherBrainRoomPaletteProgramDefinitions.FinalPalette + color * sizeof(ushort);
+            int address = MotherBrainRoomColorRomData.SourceBank + SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FinalPalette + color * sizeof(ushort);
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(native, Word(document.FinalRoom[color]), "final-room direct native word");
         }

@@ -22,8 +22,8 @@ public sealed class RidleyEnemyState
     /// handoff, so it stays far below the range where the cartridge's counter would wrap.
     /// </summary>
     public int HitCounter { get; internal set; }
-    /// <summary>Gets the native OBJ palette bits used when drawing Ridley's composed body parts.</summary>
-    public ushort SpritemapPaletteIndex { get; internal set; }
+    /// <summary>Gets the OBJ palette Ridley's tail and wings are drawn with: palette seven, or palette zero on hurt-flash updates.</summary>
+    public SnesObjAttributeWord SpritemapPaletteIndex { get; internal set; }
     /// <summary>Gets the palette word retained for the common enemy draw path alongside Ridley's composed-body palette.</summary>
     public ushort CommonDrawPaletteIndex { get; internal set; }
     /// <summary>Gets the native nonzero enable word for shared body motion and wing/tail updates, cleared when the intact death body is hidden.</summary>
@@ -59,10 +59,10 @@ public sealed class RidleyEnemyState
     public RidleyTailFunction TailFunctionIndex { get; internal set; }
     /// <summary>Gets the angular step (zero through eight) used by shared tail segment motion and stagger propagation.</summary>
     public int TailAngleDelta { get; internal set; }
-    /// <summary>Gets the facing-dependent lower full-word angle clamp for clockwise tail movement.</summary>
-    public ushort TailMinimumClockwiseAngle { get; internal set; }
-    /// <summary>Gets the facing-dependent upper full-word angle clamp for counterclockwise tail movement.</summary>
-    public ushort TailMaximumCounterClockwiseAngle { get; internal set; }
+    /// <summary>Gets the facing-dependent lowest angle clockwise tail movement may reach.</summary>
+    public SnesAngle TailMinimumClockwiseAngle { get; internal set; }
+    /// <summary>Gets the facing-dependent highest angle counterclockwise tail movement may reach.</summary>
+    public SnesAngle TailMaximumCounterClockwiseAngle { get; internal set; }
     /// <summary>Gets the clockwise whip target angle; bit $8000 marks an inactive target.</summary>
     public ushort TailWhipTargetClockwiseAngle { get; internal set; }
     /// <summary>Gets the counterclockwise whip target angle; bit $8000 marks an inactive target.</summary>
@@ -139,8 +139,6 @@ public sealed class RidleyEnemyState
     public int DeathExplosionCount { get; internal set; }
     /// <summary>Gets the whole-pixel room-liquid target height published by Lower Norfair death or combat logic.</summary>
     public int FxTargetYPosition { get; internal set; }
-    /// <summary>Gets the packed signed native 8.8 room-liquid vertical velocity published to the room FX owner.</summary>
-    public ushort FxYSubVelocity { get; internal set; }
     /// <summary>Gets the authored room-liquid motion delay, in updates, published with Ridley's FX target and velocity.</summary>
     public int FxTimer { get; internal set; }
     /// <summary>Gets whether Lower Norfair's twelve independently moving breakup actors have already been allocated.</summary>
@@ -163,10 +161,11 @@ public sealed class RidleyEnemyState
     public CeresBabyFunction BabyFunction { get; internal set; }
     /// <summary>The pose the Ceres Baby's program currently shows, or null before it has shown one.</summary>
     internal CeresBabyPose? BabyCurrentPose { get; set; }
-    /// <summary>Gets the Ceres Baby's wrapped whole-pixel room position, updated while falling or attached to a hand.</summary>
-    public Position16<RoomPixels> BabyPosition { get; internal set; }
-    /// <summary>Gets the Ceres Baby's sixteen-bit fractional Y position used by its falling integrator.</summary>
-    public ushort BabyYSubposition { get; internal set; }
+    /// <summary>
+    /// Gets the Ceres Baby's wrapped room position. Its vertical fraction carries the falling integrator's subpixels and
+    /// survives the hand attachments, which replace only the whole pixels.
+    /// </summary>
+    public FixedPosition<RoomPixels> BabyPosition { get; internal set; }
     /// <summary>
     /// Gets the Ceres Baby's 8.8 falling speed (1/256 pixels per update): zero until it is dropped, then eight more each
     /// falling update until it lands.
@@ -182,16 +181,19 @@ public sealed class RidleyEnemyState
     public SnesAngle Mode7Angle { get; internal set; }
     /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
     public Offset16<Mode7Pixels> Mode7Offset { get; internal set; }
-    /// <summary>Gets the native 8.8 zoom magnitude selected by Ceres's getaway table and used to scale its sine/cosine matrix.</summary>
-    public ushort Mode7Zoom { get; internal set; }
+    /// <summary>
+    /// Gets the getaway's zoom in 1/256 of unit scale, which scales its sine/cosine matrix: 2048 when the getaway
+    /// starts, then each table frame's zoom, which the table keeps from zero through 65535.
+    /// </summary>
+    public int Mode7Zoom { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 A coefficient, computed from zoom-scaled cosine.</summary>
-    public ushort Mode7MatrixA { get; internal set; }
+    public SnesSignedEightEight Mode7MatrixA { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 B coefficient, computed from zoom-scaled sine.</summary>
-    public ushort Mode7MatrixB { get; internal set; }
+    public SnesSignedEightEight Mode7MatrixB { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 C coefficient, the negated B coefficient.</summary>
-    public ushort Mode7MatrixC { get; internal set; }
+    public SnesSignedEightEight Mode7MatrixC { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 D coefficient, equal to its A coefficient.</summary>
-    public ushort Mode7MatrixD { get; internal set; }
+    public SnesSignedEightEight Mode7MatrixD { get; internal set; }
     /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 center, initialized to ($40,$40) and cleared on completion.</summary>
     public Position16<Mode7Pixels> Mode7Center { get; internal set; }
     /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index (zero through three) during the Mode-7 getaway.</summary>
@@ -200,20 +202,11 @@ public sealed class RidleyEnemyState
     public int Mode7WingFrame { get; internal set; }
 
     // Ceres self-destruct presentation ($A6:C04E-$C135). FunctionTimer deliberately
-    // retains the native phase values 0,2,4,6,8,10,12 while these words project the
-    // extended enemy workspaces used by the DMA-list and optional Japanese typewriter.
-    /// <summary>Gets the native cursor in the Ceres self-destruct seven-byte VRAM transfer records, advanced as each record is queued.</summary>
-    public ushort CeresEscapeTransferListPointer { get; internal set; }
-    /// <summary>Gets the Ceres warning typewriter's native text-program cursor mirrored from its installed program state.</summary>
-    public ushort CeresEscapeTextPointer { get; internal set; }
-    /// <summary>Gets the Ceres warning typewriter's current tilemap destination offset mirrored from its program state.</summary>
-    public ushort CeresEscapeTextDestination { get; internal set; }
+    // retains the native phase values 0,2,4,6,8,10,12.
+    /// <summary>Where the Ceres self-destruct graphics dispatcher stands in its current transfer list, advanced as each record is queued.</summary>
+    internal CeresEscapeTransferCursor CeresEscapeTransfers { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>
     public ushort CeresEscapeTextDelayTimer { get; internal set; }
-    /// <summary>Gets the Ceres warning typewriter's current inter-glyph delay mirrored from its program state.</summary>
-    public ushort CeresEscapeTextDelay { get; internal set; }
-    /// <summary>Gets the Ceres typewriter's alternating glyph-sound phase, mirrored as the low bit of glyphs written.</summary>
-    public ushort CeresEscapeTextSoundCounter { get; internal set; }
     /// <summary>Gets the installed Ceres warning typewriter state, created after the initial delay when presentation data is available.</summary>
     public EscapeTypewriterState? CeresEscapeTypewriter { get; internal set; }
     /// <summary>Gets the sixteen-phase Ceres self-destruct alarm-palette frame, zero through fifteen, returning to zero after fifteen.</summary>

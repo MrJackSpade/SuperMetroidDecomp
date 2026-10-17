@@ -21,7 +21,11 @@ internal static class KraidMouthHitboxDefinitions
     /// zero shape. Live low-half geometry remains a separate caller-owned path.
     /// </remarks>
     public static (short Left, short Top, short Right, short Bottom) Resolve(ushort pointer) =>
-        ClosedNativeWords.Decode<KraidMouthHitbox>(pointer, "Kraid mouth hitbox") switch
+        Resolve(ClosedNativeWords.Decode<KraidMouthHitbox>(pointer, "Kraid mouth hitbox"));
+
+    /// <summary>The rectangle of <paramref name="shape"/>, relative to Kraid's body position.</summary>
+    public static (short Left, short Top, short Right, short Bottom) Resolve(KraidMouthHitbox shape) =>
+        shape switch
         {
             KraidMouthHitbox.ClosedVulnerable => (16, -120, 40, -88),
             KraidMouthHitbox.OpeningVulnerable => (16, -120, 40, -104),
@@ -31,8 +35,15 @@ internal static class KraidMouthHitboxDefinitions
             KraidMouthHitbox.OpeningInvulnerable => (6, -96, 32, -80),
             KraidMouthHitbox.WiderInvulnerable => (0, -104, 32, -80),
             KraidMouthHitbox.OpenInvulnerable => (0, -112, 32, -80),
-            _ => throw new InvalidOperationException($"Undefined Kraid mouth hitbox $A7:{pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined Kraid mouth hitbox {shape}."),
         };
+
+    /// <summary>The left, top and bottom edges collision tests against for <paramref name="shape"/>; the right edge is unused.</summary>
+    public static (short Left, short Top, short Bottom) ResolveCollision(KraidMouthHitbox shape)
+    {
+        (short left, short top, _, short bottom) = Resolve(shape);
+        return (left, top, bottom);
+    }
 
     /// <summary>
     /// Resolves compiled cartridge geometry or a genuine bank-$A7 low-half live-memory,

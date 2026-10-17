@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Programs;
+
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -47,11 +49,14 @@ public sealed class KraidEnemyState
     public int HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-palette phases, normally reloaded to two and reused by background fades during death.</summary>
     public NativeCountdown HurtFrameTimer { get; internal set; }
+    /// <summary>The head pose Kraid is showing, which selects the head image; null until the head program shows its first pose.</summary>
+    internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
+
     /// <summary>
-    /// The head frame Kraid is showing, which selects the head tilemap, the two mouth shapes and the mouth stage; null
-    /// until the head program shows its first frame.
+    /// Where Kraid's head program resumes; its timer is the body's head countdown. Null until the first attack, glow
+    /// or death installs a program.
     /// </summary>
-    internal KraidHeadInstructionDefinition? DisplayedHeadFrame { get; set; }
+    internal AnimationProgramCursor<KraidHeadProgram>? HeadProgram { get; set; }
 
     /// <summary>Moves the hurt-palette phase one step toward zero; the caller has established the phase is running.</summary>
     internal void StepHurtFrameDown() => HurtFrame = HurtFrame > 0

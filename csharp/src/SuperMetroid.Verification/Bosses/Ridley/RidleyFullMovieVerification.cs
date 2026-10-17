@@ -564,7 +564,7 @@ internal static class RidleyFullMovieVerification
         {
             TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray(),
             IdealInterSegmentTailAngle = 16, TailAngleDelta = 2,
-            TailMinimumClockwiseAngle = 0x3fc0, TailMaximumCounterClockwiseAngle = 0x4010,
+            TailMinimumClockwiseAngle = SnesAngle.FromRaw(0x3fc0), TailMaximumCounterClockwiseAngle = SnesAngle.FromRaw(0x4010),
             TailWhipTargetClockwiseAngle = ushort.MaxValue,
             TailWhipTargetCounterClockwiseAngle = ushort.MaxValue,
         };
@@ -1321,8 +1321,8 @@ internal static class RidleyFullMovieVerification
                 Check("Ridley TailWhipRequest", checked((ushort)ridleyState.TailWhipRequest), NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", checked((ushort)ridleyState.TailExtensionSpeed), NativeSnapshotMemory.RidleyTailExtensionSpeed);
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.TailAngleDelta), NativeSnapshotMemory.RidleyTailAngleDelta);
-                Check("Ridley TailMinimumClockwiseAngle", ridleyState.TailMinimumClockwiseAngle, NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
-                Check("Ridley TailMaximumCounterClockwiseAngle", ridleyState.TailMaximumCounterClockwiseAngle, NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
+                Check("Ridley TailMinimumClockwiseAngle", ridleyState.TailMinimumClockwiseAngle.RawValue, NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
+                Check("Ridley TailMaximumCounterClockwiseAngle", ridleyState.TailMaximumCounterClockwiseAngle.RawValue, NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
                 Check("Ridley TailWhipTargetClockwiseAngle", ridleyState.TailWhipTargetClockwiseAngle, NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
                 Check("Ridley TailWhipTargetCounterClockwiseAngle", ridleyState.TailWhipTargetCounterClockwiseAngle, NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
                 Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.IdealInterSegmentTailAngle), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);

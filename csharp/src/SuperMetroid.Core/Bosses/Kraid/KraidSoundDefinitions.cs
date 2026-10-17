@@ -1,6 +1,6 @@
 namespace SuperMetroid.Core.Bosses.Kraid;
 
-/// <summary>Kraid's and Mini-Kraid's sound effects outside Kraid's head stream.</summary>
+/// <summary>Kraid's and Mini-Kraid's sound effects.</summary>
 internal static class KraidSoundDefinitions
 {
     /// <summary>Library-2 sound $16: Mini-Kraid's cry before it spits, requested only while its origin is on screen.</summary>
@@ -14,6 +14,12 @@ internal static class KraidSoundDefinitions
 
     /// <summary>Library-3 sound $1F: a belly lint fires.</summary>
     internal static SoundEffectId LintFire { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x001f);
+
+    /// <summary>Library-2 sound $2D: Kraid's roar, cried by the attack and dying roars of the head program.</summary>
+    internal static SoundEffectId HeadRoar { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x002d);
+
+    /// <summary>Library-2 sound $2E: Kraid's death cry, cried by the death head program.</summary>
+    internal static SoundEffectId HeadDyingCry { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x002e);
 
     /// <summary>Library-2 sound $76: a heavy footstep.</summary>
     internal static SoundEffectId Footstep { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0076);

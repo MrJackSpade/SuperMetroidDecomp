@@ -21,8 +21,8 @@ public readonly record struct CeresRidleyMode7Snapshot(
     /// two's-complement 8.8 value its shadow holds.
     /// </summary>
     public static CeresRidleyMode7Snapshot? Capture(RidleyEnemyState? ridley) => ridley is { Mode7Active: true } getaway
-        ? new(unchecked((short)getaway.Mode7MatrixA), unchecked((short)getaway.Mode7MatrixB),
-            unchecked((short)getaway.Mode7MatrixC), unchecked((short)getaway.Mode7MatrixD),
+        ? new(getaway.Mode7MatrixA.SignedRawValue, getaway.Mode7MatrixB.SignedRawValue,
+            getaway.Mode7MatrixC.SignedRawValue, getaway.Mode7MatrixD.SignedRawValue,
             getaway.Mode7Center, getaway.Mode7Offset)
         : null;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Programs;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -36,7 +37,10 @@ internal static class KraidReportedCollisionsVerification
             body.Position = body.Position.WithWhole(new(176, 592));
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = NativeCountdown.Start(100);
-            body.VariableB = closed ? KraidHeadInstructionDefinitions.RoarInitial : (ushort)0x96ec;
+            // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
+            state.HeadProgram = closed
+                ? AnimationProgramCursor<KraidHeadProgram>.Start(KraidHeadProgram.Roar)
+                : new AnimationProgramCursor<KraidHeadProgram>(KraidHeadProgram.Roar, 4);
             runtime.Enemies.KraidBehavior.ExecuteKraidHeadInstruction(body, state);
             bool marked = false;
             bool spawned = false;
@@ -102,7 +106,7 @@ internal static class KraidReportedCollisionsVerification
             body.VariableA = (ushort)KraidAiFunction.RaiseBody;
             state.DisplayedHeadFrame = null;
             runtime.Enemies.KraidBehavior.RunKraidRiseFunction(body, state, samus);
-            AssertEqual(KraidHeadInstructionDefinitions.RoarContinuation, body.VariableB, "Rise selects native next head cursor");
+            AssertEqual((AnimationProgramCursor<KraidHeadProgram>?)KraidHeadAnimations.RoarAfterEntryFrame, state.HeadProgram, "Rise selects native next head cursor");
             var shot = runtime.Projectiles.Slots[0];
             shot.Type = 0x8004; shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));

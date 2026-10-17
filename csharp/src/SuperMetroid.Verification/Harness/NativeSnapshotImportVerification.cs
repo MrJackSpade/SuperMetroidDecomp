@@ -258,6 +258,7 @@ internal static class NativeSnapshotImportVerification
         runtime.RoomLayer3Fx.CurrentYPosition = W(NativeSnapshotMemory.AcidSurface);
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
+        var kraidHeadCursors = new SuperMetroid.Verification.Bosses.Kraid.KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and
         // +$0A/+$0C the radii, each imported as one typed value below.
         for (int index = 0; index < runtime.Enemies.SlotTable.Slots.Count; index++)
@@ -291,6 +292,10 @@ internal static class NativeSnapshotImportVerification
             slot.VariableD = W(address + 54);
             slot.VariableE = W(address + 56);
             slot.VariableF = W(address + 58);
+            // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
+            // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
+            if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Kraid is { } kraid)
+                kraid.HeadProgram = kraidHeadCursors.TryCursorAt(slot.VariableB);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)
                 pipeBug.Program = pipeBugPointers.CursorAt(slot.CurrentInstruction);

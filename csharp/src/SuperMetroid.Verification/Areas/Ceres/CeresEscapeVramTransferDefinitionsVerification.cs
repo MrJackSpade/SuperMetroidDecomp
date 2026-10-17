@@ -64,13 +64,14 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             Presentation = { EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng) },
         };
         system.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        foreach (ushort start in new[]
+        // Each typed list must queue exactly the ROM-checked records from its native list start to its terminator.
+        foreach ((ushort start, CeresEscapeTransferCursor cursor) in new[]
                  {
-                     CeresEscapeVramTransferDefinitions.TimerSprites,
-                     CeresEscapeVramTransferDefinitions.TimerBackgrounds,
+                     (CeresEscapeVramTransferDefinitions.TimerSprites, CeresEscapeTransferCursor.TimerSprites),
+                     (CeresEscapeVramTransferDefinitions.TimerBackgrounds, CeresEscapeTransferCursor.TimerBackgrounds),
                  })
         {
-            var state = new RidleyEnemyState { CeresEscapeTransferListPointer = start };
+            var state = new RidleyEnemyState { CeresEscapeTransfers = cursor };
             var queue = new VramWriteQueue();
             CeresEscapeVramTransferDefinition[] list = records
                 .SkipWhile(record => record.Pointer != start)
@@ -125,8 +126,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
         {
             system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(new RidleyEnemyState
                     {
-                        CeresEscapeTransferListPointer =
-                            CeresEscapeVramTransferDefinitions.TimerSprites,
+                        CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites,
                     }, new VramWriteQueue());
             throw new InvalidOperationException(
                 "Installed Ceres escape accepted missing timer PNG artwork.");

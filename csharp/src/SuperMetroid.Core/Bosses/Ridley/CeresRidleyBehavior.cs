@@ -175,7 +175,7 @@ internal sealed class CeresRidleyBehavior
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
-            SpritemapPaletteIndex = EnemyPaletteBits.Palette7,
+            SpritemapPaletteIndex = SnesObjPalettes.Index7,
             CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 0,
             FacingDirection = RidleyFacing.Left,
@@ -188,7 +188,7 @@ internal sealed class CeresRidleyBehavior
             BabyInstructionTimer = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
             BabyCurrentPose = null,
-            BabyPosition = slot.Position.Whole + CeresBabyArmsAnchor,
+            BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresBabyArmsAnchor),
             WingFrame = 5,
             WingAnimationTimer = NativeCountdown.Start(0),
             WingAnimationTimerDelta = 0,
@@ -467,6 +467,10 @@ internal sealed class CeresRidleyBehavior
             TickCeresBaby(slot, state);
     }
 
+    /// <summary>OBJ palette zero, which the tail and wings select on hurt-flash updates.</summary>
+    private static readonly SnesObjAttributeWord HurtFlashSpritemapPalette =
+        SnesObjAttributeWord.Create(tileNumber: 0, paletteIndex: 0, priority: 0);
+
     /// <summary>
     /// Ports <c>RidleyHurtFlashHandling</c> at $A6:D4DA and the common extended-enemy
     /// palette override at $A0:9497. Ridley's composite is split between those two writers:
@@ -485,8 +489,8 @@ internal sealed class CeresRidleyBehavior
 
         state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
-                ? (ushort)0
-                : EnemyPaletteBits.Palette7;
+                ? HurtFlashSpritemapPalette
+                : SnesObjPalettes.Index7;
     }
 
     /// <summary>
@@ -743,9 +747,9 @@ internal sealed class CeresRidleyBehavior
     {
         // $BE03 flies Ridley's hand toward the falling Baby. The native collision compares
         // two radius-four rectangles centered on the hand and Baby points.
-        AccelerateRidleyToward(slot, state, state.BabyPosition - CeresRidleyHandToBaby, 12);
+        AccelerateRidleyToward(slot, state, state.BabyPosition.Whole - CeresRidleyHandToBaby, 12);
 
-        Offset16<RoomPixels> fromHand = state.BabyPosition - (slot.Position.Whole + CeresBabyFeetAnchor);
+        Offset16<RoomPixels> fromHand = state.BabyPosition.Whole - (slot.Position.Whole + CeresBabyFeetAnchor);
         if (Math.Abs(fromHand.X) >= 8 || Math.Abs(fromHand.Y) >= 8)
         {
             return;
@@ -765,11 +769,11 @@ internal sealed class CeresRidleyBehavior
                 // Before the fake retreat, the Baby remains at Ridley's original left-hand
                 // anchor. This function is also why the retrieval target begins coherent
                 // even though the Baby is not a separate RoomEnemySlot.
-                state.BabyPosition = slot.Position.Whole + CeresBabyArmsAnchor;
+                state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyArmsAnchor);
                 return;
 
             case CeresBabyFunction.Drop:
-                state.BabyYSubposition = 0;
+                state.BabyPosition = state.BabyPosition.WithFractionY(0);
                 state.BabyVerticalVelocity = 0;
                 state.BabyFunction = CeresBabyFunction.Dropped;
                 goto case CeresBabyFunction.Dropped;
@@ -778,14 +782,11 @@ internal sealed class CeresRidleyBehavior
                 state.BabyVerticalVelocity += 8;
                 // The falling speed only grows from zero and the fall ends at Y=192, so it is always a
                 // nonnegative 8.8 velocity well inside the signed range the integrator accepts.
-                (ushort babyY, state.BabyYSubposition) = IntegrateUnclampedAxis(
-                    state.BabyPosition.Y,
-                    state.BabyYSubposition,
-                    checked((ushort)state.BabyVerticalVelocity));
-                state.BabyPosition = state.BabyPosition.WithY(babyY);
-                if (unchecked((short)(state.BabyPosition.Y - 192)) >= 0)
+                state.BabyPosition = state.BabyPosition.WithY(
+                    state.BabyPosition.Y.AddEightEightToHighFraction(checked((ushort)state.BabyVerticalVelocity)));
+                if (unchecked((short)(state.BabyPosition.Y.Whole - 192)) >= 0)
                 {
-                    state.BabyPosition = state.BabyPosition.WithY(192);
+                    state.BabyPosition = state.BabyPosition.WithWholeY(192);
                     state.BabyFunction = CeresBabyFunction.Idle;
                 }
                 return;
@@ -793,7 +794,7 @@ internal sealed class CeresRidleyBehavior
             case CeresBabyFunction.CarriedInFeet:
                 // Once the hand rectangles overlap, the Baby follows the grasp point for
                 // the real retreat and disappears with Ridley at the status-one handoff.
-                state.BabyPosition = slot.Position.Whole + CeresBabyFeetAnchor;
+                state.BabyPosition = state.BabyPosition.WithWhole(slot.Position.Whole + CeresBabyFeetAnchor);
                 return;
 
             case CeresBabyFunction.Idle:
@@ -1182,7 +1183,7 @@ internal sealed class CeresRidleyBehavior
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
             wingPointerIndex);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 256 });
     }
 
     /// <summary>
@@ -1239,7 +1240,7 @@ internal sealed class CeresRidleyBehavior
             ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
             if (babySpritemap != 0)
             {
-                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyFrameDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 256 });
+                _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyFrameDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.Whole.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.Whole.ToScreen(camera).Y < 256 });
             }
         }
 
@@ -1354,13 +1355,13 @@ internal sealed class CeresRidleyBehavior
     /// <summary>Projects a Ridley component's world spritemap into OAM using the current camera.</summary>
     private void DrawRidleyWorldSpritemap(
         OamBuffer oam,
-        ushort paletteIndex,
+        SnesObjAttributeWord paletteIndex,
         RidleyTailSegment segment,
         ushort spritemap,
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
+        _presentation.DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex.PaletteBits, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 256 });
     }
 
     /// <summary>Tests Samus against Ridley's extended body and applies contact response after native invincibility gating.</summary>
@@ -1440,9 +1441,7 @@ internal sealed class CeresRidleyBehavior
             Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
-                RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-            foreach (RidleyCollisionHitbox hitbox in hitboxes)
+            foreach (RidleyCollisionHitbox hitbox in component.Hitboxes)
             {
                 int left = unchecked((ushort)(componentX + hitbox.Left));
                 int top = unchecked((ushort)(componentY + hitbox.Top));
@@ -1464,6 +1463,9 @@ internal sealed class CeresRidleyBehavior
         return false;
     }
 
+    /// <summary>A signed 8.8 coefficient of one, unit scale, as the getaway's setup installs it.</summary>
+    private static readonly SnesSignedEightEight Mode7UnitCoefficient = SnesSignedEightEight.FromSignedRaw(256);
+
     /// <summary>
     /// Ports $A6:AA54. Every value below is a literal PPU/actor word installed by the retail
     /// setup routine; in particular B and C intentionally begin at $0100 before the first
@@ -1477,10 +1479,10 @@ internal sealed class CeresRidleyBehavior
         state.Mode7Angle = SnesAngle.FromRaw(1);
         state.Mode7Offset = new Offset16<Mode7Pixels>(-128, 32);
         state.Mode7Zoom = 2048;
-        state.Mode7MatrixA = 256;
-        state.Mode7MatrixB = 256;
-        state.Mode7MatrixC = 256;
-        state.Mode7MatrixD = 256;
+        state.Mode7MatrixA = Mode7UnitCoefficient;
+        state.Mode7MatrixB = Mode7UnitCoefficient;
+        state.Mode7MatrixC = Mode7UnitCoefficient;
+        state.Mode7MatrixD = Mode7UnitCoefficient;
         state.Mode7Center = new Position16<Mode7Pixels>(64, 64);
         state.Mode7BabyFrame = 0;
         state.Mode7WingFrame = 0;
@@ -1537,10 +1539,10 @@ internal sealed class CeresRidleyBehavior
             state.Mode7Finished = true;
             state.Mode7Active = false;
             state.Mode7Offset = Offset16<Mode7Pixels>.Zero;
-            state.Mode7MatrixA = 0;
-            state.Mode7MatrixB = 0;
-            state.Mode7MatrixC = 0;
-            state.Mode7MatrixD = 0;
+            state.Mode7MatrixA = default;
+            state.Mode7MatrixB = default;
+            state.Mode7MatrixC = default;
+            state.Mode7MatrixD = default;
             state.Mode7Center = Position16<Mode7Pixels>.Zero;
             // $A6:AB55 hands the same extended actor workspace to $A6:C04E. Samus's
             // special push/fall handler remains responsible for restoring normal input;
@@ -1585,15 +1587,23 @@ internal sealed class CeresRidleyBehavior
         queue.CompleteTransfers();
     }
 
+    /// <summary>
+    /// Negates a signed 8.8 coefficient the way the getaway's two's-complement negate does: the most negative value,
+    /// which has no positive counterpart, negates to itself.
+    /// </summary>
+    internal static SnesSignedEightEight NegateMode7Coefficient(SnesSignedEightEight coefficient) =>
+        SnesSignedEightEight.FromSignedRaw(unchecked((short)-coefficient.SignedRawValue));
+
     /// <summary>Updates the getaway's Mode-7 transform matrix from its zoom and rotation words.</summary>
     private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
         byte angle = state.Mode7Angle.TableIndex;
-        ushort diagonal = EnemyMath.MultiplyCartridgeSinCos(state.Mode7Zoom, unchecked((byte)(angle + 64)));
-        ushort offDiagonal = EnemyMath.MultiplyCartridgeSinCos(state.Mode7Zoom, angle);
+        ushort zoom = checked((ushort)state.Mode7Zoom);
+        var diagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, unchecked((byte)(angle + 64))));
+        var offDiagonal = new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(zoom, angle));
         state.Mode7MatrixA = diagonal;
         state.Mode7MatrixB = offDiagonal;
-        state.Mode7MatrixC = unchecked((ushort)-(short)offDiagonal);
+        state.Mode7MatrixC = NegateMode7Coefficient(offDiagonal);
         state.Mode7MatrixD = diagonal;
     }
 
@@ -1647,14 +1657,14 @@ internal sealed class CeresRidleyBehavior
                 // replace their tiles. These are palette indices, not byte offsets.
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(0), _presentation.CgramRows.BackgroundRow(6));
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(1), _presentation.CgramRows.BackgroundRow(5));
-                state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerSprites;
+                state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites;
                 state.FunctionTimer = NativeCountdown.Start(2);
                 goto case 2;
 
             case 2:
                 if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
                 {
-                    state.CeresEscapeTransferListPointer = CeresEscapeVramTransferDefinitions.TimerBackgrounds;
+                    state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerBackgrounds;
                     state.FunctionTimer = NativeCountdown.Start(4);
                     goto case 4;
                 }
@@ -1684,11 +1694,7 @@ internal sealed class CeresRidleyBehavior
                 if (oldDelay != 1)
                     return;
 
-                state.CeresEscapeTextPointer = EscapeTypewriterDefinitions.CeresJapaneseText;
-                state.CeresEscapeTextDestination = 0;
                 state.CeresEscapeTextDelayTimer = 0;
-                state.CeresEscapeTextDelay = 0;
-                state.CeresEscapeTextSoundCounter = 0;
                 state.CeresEscapeTypewriter = _presentation.EscapeTypewriterPresentation is { } presentation
                     ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
                     : null;
@@ -1772,15 +1778,15 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state,
         VramWriteQueue? vramWriteQueue)
     {
-        ushort pointer = state.CeresEscapeTransferListPointer;
+        CeresEscapeTransferCursor cursor = state.CeresEscapeTransfers;
         ushort byteCount;
         int sourceAddress;
         ushort destination;
-        if (CeresEscapeVramTransferDefinitions.IsTerminator(pointer))
+        if (!cursor.IsStarted)
+            throw new InvalidDataException("The Ceres escape graphics dispatcher was never given a transfer list.");
+        if (cursor.IsFinished)
             return true;
-        if (!CeresEscapeVramTransferDefinitions.TryGet(pointer, out var transfer))
-            throw new InvalidDataException(
-                $"Ceres escape transfer ${pointer:X4} has no compiled record.");
+        CeresEscapeVramTransferDefinition transfer = cursor.Current;
         byteCount = transfer.ByteCount;
         sourceAddress = transfer.SourceAddress;
         destination = transfer.DestinationWord;
@@ -1803,9 +1809,8 @@ internal sealed class CeresRidleyBehavior
             vramWriteQueue, sourceAddress, byteCount, destination) != true)
             vramWriteQueue.Enqueue(byteCount, sourceAddress, VramDmaDestination.FromNative(destination));
 
-        state.CeresEscapeTransferListPointer = unchecked((ushort)(pointer + 7));
-        return CeresEscapeVramTransferDefinitions.IsTerminator(
-            state.CeresEscapeTransferListPointer);
+        state.CeresEscapeTransfers = cursor.Advance();
+        return state.CeresEscapeTransfers.IsFinished;
     }
 
     /// <summary>Queues every record in the one-shot Japanese overlay list at $A6:C3B8.</summary>
@@ -1839,11 +1844,7 @@ internal sealed class CeresRidleyBehavior
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(_presentation.Vram);
-        state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
-        state.CeresEscapeTextDestination = installed.Destination;
         state.CeresEscapeTextDelayTimer = installed.DelayTimer.RawValue;
-        state.CeresEscapeTextDelay = installed.Delay;
-        state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
         return completed;

@@ -8,7 +8,7 @@ internal static class MotherBrainRoomColorPresentationToolingExtensions
     {
         /// <summary>Timed-entry identities installed by the validated flash rows; exposes no color payload.</summary>
         internal IEnumerable<ushort> FlashEntryPointers => Enumerable.Range(0, self.flash.FrameCount)
-            .Select(index => checked((ushort)(MotherBrainRoomPaletteProgramDefinitions.FlashStart +
+            .Select(index => checked((ushort)(SuperMetroid.AssetExtraction.Bosses.MotherBrain.MotherBrainRoomFlashSourceDefinitions.FlashList +
                 index * MotherBrainRoomColorRomDataTooling.TimedEntryByteCount)));
     }
 }

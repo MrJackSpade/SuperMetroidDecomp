@@ -35,8 +35,7 @@ internal static class KraidInstalledPresentationResourcesVerification
     {
         IEnumerable<string> files = new[] { KraidBackgroundArtworkFormat.UpperFileName,
             KraidBackgroundArtworkFormat.LowerFileName, KraidBackgroundArtworkFormat.RoomBackgroundFileName }
-            .Concat(KraidHeadInstructionDefinitions.All.Where(command => command.Kind == KraidHeadInstructionKind.Frame)
-                .Select(command => command.Tilemap).Distinct().Select(KraidBackgroundArtworkFormat.HeadFileName));
+            .Concat(KraidHeadFrameDefinitions.PresentationKeys.Select(KraidBackgroundArtworkFormat.HeadFileName));
         int count = 0;
         foreach (string file in files)
         {

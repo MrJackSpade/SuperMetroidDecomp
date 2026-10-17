@@ -12,8 +12,8 @@ public sealed record RainbowBeamAttackFrame
     /// <summary>Power bomb active.</summary>
     public bool PowerBombActive { get; init; } = false;
 
-    /// <summary>Random number seed.</summary>
-    public ushort RandomNumberSeed { get; init; } = 0;
+    /// <summary>The room's random number as this step reads it without advancing the generator; zero unless supplied.</summary>
+    public MotherBrainRandomSample RandomNumberSeed { get; init; } = MotherBrainRandomSample.FromGenerator(0);
 
     /// <summary>Next random number.</summary>
     public Func<ushort>? NextRandomNumber { get; init; } = null;

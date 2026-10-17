@@ -233,7 +233,7 @@ internal sealed class RidleyTail
                             return;
                         }
                         segment.MovementDirection = 0;
-                        segment.Angle = state.TailMinimumClockwiseAngle;
+                        segment.Angle = state.TailMinimumClockwiseAngle.RawValue;
                     }
                     else
                     {
@@ -243,10 +243,10 @@ internal sealed class RidleyTail
                 else
                 {
                     int next = segment.Angle - state.TailAngleDelta - 1;
-                    if (next < state.TailMinimumClockwiseAngle)
+                    if (next < state.TailMinimumClockwiseAngle.RawValue)
                     {
                         segment.MovementDirection = 0;
-                        segment.Angle = state.TailMinimumClockwiseAngle;
+                        segment.Angle = state.TailMinimumClockwiseAngle.RawValue;
                     }
                     else
                     {
@@ -270,7 +270,7 @@ internal sealed class RidleyTail
                             return;
                         }
                         segment.MovementDirection = RidleyTailDefinitions.ClockwiseMovementBit;
-                        segment.Angle = state.TailMaximumCounterClockwiseAngle;
+                        segment.Angle = state.TailMaximumCounterClockwiseAngle.RawValue;
                     }
                     else
                     {
@@ -279,10 +279,10 @@ internal sealed class RidleyTail
                 }
                 else
                 {
-                    if (next >= state.TailMaximumCounterClockwiseAngle)
+                    if (next >= state.TailMaximumCounterClockwiseAngle.RawValue)
                     {
                         segment.MovementDirection = RidleyTailDefinitions.ClockwiseMovementBit;
-                        segment.Angle = state.TailMaximumCounterClockwiseAngle;
+                        segment.Angle = state.TailMaximumCounterClockwiseAngle.RawValue;
                     }
                     else
                     {

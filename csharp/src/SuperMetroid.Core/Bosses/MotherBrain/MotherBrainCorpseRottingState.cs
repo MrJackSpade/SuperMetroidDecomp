@@ -70,7 +70,7 @@ public sealed class MotherBrainCorpseRottingState
     public MotherBrainCorpseRottingStepResult Step(
         EnemyStagingSurfaces scratch,
         Position16<RoomPixels> brainPosition,
-        ushort randomNumberSeed,
+        MotherBrainRandomSample randomNumberSeed,
         int mainEnemyExecutionCounter)
     {
         Ensure.NotNull(scratch);
@@ -96,7 +96,7 @@ public sealed class MotherBrainCorpseRottingState
                 FinishedEntryCount++;
                 dustRequests.Add(new MotherBrainCorpseDustRequest(
                     Position: brainPosition + new Offset16<RoomPixels>(
-                        unchecked((short)((randomNumberSeed % 32) - 16)),
+                        checked((short)(randomNumberSeed.LowBits(5) - 16)),
                         16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,

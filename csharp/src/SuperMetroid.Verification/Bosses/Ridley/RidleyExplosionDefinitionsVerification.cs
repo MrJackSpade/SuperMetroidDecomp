@@ -148,7 +148,7 @@ internal static class RidleyExplosionDefinitionsVerification
             var state = new RidleyEnemyState
             {
                 DeathExplosionTimer = NativeCountdown.Start(0),
-                DeathExplosionCount = unchecked((ushort)((selectedIndex + 9) % 10)),
+                DeathExplosionCount = (selectedIndex + 9) % 10,
             };
 
             spawn(body, state);
@@ -166,7 +166,7 @@ internal static class RidleyExplosionDefinitionsVerification
                 $"Ridley death explosion {selectedIndex} production Y");
             AssertEqual(RoomEnemyProjectileKind.MiscDustExplosion, effect.Kind,
                 $"Ridley death explosion {selectedIndex} actor kind");
-            AssertEqual((ushort)0x0024, state.LastDeathSoundEffect,
+            AssertEqual<SoundEffectId?>(SoundEffectLibrary2Sounds.SmallExplosion, state.LastDeathSoundEffect,
                 $"Ridley death explosion {selectedIndex} sound");
         }
     }

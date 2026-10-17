@@ -98,7 +98,8 @@ internal static class RidleyAnimationsVerification
                             AssertEqual(BodyProgramAt(operand), cue.Target, $"{at}: goto target");
                             break;
                         case RidleyBodyCueKind.SetFeetDistance:
-                            AssertEqual(operand, cue.FeetDistanceIndex, $"{at}: feet-distance index");
+                            // The native operand is the pose's byte offset into the word-sized claw-height table.
+                            AssertEqual((int)operand, cue.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
                             break;
                         case RidleyBodyCueKind.Move:
                             AssertEqual(unchecked((short)operand), cue.Displacement.X, $"{at}: X move");

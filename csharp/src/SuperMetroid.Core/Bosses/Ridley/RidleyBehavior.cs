@@ -209,7 +209,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 1,
             FacingDirection = RidleyFacing.Right,
-            IdleTailWhipEnabled = 0,
+            IdleTailWhipEnabled = false,
             TailDamage = 120,
             MovementMinimum = new Position16<RoomPixels>(64, 64),
             MovementMaximum = new Position16<RoomPixels>(224, 416),
@@ -253,9 +253,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         Position16<RoomPixels> camera = default)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireNorfairRidley(slot);
-        state.HurtMovementClamp = unchecked((ushort)Math.Max(
-            0,
-            unchecked((short)state.HurtMovementClamp) - 4));
+        state.HurtMovementClamp = Math.Max(0, state.HurtMovementClamp - 4);
 
         UpdateNorfairRidleyIntangibility(slot, state, camera);
         PrepareNorfairRidleyCombatFrame(state, sharedProjectiles ?? throw new InvalidOperationException(
@@ -356,7 +354,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.NorfairSwoopSetup:
                 state.Function = RidleyAiFunction.NorfairSwoopMoveToStart;
                 state.SwoopPhaseTimer = NativeCountdown.Start(10);
-                state.SwoopAngleAccumulator = 0;
+                state.SwoopAngleAccumulator = SnesAngle.Zero;
                 TickNorfairRidleySwoopMoveToStart(slot, state);
                 return;
 
@@ -554,7 +552,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             return;
 
         state.FunctionTimer = NativeCountdown.Start(2);
-        ushort row = state.FadePaletteOffset;
+        int row = state.FadePaletteOffset;
         bool hasPalette;
         var colors = _room.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley reveal requires installed colors.");
@@ -563,7 +561,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         hasPalette = row < NorfairRidleyPaletteRomData.RevealRowCount;
         if (hasPalette)
             colors.ApplyReveal(_presentation.Cgram, row);
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
+        state.FadePaletteOffset++;
         if (hasPalette)
             return;
 
@@ -595,7 +593,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         else if (slot.Health == 0)
         {
             situation = RidleyAttackSituation.ZeroHealth;
-            state.ZeroHealthLungeCount = unchecked((ushort)(state.ZeroHealthLungeCount + 1));
+            state.ZeroHealthLungeCount++;
         }
         else if (slot.Health < 14400)
         {
@@ -651,7 +649,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
         state.SwoopPhaseTimer = NativeCountdown.Start(32);
-        state.SwoopAngleAccumulator = 0;
+        state.SwoopAngleAccumulator = SnesAngle.Zero;
     }
 
     /// <summary>Advances the swoop velocity arc and changes phase when its timer expires.</summary>
@@ -780,8 +778,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             return;
         }
 
-        int nextVertical = state.Velocity.Y.SignedRawValue +
-            unchecked((short)state.PogoDownwardAcceleration);
+        int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoDownwardAcceleration;
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)Math.Min(nextVertical, 1536))));
 
         if (!RidleyTail.RidleyTailTouchesTerrain(state, level))
@@ -800,7 +797,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             state.TailSegments[index].TargetDistance = RidleyTailDefinitions.BounceDistance;
         }
         state.TailFunctionIndex = RidleyTailFunction.Pogo;
-        state.PogoBounceCount = unchecked((ushort)(state.PogoBounceCount + 1));
+        state.PogoBounceCount++;
         if (state.PogoBounceCount >= 2)
         {
             state.PogoBounceCount = 0;
@@ -823,8 +820,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             return;
         }
 
-        int nextVertical = state.Velocity.Y.SignedRawValue +
-            unchecked((short)state.PogoUpwardAcceleration);
+        int nextVertical = state.Velocity.Y.SignedRawValue + state.PogoUpwardAcceleration;
         if (nextVertical >= 0)
         {
             state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0));
@@ -845,7 +841,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     {
         // The native routine samples the current word; it does not advance shared RNG.
         int randomIndex = _room.Random.Read() & 3;
-        var definition = RidleyPogoDefinitions.Read(randomIndex, Math.Min(state.HealthStage, (ushort)3) + 2);
+        var definition = RidleyPogoDefinitions.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(definition.Y));
@@ -881,7 +877,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         int sideOffset = state.FacingDirection != RidleyFacing.Left ? 16 : -16;
         ushort targetY = unchecked((ushort)(samus.Position.Y.Whole - 4));
-        int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
+        int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes(Math.Min(state.HealthStage, 3));
         MoveNorfairRidleyToward(
             slot,
             state,
@@ -1020,7 +1016,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
     /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>
     internal static int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
-        RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
+        RidleyMovementTargets.HoverDivisorIndexes(Math.Min(state.HealthStage, 3));
 
     /// <summary>Checks the validated pose movement type against Ridley's grabbable states.</summary>
     internal static bool SamusMovementUsesRidleyGrab(SamusState? samus)
@@ -1220,9 +1216,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         CeresRidleyBehavior.UpdateRidleyHurtFlashPalettes(body, state, body.FrameCounter);
         UpdateNorfairRidleyHealthPalette(body, state);
 
-        state.HurtMovementClamp = Math.Min(
-            (ushort)8,
-            unchecked((ushort)(state.HurtMovementClamp + 1)));
+        state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);
         if (state.GrabState != 0 && state.HurtMovementClamp >= 8 && samus is not null)
             UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
@@ -1424,14 +1418,14 @@ internal sealed class RidleyBehavior : IEnemySpecies
         }
 
         state.DeathExplosionTimer = NativeCountdown.Start(4);
-        state.DeathExplosionCount = unchecked((ushort)(state.DeathExplosionCount + 1));
+        state.DeathExplosionCount++;
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
 
         SpawnRidleyDust(
             body.Position.Whole + RidleyExplosionDefinitions.DeathExplosionPlacement(state.DeathExplosionCount),
             variant: 3);
-        state.LastDeathSoundEffect = RidleySoundDefinitions.DeathExplosion;
+        state.LastDeathSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, RidleySoundDefinitions.DeathExplosion);
     }
     /// <summary>Allocates the body and tail pieces that continue moving after the intact body hides.</summary>
     internal void SpawnNorfairRidleyBreakupActors(
@@ -1463,10 +1457,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 EnemyDefinitionId.RidleyExplosion,
                 Position: Position16<RoomPixels>.Zero,
                 InitializationParameter: 0,
-                Properties: (ushort)(
+                Properties: new EnemyPropertyWord(
                     EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |
-                    EnemyProperties.IgnoreSamusCollision),
+                    EnemyProperties.IgnoreSamusCollision).ToNativeWord(),
                 ExtraProperties: 0,
                 Parameter1: parameter,
                 Parameter2: 0);
@@ -1572,7 +1566,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Ports $A6:BA85: death has priority over power-bomb dodge and ordinary retreat.</summary>
     private void HandleNorfairRidleyMissedLunge(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        if (unchecked((short)(state.ZeroHealthLungeCount - RidleyLungeDefinitions.DeathLungeLimit)) >= 0)
+        if (state.ZeroHealthLungeCount >= RidleyLungeDefinitions.DeathLungeLimit)
         {
             StartNorfairRidleyDeathSequence(slot, state);
             BeginNorfairRidleyDeathRoar(slot, state);

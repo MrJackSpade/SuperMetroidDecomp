@@ -31,13 +31,18 @@ internal static class RidleyFlightTailVerification
         var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
         update(state, 0, 0, 0x500);
         AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
-        state.SwoopAngleAccumulator = 0x7800;
+        state.SwoopAngleAccumulator = SnesAngle.FromTableIndex(120);
         update(state, 0, short.MinValue, 0x500);
-        AssertEqual((ushort)0x7800, state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
+        AssertEqual(SnesAngle.FromTableIndex(120), state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
+        // A rightward step from just short of a full turn wraps the heading past zero; the half-turn target's
+        // sign-of-difference test then keeps the wrapped heading instead of snapping to the target.
+        state.SwoopAngleAccumulator = SnesAngle.FromTableIndex(254);
+        update(state, SnesAngle.FromTableIndex(4).RawValue, short.MinValue, 0x500);
+        AssertEqual(SnesAngle.FromTableIndex(2), state.SwoopAngleAccumulator, "swoop heading wraps past a full turn");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int phase = 0; phase < 256; phase++)
         {
-            state.SwoopAngleAccumulator = (ushort)SnesEightEight.FromWhole(phase);
+            state.SwoopAngleAccumulator = SnesAngle.FromTableIndex((byte)phase);
             update(state, 0, SnesEightEight.FromWhole(phase), 0x500);
             ushort NativeComponent(int angle)
             {
@@ -108,7 +113,7 @@ internal static class RidleyFlightTailVerification
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => seed);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return 0; });
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> neutral = enemies.RidleyTail.HandleCeresRidleyNeutralTailControl;
-        state.IdleTailWhipEnabled = 1;
+        state.IdleTailWhipEnabled = true;
         state.TailSegments[0].Angle = 0x5000;
         foreach (var segment in state.TailSegments) segment.Active = true;
         state.TailWhipTargetClockwiseAngle = state.TailWhipTargetCounterClockwiseAngle = ushort.MaxValue;

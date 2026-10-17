@@ -129,7 +129,7 @@ internal sealed class CeresRidleyBehavior
         slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
             ? (ushort)14
             : (ushort)13);
-        state.HitCounter = unchecked((ushort)(state.HitCounter + 1));
+        state.HitCounter++;
 
         // The cartridge draws the hurt palette from the enemy frame that just completed.
         // Collision runs afterward, so publish that same pre-increment frame immediately
@@ -179,7 +179,7 @@ internal sealed class CeresRidleyBehavior
             CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
             MovementAnimationEnabled = 0,
             FacingDirection = RidleyFacing.Left,
-            IdleTailWhipEnabled = 1,
+            IdleTailWhipEnabled = true,
             TailDamage = 15,
             Velocity = new EightEightVector<RoomPixels>(0, 0),
             MovementMinimum = new Position16<RoomPixels>(40, unchecked((ushort)-32)),
@@ -187,7 +187,7 @@ internal sealed class CeresRidleyBehavior
             BabyProgram = AnimationProgramCursor<CeresBabyProgram>.Start(CeresBabyProgram.Initial),
             BabyInstructionTimer = 1,
             BabyFunction = CeresBabyFunction.CarriedInArms,
-            BabyCurrentSpritemap = 0,
+            BabyCurrentPose = null,
             BabyPosition = slot.Position.Whole + CeresBabyArmsAnchor,
             WingFrame = 5,
             WingAnimationTimer = NativeCountdown.Start(0),
@@ -335,8 +335,8 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresSwoopSetup:
                 state.Function = RidleyAiFunction.CeresSwoopMoveToPosition;
                 state.FunctionTimer = NativeCountdown.Start(10);
-                state.SwoopAngleAccumulator = 0;
-                state.IdleTailWhipEnabled = 0;
+                state.SwoopAngleAccumulator = SnesAngle.Zero;
+                state.IdleTailWhipEnabled = false;
                 TickCeresRidleySwoopMoveToPosition(slot, state);
                 break;
 
@@ -390,7 +390,7 @@ internal sealed class CeresRidleyBehavior
                 {
                     state.Function = RidleyAiFunction.CeresHovering;
                     state.HoverCounter = 0;
-                    state.IdleTailWhipEnabled = 1;
+                    state.IdleTailWhipEnabled = true;
                 }
                 break;
 
@@ -559,7 +559,7 @@ internal sealed class CeresRidleyBehavior
             // timeout. The previous translation inverted this branch and selected attacks
             // while he was still above the arena, making every fireball route hit its
             // intentional 48-frame bailout before the mouth animation could begin.
-            state.HoverCounter = unchecked((ushort)(state.HoverCounter + 1));
+            state.HoverCounter++;
             if (state.HoverCounter < 124)
                 return;
         }
@@ -578,7 +578,7 @@ internal sealed class CeresRidleyBehavior
 
         if (unchecked((short)(slot.Position.Y.Whole - 80)) < 0)
         {
-            state.HoverCounter = unchecked((ushort)(state.HoverCounter + 1));
+            state.HoverCounter++;
             if (state.HoverCounter >= 48)
                 state.Function = RidleyAiFunction.CeresSwoopSetup;
             return;
@@ -653,7 +653,7 @@ internal sealed class CeresRidleyBehavior
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
             state.FunctionTimer = NativeCountdown.Start(10);
-            state.SwoopAngleAccumulator = 0;
+            state.SwoopAngleAccumulator = SnesAngle.Zero;
         }
     }
 
@@ -687,16 +687,16 @@ internal sealed class CeresRidleyBehavior
             magnitude = Math.Min(targetMagnitude, magnitude + 32);
         else if (magnitude > targetMagnitude)
             magnitude = Math.Max(targetMagnitude, magnitude - 32);
-        state.SwoopSpeedMagnitude = unchecked((ushort)magnitude);
+        state.SwoopSpeedMagnitude = magnitude;
 
-        ushort angle = unchecked((ushort)(state.SwoopAngleAccumulator + angleDelta));
-        // Native CMP branches on N, not signed less-than (N xor V). Preserve word
-        // wrapping, particularly the $8000 recovery target after a rightward swoop.
-        bool negativeDifference = unchecked((short)(angle - targetAngle)) < 0;
+        SnesAngle angle = state.SwoopAngleAccumulator.AddRaw(angleDelta);
+        // Native CMP branches on N, not signed less-than (N xor V). The heading wraps around the
+        // turn, particularly onto the half-turn recovery target after a rightward swoop.
+        bool negativeDifference = unchecked((short)(angle.RawValue - targetAngle)) < 0;
         if (angleDelta < 0 ? negativeDifference : !negativeDifference)
-            angle = unchecked((ushort)targetAngle);
+            angle = SnesAngle.NormalizeRaw(targetAngle);
         state.SwoopAngleAccumulator = angle;
-        byte phase = SnesLittleEndian.HighByte(angle);
+        byte phase = angle.TableIndex;
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, phase)));
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(EnemyTrigonometryTables.MultiplySignedSine((ushort)magnitude, unchecked((byte)(phase + 64)))));
     }
@@ -775,11 +775,13 @@ internal sealed class CeresRidleyBehavior
                 goto case CeresBabyFunction.Dropped;
 
             case CeresBabyFunction.Dropped:
-                state.BabyVerticalVelocity = unchecked((ushort)(state.BabyVerticalVelocity + 8));
+                state.BabyVerticalVelocity += 8;
+                // The falling speed only grows from zero and the fall ends at Y=192, so it is always a
+                // nonnegative 8.8 velocity well inside the signed range the integrator accepts.
                 (ushort babyY, state.BabyYSubposition) = IntegrateUnclampedAxis(
                     state.BabyPosition.Y,
                     state.BabyYSubposition,
-                    state.BabyVerticalVelocity);
+                    checked((ushort)state.BabyVerticalVelocity));
                 state.BabyPosition = state.BabyPosition.WithY(babyY);
                 if (unchecked((short)(state.BabyPosition.Y - 192)) >= 0)
                 {
@@ -1041,7 +1043,7 @@ internal sealed class CeresRidleyBehavior
         (_presentation.CeresRidleyColors ?? throw new InvalidOperationException(
             "Ceres Ridley eye fade requires installed colors."))
             .ApplyEyeFade(_presentation.Cgram, fadeStep.PaletteRow);
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset + 1));
+        state.FadePaletteOffset++;
     }
 
     /// <summary>Reveals body palette rows, clears intangible collision and queues the battle track at the final row.</summary>
@@ -1052,19 +1054,15 @@ internal sealed class CeresRidleyBehavior
             return;
         state.FunctionTimer = NativeCountdown.Start(0);
 
-        int row = state.FadePaletteOffset /
-            (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
+        // The cartridge steps a colour offset one row of colours at a time; the row it reaches is the fade's progress.
+        int row = state.FadePaletteOffset;
         if (_presentation.CeresRidleyColors is { } bodyColors &&
-            state.FadePaletteOffset %
-                (CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)) == 0 &&
             row < CeresRidleyPaletteRomData.BodyFadeRowCount)
             bodyColors.ApplyBodyFade(_presentation.Cgram, row);
         else throw new InvalidOperationException(
-            $"Ceres Ridley body-fade offset {state.FadePaletteOffset} is outside the installed color rows.");
-        state.FadePaletteOffset = unchecked((ushort)(state.FadePaletteOffset +
-            CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)));
-        if (state.FadePaletteOffset < CeresRidleyPaletteRomData.BodyFadeRowCount *
-            CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort))
+            $"Ceres Ridley body-fade row {row} is outside the installed color rows.");
+        state.FadePaletteOffset++;
+        if (state.FadePaletteOffset < CeresRidleyPaletteRomData.BodyFadeRowCount)
             return;
 
         // CeresRidley_Func_5 clears tangible bit $0400 after the final palette row, waits
@@ -1138,7 +1136,7 @@ internal sealed class CeresRidleyBehavior
             return;
 
         state.WingAnimationTimer = NativeCountdown.Start(32);
-        state.WingFrame = unchecked((ushort)((state.WingFrame + 1) % 10));
+        state.WingFrame = (state.WingFrame + 1) % 10;
     }
 
     /// <summary>Ports DrawRidleyTail $A6:DB2A and DrawRidleyWings $A6:DAD8.</summary>
@@ -1272,8 +1270,8 @@ internal sealed class CeresRidleyBehavior
     {
         if (state.BabyPoseDuration != 0 && state.BabyPoseDuration != state.BabyInstructionTimer)
         {
-            state.BabyInstructionTimer = unchecked((ushort)(state.BabyInstructionTimer + 1));
-            return state.BabyCurrentSpritemap;
+            state.BabyInstructionTimer++;
+            return CeresBabySpritemap(state.BabyCurrentPose);
         }
 
         AnimationProgramCursor<CeresBabyProgram> cursor = state.BabyProgram;
@@ -1285,9 +1283,13 @@ internal sealed class CeresRidleyBehavior
             throw new InvalidOperationException($"The Ceres Baby's program ended a draw update with {advance.Kind}.");
         state.BabyPoseDuration = advance.Duration;
         state.BabyInstructionTimer = 1;
-        state.BabyCurrentSpritemap = CeresBabyFrameDefinitions.Spritemap(advance.Frame);
-        return state.BabyCurrentSpritemap;
+        state.BabyCurrentPose = advance.Frame;
+        return CeresBabySpritemap(state.BabyCurrentPose);
     }
+
+    /// <summary>The spritemap the draw shows for <paramref name="pose"/>, or zero (nothing drawn) before the Baby's first pose.</summary>
+    private static ushort CeresBabySpritemap(CeresBabyPose? pose) =>
+        pose is { } shown ? CeresBabyFrameDefinitions.Spritemap(shown) : (ushort)0;
 
     /// <summary>Carries out one cue of the Baby's program, returning the program a branch continues at, or null to run on.</summary>
     private CeresBabyProgram? ApplyCeresBabyCue(RidleyEnemyState state, CeresBabyCue cue)
@@ -1338,9 +1340,9 @@ internal sealed class CeresRidleyBehavior
             EnemyDefinitionId.CeresDoor,
             Position: new(xPosition, 127),
             InitializationParameter: 0,
-            Properties: (ushort)(
+            Properties: new EnemyPropertyWord(
                 EnemyProperties.ProcessInstructions |
-                EnemyProperties.ProcessOffScreen),
+                EnemyProperties.ProcessOffScreen).ToNativeWord(),
             ExtraProperties: 0,
             Parameter1: parameter1,
             Parameter2: 0);
@@ -1570,14 +1572,14 @@ internal sealed class CeresRidleyBehavior
         // lists patch only the two two-byte rows occupied by that animation in the map.
         if ((nmiFrameCounter & 3) == 0)
         {
-            state.Mode7BabyFrame = unchecked((ushort)((state.Mode7BabyFrame + 1) & 3));
+            state.Mode7BabyFrame = (state.Mode7BabyFrame + 1) % 4;
             ApplyMode7TransferList(CeresMode7TransferDefinitions.BabyFrameForPhase(state.Mode7BabyFrame), ref queue);
         }
 
         // $A6:AD27 alternates the six sparse wing rows on every eighth NMI.
         if ((nmiFrameCounter & 7) == 0)
         {
-            state.Mode7WingFrame = unchecked((ushort)((state.Mode7WingFrame + 1) & 1));
+            state.Mode7WingFrame = (state.Mode7WingFrame + 1) % 2;
             ApplyMode7TransferList(state.Mode7WingFrame == 0
                 ? CeresMode7TransferList.WingFrame0
                 : CeresMode7TransferList.WingFrame1, ref queue);
@@ -1855,8 +1857,7 @@ internal sealed class CeresRidleyBehavior
         if ((frameCounter & 3) != 0)
             return;
 
-        state.CeresEscapePaletteFrame = unchecked((ushort)(
-            (state.CeresEscapePaletteFrame + 1) % 16));
+        state.CeresEscapePaletteFrame = (state.CeresEscapePaletteFrame + 1) % 16;
         if (_presentation.CeresRidleyColors is { } colors)
             colors.ApplyAlarm(_presentation.Cgram, state.CeresEscapePaletteFrame);
         else throw new InvalidOperationException(

@@ -83,8 +83,8 @@ internal sealed class RidleyEncounter
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        if (Ridley?.LastDeathSoundEffect is ushort ridleyDeath)
-            audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, ridleyDeath), maximumQueued: 3);
+        if (Ridley?.LastDeathSoundEffect is { } ridleyDeath)
+            audio.QueueEnemySound(ridleyDeath, maximumQueued: 3);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

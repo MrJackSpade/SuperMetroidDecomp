@@ -25,12 +25,12 @@ internal static class RidleyAnimations
     /// <summary>Each lift-off pose after the jump ($A6:E93B/E93F).</summary>
     private const int LiftoffPoseDuration = 17;
 
-    /// <summary>The native feet-distance table index for standing legs.</summary>
-    private const ushort FeetStanding = 0;
-    /// <summary>The native feet-distance table index for half-extended legs.</summary>
-    private const ushort FeetHalfExtended = 2;
-    /// <summary>The native feet-distance table index for extended legs.</summary>
-    private const ushort FeetExtended = 4;
+    /// <summary>The claw-height pose for standing legs.</summary>
+    private const int FeetStanding = 0;
+    /// <summary>The claw-height pose for half-extended legs.</summary>
+    private const int FeetHalfExtended = 1;
+    /// <summary>The claw-height pose for extended legs.</summary>
+    private const int FeetExtended = 2;
 
     /// <summary>Every body program.</summary>
     internal static AnimationProgramSet<RidleyBodyProgram, F, RidleyBodyCue> Programs { get; } = new(
@@ -186,8 +186,8 @@ internal static class RidleyAnimations
     private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> IfCeresAndSamusLowEnergy(RidleyBodyProgram target) =>
         Cue(new RidleyBodyCue(K.GoToIfCeresAndSamusLowEnergy, Target: target));
 
-    /// <summary>Selects the feet-distance table index <paramref name="index"/>.</summary>
-    private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Feet(ushort index) =>
+    /// <summary>Selects the claw-height pose <paramref name="index"/>.</summary>
+    private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue> Feet(int index) =>
         Cue(new RidleyBodyCue(K.SetFeetDistance, FeetDistanceIndex: index));
 
     /// <summary>Publishes a cue of <paramref name="kind"/> without operands.</summary>

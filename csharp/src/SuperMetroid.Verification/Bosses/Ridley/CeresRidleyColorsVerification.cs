@@ -122,15 +122,11 @@ internal static class CeresRidleyColorsVerification
         state.Function = RidleyAiFunction.FadeInBody;
         for (int row = 0; row < CeresRidleyPaletteRomData.BodyFadeRowCount; row++)
         {
-            state.FadePaletteOffset = (ushort)(row *
-                CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort));
+            state.FadePaletteOffset = row;
             state.FunctionTimer = NativeCountdown.Start(1);
             bodyTick(slot, state);
-            AssertEqual(row == CeresRidleyPaletteRomData.BodyFadeRowCount - 1
-                    ? (ushort)0
-                    : (ushort)((row + 1) *
-                        CeresRidleyPaletteRomData.BodyFadeColorCount * sizeof(ushort)),
-                state.FadePaletteOffset, $"edited body fade row {row} advances");
+            AssertEqual(row == CeresRidleyPaletteRomData.BodyFadeRowCount - 1 ? 0 : row + 1,
+                state.FadePaletteOffset, $"edited body fade row {row} advances to the next row, or resets after the last");
             CheckCgram(CeresRidleyPaletteRomData.BodyFadeColorCount,
                 CeresRidleyPaletteRomData.BodyFadeBgCgramIndex,
                 color => edited.CeresRidleyColors.ResolveBodyFade(row, color),

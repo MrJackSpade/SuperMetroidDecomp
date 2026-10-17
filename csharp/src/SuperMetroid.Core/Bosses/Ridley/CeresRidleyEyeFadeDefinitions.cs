@@ -9,7 +9,7 @@ internal static class CeresRidleyEyeFadeDefinitions
 {
 
     /// <summary>Number of palette-producing entries before the native terminator.</summary>
-    public const ushort PaletteStepCount = 64;
+    public const int PaletteStepCount = 64;
 
     /// <summary>
     /// Resolves one authored scheduler offset. The first sixteen frames select rows
@@ -25,9 +25,10 @@ internal static class CeresRidleyEyeFadeDefinitions
     /// VerifyCeresRidleyEyeFadeDefinitions checks every row and the terminal
     /// transition through the real fade consumer with schedule reads forbidden.
     /// </remarks>
-    public static CeresRidleyEyeFadeStep Get(ushort offset) => offset switch
+    public static CeresRidleyEyeFadeStep Get(int offset) => offset switch
     {
-        < 16 => new(false, unchecked((byte)(15 - offset))),
+        < 0 => throw new InvalidDataException($"Ceres Ridley eye-fade offset {offset} precedes the authored schedule."),
+        < 16 => new(false, 15 - offset),
         < PaletteStepCount => new(false, 0),
         PaletteStepCount => new(true, 0),
         _ => throw new InvalidDataException(

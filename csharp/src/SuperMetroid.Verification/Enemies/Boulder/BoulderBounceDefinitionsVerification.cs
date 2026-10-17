@@ -38,8 +38,7 @@ internal static class BoulderBounceDefinitionsVerification
                 state.Function, "Boulder last collision enters rolling");
             if (counter == 0)
             {
-                AssertEqual(actor.Position.Y.Whole, state.PreviousYPosition, "Boulder rolling Y handoff");
-                AssertEqual(actor.Position.Y.Fraction, state.PreviousYSubposition, "Boulder rolling subpixel handoff");
+                AssertEqual(actor.Position.Y, state.PreviousY, "Boulder rolling Y and subpixel handoff");
             }
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BoulderBounceDefinitions.SpeedIndex(3), "Boulder unsupported bounce count");

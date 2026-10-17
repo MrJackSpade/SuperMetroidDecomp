@@ -94,7 +94,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(level, samus);
@@ -161,7 +161,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerNewInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
@@ -282,7 +282,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(level, samus);
@@ -325,7 +325,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(level, samus);
@@ -362,7 +362,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(level, samus);
@@ -434,7 +434,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(level, samus);
@@ -496,7 +496,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         ValidateCommon(level, samus);
@@ -612,7 +612,7 @@ public static class SamusAerialMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         bool canBreakBombBlocks = false,
         RoomPlmSystem? plms = null,
         bool deferCeilingResponse = false)
@@ -633,7 +633,7 @@ public static class SamusAerialMovement
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable native behavior, not general-purpose host physics.
     /// </remarks>
-    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, ushort nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, bool canBreakBombBlocks = false, bool deferCeilingResponse = false)
+    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, bool canBreakBombBlocks = false, bool deferCeilingResponse = false)
     {
         ValidateCommon(terrain.Level, samus);
         SamusKinematicsState state = samus.Kinematics;

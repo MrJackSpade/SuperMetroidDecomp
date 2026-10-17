@@ -170,7 +170,7 @@ internal static class BotwoonAnimationsVerification
         CompareBotwoonProjectile(rom, BotwoonSpitList, spit, Pass, "spit");
 
         // A changed selector restarts the segment; an unchanged one keeps running.
-        Action<RoomEnemyProjectileSlot, byte> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
+        Action<RoomEnemyProjectileSlot, int> animate = enemies.BotwoonBehavior.AnimateBotwoonBodySegment;
         var segment = new RoomEnemyProjectileSlot(1) { Kind = RoomEnemyProjectileKind.BotwoonBody, DirectionParameter = 0 };
         segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(0)));
         Pass(segment);
@@ -186,7 +186,7 @@ internal static class BotwoonAnimationsVerification
 
         // Landing hands the segment to the shared native big-explosion list.
         Action<RoomEnemySlot, BotwoonEnemyState, ushort> spawnBody = enemies.BotwoonBehavior.SpawnBotwoonBodySegment;
-        Action<RoomEnemyProjectileSlot, byte> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
+        Action<RoomEnemyProjectileSlot, int> runBody = enemies.BotwoonBehavior.RunBotwoonBodyPreInstruction;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         var state = new BotwoonEnemyState(head);
         enemies.BotwoonBehavior._botwoonState = state;

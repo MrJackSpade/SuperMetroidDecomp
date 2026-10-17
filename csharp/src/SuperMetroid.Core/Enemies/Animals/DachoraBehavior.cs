@@ -120,7 +120,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         // Echo AI needs only the NMI parity bit. Every body state needs both the active
         // Samus gravity words and authentic room collision, so fail loudly if a caller
@@ -449,7 +449,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunDachoraEcho(
         RoomEnemySlot slot,
         DachoraEnemyState state,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         if (!state.EchoLifetime.IsZero)
         {

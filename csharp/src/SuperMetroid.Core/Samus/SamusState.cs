@@ -590,7 +590,7 @@ public sealed class SamusState
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         out int centerAdjustment)
     {

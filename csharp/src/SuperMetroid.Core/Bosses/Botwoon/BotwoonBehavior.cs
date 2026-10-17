@@ -973,7 +973,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>EprojPreInstr_BotwoonsBody</c> and its four function states.</summary>
     internal void RunBotwoonBodyPreInstruction(
         RoomEnemyProjectileSlot segment,
-        byte randomEnemyCounter)
+        int randomEnemyCounter)
     {
         BotwoonEnemyState state = _botwoonState ?? throw new InvalidOperationException(
             "A live Botwoon body segment has no owning head state.");
@@ -1022,7 +1022,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs a segment program for its angle and applies the head's hurt flash.</summary>
     internal void AnimateBotwoonBodySegment(
         RoomEnemyProjectileSlot segment,
-        byte randomEnemyCounter)
+        int randomEnemyCounter)
     {
         BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
             ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
@@ -1034,7 +1034,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses palette seven unless the flashing head selects palette zero this frame.</summary>
     private void ApplyBotwoonBodyHurtPalette(
         RoomEnemyProjectileSlot segment,
-        byte randomEnemyCounter)
+        int randomEnemyCounter)
     {
         segment.GraphicsIndex = new SnesObjAttributeWord(segment.GraphicsIndex)
             .WithPaletteBits(SnesObjPalettes.Index7.PaletteBits);
@@ -1048,7 +1048,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBotwoonBodyFall(
         RoomEnemyProjectileSlot segment,
         BotwoonEnemyState state,
-        byte randomEnemyCounter)
+        int randomEnemyCounter)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
             unchecked((ushort)(SnesEightEight.WholeOf(segment.Velocity.Y.RawValue))),

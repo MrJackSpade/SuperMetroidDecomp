@@ -729,9 +729,9 @@ internal sealed class RoomLoader
         ushort y = NudgeOffScreenLeftEdge(_player.Samus.Position.Y.Whole);
         _player.Samus.Position = _player.Samus.Position.WithWhole(new(x, y));
 
-        if (_enemies.Elevator.ElevatorFlags != 0)
+        if (_enemies.Elevator.ElevatorFlags != ElevatorJourneyFlag.None)
         {
-            if ((short)_enemies.Elevator.ElevatorDirection >= 0)
+            if (!_enemies.Elevator.ElevatorTravelsUpward)
                 _player.Samus.PoseMetadata.SetupForElevator();
             else
                 _player.Samus.InputLocked = true;

@@ -110,7 +110,7 @@ internal static class RidleyBreakupProgramsVerification
         AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.EnemyHeaderPointer, "fragment drop retains native header");
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");
-        AssertEqual((ushort)1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");
+        AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");
         Console.WriteLine("Ridley breakup: death while grabbing releases Samus and runs all twelve fragment programs without cartridge access.");
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");
     }

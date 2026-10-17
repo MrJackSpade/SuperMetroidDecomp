@@ -23,7 +23,7 @@ public static class SamusPostureMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         Validate(level, samus);
@@ -57,7 +57,7 @@ public static class SamusPostureMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         Validate(level, samus);
@@ -78,7 +78,7 @@ public static class SamusPostureMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;

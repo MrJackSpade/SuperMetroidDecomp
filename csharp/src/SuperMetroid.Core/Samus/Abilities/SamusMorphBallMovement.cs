@@ -26,7 +26,7 @@ public static class SamusMorphBallMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         Validate(level, samus);
@@ -114,7 +114,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         Validate(level, samus);
@@ -153,7 +153,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         SamusMovementType movementType)
     {
@@ -222,7 +222,7 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         Validate(level, samus);
@@ -306,7 +306,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
         Validate(level, samus);
@@ -370,7 +370,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         out bool landed,
         out bool hitCeiling)
@@ -426,7 +426,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         out bool hitCeiling)
     {

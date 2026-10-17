@@ -154,7 +154,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState? samus,
         RoomLevelData? level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         if (samus is null)
             throw new InvalidOperationException("Mama Turtle AI requires the active Samus actor.");
@@ -268,7 +268,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         MamaTurtleEnemyState state,
         SamusState samus,
         RoomLevelData level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         ResolveMamaTurtleExpandedContact(mama, samus);
         if ((nmiFrameCounter8 & 1) != 0)

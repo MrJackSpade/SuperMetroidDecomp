@@ -476,7 +476,7 @@ internal sealed class SamusPresentation
     public bool Draw(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        ushort nmiFrameCounter = 0,
+        int nmiFrameCounter = 0,
         SamusMode7Transform? mode7Transform = null)
     {
         Ensure.NotNull(sprites);
@@ -743,7 +743,7 @@ internal sealed class SamusPresentation
     public void DrawShinesparkCrashEchoes(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         Ensure.NotNull(sprites);
         if ((nmiFrameCounter & 1) == 0 ||
@@ -770,7 +770,7 @@ internal sealed class SamusPresentation
     public void DrawReleasedShinesparkCrashEchoes(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         Ensure.NotNull(sprites);
         if ((nmiFrameCounter & 1) == 0)

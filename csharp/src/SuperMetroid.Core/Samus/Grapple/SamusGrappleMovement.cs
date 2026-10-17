@@ -407,7 +407,7 @@ public static class SamusGrappleMovement
     /// Executes one connected grapple-function call. X is the default shoot binding used by
     /// this runtime; left/right pump the swing, newly pressed up/down adjust rope length.
     /// </summary>
-    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton newlyPressedInput, ushort nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, bool deferDropPoseChange = false)
+    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton newlyPressedInput, int nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, bool deferDropPoseChange = false)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -718,7 +718,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms,
         bool deferPoseChange)
     {

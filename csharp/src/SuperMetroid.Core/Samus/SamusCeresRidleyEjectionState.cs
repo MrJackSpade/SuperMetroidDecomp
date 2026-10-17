@@ -62,7 +62,7 @@ public sealed class SamusCeresRidleyEjectionState
         RoomLevelData level,
         SamusState samus,
         ushort layer1X,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
 
         Ensure.NotNull(level);

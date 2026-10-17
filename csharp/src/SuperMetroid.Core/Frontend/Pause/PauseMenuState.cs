@@ -170,7 +170,7 @@ internal sealed class PauseMenuState
     /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
     /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
-    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, byte nmiFrameCounter8 = 0)
+    public bool Step(SnesButton delayedHeldInput, SnesButton newlyPressedInput, SnesButton? heldInput = null, int nmiFrameCounter8 = 0)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
@@ -247,7 +247,7 @@ internal sealed class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(byte nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
+    public void AdvanceAnimations(int nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
     {
         // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
         mapLabelsBeforeIcons = fadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
@@ -733,7 +733,7 @@ internal sealed class PauseMenuState
         PauseEquipmentRules.Mask(category.Category, item);
 
     /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
-    private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
+    private void HandleEquipmentInput(SnesButton pressed, int nmiFrameCounter8)
     {
         PauseEquipmentCategory dispatchedCategory = selectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)

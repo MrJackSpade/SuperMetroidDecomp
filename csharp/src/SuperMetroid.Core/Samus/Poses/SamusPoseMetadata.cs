@@ -697,7 +697,7 @@ internal sealed class SamusPoseMetadata
 
         RoomLevelData level,
         bool timeIsFrozen,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerNewInput,
         RoomPlmSystem? plms = null)
     {

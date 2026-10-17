@@ -1045,9 +1045,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         slot.HurtAiTime = definition.HurtAiTime;
         slot.PaletteIndex = paletteIndex;
         slot.VramTilesIndex = tileIndex;
-        slot.Spawn = new RoomEnemySpawnSnapshot(
-            population,
-            tileIndex);
+        slot.Spawn = new RoomEnemySpawnSnapshot(population);
     }
 
     /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
@@ -1303,10 +1301,10 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera = default,
-        byte? nmiFrameCounter8 = null,
+        int? nmiFrameCounter8 = null,
         SamusBombProjectileSystem? samusBombs = null,
         BackgroundScrollState? backgroundScroll = null,
-        ushort? nmiFrameCounter = null)
+        int? nmiFrameCounter = null)
     {
         Room.EnsureLoaded();
         DeathsAndDrops._samusForEnemyDrops = samus;

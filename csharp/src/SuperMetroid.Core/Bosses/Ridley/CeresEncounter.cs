@@ -29,6 +29,6 @@ internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehav
         ceresRidley.DrawCeresRidleyPostEnemyHook(oam, camera);
 
     /// <inheritdoc/>
-    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, ushort nmiFrameCounter) =>
+    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter) =>
         ceresRidley.RunCeresRidleyGetawayRoomMain(samus, nmiFrameCounter);
 }

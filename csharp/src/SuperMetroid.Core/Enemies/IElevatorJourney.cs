@@ -11,11 +11,11 @@ internal interface IElevatorJourney
     /// <summary>WRAM $0E16, the elevator's journey status.</summary>
     ElevatorActorStatus ElevatorStatus { get; }
 
-    /// <summary>WRAM $0E18, the elevator flags.</summary>
-    ushort ElevatorFlags { get; }
+    /// <summary>What has armed the elevator's pseudo-door.</summary>
+    ElevatorJourneyFlag ElevatorFlags { get; }
 
-    /// <summary>The elevator's travel direction.</summary>
-    ushort ElevatorDirection { get; }
+    /// <summary>Whether the elevator travels upward.</summary>
+    bool ElevatorTravelsUpward { get; }
 
     /// <summary>Whether the elevator, not Samus's handlers, moves Samus this frame.</summary>
     bool ElevatorRunsSamusMovement { get; }
@@ -33,7 +33,7 @@ internal interface IElevatorJourney
     void ClearElevatorFlagsOnGameplayResume();
 
     /// <summary>Prepares the destination elevator before the room load.</summary>
-    void PrepareElevatorArrival(ushort doorFlags = ElevatorFlagDefinitions.DoorLoad);
+    void PrepareElevatorArrival(ElevatorJourneyFlag doorFlags = ElevatorJourneyFlag.DoorLoad);
 
     /// <summary>Returns the journey to rest: status inactive and flags clear, as gameplay does at fixed points.</summary>
     void ResetStatus();

@@ -6,11 +6,23 @@
 /// </summary>
 internal sealed class FrameClock
 {
-    /// <summary>8-bit accepted-frame counter at WRAM <c>$05B5</c>.</summary>
-    public byte Counter8 { get; private set; }
+    /// <summary>How many accepted frames <see cref="Counter8"/> counts before it returns to zero.</summary>
+    internal const int Counter8Period = 256;
 
-    /// <summary>16-bit accepted-frame counter at WRAM <c>$05B6</c>.</summary>
-    public ushort Counter { get; private set; }
+    /// <summary>How many accepted frames <see cref="Counter"/> counts before it returns to zero.</summary>
+    internal const int CounterPeriod = 65536;
+
+    /// <summary>
+    /// The short accepted-frame counter, 0 through 255. It returns to zero after 255, and gameplay that samples its low
+    /// bits sees that wrap, so <see cref="AdvanceHardwareWaitFrames"/> keeps it.
+    /// </summary>
+    public int Counter8 { get; private set; }
+
+    /// <summary>
+    /// The long accepted-frame counter, 0 through 65535. It returns to zero after 65535, and gameplay that samples its
+    /// low bits sees that wrap, so <see cref="AdvanceHardwareWaitFrames"/> keeps it.
+    /// </summary>
+    public int Counter { get; private set; }
 
     /// <summary>Advances both counters for one accepted frame, wrapping at their widths.</summary>
     internal void AdvanceAcceptedFrame() => AdvanceHardwareWaitFrames(1);
@@ -22,8 +34,8 @@ internal sealed class FrameClock
     internal void AdvanceHardwareWaitFrames(int count)
     {
         Ensure.AtLeastZero(count);
-        Counter8 = unchecked((byte)(Counter8 + count));
-        Counter = unchecked((ushort)(Counter + count));
+        Counter8 = (Counter8 + count % Counter8Period) % Counter8Period;
+        Counter = (Counter + count % CounterPeriod) % CounterPeriod;
     }
 
     /// <summary>
@@ -39,9 +51,9 @@ internal sealed class FrameClock
     /// Takes over the counters another owner kept, such as the frontend that counted before this runtime existed or a
     /// native snapshot import. The cartridge has one pair of words; allocation never resets it.
     /// </summary>
-    internal void Import(byte counter8, ushort counter)
+    internal void Import(int counter8, int counter)
     {
-        Counter8 = counter8;
-        Counter = counter;
+        Counter8 = Ensure.BetweenInclusive(0, Counter8Period - 1, counter8);
+        Counter = Ensure.BetweenInclusive(0, CounterPeriod - 1, counter);
     }
 }

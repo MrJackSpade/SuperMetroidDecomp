@@ -603,7 +603,7 @@ public sealed class SamusProjectileSystem
     public void DrawLiveProjectiles(
         SpriteFrameBuffer sprites,
         Position16<RoomPixels> layer1,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         ProjectileDrawArtwork artwork)
     {
         Ensure.NotNull(sprites);

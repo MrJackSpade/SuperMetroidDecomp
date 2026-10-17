@@ -39,7 +39,7 @@ public sealed class SamusReserveAutoRecoveryState
     }
 
     /// <summary>Runs <c>RefillHealthFromReserveTanks</c> once after the frame's accepted NMI.</summary>
-    public SamusReserveAutoRecoveryStep StepAfterNmi(SamusState samus, ushort nmiFrameCounter)
+    public SamusReserveAutoRecoveryStep StepAfterNmi(SamusState samus, int nmiFrameCounter)
     {
         Ensure.NotNull(samus);
         if (!IsActive)

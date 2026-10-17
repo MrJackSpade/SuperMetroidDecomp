@@ -87,7 +87,7 @@ public sealed class SamusArmCannonState
         SpriteFrameBuffer sprites,
         SamusState samus,
         Position16<RoomPixels> layer1,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         Ensure.NotNull(sprites);
         Ensure.NotNull(samus);

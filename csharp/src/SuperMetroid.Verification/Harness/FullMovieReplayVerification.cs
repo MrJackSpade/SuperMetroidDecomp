@@ -413,7 +413,7 @@ internal static class FullMovieReplayVerification
         Check("Camera Y", runtime.Room.LoadedCamera.PixelPosition.Y, MovieDesyncMemory.CameraY);
         Check("Camera X fraction", runtime.Room.LoadedCamera.Position.X.Fraction, MovieDesyncMemory.CameraXSubposition);
         Check("Camera Y fraction", runtime.Room.LoadedCamera.Position.Y.Fraction, MovieDesyncMemory.CameraYSubposition);
-        Check("Accepted NMI", runtime.Clock.Counter, MovieDesyncMemory.NmiCounter);
+        Check("Accepted NMI", checked((ushort)runtime.Clock.Counter), MovieDesyncMemory.NmiCounter);
         if (runtime.Enemies.RidleyEncounter.Ridley is { } ridley)
             for (int index = 0; index < ridley.TailSegments.Length; index++)
             {

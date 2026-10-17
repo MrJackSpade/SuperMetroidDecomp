@@ -306,7 +306,7 @@ public sealed class SamusDrainedState
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
 
         Ensure.NotNull(level);

@@ -35,7 +35,7 @@ public static class SamusKnockbackMovement
         SnesButton controllerInput,
         bool timeIsFrozen,
         RoomLevelData? level = null,
-        ushort nmiFrameCounter = 0,
+        int nmiFrameCounter = 0,
         RoomPlmSystem? plms = null)
     {
 
@@ -69,7 +69,7 @@ public static class SamusKnockbackMovement
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    public static bool Start(SamusState samus, SnesButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
+    public static bool Start(SamusState samus, SnesButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
 
         Ensure.NotNull(samus);
@@ -220,7 +220,7 @@ level, targetPose, nmiFrameCounter, plms))
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -423,7 +423,7 @@ level, targetPose, nmiFrameCounter, plms))
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms)
     {
         // `$90:DF53` calls the exact same `$90:90E2` vertical routine as ordinary aerial
@@ -440,7 +440,7 @@ level, targetPose, nmiFrameCounter, plms))
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms)
     {
         // `$90:923F` gives nonzero external Y priority over its normal total-X-plus-one

@@ -846,7 +846,7 @@ internal static class RidleyFullMovieVerification
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
             game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleTransition, game.DoorTransitionPhaseForVerification, "native music queue reaches final door dispatch");
-        ushort nmiBeforeNudge = runtime.Clock.Counter;
+        int nmiBeforeNudge = runtime.Clock.Counter;
         ushort samusAnimation = samus.AnimationFrame;
         var ridley = runtime.Enemies.SlotTable.Slots[0];
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
@@ -1055,7 +1055,7 @@ internal static class RidleyFullMovieVerification
                     // The normalized draw is observed through its outputs: the OAM image of the port's frame must
                     // hold the reference sprite (position and attributes), and the cover draw must bind the cover
                     // tile the reference uploads.
-                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, runtime.Clock.Counter);
+                    var cannon = RidleyNativeCannonDraw(bus, memory, invincibleAtDraw, checked((ushort)runtime.Clock.Counter));
                     OamBuffer portImage = runtime.Sprites.FinalizedAsOam();
                     if (cannon.SpriteWritten)
                         AssertTrue(ContainsMovieCannonSprite(portImage.LowTable, portImage.HighTable, cannon),

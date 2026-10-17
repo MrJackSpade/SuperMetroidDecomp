@@ -205,7 +205,7 @@ public sealed class SamusCrystalFlashState
     /// <exception cref="InvalidOperationException">No Flash movement handler is installed, or the phase/ammunition-family state is unsupported.</exception>
     public CrystalFlashMovementResult Step(
         SamusState samus,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         Ensure.NotNull(samus);
         if (Phase == CrystalFlashPhase.Inactive)
@@ -270,7 +270,7 @@ public sealed class SamusCrystalFlashState
     }
 
     /// <summary>Consumes missiles, supers, then power bombs on each eighth NMI and restores 50 energy per decrement.</summary>
-    private void StepAmmoDrain(SamusState samus, ushort nmiFrameCounter)
+    private void StepAmmoDrain(SamusState samus, int nmiFrameCounter)
     {
         // All three pointed routines return immediately on seven of every eight accepted
         // NMI frames. Main-loop frames do not own an independent Crystal Flash cadence.

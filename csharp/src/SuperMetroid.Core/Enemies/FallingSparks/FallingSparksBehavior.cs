@@ -52,7 +52,7 @@ internal sealed class FallingSparksBehavior
     internal void RunFallingSparkPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
-        byte nmiFrameCounter8)
+        int nmiFrameCounter8)
     {
         // A nonnegative vertical whole word first passes through the generic signed-8.8
         // collision helper. The helper's accepted subpixel movement is *additional* to the

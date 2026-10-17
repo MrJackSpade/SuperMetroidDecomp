@@ -28,7 +28,7 @@ internal static class FirefleaDoubleDeathVerification
         // Screw attack contact ($0A6E = 3) kills through CommonA3_NormalEnemyTouchAI.
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         samus.EquippedItems = SamusEquipmentFlags.ScrewAttack;
-        ushort killsBefore = runtime.Enemies.RoomStatus.EnemiesKilled;
+        int killsBefore = runtime.Enemies.RoomStatus.EnemiesKilled;
 
         runtime.Enemies.FirefleaBehavior.ResolveFirefleaTouch(fireflea, samus);
 
@@ -42,7 +42,7 @@ internal static class FirefleaDoubleDeathVerification
         AssertEqual(EnemyDefinitionId.None, cleared.EnemyHeaderPointer, "the second explosion carries header zero");
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion, ProgramOf(cleared),
             "EnemyDeath's returned A selects the small explosion");
-        AssertEqual((ushort)(killsBefore + 2), runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");
+        AssertEqual(killsBefore + 2, runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");
         Console.WriteLine("Fireflea double death: a killing touch also spawns the cleared-slot small explosion.");
     }
 

@@ -12,8 +12,15 @@ internal sealed class EnemyRoomStatus
     /// This is distinct from the elevator/Zebetite gate at $0795.
     /// </summary>
     public bool EnemyDoorTransitionActive { get; set; }
-    /// <summary>Wrapping native room kill counter, reset at load and incremented by death paths; counts their publications rather than enumerating remaining or uniquely defeated slots.</summary>
-    public ushort EnemiesKilled { get; internal set; }
+    /// <summary>
+    /// The room's kill count, 0 through 65535: reset at load and incremented by death paths through
+    /// <see cref="RecordKill"/>; it counts their publications rather than enumerating remaining or uniquely defeated
+    /// slots. The count returns to zero after 65535, as the cartridge's does.
+    /// </summary>
+    public int EnemiesKilled { get; internal set => field = Ensure.BetweenInclusive(0, KillCountPeriod - 1, value); }
+
+    /// <summary>How many kills the count records before it returns to zero.</summary>
+    private const int KillCountPeriod = 65536;
     /// <summary>Native BossID ($179C) for the loaded encounter, reset to zero on room load and published by nonzero definition IDs or boss initialization; not an area boss-defeated flag.</summary>
     public ushort BossId { get; internal set; }
     /// <summary>
@@ -27,7 +34,7 @@ internal sealed class EnemyRoomStatus
     public const int MaximumFirefleaDarknessLevel = 12;
 
     /// <summary>Counts one more enemy death in the room's kill count, which wraps from 65535 to zero.</summary>
-    internal void RecordKill() => EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+    internal void RecordKill() => EnemiesKilled = (EnemiesKilled + 1) % KillCountPeriod;
 
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }

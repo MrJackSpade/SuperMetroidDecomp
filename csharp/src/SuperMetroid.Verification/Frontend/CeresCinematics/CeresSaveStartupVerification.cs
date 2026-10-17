@@ -158,7 +158,7 @@ internal static class CeresSaveStartupVerification
         gameOverProbe.Step(0);
         for (int wait = 0; wait < 256 && gameOverProbe.GameState == SuperMetroidGameState.SetUpNewGame; wait++)
             gameOverProbe.Step(0);
-        ushort nmiBeforeDeath = gameOverProbe.GameplayRuntimeForVerification.Clock.Counter;
+        int nmiBeforeDeath = gameOverProbe.GameplayRuntimeForVerification.Clock.Counter;
         // Layer-one fractions $090F/$0913 are written only by camera movement, so they
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.GameplayRuntimeForVerification.Room.LoadedCamera;

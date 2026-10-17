@@ -35,7 +35,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         bool elevatorIsMoving = false,
         RoomPlmSystem? plms = null,
         bool publishDoorSideEffects = true)
@@ -74,7 +74,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput,
         RoomPlmSystem? plms = null)
     {
@@ -121,7 +121,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput,
         RoomPlmSystem? plms = null)
     {
@@ -174,7 +174,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
@@ -235,7 +235,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerInput = SnesButton.None,
         RoomPlmSystem? plms = null)
     {
@@ -287,7 +287,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -368,7 +368,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -423,7 +423,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -475,7 +475,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -523,7 +523,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -551,7 +551,7 @@ public static class SamusGroundedMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(

@@ -71,7 +71,7 @@ public sealed class EscapeTimer
     /// Global NMI frame counter. Only its low seven bits select the periodic correction schedule.
     /// </param>
     /// <param name="preventEscapeTimeout">Host-only override: countdown continues normally until one second remains.</param>
-    public bool Process(ushort nmiFrameCounter, bool preventEscapeTimeout = false)
+    public bool Process(int nmiFrameCounter, bool preventEscapeTimeout = false)
     {
         if (CountdownExpired)
             return false;
@@ -160,7 +160,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Counts down while the aliased X counter advances to its movement threshold.</summary>
-    private bool ProcessMovementDelay(ushort nmiFrameCounter)
+    private bool ProcessMovementDelay(int nmiFrameCounter)
     {
         IncrementXLowByte();
         if ((byte)Position.X >= 96)
@@ -175,7 +175,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Moves the 8.8 timer origin toward pixel (220, 48) while continuing the countdown.</summary>
-    private bool ProcessMovement(ushort nmiFrameCounter)
+    private bool ProcessMovement(int nmiFrameCounter)
     {
         int axesInPosition = 0;
 
@@ -211,7 +211,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary>Subtracts this NMI's BCD correction and reports expiration at exactly zero.</summary>
-    private bool Decrement(ushort nmiFrameCounter)
+    private bool Decrement(int nmiFrameCounter)
     {
         PackedBcd correction = PackedBcd.FromDecimal(EscapeTimerCadenceDefinitions.Centiseconds(nmiFrameCounter));
         PackedBcd one = PackedBcd.FromDecimal(1);

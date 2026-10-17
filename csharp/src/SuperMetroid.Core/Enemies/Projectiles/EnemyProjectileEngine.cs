@@ -146,7 +146,7 @@ internal sealed class EnemyProjectileEngine
             .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
     /// <summary>The 8-bit frame counter sampled by the current projectile pass; verification drives it to step instructions.</summary>
-    internal byte CurrentFrame8 { get; set; }
+    internal int CurrentFrame8 { get; set; }
 
     /// <summary>A shot meets an enemy projectile only inside the same 32-pixel cell: the shift that selects the cell.</summary>
     private const int CoarseContactCellShift = 5;
@@ -158,7 +158,7 @@ internal sealed class EnemyProjectileEngine
     private const int HalfBlockPixelMask = 7;
 
     /// <summary>The 16-bit NMI_FrameCounter ($05B6) for the current projectile pass.</summary>
-    internal ushort CurrentFrame16 { get; private set; }
+    internal int CurrentFrame16 { get; private set; }
 
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
@@ -249,8 +249,11 @@ internal sealed class EnemyProjectileEngine
         return hitCount;
     }
 
-    /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter.</summary>
-    private byte _standaloneFrameCounter8;
+    /// <summary>How many passes the standalone clock counts before it returns to zero, as the short NMI counter does.</summary>
+    private const int StandaloneFrameCounter8Period = 256;
+
+    /// <summary>Fallback frame clock for standalone calls without a supplied NMI counter, 0 through 255.</summary>
+    private int _standaloneFrameCounter8;
 
     /// <summary>Discards every projectile and restarts the standalone clock when a room loads.</summary>
     internal void ResetForRoom()
@@ -260,14 +263,22 @@ internal sealed class EnemyProjectileEngine
             projectile.Clear();
     }
 
+    /// <summary>Returns the standalone clock's current frame and advances it, wrapping after 255.</summary>
+    private int AdvanceStandaloneFrameCounter8()
+    {
+        int frame = _standaloneFrameCounter8;
+        _standaloneFrameCounter8 = (frame + 1) % StandaloneFrameCounter8Period;
+        return frame;
+    }
+
     /// <summary>One bank-$86 projectile pass: every live slot's pre-instruction, then its instruction list.</summary>
     internal void RunPass(
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        byte? nmiFrameCounter8,
+        int? nmiFrameCounter8,
         SamusBombProjectileSystem? samusBombs,
-        ushort? nmiFrameCounter)
+        int? nmiFrameCounter)
     {
         Ensure.NotNull(level);
 
@@ -284,7 +295,7 @@ internal sealed class EnemyProjectileEngine
         // pass after the pre-instruction returns. Reading each array entry at loop time
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
-        byte projectileFrame = nmiFrameCounter8 ?? _standaloneFrameCounter8++;
+        int projectileFrame = nmiFrameCounter8 ?? AdvanceStandaloneFrameCounter8();
         CurrentFrame8 = projectileFrame;
         // Standalone audits seed both counters from the same projectile clock.
         CurrentFrame16 = nmiFrameCounter ?? projectileFrame;
@@ -476,7 +487,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         SamusState? samus,
         Position16<RoomPixels> camera,
-        byte nmiFrameCounter8,
+        int nmiFrameCounter8,
         SamusBombProjectileSystem? samusBombs)
     {
         if (Handlers.TryInterceptPreInstruction(projectile)) return;

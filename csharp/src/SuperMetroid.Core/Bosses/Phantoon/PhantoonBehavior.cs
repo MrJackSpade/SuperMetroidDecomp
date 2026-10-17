@@ -2041,7 +2041,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Holds the flame briefly at the floor after impact.</summary>
     internal static void RunPhantoonCasualFlameImpactPause(
         RoomEnemyProjectileSlot flame,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         NativeWordCounterStep pauseStep = NativeWordCounter.Decrement(flame.Variable0);
         flame.Variable0 = pauseStep.Value;

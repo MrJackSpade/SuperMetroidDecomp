@@ -1494,7 +1494,7 @@ internal sealed class CeresRidleyBehavior
     /// frame's enemy AI and Samus processing, so the getaway's first step shares the frame
     /// in which Ridley's escape handoff publishes Ceres status one.
     /// </summary>
-    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, ushort nmiFrameCounter)
+    public void RunCeresRidleyGetawayRoomMain(SamusState? samus, int nmiFrameCounter)
     {
         if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyEscaped)
             return;
@@ -1513,7 +1513,7 @@ internal sealed class CeresRidleyBehavior
     internal void TickCeresRidleyMode7Getaway(
         RidleyEnemyState state,
         SamusState? samus,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         int tableIndex = state.Mode7TableIndex;
         state.Mode7TableIndex = tableIndex + 1;

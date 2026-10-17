@@ -253,7 +253,7 @@ public sealed class SamusLiquidPhysicsState
     /// </summary>
     public void PrepareAnimationFrame(
         SamusState samus,
-        ushort nmiFrameCounter = 0,
+        int nmiFrameCounter = 0,
         Bank80SystemState? system = null,
         bool beginSoundRequestFrame = true)
     {
@@ -642,7 +642,7 @@ public sealed class SamusLiquidPhysicsState
     private void TrySpawnAirBubbles(
         SamusState samus,
         ushort top,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         Bank80SystemState system)
     {
         ushort mouthY = unchecked((ushort)(top - 24));
@@ -664,7 +664,7 @@ public sealed class SamusLiquidPhysicsState
     private void TrySpawnLavaSurfaceSpray(
         SamusState samus,
         ushort top,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         if (unchecked((short)(top - LavaAcidYPosition)) >= 0 ||
             (AtmosphericEffects.Slots[0].FrameAndType & 1 << 10) != 0)

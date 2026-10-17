@@ -77,7 +77,7 @@ public sealed class MaridiaElevatubeRoomMainState
 
         RoomLevelData level,
         SamusState? samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem plms,
         RoomMainScratchState scratch)
     {

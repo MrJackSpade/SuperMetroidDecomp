@@ -80,7 +80,7 @@ internal sealed class SamusPoseTransitions
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         SnesButton controllerNewInput,
         RoomPlmSystem? plms = null)
     {
@@ -167,7 +167,7 @@ internal sealed class SamusPoseTransitions
 
         RoomLevelData level,
         SamusPoseId genericTargetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -306,7 +306,7 @@ internal sealed class SamusPoseTransitions
     public void ApplyWallJumpTrigger(
 
         RoomLevelData? level = null,
-        ushort nmiFrameCounter = 0,
+        int nmiFrameCounter = 0,
         RoomPlmSystem? plms = null)
     {
 
@@ -418,7 +418,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null,
         bool clearMovementSpeed = true)
     {
@@ -802,7 +802,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -1409,7 +1409,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// </summary>
     internal bool TryResolveKnockbackPoseCollision(
 RoomLevelData level, SamusPoseId targetPose,
-        ushort nmiFrameCounter, RoomPlmSystem? plms)
+        int nmiFrameCounter, RoomPlmSystem? plms)
     {
         SamusPoseId sourcePose = _samus.Pose;
         LargerPoseCollisionOutcome outcome = _samus.ResolveLargerPoseCollision(
@@ -1436,7 +1436,7 @@ level, targetPose, nmiFrameCounter, plms, out int adjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -1498,7 +1498,7 @@ level, targetPose, nmiFrameCounter, plms, out int adjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -1561,7 +1561,7 @@ level, targetPose, nmiFrameCounter, plms, out int adjustment);
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -1684,7 +1684,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -1821,7 +1821,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
 
         RoomLevelData level,
         SamusPoseId targetPose,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -2100,7 +2100,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
     /// </summary>
     public void ApplyWalkedOffFloorTransition(
 RoomLevelData level, SamusPoseId targetPose,
-        ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
+        int nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -2214,7 +2214,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         RoomLevelData level,
         bool wasSpinning,
         SnesButton controllerInput,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 
@@ -2336,7 +2336,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     public bool TryApplyCompactAerialLanding(
 
         RoomLevelData level,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem? plms = null)
     {
 

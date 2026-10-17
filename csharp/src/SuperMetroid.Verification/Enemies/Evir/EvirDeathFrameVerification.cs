@@ -45,7 +45,7 @@ internal static class EvirDeathFrameVerification
         // their already-scheduled calls before next frame's population pass removes them.
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, ResolveSamusContactBeforeAi = true });
         AssertEqual(EnemyDefinitionId.None, body.EnemyDefinitionPointer, "Screw Attack clears Evir body during contact");
-        AssertEqual((ushort)1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
+        AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
             "Evir contact tail marks both following physical slots deleted");
         AssertEqual((ushort)1, arms.FrameCounter, "already-selected arms still receive their native final AI call");

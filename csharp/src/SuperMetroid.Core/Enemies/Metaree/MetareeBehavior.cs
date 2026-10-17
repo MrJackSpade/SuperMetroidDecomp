@@ -207,13 +207,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BurrowTimer = state.BurrowTimer.Decrement().Remaining;
         if (state.BurrowTimer.IsZero)
         {
-            // `$A3:8A92` writes the packed live palette/tile indexes back into the spawn
-            // record before hiding/deleting the actor. Preserve that odd state mutation so
-            // debugger-visible spawn data agrees even though current respawn logic is later.
-            slot.Spawn = slot.Spawn with
-            {
-                VramTilesIndex = unchecked((ushort)(slot.PaletteIndex | slot.VramTilesIndex)),
-            };
             slot.PaletteIndex = EnemyPaletteBits.Palette5;
             slot.VramTilesIndex = 0;
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);

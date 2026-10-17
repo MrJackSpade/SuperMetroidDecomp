@@ -24,7 +24,7 @@ internal static class IntroSamusDemoMovement
         SamusState samus,
         SnesButton heldInput,
         SnesButton newlyPressedInput,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         SamusPoseTransitionLookup lookup = SamusPoseTransitionTable.Lookup(
             samus.Pose,

@@ -18,7 +18,7 @@ public sealed record MinimapFrame
     public required Position16<RoomPixels> Samus { get; init; }
 
     /// <summary>Nmi frame counter.</summary>
-    public required byte NmiFrameCounter { get; init; }
+    public required int NmiFrameCounter { get; init; }
 
     /// <summary>Map reveal mode.</summary>
     public MapRevealMode MapRevealMode { get; init; } = MapRevealMode.None;

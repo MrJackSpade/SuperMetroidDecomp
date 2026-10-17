@@ -122,7 +122,7 @@ internal sealed class RoomMainRoutines
     /// flicker. Keeping the predicate named prevents host display cadence (including RDP)
     /// from being mistaken for the cartridge-authored effect.
     /// </summary>
-    internal static bool ShouldDrawSamusOnElevator(ushort nmiFrameCounter) =>
+    internal static bool ShouldDrawSamusOnElevator(int nmiFrameCounter) =>
         (nmiFrameCounter & 1) == 0;
 
     /// <summary>

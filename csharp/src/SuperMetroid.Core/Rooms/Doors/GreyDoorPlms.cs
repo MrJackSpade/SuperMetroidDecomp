@@ -39,7 +39,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
     /// (setting Zebes awake for the enemy quota), and otherwise plays the dud sound for a shot; once activated, any
     /// shot wakes the cap at its hit. Each consumes the hit word.
     /// </summary>
-    internal void RunGreyDoorPreInstruction(PlmSlot slot, GreyDoorPreInstruction preInstruction, ushort enemyDeaths, byte enemyDeathQuota)
+    internal void RunGreyDoorPreInstruction(PlmSlot slot, GreyDoorPreInstruction preInstruction, int enemyDeaths, byte enemyDeathQuota)
     {
         switch (preInstruction)
         {
@@ -101,7 +101,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         _bindings.System ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
     /// <summary>Whether the unlock check <paramref name="preInstruction"/> passes.</summary>
-    private bool IsUnlocked(GreyDoorPreInstruction preInstruction, ushort enemyDeaths, byte enemyDeathQuota)
+    private bool IsUnlocked(GreyDoorPreInstruction preInstruction, int enemyDeaths, byte enemyDeathQuota)
     {
         Bank80SystemState system = RequireSystem();
         return preInstruction switch

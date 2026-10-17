@@ -51,7 +51,7 @@ internal sealed class EnemyDeathsAndDrops
     internal SamusState? _samusForEnemyDrops;
 
     /// <summary>Last library-two sound requested by a collected enemy pickup this frame.</summary>
-    public ushort? LastEnemyPickupSoundEffect { get; internal set; }
+    public SoundEffectId? LastEnemyPickupSoundEffect { get; internal set; }
 
     /// <summary>
     /// Last library-two sound requested by the shared death/pickup instruction lists this
@@ -479,23 +479,23 @@ internal sealed class EnemyDeathsAndDrops
         {
             case EnemyPickupKind.SmallEnergy:
                 RestoreEnemyDropEnergy(samus, 5);
-                LastEnemyPickupSoundEffect = 1;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SmallEnergyPickup;
                 break;
             case EnemyPickupKind.BigEnergy:
                 RestoreEnemyDropEnergy(samus, 20);
-                LastEnemyPickupSoundEffect = 2;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.BigEnergyPickup;
                 break;
             case EnemyPickupKind.PowerBomb:
                 RestoreEnemyDropPowerBombs(samus, 1);
-                LastEnemyPickupSoundEffect = 5;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.PowerBombPickup;
                 break;
             case EnemyPickupKind.Missile:
                 RestoreEnemyDropMissiles(samus, 2);
-                LastEnemyPickupSoundEffect = 3;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.MissilePickup;
                 break;
             case EnemyPickupKind.SuperMissile:
                 RestoreEnemyDropSuperMissiles(samus, 1);
-                LastEnemyPickupSoundEffect = 4;
+                LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SuperMissilePickup;
                 break;
             default:
                 throw new InvalidDataException(
@@ -566,7 +566,8 @@ internal sealed class EnemyDeathsAndDrops
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEnemyPickupSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 1);
+        if (LastEnemyPickupSoundEffect is { } pickupSound)
+            audio.QueueEnemySound(pickupSound, maximumQueued: 1);
         if (LastEnemyDeathSoundEffectLibrary2 is { } deathSound)
             audio.QueueEnemySound(deathSound, maximumQueued: 1);
     }

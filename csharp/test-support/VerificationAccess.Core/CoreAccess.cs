@@ -64,7 +64,7 @@ internal static class CoreAccess
         /// <summary>The most recent update's ordered semantic audio events.</summary>
         internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.lastAudioEvents;
         /// <summary>Reads the session frame clock's 16-bit counter, which the frontend advances while no runtime exists.</summary>
-        internal ushort MenuNmiFrameCounterForVerification => game.Session.frameClock.Counter;
+        internal int MenuNmiFrameCounterForVerification => game.Session.frameClock.Counter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
             game.Session.ceresDestruction;

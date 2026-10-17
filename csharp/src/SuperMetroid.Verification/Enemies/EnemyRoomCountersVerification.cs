@@ -34,6 +34,8 @@ internal static class EnemyRoomCountersVerification
         enemies.RoomStatus.EnemiesKilled = ushort.MaxValue;
         enemies.RoomStatus.RecordKill();
         AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "the kill count wraps from 65535 to zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => enemies.RoomStatus.EnemiesKilled = ushort.MaxValue + 1,
+            "the kill count rejects a value past its period");
 
         Console.WriteLine("Enemy room counters: darkness, slot-table and kill-count ranges hold at their bounds.");
     }

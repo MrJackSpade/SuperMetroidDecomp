@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Elevator;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Rooms;
@@ -31,12 +32,12 @@ internal static class UnpauseElevatorFlagsVerification
         game.Session.lastAudioRoomStatePointer = runtime.Room.LoadedRoom.State.Pointer;
 
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();
-        AssertEqual((ushort)1, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");
+        AssertEqual(ElevatorJourneyFlag.DoorContact, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "the elevator is armed before the pause");
         game.GameState = SuperMetroidGameState.UnpausingB;
         game.Step(0);
 
         AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "state $11 hands off to the brightening state");
-        AssertEqual((ushort)0, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "ResumeGameplay clears $0E16");
+        AssertEqual(ElevatorJourneyFlag.None, runtime.Enemies.ElevatorBehavior.ElevatorFlags, "ResumeGameplay clears $0E16");
         Console.WriteLine("  Unpause elevator flags: resuming gameplay disarms the elevator's pseudo-door.");
     }
 

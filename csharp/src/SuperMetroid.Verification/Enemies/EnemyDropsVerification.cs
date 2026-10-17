@@ -179,7 +179,7 @@ internal static class EnemyDropsVerification
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
-        AssertEqual(expectedSound, fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
+        AssertEqual((SoundEffectId?)new SoundEffectId(SoundEffectLibrary.Library2, expectedSound), fixture.System.DeathsAndDrops.LastEnemyPickupSoundEffect,
             $"{kind} library-two sound");
         AssertEqual((ushort)0xefdf, pickup.PreInstruction,
             $"{kind} enters shared blank/no-collision tail after collection");
@@ -353,7 +353,7 @@ internal static class EnemyDropsVerification
             "respawning death leaves native DAFF placeholder in physical enemy slot");
         AssertEqual((byte)0xa3, enemy.AiBank,
             "respawning death leaves native placeholder AI bank");
-        AssertEqual((ushort)1, fixture.System.RoomStatus.EnemiesKilled,
+        AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");
 
         RoomEnemyProjectileSlot explosion = fixture.System.Projectiles.EnemyProjectiles[17];

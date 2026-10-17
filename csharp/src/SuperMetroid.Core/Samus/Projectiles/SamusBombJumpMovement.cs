@@ -43,7 +43,7 @@ public static class SamusBombJumpMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem plms)
     {
 
@@ -130,7 +130,7 @@ public static class SamusBombJumpMovement
 
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter,
+        int nmiFrameCounter,
         RoomPlmSystem plms)
     {
         SamusKinematicsState state = samus.Kinematics;

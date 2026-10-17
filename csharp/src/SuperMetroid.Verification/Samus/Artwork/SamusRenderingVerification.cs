@@ -649,7 +649,7 @@ internal static void VerifySamusVisorPalette()
     state.Update(
         cgram, specialSamusPaletteType: 0,
         layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
-    AssertEqual(0x0601, state.PackedTimerIndex,
+    AssertEqual((1, 6), (state.Timer, state.PaletteByteOffset),
         "ordinary room resets visor animation, priming timer one and table offset six");
     AssertEqual(0x7777, cgram.Colors[196],
         "ordinary room reset does not overwrite current visor color");
@@ -661,21 +661,21 @@ internal static void VerifySamusVisorPalette()
         "backdrop room writes first visor color immediately");
     AssertEqual(colors[6 / 2], cgram.Colors[196], "first visor source is table offset six");
     AssertEqual(0x2000, cgram.Colors[196], "first backdrop visor color");
-    AssertEqual(0x0805, state.PackedTimerIndex,
-        "first write reloads five and advances packed offset to eight");
+    AssertEqual((5, 8), (state.Timer, state.PaletteByteOffset),
+        "first write reloads five and advances the offset to eight");
 
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
     for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
     {
         Bgr555 colorBeforeCountdown = cgram.Colors[196];
-        byte offsetBeforeCountdown = state.PaletteByteOffset;
+        int offsetBeforeCountdown = state.PaletteByteOffset;
         state.Update(
             cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
         AssertTrue(cgram.Colors[196] == colorBeforeCountdown &&
                 state.PaletteByteOffset == offsetBeforeCountdown,
             $"visor countdown timer {expectedTimer} writes no color and keeps its offset");
-        AssertEqual(unchecked((byte)expectedTimer), state.Timer,
-            $"visor packed low byte reaches {expectedTimer}");
+        AssertEqual((int)expectedTimer, state.Timer,
+            $"visor countdown reaches {expectedTimer}");
         if (expectedTimer == 1)
             break;
     }
@@ -683,23 +683,23 @@ internal static void VerifySamusVisorPalette()
         cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
     AssertEqual(colors[8 / 2], cgram.Colors[196], "second visor source is table offset eight");
     AssertEqual(0x2001, cgram.Colors[196], "second backdrop visor color");
-    AssertEqual(0x0a05, state.PackedTimerIndex,
-        "second write advances packed offset to ten");
+    AssertEqual((5, 10), (state.Timer, state.PaletteByteOffset),
+        "second write advances the offset to ten");
 
     for (int call = 0; call < 5; call++)
         state.Update(cgram, SamusSpecialPaletteType.None, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(0x2002, cgram.Colors[196], "third backdrop visor color");
-    AssertEqual(0x0605, state.PackedTimerIndex,
+    AssertEqual((5, 6), (state.Timer, state.PaletteByteOffset),
         "third write wraps only to room-cycle offset six");
 
-    ushort packedBeforeXray = state.PackedTimerIndex;
+    (int Timer, int Offset) beforeXray = (state.Timer, state.PaletteByteOffset);
     cgram.SetColor(196, Bgr555.FromWord(0x3456));
     state.Update(
         cgram, SamusSpecialPaletteType.Xray, LayerBlendingConfiguration.VisorBackdrop28);
-    AssertTrue(state.PackedTimerIndex == packedBeforeXray && cgram.Colors[196].ToWord() == 0x3456,
+    AssertTrue((state.Timer, state.PaletteByteOffset) == beforeXray && cgram.Colors[196].ToWord() == 0x3456,
         "X-ray special handler suppresses ordinary visor cycle");
-    AssertEqual(packedBeforeXray, state.PackedTimerIndex,
-        "X-ray suppression freezes both packed bytes");
+    AssertEqual(beforeXray, (state.Timer, state.PaletteByteOffset),
+        "X-ray suppression freezes the countdown and the offset");
     AssertEqual(0x3456, cgram.Colors[196],
         "X-ray suppression preserves its independently owned color");
 
@@ -713,7 +713,7 @@ internal static void VerifySamusVisorPalette()
         layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
         "inactive charging retains beam-palette result");
-    AssertEqual(0x0805, integratedSamus.VisorPalette.PackedTimerIndex,
+    AssertEqual((5, 8), (integratedSamus.VisorPalette.Timer, integratedSamus.VisorPalette.PaletteByteOffset),
         "inactive charging falls through to visor handler, which writes and advances");
     AssertEqual(0x2000, cgram.Colors[196],
         "integrated visor call reads bank-$9B room-cycle color");

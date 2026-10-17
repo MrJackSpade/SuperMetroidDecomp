@@ -37,8 +37,9 @@ public sealed class SamusCrystalFlashState
     /// <summary>WRAM <c>$0DEC</c>, reloaded to ten between the three ammunition families.</summary>
     public NativeCountdown AmmoDecrementTimer { get; private set; }
 
-    /// <summary>Mirrors another owner's write to shared WRAM $0DEC.</summary>
-    internal void SetSharedAmmoCounter(ushort value) => AmmoDecrementTimer = NativeCountdown.FromRaw(value);
+    /// <summary>Mirrors another owner's write, 0 through 65535, to the shared ammo-countdown word; other values are rejected.</summary>
+    internal void SetSharedAmmoCounter(int value) =>
+        AmmoDecrementTimer = NativeCountdown.FromRaw(checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
 
     /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;

@@ -38,24 +38,26 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Whether bank-$90 installed <c>ProjectilePreInstruction_BombSpread</c>.</summary>
     public bool IsBombSpread { get; internal set; }
 
+    /// <summary>The spread bomb's horizontal travel; a wall reverses its direction.</summary>
+    public BombSpreadHorizontalVelocity BombSpreadHorizontal { get; internal set; }
+
     /// <summary>
-    /// Native horizontal direction/magnitude word from $90:D8D9: bit 15 is the direction and
-    /// the byte-swapped word is the 16.16 step. It is not a coordinate component paired with
-    /// the separate whole/subpixel vertical speed below.
+    /// The spread bomb's horizontal travel in its launch definition's packed form, 0 through 65535, for traces that
+    /// print it.
     /// </summary>
-    public ushort BombSpreadDirectionMagnitude { get; internal set; }
+    public int BombSpreadDirectionMagnitude => BombSpreadHorizontal.LaunchWord;
 
-    /// <summary>Whole signed Y velocity used by the spread pre-instruction.</summary>
-    public ushort BombSpreadYVelocity { get; internal set; }
+    /// <summary>The spread bomb's signed 16.16 vertical velocity; Samus's gravity accelerates it every frame.</summary>
+    public SnesSignedSixteenSixteen BombSpreadVerticalVelocity { get; internal set; }
 
-    /// <summary>Fractional Y velocity used by the spread pre-instruction.</summary>
-    public ushort BombSpreadYSubvelocity { get; internal set; }
+    /// <summary>The whole word of <see cref="BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
+    public int BombSpreadYVelocity => BombSpreadVerticalVelocity.WholeWord;
 
-    /// <summary>ROM-authored fractional Y velocity restored on a floor bounce.</summary>
-    public ushort BombSpreadInitialYSubvelocity { get; internal set; }
+    /// <summary>The fraction word of <see cref="BombSpreadVerticalVelocity"/>, 0 through 65535, for traces that print it.</summary>
+    public int BombSpreadYSubvelocity => BombSpreadVerticalVelocity.Fraction;
 
-    /// <summary>Initial negative whole Y velocity restored on a floor bounce.</summary>
-    public ushort BombSpreadBounceYVelocity { get; internal set; }
+    /// <summary>The upward launch velocity, signed 16.16, that a floor bounce restores.</summary>
+    public SnesSignedSixteenSixteen BombSpreadLaunchVelocity { get; internal set; }
 
     /// <summary>
     /// The word called <c>projectile_variables[5+Index]</c> by bank $90 and
@@ -79,10 +81,8 @@ public sealed class SamusBombProjectileSlot
         Radius = Extent16<RoomPixels>.Zero;
         BombTimer = NativeCountdown.Start(0);
         IsBombSpread = false;
-        BombSpreadDirectionMagnitude = 0;
-        BombSpreadYVelocity = 0;
-        BombSpreadYSubvelocity = 0;
-        BombSpreadInitialYSubvelocity = 0;
-        BombSpreadBounceYVelocity = 0;
+        BombSpreadHorizontal = default;
+        BombSpreadVerticalVelocity = SnesSignedSixteenSixteen.Zero;
+        BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.Zero;
     }
 }

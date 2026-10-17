@@ -89,7 +89,7 @@ internal static class SamusVisorColorsVerification
         var guarded = NewForbiddenVisorColorBus(rom);
         for (int frame = 0; frame < 32; frame++)
         {
-            byte sourceOffset = native.PaletteByteOffset;
+            int sourceOffset = native.PaletteByteOffset;
             native.Update(nativeCgram, 0,
                 LayerBlendingConfiguration.VisorBackdrop28);
             installed.Update(installedCgram, 0,
@@ -102,7 +102,7 @@ internal static class SamusVisorColorsVerification
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusVisorColorFormat.SourceAddress + sourceOffset), installedCgram.Colors[196],
                     $"room visor frame {frame} matches native color word");
             AssertEqual(expectedWrite, actualWrite, $"room visor frame {frame} action");
-            AssertEqual(native.PackedTimerIndex, installed.PackedTimerIndex,
+            AssertEqual((native.Timer, native.PaletteByteOffset), (installed.Timer, installed.PaletteByteOffset),
                 $"room visor frame {frame} timer and index");
             AssertEqual(nativeCgram.Colors[196], installedCgram.Colors[196],
                 $"room visor frame {frame} CGRAM");

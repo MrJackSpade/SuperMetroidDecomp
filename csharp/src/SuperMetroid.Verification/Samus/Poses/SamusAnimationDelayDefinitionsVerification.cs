@@ -33,16 +33,17 @@ internal static class SamusAnimationDelayDefinitionsVerification
         // pose pointer selecting a segment start rather than a delay inside one.
         ReadOnlySpan<SamusAnimationSegment> segments = SamusAnimationDelayPrograms.Segments;
         AssertEqual(160, segments.Length, "Samus animation segment count");
-        int expectedAddress = SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue;
+        int streamsStart = SamusAnimationDelayDefinitions.DelayStreamsAddress & ushort.MaxValue;
+        int expectedOffset = 0;
         var segmentStarts = new HashSet<int>();
         foreach (SamusAnimationSegment segment in segments)
         {
-            AssertEqual(expectedAddress, (int)segment.Address, "Samus animation segments are contiguous");
-            segmentStarts.Add(segment.Address);
-            expectedAddress += segment.Length;
+            AssertEqual(expectedOffset, segment.Offset, "Samus animation segments are contiguous");
+            segmentStarts.Add(streamsStart + segment.Offset);
+            expectedOffset += segment.Length;
         }
-        AssertEqual(SamusAnimationDelayDefinitions.DelayStreamsEndExclusive & ushort.MaxValue, expectedAddress,
-            "Samus animation segments end at the running-cadence pointer");
+        AssertEqual(SamusAnimationDelayDefinitions.DelayStreamsEndExclusive - SamusAnimationDelayDefinitions.DelayStreamsAddress,
+            expectedOffset, "Samus animation segments end at the running-cadence pointer");
         for (int pose = 0; pose < 0xFD; pose++)
             AssertTrue(segmentStarts.Contains(SamusAnimationDelayDefinitions.PointerForPose((SamusPoseId)pose)),
                 $"pose ${pose:X2} animation pointer starts a segment");

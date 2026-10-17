@@ -80,7 +80,7 @@ public static class SamusGrappleMovement
         }
 
         grapple.Phase = GrapplePhase.Firing;
-        grapple.FireDirection = direction;
+        grapple.FireDirection = (SamusProjectileDirection)direction;
         grapple.PoseChangeAutoFireTimer = NativeCountdown.Start(SamusGrappleRomData.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
         grapple.ExtensionVelocity = new(launch.XVelocity, launch.YVelocity);
@@ -213,7 +213,7 @@ public static class SamusGrappleMovement
         grapple.FlareAnimationTimer = grapple.FlareAnimationTimer.Decrement().Remaining;
         if (grapple.FlareAnimationTimer.IsNegative)
         {
-            grapple.FlareAnimationFrame = unchecked((ushort)(grapple.FlareAnimationFrame + 1));
+            grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, 1);
             byte delay = ChargeFlareAnimationDefinitions.ReadByte(
                 SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     grapple.FlareAnimationFrame);
@@ -225,9 +225,8 @@ public static class SamusGrappleMovement
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
                 byte rewind = ChargeFlareAnimationDefinitions.ReadByte(
                     SamusGrappleRomData.Firing.MainFlareAnimationDelays +
-                    unchecked((ushort)(grapple.FlareAnimationFrame + 1)));
-                grapple.FlareAnimationFrame = unchecked((ushort)(
-                    grapple.FlareAnimationFrame - rewind));
+                    StepFlareFrame(grapple.FlareAnimationFrame, 1));
+                grapple.FlareAnimationFrame = StepFlareFrame(grapple.FlareAnimationFrame, -rewind);
                 delay = ChargeFlareAnimationDefinitions.ReadByte(
                     SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                         grapple.FlareAnimationFrame);
@@ -1064,7 +1063,7 @@ public static class SamusGrappleMovement
             : sourceMovementType == SamusMovementType.Crouching
                 ? SamusGrappleRomData.Connections.CrouchingTable
                 : SamusGrappleRomData.Connections.DefaultTable;
-        int recordAddress = connectionTable + grapple.FireDirection * 4;
+        int recordAddress = connectionTable + (int)grapple.FireDirection * 4;
         var connection = GrappleConnectionDefinitions.ResolveConnection(recordAddress);
         GrappleConnectionFunction nextFunction = connection.Function;
         GrappleConnectionHandler handler = connection.Handler;
@@ -1202,8 +1201,8 @@ public static class SamusGrappleMovement
             // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, running: false);
-            var flare = ReadFlareOrigin(grapple, grapple.FireDirection, running: false);
+            var origin = GrappleFiringDefinitions.Origin((byte)grapple.FireDirection, running: false);
+            var flare = ReadFlareOrigin(grapple, (byte)grapple.FireDirection, running: false);
             samus.Position = samus.Position.WithWhole(grapple.RopeStart - new Offset16<RoomPixels>(origin.X, origin.Y));
             grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(flare.X, flare.Y);
             grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -1293,8 +1292,8 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple)
     {
         bool useRunOffsets = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running;
-        var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, useRunOffsets);
-        var flare = ReadFlareOrigin(grapple, grapple.FireDirection, useRunOffsets);
+        var origin = GrappleFiringDefinitions.Origin((byte)grapple.FireDirection, useRunOffsets);
+        var flare = ReadFlareOrigin(grapple, (byte)grapple.FireDirection, useRunOffsets);
         sbyte graphicsYOffset = samus.PoseMetadata.ReadGraphicsYOffset();
         byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
@@ -1305,6 +1304,12 @@ public static class SamusGrappleMovement
         grapple.BeamStart = samus.Position.Whole + new Offset16<RoomPixels>(
             flare.X, unchecked((short)(flare.Y - graphicsYOffset)));
     }
+
+    /// <summary>
+    /// Moves the main-flare stream position by <paramref name="delta"/> as the cartridge's sixteen-bit ADC/SBC does:
+    /// the position wraps through 65535 and zero, so malformed rewind data stays visible instead of clamped.
+    /// </summary>
+    private static int StepFlareFrame(int frame, int delta) => unchecked((ushort)(frame + delta));
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
     private static (short X, short Y) ReadFlareOrigin(SamusGrappleState grapple, byte direction, bool running)
@@ -1521,7 +1526,7 @@ public static class SamusGrappleMovement
         bool banned = GrappleConnectionDefinitions.CancelsFiring(samus.PoseMetadata.ReadMovementType());
         if (!banned && direction < 16)
         {
-            if (direction == grapple.FireDirection) return null;
+            if (direction == (byte)grapple.FireDirection) return null;
             if (!grapple.PoseChangeAutoFireTimer.IsZero)
             {
                 // Native changes the function pointer before dispatch: restart from

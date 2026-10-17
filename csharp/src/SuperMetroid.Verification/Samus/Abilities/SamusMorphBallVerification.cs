@@ -663,11 +663,11 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         return (fixtureSystem, fixtureSamus);
     }
 
-    foreach ((ushort samusX, byte expectedDirection) in new (ushort, byte)[]
+    foreach ((ushort samusX, SamusBombJumpDirection expectedDirection, byte expectedWord) in new (ushort, SamusBombJumpDirection, byte)[]
     {
-        (47, 1),
-        (48, 2),
-        (49, 3),
+        (47, SamusBombJumpDirection.Left, 1),
+        (48, SamusBombJumpDirection.Straight, 2),
+        (49, SamusBombJumpDirection.Right, 3),
     })
     {
         (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
@@ -676,7 +676,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         BombProjectileFrameResult timerEight = directionSystem.StepFrame(new SamusTerrain { Level = floor }, directionSamus, 0, 0);
         AssertEqual(expectedDirection, timerEight.PublishedBombJumpDirection,
             $"timer-eight bomb direction at Samus X {samusX}");
-        AssertEqual(expectedDirection, directionSamus.BombJumpDirection,
+        AssertEqual(expectedWord, directionSamus.BombJumpDirection,
             "bank-$A0 publishes low byte without command bit");
         AssertTrue(!directionSamus.BombJumpStarting,
             "timer-eight overlap does not start movement in same frame");
@@ -815,11 +815,9 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     // negative bounce velocity rather than freezing or reusing generic Samus collision.
     SamusBombProjectileSlot bouncingSpread = spreadBombs.Slots[2];
     bouncingSpread.Position = bouncingSpread.Position.WithWholeX(48).WithFractionX(0).WithWholeY(63).WithFractionY(0);
-    bouncingSpread.BombSpreadDirectionMagnitude = 0;
-    bouncingSpread.BombSpreadYVelocity = 1;
-    bouncingSpread.BombSpreadYSubvelocity = 0;
-    bouncingSpread.BombSpreadInitialYSubvelocity = 0x8000;
-    bouncingSpread.BombSpreadBounceYVelocity = 0xfffe;
+    bouncingSpread.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(0);
+    bouncingSpread.BombSpreadVerticalVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
+    bouncingSpread.BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.FromParts(-2, 0x8000);
     spreadBombs.StepFrame(new SamusTerrain { Level = floor }, spreadSamus, 0, 0);
     AssertEqual(63, bouncingSpread.Position.Y.Whole,
         "spread-bomb floor collision undoes penetrating Y movement");
@@ -949,7 +947,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0);
     AssertEqual(0x3400, powerBombs.PowerBombExplosion.PreExplosionRadius,
         "first white pre-explosion frame applies $3000 speed");
-    AssertEqual(0x2f80, powerBombs.PowerBombExplosion.RadiusSpeed,
+    AssertEqual(PowerBombRadius.FromRaw(0x2f80), powerBombs.PowerBombExplosion.RadiusSpeed,
         "white pre-explosion subtracts $0080 acceleration");
 
     int whiteFlashFrames = 1;
@@ -964,8 +962,8 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "white threshold advances to yellow shape phase");
     AssertTrue(powerBombs.PowerBombExplosion.PreExplosionRadius >= 0x9200,
         "white phase crosses literal $9200 radius threshold");
-    AssertEqual(0x9f06, powerBombs.PowerBombExplosion.ShapeDefinitionPointer,
-        "yellow pre-explosion starts at shape table $9F06");
+    AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.Yellow, 0), powerBombs.PowerBombExplosion.Shape,
+        "yellow pre-explosion starts at the first yellow shape");
 
     StepFrames(4, _ => powerBombs.StepFrame(new SamusTerrain { Level = floor }, powerBombSamus, 0, 0));
     AssertEqual(PowerBombExplosionPhase.ExplosionYellow,
@@ -973,7 +971,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "four 192-byte yellow shapes advance to damaging explosion");
     AssertEqual(0x0400, powerBombs.PowerBombExplosion.ExplosionRadius,
         "damaging yellow explosion restarts at 4.00 pixels");
-    AssertEqual(0, powerBombs.PowerBombExplosion.RadiusSpeed,
+    AssertEqual(PowerBombRadius.Zero, powerBombs.PowerBombExplosion.RadiusSpeed,
         "damaging yellow explosion restarts with zero speed");
 
     int yellowExplosionFrames = 0;
@@ -988,8 +986,8 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         "yellow radius threshold advances to white shape phase");
     AssertTrue(powerBombs.PowerBombExplosion.ExplosionRadius >= 0x8600,
         "yellow explosion crosses literal $8600 threshold");
-    AssertEqual(0x9246, powerBombs.PowerBombExplosion.ShapeDefinitionPointer,
-        "white explosion starts at first retail ellipse table");
+    AssertEqual(new PowerBombShapeCursor(PowerBombShapeStream.White, 0), powerBombs.PowerBombExplosion.Shape,
+        "white explosion starts at the first white ellipse shape");
 
     int whiteExplosionFrames = 0;
     while (powerBombs.PowerBombExplosion.Phase == PowerBombExplosionPhase.ExplosionWhite)

@@ -27,7 +27,7 @@ internal sealed class ProjectileTrails
         {
             // Missiles and supers map families $01/$02 to table entries $20/$21. Other
             // projectile families return carry set and do not consume a trail slot.
-            int family = SnesLittleEndian.HighByte(projectile.PackedType.FamilyValue);
+            int family = SamusProjectileFamilies.IndexOf(projectile.Type);
             if (family >= 3)
                 return;
             pointerIndex = family + 31;

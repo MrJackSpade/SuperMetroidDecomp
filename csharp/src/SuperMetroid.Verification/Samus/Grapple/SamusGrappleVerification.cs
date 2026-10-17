@@ -216,7 +216,7 @@ firingLevel, firingSamus, SnesButton.X);
     // Native frame 411 is already aimed left while the previously launched endpoint
     // reaches its block. Keep that accepted direction in sync so the firing-pose-change
     // pre-handler does not legitimately restart the beam before collision dispatch.
-    deferredConnectionSamus.Grapple.FireDirection = 7;
+    deferredConnectionSamus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left;
     deferredConnectionSamus.HorizontalSpeed.BaseSpeed = 1;
     deferredConnectionSamus.HorizontalSpeed.BaseSubspeed = 0x4000;
     deferredConnectionSamus.HorizontalSpeed.ExtraRunSpeed = 0;

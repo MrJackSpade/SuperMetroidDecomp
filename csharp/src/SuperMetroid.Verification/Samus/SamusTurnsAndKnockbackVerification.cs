@@ -243,14 +243,14 @@ level, ineligibleHistory, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertEqual(0, ineligibleHistory.AnimationFrame, "rejected history cannot rewind wall animation");
     AssertEqual(0x4321, ineligibleHistory.Kinematics.Position.X.Fraction,
         "rejected rightward wall probe cannot set real X fraction to FFFF");
-    earlyContact.SolidVerticalCollisionResult = 0x7777;
+    earlyContact.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
 level, earlyContact, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(contactFrame.WallContact && !contactFrame.WallJumpTriggered, "early wall chord contacts without launch");
     AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
     // result; only a triggered launch publishes the wall-jump result.
-    AssertTrue((SnesLittleEndian.LowByte(earlyContact.SolidVerticalCollisionResult)) != SamusVerticalCollisionResults.WallJump,
+    AssertTrue(earlyContact.SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump,
         "early wall contact does not publish launch collision result");
 
     // Merely holding Jump after the eligible frame is still contact, not a launch. In
@@ -260,7 +260,7 @@ level, earlyContact, (SnesButton.Left | SnesButton.A), 0, 0);
 level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(heldOnlyFrame.WallContact && !heldOnlyFrame.WallJumpTriggered,
         "eligible held Jump without a fresh edge remains contact only");
-    AssertEqual(0, heldOnly.SolidVerticalCollisionResult,
+    AssertEqual(SamusVerticalCollisionResult.None, heldOnly.SolidVerticalCollisionResult,
         "held-only wall contact leaves collision result clear");
 
     var eligible = CreateSpinSamus(animationFrame: 0x0b);
@@ -275,7 +275,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     AssertTrue(triggerFrame.WallJumpTriggered, "eligible fresh jump press triggers wall jump");
     AssertEqual(beforeTriggerY, eligible.Position.Y.Whole, "wall trigger frame preserves Y");
     AssertEqual(7, triggerFrame.WallDistance, "wall trigger reports clipped seven-pixel distance");
-    AssertEqual(5, eligible.SolidVerticalCollisionResult,
+    AssertEqual(SamusVerticalCollisionResult.WallJump, eligible.SolidVerticalCollisionResult,
         "terrain wall jump publishes native solid-vertical result five");
 
     // `$90:9D6B/$90:9DE3` tests Left before Right. Both bits therefore use the Left
@@ -342,7 +342,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
         SnesButton.A);
     AssertTrue(enemyTrigger.WallJumpTriggered, "solid enemy can trigger ordinary wall jump");
     AssertEqual(7, enemyTrigger.WallDistance, "enemy wall jump retains directional gap");
-    AssertEqual(5, enemyEligible.SolidVerticalCollisionResult,
+    AssertEqual(SamusVerticalCollisionResult.WallJump, enemyEligible.SolidVerticalCollisionResult,
         "enemy wall jump publishes native solid-vertical result five");
     AssertEqual(9, enemyEligible.EnemySlotToShake ?? -1,
         "enemy wall jump publishes contacted slot for shake");

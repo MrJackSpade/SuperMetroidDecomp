@@ -236,7 +236,7 @@ public sealed class SamusBombProjectileSystem
         // same frame's hit-interruption phase can arm the bomb movement handler.
         // Runtime defers this until the humanoid shot producer has also run: a
         // shot this frame may suppress overlap before the bomb direction is stored.
-        byte publishedDirection = deferSamusOverlap ? (byte)0 : PublishBombJumpOverlap(samus);
+        SamusBombJumpDirection publishedDirection = deferSamusOverlap ? SamusBombJumpDirection.None : PublishBombJumpOverlap(samus);
 
         LastFrameResult = new BombProjectileFrameResult(
             publishedDirection,
@@ -249,8 +249,8 @@ public sealed class SamusBombProjectileSystem
     public void ResolveSamusOverlap(SamusState samus, ushort projectileInvincibilityTimer)
     {
         Ensure.NotNull(samus);
-        byte direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
-            ? PublishBombJumpOverlap(samus) : (byte)0;
+        SamusBombJumpDirection direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == SamusContactDamageIndex.None
+            ? PublishBombJumpOverlap(samus) : SamusBombJumpDirection.None;
         LastFrameResult = LastFrameResult with { PublishedBombJumpDirection = direction };
     }
 
@@ -492,12 +492,12 @@ public sealed class SamusBombProjectileSystem
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
             slot.BombTimer = NativeCountdown.FromRaw(launch.FuseTimer);
-            slot.BombSpreadDirectionMagnitude = launch.XVelocity;
-            slot.BombSpreadInitialYSubvelocity = launch.YSubspeed;
-            slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
-            ushort wholeYSpeed = unchecked((ushort)(launch.YSpeed + verticalModifier));
-            slot.BombSpreadYVelocity = unchecked((ushort)(0 - wholeYSpeed));
-            slot.BombSpreadBounceYVelocity = slot.BombSpreadYVelocity;
+            slot.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(launch.XVelocity);
+            // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
+            // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
+            slot.BombSpreadLaunchVelocity = SnesSignedSixteenSixteen.FromParts(
+                unchecked((short)-(launch.YSpeed + verticalModifier)), launch.YSubspeed);
+            slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
         }
 
         BombCounter = SlotCount;
@@ -676,73 +676,40 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         SamusKinematicsState samus)
     {
-        (slot.BombSpreadYVelocity, slot.BombSpreadYSubvelocity) = AddFixedWords(
-            slot.BombSpreadYVelocity,
-            slot.BombSpreadYSubvelocity,
-            samus.YAcceleration,
-            samus.YSubacceleration);
+        // Gravity adds with the fraction carrying into the whole word and the whole word wrapping at sixteen bits,
+        // which is the signed 16.16 value's wrapping addition.
+        slot.BombSpreadVerticalVelocity += SnesSignedSixteenSixteen.FromParts(
+            unchecked((short)samus.YAcceleration), samus.YSubacceleration);
 
         ushort previousY = slot.Position.Y.Whole;
         ushort previousYSub = slot.Position.Y.Fraction;
-        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromParts(
-            unchecked((short)slot.BombSpreadYVelocity), slot.BombSpreadYSubvelocity));
+        slot.Position = slot.Position.AdvanceY(slot.BombSpreadVerticalVelocity);
         if (BombSpreadCollides(level, slot))
         {
             slot.Position = slot.Position.WithWholeY(previousY).WithFractionY(previousYSub);
-            if (unchecked((short)slot.BombSpreadYVelocity) < 0)
+            if (slot.BombSpreadVerticalVelocity.WholePixels < 0)
             {
-                slot.BombSpreadYVelocity = 0;
+                // A ceiling clears only the whole word; the fraction keeps accumulating gravity.
+                slot.BombSpreadVerticalVelocity = slot.BombSpreadVerticalVelocity.WithWholePixels(0);
                 slot.Radius = slot.Radius.WithY(0);
             }
             else
             {
-                slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
-                slot.BombSpreadYVelocity = slot.BombSpreadBounceYVelocity;
+                slot.BombSpreadVerticalVelocity = slot.BombSpreadLaunchVelocity;
             }
             return;
         }
 
         ushort previousX = slot.Position.X.Whole;
         ushort previousXSub = slot.Position.X.Fraction;
-        MoveBombSpreadHorizontally(slot);
+        // Rightward travel adds the speed with the fraction carrying into the whole word; leftward travel subtracts it
+        // with the borrow. Both wrap at sixteen whole bits, the signed 16.16 value's wrapping addition.
+        slot.Position = slot.Position.AdvanceX(slot.BombSpreadHorizontal.Displacement);
         if (!BombSpreadCollides(level, slot))
             return;
 
         slot.Position = slot.Position.WithWholeX(previousX).WithFractionX(previousXSub);
-        slot.BombSpreadDirectionMagnitude ^= 1 << 15;
-    }
-
-    /// <summary>Decodes the spread bomb's byte-swapped direction and magnitude, then advances split X coordinates with native carry.</summary>
-    private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
-    {
-        ushort swapped = SnesLittleEndian.SwapBytes(slot.BombSpreadDirectionMagnitude);
-        ushort subvelocity = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(swapped)));
-        ushort wholeMagnitude = unchecked((ushort)(swapped & 127));
-        bool movingLeft = (swapped & 1 << 7) != 0;
-
-        uint fraction = movingLeft
-            ? unchecked((uint)slot.Position.X.Fraction - subvelocity)
-            : (uint)slot.Position.X.Fraction + subvelocity;
-        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fraction));
-        int carryOrBorrow = movingLeft
-            ? (fraction > ushort.MaxValue ? 1 : 0)
-            : (int)SnesCarry.OutOfWord(fraction);
-        slot.Position = slot.Position.WithWholeX(movingLeft
-            ? unchecked((ushort)(slot.Position.X.Whole - wholeMagnitude - carryOrBorrow))
-            : unchecked((ushort)(slot.Position.X.Whole + wholeMagnitude + carryOrBorrow)));
-    }
-
-    /// <summary>Adds split 16.16 speed words while carrying fractional overflow into the whole part.</summary>
-    private static (ushort Whole, ushort Fraction) AddFixedWords(
-        ushort whole,
-        ushort fraction,
-        ushort addWhole,
-        ushort addFraction)
-    {
-        uint fractionalSum = (uint)fraction + addFraction;
-        fraction = unchecked((ushort)fractionalSum);
-        whole = unchecked((ushort)(whole + addWhole + (SnesCarry.OutOfWord(fractionalSum))));
-        return (whole, fraction);
+        slot.BombSpreadHorizontal = slot.BombSpreadHorizontal.Reversed();
     }
 
     /// <summary>Tests the bomb center against room bounds, extension parents, solid tiles and the cartridge's non-square slope heights.</summary>
@@ -1099,9 +1066,9 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>Scans bombs in ascending slot order and publishes the last overlapping bomb's Samus launch direction.</summary>
-    private byte PublishBombJumpOverlap(SamusState samus)
+    private SamusBombJumpDirection PublishBombJumpOverlap(SamusState samus)
     {
-        byte publishedDirection = 0;
+        SamusBombJumpDirection publishedDirection = SamusBombJumpDirection.None;
 
         // $A0:97BF scans ascending projectile indices. Only damage-bearing, unreflected,
         // pre-explosion projectile types below $0700 reach the geometric test.
@@ -1134,10 +1101,10 @@ public sealed class SamusBombProjectileSystem
             // Samus right of the bomb launches right. Later overlapping slots overwrite
             // earlier ones exactly as the ascending assembly loop does.
             publishedDirection = samus.Position.X.Whole == slot.Position.X.Whole
-                ? (byte)2
+                ? SamusBombJumpDirection.Straight
                 : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
-                    ? (byte)1
-                    : (byte)3;
+                    ? SamusBombJumpDirection.Left
+                    : SamusBombJumpDirection.Right;
             samus.PoseMetadata.PublishBombJumpDirection(publishedDirection);
         }
 

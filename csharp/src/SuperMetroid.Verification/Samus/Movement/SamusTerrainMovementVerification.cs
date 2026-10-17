@@ -515,7 +515,7 @@ internal static void VerifySamusGroundedMovement()
     {
         Pose = SamusPoseId.ForwardFacingPowerSuitPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
-        SolidVerticalCollisionResult = 9,
+        SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling,
     };
     forward.HorizontalSpeed.BaseSpeed = 2;
     forward.HorizontalSpeed.BaseSubspeed = 0x3456;
@@ -526,7 +526,7 @@ internal static void VerifySamusGroundedMovement()
         forward,
         nmiFrameCounter: 0);
     AssertTrue(stationaryForward is null, "zero elevator status skips the vertical scan");
-    AssertEqual(0, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
+    AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult, "forward movement clears vertical collision result");
     AssertEqual(0x1234, forward.Position.X.Whole, "forward movement does not scan or move X");
     AssertEqual(0x5678, forward.Position.Y.Whole, "stationary forward movement does not move Y");
     AssertEqual(2, forward.HorizontalSpeed.BaseSpeed, "forward dispatcher retains stale base speed");
@@ -550,7 +550,7 @@ internal static void VerifySamusGroundedMovement()
             Frozen: false,
             Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000))),
     ];
-    forward.SolidVerticalCollisionResult = 9;
+    forward.SolidVerticalCollisionResult = SamusVerticalCollisionResult.HitCeiling;
     BlockMoveResult? elevatorMove = SamusGroundedMovement.StepFacingForward(
 
         elevatorLevel,
@@ -567,7 +567,7 @@ internal static void VerifySamusGroundedMovement()
     AssertEqual(101, forward.Position.Y.Whole, "elevator moves forward-facing Samus down one pixel");
     AssertEqual(0x5678, forward.Kinematics.Position.Y.Fraction,
         "whole-pixel elevator motion preserves Y fraction");
-    AssertEqual(0, forward.SolidVerticalCollisionResult,
+    AssertEqual(SamusVerticalCollisionResult.None, forward.SolidVerticalCollisionResult,
         "elevator path clears vertical collision result after movement");
 
     // Every nonzero status executes `$90:A392`'s scan; destination shaft scroll PLMs rely

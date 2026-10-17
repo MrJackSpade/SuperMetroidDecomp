@@ -53,7 +53,32 @@ internal static class PowerBombFuseVerification
                     SamusPowerBombFuse.FastAnimation(new AnimationProgramCursor<SamusProjectileProgram>(slow, position)),
                     $"{slow} position {position} switches to the same fast position");
         Suite(nameof(VerifyPowerBombRetainedRadiusSpeed), () => VerifyPowerBombRetainedRadiusSpeed());
+        Suite(nameof(VerifyPowerBombRadiusWrap), () => VerifyPowerBombRadiusWrap());
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
+    }
+
+    /// <summary>
+    /// Checks the Power Bomb radius arithmetic at its sixteen-bit boundaries: a speed decelerated below zero wraps to
+    /// the top of the range, a radius advanced past the top wraps to the bottom, and the shape phases' carry test
+    /// refuses exactly the sums that pass 65535.
+    /// </summary>
+    private static void VerifyPowerBombRadiusWrap()
+    {
+        AssertEqual(PowerBombRadius.FromRaw(0xffc0),
+            PowerBombRadius.FromRaw(0x0040).WrappingSubtract(SuperMetroid.Core.Samus.Abilities.SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration),
+            "pre-explosion deceleration below zero wraps the speed to $FFC0");
+        AssertEqual(PowerBombRadius.FromRaw(0x0010),
+            PowerBombRadius.FromRaw(0xfff0).WrappingAdd(PowerBombRadius.FromRaw(0x0020)),
+            "a radius advanced past $FFFF wraps to $0010");
+        AssertEqual(PowerBombRadius.FromRaw(0x0020),
+            PowerBombRadius.FromRaw(0xfff0).WrappingAdd(SuperMetroid.Core.Samus.Abilities.SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration),
+            "explosion acceleration past $FFFF wraps the speed");
+        AssertTrue(PowerBombRadius.FromRaw(0xff00).TryAddWithoutCarry(PowerBombRadius.FromRaw(0x00ff), out PowerBombRadius fits) &&
+            fits == PowerBombRadius.FromRaw(0xffff), "a sum of exactly $FFFF does not carry");
+        AssertTrue(!PowerBombRadius.FromRaw(0xff00).TryAddWithoutCarry(PowerBombRadius.FromRaw(0x0100), out PowerBombRadius frozen) &&
+            frozen == PowerBombRadius.FromRaw(0xff00), "a carrying sum leaves the radius frozen");
+        AssertThrows<ArgumentOutOfRangeException>(() => PowerBombRadius.FromRaw(0x10000), "values above $FFFF are rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PowerBombRadius.FromRaw(-1), "negative values are rejected");
     }
 
     /// <summary>Checks that cleanup and a later allocation preserve the native radius-speed word.</summary>
@@ -63,7 +88,7 @@ internal static class PowerBombFuseVerification
         var explosion = new SamusPowerBombExplosionState { PresentationColors = RetailPresentationFixture().PowerBombFixedColors };
         explosion.Arm();
         explosion.Spawn(new(128, 128));
-        ushort retainedSpeed = 0;
+        PowerBombRadius retainedSpeed = PowerBombRadius.Zero;
         bool completed = false;
         for (int frame = 0; frame < 400; frame++)
         {
@@ -73,7 +98,7 @@ internal static class PowerBombFuseVerification
             break;
         }
         AssertTrue(completed, "Power Bomb cleanup was reached");
-        AssertTrue(retainedSpeed != 0, "native explosion accumulated a nonzero radius speed");
+        AssertTrue(retainedSpeed != PowerBombRadius.Zero, "native explosion accumulated a nonzero radius speed");
         // Original-CPU #441 replay: $88:8B4E clears both radii/status, but does not
         // write $0CF0. Allocation at $88:8AA4 also leaves that word alone.
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "cleanup preserves native radius-speed word");

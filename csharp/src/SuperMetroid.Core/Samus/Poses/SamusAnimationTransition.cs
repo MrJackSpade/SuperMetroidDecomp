@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>Where a Samus animation segment repeats or which poses it selects by equipment (#633).</summary>
 internal sealed record SamusAnimationTransition
 {
-    /// <summary>Address of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
-    public ushort RepeatTarget { get; init; } = 0;
+    /// <summary>Stream offset of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
+    public int RepeatOffset { get; init; } = 0;
 
     /// <summary>Equipment tested by the item-selected transitions.</summary>
     public SamusEquipmentFlags Item { get; init; } = 0;

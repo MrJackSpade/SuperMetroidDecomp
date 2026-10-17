@@ -33,11 +33,26 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>Preserves grab gamma while a newer movement callback replaces RTS.</summary>
     internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
 
-    /// <summary>WRAM <c>DraygonEscapeButtonCounter</c>.</summary>
-    public ushort EscapeButtonCounter { get; private set; }
+    /// <summary>
+    /// D-pad presses counted toward escaping, 0 through 65535. The counter shares one storage word with Crystal
+    /// Flash's ammo countdown and the suit pickup's stage number, which mirror their writes into it, so it holds any
+    /// value those owners leave, including a wrapped countdown. It advances as a sixteen-bit counter and the release
+    /// test is the cartridge's signed comparison against the target; other values are rejected.
+    /// </summary>
+    public int EscapeButtonCounter { get; private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
-    /// <summary>Mirrors Crystal Flash's writes to the shared WRAM $0DEC countdown.</summary>
-    internal void SetSharedEscapeCounter(ushort value) => EscapeButtonCounter = value;
+    /// <summary>Mirrors another owner's write to the shared counter word: Crystal Flash's countdown or a suit pickup stage.</summary>
+    internal void SetSharedEscapeCounter(int value) => EscapeButtonCounter = value;
+
+    /// <summary>The counter after one counted press: the shared word advances with sixteen-bit wraparound.</summary>
+    private static int CountPress(int counter) => unchecked((ushort)(counter + 1));
+
+    /// <summary>
+    /// Whether a counted press reached the target. The cartridge compares the shared word with a signed subtraction,
+    /// so a word of 32828 or more, left by another owner, reads as below it.
+    /// </summary>
+    private static bool ReachedEscapeTarget(int counter) =>
+        unchecked((short)(counter - EscapeButtonCounterTarget)) >= 0;
 
     /// <summary>
     /// WRAM <c>DraygonEscapePreviousDpadInput</c>. Native stores the entire masked D-pad
@@ -126,8 +141,7 @@ public sealed class SamusDraygonGrabbedState
         Ensure.NotNull(samus);
         EnsureGrabbedPose(samus);
 
-        ushort previousResult = samus.SolidVerticalCollisionResult;
-        samus.SolidVerticalCollisionResult = 0;
+        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return new DraygonGrabbedMovementResult();
     }
 
@@ -150,13 +164,13 @@ public sealed class SamusDraygonGrabbedState
         if (dpad != SnesButton.None && dpad != PreviousDpadInput)
         {
             PreviousDpadInput = dpad;
-            EscapeButtonCounter = unchecked((ushort)(EscapeButtonCounter + 1));
+            EscapeButtonCounter = CountPress(EscapeButtonCounter);
             samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
             counted = true;
         }
 
         // Native tests the signed difference only on a newly counted D-pad edge.
-        bool released = counted && unchecked((short)(EscapeButtonCounter - EscapeButtonCounterTarget)) >= 0;
+        bool released = counted && ReachedEscapeTarget(EscapeButtonCounter);
         SamusPoseId poseBeforeRelease = samus.Pose;
         if (released)
             Release(samus);

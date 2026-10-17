@@ -102,7 +102,7 @@ internal sealed class ProjectileEnemyImpacts
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
             dataPointerTable = SamusProjectileRomData.NonBeam.DataPointers;
-            dataPointerIndex = SnesLittleEndian.HighByte(slot.PackedType.FamilyValue);
+            dataPointerIndex = SamusProjectileFamilies.IndexOf(slot.Type);
         }
         else
         {

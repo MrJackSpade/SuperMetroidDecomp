@@ -48,7 +48,9 @@ internal static class GrappleFlarePresentationVerification
             {
                 var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
                 samus.Grapple.Phase = phase;
-                samus.Grapple.FireDirection = (byte)(pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose ? 7 : 2);
+                samus.Grapple.FireDirection = pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose
+                    ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
+                    : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
                 samus.Grapple.FlareCounter = counter;
                 samus.Grapple.FlareAnimationFrame = 29;
                 samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(0);
@@ -63,7 +65,9 @@ internal static class GrappleFlarePresentationVerification
         {
             var native = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
-            native.Grapple.FireDirection = (byte)(pose == SamusPoseId.MovingLeftNormalPose ? 7 : 2);
+            native.Grapple.FireDirection = pose == SamusPoseId.MovingLeftNormalPose
+                ? SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Left
+                : SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
             native.Grapple.FlareCounter = 1;
             var actual = Clone(native); var changed = Clone(native);
             for (int tick = 0; tick < 512; tick++)
@@ -101,7 +105,8 @@ internal static class GrappleFlarePresentationVerification
                 samus.Presentation.TileTransfers.BindArtwork(body);
                 samus.Grapple.FlarePlacement = flarePlacement;
             }
-            ushort expectedFrame = native.Grapple.FlareAnimationFrame, expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
+            int expectedFrame = native.Grapple.FlareAnimationFrame;
+            ushort expectedTimer = native.Grapple.FlareAnimationTimer.RawValue;
             if (SamusGrappleMovement.UsesBeamSpecificDrawingPath(native.Grapple.Phase) && native.Grapple.FlareCounter != 0)
             {
                 if (native.Grapple.FlareCounter == 1) { expectedFrame = 16; expectedTimer = 3; }

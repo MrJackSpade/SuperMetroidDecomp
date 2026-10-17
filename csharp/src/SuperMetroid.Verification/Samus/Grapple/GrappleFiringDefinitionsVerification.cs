@@ -161,7 +161,7 @@ internal static class GrappleFiringDefinitionsVerification
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(samus, (SnesButton)input);
-            AssertEqual(direction, grapple.FireDirection, "Held aim selection");
+            AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction, grapple.FireDirection, "Held aim selection");
             AssertEqual(Word(0x9bc0db + direction * 2), grapple.ExtensionVelocity.X.SignedRawValue, "Held launch X");
             AssertEqual(Word(0x9bc0ef + direction * 2), grapple.ExtensionVelocity.Y.SignedRawValue, "Held launch Y");
             AssertEqual(unchecked((ushort)Word(0x9bc104 + direction * 2)), grapple.Angle.RawValue, "Held launch angle");
@@ -179,7 +179,7 @@ internal static class GrappleFiringDefinitionsVerification
             samus.Presentation.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(127));
             samus.Position = samus.Position.WithWhole(new(coordinate, coordinate));
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
-            grapple.FireDirection = direction;
+            grapple.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction;
             grapple.Anchor = grapple.Anchor.WithX(unchecked((ushort)(coordinate + 24)));
             grapple.Anchor = grapple.Anchor.WithY(unchecked((ushort)(coordinate + 8)));
             grapple.RopeLength = 32;

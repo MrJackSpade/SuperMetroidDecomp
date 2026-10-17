@@ -22,7 +22,7 @@ internal sealed class ProjectileEarthquakes
     /// <param name="earthquakeType">
     /// The impact's type at $93:8125, or the enemy-hit type at $A0:9CB7/$A0:A1E9.
     /// </param>
-    internal void RequestSuperMissileEarthquake(ushort earthquakeType)
+    internal void RequestSuperMissileEarthquake(int earthquakeType)
     {
         EarthquakeType = earthquakeType;
         EarthquakeTimer = SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration;
@@ -35,8 +35,11 @@ internal sealed class ProjectileEarthquakes
         }
     }
 
-    /// <summary>Last impact's quake request; runtime requests also write the shared room owner immediately.</summary>
-    public ushort EarthquakeType { get; internal set; }
+    /// <summary>
+    /// Last impact's quake type, zero or one of the two Super Missile quake types; runtime requests also write the
+    /// shared room owner, whose quake type is the same 0 through 65535 integer, immediately.
+    /// </summary>
+    public int EarthquakeType { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
     /// <summary>
     /// Duration in frames of the most recent Super Missile impact quake request, not a ticking countdown: zero, or
     /// the Super Missile quake duration. Cleared by <see cref="SamusProjectileSystem.ResetForRoomTransition"/> and

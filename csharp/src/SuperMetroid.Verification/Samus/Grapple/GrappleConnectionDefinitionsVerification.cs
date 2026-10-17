@@ -91,7 +91,7 @@ internal static class GrappleConnectionDefinitionsVerification
             samus.Kinematics.YSpeed = vertical == 1 ? (ushort)1 : (ushort)0;
             samus.Kinematics.YSubspeed = vertical == 2 ? (ushort)1 : (ushort)0;
             var g = samus.Grapple;
-            g.FireDirection = direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
+            g.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = connect(samus, g, new(512, 512), !enemy, enemy);
             AssertEqual(!enemy, g.ValidateAnchorBlock, "Connection preserves block owner");
@@ -217,7 +217,7 @@ internal static class GrappleConnectionDefinitionsVerification
             byte direction = GrappleCancellationAndDropRomByte(rom,
                 SamusMovementRomData.Poses.Definitions + sourcePose * 8 + 3);
             samus.Pose = (SamusPoseId)sourcePose;
-            samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = 2;
+            samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
             samus.Grapple.PoseChangeAutoFireTimer = NativeCountdown.FromRaw(timer);
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = cancel(empty, samus, 0);

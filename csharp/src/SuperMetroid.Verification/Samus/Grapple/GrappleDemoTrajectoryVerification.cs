@@ -47,7 +47,7 @@ internal static class GrappleDemoTrajectoryVerification
             if (frame == 168)
             {
                 AssertEqual(GrapplePhase.Firing, samus.Grapple.Phase, "second scripted grapple fires");
-                AssertEqual((byte)SamusProjectileDirection.UpRight, samus.Grapple.FireDirection,
+                AssertEqual(SamusProjectileDirection.UpRight, samus.Grapple.FireDirection,
                     "second grapple aims up at the next ceiling anchor, not horizontally");
             }
             if (samus.Grapple.Phase == GrapplePhase.ConnectedSwinging &&

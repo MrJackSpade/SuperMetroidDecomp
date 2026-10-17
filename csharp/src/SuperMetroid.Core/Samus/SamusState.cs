@@ -561,11 +561,11 @@ public sealed class SamusState
     public uint AbsoluteMovedLastFrameXFixed { get; internal set; }
 
     /// <summary>
-    /// WRAM <c>SamusSolidVerticalCollisionResult</c>. Most translated movement methods
-    /// return collision results directly; movement type `$1A` has no displacement and its
-    /// sole bank-$90 side effect is explicitly clearing this otherwise-stale word.
+    /// The solid vertical collision result the latest vertical movement or wall jump published. Most translated
+    /// movement methods return collision results directly; movement type `$1A` has no displacement and its sole
+    /// bank-$90 side effect is explicitly clearing this otherwise-stale result.
     /// </summary>
-    public ushort SolidVerticalCollisionResult { get; set; }
+    public SamusVerticalCollisionResult SolidVerticalCollisionResult { get; set; }
 
     /// <summary>Samus's room-pixel 16.16 position, owned by <see cref="Kinematics"/>.</summary>
     public FixedPosition<RoomPixels> Position
@@ -895,13 +895,14 @@ level, probe, amount, scanLeftToRight, plms);
 
     /// <summary>
     /// Bit-masked pending writes to one previous-fraction word: bits set in
-    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply.
+    /// <see cref="Mask"/> are replaced by the matching <see cref="Value"/> bits on apply. Both are sixteen-bit
+    /// patterns of the fraction word, 0 through 65535, because a store covers either its high byte or all of it.
     /// </summary>
-    private readonly record struct MaskedWordWrite(ushort Mask, ushort Value)
+    private readonly record struct MaskedWordWrite(int Mask, int Value)
     {
         /// <summary>Records a byte ($FF00) or word ($FFFF) store; later stores replace the bits they cover.</summary>
         public MaskedWordWrite Write(ushort mask, ushort value) =>
-            new((ushort)(Mask | mask), (ushort)((Value & ~mask) | (value & mask)));
+            new(Mask | mask, (Value & ~mask) | (value & mask));
 
         /// <summary>Applies only the bits written this frame to an earlier fraction word.</summary>
         public ushort ApplyTo(ushort word) => (ushort)((word & ~Mask) | Value);

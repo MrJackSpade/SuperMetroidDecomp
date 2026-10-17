@@ -62,7 +62,7 @@ public static class SamusGroundedMovement
         // `$90:A3A8` is the only write in the ordinary no-elevator path. In particular,
         // stale base/extra X speed is retained; MakeSamusFaceForward clears those words at
         // setup time, not every frame in this movement dispatcher.
-        samus.SolidVerticalCollisionResult = 0;
+        samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.None;
         return vertical;
     }
 

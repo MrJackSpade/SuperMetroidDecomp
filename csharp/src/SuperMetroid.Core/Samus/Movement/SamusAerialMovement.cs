@@ -561,7 +561,7 @@ public static class SamusAerialMovement
             plms: plms);
         // `$90:94BF` reads the whole word: any downward pass, or a ceiling hit, ends the
         // special handler. Only a free upward pass keeps it for another frame.
-        if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResults.None)
+        if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.None)
             restoreNormalHandler = true;
 
         samus.Grapple.ReleasedMovementActive = !restoreNormalHandler;
@@ -674,15 +674,15 @@ public static class SamusAerialMovement
         if (downwardDisplacement)
         {
             if (vertical.Collided)
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Landed;
-            else if ((SnesLittleEndian.LowByte(samus.SolidVerticalCollisionResult)) != SamusVerticalCollisionResults.WallJump)
-                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Falling;
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.Landed;
+            else if (samus.SolidVerticalCollisionResult != SamusVerticalCollisionResult.WallJump)
+                samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.Falling;
         }
         else
         {
             samus.SolidVerticalCollisionResult = vertical.Collided
-                ? SamusVerticalCollisionResults.HitCeiling
-                : SamusVerticalCollisionResults.None;
+                ? SamusVerticalCollisionResult.HitCeiling
+                : SamusVerticalCollisionResult.None;
         }
 
         hitCeiling = displacement < 0 && vertical.Collided;
@@ -779,7 +779,7 @@ public static class SamusAerialMovement
             // `$90:9E7F`. This is not merely an internal boolean. `$0DC6` is shared WRAM
             // state, so retain the publication even though the host result below also tells
             // the runtime to install the wall-jump pose explicitly.
-            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.WallJump;
+            samus.SolidVerticalCollisionResult = SamusVerticalCollisionResult.WallJump;
 
             if (probe.EnemyCollision is { EnemySlot: int enemySlot })
             {

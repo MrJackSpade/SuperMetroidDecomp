@@ -43,8 +43,11 @@ public sealed class SamusGrappleState
     private int _ropeLength;
     /// <summary>Gets or sets the signed per-update change in rope length.</summary>
     public short RopeLengthDelta { get; set; }
-    /// <summary>Gets or sets the native grapple firing-direction index.</summary>
-    public byte FireDirection { get; set; }
+    /// <summary>
+    /// The direction the beam was fired in: one of the ten projectile directions, which select the launch velocity,
+    /// the hand and flare origins and the connection record. Firing admits only those ten directions.
+    /// </summary>
+    public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
     /// <summary>Native $0CF6, GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
     public NativeCountdown PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
@@ -142,8 +145,12 @@ public sealed class SamusGrappleState
     /// <summary>Backing value of <see cref="FlareCounter"/>, always 0 through 32767.</summary>
     private int _flareCounter;
 
-    /// <summary>Native main-flare bytecode index `$0CD2`, stored as a 16-bit WRAM word.</summary>
-    public ushort FlareAnimationFrame { get; set; }
+    /// <summary>
+    /// Position in the main-flare delay stream, 0 through 65535. The flare step advances and rewinds it as a
+    /// sixteen-bit counter, so a malformed rewind operand wraps it exactly as the cartridge's word arithmetic does;
+    /// values outside that range are rejected.
+    /// </summary>
+    public int FlareAnimationFrame { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>Native decrement-before-test animation timer `$0CD8`.</summary>
     public NativeCountdown FlareAnimationTimer { get; set; }

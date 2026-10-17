@@ -23,10 +23,14 @@ public sealed class ProjectileInheritanceRecords
     /// <summary>The block's bytes in cartridge address order.</summary>
     internal readonly byte[] _bytes = new byte[ByteCount];
 
-    /// <summary><c>CameraYSubSpeed</c>; its high byte leaks into leftward launch velocity.</summary>
-    internal ushort CameraYSubspeed
+    /// <summary>
+    /// The camera's vertical subspeed, the fraction of its vertical speed in 1/65536 pixels, 0 through 65535. It is
+    /// written into the block's first word, whose high byte leaks into leftward launch velocity; other values are
+    /// rejected.
+    /// </summary>
+    internal int CameraYSubspeed
     {
-        set => WriteWord(CameraYSubspeedOffset, value);
+        set => WriteWord(CameraYSubspeedOffset, checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
     }
 
     /// <summary>Stores one movement call's signed 16.16 distance: the integer word, then the fraction word.</summary>

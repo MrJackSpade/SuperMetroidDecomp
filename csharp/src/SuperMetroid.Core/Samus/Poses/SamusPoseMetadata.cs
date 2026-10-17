@@ -648,6 +648,22 @@ internal sealed class SamusPoseMetadata
         SamusPoseId.UnmorphingTransitionRightPose or SamusPoseId.UnmorphingTransitionLeftPose;
 
     /// <summary>
+    /// Publishes a bomb overlap's launch direction as the direction word's low-byte values one, two and three for
+    /// left, straight and right. The gameplay loop does this after frame-handler alpha; setup considers it after
+    /// movement and hurt arbitration.
+    /// </summary>
+    public void PublishBombJumpDirection(SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
+        PublishBombJumpDirection(direction switch
+        {
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Left => (byte)1,
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight => (byte)2,
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Right => (byte)3,
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.None =>
+                throw new ArgumentOutOfRangeException(nameof(direction), direction, "A published bomb jump has a direction."),
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined bomb-jump direction."),
+        });
+
+    /// <summary>
     /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
     /// frame-handler alpha; setup considers it after movement and hurt arbitration.
     /// </summary>

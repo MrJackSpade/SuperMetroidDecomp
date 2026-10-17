@@ -22,8 +22,11 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
 
     /// <summary>Low-nibble beam combination; all sixteen values are defined.</summary>
     public SamusBeamCombination BeamCombination => (SamusBeamCombination)(Raw & BeamCombinationMask);
-    /// <summary>Raw projectile-family nibble in its native bit position.</summary>
-    public ushort FamilyValue => (ushort)(Raw & FamilyMask);
+    /// <summary>
+    /// The family field in its encoded position, a multiple of 256 from 0 through 3840, for the cartridge's ordered
+    /// family comparisons (explosions and later families compare at or above <see cref="SamusProjectileFamily.BeamExplosion"/>).
+    /// </summary>
+    public int FamilyValue => Raw & FamilyMask;
     /// <summary>Named projectile family represented by the family nibble.</summary>
     public SamusProjectileFamily Family => (SamusProjectileFamily)FamilyValue;
     /// <summary>Whether the native charged-beam marker is set.</summary>

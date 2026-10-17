@@ -26,6 +26,30 @@ internal static class NativeByteCounterVerification
             "an int byte DEC rejects a negative value");
     }
 
+    /// <summary>Checks the 16-bit <c>INC</c> of a word held as an int against the word form across the whole word range.</summary>
+    internal static void VerifyNativeWordIncrement()
+    {
+        AssertEqual(0, NativeWordCounter.IncrementWord(ushort.MaxValue), "a word INC wraps from 65535 to zero");
+        AssertEqual(1, NativeWordCounter.IncrementWord(0), "a word INC steps zero to one");
+        for (int value = 0; value <= ushort.MaxValue; value++)
+        {
+            AssertEqual((int)unchecked((ushort)(value + 1)), NativeWordCounter.IncrementWord(value),
+                $"the int word INC matches the 16-bit INC at {value}");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => NativeWordCounter.IncrementWord(ushort.MaxValue + 1),
+            "an int word INC rejects a value above sixteen bits");
+        AssertThrows<ArgumentOutOfRangeException>(() => NativeWordCounter.IncrementWord(-1),
+            "an int word INC rejects a negative value");
+    }
+
+    /// <summary>Runs the focused native word increment verification command.</summary>
+    [VerificationCommand("--native-word-increment")]
+    internal static int NativeWordIncrementCommand()
+    {
+        Suite(nameof(VerifyNativeWordIncrement), () => VerifyNativeWordIncrement());
+        return 0;
+    }
+
     /// <summary>Runs the focused native byte counter verification command.</summary>
     [VerificationCommand("--native-byte-counter")]
     internal static int NativeByteCounterCommand()

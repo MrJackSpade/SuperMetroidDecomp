@@ -394,8 +394,12 @@ public sealed class SuperMetroidGame
     /// <summary>Current value of the native game-state word at WRAM $0998.</summary>
     public SuperMetroidGameState GameState { get => Session.GameState; internal set => Session.GameState = value; }
 
-    /// <summary>Wrapping frame counter corresponding to the game's 16-bit NMI counter.</summary>
-    public ushort FrameNumber { get; private set; }
+    /// <summary>Wrapping frame counter corresponding to the game's 16-bit NMI counter, 0 through 65535.</summary>
+    public int FrameNumber
+    {
+        get;
+        private set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Current bank-$8F room header pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveRoomPointer => Session.runtime?.Room.ActiveRoom?.Pointer;
@@ -444,7 +448,7 @@ public sealed class SuperMetroidGame
         if (doorAudioDispatch && prologueMusicCommands.Any(command => command.Kind == CartridgeAudioCommandKind.Upload))
             Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(DoorMusicUploadNmis.AcceptedNmisDuringUpload(Session.audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
-        FrameNumber++;
+        FrameNumber = NativeWordCounter.IncrementWord(FrameNumber);
         if (Session.runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();
         AdvanceMenuRandom();

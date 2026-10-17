@@ -62,7 +62,7 @@ internal static class DesktopTimerSoakTests
                 var output = control.audioDevice ?? throw new InvalidOperationException("Host has no audio device.");
                 counter.EmulatedFrameMeasured += Measure;
                 counter.LateFramesRecorded += RecordDiscard;
-                ushort startFrame = game.FrameNumber;
+                int startFrame = game.FrameNumber;
                 control.SetPlaying(true);
                 var clock = Stopwatch.StartNew();
                 memory.Add(SoakMemorySample.Capture(process, 0));

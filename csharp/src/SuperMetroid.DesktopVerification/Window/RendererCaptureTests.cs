@@ -33,7 +33,7 @@ internal static class RendererCaptureTests
             for (int i = 0; i < 30; i++) control.StepFrame((ushort)0);
             var before = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
             var game = control.game ?? throw new InvalidOperationException("Host has no game.");
-            ushort frameNumber = game.FrameNumber;
+            int frameNumber = game.FrameNumber;
             var expected = SoftwareFrameSnapshotRenderer.Render(before);
             control.SaveDebuggerState(0);
             for (int i = 0; i < 10; i++) control.StepFrame((ushort)0);

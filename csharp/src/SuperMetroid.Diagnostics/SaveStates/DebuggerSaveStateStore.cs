@@ -98,7 +98,7 @@ internal sealed class DebuggerSaveStateStore
         string temporary = Path.Combine(directory, $".{Path.GetFileName(destination)}.{Guid.NewGuid():N}.tmp");
         var metadata = new DebuggerSaveStateMetadata(
             DateTimeOffset.UtcNow,
-            game.FrameNumber,
+            checked((ushort)game.FrameNumber),
             game.GameState,
             game.GameplayActiveRoomPointer,
             game.GameplayActiveRoomStatePointer,

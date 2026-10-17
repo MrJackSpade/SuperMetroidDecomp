@@ -21,7 +21,7 @@ internal static class RendererStartupTests
         _ = control.Handle;
         control.SetPlaying(false);
         var game = control.game;
-        ushort frame = game.FrameNumber;
+        int frame = game.FrameNumber;
         D3D11RenderWorker? failedWorker = null;
         using var diagnostic = new StringWriter();
         TextWriter previousError = Console.Error;

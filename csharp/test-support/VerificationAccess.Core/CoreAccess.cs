@@ -367,7 +367,7 @@ internal static class CoreAccess
         /// <summary>Projectile owner observed in the preceding frame.</summary>
         private SamusProjectileSystem? _projectiles;
         /// <summary>Frontend frame number associated with the preceding slot snapshot.</summary>
-        private ushort _frameNumber;
+        private int _frameNumber;
         /// <summary>Prior occupancy and projectile-family snapshot.</summary>
         private SamusProjectileSlotObservation? _slots;
         /// <summary>Allocation attributed to the most recently observed frame.</summary>
@@ -397,7 +397,7 @@ internal static class CoreAccess
                         "ordinary projectiles; no prior frame exists to attribute their allocation.");
                 _firedSlot = null;
             }
-            else if (game.FrameNumber != unchecked((ushort)(_frameNumber + 1)))
+            else if (game.FrameNumber != NativeWordCounter.IncrementWord(_frameNumber))
             {
                 throw new InvalidOperationException(
                     $"Projectile observation skipped from frame {_frameNumber} to {game.FrameNumber}; " +

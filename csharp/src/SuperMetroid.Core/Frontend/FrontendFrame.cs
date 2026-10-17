@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Frontend;
 public readonly record struct FrontendFrame(
     SuperMetroidGameState GameState,
     string Phase,
-    ushort FrameNumber)
+    int FrameNumber)
 {
     /// <summary>Visible frame width in pixels: 256 columns in row-major screen order.</summary>
     public const int Width = SnesPpuLayout.ScreenWidthPixels;

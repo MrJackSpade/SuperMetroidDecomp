@@ -315,7 +315,7 @@ public static class SnesGameplayFrameRenderer
         RoomLayer3FxRenderSnapshot fx,
         Position16<Bg2Pixels> bg2Scroll)
     {
-        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & 2) == 0)
+        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == 0)
             return null;
 
         var result = Enumerable.Repeat(bg2Scroll.X, Height - HudHeight).ToArray();
@@ -344,9 +344,9 @@ public static class SnesGameplayFrameRenderer
     {
         bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
         bool usesVertical =
-            (fx.LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0;
+            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) != 0;
         bool usesHorizontal =
-            (fx.LiquidOptions & RoomFxRomData.LavaAcid.HorizontalBg2WaveOption) != 0;
+            (fx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0;
         if (!isLavaAcid || usesVertical || !usesHorizontal)
             return null;
 
@@ -363,7 +363,7 @@ public static class SnesGameplayFrameRenderer
         ushort bg2VerticalScroll)
     {
         if (fx.Type is not (RoomFxType.Lava or RoomFxType.Acid) ||
-            (fx.LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) == 0)
+            (fx.LiquidOptions & RoomLiquidOptions.Bg2Wave) == 0)
         {
             return null;
         }

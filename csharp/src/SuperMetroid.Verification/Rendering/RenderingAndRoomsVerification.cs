@@ -537,7 +537,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(0, MovementType: 0, XAccelerationMode: 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(108, camera.IdealPosition.X, "camera facing-right ideal X");
     AssertEqual(5, camera.Speed.X.WholeWord, "camera X distance includes one pixel");
     AssertEqual(105, camera.PixelPosition.X, "camera X follows by calculated speed");
@@ -550,7 +550,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(1, camera.Speed.X.WholeWord, "camera fixed X speed integer");
     AssertEqual(0xc000, camera.Speed.X.Fraction, "camera fixed X speed fraction");
     AssertEqual(101, camera.PixelPosition.X, "camera fixed X position integer");
@@ -579,7 +579,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(1, camera.Speed.X.WholeWord, "stationary camera X speed still includes one");
     AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
@@ -589,7 +589,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking));
     AssertEqual(0, camera.PixelPosition.X, "$80:A528 adjacent-red horizontal rounding");
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
@@ -599,7 +599,7 @@ internal static void VerifyMovedSamusCameraTracking()
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
-        new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0),
+        new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: false, CameraDistanceMode.NormalTracking),
         timeIsFrozen: true);
     AssertEqual(0x0020, camera.PixelPosition.X, "$80:A528 time-frozen return");
 
@@ -634,6 +634,28 @@ internal static void VerifyMovedSamusCameraTracking()
         new VerticalCameraContext(YDirection: SamusVerticalDirection.None, UpScroller: 0, DownScroller: 0));
     AssertEqual(1, verticalCamera.Speed.Y.WholeWord, "stationary camera Y speed still includes one");
     AssertEqual(0x0023, verticalCamera.PixelPosition.Y, "$80:A731 red-cell downward drift");
+
+    // Samus's native knockback, acceleration-mode and pose-facing values decode to the context the
+    // camera reads: any knockback direction is a knockback, only the turn mode keeps the old momentum, and
+    // the pose byte is the facing.
+    AssertTrue(new HorizontalCameraContext(5, SamusMovementType.Standing, 0, 8, CameraDistanceMode.NormalTracking).KnockedBack,
+        "a down-right knockback reverses the camera target like any other knockback");
+    AssertTrue(new HorizontalCameraContext(0, SamusMovementType.Standing, 1, 8, CameraDistanceMode.NormalTracking).TurningAgainstMomentum,
+        "acceleration mode one is the momentum-keeping turn");
+    AssertTrue(!new HorizontalCameraContext(0, SamusMovementType.Standing, SamusHorizontalAccelerationModes.Decelerating, 8,
+        CameraDistanceMode.NormalTracking).TurningAgainstMomentum, "plain deceleration does not reverse the camera target");
+    AssertTrue(new HorizontalCameraContext(0, SamusMovementType.Standing, 0, 4, CameraDistanceMode.NormalTracking).FacesLeft,
+        "pose facing four is left");
+    AssertTrue(!new HorizontalCameraContext(0, SamusMovementType.Standing, 0, 0, CameraDistanceMode.NormalTracking).FacesLeft,
+        "a front-view pose takes the right-facing target");
+
+    // The scrollers are room-header bytes: the whole byte range is kept, anything outside it is rejected.
+    AssertEqual(byte.MaxValue, new VerticalCameraContext(SamusVerticalDirection.None, byte.MaxValue, byte.MaxValue).DownScroller,
+        "the largest down-scroller is kept");
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, byte.MaxValue + 1, 0),
+        "an up-scroller above a byte is rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => _ = new VerticalCameraContext(SamusVerticalDirection.None, 0, -1),
+        "a negative down-scroller is rejected");
 
     Console.WriteLine("  Camera: bank $90 tracking and bank $80 stationary autoscroll agree.");
 }
@@ -1370,7 +1392,7 @@ internal static void VerifyScrollingSkyState()
     var writes = new VramWriteQueue();
     sky.ProcessFrame(layer1YPosition: 0x041f, timeIsFrozen: false, writes);
 
-    AssertEqual(0x041f, sky.VerticalScroll, "$88:AFB2 BG2 vertical scroll");
+    AssertEqual(new Position16<Bg2Pixels>(0, 0x041f), sky.Bg2Scroll, "$88:AFB2 BG2 scroll copies layer-one Y and leaves X zero");
     AssertEqual(4, writes.Entries.Count, "$88:AFA3 four sky transfers");
     AssertEqual(new VramWriteEntry(0x0040, 0x8ad1c0, 0x4820), writes.Entries[0], "sky upper first row");
     AssertEqual(new VramWriteEntry(0x0040, 0x8ad200, 0x4840), writes.Entries[1], "sky upper second row");
@@ -1428,6 +1450,14 @@ internal static void VerifyScrollingSkyState()
     {
         Suite(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState());
         Suite(nameof(VerifyRoomSkyTilemaps), () => VerifyRoomSkyTilemaps());
+        return 0;
+    }
+
+    /// <summary>Runs the moved-Samus camera tracking and camera-context checks.</summary>
+    [VerificationCommand("--moved-samus-camera-tracking")]
+    internal static int MovedSamusCameraTrackingCommand()
+    {
+        Suite(nameof(VerifyMovedSamusCameraTracking), () => VerifyMovedSamusCameraTracking());
         return 0;
     }
 }

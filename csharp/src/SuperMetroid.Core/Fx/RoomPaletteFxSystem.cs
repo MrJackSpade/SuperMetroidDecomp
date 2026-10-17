@@ -292,7 +292,7 @@ public sealed class RoomPaletteFxSystem
         PaletteFxSlot slot,
         SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusState? samus,
-        ushort nmiFrameCounter)
+        int nmiFrameCounter)
     {
         bool protectedFromHeat = equippedItems.HasAny(
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
@@ -355,7 +355,8 @@ public sealed class RoomPaletteFxSystem
     }
 
     /// <summary>
-    /// The CGRAM colour a SetColorIndex cue's native byte index selects; an odd byte index names no colour.
+    /// The CGRAM colour a native SetColorIndex byte index selects; an odd byte index names no colour. The typed
+    /// programs already carry colour indices; this decodes a byte index read from a native snapshot.
     /// </summary>
     internal static int PaletteFxColorIndex(ushort byteIndex, ushort objectId) => (byteIndex & 1) == 0
         ? byteIndex / sizeof(ushort)
@@ -367,7 +368,7 @@ public sealed class RoomPaletteFxSystem
         switch (cue.Kind)
         {
             case PaletteFxCueKind.SetColorIndex:
-                slot.ColorIndex = PaletteFxColorIndex(cue.ColorByteIndex, slot.Id);
+                slot.ColorIndex = cue.ColorIndex;
                 return;
             case PaletteFxCueKind.SetPreInstruction:
                 slot.PreInstruction = (ushort)cue.PreInstruction;
@@ -376,11 +377,13 @@ public sealed class RoomPaletteFxSystem
                 slot.PreInstruction = (ushort)PaletteFxPreInstruction.Cleared;
                 return;
             case PaletteFxCueKind.SetHeatPaletteIndex:
-                samusInHeatPaletteIndex = cue.HeatPaletteIndex;
+                // The shared heat selector holds the phase as a word.
+                samusInHeatPaletteIndex = checked((ushort)cue.HeatPhase);
                 return;
             case PaletteFxCueKind.QueueSoundLibrary2:
                 soundRequests.Add(new PaletteFxSoundRequest(
-                    SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cue.Sound),
+                    cue.Sound ?? throw new InvalidDataException(
+                        $"Palette-FX object $8D:{slot.Id:X4} queued a library-2 sound cue without a sound."),
                     PaletteFxAudioQueueLimits.SoundEffects,
                     SoundSuppressed: audioPowerBomb?.IsActive == true));
                 return;

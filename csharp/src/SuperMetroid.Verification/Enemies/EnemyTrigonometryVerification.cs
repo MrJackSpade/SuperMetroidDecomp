@@ -760,7 +760,8 @@ internal static class EnemyTrigonometryVerification
         if (definitionsOnly) return;
         var tide = new RoomLayer3FxState();
         var step = new Action(tide.StepLiquidTide);
-        foreach (ushort option in new ushort[] { 0, 0x40, 0x80, 0xc0 })
+        foreach (RoomLiquidOptions option in new[] { RoomLiquidOptions.None, RoomLiquidOptions.LargeTide,
+            RoomLiquidOptions.SmallTide, RoomLiquidOptions.SmallTide | RoomLiquidOptions.LargeTide })
         {
             tide.LiquidOptions = option;
             for (int phase = 0; phase <= ushort.MaxValue; phase++)
@@ -769,12 +770,13 @@ internal static class EnemyTrigonometryVerification
                 tide.tideFixedOffset = 12345;
                 step();
                 short sample = Reference(SnesAngle.FromRaw(unchecked((ushort)phase)).TableIndex);
-                bool small = (option & 0x80) != 0;
-                int scale = option == 0 ? 0 : small ? 8 : 32;
-                int delta = option == 0 ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
+                bool small = (option & RoomLiquidOptions.SmallTide) != 0;
+                bool still = option == RoomLiquidOptions.None;
+                int scale = still ? 0 : small ? 8 : 32;
+                int delta = still ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
                 if (tide.tideFixedOffset != SnesSixteenSixteen.FromEightEight(sample * scale) ||
                     tide.tidePhase != unchecked((ushort)(phase + delta)))
-                    throw new InvalidDataException($"Native tide differs at options={option:X2}, phase={phase:X4}.");
+                    throw new InvalidDataException($"Native tide differs at options={option}, phase={phase:X4}.");
             }
         }
         Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");

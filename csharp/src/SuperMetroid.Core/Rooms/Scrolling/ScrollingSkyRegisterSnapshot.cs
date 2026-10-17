@@ -15,5 +15,5 @@ public readonly record struct ScrollingSkyRegisterSnapshot(bool HorizontalHdmaCo
 {
     /// <summary>Copies the sky's current register shadows, or null when the room has no scrolling sky.</summary>
     public static ScrollingSkyRegisterSnapshot? Capture(ScrollingSkyState? sky) =>
-        sky is null ? null : new(sky.HorizontalHdmaConfigured, new Position16<Bg2Pixels>(0, sky.VerticalScroll));
+        sky is null ? null : new(sky.HorizontalHdmaConfigured, sky.Bg2Scroll);
 }

@@ -18,7 +18,7 @@ public static class PaletteFxAnimations
         // $8D:C696
         [P.FadeInSuperMetroidTitleLogo] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 322)),
+            Cue(new(K.SetColorIndex, ColorIndex: 161)),
             Show(0, 3),
             Show(1, 3),
             Show(2, 3),
@@ -32,7 +32,7 @@ public static class PaletteFxAnimations
         // $8D:C7AC
         [P.FadeInNintendoBootLogo] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 306)),
+            Cue(new(K.SetColorIndex, ColorIndex: 153)),
             FallInto(P.CommonFadeInLogo),
         ],
         // $8D:C7B0
@@ -51,13 +51,13 @@ public static class PaletteFxAnimations
         // $8D:C7F2
         [P.FadeInNintendoCopyright] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 402)),
+            Cue(new(K.SetColorIndex, ColorIndex: 201)),
             GoTo(P.CommonFadeInLogo),
         ],
         // $8D:C7FA
         [P.TitleScreenBabyMetroidTubeLight0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 84)),
+            Cue(new(K.SetColorIndex, ColorIndex: 42)),
             FallInto(P.TitleScreenBabyMetroidTubeLight1),
         ],
         // $8D:C7FE
@@ -76,7 +76,7 @@ public static class PaletteFxAnimations
         // $8D:C862
         [P.TitleScreenFlickeringDisplays0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 92)),
+            Cue(new(K.SetColorIndex, ColorIndex: 46)),
             FallInto(P.TitleScreenFlickeringDisplays1),
         ],
         // $8D:C866
@@ -89,7 +89,7 @@ public static class PaletteFxAnimations
         // $8D:C87A
         [P.CutsceneGunshipEngineFlicker0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 190)),
+            Cue(new(K.SetColorIndex, ColorIndex: 95)),
             FallInto(P.CutsceneGunshipEngineFlicker1),
         ],
         // $8D:C87E
@@ -102,7 +102,7 @@ public static class PaletteFxAnimations
         // $8D:C88E
         [P.CutsceneCeresNavigationLightSprite] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 474)),
+            Cue(new(K.SetColorIndex, ColorIndex: 237)),
             FallInto(P.CommonCeresNavigationLights),
         ],
         // $8D:C892
@@ -127,13 +127,13 @@ public static class PaletteFxAnimations
         // $8D:C906
         [P.CutsceneCeresNavigationLightsBG] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 218)),
+            Cue(new(K.SetColorIndex, ColorIndex: 109)),
             GoTo(P.CommonCeresNavigationLights),
         ],
         // $8D:C90E
         [P.FadeInPlanetZebesText] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 258)),
+            Cue(new(K.SetColorIndex, ColorIndex: 129)),
             Show(42, 3),
             Show(43, 3),
             Show(44, 3),
@@ -147,7 +147,7 @@ public static class PaletteFxAnimations
         // $8D:C964
         [P.FadeOutPlanetZebesText] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 258)),
+            Cue(new(K.SetColorIndex, ColorIndex: 129)),
             Show(50, 3),
             Show(51, 3),
             Show(52, 3),
@@ -161,7 +161,7 @@ public static class PaletteFxAnimations
         // $8D:C9BA
         [P.OldMotherBrainFightBGLights0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 40)),
+            Cue(new(K.SetColorIndex, ColorIndex: 20)),
             FallInto(P.OldMotherBrainFightBGLights1),
         ],
         // $8D:C9BE
@@ -186,7 +186,7 @@ public static class PaletteFxAnimations
         // $8D:CA4E
         [P.GunshipGlow0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 510)),
+            Cue(new(K.SetColorIndex, ColorIndex: 255)),
             FallInto(P.GunshipGlow1),
         ],
         // $8D:CA52
@@ -211,7 +211,7 @@ public static class PaletteFxAnimations
         // $8D:CAAA
         [P.FadeOutZoomedOutExplodingZebes] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 480)),
+            Cue(new(K.SetColorIndex, ColorIndex: 240)),
             Show(86, 8),
             Show(87, 8),
             Show(88, 8),
@@ -224,7 +224,7 @@ public static class PaletteFxAnimations
         // $8D:CB3C
         [P.WidePartOfZebesExplosionForeground] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 2)),
+            Cue(new(K.SetColorIndex, ColorIndex: 1)),
             Show(93, 4),
             Show(94, 4),
             Show(95, 4),
@@ -246,7 +246,7 @@ public static class PaletteFxAnimations
         // $8D:CD62
         [P.ZebesExplosionFinale] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 2)),
+            Cue(new(K.SetColorIndex, ColorIndex: 1)),
             Show(109, 2),
             Show(110, 2),
             Show(111, 2),
@@ -297,13 +297,13 @@ public static class PaletteFxAnimations
         // $8D:D362
         [P.WidePartOfZebesExplosionBackground] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 34)),
+            Cue(new(K.SetColorIndex, ColorIndex: 17)),
             GoTo(P.CommonZebesExplosion),
         ],
         // $8D:D36A
         [P.WhiteOutSpaceDuringZebesExplosion] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 0)),
+            Cue(new(K.SetColorIndex, ColorIndex: 0)),
             FallInto(P.CommonZebesExplosion),
         ],
         // $8D:D36E
@@ -329,7 +329,7 @@ public static class PaletteFxAnimations
         // $8D:D3CA
         [P.ZebesExplosionPlanetAfterGlow0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 450)),
+            Cue(new(K.SetColorIndex, ColorIndex: 225)),
             FallInto(P.ZebesExplosionPlanetAfterGlow1),
         ],
         // $8D:D3CE
@@ -346,7 +346,7 @@ public static class PaletteFxAnimations
         // $8D:D44A
         [P.ExplodingZebesLava0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 128)),
+            Cue(new(K.SetColorIndex, ColorIndex: 64)),
             FallInto(P.ExplodingZebesLava1),
         ],
         // $8D:D44E
@@ -367,7 +367,7 @@ public static class PaletteFxAnimations
         // $8D:D48E
         [P.FadeOutExplodingZebesCrust] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 130)),
+            Cue(new(K.SetColorIndex, ColorIndex: 65)),
             Show(185, 20),
             Show(186, 20),
             Show(187, 20),
@@ -381,7 +381,7 @@ public static class PaletteFxAnimations
         // $8D:D5A4
         [P.FadeOutExplodingZebesGreyClouds] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 162)),
+            Cue(new(K.SetColorIndex, ColorIndex: 81)),
             Show(193, 14),
             Show(194, 14),
             Show(195, 14),
@@ -395,7 +395,7 @@ public static class PaletteFxAnimations
         // $8D:D6BA
         [P.GunshipEmergingFromZebesExplosion] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 160)),
+            Cue(new(K.SetColorIndex, ColorIndex: 80)),
             Show(201, 24),
             Show(202, 24),
             Show(203, 24),
@@ -417,7 +417,7 @@ public static class PaletteFxAnimations
         // $8D:D900
         [P.HyperBeam0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 450)),
+            Cue(new(K.SetColorIndex, ColorIndex: 225)),
             FallInto(P.HyperBeam1),
         ],
         // $8D:D904
@@ -438,7 +438,7 @@ public static class PaletteFxAnimations
         // $8D:D9D0
         [P.ListD9D0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 160)),
+            Cue(new(K.SetColorIndex, ColorIndex: 80)),
             Show(227, 2),
             Show(228, 2),
             Show(229, 2),
@@ -455,7 +455,7 @@ public static class PaletteFxAnimations
         // $8D:DB62
         [P.SamusLoadingPowerSuit0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 384)),
+            Cue(new(K.SetColorIndex, ColorIndex: 192)),
             SetCounter(36),
             FallInto(P.SamusLoadingPowerSuit1),
         ],
@@ -498,7 +498,7 @@ public static class PaletteFxAnimations
         // $8D:DCC8
         [P.SamusLoadingVairaSuit0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 384)),
+            Cue(new(K.SetColorIndex, ColorIndex: 192)),
             SetCounter(36),
             FallInto(P.SamusLoadingVairaSuit1),
         ],
@@ -541,7 +541,7 @@ public static class PaletteFxAnimations
         // $8D:DE2E
         [P.SamusLoadingGravitySuit0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 384)),
+            Cue(new(K.SetColorIndex, ColorIndex: 192)),
             SetCounter(36),
             FallInto(P.SamusLoadingGravitySuit1),
         ],
@@ -584,7 +584,7 @@ public static class PaletteFxAnimations
         // $8D:DF94
         [P.PostCreditsSuperMetroidIconGlare] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 480)),
+            Cue(new(K.SetColorIndex, ColorIndex: 240)),
             Show(265, 1),
             Show(266, 1),
             Show(267, 1),
@@ -609,25 +609,25 @@ public static class PaletteFxAnimations
         // $8D:E222
         [P.GreyOutTourianStatueDraygon] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 192)),
+            Cue(new(K.SetColorIndex, ColorIndex: 96)),
             GoTo(P.CommonGreyOutTourianStatue),
         ],
         // $8D:E22A
         [P.GreyOutTourianStatueKraid] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 224)),
+            Cue(new(K.SetColorIndex, ColorIndex: 112)),
             GoTo(P.CommonGreyOutTourianStatue),
         ],
         // $8D:E232
         [P.GreyOutTourianStatueRidley] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 288)),
+            Cue(new(K.SetColorIndex, ColorIndex: 144)),
             GoTo(P.CommonGreyOutTourianStatue),
         ],
         // $8D:E23A
         [P.GreyOutTourianStatuePhantoon] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 320)),
+            Cue(new(K.SetColorIndex, ColorIndex: 160)),
             FallInto(P.CommonGreyOutTourianStatue),
         ],
         // $8D:E23E
@@ -646,7 +646,7 @@ public static class PaletteFxAnimations
         // $8D:E2E9
         [P.BombTorizoBelly0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 306)),
+            Cue(new(K.SetColorIndex, ColorIndex: 153)),
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.DeleteWhenEnemyZeroDies)),
             FallInto(P.BombTorizoBelly1),
         ],
@@ -664,7 +664,7 @@ public static class PaletteFxAnimations
         // $8D:E331
         [P.GoldenTorizoBelly0] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 306)),
+            Cue(new(K.SetColorIndex, ColorIndex: 153)),
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.DeleteWhenEnemyZeroDies)),
             FallInto(P.GoldenTorizoBelly1),
         ],
@@ -683,7 +683,7 @@ public static class PaletteFxAnimations
         [P.SamusInHeatPowerSuit0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.Heat)),
-            Cue(new(K.SetColorIndex, ColorByteIndex: 386)),
+            Cue(new(K.SetColorIndex, ColorIndex: 193)),
             FallInto(P.SamusInHeatPowerSuit1),
         ],
         // $8D:E466
@@ -786,7 +786,7 @@ public static class PaletteFxAnimations
         [P.SamusInHeatVariaSuit0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.Heat)),
-            Cue(new(K.SetColorIndex, ColorByteIndex: 386)),
+            Cue(new(K.SetColorIndex, ColorIndex: 193)),
             FallInto(P.SamusInHeatVariaSuit2),
         ],
         // $8D:E692
@@ -889,7 +889,7 @@ public static class PaletteFxAnimations
         [P.SamusInHeatGravitySuit0] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.Heat)),
-            Cue(new(K.SetColorIndex, ColorByteIndex: 386)),
+            Cue(new(K.SetColorIndex, ColorIndex: 193)),
             FallInto(P.SamusInHeatGravitySuit2),
         ],
         // $8D:E8BE
@@ -991,7 +991,7 @@ public static class PaletteFxAnimations
         // $8D:EAE2
         [P.WreckedShip10] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 152)),
+            Cue(new(K.SetColorIndex, ColorIndex: 76)),
             FallInto(P.WreckedShip11),
         ],
         // $8D:EAE6
@@ -1011,7 +1011,7 @@ public static class PaletteFxAnimations
         [P.Crateria10] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.SwitchAboveY380)),
-            Cue(new(K.SetColorIndex, ColorByteIndex: 168)),
+            Cue(new(K.SetColorIndex, ColorIndex: 84)),
             FallInto(P.Crateria11),
         ],
         // $8D:EB43
@@ -1050,7 +1050,7 @@ public static class PaletteFxAnimations
         [P.ListEC6E] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.SwitchAboveY380Second)),
-            Cue(new(K.SetColorIndex, ColorByteIndex: 130)),
+            Cue(new(K.SetColorIndex, ColorIndex: 65)),
             FallInto(P.CrateriaAboveY380Second),
         ],
         // $8D:EC76
@@ -1089,7 +1089,7 @@ public static class PaletteFxAnimations
         // $8D:ED99
         [P.Brinstar10] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 226)),
+            Cue(new(K.SetColorIndex, ColorIndex: 113)),
             FallInto(P.Brinstar11),
         ],
         // $8D:ED9D
@@ -1115,7 +1115,7 @@ public static class PaletteFxAnimations
         [P.Brinstar80] =
         [
             Cue(new(K.SetPreInstruction, PreInstruction: PaletteFxPreInstruction.DeleteWhenAreaMiniBossDies)),
-            Cue(new(K.SetColorIndex, ColorByteIndex: 226)),
+            Cue(new(K.SetColorIndex, ColorIndex: 113)),
             FallInto(P.Brinstar81),
         ],
         // $8D:EE35
@@ -1140,7 +1140,7 @@ public static class PaletteFxAnimations
         // $8D:EED7
         [P.Brinstar20] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 200)),
+            Cue(new(K.SetColorIndex, ColorIndex: 100)),
             FallInto(P.Brinstar21),
         ],
         // $8D:EEDB
@@ -1165,7 +1165,7 @@ public static class PaletteFxAnimations
         // $8D:EFF7
         [P.Crateria80Brinstar40] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 226)),
+            Cue(new(K.SetColorIndex, ColorIndex: 113)),
             FallInto(P.Crateria80Brinstar41),
         ],
         // $8D:EFFB
@@ -1177,7 +1177,7 @@ public static class PaletteFxAnimations
             Show(427, 10),
             Show(428, 10),
             Show(429, 10),
-            Cue(new(K.QueueSoundLibrary2, Sound: 24)),
+            Cue(new(K.QueueSoundLibrary2, Sound: new SoundEffectId(SoundEffectLibrary.Library2, 24))),
             Show(430, 10),
             Show(431, 10),
             Show(432, 10),
@@ -1187,50 +1187,50 @@ public static class PaletteFxAnimations
         // $8D:F08E
         [P.Norfair20] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 106)),
+            Cue(new(K.SetColorIndex, ColorIndex: 53)),
             FallInto(P.Norfair21),
         ],
         // $8D:F092
         [P.Norfair21] =
         [
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 0)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 0)),
             Show(434, 16),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 1)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 1)),
             Show(435, 4),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 2)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 2)),
             Show(436, 4),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 3)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 3)),
             Show(437, 5),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 4)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 4)),
             Show(438, 6),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 5)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 5)),
             Show(439, 7),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 6)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 6)),
             Show(440, 8),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 7)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 7)),
             Show(441, 8),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 8)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 8)),
             Show(442, 8),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 9)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 9)),
             Show(443, 8),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 10)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 10)),
             Show(444, 7),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 11)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 11)),
             Show(445, 6),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 12)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 12)),
             Show(446, 5),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 13)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 13)),
             Show(447, 4),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 14)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 14)),
             Show(448, 4),
-            Cue(new(K.SetHeatPaletteIndex, HeatPaletteIndex: 15)),
+            Cue(new(K.SetHeatPaletteIndex, HeatPhase: 15)),
             Show(449, 16),
             GoTo(P.Norfair21),
         ],
         // $8D:F1D1
         [P.Norfair40] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 130)),
+            Cue(new(K.SetColorIndex, ColorIndex: 65)),
             FallInto(P.Norfair41),
         ],
         // $8D:F1D5
@@ -1257,7 +1257,7 @@ public static class PaletteFxAnimations
         // $8D:F2D9
         [P.Norfair80] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 162)),
+            Cue(new(K.SetColorIndex, ColorIndex: 81)),
             FallInto(P.Norfair81),
         ],
         // $8D:F2DD
@@ -1284,7 +1284,7 @@ public static class PaletteFxAnimations
         // $8D:F3E1
         [P.Norfair100] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 194)),
+            Cue(new(K.SetColorIndex, ColorIndex: 97)),
             FallInto(P.Norfair101),
         ],
         // $8D:F3E5
@@ -1311,7 +1311,7 @@ public static class PaletteFxAnimations
         // $8D:F4E9
         [P.Maridia10] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 72)),
+            Cue(new(K.SetColorIndex, ColorIndex: 36)),
             FallInto(P.Maridia11),
         ],
         // $8D:F4ED
@@ -1326,7 +1326,7 @@ public static class PaletteFxAnimations
         // $8D:F541
         [P.Maridia20] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 80)),
+            Cue(new(K.SetColorIndex, ColorIndex: 40)),
             FallInto(P.Maridia21),
         ],
         // $8D:F545
@@ -1341,7 +1341,7 @@ public static class PaletteFxAnimations
         // $8D:F579
         [P.Maridia40] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 104)),
+            Cue(new(K.SetColorIndex, ColorIndex: 52)),
             FallInto(P.Maridia41),
         ],
         // $8D:F57D
@@ -1360,13 +1360,13 @@ public static class PaletteFxAnimations
         // $8D:F62A
         [P.Tourian4] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 232)),
+            Cue(new(K.SetColorIndex, ColorIndex: 116)),
             GoTo(P.CommonTourian2Tourian40),
         ],
         // $8D:F632
         [P.Tourian2] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 232)),
+            Cue(new(K.SetColorIndex, ColorIndex: 116)),
             FallInto(P.CommonTourian2Tourian40),
         ],
         // $8D:F636
@@ -1394,7 +1394,7 @@ public static class PaletteFxAnimations
         // $8D:F7A9
         [P.Tourian80] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 306)),
+            Cue(new(K.SetColorIndex, ColorIndex: 153)),
             FallInto(P.Tourian81),
         ],
         // $8D:F7AD
@@ -1419,7 +1419,7 @@ public static class PaletteFxAnimations
         // $8D:F891
         [P.Tourian100] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 112)),
+            Cue(new(K.SetColorIndex, ColorIndex: 56)),
             FallInto(P.Tourian101),
         ],
         // $8D:F895
@@ -1444,13 +1444,13 @@ public static class PaletteFxAnimations
         // $8D:F941
         [P.Tourian20] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 168)),
+            Cue(new(K.SetColorIndex, ColorIndex: 84)),
             GoTo(P.CommonTourian20Tourian40),
         ],
         // $8D:F949
         [P.Tourian40] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 232)),
+            Cue(new(K.SetColorIndex, ColorIndex: 116)),
             FallInto(P.CommonTourian20Tourian40),
         ],
         // $8D:F94D
@@ -1475,7 +1475,7 @@ public static class PaletteFxAnimations
         // $8D:FA69
         [P.Crateria80] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 162)),
+            Cue(new(K.SetColorIndex, ColorIndex: 81)),
             FallInto(P.Crateria81),
         ],
         // $8D:FA6D
@@ -1500,7 +1500,7 @@ public static class PaletteFxAnimations
         // $8D:FBC1
         [P.Crateria100] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 210)),
+            Cue(new(K.SetColorIndex, ColorIndex: 105)),
             FallInto(P.Crateria101),
         ],
         // $8D:FBC5
@@ -1526,7 +1526,7 @@ public static class PaletteFxAnimations
         // $8D:FC5F
         [P.Crateria200] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 170)),
+            Cue(new(K.SetColorIndex, ColorIndex: 85)),
             FallInto(P.Crateria201),
         ],
         // $8D:FC63
@@ -1552,7 +1552,7 @@ public static class PaletteFxAnimations
         // $8D:FCFD
         [P.Crateria20] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 130)),
+            Cue(new(K.SetColorIndex, ColorIndex: 65)),
             FallInto(P.Crateria21),
         ],
         // $8D:FD01
@@ -1577,7 +1577,7 @@ public static class PaletteFxAnimations
         // $8D:FE01
         [P.Crateria40] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 162)),
+            Cue(new(K.SetColorIndex, ColorIndex: 81)),
             FallInto(P.Crateria41),
         ],
         // $8D:FE05
@@ -1599,7 +1599,7 @@ public static class PaletteFxAnimations
         // $8D:FF27
         [P.Crateria400] =
         [
-            Cue(new(K.SetColorIndex, ColorByteIndex: 174)),
+            Cue(new(K.SetColorIndex, ColorIndex: 87)),
             FallInto(P.Crateria401),
         ],
         // $8D:FF2B

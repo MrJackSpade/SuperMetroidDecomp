@@ -33,7 +33,7 @@ internal static class LookupLiquidWaveVerification
         {
             var water = new RoomLayer3FxRenderSnapshot(RoomFxType.Water,
                 LayerBlendingConfiguration.WaterSubtractive, new Position16<Bg3Pixels>(baseScroll, 0),
-                CurrentYPosition: 100, LiquidOptions: 2, WaterBg3WavePhase: phase,
+                CurrentYPosition: 100, LiquidOptions: RoomLiquidOptions.Bg2Wave, WaterBg3WavePhase: phase,
                 WaterBg2WavePhase: phase, WaterSurfaceScreenY: 100);
             var captured = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(water);
             for (int y = SnesGameplayFrameRenderer.HudHeight; y < SnesGameplayFrameRenderer.Height; y++)

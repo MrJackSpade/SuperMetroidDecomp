@@ -146,7 +146,7 @@ internal static class CrocomireCutsceneVerification
         // whether that known difference can explain the reported wall overrun.
         foreach (CameraDistanceMode distance in new[] { CameraDistanceMode.NormalTracking, CameraDistanceMode.RightEdge })
         {
-            var context = new HorizontalCameraContext(0, SamusMovementType.Standing, 0, 4, distance);
+            var context = new HorizontalCameraContext(KnockedBack: false, SamusMovementType.Standing, TurningAgainstMomentum: false, FacesLeft: true, distance);
             camera.SetPosition(new Position16<RoomPixels>(544, 0));
             for (int frame = 0; frame < 16; frame++)
                 camera.TrackMovedSamusHorizontally(point, point, context);

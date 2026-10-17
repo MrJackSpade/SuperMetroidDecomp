@@ -93,7 +93,7 @@ public sealed class HyperBeamPaletteFxState
 
         NativeCountdown unusedCounter = default;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref _cursor, ref unusedCounter,
-            (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorByteIndex: (ushort)SamusPaletteRomData.HyperBeamFx.DestinationByteIndex)
+            (cue, _) => cue == new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorIndex: DestinationColorIndex)
                 ? (PaletteFxProgram?)null
                 : throw new InvalidDataException($"The Hyper Beam palette program published {cue}, which its object does not carry out."));
         if (advance.Kind != AnimationProgramAdvanceKind.Show)

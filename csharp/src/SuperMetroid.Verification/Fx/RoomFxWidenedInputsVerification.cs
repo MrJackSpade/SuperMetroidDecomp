@@ -27,6 +27,18 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => LoadSource(ushort.MaxValue + 1), "room-FX load random number above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => LoadSource(-1), "negative room-FX load random number");
 
+        AssertEqual(ushort.MaxValue, FrameRandom(ushort.MaxValue).RandomNumber, "layer-3 frame random number keeps the largest word");
+        AssertEqual(0, Frame(0).RandomNumber, "layer-3 frame random number defaults to zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(ushort.MaxValue + 1), "layer-3 frame random number above the word");
+        AssertThrows<ArgumentOutOfRangeException>(() => FrameRandom(-1), "negative layer-3 frame random number");
+
+        AssertEqual(ushort.MaxValue, (Conditions(0) with { NmiFrameCounter = ushort.MaxValue }).NmiFrameCounter,
+            "palette-FX frame counter keeps the largest word");
+        AssertEqual(0, Conditions(0).NmiFrameCounter, "palette-FX frame counter defaults to zero");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = ushort.MaxValue + 1 },
+            "palette-FX frame counter above the word");
+        AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = -1 }, "negative palette-FX frame counter");
+
         var request = new RoomFxEarthquakeRequest(RoomFxRomData.Earthquake.RisingLiquidType, RoomFxRomData.Earthquake.RisingLiquidTimerBits);
         AssertEqual((int)RoomFxRomData.Earthquake.RisingLiquidType, request.Type, "earthquake request keeps its type");
         AssertEqual((int)RoomFxRomData.Earthquake.RisingLiquidTimerBits, request.TimerBits, "earthquake request keeps its timer bits");
@@ -37,6 +49,8 @@ internal static class RoomFxWidenedInputsVerification
             new() { SamusY = samusY, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false };
         static RoomLayer3FxFrame Frame(int darkness) =>
             new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false, FirefleaDarknessLevel = darkness };
+        static RoomLayer3FxFrame FrameRandom(int randomNumber) =>
+            new() { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = false, RandomNumber = randomNumber };
         static RoomFxLoadSource LoadSource(int randomNumber) =>
             new() { FxPointer = 0, DoorPointer = 0, RandomNumber = randomNumber, RoomHeaderPointer = 0, SuppliedDefinition = null };
     }

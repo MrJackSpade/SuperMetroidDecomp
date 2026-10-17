@@ -325,7 +325,7 @@ public static class RoomFxRomData
             };
             ushort subspeed = (ushort)(index < 17 ? 0x8000 + (index & 1) * 0x4000 :
                 index == 17 ? 0x7000 : index < 20 ? 0xc000 - (index - 18) * 0x4000 : 0);
-            return new(top, subspeed, 0, index == 11 ? 8 : index);
+            return new(top, SnesSignedSixteenSixteen.FromParts(0, subspeed), index == 11 ? 8 : index);
         }
         /// <summary>Number of horizontal-scroll accumulator and HDMA data slots.</summary>
         public const int DataSlotCount = 23;

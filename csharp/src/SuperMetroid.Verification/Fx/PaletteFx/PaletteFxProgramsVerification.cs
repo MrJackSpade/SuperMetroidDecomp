@@ -108,7 +108,9 @@ internal static class PaletteFxProgramsVerification
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.SetColorIndex:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorByteIndex: operandWord), at);
+                    // The native operand is a CGRAM byte index; the typed cue names the colour it starts at.
+                    AssertTrue(operandWord % sizeof(ushort) == 0, $"{at}: colour byte index is word-aligned");
+                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetColorIndex, ColorIndex: operandWord / sizeof(ushort)), at);
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case PaletteFxInstruction.SetPreInstruction:
@@ -120,11 +122,12 @@ internal static class PaletteFxProgramsVerification
                     cursor = unchecked((ushort)(cursor + 2));
                     continue;
                 case PaletteFxInstruction.SetPaletteFxIndex:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetHeatPaletteIndex, HeatPaletteIndex: operandByte), at);
+                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.SetHeatPaletteIndex, HeatPhase: operandByte), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.QueueSfx2:
-                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.QueueSoundLibrary2, Sound: operandByte), at);
+                    AssertCue(step, new PaletteFxCue(PaletteFxCueKind.QueueSoundLibrary2,
+                        Sound: SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operandByte)), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 default:

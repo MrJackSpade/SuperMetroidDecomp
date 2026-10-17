@@ -203,7 +203,7 @@ internal static class NoobTubePlmVerification
         AssertTrue(brokenEvent, "n00b-tube completion sets event $0B");
         AssertTrue(!samus.InputLocked, "n00b-tube completion unlocks Samus");
         AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked, "completion restores normal animation ownership");
-        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+        AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "n00b-tube completion clears the disable bit on shared room FX");
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
@@ -324,7 +324,7 @@ internal static class NoobTubePlmVerification
         StepNoobTube(plms, level, streamer);
         AssertEqual(0, plms.SlotTable.ActiveCount, "event-$0B n00b tube deletes on its first step");
         AssertEqual(0, projectiles.Count, "event-$0B n00b tube spawns no break debris");
-        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+        AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "event-$0B room load clears the shared water-disable bit");
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);

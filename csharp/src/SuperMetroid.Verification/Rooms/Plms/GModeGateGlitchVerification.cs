@@ -460,7 +460,7 @@ internal static class GModeGateGlitchVerification
             "G-Mode-disabled tube retains the marked Power Bomb request");
         AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.InputLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
-        AssertTrue((roomFx.LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) != 0,
+        AssertTrue((roomFx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0,
             "suspended glass tube leaves its water-physics disable bit intact");
 
         StepNoobTube(plms, level, streamer);

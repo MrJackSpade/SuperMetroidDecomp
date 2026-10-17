@@ -63,7 +63,7 @@ internal static class BossMapMarkersVerification
                 // format and restore path, entirely in disposable memory.
                 var source = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
                 source.SaveSlot(0,
-                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (ushort)area, SaveStation = 0 }));
+                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (AreaId)area, SaveStation = 0 }));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source));
                 var restored = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 var slot = GameSaveJsonCodec.ToStore(GameSaveJsonCodec.Deserialize(json), RetailPresentationFixture()).ReadSlot(0) ??

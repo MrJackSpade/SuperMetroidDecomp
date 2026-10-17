@@ -103,6 +103,60 @@ internal static class SaveRamCodecVerification
         Console.WriteLine("Save store: boot, save, copy, clear, select and completion have the cartridge's effect and round-trip through SRAM.");
     }
 
+    /// <summary>
+    /// The slot fields saves now carry as <see cref="int"/> (item-load counter, clock, dispatcher route, checkpoint and
+    /// the two checksummed markers) hold every value their SRAM field can: the range's ends survive SRAM, store and SRAM
+    /// again byte for byte, and a value past the range is rejected instead of wrapping into the image.
+    /// </summary>
+    internal static void VerifyWidenedSlotFieldsRoundTrip()
+    {
+        IAreaMapSource maps = RetailPresentationFixture();
+        var written = new SaveSlotStore(maps);
+        SuperMetroidSaveSnapshot extremes = Snapshot(health: 61, area: AreaId.Brinstar) with
+        {
+            LoadedItemCount = SaveFieldValue.MaximumValue,
+            DebugFlag = SaveFieldValue.MaximumValue,
+            NewFileMarker = 0,
+            LoadingGameState = SaveFieldValue.MaximumValue,
+            SaveStation = SaveFieldValue.MaximumValue,
+            Area = SaveFieldValue.MaximumValue,
+            GameTimeFrames = SaveFieldValue.MaximumValue,
+            GameTimeSeconds = 0,
+            GameTimeMinutes = SaveFieldValue.MaximumValue,
+            GameTimeHours = SaveFieldValue.MaximumValue,
+        };
+        written.SaveSlot(0, extremes);
+        byte[] image = SaveRamCodec.Encode(written, maps);
+        SaveSlotStore decoded = SaveRamCodec.Decode(image, maps);
+        AssertTrue(SaveRamCodec.Encode(decoded, maps).SequenceEqual(image),
+            "SRAM -> store -> SRAM keeps the full-range slot fields byte for byte");
+        SuperMetroidSaveSlot slot = decoded.ReadSlot(0) ?? throw new InvalidOperationException("The full-range slot failed its checksums.");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "the item-load counter decodes its largest value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.DebugFlag, "the debug value decodes its largest value");
+        AssertEqual(0, slot.NewFileMarker, "the new-file marker decodes zero");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadingGameState, "an unnamed dispatcher route decodes unchanged");
+        AssertEqual(SaveLoadingGameState.MainGame, slot.StartupRoute, "an unnamed dispatcher route resumes the main game");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.SaveStation, "the load station decodes its largest value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.Area, "the checkpoint area decodes its largest value");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.GameTimeHours, "the clock's hours decode their largest value");
+        AssertEqual(SaveFieldValue.MaximumValue, SaveRamCodec.ReadSlotWord(image, 0, SaveRamLayout.LoadedItemCountOffset),
+            "the item-load counter's SRAM field holds the counter's largest value");
+
+        foreach ((string field, SuperMetroidSaveSnapshot outOfRange) in new (string, SuperMetroidSaveSnapshot)[]
+                 {
+                     ("item-load counter", extremes with { LoadedItemCount = SaveFieldValue.MaximumValue + 1 }),
+                     ("dispatcher route", extremes with { LoadingGameState = -1 }),
+                     ("load station", extremes with { SaveStation = SaveFieldValue.MaximumValue + 1 }),
+                     ("clock minutes", extremes with { GameTimeMinutes = -1 }),
+                 })
+        {
+            AssertThrows<InvalidOperationException>(() => written.SaveSlot(1, outOfRange),
+                $"a {field} past the SRAM field's range is rejected instead of wrapping");
+        }
+        AssertTrue(written.ReadSlot(1) is null, "a rejected save leaves its slot unchanged");
+        Console.WriteLine("Save slot fields: full-range values round-trip through SRAM exactly; out-of-range values are rejected.");
+    }
+
     /// <summary>A save with a distinct health, area, progression and explored map.</summary>
     private static SuperMetroidSaveSnapshot Snapshot(ushort health, AreaId area)
     {
@@ -116,7 +170,7 @@ internal static class SaveRamCodecVerification
         var time = new GameTimeState();
         time.Load(frames: 12, seconds: 34, minutes: 5, hours: 1);
         return SuperMetroidSaveSnapshot.Capture(samus, system,
-            new SaveSnapshotContext { Area = (ushort)area, SaveStation = 1, GameTime = time });
+            new SaveSnapshotContext { Area = area, SaveStation = 1, GameTime = time });
     }
 
     /// <summary>The native payload a decoded slot re-encodes to, for field-by-field comparison.</summary>
@@ -132,6 +186,7 @@ internal static class SaveRamCodecVerification
     {
         Suite(nameof(VerifyInvalidSlotAndNoncanonicalMarker), () => VerifyInvalidSlotAndNoncanonicalMarker());
         Suite(nameof(VerifyStoreOperationsRoundTrip), () => VerifyStoreOperationsRoundTrip());
+        Suite(nameof(VerifyWidenedSlotFieldsRoundTrip), () => VerifyWidenedSlotFieldsRoundTrip());
         return 0;
     }
 }

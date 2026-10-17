@@ -31,7 +31,7 @@ public sealed class FileSelectMapMenuState
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>Saved station index used to restore the marker and scroll anchor.</summary>
-    private readonly ushort stationIndex;
+    private readonly int stationIndex;
     /// <summary>Suppresses marker display until the room-map entry animation reaches it.</summary>
     private bool markerDrawn;
     /// <summary>Advances map icon arrows and highlight palette independently of rendering.</summary>

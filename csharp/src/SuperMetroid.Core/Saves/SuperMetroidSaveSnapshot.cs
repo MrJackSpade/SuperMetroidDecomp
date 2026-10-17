@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
@@ -13,10 +14,10 @@ public sealed record SuperMetroidSaveSnapshot
 
     /// <summary>Whether the options menu's moonwalk behavior is enabled.</summary>
     public bool MoonwalkEnabled { get; init; }
-    /// <summary>Checksummed cartridge word at WRAM <c>$09E6</c>.</summary>
-    public ushort DebugFlag { get; init; } = 1;
-    /// <summary>Checksummed new-file marker at WRAM <c>$09E8</c>.</summary>
-    public ushort NewFileMarker { get; init; } = 1;
+    /// <summary>The checksummed cartridge debug value, carried unchanged; a new file holds one.</summary>
+    public int DebugFlag { get; init; } = 1;
+    /// <summary>The checksummed new-file marker, carried unchanged; a new file holds one.</summary>
+    public int NewFileMarker { get; init; } = 1;
 
     /// <summary>Whether door transitions automatically clear the selected HUD item.</summary>
     public bool IconCancelEnabled { get; init; }
@@ -27,8 +28,11 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Whether the alternate Japanese text setting written to WRAM <c>$09E2</c> is enabled.</summary>
     public bool JapaneseText { get; init; }
 
-    /// <summary>The cumulative item-PLM setup count persisted at WRAM <c>$7E:D91A</c>.</summary>
-    public ushort LoadedItemCount { get; init; }
+    /// <summary>
+    /// The cumulative item-PLM setup count. Gameplay wraps it to zero after <see cref="SaveFieldValue.MaximumValue"/>;
+    /// the snapshot only carries the value it reached.
+    /// </summary>
+    public int LoadedItemCount { get; init; }
 
     /// <summary>Bit mask of collected items currently enabled on Samus.</summary>
     public SamusEquipmentFlags EquippedItems { get; init; }
@@ -79,30 +83,34 @@ public sealed record SuperMetroidSaveSnapshot
     public int ReserveEnergy { get; init; }
 
     /// <summary>The sub-second gameplay counter, normally in the inclusive range 0 through 59.</summary>
-    public ushort GameTimeFrames { get; init; }
+    public int GameTimeFrames { get; init; }
 
     /// <summary>The gameplay clock's seconds component, normally in the inclusive range 0 through 59.</summary>
-    public ushort GameTimeSeconds { get; init; }
+    public int GameTimeSeconds { get; init; }
 
     /// <summary>The gameplay clock's minutes component, normally in the inclusive range 0 through 59.</summary>
-    public ushort GameTimeMinutes { get; init; }
+    public int GameTimeMinutes { get; init; }
 
     /// <summary>The gameplay clock's hours component, saturated by gameplay at 99.</summary>
-    public ushort GameTimeHours { get; init; }
-    /// <summary>Saved dispatcher word at WRAM <c>$7E:D914</c>.</summary>
-    public ushort LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
+    public int GameTimeHours { get; init; }
+
+    /// <summary>The startup dispatcher route, carried unchanged including values the dispatcher does not name.</summary>
+    public int LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
 
     /// <summary>The zero-based load-station index within <see cref="Area"/>.</summary>
-    public ushort SaveStation { get; init; }
+    public int SaveStation { get; init; }
 
     /// <summary>The retail area index that owns <see cref="SaveStation"/>.</summary>
-    public ushort Area { get; init; }
+    public int Area { get; init; }
 
     /// <summary>Eight persistent event bytes copied without reinterpretation from bank-$80 state.</summary>
     public byte[] EventBytes { get; init; } = new byte[Bank80SystemState.EventByteCount];
 
-    /// <summary>One boss-state byte per native area slot, copied without reinterpretation.</summary>
-    public byte[] BossBytes { get; init; } = new byte[Bank80SystemState.AreaCount];
+    /// <summary>
+    /// One boss-state flag set per native area slot, including any unproven bits a corrupting write left, which the
+    /// SRAM encoding carries losslessly.
+    /// </summary>
+    public BossBits[] BossFlags { get; init; } = new BossBits[Bank80SystemState.AreaCount];
 
     /// <summary>The 64-byte room-indexed bitset for opened Chozo item orbs.</summary>
     public byte[] RoomChozoBytes { get; init; } =
@@ -142,7 +150,7 @@ public sealed record SuperMetroidSaveSnapshot
         Ensure.NotNull(samus);
         Ensure.NotNull(system);
         var events = new byte[Bank80SystemState.EventByteCount];
-        var bosses = new byte[Bank80SystemState.AreaCount];
+        var bosses = new BossBits[Bank80SystemState.AreaCount];
         var roomChozo = new byte[Bank80SystemState.RoomChozoBitByteCount];
         var collectedItems = new byte[Bank80SystemState.ItemBitByteCount];
         var openedDoors = new byte[Bank80SystemState.DoorBitByteCount];
@@ -153,7 +161,7 @@ public sealed record SuperMetroidSaveSnapshot
         for (int index = 0; index < events.Length; index++)
             events[index] = system.GetEventByteRaw(index);
         for (int index = 0; index < bosses.Length; index++)
-            bosses[index] = system.GetBossBitsRaw(index);
+            bosses[index] = (BossBits)system.GetBossBitsRaw(index);
         for (int index = 0; index < roomChozo.Length; index++)
             roomChozo[index] = system.GetRoomChozoByteRaw(index);
         for (int index = 0; index < collectedItems.Length; index++)
@@ -206,9 +214,9 @@ public sealed record SuperMetroidSaveSnapshot
             GameTimeHours = context.GameTime?.Hours ?? 0,
             LoadingGameState = system.SavedLoadingGameState,
             SaveStation = context.SaveStation,
-            Area = context.Area,
+            Area = AreaIds.ToIndex(context.Area),
             EventBytes = events,
-            BossBytes = bosses,
+            BossFlags = bosses,
             RoomChozoBytes = roomChozo,
             CollectedItemBytes = collectedItems,
             OpenedDoorBytes = openedDoors,

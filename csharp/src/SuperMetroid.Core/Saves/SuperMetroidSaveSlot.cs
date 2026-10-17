@@ -36,17 +36,18 @@ public sealed record SuperMetroidSaveSlot(
     byte[] UsedSaveStationBytes,
     byte[] MapStationBytes,
     byte[] ExploredMapBytes,
-    ushort LoadingGameState,
-    ushort SaveStation,
-    ushort Area)
+    int LoadingGameState,
+    int SaveStation,
+    int Area)
 {
     /// <summary>
-    /// The startup route $82:EEB4 selects for <see cref="LoadingGameState"/>; a word the
+    /// The startup route $82:EEB4 selects for <see cref="LoadingGameState"/>; a value the
     /// dispatcher does not name resumes the main game.
     /// </summary>
-    public SaveLoadingGameState StartupRoute => Enum.IsDefined((SaveLoadingGameState)LoadingGameState)
-        ? (SaveLoadingGameState)LoadingGameState
-        : SaveLoadingGameState.MainGame;
+    public SaveLoadingGameState StartupRoute =>
+        SaveFieldValue.IsInRange(LoadingGameState) && Enum.IsDefined((SaveLoadingGameState)LoadingGameState)
+            ? (SaveLoadingGameState)LoadingGameState
+            : SaveLoadingGameState.MainGame;
 
     /// <summary>The checksum-backed seven-action controller permutation.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
@@ -54,11 +55,11 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>Saved nonzero WRAM word <c>$09E4</c>.</summary>
     public bool MoonwalkEnabled { get; init; }
 
-    /// <summary>Checksummed cartridge word at WRAM <c>$09E6</c>.</summary>
-    public ushort DebugFlag { get; init; }
+    /// <summary>The checksummed cartridge debug value, carried unchanged.</summary>
+    public int DebugFlag { get; init; }
 
-    /// <summary>Checksummed new-file marker at WRAM <c>$09E8</c>.</summary>
-    public ushort NewFileMarker { get; init; }
+    /// <summary>The checksummed new-file marker, carried unchanged.</summary>
+    public int NewFileMarker { get; init; }
 
     /// <summary>Saved nonzero WRAM word <c>$09EA</c>.</summary>
     public bool IconCancelEnabled { get; init; }
@@ -69,8 +70,11 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>Whether the alternate Japanese text setting stored at WRAM <c>$09E2</c> is enabled.</summary>
     public bool JapaneseText { get; init; }
 
-    /// <summary>The cumulative item-PLM setup count from WRAM <c>$7E:D91A</c>, not a completion percentage.</summary>
-    public ushort LoadedItemCount { get; init; }
+    /// <summary>
+    /// The cumulative item-PLM setup count, not a completion percentage. Gameplay wraps it to zero after
+    /// <see cref="SaveFieldValue.MaximumValue"/>; the slot only carries the value it reached.
+    /// </summary>
+    public int LoadedItemCount { get; init; }
 
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
     public void ApplyTo(SamusState samus)
@@ -109,7 +113,7 @@ public sealed record SuperMetroidSaveSlot(
         system.LoadUsedSaveStationBytes(UsedSaveStationBytes);
         system.LoadMapStationBytes(MapStationBytes);
         system.LoadExploredMapBytes(ExploredMapBytes);
-        system.LoadSavedLoadingGameState(LoadingGameState);
-        system.LoadedItemCount = LoadedItemCount;
+        system.LoadSavedLoadingGameState(SaveFieldValue.Encode(LoadingGameState, nameof(LoadingGameState)));
+        system.LoadedItemCount = SaveFieldValue.Encode(LoadedItemCount, nameof(LoadedItemCount));
     }
 }

@@ -108,17 +108,17 @@ public static class GameSaveJsonCodec
             AreaIds.FromCartridge(checked((byte)slot.Area), $"slot {slot.Slot} checkpoint"),
             slot.SaveStation),
         Resources = new SaveResourcesJsonDocument(
-            SamusQuantity.Encode(slot.Health),
-            SamusQuantity.Encode(slot.MaxHealth),
-            SamusQuantity.Encode(slot.Missiles),
-            SamusQuantity.Encode(slot.MaxMissiles),
-            SamusQuantity.Encode(slot.SuperMissiles),
-            SamusQuantity.Encode(slot.MaxSuperMissiles),
-            SamusQuantity.Encode(slot.PowerBombs),
-            SamusQuantity.Encode(slot.MaxPowerBombs),
-            SamusQuantity.Encode(slot.ReserveEnergy),
-            SamusQuantity.Encode(slot.MaxReserveEnergy),
-            SamusQuantity.Encode(slot.ReserveMissiles)),
+            slot.Health,
+            slot.MaxHealth,
+            slot.Missiles,
+            slot.MaxMissiles,
+            slot.SuperMissiles,
+            slot.MaxSuperMissiles,
+            slot.PowerBombs,
+            slot.MaxPowerBombs,
+            slot.ReserveEnergy,
+            slot.MaxReserveEnergy,
+            slot.ReserveMissiles),
         Inventory = new SaveInventoryJsonDocument(
             (SamusEquipmentFlags)slot.CollectedItems,
             (SamusEquipmentFlags)slot.EquippedItems,
@@ -186,27 +186,27 @@ public static class GameSaveJsonCodec
             CollectedItems = slot.Inventory.CollectedItems,
             EquippedBeams = slot.Inventory.EquippedBeams,
             CollectedBeams = slot.Inventory.CollectedBeams,
-            ReserveMode = ReserveTankModes.Decode(slot.ReserveMode),
-            Health = SamusQuantity.Decode(slot.Resources.Health),
-            MaxHealth = SamusQuantity.Decode(slot.Resources.MaxHealth),
-            Missiles = SamusQuantity.Decode(slot.Resources.Missiles),
-            MaxMissiles = SamusQuantity.Decode(slot.Resources.MaxMissiles),
-            SuperMissiles = SamusQuantity.Decode(slot.Resources.SuperMissiles),
-            MaxSuperMissiles = SamusQuantity.Decode(slot.Resources.MaxSuperMissiles),
-            PowerBombs = SamusQuantity.Decode(slot.Resources.PowerBombs),
-            MaxPowerBombs = SamusQuantity.Decode(slot.Resources.MaxPowerBombs),
-            HudItem = HudItems.Decode(slot.HudItem),
-            MaxReserveEnergy = SamusQuantity.Decode(slot.Resources.MaxReserveEnergy),
-            ReserveEnergy = SamusQuantity.Decode(slot.Resources.ReserveEnergy),
-            ReserveMissiles = SamusQuantity.Decode(slot.Resources.ReserveMissiles),
+            ReserveMode = ReserveTankModes.Decode(SaveFieldValue.Encode(slot.ReserveMode, "reserveMode")),
+            Health = slot.Resources.Health,
+            MaxHealth = slot.Resources.MaxHealth,
+            Missiles = slot.Resources.Missiles,
+            MaxMissiles = slot.Resources.MaxMissiles,
+            SuperMissiles = slot.Resources.SuperMissiles,
+            MaxSuperMissiles = slot.Resources.MaxSuperMissiles,
+            PowerBombs = slot.Resources.PowerBombs,
+            MaxPowerBombs = slot.Resources.MaxPowerBombs,
+            HudItem = HudItems.Decode(SaveFieldValue.Encode(slot.HudItem, "hudItem")),
+            MaxReserveEnergy = slot.Resources.MaxReserveEnergy,
+            ReserveEnergy = slot.Resources.ReserveEnergy,
+            ReserveMissiles = slot.Resources.ReserveMissiles,
             GameTimeFrames = slot.GameTime.Frames,
             GameTimeSeconds = slot.GameTime.Seconds,
             GameTimeMinutes = slot.GameTime.Minutes,
             GameTimeHours = slot.GameTime.Hours,
             SaveStation = slot.Checkpoint.SaveStation,
-            Area = (byte)slot.Checkpoint.Area,
+            Area = AreaIds.ToIndex(slot.Checkpoint.Area),
             EventBytes = DecodeEvents(slot.Progression.Events),
-            BossBytes = slot.Progression.BossFlagsByAreaIndex.Select(value => (byte)value).ToArray(),
+            BossFlags = slot.Progression.BossFlagsByAreaIndex.ToArray(),
             RoomChozoBytes = DecodeSetBits(
                 slot.Progression.RoomChozoBits,
                 Bank80SystemState.RoomChozoBitByteCount,
@@ -262,6 +262,24 @@ public static class GameSaveJsonCodec
             slot.GameTime is null || slot.Controller is null || slot.Progression is null)
             throw new InvalidDataException($"slots[{expectedSlot}] is missing a required domain object");
         _ = AreaIds.ToIndex(slot.Checkpoint.Area);
+        RequireRange(slot.Checkpoint.SaveStation, SaveFieldValue.MaximumValue, expectedSlot, "checkpoint.saveStation");
+        RequireRange(slot.ReserveMode, SaveFieldValue.MaximumValue, expectedSlot, "reserveMode");
+        RequireRange(slot.HudItem, SaveFieldValue.MaximumValue, expectedSlot, "hudItem");
+        RequireRange(slot.LoadedItemCount, SaveFieldValue.MaximumValue, expectedSlot, "loadedItemCount");
+        RequireRange(slot.CartridgeDebugFlag, SaveFieldValue.MaximumValue, expectedSlot, "cartridgeDebugFlag");
+        RequireRange(slot.NewFileMarker, SaveFieldValue.MaximumValue, expectedSlot, "newFileMarker");
+        RequireRange(slot.LoadingGameState, SaveFieldValue.MaximumValue, expectedSlot, "loadingGameState");
+        SaveResourcesJsonDocument resources = slot.Resources;
+        foreach ((int value, string property) in new (int, string)[]
+                 {
+                     (resources.Health, "health"), (resources.MaxHealth, "maxHealth"),
+                     (resources.Missiles, "missiles"), (resources.MaxMissiles, "maxMissiles"),
+                     (resources.SuperMissiles, "superMissiles"), (resources.MaxSuperMissiles, "maxSuperMissiles"),
+                     (resources.PowerBombs, "powerBombs"), (resources.MaxPowerBombs, "maxPowerBombs"),
+                     (resources.ReserveEnergy, "reserveEnergy"), (resources.MaxReserveEnergy, "maxReserveEnergy"),
+                     (resources.ReserveMissiles, "reserveMissiles"),
+                 })
+            RequireRange(value, SamusQuantity.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)
             throw new InvalidDataException($"slots[{expectedSlot}].resources.health exceeds maxHealth");
         if (slot.Resources.Missiles > slot.Resources.MaxMissiles ||
@@ -272,8 +290,8 @@ public static class GameSaveJsonCodec
             throw new InvalidDataException(
                 $"slots[{expectedSlot}].resources contains a current value above its maximum");
         }
-        if (slot.GameTime.Frames > 59 || slot.GameTime.Seconds > 59 ||
-            slot.GameTime.Minutes > 59 || slot.GameTime.Hours > 99)
+        if (slot.GameTime.Frames is < 0 or > 59 || slot.GameTime.Seconds is < 0 or > 59 ||
+            slot.GameTime.Minutes is < 0 or > 59 || slot.GameTime.Hours is < 0 or > 99)
             throw new InvalidDataException($"slots[{expectedSlot}].gameTime is outside retail ranges");
         if ((slot.Inventory.CollectedItems & ~AllEquipmentFlags) != 0 ||
             (slot.Inventory.EquippedItems & ~AllEquipmentFlags) != 0 ||
@@ -313,6 +331,16 @@ public static class GameSaveJsonCodec
         _ = DecodeSetBits(progression.AcquiredMapStationBits, Bank80SystemState.MapStationByteCount,
             $"slots[{expectedSlot}].progression.acquiredMapStationBits");
         _ = DecodeExploredAreas(progression.ExploredAreas);
+    }
+
+    /// <summary>
+    /// Rejects a numeric slot field outside <c>[0, <paramref name="maximum"/>]</c>, the range its domain or its SRAM
+    /// field holds, so a JSON number never wraps on its way into the store.
+    /// </summary>
+    private static void RequireRange(int value, int maximum, int expectedSlot, string property)
+    {
+        if (value < 0 || value > maximum)
+            throw new InvalidDataException($"slots[{expectedSlot}].{property} {value} is outside [0, {maximum}]");
     }
 
     /// <summary>Configures strict enum names, property handling, and stable save JSON formatting.</summary>
@@ -473,11 +501,10 @@ public static class GameSaveJsonCodec
             if (slots[index] is null) continue;
             JsonObject slot = slots[index] as JsonObject ?? throw new InvalidDataException($"slots[{index}] must be an object");
             JsonObject resources = slot["resources"] as JsonObject ?? throw new InvalidDataException($"slots[{index}].resources is required");
-            int origin = SaveRamLayout.SlotOffset(index);
             resources["reserveMissiles"] = Word(SaveRamLayout.ReserveMissilesOffset);
             slot["japaneseText"] = Word(SaveRamLayout.JapaneseTextOffset) != 0;
             slot["loadedItemCount"] = Word(SaveRamLayout.LoadedItemCountOffset);
-            ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(sram[origin + offset], sram[origin + offset + 1]));
+            ushort Word(int offset) => SaveRamCodec.ReadSlotWord(sram, index, offset);
         }
         root["gameCompleted"] = sram.AsSpan(SaveRamLayout.CompletionMarkerOffset,
             SaveRamLayout.CompletionMarker.Length).SequenceEqual(SaveRamLayout.CompletionMarker);

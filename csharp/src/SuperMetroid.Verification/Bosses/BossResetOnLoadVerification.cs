@@ -34,7 +34,7 @@ internal static class BossResetOnLoadVerification
             Missiles = 12, MaxMissiles = 25,
             CollectedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = SamusEquipmentFlags.MorphBall,
-            BossBytes = Enumerable.Repeat((byte)0x07, Bank80SystemState.AreaCount).ToArray(),
+            BossFlags = Enumerable.Repeat(BossBitMasks.AllKnown, Bank80SystemState.AreaCount).ToArray(),
             EventBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.EventByteCount).ToArray(),
             OpenedDoorBytes = Enumerable.Repeat((byte)0xff, Bank80SystemState.DoorBitByteCount).ToArray(),
             CollectedItemBytes = Enumerable.Repeat((byte)0xa5, Bank80SystemState.ItemBitByteCount).ToArray(),

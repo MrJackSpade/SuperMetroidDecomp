@@ -9,14 +9,22 @@ namespace SuperMetroid.Core.Saves;
 /// <summary>
 /// The cartridge's 8-KiB SRAM image as a byte codec (#1322): legacy emulator saves, replay reset headers and recorder
 /// seeds carry saves in this format, and <see cref="SaveSlotStore"/> is decoded from and encoded to it at those
-/// boundaries only.
+/// boundaries only. It is the encoding owner of the SRAM image layout <see cref="SaveRamLayout"/> describes.
 /// </summary>
 /// <remarks>
 /// <c>$81:8000-$81:812A</c> stores one contiguous WRAM mirror ($D7C0-$DE1B) per slot, then writes both a checksum and
 /// its complement into two redundant directories. Decoding applies the cartridge's validity, selected-slot and
 /// boot-carry rules to the image as given; encoding writes the canonical image of a store, without padding or
 /// noncanonical marker bytes.
+/// <para>
+/// The encoding owned here: the little-endian slot words at the <see cref="SaveRamLayout"/> offsets,
+/// the controller bindings stored as controller-button words, the equipment, beam and per-area boss flags stored as
+/// their words and bytes, the checksum directories, the selected-slot pair and the marker field. It is the one place
+/// a save's domain values become SRAM words and SRAM words become domain values; every other reader of an SRAM image,
+/// including the legacy JSON upgrade, goes through it.
+/// </para>
 /// </remarks>
+[SnesEncodingOwner]
 public static class SaveRamCodec
 {
     /// <summary>Decodes every slot, the selected slot, completion and the boot carry from a whole SRAM image.</summary>
@@ -162,22 +170,29 @@ public static class SaveRamCodec
         WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, SamusQuantity.Encode(snapshot.ReserveEnergy));
         WriteWord(payload, SaveRamLayout.ReserveMissilesOffset, SamusQuantity.Encode(snapshot.ReserveMissiles));
         WriteWord(payload, SaveRamLayout.JapaneseTextOffset, snapshot.JapaneseText ? (ushort)1 : (ushort)0);
-        WriteWord(payload, SaveRamLayout.LoadedItemCountOffset, snapshot.LoadedItemCount);
-        WriteWord(payload, SaveRamLayout.GameTimeFramesOffset, snapshot.GameTimeFrames);
-        WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset, snapshot.GameTimeSeconds);
-        WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset, snapshot.GameTimeMinutes);
-        WriteWord(payload, SaveRamLayout.GameTimeHoursOffset, snapshot.GameTimeHours);
+        WriteWord(payload, SaveRamLayout.LoadedItemCountOffset,
+            SaveFieldValue.Encode(snapshot.LoadedItemCount, nameof(snapshot.LoadedItemCount)));
+        WriteWord(payload, SaveRamLayout.GameTimeFramesOffset,
+            SaveFieldValue.Encode(snapshot.GameTimeFrames, nameof(snapshot.GameTimeFrames)));
+        WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset,
+            SaveFieldValue.Encode(snapshot.GameTimeSeconds, nameof(snapshot.GameTimeSeconds)));
+        WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset,
+            SaveFieldValue.Encode(snapshot.GameTimeMinutes, nameof(snapshot.GameTimeMinutes)));
+        WriteWord(payload, SaveRamLayout.GameTimeHoursOffset,
+            SaveFieldValue.Encode(snapshot.GameTimeHours, nameof(snapshot.GameTimeHours)));
         WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
-        WriteWord(payload, SaveRamLayout.DebugFlagOffset, snapshot.DebugFlag);
-        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset, snapshot.NewFileMarker);
+        WriteWord(payload, SaveRamLayout.DebugFlagOffset, SaveFieldValue.Encode(snapshot.DebugFlag, nameof(snapshot.DebugFlag)));
+        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset,
+            SaveFieldValue.Encode(snapshot.NewFileMarker, nameof(snapshot.NewFileMarker)));
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
         if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
             throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
-        if (snapshot.BossBytes.Length != Bank80SystemState.AreaCount)
-            throw new InvalidDataException("A save snapshot requires exactly eight area-boss bytes.");
+        if (snapshot.BossFlags.Length != Bank80SystemState.AreaCount)
+            throw new InvalidDataException("A save snapshot requires exactly eight area-boss flag sets.");
         snapshot.EventBytes.CopyTo(payload, SaveRamLayout.EventsOffset);
-        snapshot.BossBytes.CopyTo(payload, SaveRamLayout.BossBitsOffset);
+        for (int area = 0; area < snapshot.BossFlags.Length; area++)
+            payload[SaveRamLayout.BossBitsOffset + area] = (byte)snapshot.BossFlags[area];
         if (snapshot.RoomChozoBytes.Length != Bank80SystemState.RoomChozoBitByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 64 room-Chozo bytes.");
         snapshot.RoomChozoBytes.CopyTo(payload, SaveRamLayout.RoomChozoBitsOffset);
@@ -193,9 +208,10 @@ public static class SaveRamCodec
         if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
         snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
-        WriteWord(payload, SaveRamLayout.LoadingGameStateOffset, snapshot.LoadingGameState);
-        WriteWord(payload, SaveRamLayout.SaveStationOffset, snapshot.SaveStation);
-        WriteWord(payload, SaveRamLayout.AreaOffset, snapshot.Area);
+        WriteWord(payload, SaveRamLayout.LoadingGameStateOffset,
+            SaveFieldValue.Encode(snapshot.LoadingGameState, nameof(snapshot.LoadingGameState)));
+        WriteWord(payload, SaveRamLayout.SaveStationOffset, SaveFieldValue.Encode(snapshot.SaveStation, nameof(snapshot.SaveStation)));
+        WriteWord(payload, SaveRamLayout.AreaOffset, SaveFieldValue.Encode(snapshot.Area, nameof(snapshot.Area)));
         PackExploredMap(snapshot.ExploredMapBytes, maps).CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
         return payload;
     }
@@ -235,7 +251,7 @@ public static class SaveRamCodec
         SaveStation = slot.SaveStation,
         Area = slot.Area,
         EventBytes = slot.EventBytes.ToArray(),
-        BossBytes = slot.BossBytes.ToArray(),
+        BossFlags = slot.BossBytes.Select(value => (BossBits)value).ToArray(),
         RoomChozoBytes = slot.RoomChozoBytes.ToArray(),
         CollectedItemBytes = slot.CollectedItemBytes.ToArray(),
         OpenedDoorBytes = slot.OpenedDoorBytes.ToArray(),
@@ -331,6 +347,16 @@ public static class SaveRamCodec
     {
         if ((uint)slot >= SaveRamLayout.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
+    }
+
+    /// <summary>
+    /// The word at <paramref name="offset"/> within <paramref name="slot"/>'s payload, whatever the slot's checksums:
+    /// the legacy JSON upgrade reads the fields schema one omitted from its preserved image.
+    /// </summary>
+    internal static ushort ReadSlotWord(ReadOnlySpan<byte> image, int slot, int offset)
+    {
+        Ensure.LengthEqual(image, SaveRamLayout.ImageByteCount);
+        return ReadWord(Payload(image, slot), offset);
     }
 
     /// <summary>One slot's native payload within the image.</summary>

@@ -177,8 +177,8 @@ public sealed class Bank80SystemState
         mirror.OpenedDoorBits.CopyTo(_openedDoorBits);
         mirror.UsedSaveStations.CopyTo(_usedSaveStationsAndElevators);
         mirror.MapStations.CopyTo(_mapStations);
-        LoadedItemCount = mirror.LoadedItemCount;
-        SavedLoadingGameState = mirror.LoadingGameState;
+        LoadedItemCount = SaveFieldValue.Encode(mirror.LoadedItemCount, nameof(LoadedItemCount));
+        SavedLoadingGameState = SaveFieldValue.Encode(mirror.LoadingGameState, nameof(SavedLoadingGameState));
     }
 
     /// <summary>

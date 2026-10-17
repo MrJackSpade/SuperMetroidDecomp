@@ -366,7 +366,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
                 "A confirmed save station has no live Samus state.");
         session.saves.SaveSlot(
             session.selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, session.runtime.System, new SaveSnapshotContext { Area = (ushort)request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.runtime.GameTime, ControllerBindings = session.runtime.Options.ControllerBindings, MoonwalkEnabled = session.runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.runtime.Options.IconCancelEnabled, JapaneseText = session.runtime.JapaneseText }));
+            SuperMetroidSaveSnapshot.Capture(samus, session.runtime.System, new SaveSnapshotContext { Area = request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.runtime.GameTime, ControllerBindings = session.runtime.Options.ControllerBindings, MoonwalkEnabled = session.runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.runtime.Options.IconCancelEnabled, JapaneseText = session.runtime.JapaneseText }));
         session.RaiseSaveRamChanged();
     }
 }

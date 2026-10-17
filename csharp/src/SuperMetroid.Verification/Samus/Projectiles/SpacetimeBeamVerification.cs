@@ -132,7 +132,7 @@ internal static class SpacetimeBeamVerification
             "SpaceTime corruption does not rewrite live equipment");
 
         var saveRam = new SaveSlotStore(RetailPresentationFixture());
-        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Crateria, SaveStation = 7 }));
+        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = AreaId.Crateria, SaveStation = 7 }));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToNativeWord(),

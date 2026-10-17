@@ -34,14 +34,14 @@ internal static class CeresSaveStartupVerification
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();
-        var bossBytes = new byte[Bank80SystemState.AreaCount];
-        bossBytes[(int)AreaId.Ceres] = (byte)BossBits.AreaBoss;
+        var bossFlags = new BossBits[Bank80SystemState.AreaCount];
+        bossFlags[(int)AreaId.Ceres] = BossBits.AreaBoss;
         var departure = new SuperMetroidSaveSnapshot
         {
             Area = (ushort)AreaId.Ceres,
             SaveStation = 0,
             LoadingGameState = SaveLoadingGameStates.CeresDestruction,
-            BossBytes = bossBytes,
+            BossFlags = bossFlags,
             Health = 77,
             GameTimeMinutes = 2,
             GameTimeSeconds = 11,

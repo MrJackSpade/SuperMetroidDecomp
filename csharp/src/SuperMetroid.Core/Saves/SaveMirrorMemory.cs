@@ -25,18 +25,26 @@ public readonly struct SaveMirrorMemory(ISnesMemoryBus bus)
     /// <summary>The per-area acquired map-station flags.</summary>
     public WorkRamByteTable MapStations => new(bus, SaveMirrorWorkRamAddresses.MapStations);
 
-    /// <summary>The raw saved frontend dispatcher word.</summary>
-    public ushort LoadingGameState
+    /// <summary>
+    /// The saved startup dispatcher route, including values the dispatcher does not name; writing a value outside
+    /// <see cref="SaveFieldValue"/>'s range fails instead of wrapping.
+    /// </summary>
+    public int LoadingGameState
     {
         get => new WramWord(bus, SaveMirrorWorkRamAddresses.LoadingGameState).Read();
-        set => new WramWord(bus, SaveMirrorWorkRamAddresses.LoadingGameState).Write(value);
+        set => new WramWord(bus, SaveMirrorWorkRamAddresses.LoadingGameState).Write(
+            SaveFieldValue.Encode(value, nameof(LoadingGameState)));
     }
 
-    /// <summary>The cumulative item-PLM setup count.</summary>
-    public ushort LoadedItemCount
+    /// <summary>
+    /// The cumulative item-PLM setup count; writing a value outside <see cref="SaveFieldValue"/>'s range fails
+    /// instead of wrapping.
+    /// </summary>
+    public int LoadedItemCount
     {
         get => new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Read();
-        set => new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Write(value);
+        set => new WramWord(bus, SaveMirrorWorkRamAddresses.LoadedItemCount).Write(
+            SaveFieldValue.Encode(value, nameof(LoadedItemCount)));
     }
 
     /// <summary>

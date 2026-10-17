@@ -2,6 +2,10 @@
 namespace SuperMetroid.Core.Saves;
 
 /// <summary>One valid cartridge slot expressed as named gameplay domains.</summary>
+/// <remarks>
+/// The numeric fields are JSON numbers. The codec accepts each only inside the range the slot can hold
+/// (<see cref="SaveFieldValue"/>) and decodes the reserve mode and HUD item into their domains.
+/// </remarks>
 public sealed record GameSaveSlotJsonDocument
 {
     /// <summary>The zero-based cartridge slot whose state this object represents.</summary>
@@ -25,11 +29,11 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Persistent world events, room bits, station bits, and explored map tiles.</summary>
     public required SaveProgressionJsonDocument Progression { get; init; }
 
-    /// <summary>The native reserve-tank mode word: zero unset, one auto, or two manual.</summary>
-    public required ushort ReserveMode { get; init; }
+    /// <summary>The reserve-tank mode's number: zero unset, one auto, or two manual.</summary>
+    public required int ReserveMode { get; init; }
 
-    /// <summary>The native HUD item-selection index saved with the slot.</summary>
-    public required ushort HudItem { get; init; }
+    /// <summary>The selected HUD item's number in the six-entry selection ring.</summary>
+    public required int HudItem { get; init; }
 
     /// <summary>Whether backward walking remains enabled after the options screen closes.</summary>
     public required bool MoonwalkEnabled { get; init; }
@@ -40,17 +44,21 @@ public sealed record GameSaveSlotJsonDocument
     /// <summary>Whether the alternate Japanese text setting is active.</summary>
     public required bool JapaneseText { get; init; }
 
-    /// <summary>The cumulative item-PLM setup count, retained as a native word rather than a percentage.</summary>
-    public required ushort LoadedItemCount { get; init; }
-
-    /// <summary>The checksummed cartridge debug word mirrored from WRAM <c>$09E6</c>.</summary>
-    public required ushort CartridgeDebugFlag { get; init; }
-
-    /// <summary>The checksummed new-file initialization marker mirrored from WRAM <c>$09E8</c>.</summary>
-    public required ushort NewFileMarker { get; init; }
     /// <summary>
-    /// Native $7E:D914 dispatcher word. Older JSON saves omitted this translated field and
-    /// therefore retain the ordinary state-five default.
+    /// The cumulative item-PLM setup count, not a percentage. Gameplay wraps it to zero after
+    /// <see cref="SaveFieldValue.MaximumValue"/>; the save only carries the value it reached.
     /// </summary>
-    public ushort LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
+    public required int LoadedItemCount { get; init; }
+
+    /// <summary>The checksummed cartridge debug value, carried unchanged.</summary>
+    public required int CartridgeDebugFlag { get; init; }
+
+    /// <summary>The checksummed new-file initialization marker, carried unchanged.</summary>
+    public required int NewFileMarker { get; init; }
+
+    /// <summary>
+    /// The startup dispatcher route, carried unchanged including values the dispatcher does not name. Older JSON
+    /// saves omitted this translated field and therefore retain the ordinary main-game default.
+    /// </summary>
+    public int LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
 }

@@ -67,7 +67,7 @@ internal static class GameSaveJsonVerification
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: 0,
             physicalButton: SnesButton.Y);
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Brinstar, SaveStation = 4, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = AreaId.Brinstar, SaveStation = 4, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(1, snapshot);
 
         // The former preservation-only word is the native reserve-missile accumulator.
@@ -98,7 +98,7 @@ internal static class GameSaveJsonVerification
         AssertTrue(restoredSlot.CollectedItems.HasAll(
             SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs | SamusEquipmentFlags.VariaSuit),
             "JSON collected equipment flags");
-        AssertTrue(restoredSlot.BossBytes.SequenceEqual(snapshot.BossBytes), "JSON boss flags");
+        AssertTrue(restoredSlot.BossBytes.Select(value => (BossBits)value).SequenceEqual(snapshot.BossFlags), "JSON boss flags");
         AssertTrue(restoredSlot.EventBytes.SequenceEqual(snapshot.EventBytes), "JSON event flags");
         AssertTrue(restoredSlot.ExploredMapBytes.SequenceEqual(snapshot.ExploredMapBytes),
             "JSON explored-map coordinates");
@@ -220,6 +220,53 @@ internal static class GameSaveJsonVerification
         Console.WriteLine("  Selected save slot: imported noncanonical SRAM decodes with the cartridge's range and complement rule.");
     }
 
+    /// <summary>
+    /// The JSON numbers the slot document now holds as <see cref="int"/> keep the range the schema always had: the
+    /// largest item-load count, debug value, dispatcher route and load station survive store, document, JSON, document
+    /// and store again with the same SRAM image, and a number outside its field's range is rejected at parse instead of
+    /// wrapping into the store.
+    /// </summary>
+    internal static void VerifyWidenedSlotFieldsJsonRoundTrip()
+    {
+        AreaMapPresentationCatalog maps = RetailPresentationFixture();
+        var store = new SaveSlotStore(maps);
+        var samus = new SamusState { Health = 99, MaxHealth = 99, ReserveMissiles = 7 };
+        var system = new Bank80SystemState { LoadedItemCount = ushort.MaxValue };
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system,
+            new SaveSnapshotContext { Area = AreaId.Maridia, SaveStation = SaveFieldValue.MaximumValue }) with
+        {
+            DebugFlag = SaveFieldValue.MaximumValue,
+            NewFileMarker = 0,
+            LoadingGameState = SaveFieldValue.MaximumValue,
+        };
+        store.SaveSlot(0, snapshot);
+        byte[] sram = SaveRamCodec.Encode(store, maps);
+
+        GameSaveJsonDocument document = GameSaveJsonCodec.Capture(store);
+        GameSaveSlotJsonDocument slot = document.Slots[0] ?? throw new InvalidOperationException("JSON capture lost slot 0.");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadedItemCount, "JSON carries the largest item-load count");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.CartridgeDebugFlag, "JSON carries the largest debug value");
+        AssertEqual(0, slot.NewFileMarker, "JSON carries a zero new-file marker");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.LoadingGameState, "JSON carries an unnamed dispatcher route unchanged");
+        AssertEqual(SaveFieldValue.MaximumValue, slot.Checkpoint.SaveStation, "JSON carries the largest load station");
+        AssertEqual(7, slot.Resources.ReserveMissiles, "JSON carries the reserve-missile count");
+
+        string json = GameSaveJsonCodec.Serialize(document);
+        GameSaveJsonDocument reparsed = GameSaveJsonCodec.Deserialize(json);
+        AssertEqual(json, GameSaveJsonCodec.Serialize(reparsed), "document -> JSON -> document is stable");
+        AssertTrue(sram.SequenceEqual(SaveRamCodec.Encode(GameSaveJsonCodec.ToStore(reparsed, maps), maps)),
+            "store -> document -> store rebuilds the same SRAM image byte for byte");
+
+        string Replaced(string from, string to) => json.Contains(from, StringComparison.Ordinal)
+            ? json.Replace(from, to, StringComparison.Ordinal)
+            : throw new InvalidOperationException($"The fixture JSON lacks {from}.");
+        AssertInvalidJsonSave(Replaced("\"loadedItemCount\": 65535", "\"loadedItemCount\": 65536"), "loadedItemCount");
+        AssertInvalidJsonSave(Replaced("\"newFileMarker\": 0", "\"newFileMarker\": -1"), "newFileMarker");
+        AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": -1"), "reserveMissiles");
+        AssertInvalidJsonSave(Replaced("\"reserveMissiles\": 7", "\"reserveMissiles\": 32768"), "reserveMissiles");
+        Console.WriteLine("  JSON save numbers: full-range slot fields round-trip exactly; out-of-range numbers are rejected at parse.");
+    }
+
     /// <summary>Confirms malformed save JSON is rejected with a diagnostic naming the invalid field or value.</summary>
     internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
@@ -243,6 +290,7 @@ internal static class GameSaveJsonVerification
         Suite(nameof(VerifyGameSaveJsonPersistence), () => VerifyGameSaveJsonPersistence());
         Suite(nameof(VerifySaveSchemaTranslation), () => VerifySaveSchemaTranslation());
         Suite(nameof(VerifySelectedSaveSlotDecode), () => VerifySelectedSaveSlotDecode());
+        Suite(nameof(VerifyWidenedSlotFieldsJsonRoundTrip), () => VerifyWidenedSlotFieldsJsonRoundTrip());
         return 0;
     }
 

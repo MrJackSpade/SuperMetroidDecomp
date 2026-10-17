@@ -11,10 +11,12 @@ internal sealed class MenuShoulderButtonArtwork
 {
     /// <summary>Two rounded edge tiles and two letter-bearing middle tiles form the pressed buttons.</summary>
     internal const int TileCount = 4;
-    /// <summary>Four-by-four source pixel mask for the L glyph.</summary>
-    private readonly ushort leftLetter;
-    /// <summary>Four-by-four source pixel mask for the R glyph.</summary>
-    private readonly ushort rightLetter;
+    /// <summary>Side length, in pixels, of the square L and R glyph drawings.</summary>
+    internal const int GlyphSize = 4;
+    /// <summary>Row-major four-by-four L glyph: true where the glyph draws in the shading colour.</summary>
+    private readonly bool[] leftLetter;
+    /// <summary>Row-major four-by-four R glyph: true where the glyph draws in the shading colour.</summary>
+    private readonly bool[] rightLetter;
     /// <summary>Imported pixels that differ from the calculated button pill and selected glyphs.</summary>
     internal readonly Dictionary<int, byte>? edits;
     /// <summary>Recognizes the four menu-atlas tiles used by pressed L and R buttons.</summary>
@@ -35,13 +37,13 @@ internal sealed class MenuShoulderButtonArtwork
                 if (pixel != Basis((MenuShoulderButtonCell)tile, new(checked((ushort)x), checked((ushort)y)))) (edits ??= []).Add(tile * 64 + y * 8 + x, pixel);
             }
         }
-        ushort ReadLetter(int tile)
+        bool[] ReadLetter(int tile)
         {
-            ushort bits = 0;
-            for (int y = 1; y <= 4; y++)
-            for (int x = 2; x <= 5; x++)
-                if (Source(tile, x, y) == 4) bits |= (ushort)(1 << ((y - 1) * 4 + x - 2));
-            return bits;
+            var glyph = new bool[GlyphSize * GlyphSize];
+            for (int y = 1; y <= GlyphSize; y++)
+            for (int x = 2; x < 2 + GlyphSize; x++)
+                glyph[(y - 1) * GlyphSize + x - 2] = Source(tile, x, y) == 4;
+            return glyph;
         }
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
@@ -59,8 +61,8 @@ internal sealed class MenuShoulderButtonArtwork
         if (point.Y == 7) return 0;
         if (cell is MenuShoulderButtonCell.L or MenuShoulderButtonCell.R && point.X is >= 2 and <= 5 && point.Y is >= 1 and <= 4)
         {
-            ushort glyph = cell == MenuShoulderButtonCell.L ? leftLetter : rightLetter;
-            if ((glyph & (1 << ((point.Y - 1) * 4 + point.X - 2))) != 0) return 4;
+            bool[] glyph = cell == MenuShoulderButtonCell.L ? leftLetter : rightLetter;
+            if (glyph[(point.Y - 1) * GlyphSize + point.X - 2]) return 4;
         }
         int position = point.X + cell switch
         {

@@ -3,13 +3,13 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 /// <summary>Cartridge values of <see cref="MenuShoulderButtonArtwork"/> that only verification reads.</summary>
 internal static class MenuShoulderButtonArtworkConstants
 {
-    /// <summary>Two 16-bit tile words stored for each menu shoulder-button glyph.</summary>
-    public const int StoredGlyphByteCount = 2 * sizeof(ushort);
+    /// <summary>Authored glyph pixels retained: the four-by-four L and R drawings.</summary>
+    public const int StoredGlyphPixelCount = 2 * MenuShoulderButtonArtwork.GlyphSize * MenuShoulderButtonArtwork.GlyphSize;
 
-    /// <summary>Provides the stored glyph byte count used to check menu shoulder button art extraction.</summary>
+    /// <summary>Provides the stored glyph pixel count used to check menu shoulder button art extraction.</summary>
     extension(MenuShoulderButtonArtwork)
     {
-        /// <inheritdoc cref="MenuShoulderButtonArtworkConstants.StoredGlyphByteCount"/>
-        internal static int StoredGlyphByteCount => MenuShoulderButtonArtworkConstants.StoredGlyphByteCount;
+        /// <inheritdoc cref="MenuShoulderButtonArtworkConstants.StoredGlyphPixelCount"/>
+        internal static int StoredGlyphPixelCount => MenuShoulderButtonArtworkConstants.StoredGlyphPixelCount;
     }
 }

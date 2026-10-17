@@ -298,7 +298,7 @@ public sealed class SamusShinesparkState
         // charges are still torn down without a sound call. The live projectile owner
         // contains the flare layers and previous-counter word, while Samus mirrors $0CD0
         // for movement decisions. Keep both views synchronized at this native seam.
-        ushort cancelledCharge = samus.ProjectileFlareCounter;
+        int cancelledCharge = samus.ProjectileFlareCounter;
         if (cancelledCharge != 0)
         {
             _projectiles?.Firing.CancelChargeForShinespark();

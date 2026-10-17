@@ -109,10 +109,10 @@ public sealed class SamusState
     public NativeCountdown AnimationFrameTimer { get; internal set; }
 
     /// <summary>
-    /// Delay added for speed/liquid physics at WRAM <c>$0A9A</c>. The translated standing
-    /// dry-room slice keeps this equal to <see cref="XSpeedDivisor"/>.
+    /// Delay, in updates, added to each animation frame for speed and liquid physics: zero, two or three, or the
+    /// <see cref="XSpeedDivisor"/> on dry ground; 0 through 65535.
     /// </summary>
-    public ushort AnimationFrameBuffer { get; internal set; }
+    public int AnimationFrameBuffer { get; internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// Exact bank-$90 fixed-point horizontal-speed registers used by ordinary grounded
@@ -317,9 +317,10 @@ public sealed class SamusState
     /// <summary>
     /// WRAM <c>SamusProjectile_FlareCounter</c>. Values at least $003C mean the charge
     /// beam is fully charged; spin and wall-jump movement use that producer-owned word to
-    /// publish contact-damage index four without owning the projectile charge lifecycle.
+    /// publish contact-damage index four without owning the projectile charge lifecycle. It mirrors the projectile
+    /// charge's flare counter, 0 through 65535.
     /// </summary>
-    public ushort ProjectileFlareCounter { get; set; }
+    public int ProjectileFlareCounter { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// WRAM <c>$0CD0</c>, the shared bomb-spread charge timeout. The cartridge clears this

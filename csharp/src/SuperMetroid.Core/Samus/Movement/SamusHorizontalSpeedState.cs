@@ -326,7 +326,7 @@ public sealed class SamusHorizontalSpeedState
         SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue? mode7Residue,
         SamusMovementType movementType,
         SnesButton controllerInput,
-        ushort animationFrameBuffer,
+        int animationFrameBuffer,
         ref ushort animationFrame,
         out ushort animationFrameTimer,
         Func<ushort>? queueEchoSound = null)

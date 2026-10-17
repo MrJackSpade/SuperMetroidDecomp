@@ -2392,7 +2392,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // Native pose initialization computes its own local delay without replacing
         // the buffer published by this frame's FX pass. Command three adds that live
         // buffer once more after installing the new animation.
-        ushort commandAnimationBuffer = _samus.AnimationFrameBuffer;
+        int commandAnimationBuffer = _samus.AnimationFrameBuffer;
 
         bool verified = (_samus.Pose, targetPose) is
             (SamusPoseId.TurningRightToLeftPose, SamusPoseId.FacingLeftNormalPose) or

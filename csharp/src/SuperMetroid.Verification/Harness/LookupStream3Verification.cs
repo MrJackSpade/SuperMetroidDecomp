@@ -150,9 +150,10 @@ internal static class LookupStream3Verification
                 AssertTrue(expected[frame].SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
             var vram = new SnesVram();
             var objects = new IntroCinematicObjectSystem(vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
+            IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {
-                objects.ProcessTileData((ushort)(17 | 13 << 8), (ushort)(0xd781 + frame * 16));
+                objects.ShowEyeFrame(eyeFrames[frame]);
                 for (int cell = 0; cell < 6; cell++)
                     AssertEqual(expected[frame][cell], vram.ReadWord(0x4800 + (13 + cell / 3) * 32 + 17 + cell % 3),
                         "actual eye patch draw preserves native and independently supplied cells");
@@ -995,10 +996,10 @@ internal static class LookupStream3Verification
          IntroCinematicRomData.Palette.Narration, IntroCinematicRomData.Palette.Discovery];
         IntroPaletteSpan[][] expectedIntroRegions =
         [
-            [new(0, 20), new(96, 16), new(466, 6)],
-            [new(0, 16), new(96, 16), new(466, 6)],
-            [new(40, 3), new(224, 16), new(384, 32), new(480, 16)],
-            [new(64, 16), new(448, 9)],
+            [new(0, 20), new(48, 16), new(233, 6)],
+            [new(0, 16), new(48, 16), new(233, 6)],
+            [new(20, 3), new(112, 16), new(192, 32), new(240, 16)],
+            [new(32, 16), new(224, 9)],
         ];
         int[][] nativeIntroOperands =
         [ [0x8bb258, 0x8bb261, 0x8bb26a], [0x8bb3c8, 0x8bb3d1, 0x8bb3da],
@@ -1012,9 +1013,10 @@ internal static class LookupStream3Verification
                 int address = nativeIntroOperands[group][index];
                 AssertEqual((byte)0xa2, rom.ReadCartridgeByte(address), "stream 3 intro native LDX region");
                 AssertEqual((byte)0xa0, rom.ReadCartridgeByte(address + 3), "stream 3 intro native LDY color count");
-                AssertEqual((int)introRegions[group][index].ByteOffset,
+                // The native X operand is the first color's byte offset into the two-byte palette entries.
+                AssertEqual(introRegions[group][index].FirstColor * 2,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 1), "stream 3 intro native offset");
-                AssertEqual((int)introRegions[group][index].ByteCount,
+                AssertEqual(introRegions[group][index].ColorCount,
                     CartridgeImportSource.Require(rom).ReadCartridgeWord(address + 4), "stream 3 intro native count");
             }
             foreach (int invalid in new[] { -1, introRegions[group].Count, int.MaxValue })

@@ -20,12 +20,13 @@ internal static class IntroRinkaSpriteArtworkVerification
     /// <summary>Draws a live intro actor from cartridge spritemap data with native origin clipping.</summary>
     internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
-        if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
+        ushort spritemap = CinematicSpritePoseSpritemaps.Of(actor.Pose);
+        if (!actor.IsActive || spritemap == 0) return;
         ushort y = actor.WholePosition.Y;
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
-            ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, actor.SpriteMapPointer)),
-            new(actor.WholePosition.X, y), actor.PaletteBits,
+            ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, spritemap)),
+            new(actor.WholePosition.X, y), actor.Attributes.Raw,
             originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
     /// <summary>Compares installed Rinka OAM and flashback pixels with native art, then verifies a palette override and rebinding.</summary>

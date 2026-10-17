@@ -24,12 +24,4 @@ internal static class CinematicInstructionWords
             ? instruction
             : throw new InvalidDataException(
                 $"Cinematic pre-instruction $8B:{word:X4} of an actor running {program} is not a {typeof(TPreInstruction).Name}.");
-
-    /// <summary>Decodes <paramref name="word"/>, read at <paramref name="address"/>, or throws.</summary>
-    public static TInstruction Decode<TInstruction>(ushort word, ushort address)
-        where TInstruction : struct, Enum =>
-        TryDecode(word, out TInstruction instruction)
-            ? instruction
-            : throw new InvalidDataException(
-                $"Cinematic word $8B:{word:X4} at $8B:{address:X4} is not a {typeof(TInstruction).Name}.");
 }

@@ -203,7 +203,7 @@ internal static class IntroNarrationPresentationVerification
         AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory);
         AssertEqual(IntroNarrationDefinitions.CompileGlyph('T'),
-            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].TilemapWord,
+            edited.IntroNarration.Compile(IntroNarrationPageId.Page1)[0].TilemapWord.Raw,
             "catalog override changes installed opening narration");
         AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
             "opening-narration override changes catalog content identity");

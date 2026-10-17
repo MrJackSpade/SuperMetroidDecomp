@@ -48,14 +48,11 @@ public sealed class CinematicPaletteFader
         }
     }
 
-    /// <summary>Ports <c>ClearYColorsFromIndexX</c> at $8B:8C5E.</summary>
-    /// <param name="paletteByteOffset">
-    /// Native X is a byte offset into a BGR555 palette, so $28 means color index $14.
-    /// </param>
-    /// <param name="colorCount">Native Y, measured in complete colors.</param>
-    public void Clear(ushort paletteByteOffset, ushort colorCount)
+    /// <summary>Ports <c>ClearYColorsFromIndexX</c> at $8B:8C5E: the span's colors become black.</summary>
+    /// <param name="span">The colors to clear.</param>
+    public void Clear(IntroPaletteSpan span)
     {
-        (int firstColor, int exclusiveEnd) = ValidateRange(paletteByteOffset, colorCount);
+        (int firstColor, int exclusiveEnd) = ValidateRange(span);
         for (int color = firstColor; color < exclusiveEnd; color++)
         {
             currentRed[color] = 0;
@@ -64,10 +61,11 @@ public sealed class CinematicPaletteFader
         }
     }
 
-    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c> at $8B:8C83.</summary>
-    public void FadeOut(ushort paletteByteOffset, ushort colorCount)
+    /// <summary>Ports <c>FadeOutYColorsFromIndexX</c> at $8B:8C83: the span's colors take one step toward black.</summary>
+    /// <param name="span">The colors to fade.</param>
+    public void FadeOut(IntroPaletteSpan span)
     {
-        (int firstColor, int exclusiveEnd) = ValidateRange(paletteByteOffset, colorCount);
+        (int firstColor, int exclusiveEnd) = ValidateRange(span);
         for (int color = firstColor; color < exclusiveEnd; color++)
         {
             // Native SBC stores a wrapping 16-bit result. The known intro ranges reach
@@ -79,10 +77,11 @@ public sealed class CinematicPaletteFader
         }
     }
 
-    /// <summary>Ports <c>FadeInYColorsFromIndexX</c> at $8B:8CB2.</summary>
-    public void FadeIn(ushort paletteByteOffset, ushort colorCount)
+    /// <summary>Ports <c>FadeInYColorsFromIndexX</c> at $8B:8CB2: the span's colors take one step toward their target.</summary>
+    /// <param name="span">The colors to fade.</param>
+    public void FadeIn(IntroPaletteSpan span)
     {
-        (int firstColor, int exclusiveEnd) = ValidateRange(paletteByteOffset, colorCount);
+        (int firstColor, int exclusiveEnd) = ValidateRange(span);
         for (int color = firstColor; color < exclusiveEnd; color++)
         {
             // The wrap to thirteen bits (the $1FFF mask) is not a generic clamp. It is present
@@ -110,20 +109,12 @@ public sealed class CinematicPaletteFader
         new CgramPalettes(cgram).LoadImage(image);
     }
 
-    /// <summary>Converts an aligned palette byte offset and nonempty count to a bounded CGRAM color interval.</summary>
-    private static (int FirstColor, int ExclusiveEnd) ValidateRange(
-        ushort paletteByteOffset,
-        ushort colorCount)
+    /// <summary>Converts a nonempty span to a bounded palette color interval.</summary>
+    private static (int FirstColor, int ExclusiveEnd) ValidateRange(IntroPaletteSpan span)
     {
-        if ((paletteByteOffset & 1) != 0)
-            throw new ArgumentOutOfRangeException(nameof(paletteByteOffset), "Palette byte offsets must be word-aligned.");
-        if (colorCount == 0)
-            throw new ArgumentOutOfRangeException(nameof(colorCount), "The native do/while routine requires at least one color.");
-
-        int firstColor = paletteByteOffset / 2;
-        int exclusiveEnd = firstColor + colorCount;
-        if (exclusiveEnd > CgramPalettes.ColorCount)
-            throw new ArgumentOutOfRangeException(nameof(colorCount), "Palette range leaves the 256-color buffer.");
-        return (firstColor, exclusiveEnd);
+        // The native do/while routine handles at least one color, and the run stays inside the 256-color buffer.
+        int firstColor = Ensure.BetweenInclusive(0, CgramPalettes.ColorCount - 1, span.FirstColor);
+        int colorCount = Ensure.BetweenInclusive(1, CgramPalettes.ColorCount - firstColor, span.ColorCount);
+        return (firstColor, firstColor + colorCount);
     }
 }

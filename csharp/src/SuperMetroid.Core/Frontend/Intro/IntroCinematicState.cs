@@ -227,8 +227,11 @@ public sealed class IntroCinematicState
     private NativeCountdown crossfadeCounter;
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
     private NativeCountdown introCrossfadeCounter;
-    /// <summary>Frame counter passed to shared Samus systems during flashback updates.</summary>
-    private ushort nmiFrameCounter;
+    /// <summary>
+    /// Updates the cinematic has run, counted from zero at its creation; the shared Samus systems receive it through
+    /// <see cref="NmiFrameWord"/> as their frame-counter word.
+    /// </summary>
+    private int elapsedUpdates;
     /// <summary>$51: the INIDISP byte the cinematic fades; the intro starts in forced blank.</summary>
     internal int inidisp = ScreenFade.ForcedBlank;
     /// <summary>Controls master INIDISP fades at cinematic entry and exit.</summary>
@@ -349,7 +352,7 @@ public sealed class IntroCinematicState
         // skipping both the options menu and the first narration page.
         controller.Latch(controllerInput);
         bool explosionsExistedBeforeThisFrame = flashbackMotherBrainExplosions is not null;
-        nmiFrameCounter++;
+        elapsedUpdates = unchecked(elapsedUpdates + 1);
         switch (Phase)
         {
             case IntroCinematicPhase.Initial:
@@ -619,7 +622,7 @@ public sealed class IntroCinematicState
             flashbackMotherBrain.RunPreInstruction(
                 cgram,
                 introPalette,
-                nmiFrameCounter,
+                NmiFrameWord(elapsedUpdates),
                 crossfadeCounter.RawValue);
             // $8B:B842: deleting Mother Brain after the page-two crossfade hides Samus from
             // the next dispatch on.
@@ -657,7 +660,7 @@ public sealed class IntroCinematicState
 
         // Handle_CinematicSpriteObjects ($8B:93EF) runs after the cinematic function, so the
         // actors a scene setup spawns take their first step in that same dispatch.
-        babyDiscovery?.Step(nmiFrameCounter, crossfadeCounter.RawValue);
+        babyDiscovery?.Step(NmiFrameWord(elapsedUpdates), crossfadeCounter.RawValue);
         scientistCutscene?.Step(crossfadeCounter.RawValue, introCrossfadeCounter.RawValue);
     }
 
@@ -1048,12 +1051,12 @@ public sealed class IntroCinematicState
         {
             // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            SamusKnockbackMovement.Step(level, samus, nmiFrameCounter);
+            SamusKnockbackMovement.Step(level, samus, NmiFrameWord(elapsedUpdates));
         }
         else if (samus.Pose is SamusPoseId.KnockbackRightPose or SamusPoseId.KnockbackLeftPose)
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
-level, samus, nmiFrameCounter);
+level, samus, NmiFrameWord(elapsedUpdates));
         }
         else if (flashbackDemoInput?.Enabled == true &&
             (SamusPoseMetadata.IsLeftFacingStandingPose(samus.Pose) || SamusPoseMetadata.IsLeftFacingRunningPose(samus.Pose)))
@@ -1061,18 +1064,18 @@ level, samus, nmiFrameCounter);
             // The demo's later run/jump records use the same alpha/beta order as the
             // discovery scene. This coordinator already animates and commits its pose.
             IntroSamusDemoMovement.StepGroundedLeft(level, samus, demoInput,
-                flashbackDemoInput.NewlyPressed, nmiFrameCounter);
+                flashbackDemoInput.NewlyPressed, NmiFrameWord(elapsedUpdates));
             groundedDemoStepped = true;
         }
         else if (samus.Pose == SamusPoseId.SpinJumpLeftPose)
         {
             fallingMovement = SamusAerialMovement.StepSpinJump(level, samus,
-                demoInput, nmiFrameCounter, flashbackDemoInput?.NewlyPressed ?? 0);
+                demoInput, NmiFrameWord(elapsedUpdates), flashbackDemoInput?.NewlyPressed ?? 0);
         }
         else if (SamusPoseMetadata.IsLeftFacingNormalJumpPose(samus.Pose))
         {
             fallingMovement = SamusAerialMovement.StepNormalJump(level, samus,
-                demoInput, nmiFrameCounter);
+                demoInput, NmiFrameWord(elapsedUpdates));
         }
         else if (samus.Pose is SamusPoseId.FallingRightPose or SamusPoseId.FallingLeftPose)
         {
@@ -1084,13 +1087,13 @@ level, samus, nmiFrameCounter);
                 level,
                 samus,
                 demoInput,
-                nmiFrameCounter);
+                NmiFrameWord(elapsedUpdates));
         }
 
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = nmiFrameCounter });
+            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = NmiFrameWord(elapsedUpdates) });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode
@@ -1102,7 +1105,7 @@ level, samus, nmiFrameCounter);
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            samus.PoseTransitions.ApplyWalkedOffFloorTransition(level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), nmiFrameCounter);
+            samus.PoseTransitions.ApplyWalkedOffFloorTransition(level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), NmiFrameWord(elapsedUpdates));
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1193,10 +1196,10 @@ level, samus, nmiFrameCounter);
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+            FlashbackSamus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
             // The flashback's VRAM holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(ProjectileCompositions, projectilePages, EquippedBeams: 0);
-            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, nmiFrameCounter, projectileArtwork);
+            flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates), projectileArtwork);
             flashbackProjectiles.AdvanceTrails(timeIsFrozen: false, TrailArtwork);
             flashbackProjectiles.DrawTrails(sprites, Position16<RoomPixels>.Zero, TrailArtwork, projectileArtwork);
             flashbackProjectiles.DrawExplosions(sprites, Position16<RoomPixels>.Zero, projectileArtwork);
@@ -1205,13 +1208,16 @@ level, samus, nmiFrameCounter);
         flashbackMotherBrainExplosions?.Draw(oam,
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
-        if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.SpriteMapPointer != 0)
+        // The blank pose's spritemap draws nothing.
+        if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
+            CinematicSpritePoseDefinitions.Spritemap(motherBrainPose) is var motherBrainSpritemap &&
+            motherBrainSpritemap != 0)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
-                FlashbackMotherBrain.SpriteMapPointer, oam,
+                motherBrainSpritemap, oam,
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
@@ -1246,7 +1252,7 @@ level, samus, nmiFrameCounter);
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
         BabyDiscovery.Samus.Presentation.TileTransfers.TransferToVram(vram);
-        BabyDiscovery.Samus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, nmiFrameCounter);
+        BabyDiscovery.Samus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>
@@ -1266,7 +1272,9 @@ level, samus, nmiFrameCounter);
         var sprites = new SpriteFrameBuffer();
         sprites.BeginFrame();
         OamBuffer oam = sprites.Oam;
-        if (Objects.SpriteMapPointer != 0)
+        // The caret's blank pose, shown while it blinks off, draws nothing.
+        if (Objects.CaretPose is { } caretPose &&
+            CinematicSpritePoseDefinitions.Spritemap(caretPose) is var caretSpritemap && caretSpritemap != 0)
         {
             // The persistent caret begins at (8,24), moves to (8,$F8) during illustrated
             // crossfades, and is restored when the next narration page starts.
@@ -1274,7 +1282,7 @@ level, samus, nmiFrameCounter);
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
-                Objects.SpriteMapPointer, oam, Objects.Caret.ToOam(),
+                caretSpritemap, oam, Objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         sprites.FinalizeFrame();
@@ -1363,21 +1371,21 @@ level, samus, nmiFrameCounter);
     private void ClearPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
-            PaletteFader.Clear(span.ByteOffset, span.ByteCount);
+            PaletteFader.Clear(span);
     }
 
     /// <summary>Raises selected CGRAM components toward the prepared palette target for the incoming scene.</summary>
     private void FadeInPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
-            PaletteFader.FadeIn(span.ByteOffset, span.ByteCount);
+            PaletteFader.FadeIn(span);
     }
 
     /// <summary>Reduces selected palette components during a scene-to-text or text-to-scene fade.</summary>
     private void FadeOutPaletteSpans(IntroCinematicRomData.Palette.Regions spans)
     {
         foreach (IntroPaletteSpan span in spans)
-            PaletteFader.FadeOut(span.ByteOffset, span.ByteCount);
+            PaletteFader.FadeOut(span);
     }
 
     /// <summary>Rejects truncated installed graphics before their native-sized VRAM transfers.</summary>
@@ -1399,8 +1407,9 @@ level, samus, nmiFrameCounter);
             IntroCinematicPhase.MotherBrainFlashback or IntroCinematicPhase.PageTwoCrossfade)
         {
             oam = PrepareMotherBrainOam();
-            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord, new(0,
-                flashbackMotherBrain?.BackgroundVerticalScroll ?? GameplayFlashbackBg1VerticalScroll));
+            room = Plane(IntroCinematicRomData.Layers.SceneBg1TilemapWord,
+                (flashbackMotherBrain?.Background ??
+                    new Position16<RoomPixels>(0, GameplayFlashbackBg1VerticalScroll)).AsBgPlaneScroll());
         }
         else if (Phase is IntroCinematicPhase.BabyDiscoveryCrossfade or
             IntroCinematicPhase.BabyDiscovery or IntroCinematicPhase.PageThreeCrossfade)
@@ -1414,7 +1423,7 @@ level, samus, nmiFrameCounter);
             IntroCinematicPhase.BabyMetroidExamination or IntroCinematicPhase.PageFiveCrossfade)
         {
             oam = PrepareScientistOam();
-            room = Plane(ScientistCutscene.TilemapBaseWord, ScientistCutscene.Background.AsBgPlaneScroll());
+            room = Plane(IntroVram.LaboratoryTilemapWord(ScientistCutscene.Scene), ScientistCutscene.Background.AsBgPlaneScroll());
         }
         else if (objects is null)
         {
@@ -1446,6 +1455,12 @@ level, samus, nmiFrameCounter);
             new ObjPriorityRenderLayer(3), text with { Priority = true },
         }, MenuRenderDefinitions.ObjectSelection, ScreenFade.Displayed(inidisp));
     }
+
+    /// <summary>
+    /// The shared Samus systems' frame-counter word after <paramref name="elapsedUpdates"/> updates: its low sixteen
+    /// bits, which return to zero every 65536 updates exactly as the cartridge's sixteen-bit counter does.
+    /// </summary>
+    internal static ushort NmiFrameWord(int elapsedUpdates) => unchecked((ushort)elapsedUpdates);
 
     /// <summary>Defines a four-bit background plane at the selected tilemap and source scroll.</summary>
     private static Bg4BppRenderLayer Plane(ushort tilemap, Position16<BgPlanePixels> scroll) =>

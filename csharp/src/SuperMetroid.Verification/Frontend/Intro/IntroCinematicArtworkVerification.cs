@@ -622,18 +622,15 @@ internal static class IntroCinematicArtworkVerification
         editedJson.Position = 0;
         IntroEyeTilemapPresentation edited = IntroEyeTilemapPresentation.Load(editedJson);
         NativeCountdown timer = installed.eyeInstructionTimer;
-        ushort pointer = installed.eyeInstructionPointer;
+        var program = installed.eyeProgram;
         installed.BindEyeArtwork(edited);
         AssertEqual(timer, installed.eyeInstructionTimer,
             "eye art rebind preserves blink timer");
-        AssertEqual(pointer, installed.eyeInstructionPointer,
-            "eye art rebind preserves blink script position");
-        int packedPosition = SnesLittleEndian.Word(IntroEyeAnimationDefinitions.ReadByte(
-            (ushort)(IntroEyeAnimationDefinitions.StartPointer + 2)),IntroEyeAnimationDefinitions.ReadByte(
-                (ushort)(IntroEyeAnimationDefinitions.StartPointer + 3)));
+        AssertEqual(program, installed.eyeProgram,
+            "eye art rebind preserves blink program position");
+        var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
         int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
-            SnesLittleEndian.HighByte(unchecked((ushort)packedPosition)) * IntroCinematicRomData.Layers.TilemapWidth +
-            (packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask);
+            eyeCell.Y * IntroCinematicRomData.Layers.TilemapWidth + eyeCell.X;
         AssertEqual(edited.FrameWords(0)[0], installedVram.ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
         installed.BindEyeArtwork(stock.EyeFrames);
@@ -766,9 +763,9 @@ internal static class IntroCinematicArtworkVerification
             nativeBlink.Step(0);
             installedBlink.Step(0);
             ushort expected = (frame / 5) % 2 == 0 ? IntroCaretSpriteDefinitions.Still : (ushort)0;
-            AssertEqual(expected, nativeBlink.SpriteMapPointer,
+            AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(nativeBlink.CaretPose),
                 $"native caret blink selects visible/blank frame at frame {frame}");
-            AssertEqual(expected, installedBlink.SpriteMapPointer,
+            AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(installedBlink.CaretPose),
                 $"installed caret blink selects visible/blank frame at frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

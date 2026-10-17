@@ -31,7 +31,7 @@ internal static class IntroEggEffectDefinitionsVerification
         {
             particles[index].Step();
             var sprite = particles[index].sprite;
-            AssertEqual((ushort)(0x8f7e + index * 7), sprite.SpriteMapPointer,
+            AssertEqual((ushort)(0x8f7e + index * 7), CinematicSpritePoseSpritemaps.Of(sprite.Pose),
                 $"intro egg fragment {index} selects its own first visual frame");
         }
         for (int frame = 0; frame < 128 && particles.Any(static actor => actor.IsActive); frame++)
@@ -54,7 +54,7 @@ internal static class IntroEggEffectDefinitionsVerification
         for (int frame = 0; frame < 40; frame++)
         {
             impact.Step();
-            AssertEqual((ushort)(0x8faf + frame / 10 * 7), impactSprite.SpriteMapPointer,
+            AssertEqual((ushort)(0x8faf + frame / 10 * 7), CinematicSpritePoseSpritemaps.Of(impactSprite.Pose),
                 $"intro slime impact frame {frame} selects native puddle art");
         }
         impact.Step();

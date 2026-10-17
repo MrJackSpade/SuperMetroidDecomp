@@ -530,7 +530,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
         "intro gameplay flashback inherited BG1 vertical scroll");
 
     var motherBrain = new IntroMotherBrainSpriteState();
-    AssertEqual(8, motherBrain.BackgroundVerticalScroll,
+    AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain starts from inherited BG1 vertical scroll");
 
     // Four impacts select `$8B:B80F`. Its `$8B:B877` shake adds four on an even frame and
@@ -540,11 +540,12 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     var cgram = new SnesCgram();
     var introPalette = new ushort[SnesCgram.ColorCount];
     motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 2, introCrossfadeTimer: 0x7f);
-    AssertEqual(12, motherBrain.BackgroundVerticalScroll,
+    AssertEqual(12, motherBrain.Background.Y,
         "intro Mother Brain even-frame shake adds four to inherited scroll");
     motherBrain.RunPreInstruction(cgram, ToColors(introPalette), cinematicFrameCounter: 3, introCrossfadeTimer: 0x7f);
-    AssertEqual(8, motherBrain.BackgroundVerticalScroll,
+    AssertEqual(8, motherBrain.Background.Y,
         "intro Mother Brain odd-frame shake returns to inherited scroll");
+    AssertEqual(0, motherBrain.Background.X, "intro Mother Brain shake leaves BG1 horizontal scroll at zero");
 
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
@@ -561,28 +562,29 @@ internal static void VerifyCinematicPaletteFader()
     var fader = new CinematicPaletteFader(ToColors(target));
 
     // $8B:B018 clears incoming range $28/$03. Because X is a byte offset, the first
-    // affected entry is color $14 rather than color $28.
-    fader.Clear(0x0028, 3);
+    // affected entry is color 20; the span names that color directly.
+    var color20 = new IntroPaletteSpan(20, 1);
+    fader.Clear(new IntroPaletteSpan(20, 3));
     fader.ComposeInto(cgram);
-    AssertEqual(0x0000, cgram.Colors[20], "cinematic clear uses byte-offset color index");
+    AssertEqual(0x0000, cgram.Colors[20], "cinematic clear starts at the span's first color");
 
     // One retail step adds component four << 3 = $0020. Compose takes the high byte,
     // so the first seven calls remain black and the eighth produces component one.
     for (int step = 0; step < 7; step++)
-        fader.FadeIn(0x0028, 1);
+        fader.FadeIn(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x0000, cgram.Colors[20], "8.8 cinematic fade preserves early rounding");
-    fader.FadeIn(0x0028, 1);
+    fader.FadeIn(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x0421, cgram.Colors[20], "eighth fade step reaches BGR component one");
 
     for (int step = 8; step < 32; step++)
-        fader.FadeIn(0x0028, 1);
+        fader.FadeIn(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x1084, cgram.Colors[20], "32 fade-in calls reach exact target");
 
     for (int step = 0; step < 32; step++)
-        fader.FadeOut(0x0028, 1);
+        fader.FadeOut(color20);
     fader.ComposeInto(cgram);
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }

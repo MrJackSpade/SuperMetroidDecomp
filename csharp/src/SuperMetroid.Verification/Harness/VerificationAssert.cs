@@ -2305,7 +2305,7 @@ internal static class VerificationAssert
         return 0;
     }
 
-    /// <summary>Checks intro eye actor frame programs and selectors.</summary>
+    /// <summary>Checks the typed intro eye programs against the cartridge's native eye lists.</summary>
     [VerificationCommand("--lookup-intro-eye-instructions")]
     internal static int LookupIntroEyeInstructionsCommand()
     {
@@ -2313,7 +2313,7 @@ internal static class VerificationAssert
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro eye oracle revision");
         Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(rom));
-        Console.WriteLine("Intro eye programs: all74 bytes, overlapping words, loop targets and read boundaries pass.");
+        Console.WriteLine("Intro eye programs: blinking and final-page programs match the native eye lists frame for frame and countdown for countdown.");
         return 0;
     }
 

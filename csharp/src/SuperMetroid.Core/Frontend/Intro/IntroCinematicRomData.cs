@@ -192,21 +192,21 @@ public static class IntroCinematicRomData
         /// <summary>$8B:B3C8/B3CB: gameplay initialization clears only the first background row.</summary>
         private static IntroPaletteSpan GameplayClearBackground => new(0, 16);
         /// <summary>$8B:B261/B264: gameplay background row 3.</summary>
-        private static IntroPaletteSpan GameplayEnvironment => new(3 * 32, 16);
+        private static IntroPaletteSpan GameplayEnvironment => new(3 * 16, 16);
         /// <summary>$8B:B26A/B26D: six colors at object row 6, color 9.</summary>
-        private static IntroPaletteSpan GameplaySamus => new((8 + 6) * 32 + 9 * 2, 6);
+        private static IntroPaletteSpan GameplaySamus => new((8 + 6) * 16 + 9, 6);
         /// <summary>$8B:B273/B276: three narration colors at background row 1, color 4.</summary>
-        private static IntroPaletteSpan NarrationText => new(32 + 4 * 2, 3);
+        private static IntroPaletteSpan NarrationText => new(16 + 4, 3);
         /// <summary>$8B:B27C/B27F: narration background row 7.</summary>
-        private static IntroPaletteSpan NarrationBackground => new(7 * 32, 16);
+        private static IntroPaletteSpan NarrationBackground => new(7 * 16, 16);
         /// <summary>$8B:B285/B288: two narration object rows starting at row 4.</summary>
-        private static IntroPaletteSpan NarrationPortrait => new((8 + 4) * 32, 2 * 16);
+        private static IntroPaletteSpan NarrationPortrait => new((8 + 4) * 16, 2 * 16);
         /// <summary>$8B:B28E/B291: narration object row 7.</summary>
-        private static IntroPaletteSpan NarrationObjects => new((8 + 7) * 32, 16);
+        private static IntroPaletteSpan NarrationObjects => new((8 + 7) * 16, 16);
         /// <summary>$8B:B2F5/B2F8, CrossFadeToScientistCutscene: background row 2.</summary>
-        private static IntroPaletteSpan DiscoveryBackground => new(2 * 32, 16);
+        private static IntroPaletteSpan DiscoveryBackground => new(2 * 16, 16);
         /// <summary>$8B:B2FE/B301: nine scientist cutscene colors in object row 6.</summary>
-        private static IntroPaletteSpan DiscoveryObjects => new((8 + 6) * 32, 9);
+        private static IntroPaletteSpan DiscoveryObjects => new((8 + 6) * 16, 9);
     }
 
     /// <summary>Music operations performed by the intro's major scene handoffs.</summary>
@@ -272,17 +272,9 @@ public static class IntroCinematicRomData
         public const ushort CaretLeftX = 8;
         /// <summary>Vertical caret position of the first narration line.</summary>
         public const ushort CaretFirstTextY = 24;
-        /// <summary>Mask selecting the X coordinate from a packed position word.</summary>
-        public const int PackedPositionXMask = 0x00ff;
         /// <summary>Width and height of one text character in pixels.</summary>
         public const int CharacterPixelSize = 8;
         /// <summary>Pixel offset from a character origin to its baseline.</summary>
         public const int CharacterBaselineOffset = 8;
-        /// <summary>Bytes between a record's duration and packed position.</summary>
-        public const int RecordDurationToPositionByteCount = 2;
-        /// <summary>Bytes between a record's duration and data pointer.</summary>
-        public const int RecordDurationToDataPointerByteCount = 4;
-        /// <summary>Size in bytes of one background-object record.</summary>
-        public const int BackgroundRecordByteCount = 6;
     }
 }

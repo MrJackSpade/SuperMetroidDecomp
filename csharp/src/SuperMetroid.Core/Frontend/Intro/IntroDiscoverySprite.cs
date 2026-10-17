@@ -24,7 +24,7 @@ internal sealed class IntroDiscoverySprite
         CinematicSpriteProgram program)
     {
         Position = new(new(position.X, 0), new(position.Y, 0));
-        PaletteBits = paletteBits;
+        Attributes = new(paletteBits);
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
     }
 
@@ -41,14 +41,14 @@ internal sealed class IntroDiscoverySprite
         set => Position = new(Position.X.WithWhole(value.X), Position.Y.WithWhole(value.Y));
     }
 
-    /// <summary>Native OBJ attribute bits applied to the current spritemap's tiles.</summary>
-    public ushort PaletteBits { get; private set; }
+    /// <summary>The OBJ palette, priority and flips applied to the current pose's tiles where a part does not set its own.</summary>
+    public SnesObjAttributeWord Attributes { get; private set; }
 
-    /// <summary>Applies a cinematic callback's native OBJ palette/attribute write.</summary>
-    public void SetAttributes(SnesObjAttributeWord attributes) => PaletteBits = attributes.Raw;
+    /// <summary>Applies a cinematic callback's OBJ palette/attribute write.</summary>
+    public void SetAttributes(SnesObjAttributeWord attributes) => Attributes = attributes;
 
-    /// <summary>Frame pointer most recently published by a timed instruction.</summary>
-    public ushort SpriteMapPointer { get; private set; }
+    /// <summary>The pose the program most recently showed; null before its first frame and after deletion.</summary>
+    internal CinematicSpritePose? Pose { get; private set; }
 
     /// <summary>Where the actor's program resumes, in place of <c>CinematicSpriteObject_InstListPointers</c>.</summary>
     internal AnimationProgramCursor<CinematicSpriteProgram> Program { get; private set; }
@@ -93,11 +93,11 @@ internal sealed class IntroDiscoverySprite
     /// opcodes $94C3/$94D6; conflating the two makes a delayed actor interpret its first
     /// frame immediately while merely changing an unrelated loop counter.
     /// </remarks>
-    public void DelayFirstInstruction(ushort frames)
+    public void DelayFirstInstruction(int frames)
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
-        instructionTimer = NativeCountdown.FromRaw(frames);
+        instructionTimer = NativeCountdown.Start(frames);
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ internal sealed class IntroDiscoverySprite
     public void Delete()
     {
         IsActive = false;
-        SpriteMapPointer = 0;
+        Pose = null;
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ internal sealed class IntroDiscoverySprite
         {
             case AnimationProgramAdvanceKind.Show:
                 instructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
-                SpriteMapPointer = CinematicSpritePoseDefinitions.Spritemap(advance.Frame);
+                Pose = advance.Frame;
                 return;
             case AnimationProgramAdvanceKind.Hold:
                 return;
@@ -179,7 +179,11 @@ internal sealed class IntroDiscoverySprite
     public void Draw(OamBuffer oam, Offset16<ScreenPixels> scroll = default,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
-        if (!IsActive || SpriteMapPointer == 0)
+        if (!IsActive || Pose is not { } pose)
+            return;
+        // The blank pose's spritemap draws nothing.
+        ushort spritemap = CinematicSpritePoseDefinitions.Spritemap(pose);
+        if (spritemap == 0)
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
         ushort y = origin.Y;
@@ -192,6 +196,6 @@ internal sealed class IntroDiscoverySprite
             ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);
+            .Draw(spritemap, oam, origin.ToOam(), Attributes.Raw, originIsOnScreen);
     }
 }

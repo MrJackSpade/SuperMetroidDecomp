@@ -27,4 +27,12 @@ public readonly struct IntroVram(SnesVram vram)
 
     /// <summary>Cinematic OBJ characters.</summary>
     public VramRegion CinematicObjectCharacters => new(vram, IntroVramLayout.CinematicObjectCharacters);
+
+    /// <summary>The VRAM word base of the background page that <paramref name="scene"/> shows, for its render layer.</summary>
+    internal static ushort LaboratoryTilemapWord(IntroLaboratoryScene scene) => scene switch
+    {
+        IntroLaboratoryScene.Delivery => IntroCinematicRomData.Layers.ScientistTilemapWord,
+        IntroLaboratoryScene.Examination => IntroCinematicRomData.Layers.ScientistExaminationTilemapWord,
+        _ => throw new ArgumentOutOfRangeException(nameof(scene), scene, "Undefined intro laboratory scene."),
+    };
 }

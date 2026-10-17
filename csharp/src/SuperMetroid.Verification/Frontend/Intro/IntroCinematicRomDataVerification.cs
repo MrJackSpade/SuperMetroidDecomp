@@ -81,7 +81,7 @@ internal static class IntroCinematicRomDataVerification
             .Select(field => field.RequiredConstant<ushort>())
             .Concat(new[]
             {
-                typeof(CinematicSpriteInstruction), typeof(CinematicBackgroundInstruction),
+                typeof(CinematicSpriteInstruction),
                 typeof(IntroRinkaPreInstruction), typeof(ConfusedBabyPreInstruction),
                 typeof(CinematicSpritePreInstruction), typeof(TitleSequenceInstruction),
                 typeof(CinematicIndirectInstructionFunction),
@@ -139,9 +139,9 @@ internal static class IntroCinematicRomDataVerification
         AssertTrue(!spans.IsEmpty, $"intro {context} palette span list is nonempty");
         foreach (IntroPaletteSpan span in spans)
         {
-            AssertEqual(0, span.ByteOffset & 1, $"intro {context} byte offset is word aligned");
-            AssertTrue(span.ByteCount > 0, $"intro {context} span is nonempty");
-            AssertTrue(span.ByteOffset / 2 + span.ByteCount <= SnesCgram.ColorCount,
+            AssertTrue(span.FirstColor >= 0, $"intro {context} span starts inside CGRAM");
+            AssertTrue(span.ColorCount > 0, $"intro {context} span is nonempty");
+            AssertTrue(span.FirstColor + span.ColorCount <= SnesCgram.ColorCount,
                 $"intro {context} span fits CGRAM");
         }
     }

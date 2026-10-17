@@ -43,7 +43,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigYOffsetReferenceAddress + index * 2))),
                 actual.Offset.Y, $"intro Mother Brain big explosion {index} Y offset");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.BigTimerReferenceAddress + index * 2)),
-                actual.StartTimer, $"intro Mother Brain big explosion {index} timer");
+                actual.StartDelayFrames, $"intro Mother Brain big explosion {index} timer");
         }
 
         for (int index = 0; index < IntroMotherBrainDefinitions.SmallExplosionCount; index++)
@@ -54,7 +54,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             AssertEqual(unchecked((short)CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallYOffsetReferenceAddress + index * 2))),
                 actual.Offset.Y, $"intro Mother Brain small explosion {index} Y offset");
             AssertEqual(CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.SmallTimerReferenceAddress + index * 2)),
-                actual.StartTimer, $"intro Mother Brain small explosion {index} timer");
+                actual.StartDelayFrames, $"intro Mother Brain small explosion {index} timer");
         }
 
         AssertThrows<ArgumentOutOfRangeException>(
@@ -78,7 +78,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrain) +
                 ((frame / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
-            AssertEqual(expected, motherBrain.SpriteMapPointer,
+            AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain normal frame {frame} selects its native spritemap");
         }
         for (int hit = 0; hit < 4; hit++)
@@ -104,7 +104,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             int record = CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrainPageTwo) +
                 (((frame + 1) / 16) % 4) * 4;
             ushort expected = CartridgeImportSource.Require(retail).ReadCartridgeWord((IntroMotherBrainDefinitions.NativeBank | (record + 2)));
-            AssertEqual(expected, motherBrain.SpriteMapPointer,
+            AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(motherBrain.Pose),
                 $"intro Mother Brain page-two frame {frame} preserves native loop");
         }
         motherBrain.RunPreInstruction(cgram, ToColors(palette), cinematicFrameCounter: 193,
@@ -131,9 +131,9 @@ internal static class IntroMotherBrainDefinitionsVerification
                     (CinematicSpriteNativeListAddresses.Entry(CinematicSpriteProgram.IntroMotherBrainExplosionBig) +
                         (bigPhase / 6) * 4 + 2)))
                 : (ushort)0;
-            AssertEqual(expectedSmall, explosionActors[0].SpriteMapPointer,
+            AssertEqual(expectedSmall, CinematicSpritePoseSpritemaps.Of(explosionActors[0].Pose),
                 $"intro first small explosion frame {frame} follows native timing");
-            AssertEqual(expectedBig, explosionActors[3].SpriteMapPointer,
+            AssertEqual(expectedBig, CinematicSpritePoseSpritemaps.Of(explosionActors[3].Pose),
                 $"intro first big explosion frame {frame} follows native timing");
         }
         AssertEqual(8, explosions.ActiveCount,

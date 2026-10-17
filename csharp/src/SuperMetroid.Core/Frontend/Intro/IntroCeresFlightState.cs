@@ -30,19 +30,26 @@ internal sealed class IntroCeresFlightState
 
     /// <summary>Mode 7 scroll position advanced with the star actor or rear-view drift.</summary>
     private FixedPosition<Mode7Pixels> background = new(new(unchecked((ushort)-72), 0), new(unchecked((ushort)-104), 0));
-    /// <summary>Mode 7 scale shrunk for the front approach, then grown for the rear view.</summary>
-    private ushort zoom = 512;
+    /// <summary>
+    /// Mode 7 scale in 8.8 fixed point: 512 at the start, shrunk by 16 per update while at least 32 (ending at 16)
+    /// for the front approach, then grown by 16 below 3072 and by 32 below 8192 for the rear view, ending at 8192.
+    /// </summary>
+    private int zoom = 512;
     /// <summary>Mode 7 rotation index used to derive the four matrix entries.</summary>
     private SnesAngle angle = SnesAngle.FromTableIndex(224);
-    /// <summary>INIDISP level held at zero until music is ready and lowered in the final fade.</summary>
-    private byte brightness;
+    /// <summary>
+    /// Master brightness from zero (black) to fifteen (full): held at zero until music is ready, set to fifteen, and
+    /// lowered one level every other update in the final fade, stopping at zero.
+    /// </summary>
+    private int brightness;
     /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
     internal IntroDiscoverySprite[] rearViewActors = [];
     /// <summary>
-    /// The five-bit intensity of the rear-view flash's fixed color. The native COLDATA writes select red, green and blue
-    /// separately but always give them this same intensity.
+    /// The intensity of the rear-view flash's fixed color, from zero to 31: set to 31 when the rear view starts and
+    /// lowered by one per update, stopping at zero. The native COLDATA writes select red, green and blue separately
+    /// but always give them this same intensity.
     /// </summary>
-    private byte flashIntensity;
+    private int flashIntensity;
     /// <summary>Next caption glyph to add to the title tilemap.</summary>
     private int spaceColonyLetterIndex;
     /// <summary>Sixteen-frame glyph cadence and final $80-frame caption hold.</summary>
@@ -147,7 +154,7 @@ internal sealed class IntroCeresFlightState
             case IntroCeresFlightPhase.FlyingIntoCamera:
                 if (zoom >= 32)
                 {
-                    zoom = unchecked((ushort)(zoom - 16));
+                    zoom -= 16;
                 }
                 else
                 {
@@ -217,9 +224,12 @@ internal sealed class IntroCeresFlightState
         layers.Add(new ObjPriorityRenderLayer(2));
         layers.Add(new ObjPriorityRenderLayer(3));
         if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
-            layers.Add(new FixedColorAddRenderLayer(flashIntensity, flashIntensity, flashIntensity));
+        {
+            byte flash = checked((byte)flashIntensity);
+            layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
+        }
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(),
-            MenuRenderDefinitions.ObjectSelection, brightness);
+            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
     /// <summary>Draws the front stars or surviving rear-view actors into the current OAM pass.</summary>
@@ -288,15 +298,15 @@ internal sealed class IntroCeresFlightState
     {
         // The fixed-colour flash fades by one SNES component step per frame, clamped at zero
         // (the selector-only register values $20/$40/$80).
-        flashIntensity = (byte)Math.Max(0, flashIntensity - 1);
+        flashIntensity = Math.Max(0, flashIntensity - 1);
 
         // $BFDA drifts BG1 left by an eighth of a pixel and grows the rear-of-gunship Mode 7
         // image in two native bands: +16 until 3072, then +32 until 8192.
         background = background.WithX(IntroCinematicMotion.AddSignedSixteenSixteen(background.X, -SnesSixteenSixteen.FromWhole(1) / 8));
         if (zoom < 3072)
-            zoom = unchecked((ushort)(zoom + 16));
+            zoom += 16;
         else if (zoom < 8192)
-            zoom = unchecked((ushort)(zoom + 32));
+            zoom += 32;
         else
             SetupSpaceColonyTitle();
     }
@@ -379,7 +389,7 @@ internal sealed class IntroCeresFlightState
         if (fadeDelay-- > 0)
             return;
         fadeDelay = 1;
-        brightness = (byte)Math.Max(0, brightness - 1);
+        brightness = Math.Max(0, brightness - 1);
         if (brightness == 0)
             Phase = IntroCeresFlightPhase.StartGameAtCeres;
     }
@@ -458,8 +468,8 @@ internal sealed class IntroCeresFlightState
     internal static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
 
     /// <summary>Multiplies a signed trigonometric component by the scene's 8.8 scale.</summary>
-    private static short Scale(short component, ushort scalar) =>
-        unchecked((short)(SnesEightEight.Multiply(component, (short)scalar)));
+    private static short Scale(short component, int scalar) =>
+        unchecked((short)(SnesEightEight.Multiply(component, checked((short)scalar))));
 
     /// <summary>Rejects installed art streams shorter than the native transfer size.</summary>
     private static void RequireMinimum(byte[] bytes, int minimum, string name)

@@ -28,8 +28,8 @@ internal sealed class CinematicTextGlowSystem
             for (int column = 0; column < slot.Size.X; column++)
             {
                 int index = (slot.Cell.Y + row) * CinematicTextGlowRomData.RowWidth + slot.Cell.X + column;
-                tilemap[index] = (ushort)((tilemap[index] & CinematicTextGlowRomData.PreserveTileBits) |
-                    slot.Palette << CinematicTextGlowRomData.PaletteShift);
+                // Only the palette changes: the glyph's character, priority and flips are kept.
+                tilemap[index] = new SnesBgTilemapWord(tilemap[index]).WithPaletteIndex(slot.Palette).Raw;
             }
             if (slot.Palette == CinematicTextGlowRomData.FinalPalette)
                 slot.Active = false;
@@ -52,7 +52,10 @@ internal sealed class CinematicTextGlowSystem
         public Extent16<TilemapCells> Size;
         /// <summary>Frames until this rectangle's next palette phase.</summary>
         public NativeCountdown Timer;
-        /// <summary>Current palette phase written to the rectangle's tilemap cells.</summary>
-        public ushort Palette;
+        /// <summary>
+        /// Current palette written to the rectangle's tilemap cells: zero when the glow starts, raised by one each
+        /// phase up to <see cref="CinematicTextGlowRomData.FinalPalette"/>, where the glow ends.
+        /// </summary>
+        public int Palette;
     }
 }

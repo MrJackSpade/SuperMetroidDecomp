@@ -90,7 +90,7 @@ internal static class GenericSpriteArtworkVerification
         expected = new OamBuffer();
         expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, caret.SpriteMapPointer),
+            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
             new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
         EqualOam(expected, actual, "illustrated-page caret owner parity");
@@ -103,7 +103,7 @@ internal static class GenericSpriteArtworkVerification
         expectedFrame.BeginFrame();
         (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
         DrawImportedSpritemap(reference, expectedFrame.Oam,
-            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, motherBrain.SpriteMapPointer),
+            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(motherBrain.Pose)),
             new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
             IntroMotherBrainSpriteState.PaletteBits);
         expectedFrame.FinalizeFrame();
@@ -120,7 +120,7 @@ internal static class GenericSpriteArtworkVerification
         expected.BeginFrame();
         foreach (var actor in explosions.actors)
         {
-            ushort pointer = actor.SpriteMapPointer;
+            ushort pointer = SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(actor.Pose);
             if (!actor.IsActive || pointer == 0) continue;
             DrawImportedSpritemap(reference, expected,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer),

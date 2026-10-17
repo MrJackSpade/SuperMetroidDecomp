@@ -1,18 +1,13 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
 /// <summary>
-/// The two small ROM-script interpreters used by the first illustrated intro page.
+/// The narration pages' persistent objects: the portrait eye running its typed <see cref="IntroEyeAnimations"/>
+/// program, the typewriter narration written from installed glyph records, and the text caret.
 /// </summary>
-/// <remarks>
-/// Bank $8B owns the object definitions and sprite instruction lists, while cinematic BG
-/// lists and their rectangular tile data live in bank $8C. That split is easy to miss: the
-/// native BG handler deliberately calls <c>RomPtr_8C</c> even though its opcodes dispatch
-/// back to bank-$8B functions. Keeping the banks explicit here prevents a plausible-looking
-/// but completely unrelated stream from being interpreted.
-/// </remarks>
 internal sealed class IntroCinematicObjectSystem
 {
     /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
@@ -21,22 +16,19 @@ internal sealed class IntroCinematicObjectSystem
     private readonly SnesVram vram;
     /// <summary>Receives narration glyph words at their authored row and column.</summary>
     private readonly ushort[] textTilemap;
-    /// <summary>Bank-$8C cursor for the persistent blinking-eye background object.</summary>
-    internal ushort eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
-    /// <summary>Countdown before the eye object's next instruction record.</summary>
+    /// <summary>Where the persistent portrait eye's program resumes when its frame expires.</summary>
+    internal AnimationProgramCursor<IntroEyeProgram> eyeProgram =
+        AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.Blinking);
+    /// <summary>Countdown before the eye shows its program's next frame.</summary>
     internal NativeCountdown eyeInstructionTimer = NativeCountdown.Start(1);
-    /// <summary>Installed narration cursor; semantic glyph records replace the old BG bytecode.</summary>
-    private ushort textInstructionPointer;
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private NativeCountdown textInstructionTimer;
     /// <summary>Caller-installed narration artwork, rebound after debugger restoration.</summary>
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     /// <summary>Caller-installed eye rectangles, rebound after debugger restoration.</summary>
     [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
-    /// <summary>Currently displayed eye-frame identity for artwork rebinding.</summary>
-    private ushort currentEyeFramePointer;
-    /// <summary>Packed eye rectangle origin retained for artwork rebinding.</summary>
-    private ushort currentEyePackedPosition;
+    /// <summary>The eye frame on the portrait, redrawn when the eye artwork is rebound; null before the first frame.</summary>
+    private IntroEyeFrame? currentEyeFrame;
     /// <summary>Compiled page glyphs, rebound from the installed presentation after restore.</summary>
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
     /// <summary>The bound narration page's characters.</summary>
@@ -95,8 +87,8 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Set by $8B:B240 after page six's final 128-frame hold.</summary>
     public bool IntroFinishRequested { get; private set; }
 
-    /// <summary>The bank-$8C spritemap selected by the current sprite timing record.</summary>
-    public ushort SpriteMapPointer => caretSprite.SpriteMapPointer;
+    /// <summary>The pose the text caret's program shows; null before its first frame.</summary>
+    internal CinematicSpritePose? CaretPose => caretSprite.Pose;
 
     /// <summary>Current native screen position of the persistent text caret object; Y=$F8 deliberately hides it below the viewport.</summary>
     public Position16<ScreenPixels> Caret { get; private set; } =
@@ -106,12 +98,11 @@ internal sealed class IntroCinematicObjectSystem
     public void BindEyeArtwork(IntroEyeTilemapPresentation? value)
     {
         eyeArtwork = value;
-        if (value is not null &&
-            IntroEyeAnimationDefinitions.TryFrameIndex(currentEyeFramePointer, out int index))
+        if (value is not null && currentEyeFrame is { } frame)
             CopyRectangleToPortrait(
-                UnpackCell(currentEyePackedPosition),
+                IntroEyeAnimationDefinitions.PortraitCell,
                 IntroEyeAnimationDefinitions.FrameSize,
-                value.FrameWords(index));
+                value.FrameWords(EyeArtworkIndex(frame)));
     }
 
     /// <summary>
@@ -188,8 +179,8 @@ internal sealed class IntroCinematicObjectSystem
         ResetCaret();
 
         // B4BC observes the page-six cinematic function and permanently changes the eye
-        // object to its closed/half-open/deadpan sequence at $8C:D613.
-        eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinkingPage6;
+        // object to its closed/half-open/deadpan program.
+        eyeProgram = AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.FinalPageClosing);
         eyeInstructionTimer = NativeCountdown.Start(1);
     }
 
@@ -204,11 +195,9 @@ internal sealed class IntroCinematicObjectSystem
         }
         caretSprite.Step();
         subtitles.Step(newlyPressed, MarkAwaitingInput);
-        StepBgObject(ref eyeInstructionPointer, ref eyeInstructionTimer);
+        StepEye();
         if (narrationProgram is not null)
             StepInstalledNarration();
-        else if (textInstructionPointer != 0)
-            StepBgObject(ref textInstructionPointer, ref textInstructionTimer);
         textGlow?.Step(textTilemap);
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
@@ -244,7 +233,6 @@ internal sealed class IntroCinematicObjectSystem
 
         narrationPage = page;
         narrationProgram = narrationPresentation.Compile(page);
-        textInstructionPointer = 0;
     }
 
     /// <summary>Advances marker, glyph, typewriter sound, caret, and final-hold timing.</summary>
@@ -296,7 +284,7 @@ internal sealed class IntroCinematicObjectSystem
                     maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
             }
             textTilemap[character.Row * IntroCinematicRomData.Layers.TilemapWidth +
-                character.Column] = character.TilemapWord;
+                character.Column] = character.TilemapWord.Raw;
             narrationCharacterIndex++;
             textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
             return;
@@ -346,137 +334,47 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
-    /// <summary>Interprets compiled bank-$8C eye records and writes their portrait tile rectangles.</summary>
-    private void StepBgObject(ref ushort instructionPointer, ref NativeCountdown instructionTimer)
+    /// <summary>
+    /// Advances the portrait eye one cinematic update: when its frame expires, the program shows its next frame for
+    /// that frame's duration and the frame's rectangle is drawn on the portrait.
+    /// </summary>
+    private void StepEye()
     {
-        if (instructionPointer == 0 || !(instructionTimer = instructionTimer.Decrement().Remaining).IsZero)
+        eyeInstructionTimer = eyeInstructionTimer.Decrement().Remaining;
+        if (!eyeInstructionTimer.IsZero)
             return;
 
-        ushort pointer = instructionPointer;
-        while (true)
-        {
-            ushort instructionOrDuration = ReadBank8C(pointer);
-            if ((instructionOrDuration & CinematicCodePointers.InstructionCommandBit) == 0)
-            {
-                instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
-                ushort tilePosition = ReadBank8C(Add(
-                    pointer,
-                    IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
-                ushort dataPointer = ReadBank8C(Add(
-                    pointer,
-                    IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount));
-                ProcessTileData(tilePosition, dataPointer);
-                instructionPointer = Add(
-                    pointer,
-                    IntroCinematicRomData.ObjectSystem.BackgroundRecordByteCount);
-                return;
-            }
-
-            switch (CinematicInstructionWords.Decode<CinematicBackgroundInstruction>(instructionOrDuration, pointer))
-            {
-                case CinematicBackgroundInstruction.Goto:
-                    pointer = ReadBank8C(Add(
-                        pointer,
-                        IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
-                    break;
-                case CinematicBackgroundInstruction.Delete:
-                    instructionPointer = 0;
-                    return;
-                case CinematicBackgroundInstruction.BeginPage1:
-                    // English skips the Japanese Mode-7 glyph object spawned by this opcode.
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.FinishPage1:
-                    // $8B:AE5B switches the cinematic function to its input-wait routine.
-                    // The page marker sprite is Japanese-only, but the state change is not.
-                    PageOneAwaitingInput = true;
-                    SetCaretBlinking();
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.BeginPage2:
-                    // $AE79 differs only in the Japanese subtitle object it conditionally
-                    // spawns. The default English route consumes no operands.
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.FinishPage2:
-                    // $AE91 selects the baby-Metroid-discovery input wait and makes the
-                    // same existing caret object blink; page-three setup is the next slice.
-                    PageTwoAwaitingInput = true;
-                    SetCaretBlinking();
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.BeginPage3:
-                    // $B074 clears the Japanese click flag and conditionally starts a Mode
-                    // 7 subtitle object. English has no extra actor or operands here.
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.FinishPage3:
-                    // $B08C selects the page-three input wait that proceeds to the Ceres
-                    // delivery scene; the optional subtitle/arrow branch is Japanese-only.
-                    PageThreeAwaitingInput = true;
-                    SetCaretBlinking();
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.BeginPage4:
-                    // English skips the optional page-four Japanese Mode-7 subtitle actor.
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.FinishPage4:
-                    PageFourAwaitingInput = true;
-                    SetCaretBlinking();
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.BeginPage5:
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.FinishPage5:
-                    PageFiveAwaitingInput = true;
-                    SetCaretBlinking();
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.BeginPage6:
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.SetCaretToBlink:
-                    SetCaretBlinking();
-                    pointer = Add(pointer, 2);
-                    break;
-                case CinematicBackgroundInstruction.FinishIntro:
-                    IntroFinishRequested = true;
-                    pointer = Add(pointer, 2);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Undefined CinematicBackgroundInstruction {instructionOrDuration}.");
-            }
-        }
+        // The eye programs load no loop counter; the program set still takes one.
+        NativeCountdown loopCounter = default;
+        AnimationProgramAdvance<IntroEyeFrame> advance = IntroEyeAnimations.Programs.Advance(
+            ref eyeProgram, ref loopCounter, static (_, _) => null);
+        if (advance.Kind != AnimationProgramAdvanceKind.Show)
+            throw new InvalidOperationException($"The intro eye program {eyeProgram.Program} ended an update with {advance.Kind}.");
+        eyeInstructionTimer = NativeCountdown.Start(advance.Duration);
+        ShowEyeFrame(advance.Frame);
     }
 
-    /// <summary>Resolves an installed eye frame from its data pointer and copies it to the portrait.</summary>
-    internal void ProcessTileData(
-        ushort packedPosition,
-        ushort dataPointer)
+    /// <summary>Draws <paramref name="frame"/>'s installed rectangle on the portrait and keeps it for artwork rebinding.</summary>
+    internal void ShowEyeFrame(IntroEyeFrame frame)
     {
-        if (IntroEyeAnimationDefinitions.TryFrameIndex(dataPointer, out int eyeFrame))
-        {
-            currentEyeFramePointer = dataPointer;
-            currentEyePackedPosition = packedPosition;
-            IntroEyeTilemapPresentation content = eyeArtwork ?? throw new InvalidOperationException(
-                "Intro eye animation requires installed eye artwork.");
-            CopyRectangleToPortrait(
-                UnpackCell(packedPosition),
-                IntroEyeAnimationDefinitions.FrameSize,
-                content.FrameWords(eyeFrame));
-            return;
-        }
-        // Installed narration executes as semantic glyph records. The only BG-object
-        // bytecode still interpreted here is the bounded, compiled eye-animation list.
-        throw new InvalidDataException(
-            $"Cinematic tile data $8C:{dataPointer:X4} has no installed definition.");
+        currentEyeFrame = frame;
+        IntroEyeTilemapPresentation content = eyeArtwork ?? throw new InvalidOperationException(
+            "Intro eye animation requires installed eye artwork.");
+        CopyRectangleToPortrait(
+            IntroEyeAnimationDefinitions.PortraitCell,
+            IntroEyeAnimationDefinitions.FrameSize,
+            content.FrameWords(EyeArtworkIndex(frame)));
     }
 
-    /// <summary>Unpacks a BG record's low-byte column and high-byte row.</summary>
-    private static Position16<TilemapCells> UnpackCell(ushort packedPosition) =>
-        new(checked((ushort)(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask)), checked((ushort)(SnesLittleEndian.HighByte(packedPosition))));
+    /// <summary>The position of <paramref name="frame"/> in the installed eye artwork, which keeps the cartridge's draw-record order.</summary>
+    private static int EyeArtworkIndex(IntroEyeFrame frame) => frame switch
+    {
+        IntroEyeFrame.Open => 0,
+        IntroEyeFrame.HalfOpen => 1,
+        IntroEyeFrame.Closed => 2,
+        IntroEyeFrame.Deadpan => 3,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined intro eye frame."),
+    };
 
     /// <summary>Validates and writes each eye tilemap row into the portrait VRAM region.</summary>
     private void CopyRectangleToPortrait(Position16<TilemapCells> destination, Extent16<TilemapCells> size,
@@ -518,14 +416,4 @@ internal sealed class IntroCinematicObjectSystem
             throw new InvalidDataException(
                 $"Cinematic rectangle ({origin.X},{origin.Y}) {size.X}x{size.Y} leaves its 32x32 tilemap.");
     }
-
-    /// <summary>Requires a compiled eye instruction word from bank $8C.</summary>
-    private static ushort ReadBank8C(ushort pointer) =>
-        IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
-            ? word
-            : throw new InvalidDataException(
-                $"Cinematic eye instruction $8C:{pointer:X4} is not compiled.");
-
-    /// <summary>Advances a bank-relative script cursor with native 16-bit wrap.</summary>
-    private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 }

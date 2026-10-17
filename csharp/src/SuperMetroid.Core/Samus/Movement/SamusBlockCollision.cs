@@ -367,7 +367,7 @@ public static class SamusBlockCollision
             state.Radius.Y,
             horizontalSlopeCollisionEnabled: move.AlignToSlopeAfterMovement &&
                 (state.HorizontalSlopeCollisionEnable & 2) != 0);
-        state.Position = state.Position.WithWholeY(alignment.YPosition);
+        state.Position = state.Position.WithWholeY(alignment.Position.Y);
         // $94:87F4 only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. $90:923F consumes it before
         // $94:9763 clears it on entry to the next nonzero terrain Y move.

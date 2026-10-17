@@ -30,7 +30,7 @@ internal static class ZeroDistanceJumpContactVerification
             samus.Kinematics.InteractiveEnemies =
             [
                 new SolidEnemyCollisionBody(Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
-                    Radius: new(5, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
+                    Radius: new(5, 8), Frozen: frozen,
                     Properties: EnemyPropertyWord.FromNativeWord((ushort)((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)))),
             ];
             uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);

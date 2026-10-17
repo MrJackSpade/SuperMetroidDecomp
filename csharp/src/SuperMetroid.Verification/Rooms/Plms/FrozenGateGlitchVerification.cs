@@ -118,7 +118,7 @@ internal static class FrozenGateGlitchVerification
                 zero.NativeIndex,
                 new(expected.EnemyX, FrozenGateY),
                 new(zero.Radius.X, zero.Radius.Y),
-                expected.Frozen ? (ushort)1 : (ushort)0,
+                expected.Frozen,
                 zero.Properties),
         ];
 

@@ -59,7 +59,7 @@ internal static void VerifySamusSlopePhysics()
         level,
         position: new(8, 21),
         yRadius: 5);
-    AssertEqual(19, aligned.YPosition, "non-square floor slope whole-pixel Y correction");
+    AssertEqual(19, aligned.Position.Y, "non-square floor slope whole-pixel Y correction");
     AssertTrue(aligned.Adjusted, "non-square floor slope sets adjusted flag");
 
     SlopeAlignmentResult disabled = SamusSlopePhysics.AlignYPosition(
@@ -67,7 +67,7 @@ internal static void VerifySamusSlopePhysics()
         position: new(8, 21),
         yRadius: 5,
         horizontalSlopeCollisionEnabled: false);
-    AssertEqual(21, disabled.YPosition, "disabled horizontal slope collision preserves Y");
+    AssertEqual(21, disabled.Position.Y, "disabled horizontal slope collision preserves Y");
     AssertTrue(!disabled.Adjusted, "disabled horizontal slope collision preserves adjusted flag");
 
     Console.WriteLine("  Samus slopes: compiled native multiplier, mirrored height samples, and non-square Y alignment agree.");
@@ -547,7 +547,7 @@ internal static void VerifySamusGroundedMovement()
             Index: 0x01c0,
             Position: new(100, 116),
             Radius: new(5, 5),
-            FreezeTimer: 0,
+            Frozen: false,
             Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000))),
     ];
     forward.SolidVerticalCollisionResult = 9;
@@ -1402,7 +1402,7 @@ internal static void VerifySamusRanIntoWall()
     enemyAhead.Kinematics.InteractiveEnemies =
     [
         new SolidEnemyCollisionBody(Index: 0x40, Position: new(89, 27), Radius: new(4, 8),
-            FreezeTimer: 0, Properties: new EnemyPropertyWord(EnemyProperties.SolidToSamus)),
+            Frozen: false, Properties: new EnemyPropertyWord(EnemyProperties.SolidToSamus)),
     ];
     SamusPoseId? enemyResult = enemyAhead.PoseTransitions.CheckProspectiveRunningPoseForWall(
 

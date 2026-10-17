@@ -21,7 +21,7 @@ internal static class KnockbackHorizontalStopVerification
             SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left }, level: level);
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Kinematics.InteractiveEnemies =
-            [new SolidEnemyCollisionBody(0, new((ushort)(right ? 111 : 89), 100), new(5, 8), 0, new EnemyPropertyWord(EnemyProperties.SolidToSamus))];
+            [new SolidEnemyCollisionBody(0, new((ushort)(right ? 111 : 89), 100), new(5, 8), false, new EnemyPropertyWord(EnemyProperties.SolidToSamus))];
             uint clippedBefore = samus.Kinematics.Position.X.RawValue;
             SamusKnockbackMovement.Step(level, samus, 0);
             AssertTrue(Math.Abs(unchecked((int)(samus.Kinematics.Position.X.RawValue - clippedBefore))) < 98304,

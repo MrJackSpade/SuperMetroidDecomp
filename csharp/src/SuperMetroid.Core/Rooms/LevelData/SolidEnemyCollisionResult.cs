@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="WasTouching">True for a successful zero-gap contact, which clears Samus's Y subposition; false for positive gaps and failed probes.</param>
 public readonly record struct SolidEnemyCollisionResult(
     bool Collided,
-    ushort Distance,
-    ushort? EnemyIndex,
+    int Distance,
+    int? EnemyIndex,
     bool WasTouching)
 {
     /// <summary>The selected enemy's slot on collision, or null on failure.</summary>

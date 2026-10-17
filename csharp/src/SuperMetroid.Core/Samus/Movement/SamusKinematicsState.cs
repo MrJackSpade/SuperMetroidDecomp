@@ -182,11 +182,11 @@ public sealed class SamusKinematicsState
     /// <summary>Publishes the result of one directional bank-$A0 solid-enemy probe.</summary>
     internal void RecordSolidEnemyCollision(
         SamusCollisionDirection direction,
-        ushort? nativeEnemyIndex)
+        int? nativeEnemyIndex)
     {
         if ((uint)direction > (uint)SamusCollisionDirection.Down)
             throw new ArgumentOutOfRangeException(nameof(direction));
-        _solidEnemyCollisionIndexes[(int)direction] = nativeEnemyIndex ?? ushort.MaxValue;
+        _solidEnemyCollisionIndexes[(int)direction] = checked((ushort)(nativeEnemyIndex ?? ushort.MaxValue));
     }
 
     /// <summary>Tests the four collision words exactly as dead-monster wait AI does.</summary>

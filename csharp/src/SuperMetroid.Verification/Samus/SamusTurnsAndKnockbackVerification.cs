@@ -330,7 +330,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
             Index: 0x0240,
             Position: new(69, 48),
             Radius: new(5, 5),
-            FreezeTimer: 0,
+            Frozen: false,
             Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000))),
     ];
     AerialMovementResult enemyTrigger = SamusAerialMovement.StepSpinJump(

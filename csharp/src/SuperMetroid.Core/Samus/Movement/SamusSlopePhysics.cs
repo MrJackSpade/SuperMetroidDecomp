@@ -97,7 +97,7 @@ public static class SamusSlopePhysics
         ushort yPosition = position.Y;
 
         if (!horizontalSlopeCollisionEnabled)
-            return new SlopeAlignmentResult(yPosition, Adjusted: false);
+            return new SlopeAlignmentResult(position, Adjusted: false);
 
         bool adjusted = false;
         RoomCollisionBlock? floorBlock = null;
@@ -145,7 +145,7 @@ public static class SamusSlopePhysics
             }
         }
 
-        return new SlopeAlignmentResult(yPosition, adjusted);
+        return new SlopeAlignmentResult(position.WithY(yPosition), adjusted);
     }
 
     /// <summary>Converts a pixel probe to its containing room block; probes

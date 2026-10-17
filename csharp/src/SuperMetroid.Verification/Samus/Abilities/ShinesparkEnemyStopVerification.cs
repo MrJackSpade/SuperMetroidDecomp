@@ -25,7 +25,7 @@ internal static class ShinesparkEnemyStopVerification
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(ushort.MaxValue);
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(Index: 0, Position: new(100, (ushort)(100 - 19 - 8 - gap)),
-                Radius: new(8, 8), FreezeTimer: (ushort)(frozen ? 1 : 0),
+                Radius: new(8, 8), Frozen: frozen,
                 Properties: EnemyPropertyWord.FromNativeWord((ushort)((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus))))];
             uint initialY = samus.Kinematics.Position.Y.RawValue;
             samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { NmiFrameCounter = 0 });

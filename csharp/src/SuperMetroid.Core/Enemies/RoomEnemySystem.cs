@@ -1000,7 +1000,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 nativeIndex,
                 slot.Position.Whole,
                 new(slot.Radius.X, slot.Radius.Y),
-                slot.FrozenTimer.RawValue,
+                !slot.FrozenTimer.IsZero,
                 slot.Properties));
         }
         FrameContext._randomEnemyCounter = unchecked((ushort)(FrameContext._randomEnemyCounter + 1));

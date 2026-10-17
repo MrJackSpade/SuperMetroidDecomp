@@ -31,7 +31,7 @@ internal static class CeresShaftRotationVerification
             int offset = (ushort)(phaseWord * 6);
             if (changed)
                 timer = rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + offset);
-            var actual = state.Step(null, 0x8000, allowDeparture: false, scratch);
+            var actual = state.Step(null, elevatorDoorDestroyed: true, allowDeparture: false, scratch);
             AssertEqual(changed, actual.MatrixChanged, "shaft matrix publication frame");
             AssertEqual(timer, state.RotationTimer.RawValue, "shaft native timer every frame");
             if (changed)

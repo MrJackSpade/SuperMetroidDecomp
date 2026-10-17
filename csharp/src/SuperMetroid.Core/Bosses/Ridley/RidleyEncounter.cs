@@ -34,10 +34,11 @@ internal sealed class RidleyEncounter
         _slotTable._slots[0].EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ? Ridley : null;
 
     /// <summary>
-    /// Native <c>ceres_status</c> word consumed by the Ceres door actor. Fresh station load
-    /// begins at zero; Ridley's escape sequence is the later producer of values one/two.
+    /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load
+    /// begins before Ridley escapes; Ceres Ridley publishes his escape and the self-destruct, and the elevator door's
+    /// destruction publishes the last stage.
     /// </summary>
-    public ushort CeresStatus { get; set; }
+    public CeresEscapeStatus CeresStatus { get; set; }
 
     /// <summary>Requires a slot-zero Ridley definition and its shared bank-$A6 state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)

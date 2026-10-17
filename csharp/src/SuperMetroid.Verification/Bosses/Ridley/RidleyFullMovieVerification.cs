@@ -93,7 +93,7 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
         body.SpritemapPointer = 0xe9e9; body.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
-        (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = 1; state.FacingDirection = RidleyFacing.Left;
+        (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = NativeCountdown.Start(10);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
         state.TailFunctionIndex = RidleyTailFunction.None;
@@ -565,8 +565,8 @@ internal static class RidleyFullMovieVerification
             TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray(),
             IdealInterSegmentTailAngle = 16, TailAngleDelta = 2,
             TailMinimumClockwiseAngle = SnesAngle.FromRaw(0x3fc0), TailMaximumCounterClockwiseAngle = SnesAngle.FromRaw(0x4010),
-            TailWhipTargetClockwiseAngle = ushort.MaxValue,
-            TailWhipTargetCounterClockwiseAngle = ushort.MaxValue,
+            ClockwiseWhipTarget = null,
+            CounterClockwiseWhipTarget = null,
         };
         var segment = state.TailSegments[0];
         segment.Active = true; segment.StaggerAngle = 2;
@@ -576,12 +576,12 @@ internal static class RidleyFullMovieVerification
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
         segment.StaggerAngle = ushort.MaxValue; segment.Angle = 0x4000;
-        segment.MovementDirection = 0x8000; segment.Distance = 0x0200;
+        segment.Clockwise = true; segment.Distance = 0x0200;
         RidleyTail.TickRidleyTailSegment(state, 0);
         AssertEqual((ushort)0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
         AssertEqual((short)-1, segment.Offset.X, "signed Mode 7 multiplication floors negative fraction");
         AssertEqual((short)1, segment.Offset.Y, "signed Mode 7 cosine product");
-        state.TailWhipTargetClockwiseAngle = 0x4000;
+        state.ClockwiseWhipTarget = 0x4000;
         segment.Angle = 0x4000; segment.Offset = new Offset16<RoomPixels>(7, 11);
         RidleyTail.TickRidleyTailSegment(state, 0);
         AssertTrue(!segment.Active, "root stops at whip target");
@@ -590,7 +590,7 @@ internal static class RidleyFullMovieVerification
         var child = state.TailSegments[1];
         segment.Active = true;
         child.Active = true; child.StaggerAngle = ushort.MaxValue;
-        child.Angle = 0x4000; child.MovementDirection = 0x8000; child.Distance = 0x0800;
+        child.Angle = 0x4000; child.Clockwise = true; child.Distance = 0x0800;
         RidleyTail.TickRidleyTailSegment(state, 1);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
         AssertEqual((ushort)0x3fc0, child.Angle, "blocked child clamps to native clockwise limit");
@@ -969,6 +969,9 @@ internal static class RidleyFullMovieVerification
             ushort previousInvincibilityTimer = W(NativeSnapshotMemory.InvincibilityTimer);
             if (frame != 0) memory = ReadFrame(frame);
             var mismatches = new List<string>();
+            // The cartridge parks an unaimed whip target at $FFFF.
+            static ushort WhipTargetWord(int? target) => target is int angle ? checked((ushort)angle) : ushort.MaxValue;
+
             void Check(string name, ushort actual, int address)
             {
                 ushort expected = W(address);
@@ -1323,13 +1326,13 @@ internal static class RidleyFullMovieVerification
                 Check("Ridley TailAngleDelta", checked((ushort)ridleyState.TailAngleDelta), NativeSnapshotMemory.RidleyTailAngleDelta);
                 Check("Ridley TailMinimumClockwiseAngle", ridleyState.TailMinimumClockwiseAngle.RawValue, NativeSnapshotMemory.RidleyTailMinimumClockwiseAngle);
                 Check("Ridley TailMaximumCounterClockwiseAngle", ridleyState.TailMaximumCounterClockwiseAngle.RawValue, NativeSnapshotMemory.RidleyTailMaximumCounterClockwiseAngle);
-                Check("Ridley TailWhipTargetClockwiseAngle", ridleyState.TailWhipTargetClockwiseAngle, NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
-                Check("Ridley TailWhipTargetCounterClockwiseAngle", ridleyState.TailWhipTargetCounterClockwiseAngle, NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
+                Check("Ridley TailWhipTargetClockwiseAngle", WhipTargetWord(ridleyState.ClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
+                Check("Ridley TailWhipTargetCounterClockwiseAngle", WhipTargetWord(ridleyState.CounterClockwiseWhipTarget), NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
                 Check("Ridley IdealInterSegmentTailAngle", checked((ushort)ridleyState.IdealInterSegmentTailAngle), NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
                 Check("Ridley HorizontalVelocity", ridleyState.Velocity.X.RawValue, NativeSnapshotMemory.RidleyHorizontalVelocity);
                 Check("Ridley VerticalVelocity", ridleyState.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
                 Check("Ridley FightMode", (ushort)ridleyState.FightMode, NativeSnapshotMemory.RidleyFightMode);
-                Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
+                Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled ? (ushort)1 : (ushort)0, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 Check("Ridley WingFrame", checked((ushort)ridleyState.WingFrame), NativeSnapshotMemory.RidleyWingFrame);
                 Check("Ridley WingAnimationTimerDelta", checked((ushort)ridleyState.WingAnimationTimerDelta), NativeSnapshotMemory.RidleyWingAnimationTimerDelta);
                 Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer.RawValue, NativeSnapshotMemory.RidleyWingAnimationTimer);
@@ -1356,10 +1359,10 @@ internal static class RidleyFullMovieVerification
                         string tailOwner = $"Ridley tail {tailIndex}";
                         Check(tailOwner + " active", segment.Active ? NativeSnapshotMemory.TailSegmentActive : (ushort)0, tailAddress);
                         Check(tailOwner + " StaggerAngle", checked((ushort)segment.StaggerAngle), tailAddress + 2);
-                        Check(tailOwner + " MovementDirection", segment.MovementDirection, tailAddress + 4);
+                        Check(tailOwner + " MovementDirection", segment.Clockwise ? (ushort)0x8000 : (ushort)0, tailAddress + 4);
                         Check(tailOwner + " Distance", checked((ushort)segment.Distance), tailAddress + 6);
                         Check(tailOwner + " TargetDistance", checked((ushort)segment.TargetDistance), tailAddress + 8);
-                        Check(tailOwner + " Angle", segment.Angle, tailAddress + 10);
+                        Check(tailOwner + " Angle", checked((ushort)segment.Angle), tailAddress + 10);
                         Check(tailOwner + " XPosition", segment.Position.X, tailAddress + 12);
                         Check(tailOwner + " YPosition", segment.Position.Y, tailAddress + 14);
                         Check(tailOwner + " XOffset", unchecked((ushort)segment.Offset.X), tailAddress + 16);

@@ -64,7 +64,7 @@ internal static class RidleyFlightTailVerification
             Function = RidleyAiFunction.NorfairFireballMoveToHeight, FunctionTimer = NativeCountdown.Start(0),
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
             {
-                Active = true, StaggerAngle = ushort.MaxValue, MovementDirection = 0,
+                Active = true, StaggerAngle = ushort.MaxValue, Clockwise = false,
                 Angle = 0x3ff0, Distance = RidleyTailDefinitions.RestDistance(index),
             }).ToArray(),
         };
@@ -96,18 +96,18 @@ internal static class RidleyFlightTailVerification
         state.TailSegments[6].Position = new Position16<RoomPixels>(128, 128);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
-        ushort samusTarget = state.TailWhipTargetClockwiseAngle;
+        int? samusTarget = state.ClockwiseWhipTarget;
         var projectiles = new SamusProjectileSystem();
         projectiles.SlotTable.ProjectileCounter = (ushort)1;
         projectiles.Slots[0].Type = (ushort)SamusProjectileFamily.Missile;
         projectiles.Slots[0].Position = projectiles.Slots[0].Position.WithWhole(new(96, 128));
         enemies.FrameContext._samusProjectilesForEnemyFrame = projectiles;
         aim(state, samus, 0);
-        ushort missileTarget = state.TailWhipTargetClockwiseAngle;
+        int? missileTarget = state.ClockwiseWhipTarget;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
         enemies.FrameContext._samusProjectilesForEnemyFrame = null;
         aim(state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
-        AssertEqual(missileTarget, state.TailWhipTargetClockwiseAngle, "missile uses its exact position without Samus's 24-pixel offset");
+        AssertEqual(missileTarget, state.ClockwiseWhipTarget, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
         int advances = 0;
         enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => seed);
@@ -116,9 +116,9 @@ internal static class RidleyFlightTailVerification
         state.IdleTailWhipEnabled = true;
         state.TailSegments[0].Angle = 0x5000;
         foreach (var segment in state.TailSegments) segment.Active = true;
-        state.TailWhipTargetClockwiseAngle = state.TailWhipTargetCounterClockwiseAngle = ushort.MaxValue;
+        state.ClockwiseWhipTarget = state.CounterClockwiseWhipTarget = null;
         neutral(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
-        AssertTrue(state.TailWhipTargetClockwiseAngle != ushort.MaxValue, "native random fling admission works outside proximity range");
+        AssertTrue(state.ClockwiseWhipTarget is not null, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> direction = enemies.RidleyBehavior.SetRidleyPogoHorizontalDirection;
         state.MovementMinimum = state.MovementMinimum.WithX(64);

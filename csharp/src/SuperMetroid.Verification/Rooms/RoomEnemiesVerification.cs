@@ -920,7 +920,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     overlayDoor.Bind(ceresDoorDefinitionPointer, overlayDoor.Definition);
     overlayDoor.VariableB = 1;
     overlayDoor.Position = overlayDoor.Position.WithWhole(new(100, 80));
-    enemies.RidleyEncounter.CeresStatus = 1; // Skip the unrelated private Baby list in this draw fixture.
+    enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped; // Skip the unrelated private Baby list in this draw fixture.
     enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
     enemies.Room.Mode7QueueResidue = new SuperMetroid.Core.Bosses.Ridley.Mode7TransferQueueResidue();
     short[] expectedDoorOffsets = [0, 0, -4, -1];
@@ -935,7 +935,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             $"Ceres private door hook byte-indexed quake phase {timer}");
     }
     overlayDoor.Bind(0, overlayDoor.Definition);
-    enemies.RidleyEncounter.CeresStatus = 0;
+    enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
     enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
 
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
@@ -958,7 +958,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.FadeInBody, (ushort)state.Function,
         "Ceres Ridley eye table terminator starts body fade");
-    AssertEqual(1, state.MovementAnimationEnabled,
+    AssertTrue(state.MovementAnimationEnabled,
         "Ceres Ridley eye fade enables composite animation");
     AssertEqual(RidleyTailFunction.None, state.TailFunctionIndex,
         "Ceres Ridley resting tail has not started its liftoff motion");
@@ -1061,18 +1061,18 @@ internal static void VerifyCeresRidleyRoomEntry()
     {
         segment.Active = true;
         segment.StaggerAngle = 0xffff;
-        segment.MovementDirection = 0x8000;
+        segment.Clockwise = true;
         segment.TargetDistance = 0;
     }
     state.TailSegments[0].Angle = 0x4000;
-    state.TailWhipTargetClockwiseAngle = 0xffff;
-    state.TailWhipTargetCounterClockwiseAngle = 0xffff;
+    state.ClockwiseWhipTarget = null;
+    state.CounterClockwiseWhipTarget = null;
     state.Function = RidleyAiFunction.CeresLungeSetup;
     samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole - 64)), unchecked((ushort)(ridley.Position.Y.Whole + 68))));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
     AssertEqual((ushort)RidleyAiFunction.CeresLungeMain, (ushort)state.Function,
         "Ceres Ridley enters lunge main");
-    AssertTrue(state.TailWhipTargetClockwiseAngle != 0xffff,
+    AssertTrue(state.ClockwiseWhipTarget is not null,
         "Ceres Ridley lunge installs cartridge tail-whip target");
     AssertEqual(8, state.TailAngleDelta,
         "Ceres Ridley aimed whip uses eight-angle step");
@@ -1109,8 +1109,8 @@ internal static void VerifyCeresRidleyRoomEntry()
         AssertEqual(1, enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
             projectiles, sharedProjectiles),
             $"Ceres Ridley hit {hit + 1} reaches enemy shot AI");
-        observedNormalRidleyPalette |= state.CommonDrawPaletteIndex == 0x0e00;
-        observedFlashRidleyPalette |= state.CommonDrawPaletteIndex == 0;
+        observedNormalRidleyPalette |= state.CommonDrawPaletteIndex.PaletteBits == 0x0e00;
+        observedFlashRidleyPalette |= state.CommonDrawPaletteIndex.PaletteBits == 0;
         if (hit == 49)
             AssertEqual(0x7000, cgram.Colors[0xf1],
                 "Ceres Ridley 50-hit health palette");
@@ -1146,7 +1146,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     int retreatFrames = 0;
     bool observedFakeRetreat = false;
     Bgr555? retreatBackgroundColor = null;
-    while (enemies.RidleyEncounter.CeresStatus != 1 && retreatFrames < 1024)
+    while (enemies.RidleyEncounter.CeresStatus != CeresEscapeStatus.RidleyEscaped && retreatFrames < 1024)
     {
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
         // $A6:A9E3 writes BG palette five as the retreat delay expires; the next frame's
@@ -1165,7 +1165,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(observedFakeRetreat,
         "Ceres Ridley returns from current attack through fake retreat/Baby retrieval");
     AssertEqual(RidleyFightMode.NotFighting, state.FightMode, "Ceres Ridley retreat disables battle mode");
-    AssertEqual(1, enemies.RidleyEncounter.CeresStatus, "Ceres Ridley publishes escape handoff status");
+    AssertEqual(CeresEscapeStatus.RidleyEscaped, enemies.RidleyEncounter.CeresStatus, "Ceres Ridley publishes escape handoff status");
     AssertEqual((ushort)RidleyAiFunction.CeresInactive, (ushort)state.Function,
         "Ceres Ridley installs null dispatcher after battle");
     AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
@@ -1269,7 +1269,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres EMERGENCY text targets BG1 row six");
     AssertEqual(6, state.FunctionTimer.RawValue,
         "Ceres self-destruct reaches the native 128-frame English hold");
-    AssertEqual(128, state.CeresEscapeTextDelayTimer,
+    AssertEqual(128, state.CeresEscapeTextDelayTimer.RawValue,
         "Ceres English warning hold starts at 128");
 
     for (int frame = 0; frame < 127; frame++)
@@ -1302,7 +1302,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         "Ceres warning renders the A in ACTIVATED on its second line");
     AssertEqual(0x3584, vram.ReadWord(0x5185),
         "Ceres warning renders the C in COLONY on its third line");
-    AssertEqual(2, enemies.RidleyEncounter.CeresStatus,
+    AssertEqual(CeresEscapeStatus.SelfDestructStarted, enemies.RidleyEncounter.CeresStatus,
         "Ceres escape publishes status two for door destruction");
     AssertEqual((ushort)RidleyAiFunction.CeresSelfDestructPaletteOnly, (ushort)state.Function,
         "Ceres escape retains the native palette-only actor function");

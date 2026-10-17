@@ -153,7 +153,7 @@ internal static class LookupStream5Verification
             var slot = system.SlotTable.Slots[0];
             slot.Position = slot.Position.WithWhole(origin);
             slot.VariableD = 48; slot.VariableE = 0; slot.VariableF = 0;
-            system.RidleyEncounter.CeresStatus = 2;
+            system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
             system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0));
             Action<RoomEnemySlot> tick = system.CeresDoorBehavior.RunCeresDoorRumbleAndExplosions;
@@ -178,7 +178,7 @@ internal static class LookupStream5Verification
                 }
                 AssertEqual(call == 49, slot.Properties.HasAny(EnemyProperties.Invisible), "Hide only at destruction expiry");
             }
-            AssertEqual((ushort)0x8000, system.RidleyEncounter.CeresStatus, "Actual rotation handoff after last anchor");
+            AssertEqual(CeresEscapeStatus.ElevatorDoorDestroyed, system.RidleyEncounter.CeresStatus, "Actual rotation handoff after last anchor");
             AssertEqual((ushort)0x25, (system.CeresDoorBehavior.LastCeresDoorSoundEffectLibrary2 ?? throw new InvalidOperationException("Verification requires system.CeresDoorBehavior.LastCeresDoorSoundEffectLibrary2.")), "Emission sound preserved");
         }
         Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
@@ -1833,11 +1833,11 @@ internal static class LookupStream5Verification
         var installed = EnemySpritemapCatalog.Load(new MemoryStream(stockJson, writable: false));
         var enemies = new RoomEnemySystem
         {
-            RidleyEncounter = { CeresStatus = 1 },
+            RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
             TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed }),
         };
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
+        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         var door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
@@ -2047,7 +2047,7 @@ internal static class LookupStream5Verification
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem { RidleyEncounter = { CeresStatus = 2 }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
+                var system = new RoomEnemySystem { RidleyEncounter = { CeresStatus = CeresEscapeStatus.SelfDestructStarted }, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
                 system.Presentation._cgram = cgram;
                 var slot = system.SlotTable.Slots[0]; slot.Parameter1 = variant;

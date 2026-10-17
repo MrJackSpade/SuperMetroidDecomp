@@ -933,7 +933,7 @@ public sealed class SuperMetroidRuntime
         // change the outer dispatcher to state $20 only when its caller is state eight.
         RoomMains.LastCeresElevatorShaftRoomMain = CeresElevatorShaft.Step(
             Player.Samus,
-            Enemies.Ceres.CeresStatus,
+            Enemies.Ceres.CeresStatus == CeresEscapeStatus.ElevatorDoorDestroyed,
             allowDeparture: policy.AllowCeresElevatorDeparture,
             Room.RoomMainScratch);
         if (RoomMains.LastCeresElevatorShaftRoomMain.MatrixChanged)

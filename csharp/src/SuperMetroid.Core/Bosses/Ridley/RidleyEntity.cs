@@ -70,7 +70,7 @@ internal sealed class RidleyEntity(
     public bool AdmitsShots() => Slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres;
 
     /// <summary>Ridley's AI publishes the common writer's palette: its body, wings and tail share one latched phase.</summary>
-    public ushort? CommonDrawPaletteIndex() => IsBody ? encounter.Ridley?.CommonDrawPaletteIndex : null;
+    public ushort? CommonDrawPaletteIndex() => IsBody ? encounter.Ridley?.CommonDrawPaletteIndex.Raw : null;
 
     /// <summary>Both Ridley mains call DrawRidleyTail/DrawRidleyWings before the common writer emits the body.</summary>
     public void DrawBeforeBody(OamBuffer oam, Position16<RoomPixels> camera)

@@ -24,10 +24,10 @@ public sealed class RidleyEnemyState
     public int HitCounter { get; internal set; }
     /// <summary>Gets the OBJ palette Ridley's tail and wings are drawn with: palette seven, or palette zero on hurt-flash updates.</summary>
     public SnesObjAttributeWord SpritemapPaletteIndex { get; internal set; }
-    /// <summary>Gets the palette word retained for the common enemy draw path alongside Ridley's composed-body palette.</summary>
-    public ushort CommonDrawPaletteIndex { get; internal set; }
-    /// <summary>Gets the native nonzero enable word for shared body motion and wing/tail updates, cleared when the intact death body is hidden.</summary>
-    public ushort MovementAnimationEnabled { get; internal set; }
+    /// <summary>Gets the OBJ palette the common enemy draw path uses for Ridley's body: the slot's palette, or palette zero on hurt-flash updates.</summary>
+    public SnesObjAttributeWord CommonDrawPaletteIndex { get; internal set; }
+    /// <summary>Gets whether shared body motion and wing/tail updates run; cleared when the intact death body is hidden.</summary>
+    public bool MovementAnimationEnabled { get; internal set; }
     /// <summary>Gets the native facing-table index: zero for left, one for front-facing transition art, and two for right.</summary>
     public RidleyFacing FacingDirection { get; internal set; }
     /// <summary>Gets whether neutral tail control may start random or proximity-triggered whips; the Ceres swoop disables it.</summary>
@@ -63,16 +63,16 @@ public sealed class RidleyEnemyState
     public SnesAngle TailMinimumClockwiseAngle { get; internal set; }
     /// <summary>Gets the facing-dependent highest angle counterclockwise tail movement may reach.</summary>
     public SnesAngle TailMaximumCounterClockwiseAngle { get; internal set; }
-    /// <summary>Gets the clockwise whip target angle; bit $8000 marks an inactive target.</summary>
-    public ushort TailWhipTargetClockwiseAngle { get; internal set; }
-    /// <summary>Gets the counterclockwise whip target angle; bit $8000 marks an inactive target.</summary>
-    public ushort TailWhipTargetCounterClockwiseAngle { get; internal set; }
-    /// <summary>Whether the clockwise whip has no target (bit $8000 of <see cref="TailWhipTargetClockwiseAngle"/>).</summary>
-    public bool ClockwiseWhipTargetIdle =>
-        (TailWhipTargetClockwiseAngle & RidleyTailDefinitions.InactiveWhipTargetBit) != 0;
-    /// <summary>Whether the counterclockwise whip has no target (bit $8000 of <see cref="TailWhipTargetCounterClockwiseAngle"/>).</summary>
-    public bool CounterClockwiseWhipTargetIdle =>
-        (TailWhipTargetCounterClockwiseAngle & RidleyTailDefinitions.InactiveWhipTargetBit) != 0;
+    /// <summary>
+    /// Gets the tail angle (see <see cref="RidleyTailSegment.Angle"/>) a clockwise whip stops at, or null while no clockwise
+    /// whip is aimed. Aimed targets lie within a quarter turn of straight down.
+    /// </summary>
+    public int? ClockwiseWhipTarget { get; internal set; }
+    /// <summary>
+    /// Gets the tail angle (see <see cref="RidleyTailSegment.Angle"/>) a counterclockwise whip stops at, or null while no
+    /// counterclockwise whip is aimed. Aimed targets lie within a quarter turn of straight down.
+    /// </summary>
+    public int? CounterClockwiseWhipTarget { get; internal set; }
     /// <summary>
     /// Gets the pending one-shot whip request, zero or one; its value minus one supplies the additional aim-angle byte
     /// before neutral tail control consumes it.
@@ -206,7 +206,7 @@ public sealed class RidleyEnemyState
     /// <summary>Where the Ceres self-destruct graphics dispatcher stands in its current transfer list, advanced as each record is queued.</summary>
     internal CeresEscapeTransferCursor CeresEscapeTransfers { get; set; }
     /// <summary>Gets the Ceres warning phase or glyph delay countdown, including the initial 128-frame wait.</summary>
-    public ushort CeresEscapeTextDelayTimer { get; internal set; }
+    public NativeCountdown CeresEscapeTextDelayTimer { get; internal set; }
     /// <summary>Gets the installed Ceres warning typewriter state, created after the initial delay when presentation data is available.</summary>
     public EscapeTypewriterState? CeresEscapeTypewriter { get; internal set; }
     /// <summary>Gets the sixteen-phase Ceres self-destruct alarm-palette frame, zero through fifteen, returning to zero after fifteen.</summary>

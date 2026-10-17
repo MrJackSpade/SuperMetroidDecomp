@@ -95,7 +95,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 // X=$0008 and clipped Samus at X=$001D after the getaway cutscene.
                 return _room.Services.Bosses.IsDefeated(BossBits.AreaBoss) ? null : cue.Target;
             case CeresDoorCueKind.GoToIfRidleyNotEscaped:
-                return _ridleyEncounter.CeresStatus != 0 ? null : cue.Target;
+                return _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ? null : cue.Target;
             case CeresDoorCueKind.MakeIntangible:
                 slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
                 return null;
@@ -175,7 +175,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             SelectedCeresDoorVisual.LoadTiles(_presentation.Vram);
         }
 
-        if (_ridleyEncounter.CeresStatus == 0 && variant == 3)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped && variant == 3)
         {
             // The native destination $142 is a byte offset into target_palettes: colors
             // 161..175. This runtime exposes the final fade target directly in CGRAM.
@@ -184,7 +184,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
-        if (_ridleyEncounter.CeresStatus != 0)
+        if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             SelectedCeresDoorVisual.LoadEscapeColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
         else
             SelectedCeresDoorVisual.LoadNormalColors(_presentation.Cgram, CeresDoorVisualRomData.ActiveTargetColor);
@@ -205,11 +205,11 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case CeresDoorFunction.RidleyEscapeMode7Wall:
-                // Ridley's room overlay begins hidden. Odd status values reveal it and swap
+                // Ridley's room overlay begins hidden. Ridley's escape reveals it and swap
                 // to enemy palette seven; the actor remains present so later Mode-7 drawing
                 // can retain the native priority relationship with Samus and Ridley.
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-                if ((_ridleyEncounter.CeresStatus & 1) != 0)
+                if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyEscaped)
                 {
                     slot.PaletteIndex = EnemyPaletteBits.Palette7;
                     slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
@@ -218,7 +218,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case CeresDoorFunction.RotatingElevatorRoomDefault:
                 RunCeresDoorPaletteAnimation();
-                if (_ridleyEncounter.CeresStatus >= 2)
+                if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.SelfDestructStarted or CeresEscapeStatus.ElevatorDoorDestroyed)
                 {
                     // $A6:F7BD installs the destruction function and initializes all three
                     // actor-owned counters, but deliberately does not execute $F7DC until
@@ -248,7 +248,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The door cannot start a second quake while the shared timer is active. A separate
         // engine stage decrements that timer; this actor only chooses the next type/duration.
-        if (_ridleyEncounter.CeresStatus < 2 || !_earthquake.EarthquakeTimer.IsZero)
+        if (_ridleyEncounter.CeresStatus is CeresEscapeStatus.RidleyNotEscaped or CeresEscapeStatus.RidleyEscaped || !_earthquake.EarthquakeTimer.IsZero)
             return;
 
         Func<ushort> readRandomNumber = _room.Random.Read;
@@ -274,12 +274,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         if (rumble.IsNegative)
         {
             // The 49th call underflows $0000 to $FFFF. Native code hides the door, returns
-            // it to the perpetual elevator-animation function, and publishes $8000 so the
+            // it to the perpetual elevator-animation function, and publishes its destruction so the
             // room's Mode-7 controller begins the rotation after Ridley's escape.
             slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
             slot.VariableA = (ushort)CeresDoorFunction.ElevatorAnimation;
-            if (_ridleyEncounter.CeresStatus != 0)
-                _ridleyEncounter.CeresStatus = CeresStatusDefinitions.DoorEscaped;
+            if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
+                _ridleyEncounter.CeresStatus = CeresEscapeStatus.ElevatorDoorDestroyed;
             return;
         }
 

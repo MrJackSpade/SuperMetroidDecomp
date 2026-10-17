@@ -73,7 +73,7 @@ internal sealed class CeresRidleyBehavior
         Ensure.NotNull(projectiles);
         Ensure.NotNull(sharedProjectiles);
 
-        if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != 0)
+        if (_ridleyEncounter.Ridley is null || _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped)
             return 0;
 
         RoomEnemySlot slot = _slotTable._slots[0];
@@ -168,7 +168,7 @@ internal sealed class CeresRidleyBehavior
         slot.Properties = slot.Properties.With(EnemyProperties.BlocksPlasmaBeam);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         slot.Position = slot.Position.WithWhole(new(186, 169));
-        _ridleyEncounter.CeresStatus = 0;
+        _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
 
         _ridleyEncounter.Ridley = new RidleyEnemyState
         {
@@ -176,8 +176,8 @@ internal sealed class CeresRidleyBehavior
             FightMode = RidleyFightMode.NotFighting,
             HitCounter = 0,
             SpritemapPaletteIndex = SnesObjPalettes.Index7,
-            CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
-            MovementAnimationEnabled = 0,
+            CommonDrawPaletteIndex = SnesObjPalettes.Index7,
+            MovementAnimationEnabled = false,
             FacingDirection = RidleyFacing.Left,
             IdleTailWhipEnabled = true,
             TailDamage = 15,
@@ -196,8 +196,8 @@ internal sealed class CeresRidleyBehavior
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
-            TailWhipTargetClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
-            TailWhipTargetCounterClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
+            ClockwiseWhipTarget = null,
+            CounterClockwiseWhipTarget = null,
             TailWhipRequest = 0,
             TailExtensionSpeed = 240,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
@@ -237,7 +237,7 @@ internal sealed class CeresRidleyBehavior
         // translated dispatcher branches mutate the flash timer, so selecting the two
         // draw palettes here is equivalent while keeping their decision ahead of the
         // shared movement/composition continuation below.
-        if (state.MovementAnimationEnabled != 0 && _ridleyEncounter.CeresStatus == 0)
+        if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
 
         switch (state.Function)
@@ -431,7 +431,7 @@ internal sealed class CeresRidleyBehavior
                 // it cannot remain parked over that separately scoped presentation seam.
                 state.Function = RidleyAiFunction.CeresInactive;
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-                _ridleyEncounter.CeresStatus = 1;
+                _ridleyEncounter.CeresStatus = CeresEscapeStatus.RidleyEscaped;
                 SetupCeresRidleyMode7(state);
                 break;
 
@@ -455,7 +455,7 @@ internal sealed class CeresRidleyBehavior
         // Once the eye fade enables composite animation, CeresRidley_Main performs the
         // common Ridley 8.8 movement pass after every dispatcher call. Keeping that order
         // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
-        if (state.MovementAnimationEnabled != 0 && _ridleyEncounter.CeresStatus == 0)
+        if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
             IntegrateRidleyMovement(slot, state, ceresWallImpact: true);
             TickRidleyWingAnimation(state);
@@ -463,7 +463,7 @@ internal sealed class CeresRidleyBehavior
             _ridleyTail.TickRidleyTail(slot, state, samus);
             UpdateCeresRidleyHealthPalette(state);
         }
-        if (_ridleyEncounter.CeresStatus == 0)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             TickCeresBaby(slot, state);
     }
 
@@ -482,10 +482,10 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state,
         ushort enemyMainExecutionCounter)
     {
-        state.CommonDrawPaletteIndex = !slot.FlashTimer.IsZero &&
+        state.CommonDrawPaletteIndex = new SnesObjAttributeWord(!slot.FlashTimer.IsZero &&
             (enemyMainExecutionCounter & 2) != 0
                 ? (ushort)0
-                : slot.PaletteIndex;
+                : slot.PaletteIndex);
 
         state.SpritemapPaletteIndex = slot.FlashTimer.RawValue > 1 &&
             (unchecked((ushort)(enemyMainExecutionCounter + 1)) & 2) != 0
@@ -1037,7 +1037,7 @@ internal sealed class CeresRidleyBehavior
         {
             state.FadePaletteOffset = 0;
             state.Function = RidleyAiFunction.FadeInBody;
-            state.MovementAnimationEnabled = 1;
+            state.MovementAnimationEnabled = true;
             return;
         }
 
@@ -1147,8 +1147,8 @@ internal sealed class CeresRidleyBehavior
         Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != 0) ||
-            state.MovementAnimationEnabled == 0)
+        if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
+            !state.MovementAnimationEnabled)
             return;
 
         if (state.TailSegments.Length == 7)
@@ -1202,7 +1202,7 @@ internal sealed class CeresRidleyBehavior
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
             _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
-            _ridleyEncounter.Ridley.MovementAnimationEnabled != 0)
+            _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, camera);
@@ -1221,7 +1221,7 @@ internal sealed class CeresRidleyBehavior
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
             _slotTable._slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
-            _ridleyEncounter.Ridley.MovementAnimationEnabled == 0)
+            !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
         DrawCeresRidleyBabyAndDoor(oam, camera);
@@ -1235,7 +1235,7 @@ internal sealed class CeresRidleyBehavior
         RidleyEnemyState state = _ridleyEncounter.Ridley
             ?? throw new InvalidOperationException("Ceres Ridley Baby draw requires active state.");
 
-        if (_ridleyEncounter.CeresStatus == 0)
+        if (_ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
             ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
             if (babySpritemap != 0)
@@ -1376,7 +1376,7 @@ internal sealed class CeresRidleyBehavior
         RoomEnemySlot slot = _slotTable._slots[0];
         if (_ridleyEncounter.Ridley is null ||
             !RidleyBehavior.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != 0 ||
+            slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
             !samus.InvincibilityTimer.IsZero)
         {
             return false;
@@ -1496,7 +1496,7 @@ internal sealed class CeresRidleyBehavior
     /// </summary>
     public void RunCeresRidleyGetawayRoomMain(SamusState? samus, ushort nmiFrameCounter)
     {
-        if ((_ridleyEncounter.CeresStatus & 1) == 0)
+        if (_ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyEscaped)
             return;
         RidleyEnemyState state = _ridleyEncounter.Ridley ?? throw new InvalidOperationException(
             "Ceres status one requires the Ceres Ridley getaway state.");
@@ -1683,18 +1683,17 @@ internal sealed class CeresRidleyBehavior
                     // through the same bank-$80 queue used by every other music producer.
                     state.MusicRequest = MusicCommand.SelectTrack(7);
                     state.FunctionTimer = NativeCountdown.Start(6);
-                    state.CeresEscapeTextDelayTimer = 128;
+                    state.CeresEscapeTextDelayTimer = NativeCountdown.Start(128);
                 }
                 return;
 
             case 6:
                 UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
-                ushort oldDelay = state.CeresEscapeTextDelayTimer;
-                state.CeresEscapeTextDelayTimer = unchecked((ushort)(oldDelay - 1));
-                if (oldDelay != 1)
+                NativeWordCounterStep delay = state.CeresEscapeTextDelayTimer.Decrement();
+                state.CeresEscapeTextDelayTimer = delay.Remaining;
+                if (!delay.IsZero)
                     return;
 
-                state.CeresEscapeTextDelayTimer = 0;
                 state.CeresEscapeTypewriter = _presentation.EscapeTypewriterPresentation is { } presentation
                     ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), EscapeTypewriterDefinitions.CeresTileBase)
                     : null;
@@ -1710,9 +1709,9 @@ internal sealed class CeresRidleyBehavior
 
             case 8:
                 UpdateCeresSelfDestructPalette(state, _slotTable._slots[0].FrameCounter);
-                ushort oldJapaneseDelay = state.CeresEscapeTextDelayTimer;
-                state.CeresEscapeTextDelayTimer = unchecked((ushort)(oldJapaneseDelay - 1));
-                if (oldJapaneseDelay == 1)
+                NativeWordCounterStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
+                state.CeresEscapeTextDelayTimer = japaneseDelay.Remaining;
+                if (japaneseDelay.IsZero)
                 {
                     state.FunctionTimer = NativeCountdown.Start(10);
                     QueueCeresTransferList(CeresEscapeVramTransferDefinitions.JapaneseOverlay,
@@ -1733,7 +1732,7 @@ internal sealed class CeresRidleyBehavior
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                 state.FunctionTimer = NativeCountdown.Start(0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
-                _ridleyEncounter.CeresStatus = 2;
+                _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the
                 // room's exit door at $A6:F562) observe it in this same EnemyMain pass.
                 _room.Services.Bosses.SetDefeated(BossBits.AreaBoss);
@@ -1844,7 +1843,7 @@ internal sealed class CeresRidleyBehavior
         var installed = state.CeresEscapeTypewriter ?? throw new InvalidDataException(
             "Ceres warning text requires installed typewriter artwork.");
         bool completed = installed.Step(_presentation.Vram);
-        state.CeresEscapeTextDelayTimer = installed.DelayTimer.RawValue;
+        state.CeresEscapeTextDelayTimer = installed.DelayTimer;
         if (installed.ClickRequested)
             _audio.QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
         return completed;

@@ -135,7 +135,7 @@ internal static class CeresSaveStartupVerification
             loaded.Room.LoadedRoom.State.Pointer, "#1153 initial room state is unchanged by normal reload");
         AssertTrue(!loaded.System.HasAnyBossBits(AreaId.Ceres, BossBits.AreaBoss),
             "#1153 initial reload does not set the defeated-Ridley flag");
-        AssertEqual((ushort)0, loaded.Enemies.RidleyEncounter.CeresStatus,
+        AssertEqual(SuperMetroid.Core.Enemies.CeresEscapeStatus.RidleyNotEscaped, loaded.Enemies.RidleyEncounter.CeresStatus,
             "#1153 initial reload leaves station activation inactive");
         AssertTrue(loaded.Room.CeresElevatorArrival is not null,
             "#1153 initial reload uses the arrival, not ordinary save appearance");

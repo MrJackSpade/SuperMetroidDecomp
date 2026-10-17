@@ -206,8 +206,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
             Function = RidleyAiFunction.WaitForDoorTransition,
             FightMode = RidleyFightMode.NotFighting,
             SpritemapPaletteIndex = SnesObjPalettes.Index7,
-            CommonDrawPaletteIndex = EnemyPaletteBits.Palette7,
-            MovementAnimationEnabled = 1,
+            CommonDrawPaletteIndex = SnesObjPalettes.Index7,
+            MovementAnimationEnabled = true,
             FacingDirection = RidleyFacing.Right,
             IdleTailWhipEnabled = false,
             TailDamage = 120,
@@ -220,8 +220,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
             TailAngleDelta = 1,
             TailMinimumClockwiseAngle = RidleyTailDefinitions.InitialMinimumClockwise,
             TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.InitialMaximumCounterClockwise,
-            TailWhipTargetClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
-            TailWhipTargetCounterClockwiseAngle = RidleyTailDefinitions.IdleWhipTarget,
+            ClockwiseWhipTarget = null,
+            CounterClockwiseWhipTarget = null,
             TailExtensionSpeed = 240,
             IdealInterSegmentTailAngle = RidleyTailDefinitions.IdealInterSegmentAngle,
             TailSegments = RidleyTail.CreateInitialRidleyTailSegments(),
@@ -261,7 +261,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
         RunNorfairRidleyFunction(slot, state, samus, controllerInput, level);
 
-        if (state.MovementAnimationEnabled != 0)
+        if (state.MovementAnimationEnabled)
         {
             CeresRidleyBehavior.UpdateRidleyHurtFlashPalettes(slot, state, slot.FrameCounter);
             _ceresRidleyBehavior.IntegrateRidleyMovement(slot, state);
@@ -1203,7 +1203,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             UpdateNorfairRidleyIntangibility(body, state, camera);
             PrepareNorfairRidleyCombatFrame(state, sharedProjectiles);
             RunNorfairRidleyFunction(body, state, samus, controllerInput, level);
-            if (state.MovementAnimationEnabled != 0)
+            if (state.MovementAnimationEnabled)
             {
                 _ceresRidleyBehavior.IntegrateRidleyMovement(body, state);
                 CeresRidleyBehavior.TickRidleyWingAnimation(state);
@@ -1211,7 +1211,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             }
         }
 
-        if (samusProjectiles is not null && state.MovementAnimationEnabled != 0)
+        if (samusProjectiles is not null && state.MovementAnimationEnabled)
             _ridleyTail.ResolveRidleyTailProjectileHits(body, state, samusProjectiles);
         CeresRidleyBehavior.UpdateRidleyHurtFlashPalettes(body, state, body.FrameCounter);
         UpdateNorfairRidleyHealthPalette(body, state);
@@ -1361,7 +1361,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RidleyEnemyState state)
     {
         SpawnSmallExplosionNearNorfairRidley(body, state);
-        state.MovementAnimationEnabled = 0;
+        state.MovementAnimationEnabled = false;
         body.Properties = body.Properties.With(EnemyProperties.Invisible);
         state.Function = RidleyAiFunction.NorfairDeathWait;
         state.FunctionTimer = NativeCountdown.Start(32);

@@ -54,7 +54,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         var state = new RidleyEnemyState
         {
             Function = RidleyAiFunction.FadeInEyes,
-            MovementAnimationEnabled = 0,
+            MovementAnimationEnabled = false,
         };
         for (ushort offset = 0;
              offset < CeresRidleyEyeFadeDefinitions.PaletteStepCount;
@@ -86,7 +86,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             "production Ceres eye-fade terminator resets its offset");
         AssertEqual(RidleyAiFunction.FadeInBody, state.Function,
             "production Ceres eye-fade terminator enters body fade");
-        AssertEqual((ushort)1, state.MovementAnimationEnabled,
+        AssertTrue(state.MovementAnimationEnabled,
             "production Ceres eye-fade terminator enables movement animation");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production Ceres eye fade performs no schedule reads");

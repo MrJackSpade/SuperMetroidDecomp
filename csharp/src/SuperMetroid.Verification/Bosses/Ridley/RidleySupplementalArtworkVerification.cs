@@ -77,7 +77,7 @@ internal static class RidleySupplementalArtworkVerification
         slot.Position = slot.Position.WithWhole(new(200, 100));
         var state = new RidleyEnemyState
         {
-            MovementAnimationEnabled = 1,
+            MovementAnimationEnabled = true,
             FacingDirection = facing,
             WingFrame = wingFrame,
             SpritemapPaletteIndex = SnesObjPalettes.Index1,

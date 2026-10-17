@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class CeresEncounter(RidleyEncounter encounter, CeresRidleyBehavior ceresRidley) : ICeresEncounter
 {
     /// <inheritdoc/>
-    public ushort CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
+    public CeresEscapeStatus CeresStatus { get => encounter.CeresStatus; set => encounter.CeresStatus = value; }
 
     /// <inheritdoc/>
     public bool RidleyPresent => encounter.Ridley is not null;

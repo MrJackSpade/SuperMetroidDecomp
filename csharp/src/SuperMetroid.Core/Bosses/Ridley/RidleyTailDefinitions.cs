@@ -16,17 +16,8 @@ internal static class RidleyTailDefinitions
     internal const ushort DownAngle = 0x4000;
     /// <summary>$A6:CD52/CDD8, pogo clockwise whip target.</summary>
     internal const ushort PogoWhipAngle = 0x3f00;
-    /// <summary>
-    /// Bit 15 of a whip target angle word: set while that direction has no target. The cartridge parks an
-    /// idle target at <c>$FFFF</c> and tests the bit with <c>BIT</c>/<c>BMI</c>, never the whole word.
-    /// </summary>
-    internal const ushort InactiveWhipTargetBit = 0x8000;
-    /// <summary>The whip target word the cartridge parks in an idle direction (native -1).</summary>
-    internal const ushort IdleWhipTarget = 0xffff;
     /// <summary>A segment's stagger word once it has activated the next segment (native -1).</summary>
     internal const ushort StaggerPropagated = 0xffff;
-    /// <summary>Bit 15 of a segment's direction word: set while it moves clockwise, toward decreasing angles.</summary>
-    internal const ushort ClockwiseMovementBit = 0x8000;
     /// <summary>The whip's extension request while a segment chases a whip target.</summary>
     internal const ushort WhipDistance = 0x0c00;
     /// <summary>The axis a facing change reflects tail angles around: half of the 16-bit turn ($A6:D3F9).</summary>

@@ -133,7 +133,7 @@ internal sealed class RoomMainRoutines
     {
         if (_room.ActiveRoom?.State.MainCallback !=
                 RoomMainCallback.SpawnCeresPreElevatorHallFallingDebris ||
-            _enemies.Ceres.CeresStatus == 0)
+            _enemies.Ceres.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
             return;
 
         // The timer is RoomMainASMVar1, inherited from the shaft's rotation index.

@@ -25,7 +25,7 @@ internal static class CeresRidleyWallVerification
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function = RidleyAiFunction.CeresLungeMain;
         ridley.FunctionTimer = NativeCountdown.Start(100);
-        ridley.MovementAnimationEnabled = 1;
+        ridley.MovementAnimationEnabled = true;
         ridley.Velocity = ridley.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeX(20);

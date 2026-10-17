@@ -15,8 +15,8 @@ public sealed class RidleyTailSegment
     /// then holds <see cref="RidleyTailDefinitions.StaggerPropagated"/> once the next segment has been activated.
     /// </summary>
     public int StaggerAngle { get; internal set; }
-    /// <summary>Gets the native direction word; bit $8000 selects clockwise/decreasing-angle motion.</summary>
-    public ushort MovementDirection { get; internal set; }
+    /// <summary>Gets whether this segment moves clockwise, toward decreasing angles; otherwise it moves counterclockwise.</summary>
+    public bool Clockwise { get; internal set; }
     /// <summary>
     /// Gets the live 8.8 distance (1/256 pixels) from the preceding tail anchor, between half a pixel under its rest length
     /// and its whip maximum; its whole part supplies the pixels used for offset composition.
@@ -29,8 +29,13 @@ public sealed class RidleyTailSegment
     /// </summary>
     public int TargetDistance { get; internal set; }
 
-    /// <summary>Gets the wrapped native tail angle; the low byte indexes the sine table and the full word retains winding and clamp state.</summary>
-    public ushort Angle { get; internal set; }
+    /// <summary>
+    /// Gets the tail angle in 1/256 turns, counted without wrapping: its remainder modulo 256 indexes the sine table, and
+    /// the whole value orders angles across the turn boundary for the clamp and whip-target comparisons. Every producer
+    /// keeps it near 64 whole turns (straight down is 16384): initialization, the facing clamps, the whip targets and the
+    /// mirror about 32768, so it stays within 0 through 32767 and no write wraps.
+    /// </summary>
+    public int Angle { get; internal set; }
     /// <summary>Gets the signed whole-pixel displacement from the preceding anchor.</summary>
     public Offset16<RoomPixels> Offset { get; internal set; }
     /// <summary>Gets the composed sixteen-bit room position used for drawing and tail contact.</summary>

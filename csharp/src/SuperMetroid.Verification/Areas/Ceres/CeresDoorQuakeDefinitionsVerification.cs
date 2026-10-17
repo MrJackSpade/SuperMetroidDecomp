@@ -50,12 +50,12 @@ internal static class CeresDoorQuakeDefinitionsVerification
         var guarded = NewCeresDoorQuakeReadGuard(rom);
         var enemies = new RoomEnemySystem
         {
-            RidleyEncounter = { CeresStatus = 1 },
+            RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },
             TileArtwork = InstalledFixtures.EnemyTiles,
         };
         enemies.SlotTable.Slots[0].Bind(EnemyDefinitionId.RidleyCeres, enemies.SlotTable.Slots[0].Definition);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
-        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = 0 };
+        enemies.RidleyEncounter.Ridley = new RidleyEnemyState { MovementAnimationEnabled = false };
         RoomEnemySlot door = enemies.SlotTable.Slots[1];
         door.Bind(EnemyDefinitionId.CeresDoor, door.Definition);
         door.VariableB = 1;

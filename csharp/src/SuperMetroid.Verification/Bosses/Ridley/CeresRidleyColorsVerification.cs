@@ -155,7 +155,7 @@ internal static class CeresRidleyColorsVerification
             throw new InvalidOperationException("Ceres Ridley initialization did not publish state.");
         activeRidley.Function = RidleyAiFunction.CeresRetreatDelay;
         activeRidley.FunctionTimer = NativeCountdown.Start(0);
-        activeRidley.MovementAnimationEnabled = 0;
+        activeRidley.MovementAnimationEnabled = false;
         enemies.CeresRidleyBehavior.RunCeresRidleyMain(slot, null, null);
         AssertEqual(RidleyAiFunction.CeresPublishEscapeHandoff, activeRidley.Function,
             "Ceres Ridley retreat publishes the Mode-7 handoff");

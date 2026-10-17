@@ -7,8 +7,8 @@ namespace SuperMetroid.Core.Enemies;
 /// <summary>The Ceres encounter's status and the operations the runtime runs at its fixed phase points.</summary>
 internal interface ICeresEncounter
 {
-    /// <summary>Native ceres_status ($093F).</summary>
-    ushort CeresStatus { get; set; }
+    /// <summary>How far Ceres's escape has progressed.</summary>
+    CeresEscapeStatus CeresStatus { get; set; }
 
     /// <summary>Whether a Ridley encounter is loaded.</summary>
     bool RidleyPresent { get; }

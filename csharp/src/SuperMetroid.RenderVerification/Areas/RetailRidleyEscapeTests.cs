@@ -47,7 +47,7 @@ internal static class RetailRidleyEscapeTests
                     mixedFrames++;
                     matrices.Add((ridley.Mode7MatrixA, ridley.Mode7MatrixB, ridley.Mode7MatrixC, ridley.Mode7MatrixD));
                 }
-                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == 2 && ridley.Mode7Finished &&
+                finished = triggered && runtime.Enemies.RidleyEncounter.CeresStatus == SuperMetroid.Core.Enemies.CeresEscapeStatus.SelfDestructStarted && ridley.Mode7Finished &&
                     !ridley.Mode7Active && !samus.CeresRidleyEjection.IsActive;
                 // Capture every mixed-mode frame, every AI boundary and periodic startup
                 // frames. Completion is captured before leaving the room-local fixture.

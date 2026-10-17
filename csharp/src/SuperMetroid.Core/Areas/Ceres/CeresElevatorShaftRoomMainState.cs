@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -62,7 +61,7 @@ public sealed class CeresElevatorShaftRoomMainState
 
     /// <summary>Executes one call to room main <c>$89:ACC3</c>.</summary>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
-    /// <param name="ceresStatus">Bank-$A6 Ceres status word at native WRAM <c>$093F</c>.</param>
+    /// <param name="elevatorDoorDestroyed">Whether the Ceres elevator door's destruction has released the rotation.</param>
     /// <param name="allowDeparture">
     /// True only when the outer dispatcher is state eight. States $20/$21 still call the
     /// ordinary gameplay body, but the native room main explicitly rejects their game-state
@@ -71,7 +70,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// <param name="scratch">Shared mutable room-main scratch: Var1 supplies and receives the encoded forward/reverse rotation index inherited by subsequent room owners; the countdown remains in this state's <see cref="RotationTimer"/>.</param>
     public CeresElevatorShaftRoomMainResult Step(
         SamusState? samus,
-        ushort ceresStatus,
+        bool elevatorDoorDestroyed,
         bool allowDeparture,
         RoomMainScratchState scratch)
     {
@@ -81,7 +80,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // The room code is entirely dormant until the Ceres door's destruction publishes
         // its escape status. In particular, the initial elevator descent retains door ASM's identity
         // matrix instead of prematurely consuming the rotation table.
-        if (!IsActive || (ceresStatus & CeresStatusDefinitions.DoorEscaped) == 0)
+        if (!IsActive || !elevatorDoorDestroyed)
             return Snapshot(matrixChanged: false);
 
         if (allowDeparture &&

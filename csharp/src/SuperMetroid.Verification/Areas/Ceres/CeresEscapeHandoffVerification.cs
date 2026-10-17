@@ -135,7 +135,7 @@ internal static class CeresEscapeHandoffVerification
             SamusPoseId.FacingRightNormalPose,
             position: new(32, 100));
 
-        StepFrames(60, _ => state.Step(outsideTrigger, 0x8000, allowDeparture: true, scratch));
+        StepFrames(60, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch));
         AssertEqual(0, state.RotationTimer.RawValue, "shaft door delay retains zero for one room-main call");
         AssertEqual(
             CeresElevatorShaftRoomMainState.InitialRotationIndex,
@@ -143,7 +143,7 @@ internal static class CeresEscapeHandoffVerification
             "shaft index waits through first 60 calls");
 
         CeresElevatorShaftRoomMainResult firstMatrix =
-            state.Step(outsideTrigger, 0x8000, allowDeparture: true, scratch);
+            state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch);
         AssertTrue(firstMatrix.MatrixChanged, "61st shaft call underflows and consumes first matrix record");
         AssertEqual(35, scratch.Var1, "shaft index advances after record 34");
         AssertEqual(0x0100, state.Transform.MatrixA, "shaft cosine comes from record 34");
@@ -156,9 +156,9 @@ internal static class CeresEscapeHandoffVerification
         // Consume records 35..67. The final forward phase is encoded as $8044 rather
         // than 68; one more call proves the wrapped multiplication selects record 68.
         for (int i = 0; i < 33; i++)
-            StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, 0x8000, allowDeparture: true, scratch));
+            StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch));
         AssertEqual(0x8044, scratch.Var1, "shaft forward sweep enters encoded reverse phase");
-        StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, 0x8000, allowDeparture: true, scratch));
+        StepFrames(state.RotationTimer.RawValue + 1, _ => state.Step(outsideTrigger, elevatorDoorDestroyed: true, allowDeparture: true, scratch));
         AssertEqual(0x8043, scratch.Var1, "shaft encoded reverse phase decrements");
         AssertEqual(0x00fe, state.Transform.MatrixA, "encoded phase maps to record 68");
         AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
@@ -171,17 +171,17 @@ internal static class CeresEscapeHandoffVerification
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(113, 75));
-        trigger.Step(samus, 0x8000, allowDeparture: false, triggerScratch);
+        trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: false, triggerScratch);
         AssertTrue(!trigger.DepartureRequested, "non-gameplay dispatcher cannot trigger departure");
 
         CeresElevatorShaftRoomMainResult requested =
-            trigger.Step(samus, 0x8000, allowDeparture: true, triggerScratch);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerScratch);
         AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.InputLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         CeresElevatorShaftRoomMainResult repeated =
-            trigger.Step(samus, 0x8000, allowDeparture: true, triggerScratch);
+            trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerScratch);
         AssertTrue(!repeated.DepartureRequestedThisFrame, "departure request is a one-frame publication");
     }
 

@@ -162,7 +162,7 @@ internal static class LookupStream2Verification
         enemies.Presentation._cgram = cgram;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
-        var state = new WreckedShipGhostEnemyState(slot) { PhaseTimer = NativeCountdown.Start(2) };
+        var state = new WreckedShipGhostEnemyState { PhaseTimer = NativeCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         var native = new ushort[16];
@@ -1799,7 +1799,7 @@ internal static class LookupStream2Verification
         Action<RoomEnemySlot, WreckedShipGhostEnemyState, Position16<RoomPixels>> spawn = WreckedShipGhostBehavior.SpawnWreckedShipGhost;
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> flicker = WreckedShipGhostBehavior.AdvanceWreckedShipGhostFlicker;
         var slot = new RoomEnemySystem().SlotTable.Slots[0];
-        var state = new WreckedShipGhostEnemyState(slot);
+        var state = new WreckedShipGhostEnemyState();
         for (int index = 0; index < 9; index++)
         {
             short originalX = unchecked((short)ReadVerificationWord(rom, 0xa89aa8 + 4 * index));

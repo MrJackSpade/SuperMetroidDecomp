@@ -3,51 +3,41 @@ using SuperMetroid.Core.Fx;
 namespace SuperMetroid.Core.Enemies.WreckedShip;
 
 /// <summary>
-/// Typed projection of the ghost's ordinary variables and its bank-$A8 extension in WRAM
-/// $7800. The extension is actor-owned state in the original even though it lives outside
-/// the common 64-byte enemy record; representing it here avoids disguising those words as
-/// unrelated host counters.
+/// The state of the Wrecked Ship ghost, with its bank-$A8 extension in WRAM $7800. Its behaviour, phase timer and
+/// flicker offset are values the cartridge keeps in the enemy's common record, so a kill empties them with that record
+/// (<see cref="ClearWithRecord"/>); the extension outlives the kill.
 /// </summary>
 public sealed class WreckedShipGhostEnemyState
 {
-    /// <summary>Common enemy words containing the ghost's function and phase timers.</summary>
-    private readonly RoomEnemySlot _slot;
     /// <summary>Ghost color target kept separate from currently visible CGRAM colors.</summary>
     private readonly Bgr555[] _targetPalette = new Bgr555[16];
-
-    /// <summary>Projects the ghost's extended state onto its live enemy slot.</summary>
-    internal WreckedShipGhostEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>
     internal AnimationProgramCursor<WreckedShipGhostProgram> Program { get; set; }
 
-    /// <summary>Enemy variable A: bank-$A8 indirect main-AI function.</summary>
-    public WreckedShipGhostAiFunction Function
-    {
-        get => (WreckedShipGhostAiFunction)_slot.VariableA;
-        internal set => _slot.VariableA = (ushort)value;
-    }
+    /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
+    public WreckedShipGhostAiFunction? Function { get; internal set; }
+
+    /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Function"/>.</summary>
+    public NativeCountdown PhaseTimer { get; internal set; }
 
     /// <summary>
-    /// Enemy variable B: initial/reappearance delay, flicker interval, or visible lifetime,
-    /// depending on <see cref="Function"/>.
-    /// </summary>
-    public NativeCountdown PhaseTimer
-    {
-        get => NativeCountdown.FromRaw(_slot.VariableB);
-        internal set => _slot.VariableB = value.RawValue;
-    }
-
-    /// <summary>
-    /// Enemy variable C: the flicker-duration table's byte offset, two per interval. It starts at two, steps by two
-    /// with each interval and returns to zero at the table's terminator; its second bit selects whether the interval
-    /// just started shows the ghost. An offset past the table's seventeen intervals is rejected before it can grow
-    /// further, and the slot variable keeps the same value for other enemies' aliased enemy-RAM reads.
+    /// The flicker-duration table's byte offset, two per interval, 0 through 65535. It starts at two, steps by two with
+    /// each interval and returns to zero at the table's terminator; its second bit selects whether the interval just
+    /// started shows the ghost. An offset past the table's seventeen intervals is rejected before it can grow further.
     /// </summary>
     public int FlickerTableOffset
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = checked((ushort)value);
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
+
+    /// <summary>Empties the values the cartridge keeps in the enemy's common record: no behaviour, timer or flicker offset.</summary>
+    internal void ClearWithRecord()
+    {
+        Function = null;
+        PhaseTimer = NativeCountdown.Start(0);
+        FlickerTableOffset = 0;
     }
 
     /// <summary>

@@ -96,8 +96,8 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
     /// <summary>Ports <c>InitAI_PirateWalking</c> at <c>$B2:FD02</c>.</summary>
     internal static void InitializeWalkingSpacePirate(RoomEnemySlot slot)
     {
-        var state = new WalkingSpacePirateEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new WalkingSpacePirateEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Parameter-one bit zero is the only initial-facing selector. Bit fifteen is an
         // independent projectile-flinch option and must not accidentally select right art.
@@ -138,7 +138,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
 
             default:
                 throw new InvalidDataException(
-                    $"Walking Space Pirate function $B2:{(ushort)state.Function:X4} is not translated.");
+                    $"Walking Space Pirate function {state.Function?.ToString() ?? "none"} is not translated.");
         }
 
         // Parameter-one bit fifteen enables the retail flinch detector after normal AI.

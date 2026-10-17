@@ -64,7 +64,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
 
-        var state = new WreckedShipGhostEnemyState(slot)
+        var state = new WreckedShipGhostEnemyState
         {
             Program = AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             Function = WreckedShipGhostAiFunction.InitialInvisibleDelay,
@@ -78,7 +78,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
         // first white ramp would begin from the graphics-set palette and overflow BGR fields.
         state.MutableTargetPalette.Clear();
         WreckedShipGhostPalette(slot).Fill(Bgr555.Black);
-        slot.SetSpeciesState(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
     }
 
     /// <summary>Ports the indirect dispatch in <c>WreckedShipGhost_Main</c>.</summary>
@@ -112,7 +112,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Wrecked Ship ghost function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Wrecked Ship ghost function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

@@ -33,14 +33,14 @@ internal static class WreckedShipGhostBobbingVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Coven, slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, y));
-            var state = new WreckedShipGhostEnemyState(slot)
+            var state = new WreckedShipGhostEnemyState
             {
                 Function = WreckedShipGhostAiFunction.BobbingWhileVisible,
                 PhaseTimer = NativeCountdown.Start(120),
                 BobbingOrigin = new(0, originY),
                 VerticalVelocity = SnesSignedSixteenSixteen.FromParts(whole, 0),
             };
-            slot.SetSpeciesState(state);
+            slot.SetSpeciesState(state, state.ClearWithRecord);
 
             enemies.WreckedShipGhostBehavior.RunWreckedShipGhostMainAi(slot, frame);
 

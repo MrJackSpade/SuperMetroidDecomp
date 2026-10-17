@@ -47,15 +47,14 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>Kago_Init</c> at <c>$A8:AB46</c>.</summary>
     internal static void InitializeKago(RoomEnemySlot slot)
     {
-        var state = new KagoEnemyState(slot);
-        slot.SetSpeciesState(state);
+        var state = new KagoEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        slot.VariableE = 0;
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
@@ -74,7 +73,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             default:
                 throw new InvalidDataException(
-                    $"Kago main function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Kago main function {state.Function?.ToString() ?? "none"} is not translated.");
         }
     }
 

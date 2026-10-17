@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.FuneNamihe;
 using SuperMetroid.Verification.Enemies.FuneNamihe;
 using SuperMetroid.Core.Enemies.Hibashi;
+using SuperMetroid.Core.Enemies.Kago;
 using SuperMetroid.Core.Enemies.LavaJumpers;
 using SuperMetroid.Core.Enemies.MamaTurtles;
 using SuperMetroid.Core.Enemies.Metaree;
@@ -26,9 +27,11 @@ using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Enemies.Skultera;
+using SuperMetroid.Core.Enemies.SpacePirates;
 using SuperMetroid.Core.Enemies.Sparks;
 using SuperMetroid.Core.Enemies.Stoke;
 using SuperMetroid.Core.Enemies.Waver;
+using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
@@ -97,6 +100,24 @@ internal static class NativeEnemyFamilyStateImport
             skultera.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)slot.VariableE), slot.VariableD);
             // Only the angle word's low byte is ever read; movement discards its high byte.
             skultera.Angle = SnesAngle.FromTableIndex(SnesLittleEndian.LowByte(slot.VariableF));
+        }
+        if (slot.EntityState<KagoEntity, KagoEnemyState>() is { } kago)
+        {
+            kago.Function = slot.VariableA == 0 ? null : (KagoEnemyFunction)slot.VariableA;
+            kago.UsesFastAnimation = slot.VariableB != 0;
+            kago.DeathAnimationStarted = slot.VariableF != 0;
+        }
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
+        {
+            ghost.Function = slot.VariableA == 0 ? null : (WreckedShipGhostAiFunction)slot.VariableA;
+            ghost.PhaseTimer = NativeCountdown.FromRaw(slot.VariableB);
+            ghost.FlickerTableOffset = slot.VariableC;
+        }
+        if (slot.EntityState<WalkingSpacePirateEntity, WalkingSpacePirateEnemyState>() is { } walkingPirate)
+        {
+            walkingPirate.Function = slot.VariableA == 0 ? null : (WalkingSpacePirateFunction)slot.VariableA;
+            walkingPirate.LeftPost = new(slot.VariableE, 0);
+            walkingPirate.RightPost = new(slot.VariableF, 0);
         }
         if (slot.EntityState<MultiviolaEntity, MultiviolaEnemyState>() is { } multiviola)
             multiviola.Velocity = FixedVector<RoomPixels>.FromWords(slot.VariableC, slot.VariableD, slot.VariableE, slot.VariableF);

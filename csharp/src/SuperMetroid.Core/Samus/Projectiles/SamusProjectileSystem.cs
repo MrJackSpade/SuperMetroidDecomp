@@ -133,7 +133,7 @@ public sealed class SamusProjectileSystem
         switch (selection)
         {
             case ChainsawBeamGraphicsDefinitions.Selection:
-                ChainsawBeamGraphicsDefinitions.LoadPalette(cgram);
+                LoadChainsawPalette(cgram);
                 break;
             case SpacetimeBeamGraphicsDefinitions.Selection:
                 SpacetimeBeamGraphicsDefinitions.LoadPalette(cgram);
@@ -149,6 +149,14 @@ public sealed class SamusProjectileSystem
             default:
                 throw new ArgumentOutOfRangeException(nameof(selection), selection, "Undefined beam combination.");
         }
+    }
+
+    /// <summary>Writes the glitched Chainsaw beam palette's sixteen colours into the beam palette.</summary>
+    private static void LoadChainsawPalette(SnesCgram cgram)
+    {
+        var beam = new SamusPalettes(cgram).Beam;
+        for (int color = 0; color < ChainsawBeamGraphicsDefinitions.Palette.Count; color++)
+            beam.Write(color, ChainsawBeamGraphicsDefinitions.Palette[color]);
     }
     /// <summary>
     /// Runs <c>HandleBeamChargePalettes</c> at <c>$91:D743-$D7D4</c> against the

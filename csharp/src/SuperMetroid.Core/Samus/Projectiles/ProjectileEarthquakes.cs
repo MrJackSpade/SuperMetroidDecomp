@@ -31,12 +31,16 @@ internal sealed class ProjectileEarthquakes
             // Publish at the native collision call, not at frame end: later enemy/room
             // producers may replace this request, and earlier draw owners may read it.
             room.Earthquake.EarthquakeType = EarthquakeType;
-            room.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(EarthquakeTimer);
+            room.Earthquake.EarthquakeTimer = NativeCountdown.Start(EarthquakeTimer);
         }
     }
 
     /// <summary>Last impact's quake request; runtime requests also write the shared room owner immediately.</summary>
     public ushort EarthquakeType { get; internal set; }
-    /// <summary>Duration of the most recent Super Missile impact quake request, not a ticking countdown; cleared by <see cref="SamusProjectileSystem.ResetForRoomTransition"/> and published immediately to the shared room earthquake owner when bound.</summary>
-    public ushort EarthquakeTimer { get; internal set; }
+    /// <summary>
+    /// Duration in frames of the most recent Super Missile impact quake request, not a ticking countdown: zero, or
+    /// the Super Missile quake duration. Cleared by <see cref="SamusProjectileSystem.ResetForRoomTransition"/> and
+    /// published immediately to the shared room earthquake owner, whose countdown starts at it, when bound.
+    /// </summary>
+    public int EarthquakeTimer { get; internal set; }
 }

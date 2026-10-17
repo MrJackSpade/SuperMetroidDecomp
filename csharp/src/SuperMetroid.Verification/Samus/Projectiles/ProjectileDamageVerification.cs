@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks compiled projectile damage and special beam mechanics against native data and guarded production initialization.</summary>
 internal static class ProjectileDamageVerification
@@ -226,6 +227,47 @@ internal static class ProjectileDamageVerification
 
         Console.WriteLine(
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
+    }
+
+    /// <summary>
+    /// Checks that the Plasma special attack's angle step keeps each slot's angle on the 256-step circle in both
+    /// turning directions: a right-facing attack steps angle 254 to 2, and a left-facing one steps 2 to 254.
+    /// </summary>
+    private static void VerifyComboAngleStepWrapsAtTheByteBoundary()
+    {
+        foreach ((SamusPoseId pose, int step, ushort from, ushort to) in new (SamusPoseId, int, ushort, ushort)[]
+        {
+            (SamusPoseId.FacingRightNormalPose, 4, 254, 2),
+            (SamusPoseId.FacingLeftNormalPose, -4, 2, 254),
+        })
+        {
+            var projectiles = new SamusProjectileSystem();
+            var shared = new SamusBombProjectileSystem();
+            var samus = new SamusState
+            {
+                Pose = pose,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
+                EquippedBeams = SamusBeamFlags.Plasma,
+                SelectedHudItem = HudItem.PowerBomb,
+                PowerBombs = 10,
+            };
+            AssertTrue(projectiles.Combos.TryActivateCombo(samus, shared, out _),
+                $"{pose} Plasma special attack activates");
+            AssertEqual(step, projectiles.Combos.ComboState, $"{pose} Plasma special attack angle step");
+            SamusProjectileSlot first = projectiles.Slots[0];
+            first.Variable = from;
+            projectiles.Combos.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
+            AssertEqual(to, first.Variable, $"{pose} angle {from} steps by {step} to {to} on the 256-step circle");
+        }
+        Console.WriteLine("Special beam angle step: right- and left-facing Plasma attacks wrap the slot angle at the byte boundary.");
+    }
+
+    /// <summary>Runs the special-attack angle-step wrap check, which needs no cartridge.</summary>
+    [VerificationCommand("--special-beam-angle-step")]
+    internal static int SpecialBeamAngleStepCommand()
+    {
+        Suite(nameof(VerifyComboAngleStepWrapsAtTheByteBoundary), () => VerifyComboAngleStepWrapsAtTheByteBoundary());
+        return 0;
     }
 
     /// <summary>Rejects native damage-header and selection-table reads during projectile initialization.</summary>

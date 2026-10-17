@@ -1,17 +1,40 @@
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>A lossless view over Samus's native equipped-beam word.</summary>
-public readonly record struct SamusBeamLoadoutWord(ushort Raw)
+/// <summary>
+/// Samus's equipped beams as the beam-selection tables read them. The beam set stays typed, including bits whose
+/// meaning is unknown, so an invalid or debug-edited loadout still takes the cartridge's rejection branch.
+/// </summary>
+/// <param name="Beams">The equipped beam set, unknown bits included.</param>
+public readonly record struct SamusBeamLoadoutWord(SamusBeamFlags Beams)
 {
     /// <summary>Native defensive checks index by all twelve low equipped-beam bits.</summary>
     private const ushort NativeConfigurationMask = (1 << 12) - 1;
+
+    /// <summary>The four beam components whose combination selects a beam table row.</summary>
+    private const ushort CombinationMask = 15;
+
+    /// <summary>The equipment bits whose meanings are verified.</summary>
+    private const SamusBeamFlags VerifiedBeams =
+        SamusBeamFlags.Wave |
+        SamusBeamFlags.Ice |
+        SamusBeamFlags.Spazer |
+        SamusBeamFlags.Plasma |
+        SamusBeamFlags.Charge;
+
+    /// <summary>
+    /// Views a native equipped-beam word, as a debugger edit or a native snapshot supplies it. Every bit is kept,
+    /// including those without a verified meaning.
+    /// </summary>
+    public SamusBeamLoadoutWord(ushort nativeWord) : this((SamusBeamFlags)nativeWord)
+    {
+    }
 
     /// <summary>
     /// Exact low-twelve-bit index used by native defensive table checks. Unlike
     /// <see cref="SamusProjectileTypeWord.BeamCombination"/>, this deliberately retains unknown/debug-edited bits
     /// so invalid WRAM state still takes the cartridge's rejection branch.
     /// </summary>
-    public int NativeConfigurationIndex => Raw & NativeConfigurationMask;
+    public int NativeConfigurationIndex => Beams.ToNativeWord() & NativeConfigurationMask;
 
     /// <summary>
     /// The combination $90:AC8D and $90:ACCD index their tables by, or null when unknown bits
@@ -22,23 +45,13 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
         : null;
 
     /// <summary>The combination FireSBA ($90:CCC0) reads: the low nibble alone, ignoring bits 4-11.</summary>
-    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Raw & 15);
+    public SamusBeamCombination LowNibbleCombination => (SamusBeamCombination)(Beams.ToNativeWord() & CombinationMask);
 
     /// <summary>Only the equipment bits whose meanings are verified.</summary>
-    public SamusBeamFlags KnownFlags => (SamusBeamFlags)(Raw & (ushort)(
-        SamusBeamFlags.Wave |
-        SamusBeamFlags.Ice |
-        SamusBeamFlags.Spazer |
-        SamusBeamFlags.Plasma |
-        SamusBeamFlags.Charge));
+    public SamusBeamFlags KnownFlags => Beams & VerifiedBeams;
 
     /// <summary>Tests whether any requested verified beam-equipment bits are set.</summary>
     public bool HasAny(SamusBeamFlags flags) => (KnownFlags & flags) != 0;
-
-    /// <summary>The loadout word of a beam set.</summary>
-    public SamusBeamLoadoutWord(SamusBeamFlags beams) : this(beams.ToNativeWord())
-    {
-    }
 
     /// <summary>Views a beam set through its loadout word.</summary>
     public static implicit operator SamusBeamLoadoutWord(SamusBeamFlags beams) => new(beams);

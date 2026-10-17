@@ -20,8 +20,13 @@ internal sealed class BeamCombos
         _slotTable = slotTable;
         _trails = trails;
     }
-    /// <summary>WRAM $0B60: shared angle increment/phase state owned by active special beam attacks.</summary>
-    public ushort ComboState { get; internal set; }
+    /// <summary>
+    /// Angle step the Ice and Plasma special attacks add to every orbiting slot's angle each update: four, or minus
+    /// four when a left-facing Samus starts the attack; activation also stores four for Wave and zero for Spazer,
+    /// which never read it. Each slot keeps only the low byte of angle plus step, so minus four turns the 256-step
+    /// angle the opposite way by the same four steps.
+    /// </summary>
+    public int ComboState { get; internal set; }
 
     /// <summary>
     /// FireSBA ($90:CCC0): debit the selected beam cost before attempting its family.
@@ -82,8 +87,8 @@ internal sealed class BeamCombos
             }
             _slotTable.ProjectileCounter = 4;
             shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable._slots[0].Type & 63)));
-            ComboState = kind == SamusComboKind.Spazer ? (ushort)0
-                : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacingRight() ? (ushort)4 : unchecked((ushort)-4);
+            ComboState = kind == SamusComboKind.Spazer ? 0
+                : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacingRight() ? 4 : -4;
             sound = kind switch
             {
                 SamusComboKind.Wave => 40,

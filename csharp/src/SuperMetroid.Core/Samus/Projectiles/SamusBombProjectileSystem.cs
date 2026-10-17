@@ -597,8 +597,8 @@ public sealed class SamusBombProjectileSystem
         bool explosionStarted = false;
         if (typeFamily == SamusProjectileFamily.PowerBomb)
         {
-            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer.RawValue, PowerBombExplosion.Flag);
-            slot.BombTimer = NativeCountdown.FromRaw(fuse.Timer);
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(slot.BombTimer, PowerBombExplosion.Flag);
+            slot.BombTimer = fuse.Timer;
             if (fuse.FastAnimation)
                 slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);
             if (fuse.DeleteProjectile)

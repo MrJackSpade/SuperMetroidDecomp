@@ -41,8 +41,11 @@ public sealed class HyperBeamPaletteFxState
     /// <summary>Last palette record written, or -1 before the first handler call.</summary>
     public int CurrentFrameIndex { get; private set; } = -1;
 
-    /// <summary>Number of completed ten-frame loops, useful in debugger watches.</summary>
-    public ushort CompletedCycles { get; private set; }
+    /// <summary>
+    /// Number of completed ten-frame loops, a port-side debugger count. No cartridge word holds it and nothing in
+    /// gameplay reads it, so it is an ordinary count that starts at zero on spawn and grows by one per loop.
+    /// </summary>
+    public int CompletedCycles { get; private set; }
 
     /// <summary>
     /// Performs <c>Spawn_PaletteFXObject</c>'s state initialization for object
@@ -100,7 +103,7 @@ public sealed class HyperBeamPaletteFxState
             throw new InvalidDataException($"The Hyper Beam palette program showed record {advance.Frame.Record}, outside its cycle.");
         // The cycle's goto returns to its first record: showing it again completes a cycle.
         if (frameIndex == 0 && CurrentFrameIndex >= 0)
-            CompletedCycles = unchecked((ushort)(CompletedCycles + 1));
+            CompletedCycles++;
 
         (presentationColors ?? throw new InvalidOperationException(
             "Hyper Beam palette FX requires installed colors."))

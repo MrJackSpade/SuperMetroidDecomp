@@ -14,8 +14,8 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// </summary>
     private const ushort CollisionLifecycleState = 1 << 4;
 
-    /// <summary>Low-nibble native direction-table index.</summary>
-    public byte DirectionIndex => (byte)(Raw & DirectionMask);
+    /// <summary>Direction-table index, 0 through 15, held in the word's low four bits; 0 through 9 name a direction.</summary>
+    public int DirectionIndex => Raw & DirectionMask;
     /// <summary>Named direction represented by the low nibble.</summary>
     public SamusProjectileDirection Direction => (SamusProjectileDirection)DirectionIndex;
 

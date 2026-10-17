@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombBoundaryVerification;
 using static SuperMetroid.Verification.Samus.Projectiles.PowerBombRuntimeIntegrationVerification;
 using static SuperMetroid.Verification.Rendering.RenderingAndRoomsVerification;
@@ -16,20 +17,24 @@ internal static class PowerBombFuseVerification
     {
         // Expected boundary cases follow the literal C157 branches, including a
         // positive nonzero flag (native tests zero, not merely the sign bit).
+        // The fuse is a countdown: zero stays stopped, one expires into the collision
+        // sentinel, and the sentinel itself keeps wrapping downward one word per call.
+        NativeCountdown sentinel = NativeCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel);
+        NativeCountdown sentinelAfterOneCall = NativeCountdown.FromRaw(SamusPowerBombFuseData.ExplosionStartedSentinel - 1);
         foreach (ushort flag in new ushort[] { 0, 1, 0x8000, 0xffff })
         {
-            AssertEqual(new PowerBombFuseStep(0, false, false, flag == 0),
-                SamusPowerBombFuse.Step(0, flag), "zero fuse follows native flag equality");
-            AssertEqual(new PowerBombFuseStep(0xffff, false, true, false),
-                SamusPowerBombFuse.Step(1, flag), "expiration spawns before collision consumes sentinel");
-            AssertEqual(new PowerBombFuseStep(15, true, false, false),
-                SamusPowerBombFuse.Step(16, flag), "the fuse reaching fifteen switches to the fast list");
-            AssertEqual(new PowerBombFuseStep(14, false, false, false),
-                SamusPowerBombFuse.Step(15, flag), "fast threshold is tested after decrement");
-            AssertEqual(new PowerBombFuseStep(0xfffe, false, false, false),
-                SamusPowerBombFuse.Step(0xffff, flag), "fuse routine does not consume collision sentinel");
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(0), false, false, flag == 0),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(0), flag), "zero fuse follows native flag equality");
+            AssertEqual(new PowerBombFuseStep(sentinel, false, true, false),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(1), flag), "expiration spawns before collision consumes sentinel");
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(15), true, false, false),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(16), flag), "the fuse reaching fifteen switches to the fast list");
+            AssertEqual(new PowerBombFuseStep(NativeCountdown.Start(14), false, false, false),
+                SamusPowerBombFuse.Step(NativeCountdown.Start(15), flag), "fast threshold is tested after decrement");
+            AssertEqual(new PowerBombFuseStep(sentinelAfterOneCall, false, false, false),
+                SamusPowerBombFuse.Step(sentinel, flag), "fuse routine does not consume collision sentinel");
         }
-        ushort timer = 60;
+        NativeCountdown timer = NativeCountdown.Start(60);
         int spawns = 0;
         for (int frame = 0; frame < 60; frame++)
         {

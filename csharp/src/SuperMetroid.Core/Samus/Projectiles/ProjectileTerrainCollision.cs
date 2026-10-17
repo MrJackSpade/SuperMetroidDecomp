@@ -489,7 +489,7 @@ internal sealed class ProjectileTerrainCollision
     {
         // `$90:AE3A` moves the explosion anchor to the leading edge before bank $93 swaps
         // the instruction list. Diagonals adjust both axes in their respective signs.
-        byte direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.PackedDirection.DirectionIndex;
         if (direction is 1 or 2 or 3)
             slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)

@@ -21,14 +21,21 @@ internal static class InvalidBeamGraphicsVerification
     internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual((ushort)0x0890, ChainsawBeamGraphicsDefinitions.PaletteWord(0),
-            "Chainsaw color zero is the open-bus pointer bank followed by Samus_Animate's first byte");
         AssertThrows<InvalidOperationException>(() => CpuBusRegionRead.Read(bus, 0x907fff),
             "plain high-level address reads do not acquire an invented open-bus value");
-        AssertSequenceEqual(ChainsawBeamGraphicsDefinitions.InstructionBytes.ToArray(),
-            Enumerable.Range(0, ChainsawBeamGraphicsDefinitions.InstructionBytes.Length)
-                .Select(offset => bus.ReadCartridgeByte(ChainsawBeamGraphicsDefinitionsConstants.InstructionAddress + offset)),
-            "bounded instruction data matches the original executable bytes");
+        // ROM oracle for the typed glitched palette: colour c is the word whose low byte is the
+        // byte before Samus_Animate's byte 2c (the open-bus pointer bank for colour zero) and
+        // whose high byte is Samus_Animate's byte 2c, kept as CGRAM keeps it.
+        for (int color = 0; color < BeamPaletteDefinitions.ColorCount; color++)
+        {
+            int highByteAddress = ChainsawBeamGraphicsDefinitionsConstants.InstructionAddress + color * 2;
+            byte low = color == 0
+                ? ChainsawBeamGraphicsDefinitionsConstants.OpenBusByte
+                : bus.ReadCartridgeByte(highByteAddress - 1);
+            Bgr555 native = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(low, bus.ReadCartridgeByte(highByteAddress)));
+            AssertEqual(native, ChainsawBeamGraphicsDefinitions.Palette[color],
+                $"Chainsaw palette colour {color} is the open-bus byte and Samus_Animate's instruction bytes as CGRAM keeps them");
+        }
         using var scratch = new TestScratchDirectory("projectile-artwork");
         string installedDirectory = scratch.Root;
         SuperMetroid.AssetExtraction.Samus.ProjectilePresentationFiles.Extract(bus, installedDirectory);

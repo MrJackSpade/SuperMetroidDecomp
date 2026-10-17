@@ -54,6 +54,9 @@ internal static class PowerBombAfterglowShapeVerification
             explosion.StepFrame();
         }
         AssertTrue(checkedFrames > 1, "confirms both final expansion and fading frames");
+        // The final white frame primes 32 afterglow steps; every afterglow call consumes one,
+        // and the call that reaches zero ends the explosion instead of fading once more.
+        AssertEqual(32, checkedFrames, "afterglow consumes exactly its 32 primed steps before cleanup");
         Console.WriteLine($"Power Bomb afterglow: {checkedFrames} frames retain the native oval, including captured windows and rendered corner pixels.");
     }
 

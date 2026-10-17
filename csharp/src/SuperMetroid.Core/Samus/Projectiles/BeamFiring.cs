@@ -528,7 +528,7 @@ internal sealed class BeamFiring
         ProjectileInheritanceRecords inheritance,
         SamusProjectileSlot slot)
     {
-        byte direction = slot.PackedDirection.DirectionIndex;
+        int direction = slot.PackedDirection.DirectionIndex;
         bool diagonal = direction is 1 or 3 or 6 or 8;
         int rowOffset = slot.PackedType.BeamCombination.TableIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)SamusProjectileMotionDefinitions.ReadWord(

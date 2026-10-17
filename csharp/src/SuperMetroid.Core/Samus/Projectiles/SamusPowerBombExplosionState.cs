@@ -85,8 +85,11 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>HDMA fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
     private NativeCountdown _afterglowTimer;
 
-    /// <summary>The 32 color decrements primed by the final white-explosion frame.</summary>
-    private byte _afterglowStepsRemaining;
+    /// <summary>
+    /// Afterglow steps left, 32 when the final white-explosion frame primes them; each step consumes one, and the
+    /// step that reaches zero ends the explosion instead of fading the colors. It is only stepped while positive.
+    /// </summary>
+    private int _afterglowStepsRemaining;
 
     /// <summary>
     /// Native Crystal Flash completion count, kept separate from editable COLDATA so
@@ -403,9 +406,8 @@ public sealed class SamusPowerBombExplosionState
             return false;
 
         // CMP D--,#1 advances the instruction list without one final color decrement.
-        NativeLowByteCounterStep steps = NativeWordCounter.DecrementLowByte(_afterglowStepsRemaining);
-        _afterglowStepsRemaining = steps.Low;
-        if (steps.IsZero)
+        ConsumeAfterglowStep();
+        if (_afterglowStepsRemaining == 0)
         {
             Status = 0;
             PreExplosionRadius = 0;
@@ -502,6 +504,18 @@ public sealed class SamusPowerBombExplosionState
         FixedColorGreen = 0;
         FixedColorBlue = 0;
         return true;
+    }
+
+    /// <summary>
+    /// Consumes one afterglow step. The afterglow phase is entered with 32 steps and ends on the step that reaches
+    /// zero, so a step is never taken from zero; one would mean the phase and its count disagree.
+    /// </summary>
+    private void ConsumeAfterglowStep()
+    {
+        if (_afterglowStepsRemaining <= 0)
+            throw new InvalidOperationException(
+                $"Power Bomb afterglow stepped with {_afterglowStepsRemaining} steps remaining; the phase ends when the count reaches zero.");
+        _afterglowStepsRemaining--;
     }
 
     /// <summary>Reloads only the low timer byte, retaining the underflowed high byte as native 8-bit STA does.</summary>

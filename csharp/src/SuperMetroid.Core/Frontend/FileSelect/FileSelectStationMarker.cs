@@ -11,8 +11,6 @@ public sealed class FileSelectStationMarker
     private int frame;
     /// <summary>Remaining menu ticks in the current animation phase.</summary>
     private int timer;
-    /// <summary>Completed pulses; parity controls whether the indicator backing is shown.</summary>
-    private ushort loops;
 
     /// <summary>Binds a saved station's drawing anchor and starts a fresh $82:B9FC indicator animation; this object neither chooses the gameplay load target nor initializes map scrolling.</summary>
     /// <param name="area">One of the six Zebes map areas; Ceres is unsupported.</param>
@@ -41,7 +39,7 @@ public sealed class FileSelectStationMarker
     /// <summary>Current native $82:C569 spritemap-table identity, following $82:BA2D's $5F/$60/$61/$60 pulse; querying does not advance the timer.</summary>
     public MapSpriteId SpritemapId => PauseMapIndicatorAnimation.SpritemapId(frame);
     /// <summary>Whether $82:B73C-$B747's backing spritemap $12 is drawn before the marker: visible on even four-frame animation loops, including the initial loop, and hidden on odd loops.</summary>
-    public bool ShowBacking => (loops & 1) == 0;
+    public bool ShowBacking { get; private set; } = true;
 
     /// <summary>One menu tick, before drawing; the initial zero timer advances immediately to frame one.</summary>
     public void Step()
@@ -52,7 +50,8 @@ public sealed class FileSelectStationMarker
             if (frame == PauseMapIndicatorAnimation.FrameCount)
             {
                 frame = 0;
-                loops = unchecked((ushort)(loops + 1));
+                // Only the parity of completed pulses is observable, so each pulse toggles the backing.
+                ShowBacking = !ShowBacking;
             }
             timer = PauseMapIndicatorAnimation.FrameDelay(frame);
         }

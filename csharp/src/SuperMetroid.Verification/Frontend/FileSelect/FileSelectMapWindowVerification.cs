@@ -39,12 +39,12 @@ internal static class FileSelectMapWindowVerification
         var edges = fractional.edges;
         Array.Clear(edges);
         AssertTrue(!fractional.Step(), "map window timer zero is not complete");
-        AssertEqual(1, fractional.Left, "map window lower clamp on first frame");
+        AssertEqual(1, fractional.TopLeft.X, "map window lower clamp on first frame");
         AssertTrue(fractional.Step(), "map window completes at signed timer underflow");
-        AssertEqual(2, fractional.Left, "map window clamp retains fractional X");
-        AssertEqual(2, fractional.Top, "map window clamp retains fractional Y");
+        AssertEqual(2, fractional.TopLeft.X, "map window clamp retains fractional X");
+        AssertEqual(2, fractional.TopLeft.Y, "map window clamp retains fractional Y");
         fractional.Step();
-        AssertEqual(2, fractional.Left, "completed map window remains stable");
+        AssertEqual(2, fractional.TopLeft.X, "completed map window remains stable");
         AssertThrows<ArgumentOutOfRangeException>(() => new FileSelectMapWindow(6), "Ceres has no area-select window record");
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -59,21 +59,21 @@ internal static class FileSelectMapWindowVerification
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var window = new FileSelectMapWindow(area, RetailPresentationFixture().Labels);
-            AssertEqual(labelX[area], window.Left, "map window starts at native area label X");
-            AssertEqual(labelY[area], window.Top, "map window starts at native area label Y");
-            AssertEqual(window.Left, window.Right, "map window starts with zero width");
-            AssertEqual(window.Top, window.Bottom, "map window starts with zero height");
+            AssertEqual(labelX[area], window.TopLeft.X, "map window starts at native area label X");
+            AssertEqual(labelY[area], window.TopLeft.Y, "map window starts at native area label Y");
+            AssertEqual(window.TopLeft.X, window.BottomRight.X, "map window starts with zero width");
+            AssertEqual(window.TopLeft.Y, window.BottomRight.Y, "map window starts with zero height");
             for (int frame = 1; frame <= durations[area]; frame++)
             {
                 bool done = window.Step();
                 AssertEqual(frame == durations[area], done, $"area {area} window completion frame {frame}");
-                AssertTrue(window.Left >= 1 && window.Right <= 255 && window.Top >= 1 && window.Bottom <= 224,
+                AssertTrue(window.TopLeft.X >= 1 && window.BottomRight.X <= 255 && window.TopLeft.Y >= 1 && window.BottomRight.Y <= 224,
                     $"area {area} window edges remain in native clamp bounds");
             }
-            AssertEqual(1, window.Left, $"area {area} expanded left edge");
-            AssertEqual(255, window.Right, $"area {area} expanded right edge");
-            AssertEqual(1, window.Top, $"area {area} expanded top edge");
-            AssertEqual(224, window.Bottom, $"area {area} expanded bottom edge");
+            AssertEqual(1, window.TopLeft.X, $"area {area} expanded left edge");
+            AssertEqual(255, window.BottomRight.X, $"area {area} expanded right edge");
+            AssertEqual(1, window.TopLeft.Y, $"area {area} expanded top edge");
+            AssertEqual(224, window.BottomRight.Y, $"area {area} expanded bottom edge");
         }
     }
 
@@ -101,17 +101,17 @@ internal static class FileSelectMapWindowVerification
 
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var returning = FileSelectMapWindow.CreateReturn(4, RetailPresentationFixture().Labels);
-        AssertEqual(8, returning.Left, "native return rectangle left inset");
-        AssertEqual(248, returning.Right, "native return rectangle right inset");
-        AssertEqual(8, returning.Top, "native return rectangle top inset");
-        AssertEqual(216, returning.Bottom, "native return rectangle bottom inset");
+        AssertEqual(8, returning.TopLeft.X, "native return rectangle left inset");
+        AssertEqual(248, returning.BottomRight.X, "native return rectangle right inset");
+        AssertEqual(8, returning.TopLeft.Y, "native return rectangle top inset");
+        AssertEqual(216, returning.BottomRight.Y, "native return rectangle bottom inset");
         for (int tick = 1; tick <= 40; tick++)
         {
             AssertEqual(tick == 40, returning.Step(), "Maridia return is twelve updates shorter than expansion");
-            AssertEqual(8 + 4 * tick, returning.Left, "return subtracts native negative left velocity");
-            AssertEqual(SnesSixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.Right, "return retains right fraction");
-            AssertEqual(SnesSixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.Top, "return retains top fraction");
-            AssertEqual(SnesSixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.Bottom, "return retains bottom fraction");
+            AssertEqual(8 + 4 * tick, returning.TopLeft.X, "return subtracts native negative left velocity");
+            AssertEqual(SnesSixteenSixteen.WholeOf(248 * 65536 - 0xf800 * tick), returning.BottomRight.X, "return retains right fraction");
+            AssertEqual(SnesSixteenSixteen.WholeOf(8 * 65536 + 0x31400 * tick), returning.TopLeft.Y, "return retains top fraction");
+            AssertEqual(SnesSixteenSixteen.WholeOf(216 * 65536 - 0x1e000 * tick), returning.BottomRight.Y, "return retains bottom fraction");
         }
         AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
             "completed return disables room frame and restores entire area scene");

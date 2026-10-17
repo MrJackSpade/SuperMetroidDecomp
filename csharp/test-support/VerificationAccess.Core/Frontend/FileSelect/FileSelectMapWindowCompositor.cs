@@ -39,11 +39,12 @@ public static class FileSelectMapWindowCompositor
         area.CopyTo(pixels);
         // HDMA encodes the top rows, then max(1,bottom-top) rows using the window.
         // WH0/WH1 include both horizontal endpoints, even for a zero-width window.
-        int top = (byte)window.Top;
+        Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
+        int top = (byte)topLeft.Y;
         int bottom = Math.Min(FrontendFrame.Height,
-            top + Math.Max(1, (int)unchecked((byte)(window.Bottom - window.Top))));
-        int left = (byte)window.Left;
-        int right = (byte)window.Right;
+            top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
+        int left = (byte)topLeft.X;
+        int right = (byte)bottomRight.X;
         if (left > right) return pixels;
         for (int y = top; y < bottom; y++)
         {

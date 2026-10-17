@@ -46,8 +46,8 @@ public sealed class FileSelectMapMenuState
     private FileSelectMapWindow? returnWindow;
     /// <summary>Remaining transition updates before load or return handoff.</summary>
     private int pendingFrames;
-    /// <summary>Master brightness applied after scene composition during fades.</summary>
-    private byte brightness = 15;
+    /// <summary>Master brightness from fifteen (full) down to zero (black) during the exit fades; each step is guarded by a positive level.</summary>
+    private int brightness = 15;
     /// <summary>Installed map artwork rebound after debugger restoration instead of serialized with navigation state.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
@@ -178,13 +178,13 @@ public sealed class FileSelectMapMenuState
                 }
                 break;
             case FileSelectMapNavigationPhase.OptionsRequested:
-                if (brightness > 0) brightness = NativeWordCounter.DecrementByte(brightness);
+                if (brightness > 0) brightness--;
                 OptionsRequested = brightness == 0;
                 break;
             case FileSelectMapNavigationPhase.LoadRequested:
                 pendingFrames++;
                 if (pendingFrames <= FileSelectMapRomData.LoadPreludeFrames) break;
-                if (brightness > 0) { brightness = NativeWordCounter.DecrementByte(brightness); break; }
+                if (brightness > 0) { brightness--; break; }
                 LoadRequested = pendingFrames >= FileSelectMapRomData.LoadPreludeFrames + 15 + FileSelectMapRomData.LoadBlackFrames;
                 break;
             // Navigation itself advances these phases; no menu countdown runs.
@@ -235,16 +235,17 @@ public sealed class FileSelectMapMenuState
                 FileSelectMapNavigationPhase.OptionsRequested or FileSelectMapNavigationPhase.EnteringArea => Area(),
             _ => throw new InvalidOperationException($"Undefined file-select map phase {Phase}."),
         };
-        return new(scene.Memory, scene.Layers, scene.ObjectSelection, brightness);
+        return new(scene.Memory, scene.Layers, scene.ObjectSelection, checked((byte)brightness));
     }
 
     /// <summary>Projects the native clipped room/area transition into render layers, including completed and off-screen windows.</summary>
     private static LayeredRenderSnapshot Window(LayeredRenderSnapshot areaScene, LayeredRenderSnapshot roomScene, FileSelectMapWindow window)
     {
         if (window.IsComplete) return window.IsReturning ? areaScene : roomScene;
-        int top = (byte)window.Top;
-        int bottom = Math.Min(SnesPpuLayout.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(window.Bottom - window.Top))));
-        int left = (byte)window.Left, right = (byte)window.Right;
+        Position16<ScreenPixels> topLeft = window.TopLeft, bottomRight = window.BottomRight;
+        int top = (byte)topLeft.Y;
+        int bottom = Math.Min(SnesPpuLayout.ScreenHeightPixels, top + Math.Max(1, (int)unchecked((byte)(bottomRight.Y - topLeft.Y))));
+        int left = (byte)topLeft.X, right = (byte)bottomRight.X;
         // The legacy HDMA projection performs no row copies for a wholly off-screen
         // interval or crossed horizontal edges; resolve that before contract validation.
         if (left > right || top >= bottom) return areaScene;

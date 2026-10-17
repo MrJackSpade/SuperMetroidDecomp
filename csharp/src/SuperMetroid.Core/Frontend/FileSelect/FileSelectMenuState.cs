@@ -101,9 +101,6 @@ public sealed class FileSelectMenuState
     /// <summary>True only on the frame in which Copy or Clear mutated cartridge SRAM.</summary>
     public bool SaveRamChangedThisFrame { get; private set; }
 
-    /// <summary>Current INIDISP brightness nibble.</summary>
-    public byte Brightness => ScreenFade.Displayed(brightness);
-
     /// <summary>
     /// True when the next update resumes a native dispatch after its internal NMI wait
     /// rather than entering a new main-loop dispatch, so the main loop's RNG call is absent.
@@ -204,7 +201,7 @@ public sealed class FileSelectMenuState
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderOam();
-        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, Brightness);
+        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, ScreenFade.Displayed(brightness));
     }
 
     /// <summary>Builds the current border, missile, helmet, and optional copy-arrow OBJ list from menu phase.</summary>

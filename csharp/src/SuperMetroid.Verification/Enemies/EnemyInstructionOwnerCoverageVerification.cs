@@ -50,7 +50,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             IReadOnlyList<RoomEnemyPopulationRecord> records =
                 populations.TryGetValue(definitionPointer, out List<RoomEnemyPopulationRecord>? found)
                     ? found
-                    : [new RoomEnemyPopulationRecord(definitionPointer, new(128, 128), 0, 0, 0, 0, 0)];
+                    : [new RoomEnemyPopulationRecord(definitionPointer, new(128, 128), 0, default, default, 0, 0)];
 
             bool definitionTranslated = false;
             bool definitionNeedsOwner = false;
@@ -79,11 +79,11 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Health = definition.Health;
                 slot.Layer = definition.Layer;
                 slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-                slot.CurrentInstruction = population.InitializationParameter;
-                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(population.Properties));
-                slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(population.ExtraProperties));
-                slot.Parameter1 = population.Parameter1;
-                slot.Parameter2 = population.Parameter2;
+                slot.CurrentInstruction = checked((ushort)population.InitializationParameter);
+                slot.Properties = population.Properties;
+                slot.ExtraProperties = population.ExtraProperties;
+                slot.Parameter1 = checked((ushort)population.Parameter1);
+                slot.Parameter2 = checked((ushort)population.Parameter2);
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 slot.AiBank = definition.Bank;
 
@@ -223,7 +223,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                     break;
                 EnemyDefinitionId definitionPointer = EnemyDefinitionIds.FromHeaderPointer(definitionPointerWord);
 
-                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
+                var record = new RoomEnemyPopulationRecord(definitionPointer, new(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 4))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 6)), EnemyPropertyWord.FromNativeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 8))), EnemyExtraPropertyWord.FromNativeWord(CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 10))), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 12)), CartridgeImportSource.Require(rom).ReadCartridgeWord((cursor + 14)));
                 if (!records.TryGetValue(
                     definitionPointer,
                     out List<RoomEnemyPopulationRecord>? definitionRecords))

@@ -24,8 +24,8 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         {
             WriteTestWords(bus, address,
                 (ushort)record.DefinitionPointer, record.Position.X, record.Position.Y,
-                record.InitializationParameter, record.Properties, record.ExtraProperties,
-                record.Parameter1, record.Parameter2);
+                checked((ushort)record.InitializationParameter), record.Properties.ToNativeWord(), record.ExtraProperties.ToNativeWord(),
+                checked((ushort)record.Parameter1), checked((ushort)record.Parameter2));
             address += 16;
         }
         WriteTestWord(bus, address, 0xffff);

@@ -1341,8 +1341,8 @@ internal sealed class CeresRidleyBehavior
             InitializationParameter: 0,
             Properties: new EnemyPropertyWord(
                 EnemyProperties.ProcessInstructions |
-                EnemyProperties.ProcessOffScreen).ToNativeWord(),
-            ExtraProperties: 0,
+                EnemyProperties.ProcessOffScreen),
+            ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
             Parameter1: parameter1,
             Parameter2: 0);
         RoomEnemySlot wall = _slotTable._slots[slotIndex];

@@ -73,11 +73,11 @@ internal static class ZebetiteDefinitionsVerification
                 (ushort)population.DefinitionPointer,
                 population.Position.X,
                 population.Position.Y,
-                population.InitializationParameter,
-                population.Properties,
-                population.ExtraProperties,
-                population.Parameter1,
-                population.Parameter2,
+                checked((ushort)population.InitializationParameter),
+                population.Properties.ToNativeWord(),
+                population.ExtraProperties.ToNativeWord(),
+                checked((ushort)population.Parameter1),
+                checked((ushort)population.Parameter2),
             ];
             int record = linkedHalf ? linkedSpawn : primarySpawn;
             for (int word = 0; word < actual.Length; word++)

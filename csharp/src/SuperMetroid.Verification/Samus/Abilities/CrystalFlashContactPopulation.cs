@@ -20,7 +20,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Pos
             throw new ArgumentOutOfRangeException(nameof(pointer));
         return new RoomEnemyPopulationDefinition(pointer,
         [
-            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
+            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, 0, EnemyPropertyWord.FromNativeWord(CrystalFlashContactDefinitions.Properties), default, 0, 0),
         ], 0);
     }
 

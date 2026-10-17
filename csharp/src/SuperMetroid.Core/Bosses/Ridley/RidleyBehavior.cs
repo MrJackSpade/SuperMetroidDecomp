@@ -1460,8 +1460,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 Properties: new EnemyPropertyWord(
                     EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |
-                    EnemyProperties.IgnoreSamusCollision).ToNativeWord(),
-                ExtraProperties: 0,
+                    EnemyProperties.IgnoreSamusCollision),
+                ExtraProperties: new EnemyExtraPropertyWord(EnemyExtraProperties.None),
                 Parameter1: parameter,
                 Parameter2: 0);
             RoomEnemySlot fragment = _slotTable._slots[slotIndex];

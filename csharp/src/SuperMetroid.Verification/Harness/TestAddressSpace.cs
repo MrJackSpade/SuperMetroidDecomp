@@ -70,7 +70,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
     {
         int address = MotherBrainNativeListAddresses.TubePopulationRecord(piece);
         ushort Word(int offset) => SnesLittleEndian.Word(ReadByte(address + offset), ReadByte(address + offset + 1));
-        return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), Word(8), Word(10), Word(12), Word(14));
+        return new RoomEnemyPopulationRecord((EnemyDefinitionId)Word(0), new(Word(2), Word(4)), Word(6), EnemyPropertyWord.FromNativeWord(Word(8)), EnemyExtraPropertyWord.FromNativeWord(Word(10)), Word(12), Word(14));
     }
 
     /// <summary>Reads up to 32 native-sized enemy population records through the terminating sentinel.</summary>
@@ -87,7 +87,7 @@ internal sealed class TestAddressSpace : ISnesMemoryBus,
             EnemyDefinitionId definitionPointer = (EnemyDefinitionId)definitionPointerWord;
             if (slot == RoomEnemySystem.MaximumEnemyCount)
                 throw new InvalidDataException($"Fixture population ${pointer:X4} exceeds 32 entries.");
-            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), ReadFixtureWord(cursor + 8), ReadFixtureWord(cursor + 10), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
+            records.Add(new RoomEnemyPopulationRecord(definitionPointer, new(ReadFixtureWord(cursor + 2), ReadFixtureWord(cursor + 4)), ReadFixtureWord(cursor + 6), EnemyPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 8)), EnemyExtraPropertyWord.FromNativeWord(ReadFixtureWord(cursor + 10)), ReadFixtureWord(cursor + 12), ReadFixtureWord(cursor + 14)));
             cursor += 16;
         }
         throw new InvalidDataException($"Fixture population ${pointer:X4} is unterminated.");

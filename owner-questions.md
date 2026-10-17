@@ -134,3 +134,17 @@ the option the cleanup continued with. None of them stopped the run.
   program migration).
 - **Option taken:** migrate the pool to `AnimationTimeline` programs with ROM oracles in one batch owning the pool and
   every consumer; Kraid's copy becomes a typed reference to the sprite object it spawned.
+
+## 9. Palette-FX colours keyed by bank-$8D addresses
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Fx/PaletteFx/CrateriaLightningPaletteFrame.cs` (7, 11:
+  `Pointer`, `FirstColorPointer`); the `*PaletteFxColorDefinition(s)` families (address arithmetic),
+  `RoomPaletteFxPresentation` and its JSON document, `RoomPaletteFxPresentationExtractor`,
+  `IPaletteFxColorSource.TryReadColor(ushort pointer)`, and `RoomPaletteFxSystem.WritePaletteRecord`.
+- **Red flag:** the installed palette-FX colours are stored and looked up by cartridge address, so clearing these rows
+  re-keys the whole palette-FX presentation and its extraction.
+- **Evidence checked:** the Fx batch worker's report; the already-typed `PaletteFxProgram`/`PaletteFxFrame(int Record)`;
+  Botwoon's `AnimationTimeline` reference pattern.
+- **Option taken:** one batch later in the run owning the palette-FX system, presentation and extractor: colours keyed
+  by (palette-FX frame record, colour ordinal), the address-to-record mapping only in extraction with a ROM oracle, and
+  the per-family address arithmetic deleted.

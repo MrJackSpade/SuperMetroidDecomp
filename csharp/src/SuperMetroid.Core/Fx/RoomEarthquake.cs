@@ -14,11 +14,16 @@ internal sealed class RoomEarthquake
     /// <c>$1840</c> do. It never shortens a running shake; setting bit 15 keeps the room shaking for tens of
     /// thousands of frames, which is how continuous effects avoid re-arming the timer every frame.
     /// </summary>
-    internal void AddTimerBits(ushort bits) =>
-        EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | bits)));
+    internal void AddTimerBits(int bits) =>
+        EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | Ensure.BetweenInclusive(0, ushort.MaxValue, bits))));
 
-    /// <summary>Native room-shake type selecting background/projectile offsets and whether actors shake; types $00..$23 are consumed by <see cref="Advance"/>, while $24 and above are ignored there.</summary>
-    public ushort EarthquakeType { get; set; }
+    /// <summary>
+    /// Room-shake type selecting background/projectile offsets and whether actors shake; types 0 through 35 are
+    /// consumed by <see cref="Advance"/>, while 36 and above are ignored there. Producers write a type from 0 through
+    /// 65535 (the cartridge's word); every test is an ordinary comparison of that non-negative number, so values
+    /// outside the range are rejected rather than wrapped.
+    /// </summary>
+    public int EarthquakeType { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>
     /// Displacement produced by the most recent <see cref="Advance"/>. It is deliberately a delta rather than

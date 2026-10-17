@@ -8,6 +8,7 @@ using static SuperMetroid.Verification.Fx.LookupFxLegacySheetsVerification;
 using static SuperMetroid.Verification.Fx.LookupTreadmillArtworkVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Fx;
@@ -27,6 +28,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
         AssertEqual(SuperMetroid.AssetExtraction.Cartridge.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "Animation frame oracle revision");
         Suite(nameof(VerifySimpleAnimationObjectDomain), () => VerifySimpleAnimationObjectDomain());
+        Suite(nameof(VerifySimpleAnimationLoopWrapsToFirstFrame), () => VerifySimpleAnimationLoopWrapsToFirstFrame());
         Suite(nameof(VerifySimpleAnimationInstructionStarts), () => VerifySimpleAnimationInstructionStarts(bus));
         Suite(nameof(VerifySimpleAnimationTransferSizes), () => VerifySimpleAnimationTransferSizes(bus));
         Suite(nameof(VerifySimpleAnimationVramDestinations), () => VerifySimpleAnimationVramDestinations(bus));
@@ -113,6 +115,39 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                         offset == unchecked((ushort)(frame.SourceOperandPointer + 1)));
                 },
                 _ => presentationRead());
+    }
+
+    /// <summary>
+    /// Plays each object's loop one frame past its end through the production state: every frame appears on the
+    /// update its predecessor's duration expires, and the last frame is followed by the first, as the list's goto does.
+    /// </summary>
+    private static void VerifySimpleAnimationLoopWrapsToFirstFrame()
+    {
+        foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
+        {
+            var expected = new List<(int Update, int Source)>();
+            int update = 0;
+            for (int index = 0; index <= definition.Frames.Count; index++)
+            {
+                RoomFxAnimatedTileFrameDefinition frame = definition.Frames[index % definition.Frames.Count];
+                expected.Add((update, RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer)));
+                update += frame.Duration;
+            }
+
+            var state = new RoomFxAnimatedTilesState();
+            var vram = new SnesVram();
+            var writes = new VramWriteQueue();
+            state.LoadDefinition(definition.ObjectPointer);
+            var observed = new List<(int Update, int Source)>();
+            for (int step = 0; step <= expected[^1].Update; step++)
+            {
+                state.Step(vram, writes);
+                if (state.LastSourceAddress is int source)
+                    observed.Add((step, source));
+            }
+            AssertTrue(expected.SequenceEqual(observed),
+                $"{definition.ObjectPointer} shows each frame on its update and returns to the first after the last");
+        }
     }
 
     /// <summary>Runs the room-FX animation control and frame lookup checks.</summary>

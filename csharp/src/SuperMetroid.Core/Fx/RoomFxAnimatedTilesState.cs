@@ -1,37 +1,40 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Fx;
 
 /// <summary>
-/// The simple looping bank-$87 animated-tile object spawned directly by a room-FX type.
+/// The simple looping animated-tile object spawned directly by a room-FX type.
 /// </summary>
 /// <remarks>
 /// Lava, acid, rain, and spores do not obtain their visible characters from the room tileset.
-/// Their bank-$88 type initializer calls <c>SpawnAnimtiles</c> with one of four object
-/// headers. Each header owns an instruction list, transfer size, and VRAM destination.
-/// Keeping this as an instruction-list owner matters: copying one convenient frame would
-/// make the first still image look plausible while discarding the cartridge's cadence and
-/// preventing future replacement samples/graphics from following the same data path.
+/// Their FX type initializer spawns one of the looping objects, each with its own timed frames,
+/// transfer size, and VRAM destination. Playing the whole loop matters: copying one convenient
+/// frame would make the first still image look plausible while discarding the cartridge's cadence
+/// and preventing replacement graphics from following the same data path.
 /// </remarks>
 internal sealed class RoomFxAnimatedTilesState
 {
-    /// <summary>Bank 87 object header chosen by the current room FX type.</summary>
+    /// <summary>The object chosen by the current room FX type, or <see cref="AnimatedTileObject.None"/>.</summary>
     private AnimatedTileObject objectPointer;
-    /// <summary>Next compiled instruction-list word to execute when the frame timer expires.</summary>
-    private ushort instructionPointer;
+    /// <summary>
+    /// The frame shown when the timer next expires, an index into the loaded object's
+    /// <see cref="RoomFxAnimatedTileObjectDefinition.Frames"/>. It replaces the cartridge's instruction pointer into
+    /// the object's list: every supported list is its timed frames followed by a goto back to the first frame, so the
+    /// cursor only ever moves to the next frame, and from the last frame back to the first in the same handler pass.
+    /// </summary>
+    private int nextFrame;
     /// <summary>Remaining handler passes before the current animated frame advances.</summary>
     private NativeCountdown instructionTimer;
-    /// <summary>Character bytes transferred for each frame of the active object.</summary>
-    private ushort transferByteCount;
-    /// <summary>Native VRAM destination word stored by the object's compiled header.</summary>
-    private ushort encodedVramDestination;
+    /// <summary>Frame schedule, transfer size and destination of the loaded object.</summary>
+    private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
+
+    /// <summary>The loaded object's definition; only an active slot has one.</summary>
+    private RoomFxAnimatedTileObjectDefinition Mechanics =>
+        compiledMechanics ?? throw new InvalidOperationException("Room-FX animation requires compiled mechanics.");
 
     /// <summary>The queued-DMA destination the loaded animated-tile object's native word decodes to.</summary>
     [PpuLayoutBoundary("codec: room-FX animated-tile object's native VRAM destination")]
-    private VramDmaDestination Destination => VramDmaDestination.FromNative(encodedVramDestination);
-    /// <summary>Compiled header and instruction words for the currently loaded object.</summary>
-    private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
+    private VramDmaDestination Destination => VramDmaDestination.FromNative(Mechanics.EncodedVramDestination);
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
     public bool IsActive { get; private set; }
@@ -68,24 +71,18 @@ internal sealed class RoomFxAnimatedTilesState
             return;
 
         if (!RoomFxAnimatedTileMechanicsDefinitions.TryResolve(objectPointer, out compiledMechanics))
-            throw new InvalidDataException($"Room-FX animation $87:{(int)objectPointer:X4} is not compiled.");
-        instructionPointer = compiledMechanics.InstructionPointer;
-        transferByteCount = compiledMechanics.TransferByteCount;
-        encodedVramDestination = compiledMechanics.EncodedVramDestination;
+            throw new InvalidDataException($"Room-FX animation {objectPointer} is not compiled.");
+        nextFrame = 0;
         instructionTimer = NativeCountdown.Start(1);
         IsActive = true;
 
-        if (transferByteCount == 0)
-        {
-            throw new InvalidDataException(
-                $"Room-FX animated-tile object $87:{(int)objectPointer:X4} has no transfer bytes.");
-        }
+        if (compiledMechanics.TransferByteCount == 0)
+            throw new InvalidDataException($"Room-FX animated-tile object {objectPointer} has no transfer bytes.");
     }
 
     /// <summary>
-    /// Executes one <c>AnimtilesHandler</c> pass and performs the NMI-visible transfer.
-    /// Supported retail lists contain timed source frames, <c>goto</c>, and no other
-    /// commands; encountering anything else fails loudly instead of freezing the texture.
+    /// Executes one <c>AnimtilesHandler</c> pass and performs the NMI-visible transfer. When the timer
+    /// expires the next frame is shown for its duration, and the loop returns from the last frame to the first.
     /// </summary>
     public void Step(SnesVram vram, VramWriteQueue? writes = null,
         RoomFxAnimatedTileAtlas? artwork = null)
@@ -99,55 +96,24 @@ internal sealed class RoomFxAnimatedTilesState
         if (!instructionTimer.IsZero)
             return;
 
-        ushort cursor = instructionPointer;
-        for (int guard = 0; guard < 32; guard++)
-        {
-            ushort instructionOrDuration = ReadMechanicsWord(cursor);
-            if (unchecked((short)instructionOrDuration) >= 0)
-            {
-                if (instructionOrDuration == 0)
-                {
-                    throw new InvalidDataException(
-                        $"Room-FX animated-tile object $87:{(int)objectPointer:X4} has a zero-duration " +
-                        $"frame at $87:{cursor:X4}.");
-                }
+        RoomFxAnimatedTileObjectDefinition mechanics = Mechanics;
+        int shown = nextFrame;
+        RoomFxAnimatedTileFrameDefinition frame = mechanics.Frames[shown];
+        if (frame.Duration == 0)
+            throw new InvalidDataException($"Room-FX animated-tile object {objectPointer} has a zero-duration frame {shown}.");
 
-                int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(
-                    compiledMechanics ?? throw new InvalidOperationException("Room-FX animation lost its mechanics."), cursor);
-                instructionTimer = NativeCountdown.FromRaw(instructionOrDuration);
-                instructionPointer = unchecked((ushort)(cursor + 4));
-                LastSourceAddress = sourceAddress;
-                if (writes is not null)
-                    writes.Enqueue(transferByteCount, sourceAddress, Destination);
-                else if (artwork is not null)
-                    artwork.LoadFrame(vram, sourceAddress, transferByteCount, encodedVramDestination);
-                else
-                    throw new InvalidOperationException(
-                        "Room-FX character transfers require installed animation artwork or a deferred artwork queue.");
-                return;
-            }
-
-            switch (ClosedNativeWords.Decode<AnimatedTileInstruction>(instructionOrDuration, "animated-tile instruction"))
-            {
-                case AnimatedTileInstruction.Delete:
-                    Reset();
-                    return;
-
-                case AnimatedTileInstruction.Goto:
-                    cursor = ReadMechanicsWord(unchecked((ushort)(cursor + 2)));
-                    break;
-
-                default:
-                    throw new NotSupportedException(
-                        $"Room-FX animated-tile object $87:{(int)objectPointer:X4} reached " +
-                        $"untranslated instruction $87:{instructionOrDuration:X4} at " +
-                        $"$87:{cursor:X4}.");
-            }
-        }
-
-        throw new InvalidDataException(
-            $"Room-FX animated-tile object $87:{(int)objectPointer:X4} exceeded 32 leading " +
-            $"instructions at $87:{cursor:X4}.");
+        int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame.InstructionPointer);
+        instructionTimer = NativeCountdown.Start(frame.Duration);
+        // The list's goto after the last frame returns to the first frame.
+        nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;
+        LastSourceAddress = sourceAddress;
+        if (writes is not null)
+            writes.Enqueue(mechanics.TransferByteCount, sourceAddress, Destination);
+        else if (artwork is not null)
+            artwork.LoadFrame(vram, sourceAddress, mechanics.TransferByteCount, mechanics.EncodedVramDestination);
+        else
+            throw new InvalidOperationException(
+                "Room-FX character transfers require installed animation artwork or a deferred artwork queue.");
     }
 
     /// <summary>Clears the room-owned object when its FX record is replaced or absent.</summary>
@@ -156,24 +122,8 @@ internal sealed class RoomFxAnimatedTilesState
         IsActive = false;
         LastSourceAddress = null;
         objectPointer = AnimatedTileObject.None;
-        instructionPointer = 0;
+        nextFrame = 0;
         instructionTimer = NativeCountdown.Start(0);
-        transferByteCount = 0;
-        encodedVramDestination = 0;
         compiledMechanics = null;
     }
-
-    /// <summary>Rejects an instruction pointer outside the active object's compiled mechanics catalog.</summary>
-    private ushort ReadMechanicsWord(ushort pointer)
-    {
-        if (compiledMechanics is null)
-            throw new InvalidOperationException("Room-FX animation requires compiled mechanics.");
-        if (compiledMechanics.TryReadMechanicsWord(pointer, out ushort value))
-            return value;
-
-        throw new InvalidDataException(
-            $"Room-FX animated-tile object $87:{(int)objectPointer:X4} reached non-catalog " +
-            $"mechanics word $87:{pointer:X4}.");
-    }
-
 }

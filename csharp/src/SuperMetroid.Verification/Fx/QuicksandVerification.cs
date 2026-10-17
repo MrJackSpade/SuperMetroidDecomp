@@ -102,11 +102,19 @@ internal static class QuicksandVerification
                 QuicksandDefinitions.SurfacePhysics(suit != 0);
             AssertEqual(
                 direction == SamusVerticalDirection.None
-                    ? SnesEightEight.FromWhole(physics.StationaryDisplacement)
-                    : SnesEightEight.FromWhole(physics.MovingDisplacement),
-                body.ExtraDisplacement.Y.RawValue,
+                    ? physics.StationaryDisplacement
+                    : physics.MovingDisplacement,
+                body.ExtraDisplacement.Y,
                 $"production quicksand suit {suit} direction {(int)direction} displacement");
+            if (direction == SamusVerticalDirection.Up)
+            {
+                // A whole upward speed of five pixels exceeds both caps, so the speed becomes the limit exactly.
+                AssertEqual(physics.UpwardSpeedLimit,
+                    SnesSignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed), body.YSubspeed),
+                    $"production quicksand suit {suit} clamps upward speed to its limit");
+            }
         }
+        VerifyQuicksandUpwardLimitComparesMiddleWords(level);
 
         for (byte index = 0; index < 16; index++)
         {
@@ -186,14 +194,38 @@ internal static class QuicksandVerification
     private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit));
 
-    /// <summary>Compares a selected surface-physics field for both Gravity and ordinary suits.</summary>
+    /// <summary>
+    /// Compares a selected surface-physics field for both Gravity and ordinary suits. The cartridge stores each as
+    /// an unsigned 8.8 word; the oracle widens it to 16.16 exactly as the surface reaction consumes it.
+    /// </summary>
     private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
-        Func<QuicksandSurfacePhysics, ushort> field)
+        Func<QuicksandSurfacePhysics, SnesSignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(ReadRomWord(rom, address + suit * 2),
+            AssertEqual(SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight((int)ReadRomWord(rom, address + suit * 2))),
                 field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
+    }
+
+    /// <summary>
+    /// The upward cap compares only the middle words of the 16.16 speed and limit: a speed above the 2.5-pixel
+    /// limit by less than one 256th of a pixel shares the limit's middle word and is left unclamped.
+    /// </summary>
+    private static void VerifyQuicksandUpwardLimitComparesMiddleWords(RoomLevelData level)
+    {
+        var samus = new SamusState();
+        SamusKinematicsState body = samus.Kinematics;
+        body.Position = body.Position.WithWhole(new(24, 24));
+        body.Radius = body.Radius.WithY(8);
+        body.YDirection = SamusVerticalDirection.Up;
+        SnesSignedSixteenSixteen limit = QuicksandDefinitions.SurfacePhysics(gravitySuit: false).UpwardSpeedLimit;
+        // 255/65536 of a pixel above the limit: below the resolution of the middle-word comparison.
+        SnesSignedSixteenSixteen justAbove = limit + SnesSignedSixteenSixteen.FromParts(wholePixels: 0, fraction: 255);
+        body.YSpeed = justAbove.WholeWord;
+        body.YSubspeed = justAbove.Fraction;
+        SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
+        AssertEqual(justAbove, SnesSignedSixteenSixteen.FromParts(unchecked((short)body.YSpeed), body.YSubspeed),
+            "quicksand upward cap ignores the speed's lowest fraction byte");
     }
 
     /// <summary>Checks the special-air inside-reaction header for each area and BTS index.</summary>

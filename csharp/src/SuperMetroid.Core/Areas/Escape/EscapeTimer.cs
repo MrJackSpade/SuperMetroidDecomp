@@ -14,17 +14,14 @@ namespace SuperMetroid.Core.Areas.Escape;
 /// </remarks>
 public sealed class EscapeTimer
 {
+    /// <summary>Which step of the timer's sequence the next <see cref="Process"/> call runs.</summary>
+    public EscapeTimerState State { get; private set; }
+
     /// <summary>
-    /// Raw state word at WRAM <c>$0943</c>. The dispatch index is only its low byte;
-    /// active timers conventionally retain flag bit 15, producing values <c>$8003-$8006</c>.
+    /// Whether the timer is running: set when a start request installs the countdown, and cleared by a new request and
+    /// by every clear.
     /// </summary>
-    public ushort RawStatus { get; internal set; }
-
-    /// <summary>Low-byte dispatch state used by the seven-entry pointer table.</summary>
-    public EscapeTimerState State => (EscapeTimerState)(byte)RawStatus;
-
-    /// <summary>Whether the conventional active flag in status bit 15 is set.</summary>
-    public bool IsActive => (RawStatus & EscapeTimerStatusDefinitions.ActiveFlag) != 0;
+    public bool IsActive { get; private set; }
 
     /// <summary>Packed-BCD centiseconds at WRAM <c>$0945</c>.</summary>
     public PackedBcd Centiseconds { get; private set; }
@@ -56,12 +53,12 @@ public sealed class EscapeTimer
     /// to <see cref="Process"/> performs the initialization, matching the main game's
     /// indirect state-machine convention.
     /// </summary>
-    public void RequestCeresStart() => RawStatus = (ushort)EscapeTimerState.CeresStart;
+    public void RequestCeresStart() => SelectStatus(EscapeTimerState.CeresStart, active: false);
 
     /// <summary>
     /// Requests the three-minute Mother Brain sequence by selecting dispatch state 2.
     /// </summary>
-    public void RequestMotherBrainStart() => RawStatus = (ushort)EscapeTimerState.MotherBrainStart;
+    public void RequestMotherBrainStart() => SelectStatus(EscapeTimerState.MotherBrainStart, active: false);
 
     /// <summary>
     /// Runs one timer update and returns the carry-style result: true once all three BCD
@@ -102,7 +99,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary><c>$82:8476</c>: the time-up black-out clears only the timer's status word.</summary>
-    public void ClearStatus() => RawStatus = 0;
+    public void ClearStatus() => SelectStatus(EscapeTimerState.Inactive, active: false);
 
     /// <summary>
     /// Directly sets valid packed-BCD time for save-state loading and focused debugging.
@@ -133,7 +130,7 @@ public sealed class EscapeTimer
         Centiseconds = PackedBcd.Zero;
         Seconds = PackedBcd.Zero;
         Minutes = PackedBcd.Zero;
-        RawStatus = 0;
+        SelectStatus(EscapeTimerState.Inactive, active: false);
         CountdownExpired = false;
     }
 
@@ -144,7 +141,7 @@ public sealed class EscapeTimer
         // seconds/minutes adjacent word, then select the active initial delay ($8003).
         Clear();
         SetTime(minutes, PackedBcd.Zero, PackedBcd.Zero);
-        RawStatus = EscapeTimerStatusDefinitions.ActiveFlag | (ushort)EscapeTimerState.InitialDelay;
+        SelectStatus(EscapeTimerState.InitialDelay, active: true);
         return false;
     }
 
@@ -153,7 +150,7 @@ public sealed class EscapeTimer
     {
         IncrementXLowByte();
         if ((byte)Position.X >= 16)
-            IncrementStatusLowByte();
+            AdvanceState();
 
         // State 3 never decrements time, even on the update that advances to state 4.
         return false;
@@ -168,7 +165,7 @@ public sealed class EscapeTimer
             // STZ TimerXPosition-1 clears only the aliased counter/subpixel byte. The
             // visible high-byte X coordinate remains $80 until movement begins.
             Position = Position.WithX((ushort)(SnesLittleEndian.HighByteInPlace(Position.X)));
-            IncrementStatusLowByte();
+            AdvanceState();
         }
 
         return Decrement(nmiFrameCounter);
@@ -202,9 +199,7 @@ public sealed class EscapeTimer
 
         if (axesInPosition == 2)
         {
-            // Here the assembly is in 16-bit accumulator mode and INC affects the complete
-            // word. For the normal $8005 value this yields $8006.
-            RawStatus = unchecked((ushort)(RawStatus + 1));
+            AdvanceState();
         }
 
         return Decrement(nmiFrameCounter);
@@ -252,11 +247,20 @@ public sealed class EscapeTimer
         Position = Position.WithX((ushort)((SnesLittleEndian.HighByteInPlace(Position.X)) | nextCounter));
     }
 
-    /// <summary>Advances the dispatch state while preserving the active high-byte flag.</summary>
-    private void IncrementStatusLowByte()
+    /// <summary>Selects the next step of the running sequence, keeping the timer active.</summary>
+    private void AdvanceState() => State = State switch
     {
-        byte nextState = unchecked((byte)((byte)RawStatus + 1));
-        RawStatus = (ushort)((SnesLittleEndian.HighByteInPlace(RawStatus)) | nextState);
+        EscapeTimerState.InitialDelay => EscapeTimerState.RunningMovementDelayed,
+        EscapeTimerState.RunningMovementDelayed => EscapeTimerState.RunningMovingIntoPlace,
+        EscapeTimerState.RunningMovingIntoPlace => EscapeTimerState.RunningInPlace,
+        _ => throw new InvalidOperationException($"The escape timer cannot advance from {State}."),
+    };
+
+    /// <summary>Selects a step of the sequence and whether the timer runs.</summary>
+    internal void SelectStatus(EscapeTimerState state, bool active)
+    {
+        State = state;
+        IsActive = active;
     }
 
     /// <summary>Rejects a timer byte whose high or low nibble is not a decimal digit.</summary>

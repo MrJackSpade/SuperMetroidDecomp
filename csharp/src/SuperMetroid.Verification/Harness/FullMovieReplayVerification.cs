@@ -294,7 +294,7 @@ internal static class FullMovieReplayVerification
                 $"held cur={(ushort)game.Session.GameplayRuntime.Controller1.Current:X4} new={(ushort)game.Session.GameplayRuntime.Controller1.NewlyPressed:X4} hp={(ushort)game.Session.GameplayRuntime.System.HeldInputPrevious:X4} tt={game.Session.GameplayRuntime.System.TimedHeldInputTimer.RawValue:X4} th={(ushort)game.Session.GameplayRuntime.System.TimedHeldInput:X4} tn={(ushort)game.Session.GameplayRuntime.System.NewlyTimedHeldInput:X4} tp={(ushort)game.Session.GameplayRuntime.System.TimedHeldInputPrevious:X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");
         if (game.RuntimeForVerification?.EscapeTimer is { } escape)
-            Console.WriteLine($"  escape port={escape.RawStatus:X4} {escape.Minutes.Raw:X2}:{escape.Seconds.Raw:X2}.{escape.Centiseconds.Raw:X2} " +
+            Console.WriteLine($"  escape port={escape.State}/{escape.IsActive} {escape.Minutes.Raw:X2}:{escape.Seconds.Raw:X2}.{escape.Centiseconds.Raw:X2} " +
                 $"native={Native(0x0943)} {memory[0x0947]:X2}:{memory[0x0946]:X2}.{memory[0x0945]:X2}");
         Console.WriteLine("  aerial port  " + game.RuntimeForVerification?.Player.LastAerialSamusMovement);
         if (game.RuntimeForVerification is { } projectileRuntime)

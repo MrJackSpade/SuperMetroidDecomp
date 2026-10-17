@@ -372,7 +372,7 @@ internal static void VerifyEscapeTimerStateMachine()
     motherBrain.RequestMotherBrainStart();
     motherBrain.Process(0);
     AssertEqual(0x03, motherBrain.Minutes.Raw, "Mother Brain starts at three minutes");
-    AssertEqual(0x8003, motherBrain.RawStatus, "active timer retains status high flag");
+    AssertTrue(motherBrain.IsActive && motherBrain.State == EscapeTimerState.InitialDelay, "a started timer runs from its initial delay");
 
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
 }

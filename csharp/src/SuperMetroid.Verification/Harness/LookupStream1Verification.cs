@@ -436,7 +436,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
+            timer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
             timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
@@ -455,7 +455,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
-            timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
+            timer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
             timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
             AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
             AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.Centiseconds.Raw, "Actual Process consumes each native correction");
@@ -464,7 +464,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            timer.RawStatus = (ushort)(0x8000 | (ushort)EscapeTimerState.RunningInPlace);
+            timer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
             timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(2));
             bool expired = timer.Process(frame);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");

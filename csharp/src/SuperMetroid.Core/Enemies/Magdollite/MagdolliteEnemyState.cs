@@ -32,11 +32,22 @@ public sealed class MagdolliteEnemyState
         internal set => _slot.VariableF = (ushort)value;
     }
 
-    /// <summary>Native variable B: the arm's even byte offset into the nine-entry rise tables, aliased by the hand as throw direction 0 for left or 1 for right.</summary>
-    public ushort BodyPhaseOffset
+    /// <summary>
+    /// The arm's rise phase, 0 through 8, selecting its pillar stack, threshold and overlay offset. Variable B holds
+    /// twice the phase (the byte offset into the nine-entry rise tables), which other enemies' aliased enemy-RAM reads
+    /// can observe; the hand reuses the same word for <see cref="ThrowsRight"/>.
+    /// </summary>
+    public int BodyPhase
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
+        get => _slot.VariableB / 2;
+        internal set => _slot.VariableB = checked((ushort)(value * 2));
+    }
+
+    /// <summary>Whether the hand throws its lava rightward: variable B, one for right and zero for left, chosen from Samus's side at the apex.</summary>
+    public bool ThrowsRight
+    {
+        get => _slot.VariableB != 0;
+        internal set => _slot.VariableB = value ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>Native variable C: the program last installed; null until a part's initializer installs its first.</summary>
@@ -45,21 +56,25 @@ public sealed class MagdolliteEnemyState
     /// <summary>Native variable D: the program the part's AI wants shown.</summary>
     internal MagdolliteProgram DesiredProgram { get; set; }
 
-    /// <summary>Native variable E: signed whole-pixel displacement accumulated by the body.</summary>
-    public ushort VerticalWholeDisplacement
+    /// <summary>
+    /// The arm's whole-pixel displacement from where it started rising; only Y is meaningful, negative while the arm
+    /// is above that point. Its Y is variable E, which other enemies' aliased enemy-RAM reads can observe.
+    /// </summary>
+    public Offset16<RoomPixels> RiseDisplacement
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => new(0, unchecked((short)_slot.VariableE));
+        internal set => _slot.VariableE = unchecked((ushort)value.Y);
     }
 
-    /// <summary>Native headDirection at extension offset $00: main AI uses 0 for left and 1 for right; head initialization briefly uses the opposite convention.</summary>
-    public ushort FacingMarker { get; internal set; }
     /// <summary>Native animationActiveFlag at extension offset $02, set and cleared by instruction callbacks to gate head transitions and completion of the hand's throw.</summary>
     public bool AnimationBusy { get; internal set; }
     /// <summary>Native emergeNotReadyFlag at extension offset $04: set by the head after submerging and cleared by the arm on landing so the head may emerge.</summary>
     public bool HeadWaitsForBodyLanding { get; internal set; }
-    /// <summary>Native YSpawnPosition at extension offset $06, captured in whole room pixels before submerging offsets and used to reset the head and arm.</summary>
-    public ushort OriginY { get; internal set; }
+    /// <summary>
+    /// The part's whole-pixel spawn position, captured before its initializer moves it; only Y is meaningful. The head
+    /// and arm return to its height, and the head's sink and surface cues are measured from it.
+    /// </summary>
+    public Position16<RoomPixels> Origin { get; internal set; }
 
     /// <summary>
     /// Native extension variable four. Only the overlay's instance is polled by the head;
@@ -69,20 +84,20 @@ public sealed class MagdolliteEnemyState
     /// </summary>
     public NativeCountdown AttackTimer { get; internal set; }
 
-    /// <summary>Native downSubVelocity at extension offset $0E: unsigned fractional word of downward 16.16 pixels per enemy update; the arm consumes the head's copy.</summary>
-    public ushort PositiveSpeedFraction { get; internal set; }
-    /// <summary>Native downVelocity at extension offset $10: signed whole-pixel word of the downward 16.16 velocity, stored as raw unsigned bits.</summary>
-    public ushort PositiveSpeedWhole { get; internal set; }
-    /// <summary>Native upSubVelocity at extension offset $12: fractional word of upward 16.16 pixels per enemy update, imported independently from the negative speed-table record.</summary>
-    public ushort NegativeSpeedFraction { get; internal set; }
-    /// <summary>Native upVelocity at extension offset $14: signed whole-pixel word of the upward 16.16 velocity, stored as raw unsigned bits; the arm consumes the head's copy.</summary>
-    public ushort NegativeSpeedWhole { get; internal set; }
+    /// <summary>
+    /// Signed 16.16 downward velocity in room pixels per update, from the population's linear speed record; the
+    /// falling arm consumes the head's copy.
+    /// </summary>
+    public SnesSignedSixteenSixteen DownwardVelocity { get; internal set; }
+    /// <summary>
+    /// Signed 16.16 upward velocity in room pixels per update: the speed record's separately authored negative half,
+    /// not a negation; the rising arm consumes the head's copy.
+    /// </summary>
+    public SnesSignedSixteenSixteen UpwardVelocity { get; internal set; }
     /// <summary>Native finishedGrowingFlag at extension offset $18, set by the arm at maximum or Samus-relative height and cleared by the hand when shrinking begins.</summary>
     public bool BodyReachedApex { get; internal set; }
     /// <summary>Native notEmergedFlag at extension offset $1A: despite the host name, true holds the arm dormant; the head clears it to start growth and landing sets it again.</summary>
     public bool BodyWakeRequested { get; internal set; }
-    /// <summary>The hand's initial whole-pixel room X, captured by $A8:B02D at native extension offset $22, separately from its later throw origin.</summary>
-    public ushort InitializationOriginX { get; internal set; }
     /// <summary>Native throwXPosition/throwYPosition at extension offsets $24/$26: whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
     public Position16<RoomPixels> ThrowOrigin { get; internal set; }
 }

@@ -23,7 +23,7 @@ internal static class MagdolliteAnimationsVerification
                 for (int index = 0; index < operands.Length; index++)
                     AssertEqual(operands[index], instruction.Operands[index] switch
                 {
-                    'V' => cue.Value,
+                    'V' => cue.Sound is { } sound ? (ushort)sound.Value : throw new InvalidOperationException($"{at}: the sound cue carries no sound."),
                     _ => throw new InvalidOperationException($"Undefined operand role {instruction.Operands[index]}."),
                 }, $"{at}: operand {index}");
             });

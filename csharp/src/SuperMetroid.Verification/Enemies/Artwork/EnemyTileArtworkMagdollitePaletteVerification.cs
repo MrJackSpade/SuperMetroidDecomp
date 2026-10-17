@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         enemies.Presentation._cgram = cgram;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationInstalled = true;
         enemies.MagdolliteBehavior._magdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
-        enemies.MagdolliteBehavior._magdollitePaletteAnimationIndex = (ushort)0;
+        enemies.MagdolliteBehavior._magdollitePaletteFrame = 0;
         enemies.MagdolliteBehavior._magdollitePaletteBaseColor = 0x80;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
         const int destination = 0x80 + MagdollitePaletteRomData.FirstAnimatedColor;

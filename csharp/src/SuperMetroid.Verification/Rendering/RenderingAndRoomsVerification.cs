@@ -669,7 +669,7 @@ internal static void VerifyBackgroundScrollState()
     var state = new BackgroundScrollState
     {
         Layer1Position = new(0x1234, 0x0200),
-        Layer2Scroll = new(0x80, 0), // Horizontal 128/256 = one-half parallax.
+        Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0), // Horizontal 128/256 = one-half parallax.
         Bg1Offset = new(0x0010, unchecked((short)0xfff0)),
         Bg2Offset = new(3, 4),
     };
@@ -706,7 +706,7 @@ internal static void VerifyBackgroundScrollState()
     // low bit suppresses both BG2 stream directions.
     ushort oldLayer2X = state.Layer2Position.X;
     ushort oldBg2X = state.Bg2Scroll.X;
-    state.Layer2Scroll = new(1, 1);
+    state.Layer2Scroll = Layer2ScrollModes.FromHeader(1, 1);
     state.Layer1Position = new(0x1300, 0x0300);
     requests = state.StepScrolling();
     AssertEqual(oldLayer2X, state.Layer2Position.X, "fixed BG2 X position remains unchanged");
@@ -727,7 +727,7 @@ internal static void VerifyBackgroundScrollState()
 
     var destinationParallax = new BackgroundScrollState
     {
-        Layer2Scroll = new(0x80, 0x40),
+        Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40),
     };
     destinationParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0200), new(0x0400, 0x0200));
     AssertEqual((ushort)0x0200, destinationParallax.Layer2Position.X,
@@ -738,7 +738,7 @@ internal static void VerifyBackgroundScrollState()
         "door setup publishes the whole destination layer-one position");
 
     // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
-    var upwardParallax = new BackgroundScrollState { Layer2Scroll = new(0x80, 0x40) };
+    var upwardParallax = new BackgroundScrollState { Layer2Scroll = Layer2ScrollModes.FromHeader(0x80, 0x40) };
     upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
     AssertEqual(new Position16<Bg2Pixels>(0x0200, 0x0087), upwardParallax.Layer2Position,
         "upward door setup calculates BG2 from its separate parallax basis");
@@ -1208,7 +1208,7 @@ internal static void VerifyFourBitBackgroundRendering()
     var scroll = new BackgroundScrollState
     {
         Layer1Position = new(0x0120, 0x0230),
-        Layer2Scroll = new(0x81, 1),
+        Layer2Scroll = Layer2ScrollModes.FromHeader(0x81, 1),
     };
     IReadOnlyList<BackgroundUpdateRequest> initial = scroll.BuildInitialViewportRequests();
     AssertEqual(17, initial.Count, "$80:A176 initial BG1 column count");

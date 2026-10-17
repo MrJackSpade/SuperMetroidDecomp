@@ -18,13 +18,13 @@ public sealed class MorphBallEyeEnemyState
     internal AnimationProgramCursor<MorphBallEyeProgram> Program { get; set; }
 
     /// <summary>
-    /// Native <c>Eye.activatedFlag</c> in variable C. The bank-$88 beam object sets this
-    /// when its initialization instruction runs and the body clears it on deactivation.
+    /// Native <c>Eye.activatedFlag</c> in variable C: one once the beam object has initialized, zero once the body
+    /// starts closing. Nothing else is stored here; the beam keeps cycling its colours only while it is nonzero.
     /// </summary>
-    public ushort ActivatedFlag
+    public int ActivatedFlag
     {
         get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        internal set => _slot.VariableC = checked((ushort)value);
     }
 
     /// <summary>

@@ -261,8 +261,8 @@ internal sealed class AcceptedFrameBoundary
             body.Position.Whole,
             eyeState.Angle,
             beam.AngularWidth,
-            beam.Red,
-            beam.Green,
-            beam.Blue);
+            checked((byte)beam.Red),
+            checked((byte)beam.Green),
+            checked((byte)beam.Blue));
     }
 }

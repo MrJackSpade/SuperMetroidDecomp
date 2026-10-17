@@ -63,6 +63,46 @@ internal static class MorphBallEyeBehaviorVerification
         Console.WriteLine("  Morph Ball eye behavior: initial eyelid and mount poses, both closings and every tracking pose pass.");
     }
 
+    /// <summary>
+    /// The beam's half-width grows a quarter table unit faster each update, so its whole width reads 0, 0, 1, 2, 3 and
+    /// then reaches four on the sixth update, which keeps the fraction and makes the beam full; a fading beam steps red
+    /// and green one intensity per update toward their faded levels and is removed on the update after green arrives.
+    /// </summary>
+    internal static void VerifyMorphBallEyeBeamWideningAndFade()
+    {
+        var enemies = new RoomEnemySystem();
+        MorphBallEyeBeamState beam = enemies.MorphBallEyeBehavior.MorphBallEyeBeam;
+        beam.Phase = MorphBallEyeBeamPhase.Widening;
+        int[] widths = [0, 0, 1, 2, 3, 4];
+        for (int update = 0; update < widths.Length; update++)
+        {
+            enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
+            AssertEqual(widths[update], beam.AngularWidth, $"eye beam whole width after widening update {update + 1}");
+            AssertEqual(update == widths.Length - 1 ? MorphBallEyeBeamPhase.Full : MorphBallEyeBeamPhase.Widening, beam.Phase,
+                $"eye beam phase after widening update {update + 1}");
+        }
+        AssertEqual(SnesSignedSixteenSixteen.FromParts(MorphBallEyeBeamDefinitions.FullAngularWidth, MorphBallEyeBeamDefinitions.WidthGrowthStep.Fraction),
+            beam.AngularHalfWidth, "a full beam keeps the fraction it overshot with");
+
+        beam.Phase = MorphBallEyeBeamPhase.Deactivating;
+        beam.Red = MorphBallEyeBeamDefinitions.InitialRed;
+        beam.Green = MorphBallEyeBeamDefinitions.InitialGreen;
+        beam.Blue = MorphBallEyeBeamDefinitions.Blue;
+        int fadeUpdates = MorphBallEyeBeamDefinitions.InitialGreen - MorphBallEyeBeamDefinitions.FadedGreen;
+        for (int update = 1; update <= fadeUpdates; update++)
+        {
+            enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
+            AssertEqual(Math.Max(MorphBallEyeBeamDefinitions.InitialRed - update, MorphBallEyeBeamDefinitions.FadedRed), beam.Red,
+                $"eye beam red after fading update {update}");
+            AssertEqual(MorphBallEyeBeamDefinitions.InitialGreen - update, beam.Green, $"eye beam green after fading update {update}");
+            AssertEqual((int)MorphBallEyeBeamDefinitions.Blue, beam.Blue, $"eye beam blue after fading update {update}");
+            AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, $"eye beam still fading after update {update}");
+        }
+        enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();
+        AssertEqual(MorphBallEyeBeamPhase.Inactive, beam.Phase, "eye beam is removed on the update after green has faded");
+        Console.WriteLine("  Morph Ball eye beam: six widening updates reach full width and a full fade removes the beam.");
+    }
+
     /// <summary>An eye body or mount after its real initializer.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Slot, MorphBallEyeEnemyState State) Create(ushort parameter1, ushort parameter2)
     {
@@ -83,6 +123,7 @@ internal static class MorphBallEyeBehaviorVerification
     {
         SuperMetroidAddressSpace rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyMorphBallEyeBehavior), () => VerifyMorphBallEyeBehavior());
+        Suite(nameof(VerifyMorphBallEyeBeamWideningAndFade), () => VerifyMorphBallEyeBeamWideningAndFade());
         Suite(nameof(MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations), () => MorphBallEyeAnimationsVerification.VerifyMorphBallEyeAnimations(rom));
         return 0;
     }

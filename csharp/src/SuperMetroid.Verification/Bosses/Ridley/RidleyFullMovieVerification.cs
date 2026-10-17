@@ -1139,7 +1139,7 @@ internal static class RidleyFullMovieVerification
                 Check("PeriodicSubDamage", samus.LiquidPhysics.PeriodicSubDamage, NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", samus.LiquidPhysics.PeriodicDamage, NativeSnapshotMemory.PeriodicDamage);
                 Check("Acid damage surface", samus.LiquidPhysics.LavaAcidYPosition, NativeSnapshotMemory.AcidSurface);
-                Check("Liquid tide phase", runtime.RoomLayer3Fx.tidePhase, NativeSnapshotMemory.TidePhase);
+                Check("Liquid tide phase", checked((ushort)runtime.RoomLayer3Fx.tidePhase), NativeSnapshotMemory.TidePhase);
             }
             Check("Samus X", samus.Position.X.Whole, NativeSnapshotMemory.X);
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);

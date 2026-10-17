@@ -276,7 +276,7 @@ internal static class SnesGameplayFrameRendererConstants
         // and BG2 shimmer while using $FFFF to mean that no liquid surface exists. A
         // signed -1 must therefore suppress BG3 rather than compare as a line above zero.
         if (fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid &&
-            unchecked((short)fx.CurrentYPosition) < 0)
+            unchecked((short)fx.Surface.Y) < 0)
         {
             return;
         }

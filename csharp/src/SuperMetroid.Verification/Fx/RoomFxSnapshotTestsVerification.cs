@@ -39,7 +39,7 @@ internal static class RoomFxSnapshotTestsVerification
         foreach (int phase in new[] { 0, 7, 15 })
         foreach (ushort currentY in new ushort[] { 400, ushort.MaxValue })
         {
-            var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<Bg3Pixels>(65530, 511), currentY,
+            var fx = new RoomLayer3FxRenderSnapshot(type, blend, new Position16<Bg3Pixels>(65530, 511), new Position16<RoomPixels>(0, currentY),
                 WaterBg3WavePhase: phase, WaterSurfaceScreenY: surface);
             Rgba32[] expected = baseline.ToArray();
             SnesGameplayFrameRendererConstants.ApplyRoomLayer3FxColorMath(expected, vram, cgram, fx);
@@ -65,7 +65,7 @@ internal static class RoomFxSnapshotTestsVerification
             RenderPacketFormat.MessageLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(data), "older version rejects BG math");
         AssertThrows<InvalidDataException>(() => SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(
-            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<Bg3Pixels>.Zero)), "capture preserves invalid water configuration failure");
+            new(RoomFxType.Water, LayerBlendingConfiguration.Rain, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue))), "capture preserves invalid water configuration failure");
         Console.WriteLine($"  Room FX snapshots: {samples} water/lava/acid/rain/fog cases, HUD exclusion, ownership and codec agree.");
     }
 }

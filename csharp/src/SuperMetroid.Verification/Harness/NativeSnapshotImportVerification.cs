@@ -254,8 +254,8 @@ internal static class NativeSnapshotImportVerification
         runtime.RoomLayer3Fx.liquidHdmaObjectsDeleted = !lavaAcidObjectLive;
         runtime.RoomLayer3Fx.tidePhase = W(NativeSnapshotMemory.TidePhase);
         runtime.RoomLayer3Fx.tideFixedOffset = unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
-        runtime.RoomLayer3Fx.baseYSubposition = W(NativeSnapshotMemory.LiquidBaseFraction);
-        runtime.RoomLayer3Fx.CurrentYPosition = W(NativeSnapshotMemory.AcidSurface);
+        runtime.RoomLayer3Fx.BaseY = runtime.RoomLayer3Fx.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
+        runtime.RoomLayer3Fx.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new SuperMetroid.Verification.Bosses.Kraid.KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));

@@ -55,9 +55,9 @@ internal static class RoomFxRecordDefinitionsVerification
         compiledFx.Load(compiledVram, compiledCgram, room.State.FxPointer,
             station.DoorPointer, randomNumber: 0, room.Pointer);
         AssertEqual(nativeFx.Type, compiledFx.Type, "Ceres compiled FX type");
-        AssertEqual(nativeFx.BaseYPosition, compiledFx.BaseYPosition, "Ceres compiled FX base Y");
-        AssertEqual(nativeFx.TargetYPosition, compiledFx.TargetYPosition, "Ceres compiled FX target Y");
-        AssertEqual(nativeFx.PackedYVelocity, compiledFx.PackedYVelocity,
+        AssertEqual(nativeFx.BaseY.Whole, compiledFx.BaseY.Whole, "Ceres compiled FX base Y");
+        AssertEqual(nativeFx.TargetSurface.Y, compiledFx.TargetSurface.Y, "Ceres compiled FX target Y");
+        AssertEqual(nativeFx.YVelocity.RawValue, compiledFx.YVelocity.RawValue,
             "Ceres compiled FX velocity");
         AssertEqual(nativeFx.Timer.RawValue, compiledFx.Timer.RawValue, "Ceres compiled FX timer");
         AssertEqual(nativeFx.LiquidOptions, compiledFx.LiquidOptions,

@@ -239,7 +239,7 @@ public sealed class TourianStatueSequence
     public void StepDescent()
     {
         if (!Enabled) return;
-        _enemies.TourianStatue.WaterSurface = new(0, _roomLayer3Fx.CurrentYPosition);
+        _enemies.TourianStatue.WaterSurface = new(0, _roomLayer3Fx.Surface.Y);
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked)) { EnableScrolling(); return; }
         if (delay == -2)
         {

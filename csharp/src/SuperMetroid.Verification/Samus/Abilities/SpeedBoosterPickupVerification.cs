@@ -44,21 +44,21 @@ internal static class SpeedBoosterPickupVerification
             fixture.Plms.Step(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertTrue(fixture.Samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster),
                 "Speed Booster acquired before message continuation");
-            AssertEqual((ushort)0, fx.PackedYVelocity, "message has not yet armed lava");
+            AssertEqual((ushort)0, fx.YVelocity.RawValue, "message has not yet armed lava");
             AssertEqual((ushort)0x20, fx.Timer.RawValue, "pickup preserves native liquid delay");
-            AssertEqual((ushort)0xda, fx.BaseYPosition, "pickup preserves native liquid surface");
+            AssertEqual((ushort)0xda, fx.BaseY.Whole, "pickup preserves native liquid surface");
 
             // Runtime suspends gameplay while the message is active and invokes this
             // continuation when the routine returns, before the next FX pass.
             fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.PackedYVelocity,
+            AssertEqual(chozo ? (ushort)0xffe0 : (ushort)0, fx.YVelocity.RawValue,
                 "only the Chozo instruction list writes the native upward velocity");
             fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             AssertEqual((ushort)0x20, fx.Timer.RawValue, "first FX pass selects waiting phase");
             for (int frame = 0; frame < 32; frame++)
             {
                 fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
-                AssertEqual((ushort)0xda, fx.BaseYPosition, "surface waits throughout native delay");
+                AssertEqual((ushort)0xda, fx.BaseY.Whole, "surface waits throughout native delay");
                 AssertEqual(chozo, fx.EarthquakeRequest.HasValue,
                     "native liquid owner publishes pickup earthquake during delay");
             }
@@ -68,11 +68,11 @@ internal static class SpeedBoosterPickupVerification
             {
                 fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
                 AssertEqual(chozo && frame == 5 ? (ushort)0xd9 : (ushort)0xda,
-                    fx.BaseYPosition, "lava rises at native subpixel speed after delay");
+                    fx.BaseY.Whole, "lava rises at native subpixel speed after delay");
             }
             fx.ApplyCartridgeMotionWrites(packedYVelocity: 0);
             fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            AssertEqual((ushort)0, fx.PackedYVelocity, "message continuation is consumed once");
+            AssertEqual((ushort)0, fx.YVelocity.RawValue, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");
     }

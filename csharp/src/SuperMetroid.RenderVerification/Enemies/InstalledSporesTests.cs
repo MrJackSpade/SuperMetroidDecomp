@@ -363,7 +363,7 @@ internal static class InstalledSporesTests
                 SnesMainScreenLayers.Obj | ((enabled & 1) != 0 ? SnesMainScreenLayers.Bg1 : 0) |
                     ((enabled & 2) != 0 ? SnesMainScreenLayers.Bg2 : 0));
             var layer = SnesGameplayFrameRenderer.CaptureSpores(new(registers),
-                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero));
+                new(RoomFxType.Spores, LayerBlendingConfiguration.Spores, Position16<Bg3Pixels>.Zero, new Position16<RoomPixels>(0, ushort.MaxValue)));
             var scene = new LayeredRenderSnapshot(new(vram.Bytes, colors.Colors, oam, 1), [layer], 0, 15);
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(scene);
             // Independent Mode-1 priority and integer BGR555 oracle. A color-only

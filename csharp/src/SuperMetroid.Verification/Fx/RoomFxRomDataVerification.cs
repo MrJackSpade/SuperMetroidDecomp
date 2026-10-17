@@ -317,7 +317,7 @@ internal static class RoomFxRomDataVerification
                 cgram,
                 snapshot with
                 {
-                    CurrentYPosition = ushort.MaxValue,
+                    Surface = new(0, ushort.MaxValue),
                     WaterSurfaceScreenY = -1,
                 });
             AssertTrue(hiddenSurfaceFrame.All(pixel => pixel == default),

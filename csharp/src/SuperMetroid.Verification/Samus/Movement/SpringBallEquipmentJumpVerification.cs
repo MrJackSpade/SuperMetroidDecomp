@@ -38,7 +38,7 @@ internal static class SpringBallEquipmentJumpVerification
             var samus = runtime.Player.IntroducedSamus;
             samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.HiJumpBoots);
             samus.CollectedItems = (SamusEquipmentFlags)((ushort)(samus.EquippedItems | SamusEquipmentFlags.SpringBall));
-            samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.CurrentYPosition + 96)));
+            samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.Surface.Y + 96)));
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
             samus.PoseMetadata.RefreshCollisionRadii();
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);

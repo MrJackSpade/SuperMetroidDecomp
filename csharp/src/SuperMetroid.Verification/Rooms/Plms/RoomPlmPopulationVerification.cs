@@ -661,9 +661,9 @@ internal static class RoomPlmPopulationVerification
         unequipped.Step(unequippedLevel, unequippedStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, unequipped.SlotTable.ActiveCount,
             "missing Speed Booster deletes the resident controller");
-        AssertEqual(ushort.MaxValue, unequippedFx.TargetYPosition,
+        AssertEqual(ushort.MaxValue, unequippedFx.TargetSurface.Y,
             "missing Speed Booster disables the FX target");
-        AssertEqual(0, unequippedFx.PackedYVelocity,
+        AssertEqual(0, unequippedFx.YVelocity.RawValue,
             "missing Speed Booster clears packed FX velocity");
         AssertEqual(0, unequippedFx.Timer.RawValue,
             "missing Speed Booster clears FX timer");
@@ -706,7 +706,7 @@ internal static class RoomPlmPopulationVerification
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity,
-            activeFx.PackedYVelocity,
+            activeFx.YVelocity.RawValue,
             "collected Speed Booster starts the regional lavaquake velocity");
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, activeFx.Timer.RawValue,
@@ -718,21 +718,21 @@ internal static class RoomPlmPopulationVerification
 
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x0300, activeFx.BaseYPosition,
+        AssertEqual(0x0300, activeFx.BaseY.Whole,
             "first lava stage waits while Samus remains right of its threshold");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x072b);
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x01bf, activeFx.BaseYPosition,
+        AssertEqual(0x01bf, activeFx.BaseY.Whole,
             "first lava stage clamps maximum FX Y");
-        AssertEqual(0xff50, activeFx.PackedYVelocity,
+        AssertEqual(0xff50, activeFx.YVelocity.RawValue,
             "first lava stage installs ROM velocity");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x050a);
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x0167, activeFx.BaseYPosition,
+        AssertEqual(0x0167, activeFx.BaseY.Whole,
             "second lava stage clamps maximum FX Y");
         activeSamus.Position = activeSamus.Position.WithWholeX(0x0244);
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-        AssertEqual(0x0100, activeFx.BaseYPosition,
+        AssertEqual(0x0100, activeFx.BaseY.Whole,
             "third lava stage clamps maximum FX Y");
         active.Step(activeLevel, activeStreamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(activeSystem.HasEvent(EventNumber.OutranSpeedBoosterLavaquake),

@@ -276,13 +276,13 @@ internal static class RoomFxRetailInventoryVerification
         AssertEqual(expectedType, actual.Type,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX type");
-        AssertEqual(expectedBase, actual.BaseYPosition,
+        AssertEqual(expectedBase, actual.BaseY.Whole,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX base Y");
-        AssertEqual(expectedTarget, actual.TargetYPosition,
+        AssertEqual(expectedTarget, actual.TargetSurface.Y,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX target Y");
-        AssertEqual(expectedVelocity, actual.PackedYVelocity,
+        AssertEqual(expectedVelocity, actual.YVelocity.RawValue,
             $"room {room.Identity} state $8F:{room.State.Pointer:X4} entry " +
             $"$83:{doorPointer:X4} FX velocity");
 
@@ -305,7 +305,7 @@ internal static class RoomFxRetailInventoryVerification
             expectedType,
             actual.Type,
             expectedBase,
-            actual.BaseYPosition,
+            actual.BaseY.Whole,
             expectedTarget,
             expectedVelocity,
             liquidOptions,
@@ -419,7 +419,7 @@ internal static class RoomFxRetailInventoryVerification
         cgram.SetColor(26, Bgr555.FromWord(0x03e0));
         cgram.SetColor(27, Bgr555.FromWord(0x7c00));
         ushort cameraY = unchecked((ushort)(
-            fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
+            fx.BaseY.Whole - RetailRoomFxDefinitions.AuditSurfaceScreenY));
         fx.PrimeViewport(new Position16<RoomPixels>(0, cameraY));
         fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
 
@@ -611,9 +611,9 @@ internal static class RoomFxRetailInventoryVerification
             randomNumber: 0,
             roomHeaderPointer: room.Pointer);
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
-        AssertEqual(definition.InitialY, fx.BaseYPosition,
+        AssertEqual(definition.InitialY, fx.BaseY.Whole,
             $"room {definition.Room} initial lava Y");
-        AssertEqual(definition.TargetY, fx.TargetYPosition,
+        AssertEqual(definition.TargetY, fx.TargetSurface.Y,
             $"room {definition.Room} target lava Y");
 
         ushort cameraY = door.DestinationScreen.ToRoomPixels().Y;
@@ -626,12 +626,12 @@ internal static class RoomFxRetailInventoryVerification
         for (; movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames; movingFrames++)
         {
             fx.Step(vram, new RoomLayer3FxFrame { Camera = new Position16<RoomPixels>(0, cameraY), TimeIsFrozen = false, MainGameLoopCarry = true });
-            if (fx.PackedYVelocity == 0)
+            if (fx.YVelocity.RawValue == 0)
                 break;
         }
         AssertTrue(movingFrames < RetailRoomFxDefinitions.MaximumRiseAuditFrames,
             $"room {definition.Room} lava reaches its cartridge target");
-        AssertEqual(definition.TargetY, fx.BaseYPosition,
+        AssertEqual(definition.TargetY, fx.BaseY.Whole,
             $"room {definition.Room} lava stops at its cartridge target");
 
         RoomLayer3FxRenderSnapshot finalSnapshot = fx.CaptureForDisplay()
@@ -757,7 +757,7 @@ internal static class RoomFxRetailInventoryVerification
         int firstMovementFrame = -1;
         int targetFrame = -1;
         int lastShakeFrame = 2;
-        ushort initialY = runtime.RoomLayer3Fx.BaseYPosition;
+        ushort initialY = runtime.RoomLayer3Fx.BaseY.Whole;
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
             StepAndVerifySound(frame);
@@ -767,9 +767,9 @@ internal static class RoomFxRetailInventoryVerification
                 lastShakeFrame = frame;
             }
             emittedSounds += EarthquakeSounds();
-            if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseYPosition != initialY)
+            if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseY.Whole != initialY)
                 firstMovementFrame = frame;
-            if (targetFrame < 0 && runtime.RoomLayer3Fx.PackedYVelocity == 0)
+            if (targetFrame < 0 && runtime.RoomLayer3Fx.YVelocity.RawValue == 0)
                 targetFrame = frame;
             if (targetFrame >= 0 && runtime.Enemies.Earthquake.EarthquakeTimer.IsZero)
                 break;
@@ -810,7 +810,7 @@ internal static class RoomFxRetailInventoryVerification
             // liquid position, not animation output. The production animated-tile owner
             // still executes and therefore remains covered by fail-loud dispatch.
             fx.Step(vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
-            int offset = unchecked((short)(fx.CurrentYPosition - fx.BaseYPosition));
+            int offset = unchecked((short)(fx.Surface.Y - fx.BaseY.Whole));
             maximumAbsoluteOffset = Math.Max(maximumAbsoluteOffset, Math.Abs(offset));
         }
 

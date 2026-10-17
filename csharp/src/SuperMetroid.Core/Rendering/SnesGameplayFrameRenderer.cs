@@ -596,7 +596,7 @@ public static class SnesGameplayFrameRenderer
             throw new InvalidDataException("Water has an incompatible layer-blending configuration.");
         if (fx.LayerBlendConfiguration != required) throw new InvalidDataException("Room FX has an incompatible layer-blending configuration.");
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid;
-        if (liquid && unchecked((short)fx.CurrentYPosition) < 0) return null;
+        if (liquid && unchecked((short)fx.Surface.Y) < 0) return null;
         bool atmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog or RoomFxType.Spores;
         var scrolls = new Position16<BgPlanePixels>[Height];
         int firstSurfaceLine = fx.WaterSurfaceScreenY - (SnesPpuLayout.BackgroundTileSizePixels - 1);

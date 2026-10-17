@@ -90,7 +90,7 @@ internal static class AcidStatueFirstEntryVerification
                 sawDestinationFade = true;
                 AssertEqual(RoomFxType.Acid, (displayed ?? throw new InvalidOperationException("Verification requires displayed.")).Type,
                     "destination fade retains the room's acid FX type");
-                AssertEqual(drainedAcidY, displayed.Value.CurrentYPosition,
+                AssertEqual(drainedAcidY, displayed.Value.Surface.Y,
                     "destination fade presents the event-restored acid height");
                 lastDestinationFadePixels = pixels;
                 lastDestinationFadeSurfaceRow = displayed.Value.WaterSurfaceScreenY;
@@ -110,7 +110,7 @@ internal static class AcidStatueFirstEntryVerification
             "first-entry fade shows the dark room above the drained surface, not the high-acid flash");
         AssertTrue(lastDestinationFadePixels[(lastDestinationFadeSurfaceRow + 8) * 256 + 16] != background,
             "first-entry fade draws the drained acid below its surface");
-        ushort transitionEndY = runtime.RoomLayer3Fx.CurrentYPosition;
+        ushort transitionEndY = runtime.RoomLayer3Fx.Surface.Y;
         for (int frame = 0; frame < 8; frame++)
         {
             runtime.StepFrame(0);
@@ -118,7 +118,7 @@ internal static class AcidStatueFirstEntryVerification
                 GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
 
         }
-        AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,
+        AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.Surface.Y,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");
         Console.WriteLine($"Acid Statue first entry: checked {destinationFrames} destination transition frames.");
     }

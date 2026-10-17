@@ -31,7 +31,7 @@ internal static class TourianStatueWaterVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(0xa66a);
         AssertEqual(RoomFxType.TourianEntranceStatue, runtime.RoomLayer3Fx.Type, "Actual four-statues room owns special FX 26");
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseYPosition, "Retail statues water begins at Y=B0");
+        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.BaseY.Whole, "Retail statues water begins at Y=B0");
         AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
@@ -78,17 +78,17 @@ internal static class TourianStatueWaterVerification
         runtime.RoomLayer3Fx.ApplyCartridgeMotionWrites(targetYPosition: 0xb4,
             packedYVelocity: 0x0100, timer: 1);
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.CurrentYPosition, "Water motion first arms its native wait");
+        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.Surface.Y, "Water motion first arms its native wait");
         game.Step(0);
-        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.CurrentYPosition, "Water wait expires before movement");
+        AssertEqual((ushort)0xb0, runtime.RoomLayer3Fx.Surface.Y, "Water wait expires before movement");
         game.Step(0);
-        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Special water follows the native one-pixel velocity");
+        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Special water follows the native one-pixel velocity");
         AssertEqual((ushort)0xb1, samus.LiquidPhysics.FxYPosition, "The moved water surface reaches live Samus physics");
         AssertEqual<RoomFxEarthquakeRequest?>(null, runtime.RoomLayer3Fx.EarthquakeRequest,
             "Water motion does not invoke the lava/acid earthquake branch");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count, "Water motion does not invoke lava/acid sound feedback");
         runtime.RoomLayer3Fx.Step(runtime.Vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
-        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Frozen HDMA retains the current water surface");
+        AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.Surface.Y, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;
     }

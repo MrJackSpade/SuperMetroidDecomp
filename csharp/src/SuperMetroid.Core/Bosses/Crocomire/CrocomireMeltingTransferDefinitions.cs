@@ -13,27 +13,33 @@ internal static class CrocomireMeltingTransferDefinitions
     internal const byte ScratchBank = 0x7e;
     /// <summary><c>$7E:4000</c>: the first byte of the melt's graphics scratch image.</summary>
     internal const ushort ScratchStart = 0x4000;
+    /// <summary>Bytes between consecutive scratch chunks, and between consecutive graphics sources in the cartridge.</summary>
+    internal const int ChunkByteStride = 0x200;
+    /// <summary>Bytes each upload sends from one scratch chunk to VRAM.</summary>
+    internal const int UploadByteCount = 0x160;
+    /// <summary>VRAM words between consecutive upload destinations.</summary>
+    internal const int UploadVramWordStride = 0x100;
     /// <summary>Projects the two native melt passes without storing duplicate transfer records.</summary>
     internal static CrocomireMeltingPassSequence Passes => new();
 
     /// <summary>Six chunks in the first pass and seven in the second. Each header
     /// occupies eight bytes, each copy four, each upload eight, and each list ends
     /// with a two-byte sentinel. Derive serialized cursors from that layout.</summary>
-    internal static CrocomireMeltingPass Header(ushort offset)
+    internal static CrocomireMeltingPass Header(int offset)
     {
-        int chunks = ClosedNativeWords.Decode<CrocomireMeltingHeader>(offset, "Crocomire melt header offset") switch
+        int chunks = ClosedNativeWords.Decode<CrocomireMeltingHeader>(checked((ushort)offset), "Crocomire melt header offset") switch
         {
             CrocomireMeltingHeader.First => 6,
             CrocomireMeltingHeader.Second => 7,
             _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireMeltingHeader)} {offset:X4}."),
         };
-        ushort start = (ushort)(offset + 8 + 4 * chunks + 2);
-        ushort end = (ushort)(start + 8 * chunks);
-        return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, (ushort)(end + 2), chunks);
+        int start = offset + 8 + 4 * chunks + 2;
+        int end = start + 8 * chunks;
+        return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, end + 2, chunks);
     }
 
     /// <summary>Accepts only the transfer-list start of one of the two compiled melt headers.</summary>
-    internal static CrocomireMeltingPass Transfers(ushort offset)
+    internal static CrocomireMeltingPass Transfers(int offset)
     {
         if (offset == Header((ushort)CrocomireMeltingHeader.First).TransferStartOffset) return Header((ushort)CrocomireMeltingHeader.First);
         if (offset == Header((ushort)CrocomireMeltingHeader.Second).TransferStartOffset) return Header((ushort)CrocomireMeltingHeader.Second);

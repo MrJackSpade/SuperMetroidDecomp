@@ -14,7 +14,8 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
         {
             if ((uint)index >= Length) throw new IndexOutOfRangeException();
             int source = Pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First ? 0xa07d : 0xac7d;
-            return new((ushort)(source + index * 0x200), (ushort)(CrocomireMeltingTransferDefinitions.ScratchStart + index * 0x200));
+            return new(source + index * CrocomireMeltingTransferDefinitions.ChunkByteStride,
+                CrocomireMeltingTransferDefinitions.ScratchStart + index * CrocomireMeltingTransferDefinitions.ChunkByteStride);
         }
     }
 

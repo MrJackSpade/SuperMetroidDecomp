@@ -76,8 +76,26 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort CrocomireSpikeWallThreshold = 768;
     /// <summary>The melt's BG2 distortion step stops growing at 80 pixels (8.8).</summary>
     private const int MaximumCrocomireDistortionStep = 20480;
-    /// <summary>Camera X tracked during Crocomire's BG2 body and death presentation.</summary>
-    private ushort _crocomireCameraX;
+    /// <summary>The projectile attack's last spawn parameter: its ninth shot, after which Crocomire steps forward.</summary>
+    private const int LastProjectileSpawnParameter = 18;
+    /// <summary>Camera position tracked during Crocomire's BG2 body and death presentation; its X places the BG2 body.</summary>
+    private Position16<RoomPixels> _crocomireCamera;
+
+    /// <summary>Acceleration the sink adds each frame, in 1/256 pixel per frame per frame: three and a half pixels.</summary>
+    private const int SinkAccelerationIncrement = 896;
+    /// <summary>The sink's acceleration stops growing at forty-eight whole pixels, keeping its fraction.</summary>
+    private const int MaximumSinkAccelerationWhole = 48;
+    /// <summary>The sink's speed stops growing at three whole pixels per frame, keeping its fraction.</summary>
+    private const int MaximumSinkSpeedWhole = 3;
+    /// <summary>The rise's acceleration stops growing at thirty-one pixels per frame per frame.</summary>
+    private const int MaximumRiseAccelerationWhole = 31;
+    /// <summary>The speed a rise keeps when its deceleration would take it below zero: 255/256 pixel per frame.</summary>
+    private const int RiseSpeedAfterStalling = 255;
+    /// <summary>Starting acceleration of every sink: eight pixels per frame per frame.</summary>
+    private const int SinkStartingAccelerationWhole = 8;
+    /// <summary>The skeleton's fixed fall through its arc: 224/256 pixel per frame.</summary>
+    private static readonly SnesSignedSixteenSixteen SkeletonArcFallSpeed =
+        SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(224));
 
     /// <summary>Debugger-visible Crocomire owner while the current room contains $DDBF.</summary>
     public CrocomireEnemyState? Crocomire { get; internal set; }
@@ -92,8 +110,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
     public Position16<Bg2Pixels> CrocomireBg2Scroll { get; private set; }
 
-    /// <summary>Most recent bank-$A4 library-two sound publication.</summary>
-    public ushort? LastCrocomireSoundEffect { get; private set; }
+    /// <summary>Most recent library-two sound publication of the current frame.</summary>
+    public SoundEffectId? LastCrocomireSoundEffect { get; private set; }
 
     /// <summary>True after the $640 X threshold starts the native bridge-collapse phase.</summary>
     public bool CrocomireBridgeCollapseStarted { get; private set; }
@@ -103,7 +121,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Crocomire = null;
         CrocomireDeath = null;
-        _crocomireCameraX = 0;
+        _crocomireCamera = Position16<RoomPixels>.Zero;
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
         CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
@@ -190,10 +208,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunCrocomireMain(
         RoomEnemySlot slot,
         SamusState? samus,
-        ushort cameraX)
+        Position16<RoomPixels> camera)
     {
         CrocomireEnemyState state = RequireCrocomire(slot);
-        _crocomireCameraX = cameraX;
+        _crocomireCamera = camera;
 
         if (state.DeathSequenceIndex == CrocomireDeathPhase.Fighting)
         {
@@ -233,13 +251,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         state.DeathSequenceIndex = CrocomireDeathPhase.CrumbleBridgeAndSink;
         StartCrocomireBodyProgram(state, CrocomireBodyProgram.BridgeCollapsed);
         body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
-        state.ReactionTimer = 0;
-        state.ProjectileCounter = 0;
-        state.VerticalAcceleration = (ushort)SnesEightEight.FromWhole(8);
+        state.StartVerticalMotion(SnesEightEight.FromWhole(SinkStartingAccelerationWhole));
         body.Radius = body.Radius.WithY(16);
         LastCrocomireSoundEffect = CrocomireSoundDefinitions.BridgeCollapse;
         CrocomireDeathState death = RequireCrocomireDeath();
-        death.BridgeFragmentCursor = 0;
+        death.BridgeFragmentsSpawned = 0;
         death.AcidSmokeTimer = NativeCountdown.Start(1);
         death.AcidSoundTimer = NativeCountdown.Start(1);
 
@@ -613,17 +629,17 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         ushort horizontal;
-        if (unchecked((short)(body.Position.X.Whole - _crocomireCameraX)) >= 0)
+        if (unchecked((short)(body.Position.X.Whole - _crocomireCamera.X)) >= 0)
         {
             horizontal = unchecked((short)(
-                body.Position.X.Whole - 128 - (_crocomireCameraX + 256))) < 0
+                body.Position.X.Whole - 128 - (_crocomireCamera.X + 256))) < 0
                 ? CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole)
                 : (ushort)256;
         }
         else
         {
             horizontal = unchecked((short)(
-                body.Position.X.Whole + 128 - _crocomireCameraX)) < 0
+                body.Position.X.Whole + 128 - _crocomireCamera.X)) < 0
                 ? (ushort)256
                 : CalculateOnScreenCrocomireBg2Horizontal(body.Position.X.Whole);
         }
@@ -633,7 +649,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Converts the body X position into the BG2 horizontal scroll used to keep Crocomire onscreen.</summary>
     private ushort CalculateOnScreenCrocomireBg2Horizontal(ushort bodyX)
     {
-        ushort relative = unchecked((ushort)(_crocomireCameraX - bodyX + 51));
+        ushort relative = unchecked((ushort)(_crocomireCamera.X - bodyX + 51));
         return EnemyMath.WrappedMagnitude(relative) >= 284 ? (ushort)256 : relative;
     }
     /// <summary>Dispatches $A4:B951/$B968/$BA05/$BAB4 after multibox collision.</summary>
@@ -694,8 +710,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // the pending-hit state. This wrapped signed comparison is the cartridge's exact
         // `body left edge - (camera + 256)` test.
         bool bodyLeftEdgeIsOnScreen = unchecked((short)(
-            body.Position.X.Whole - body.Radius.X - 256 - _crocomireCameraX)) < 0;
-        ushort stepCount = 0;
+            body.Position.X.Whole - body.Radius.X - 256 - _crocomireCamera.X)) < 0;
+        int stepCount = 0;
         SamusProjectileFamily family = projectileType.Family;
         if (bodyLeftEdgeIsOnScreen)
         {
@@ -721,7 +737,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (!bodyLeftEdgeIsOnScreen || stepCount != 0)
         {
-            state.StepCounter = unchecked((ushort)(state.StepCounter + stepCount));
+            state.StepCounter += stepCount;
             int hitCount = state.FightFlags.NextHitCount();
             if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) == 0)
             {
@@ -981,11 +997,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-        state.ReactionTimer = (ushort)SnesEightEight.FromWhole(3);
+        state.VerticalSpeed = SnesEightEight.FromWhole(MaximumSinkSpeedWhole);
     }
 
     /// <summary>Byte-for-byte fixed-point fall from <c>SinkCrocomireDown</c> at $A4:91C1.</summary>
-    private void RunCrocomireSink(CrocomireEnemyState state)
+    internal void RunCrocomireSink(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
@@ -1004,31 +1020,32 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         body.ExtraProperties = body.ExtraProperties.Without(
             EnemyExtraProperties.NewInstructionFrame);
 
-        byte accelerationFraction = (byte)state.VerticalAcceleration;
-        int accelerationCarry = accelerationFraction + 128 > byte.MaxValue ? 1 : 0;
-        accelerationFraction = unchecked((byte)(accelerationFraction + 128));
-        int accelerationWhole = SnesUnsignedEightEight.Whole(state.VerticalAcceleration) + 3 + accelerationCarry;
-        accelerationWhole = Math.Min(accelerationWhole, 48);
-        state.VerticalAcceleration = unchecked((ushort)((SnesEightEight.FromWhole(accelerationWhole)) | accelerationFraction));
+        // The acceleration's fraction carries into its whole part before the whole part is clamped, and the
+        // speed's into its whole part before that is clamped: each clamp keeps the fraction it carried from.
+        int acceleration = ClampWholePixels(
+            state.VerticalAcceleration + SinkAccelerationIncrement, MaximumSinkAccelerationWhole);
+        state.VerticalAcceleration = acceleration;
+        // The speed grows by the acceleration's whole part read as 1/256 pixels.
+        int speed = ClampWholePixels(
+            state.VerticalSpeed + SnesEightEight.WholeOf(acceleration), MaximumSinkSpeedWhole);
+        state.VerticalSpeed = speed;
 
-        byte speedFraction = (byte)state.ReactionTimer;
-        int speedCarry = speedFraction + accelerationWhole > byte.MaxValue ? 1 : 0;
-        speedFraction = unchecked((byte)(speedFraction + accelerationWhole));
-        int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) + speedCarry;
-        speedWhole = Math.Min(speedWhole, 3);
-        state.ReactionTimer = unchecked((ushort)((SnesEightEight.FromWhole(speedWhole)) | speedFraction));
-
-        byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
-        int subpositionSum = subpositionHigh + speedFraction;
-        subpositionHigh = unchecked((byte)subpositionSum);
-        state.ProjectileCounter = unchecked((ushort)(
-            SnesLittleEndian.Word(SnesLittleEndian.LowByte(state.ProjectileCounter), subpositionHigh)));
-        int yDelta = speedWhole + (subpositionSum > byte.MaxValue ? 1 : 0);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + yDelta)));
+        int travelled = state.VerticalSubpixel + speed;
+        state.VerticalSubpixel = SnesEightEight.FractionOf(travelled);
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(
+            body.Position.Y.Whole + SnesEightEight.WholeOf(travelled))));
     }
 
+    /// <summary>
+    /// An 8.8 quantity in 1/256 pixels with its whole part clamped to <paramref name="maximumWhole"/> and its
+    /// fraction kept, as the sink's byte-wise clamps leave it.
+    /// </summary>
+    private static int ClampWholePixels(int value, int maximumWhole) =>
+        SnesEightEight.FromWhole(Math.Min(SnesEightEight.WholeOf(value), maximumWhole)) +
+        SnesEightEight.FractionOf(value);
+
     /// <summary>Byte-for-byte fixed-point rise from $A4:92D8.</summary>
-    private void RunCrocomireRise(CrocomireEnemyState state)
+    internal void RunCrocomireRise(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
@@ -1040,28 +1057,22 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
-        int acceleration = state.VerticalAcceleration + SnesEightEight.FromWhole(1);
-        state.VerticalAcceleration = unchecked((ushort)Math.Min(acceleration, SnesEightEight.FromWhole(31)));
-        int accelerationWhole = SnesLittleEndian.HighByte(state.VerticalAcceleration);
+        int acceleration = Math.Min(
+            state.VerticalAcceleration + SnesEightEight.FromWhole(1),
+            SnesEightEight.FromWhole(MaximumRiseAccelerationWhole));
+        state.VerticalAcceleration = acceleration;
 
-        byte speedFraction = (byte)state.ReactionTimer;
-        bool speedBorrow = speedFraction < accelerationWhole;
-        speedFraction = unchecked((byte)(speedFraction - accelerationWhole));
-        int speedWhole = SnesUnsignedEightEight.Whole(state.ReactionTimer) - (speedBorrow ? 1 : 0);
-        if (speedWhole < 0)
-        {
-            speedFraction = byte.MaxValue;
-            speedWhole = 0;
-        }
-        state.ReactionTimer = unchecked((ushort)((SnesEightEight.FromWhole(speedWhole)) | speedFraction));
+        // The speed loses the acceleration's whole part read as 1/256 pixels; a speed that would fall below zero
+        // stalls just under one pixel per frame instead of reversing.
+        int speed = state.VerticalSpeed - SnesEightEight.WholeOf(acceleration);
+        if (speed < 0)
+            speed = RiseSpeedAfterStalling;
+        state.VerticalSpeed = speed;
 
-        byte subpositionHigh = SnesLittleEndian.HighByte(state.ProjectileCounter);
-        bool subpositionBorrow = subpositionHigh < speedFraction;
-        subpositionHigh = unchecked((byte)(subpositionHigh - speedFraction));
-        state.ProjectileCounter = unchecked((ushort)(
-            SnesLittleEndian.Word(SnesLittleEndian.LowByte(state.ProjectileCounter), subpositionHigh)));
-        int yDelta = speedWhole + (subpositionBorrow ? 1 : 0);
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - yDelta)));
+        int remaining = state.VerticalSubpixel - speed;
+        state.VerticalSubpixel = SnesEightEight.FractionOf(remaining);
+        body.Position = body.Position.WithWholeY(unchecked((ushort)(
+            body.Position.Y.Whole + SnesEightEight.WholeOf(remaining))));
     }
 
     /// <summary>Emits smoke at the acid surface during Crocomire's death presentation.</summary>
@@ -1118,7 +1129,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             tongue.Properties = tongue.Properties.With(EnemyProperties.Deleted);
         PublishCrocomirePlm(new Position16<RoomBlocks>(78, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.NormalTracking; // $A4:90D8
-        RequireCrocomireDeath().TargetHeightOrSkeletonTileIndex = 0;
+        RequireCrocomireDeath().SkeletonTileChunk = 0;
     }
 
     /// <summary>Moves the skeleton through the acid river toward the arena's breakable wall.</summary>
@@ -1174,12 +1185,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         CrocomireDeathState death = RequireCrocomireDeath();
         CrocomireRumbleDefinition definition =
             CrocomireRumbleDefinitions.AtOffset(state.RumbleTableOffset);
-        ushort target = unchecked((ushort)definition.TargetYOffset);
+        int target = definition.TargetYOffset;
         if (definition.IsTerminator)
         {
-            // The rumble word becomes the melt's shake counter: both bytes $80, decremented once per
-            // melting frame, its bit 1 picking the four-pixel X jitter.
-            death.RumbleYOffset = 32896;
+            // The rumble hands its shared word back to the melt's shake counter, with both bytes at 128.
+            death.MeltShakeCounter = NativeCountdown.FromRaw(MeltShakeCounterAfterRumble);
             state.DeathPhaseDelay = NativeCountdown.Start(128);
             (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Cgram);
@@ -1189,7 +1199,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (death.RumbleYOffset == target)
         {
-            if (unchecked((short)target) < 0)
+            if (target < 0)
             {
                 if (!death.RumbleCooldown.IsZero)
                 {
@@ -1206,10 +1216,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        death.RumbleYOffset = unchecked((short)(death.RumbleYOffset - target)) >= 0
-            ? unchecked((ushort)(death.RumbleYOffset - death.RumbleDelta))
-            : unchecked((ushort)(death.RumbleYOffset + death.RumbleDelta));
+        death.RumbleYOffset = death.RumbleYOffset >= target
+            ? death.RumbleYOffset - death.RumbleDelta
+            : death.RumbleYOffset + death.RumbleDelta;
     }
+
+    /// <summary>The melt shake counter's word as the hidden-wall rumble's terminator leaves it: both bytes 128.</summary>
+    private const ushort MeltShakeCounterAfterRumble = 32896;
 
     /// <summary>Loads skeleton graphics and replaces the wall blocks as the bones break through.</summary>
     internal void RunCrocomireSkeletonTileLoadAndWallBreak(CrocomireEnemyState state)
@@ -1225,8 +1238,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
         death.RumbleCooldown = NativeCountdown.Start(80);
-        state.ReactionTimer = 0;
-        state.ProjectileCounter = 0;
+        state.SkeletonVelocity = SnesSignedSixteenSixteen.Zero;
         PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.CreateCrocomireInvisibleWall);
         PublishCrocomirePlm(new Position16<RoomBlocks>(112, 11), PlmHeaderId.ClearCrocomireBridge);
@@ -1244,20 +1256,14 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Holds the broken-wall pose before launching the skeleton arc.</summary>
-    private void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
+    internal void RunCrocomireWallBreakDelay(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         if (unchecked((short)(state.Body.Position.X.Whole - 224)) < 0)
         {
-            (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
-                state.ReactionTimer,
-                state.ProjectileCounter,
-                SnesSixteenSixteen.FromEightEight(128u),
-                2);
-            state.Body.Position = state.Body.Position.WithX(CalculateCrocomirePosition(
-                state.Body.Position.X,
-                state.ReactionTimer,
-                state.ProjectileCounter));
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 128, maximumWhole: 2);
+            state.Body.Position = state.Body.Position.WithX(
+                state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         }
 
         if (death.RumbleCooldown.IsZero)
@@ -1265,27 +1271,19 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         death.RumbleCooldown = death.RumbleCooldown.Decrement().Remaining;
         if (!death.RumbleCooldown.IsZero)
             return;
-        state.ReactionTimer = 0;
+        state.SkeletonVelocity = state.SkeletonVelocity.WithFraction(0);
         StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFalling);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
 
     /// <summary>Moves the skeleton through its airborne arc after the wall break.</summary>
-    private void RunCrocomireSkeletonArc(CrocomireEnemyState state)
+    internal void RunCrocomireSkeletonArc(CrocomireEnemyState state)
     {
-        (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
-            state.ReactionTimer,
-            state.ProjectileCounter,
-            SnesSixteenSixteen.FromEightEight(8u),
-            5);
-        state.Body.Position = state.Body.Position.WithY(CalculateCrocomirePosition(
-            state.Body.Position.Y,
-            fraction: SnesLittleEndian.Word(0, 224),
-            whole: 0));
-        state.Body.Position = state.Body.Position.WithX(CalculateCrocomirePosition(
-            state.Body.Position.X,
-            state.ReactionTimer,
-            state.ProjectileCounter));
+        state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 8, maximumWhole: 5);
+        state.Body.Position = state.Body.Position.WithY(
+            SkeletonArcFallSpeed.AddTo(state.Body.Position.Y.Whole, state.Body.Position.Y.Fraction));
+        state.Body.Position = state.Body.Position.WithX(
+            state.SkeletonVelocity.AddTo(state.Body.Position.X.Whole, state.Body.Position.X.Fraction));
         if (unchecked((short)(state.Body.Position.X.Whole - 576)) < 0)
             return;
 
@@ -1297,15 +1295,11 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Finishes the skeleton collapse and scatters sixteen independently chosen enemy drops.</summary>
-    private void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
+    internal void RunCrocomireSkeletonCollapse(CrocomireEnemyState state)
     {
         if (state.BodyResidentProgram < CrocomireBodyProgram.SkeletonStable)
         {
-            (state.ReactionTimer, state.ProjectileCounter) = CalculateCrocomireVelocity(
-                state.ReactionTimer,
-                state.ProjectileCounter,
-                SnesSixteenSixteen.FromEightEight(16u),
-                6);
+            state.SkeletonVelocity = AccelerateCrocomireSkeleton(state.SkeletonVelocity, accelerationEightEight: 16, maximumWhole: 6);
             return;
         }
 
@@ -1354,7 +1348,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uploads the next ordered skeleton character chunk to its native OBJ VRAM position.</summary>
     internal void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
-        int entry = death.TargetHeightOrSkeletonTileIndex >> 1;
+        int entry = death.SkeletonTileChunk;
         var artwork = _room.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
             "Installed Crocomire artwork is missing its skeleton characters.");
         if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
@@ -1364,33 +1358,24 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // pixels are editable; the transfer order and VRAM position are not.
         new EnemyVram(_presentation.Vram).CrocomireSkeletonTiles.Load(artwork.Chunk(entry).Span,
             frame.DestinationOffset * sizeof(ushort));
-        death.TargetHeightOrSkeletonTileIndex += 2;
+        death.SkeletonTileChunk++;
     }
 
-    /// <summary>Adds a 16.16 delta to split velocity and clamps its whole word without discarding the fraction.</summary>
-    private static (ushort Fraction, ushort Whole) CalculateCrocomireVelocity(
-        ushort fraction,
-        ushort whole,
-        uint delta,
-        ushort maximumWhole)
+    /// <summary>
+    /// Adds an acceleration of <paramref name="accelerationEightEight"/>/256 pixel per frame per frame to the
+    /// skeleton's 16.16 speed and clamps its whole pixels at <paramref name="maximumWhole"/>, keeping the fraction.
+    /// The speed starts at rest and only grows, so its whole pixels never leave the clamp's range.
+    /// </summary>
+    private static SnesSignedSixteenSixteen AccelerateCrocomireSkeleton(
+        SnesSignedSixteenSixteen velocity,
+        int accelerationEightEight,
+        int maximumWhole)
     {
-        uint fixedValue = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
-        fixedValue = unchecked(fixedValue + delta);
-        if (SnesFixedPosition.WholeOf(unchecked((int)fixedValue)) >= maximumWhole)
-            fixedValue = (SnesSixteenSixteen.FractionOf(fixedValue)) | (SnesSixteenSixteen.FromWhole((uint)maximumWhole));
-        return ((ushort)fixedValue, SnesFixedPosition.WholeOf(unchecked((int)fixedValue)));
-    }
-
-    /// <summary>Integrates split fixed-point position with native carry between fractional and whole words.</summary>
-    private static SnesFixedPosition CalculateCrocomirePosition(
-        SnesFixedPosition position,
-        ushort fraction,
-        ushort whole)
-    {
-        uint fixedPosition = position.RawValue;
-        uint delta = (SnesSixteenSixteen.FromWhole((uint)whole)) | fraction;
-        fixedPosition = unchecked(fixedPosition + delta);
-        return SnesFixedPosition.FromRaw(fixedPosition);
+        SnesSignedSixteenSixteen accelerated =
+            velocity + SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(accelerationEightEight));
+        return accelerated.WholePixels >= maximumWhole
+            ? accelerated.WithWholePixels(checked((short)maximumWhole))
+            : accelerated;
     }
     /// <summary>Advances Crocomire's typed animation.</summary>
     internal void AdvanceCrocomireTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
@@ -1598,9 +1583,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.FightFunction = CrocomireFightFunction.SteppingBack;
                     return CrocomireBodyProgram.StepBack;
                 }
-                if (unchecked((short)(state.ProjectileCounter - 18)) < 0)
+                if (state.ProjectileCounter < LastProjectileSpawnParameter)
                 {
-                    state.ProjectileCounter = unchecked((ushort)(state.ProjectileCounter + 2));
+                    state.ProjectileCounter += 2;
                     SpawnCrocomireProjectile(state.Body, state.ProjectileCounter);
                     LastCrocomireSoundEffect = CrocomireSoundDefinitions.ProjectileSpit;
                     return null;
@@ -1619,7 +1604,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case CrocomireFightFunction.SteppingBack:
                 if (state.StepCounter != 0)
-                    state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
+                    state.StepCounter--;
                 if (state.StepCounter != 0)
                     return CrocomireBodyProgram.SteppingBack;
                 state.FightFunction = CrocomireFightFunction.SteppingForward;
@@ -1652,14 +1637,19 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     CrocomireFightFunction.SteppingBack);
 
             case CrocomireFightFunction.PowerBombCharge:
-                state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
-                if (unchecked((short)(state.StepCounter - 2)) < 0)
+            {
+                // The charge consumes one step and ends once fewer than two remain; a count that would drop below
+                // zero ends it the same way, as the cartridge's wrapped word reads negative.
+                int remaining = state.StepCounter - 1;
+                if (remaining < 2)
                 {
                     state.StepCounter = 0;
                     state.FightFunction = CrocomireFightFunction.SteppingForward;
                     return CrocomireBodyProgram.StepForward;
                 }
+                state.StepCounter = remaining;
                 return null;
+            }
 
             case CrocomireFightFunction.NearSpikeWallChargeUnused:
                 if ((state.FightFlags & CrocomireFightFlags.DamageReactionPending) != 0)
@@ -1718,12 +1708,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                     return CrocomireBodyProgram.MovingClaws;
                 }
                 state.StepCounter = 5;
-                state.ProjectileCounter = (ushort)state.FightFunction;
+                state.SavedFightFunction = state.FightFunction;
                 state.FightFunction = CrocomireFightFunction.UnwrittenTableEntry;
                 return CrocomireBodyProgram.MovingClaws;
 
             case CrocomireFightFunction.MoveClawsUnused:
-                if (state.StepCounter == 0 || (state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value) == 0)
+                if (state.StepCounter == 0 || --state.StepCounter == 0)
                 {
                     state.FightFunction = CrocomireFightFunction.MovingClawsUnused;
                     state.FightFlags &= ~CrocomireFightFlags.UnusedClawsMoving;
@@ -1746,12 +1736,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     state.FightFlags &= ~CrocomireFightFlags.ClawTouchedSamus;
                     state.Body.InstructionTimer = NativeCountdown.Start(1);
-                    state.FightFunction = (CrocomireFightFunction)state.ProjectileCounter;
+                    state.FightFunction = state.SavedFightFunction;
                     return CrocomireBodyProgram.MovingClaws;
                 }
                 if ((state.FightFlags & CrocomireFightFlags.ClawTouchedSamus) != 0)
                 {
-                    state.StepCounter = NativeWordCounter.Decrement(state.StepCounter).Value;
+                    state.StepCounter--;
                     LastCrocomireSoundEffect = CrocomireSoundDefinitions.ClawStrike;
                     return CrocomireBodyProgram.MovingClaws;
                 }
@@ -1869,7 +1859,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         death.PixelsToErasePerColumn = 48;
-        death.TargetHeightOrSkeletonTileIndex = 48;
+        death.MeltTargetHeight = 48;
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         StartCrocomireBodyProgram(state, bodyProgram);
     }
@@ -1938,9 +1928,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         CrocomireDeathState death = RequireCrocomireDeath();
         int byteCount = upload.ByteCount;
-        ushort destinationWord = upload.DestinationWord;
-        byte sourceBank = upload.SourceBank;
-        ushort source = upload.SourceWord;
+        int destinationWord = upload.DestinationWord;
+        int sourceBank = upload.SourceBank;
+        int source = upload.SourceWord;
         if (sourceBank != CrocomireMeltingTransferDefinitions.ScratchBank)
         {
             throw new InvalidDataException(
@@ -1973,9 +1963,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SpawnCrocomireAcidSmoke(state, samus);
         CrocomireDeathState death = RequireCrocomireDeath();
-        death.RumbleYOffset = NativeWordCounter.Decrement(death.RumbleYOffset).Value;
+        death.MeltShakeCounter = death.MeltShakeCounter.Decrement().Remaining;
         state.Body.Position = state.Body.Position.WithWholeX(unchecked((ushort)(
-            death.BodyXBeforeMelting + ((death.RumbleYOffset & 2) != 0 ? 4 : 0))));
+            death.BodyXBeforeMelting + ((death.MeltShakeCounter.RawValue & 2) != 0 ? 4 : 0))));
 
         if (!EraseNextCrocomireMeltingColumn())
         {
@@ -1985,10 +1975,10 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // $A4:95D5 refreshes the BG2 scroll, which also moves the tongue onto the body.
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
-        ushort nextAdjustedY = unchecked((ushort)(death.AdjustedDestinationY - 3));
-        if (unchecked((short)(death.AdjustedDestinationY - 19)) < 0)
+        int nextAdjustedY = death.AdjustedDestinationY - 3;
+        if (death.AdjustedDestinationY < 19)
         {
-            if (unchecked((short)(death.DistortionStep - MaximumCrocomireDistortionStep)) >= 0)
+            if (death.DistortionStep >= MaximumCrocomireDistortionStep)
             {
                 CompleteCrocomireMeltingDissolve(state);
                 return;
@@ -1996,9 +1986,9 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             nextAdjustedY = 16;
         }
         death.AdjustedDestinationY = nextAdjustedY;
-        death.DistortionStep = unchecked((ushort)Math.Min(
+        death.DistortionStep = Math.Min(
             death.DistortionStep + 384,
-            MaximumCrocomireDistortionStep));
+            MaximumCrocomireDistortionStep);
         BuildCrocomireMeltingScrollTable(state, death);
     }
 
@@ -2021,15 +2011,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             // would skip directly to the next death state several frames too early.
             if (cursor >= CrocomireMeltingDefinitions.ColumnCount)
             {
-                death.MeltingColumnCursor = unchecked((ushort)cursor);
+                death.MeltingColumnCursor = cursor;
                 return true;
             }
             xColumn = CrocomireMeltingDefinitions.SelectColumn(cursor);
-            if (heights[xColumn] < death.TargetHeightOrSkeletonTileIndex)
+            if (heights[xColumn] < death.MeltTargetHeight)
                 break;
             cursor++;
         }
-        death.MeltingColumnCursor = unchecked((ushort)cursor);
+        death.MeltingColumnCursor = cursor;
 
         // The shipped routine masks by [table index & 7], not [selected X & 7]. This is one
         // of its documented indexing bugs and materially changes the dissolve silhouette.
@@ -2071,15 +2061,15 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Span<ushort> output = death.MutableBg2ScrollByScanline;
         int line = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
-        ushort adjustedY = death.AdjustedDestinationY;
-        ushort currentY = adjustedY;
-        uint fraction = 0;
+        int adjustedY = death.AdjustedDestinationY;
+        int currentY = adjustedY;
+        int fraction = 0;
         while (line < output.Length &&
-               unchecked((short)(adjustedY - death.MaximumAdjustedDestinationY)) < 0)
+               adjustedY < death.MaximumAdjustedDestinationY)
         {
             output[line++] = unchecked((ushort)(
                 CrocomireBg2Scroll.Y + adjustedY - currentY));
-            uint sum = fraction + death.DistortionStep;
+            int sum = fraction + death.DistortionStep;
             bool carry = sum > ushort.MaxValue;
             fraction = SnesSixteenSixteen.FractionOf(sum);
             if (!carry)
@@ -2105,15 +2095,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restores the BG2 presentation and actor state after the final melting pass.</summary>
     internal void FinishCrocomireMeltingPass(CrocomireEnemyState state)
     {
-        state.ReactionTimer = 0;
-        state.ProjectileCounter = 0;
-        state.VerticalAcceleration = (ushort)SnesEightEight.FromWhole(8);
+        state.StartVerticalMotion(SnesEightEight.FromWhole(SinkStartingAccelerationWhole));
         ClearCrocomireBg2WorkingTilemap();
         TransferCrocomireBg2Words(0, 1024);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
     }
     /// <summary>Ports <c>EprojInit_CrocomireProjectile</c> at $86:9023.</summary>
-    internal void SpawnCrocomireProjectile(RoomEnemySlot body, ushort spawnParameter)
+    internal void SpawnCrocomireProjectile(RoomEnemySlot body, int spawnParameter)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -2128,7 +2116,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(body.Position.X.Whole - 32)), unchecked((ushort)(body.Position.Y.Whole - 16))));
         projectile.GeneralTimer = 0;
         projectile.Position = projectile.Position.WithFractionX(0).WithFractionY(0);
-        projectile.DirectionParameter = spawnParameter;
+        projectile.DirectionParameter = checked((ushort)spawnParameter);
     }
 
     /// <summary>Ports the one-frame vector setup at $86:906B.</summary>
@@ -2182,14 +2170,13 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnNextCrocomireBridgeFragment()
     {
         CrocomireDeathState death = RequireCrocomireDeath();
-        ushort cursor = death.BridgeFragmentCursor;
-        if (unchecked((short)(cursor - 22)) >= 0)
+        int fragment = death.BridgeFragmentsSpawned;
+        if (fragment >= CrocomireBridgeFragmentDefinitions.FragmentCount)
             return;
 
-        // The second SpawnEprojWithGfx argument is the same unaligned 0,2,...,20 cursor.
-        // Its copied graphics word is immaterial: the definition initializer immediately
-        // replaces it with $0400. Preserve the observable X table and cursor progression.
-        death.BridgeFragmentCursor = unchecked((ushort)(cursor + 2));
+        // The fragment counts as launched even when no projectile slot is free. The graphics argument the
+        // cartridge passes alongside it is immaterial: the definition initializer immediately replaces it.
+        death.BridgeFragmentsSpawned = fragment + 1;
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -2199,7 +2186,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             RoomEnemyProjectileKind.CrocomireBridgeCrumbling,
             graphicsIndex: 0);
         projectile.StartAnimation(new CrocomireProjectileAnimation(CrocomireProjectileFrameKind.BridgeFragment));
-        projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(cursor));
+        projectile.Position = projectile.Position.WithWholeX(CrocomireBridgeFragmentDefinitions.XPosition(fragment));
         projectile.Position = projectile.Position.WithWholeY(187).WithFractionX(0).WithFractionY(0);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
         // $86:92A5 reads RandomNumberSeed; it does not advance it.
@@ -2337,7 +2324,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastCrocomireSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastCrocomireSoundEffect is { } sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
@@ -2349,7 +2337,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Crocomire's main AI.</summary>
     internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunCrocomireMain(slot, frame.Samus, frame.Camera.X);
+        RunCrocomireMain(slot, frame.Samus, frame.Camera);
     }
 
     /// <summary>Ports CrocomireTongue's main AI.</summary>
@@ -2399,8 +2387,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                  CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
-            foreach (CrocomireBodyCollisionHitbox hitbox in
-                     CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
+            foreach (CrocomireBodyCollisionHitbox hitbox in component.Hitboxes)
             {
                 ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
                 ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));

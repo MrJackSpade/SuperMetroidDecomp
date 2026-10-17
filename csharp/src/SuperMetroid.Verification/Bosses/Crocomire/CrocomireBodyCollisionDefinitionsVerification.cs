@@ -46,7 +46,10 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         var frames = CrocomireBodyVisualDefinitions.Frames;
         AssertEqual(50, frames.Length,
             "all fifty selected Crocomire fight-body roots have collision");
-        var seenLists = new HashSet<ushort>();
+        // The cartridge names each component's hitbox list by address; only this oracle knows those addresses.
+        // Each compiled component must hold the list the ROM names: the same rectangles and callbacks, and the same
+        // list instance as every other component naming that address.
+        var seenLists = new Dictionary<ushort, IReadOnlyList<CrocomireBodyCollisionHitbox>>();
         int probes = 0;
         foreach (ushort frame in frames)
         {
@@ -64,9 +67,13 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                     $"Crocomire $A4:{frame:X4} component {index} X");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), component.Offset.Y,
                     $"Crocomire $A4:{frame:X4} component {index} Y");
-                AssertEqual(rom.ReadCartridgeWord((address + 6)), component.HitboxPointer,
-                    $"Crocomire $A4:{frame:X4} component {index} hitbox list");
-                seenLists.Add(component.HitboxPointer);
+                ushort list = rom.ReadCartridgeWord((address + 6));
+                AssertNativeHitboxList(rom, list, component.Hitboxes, $"Crocomire $A4:{frame:X4} component {index}");
+                if (seenLists.TryGetValue(list, out IReadOnlyList<CrocomireBodyCollisionHitbox>? shared))
+                    AssertTrue(ReferenceEquals(shared, component.Hitboxes),
+                        $"Crocomire $A4:{frame:X4} component {index} shares the list every component naming $A4:{list:X4} holds");
+                else
+                    seenLists.Add(list, component.Hitboxes);
             }
 
             nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
@@ -93,41 +100,43 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
 
         AssertEqual(15, seenLists.Count,
             "fifty Crocomire body frames refer to fifteen hitbox lists");
-        foreach (ushort list in seenLists)
-        {
-            ReadOnlySpan<CrocomireBodyCollisionHitbox> hitboxes =
-                CrocomireBodyCollisionDefinitions.HitboxesAt(list);
-            AssertEqual(rom.ReadCartridgeWord((0xa40000 | list)), (ushort)hitboxes.Length,
-                $"Crocomire $A4:{list:X4} hitbox count");
-            for (int index = 0; index < hitboxes.Length; index++)
-            {
-                int address = 0xa40000 | unchecked((ushort)(list + 2 + index * 12));
-                CrocomireBodyCollisionHitbox hitbox = hitboxes[index];
-                AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), hitbox.Left,
-                    $"Crocomire $A4:{list:X4} hitbox {index} left");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), hitbox.Top,
-                    $"Crocomire $A4:{list:X4} hitbox {index} top");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), hitbox.Right,
-                    $"Crocomire $A4:{list:X4} hitbox {index} right");
-                AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), hitbox.Bottom,
-                    $"Crocomire $A4:{list:X4} hitbox {index} bottom");
-                AssertEqual(rom.ReadCartridgeWord((address + 8)), hitbox.TouchAi,
-                    $"Crocomire $A4:{list:X4} hitbox {index} touch callback");
-                AssertEqual(rom.ReadCartridgeWord((address + 10)), hitbox.ShotAi,
-                    $"Crocomire $A4:{list:X4} hitbox {index} shot callback");
-            }
-        }
         AssertThrows<InvalidDataException>(
             () => CrocomireBodyCollisionDefinitions.ComponentsAt(0x8000),
             "unknown Crocomire body frame fails loudly");
-        AssertThrows<InvalidDataException>(
-            () => CrocomireBodyCollisionDefinitions.HitboxesAt(0x8000),
-            "unknown Crocomire body hitbox list fails loudly");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire body collision never reads ROM bytes");
         Console.WriteLine($"Crocomire body collision: {frames.Length} frames, " +
             $"{seenLists.Count} hitbox lists, {probes} native-equivalent probes; " +
             "installed path reads no ROM.");
+    }
+
+    /// <summary>
+    /// Compares a compiled component's rectangles and callbacks with the bank-$A4 hitbox list the cartridge names at
+    /// <paramref name="list"/>: its count word, then each twelve-byte rectangle and callback record.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the hitbox list a Crocomire component names")]
+    internal static void AssertNativeHitboxList(IImportCartridgeSource rom, ushort list,
+        IReadOnlyList<CrocomireBodyCollisionHitbox> hitboxes, string at)
+    {
+        AssertEqual(rom.ReadCartridgeWord((0xa40000 | list)), checked((ushort)hitboxes.Count),
+            $"{at}: $A4:{list:X4} hitbox count");
+        for (int index = 0; index < hitboxes.Count; index++)
+        {
+            int address = 0xa40000 | unchecked((ushort)(list + 2 + index * 12));
+            CrocomireBodyCollisionHitbox hitbox = hitboxes[index];
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord(address)), hitbox.Left,
+                $"{at}: $A4:{list:X4} hitbox {index} left");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 2))), hitbox.Top,
+                $"{at}: $A4:{list:X4} hitbox {index} top");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 4))), hitbox.Right,
+                $"{at}: $A4:{list:X4} hitbox {index} right");
+            AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), hitbox.Bottom,
+                $"{at}: $A4:{list:X4} hitbox {index} bottom");
+            AssertEqual(rom.ReadCartridgeWord((address + 8)), hitbox.TouchAi,
+                $"{at}: $A4:{list:X4} hitbox {index} touch callback");
+            AssertEqual(rom.ReadCartridgeWord((address + 10)), hitbox.ShotAi,
+                $"{at}: $A4:{list:X4} hitbox {index} shot callback");
+        }
     }
 
     /// <summary>Runs the focused Crocomire body collision comparison against the retail ROM.</summary>

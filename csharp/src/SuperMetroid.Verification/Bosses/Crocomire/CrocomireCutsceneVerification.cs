@@ -45,18 +45,19 @@ internal static class CrocomireCutsceneVerification
                 int address = frame.Pointer + 2 + 8 * index;
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | address)), component.Offset.X, "corpse native component X");
                 AssertEqual(unchecked((short)rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 2))), component.Offset.Y, "corpse native component Y");
-                AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 6)), component.HitboxPointer, "corpse native hitbox pointer");
-                var boxes = CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
-                AssertEqual((int)rom.ReadCartridgeWordFixedBank(0xa40000 | component.HitboxPointer), boxes.Length, "corpse native hitbox count");
-                for (int boxIndex = 0; boxIndex < boxes.Length; boxIndex++)
+                // The ROM names the component's hitbox list by address; the compiled component holds that list.
+                ushort list = rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 6));
+                IReadOnlyList<CrocomireBodyCollisionHitbox> boxes = component.Hitboxes;
+                AssertEqual((int)rom.ReadCartridgeWordFixedBank(0xa40000 | list), boxes.Count, "corpse native hitbox count");
+                for (int boxIndex = 0; boxIndex < boxes.Count; boxIndex++)
                 {
                     var box = boxes[boxIndex];
-                    int boxAddress = component.HitboxPointer + 2 + 12 * boxIndex;
+                    int boxAddress = list + 2 + 12 * boxIndex;
                     ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top), unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), box.TouchAi, box.ShotAi];
                     for (int word = 0; word < words.Length; word++)
                         AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + word * 2)), words[word], "corpse native rectangle/callback");
                 }
-                if (!anyHitbox && boxes.Length != 0)
+                if (!anyHitbox && boxes.Count != 0)
                 {
                     var box = boxes[0];
                     ushort x = (ushort)(4096 + component.Offset.X + (box.Left + box.Right) / 2);
@@ -68,7 +69,7 @@ internal static class CrocomireCutsceneVerification
                         AssertEqual(shot ? box.ShotAi : box.TouchAi, (ushort)(hit[^1] ?? throw new InvalidOperationException("Verification requires hit[^1].")), "corpse selects native callback");
                     }
                 }
-                anyHitbox |= boxes.Length != 0;
+                anyHitbox |= boxes.Count != 0;
             }
             if (!anyHitbox)
             {
@@ -105,22 +106,22 @@ internal static class CrocomireCutsceneVerification
         enemies.Presentation._cgram = new SnesCgram();
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
         enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
-        Action<RoomEnemySlot, SamusState?, ushort> run = enemies.CrocomireBehavior.RunCrocomireMain;
+        Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
-        run(body, samus, 1280);
+        run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.PixelPosition.X, "melting cutscene camera cannot show left of screen five");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(4), "bridge threshold locks screen four");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(5), "screen five remains visible");
         samus.Position = samus.Position.WithWholeX(1311);
-        run(body, samus, 1280);
+        run(body, samus, new Position16<RoomPixels>(1280, 0));
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)1279, camera.PixelPosition.X, "before threshold camera remains free to move left");
         samus.Position = samus.Position.WithWholeX(1312);
         body.Position = body.Position.WithWholeX(1600);
-        run(body, samus, 1280);
+        run(body, samus, new Position16<RoomPixels>(1280, 0));
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
         camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
@@ -135,7 +136,7 @@ internal static class CrocomireCutsceneVerification
         state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);
-        run(body, samus, 544);
+        run(body, samus, new Position16<RoomPixels>(544, 0));
         AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(1), "left cutscene retains red screen one");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(2), "left cutscene retains visible screen two");
@@ -158,7 +159,7 @@ internal static class CrocomireCutsceneVerification
             AssertEqual((ushort)512, camera.PixelPosition.X, "rightward target near holding wall stays within screen two");
         }
         state.DeathSequenceIndex = CrocomireDeathPhase.ClearWallAndOpenScrolls;
-        run(body, samus, 512);
+        run(body, samus, new Position16<RoomPixels>(512, 0));
         camera.MoveLeft(1);
         AssertEqual((ushort)511, camera.PixelPosition.X, "left camera unlocks at the native completion phase");
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");

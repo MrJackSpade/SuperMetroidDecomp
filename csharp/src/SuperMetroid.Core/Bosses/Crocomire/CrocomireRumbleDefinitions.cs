@@ -96,7 +96,7 @@ internal static class CrocomireRumbleDefinitions
     }
 
     /// <summary>Rejects the timing operands while resolving every native target cursor.</summary>
-    internal static CrocomireRumbleDefinition AtOffset(ushort tableOffset)
+    internal static CrocomireRumbleDefinition AtOffset(int tableOffset)
     {
         if (tableOffset is 0 or 2) return All[tableOffset / 2];
         int terminatorOffset = 4 + PhaseCount * 8;

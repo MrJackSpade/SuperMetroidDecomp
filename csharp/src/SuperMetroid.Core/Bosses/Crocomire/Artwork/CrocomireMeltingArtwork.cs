@@ -62,7 +62,7 @@ public sealed class CrocomireMeltingArtwork
     /// Replaces only the byte range written by the native overlapping copies. The rest of
     /// the scratch allocation retains its prior value, including across the second pass.
     /// </summary>
-    internal void CopyPassTo(ushort headerOffset, Span<byte> scratch)
+    internal void CopyPassTo(int headerOffset, Span<byte> scratch)
     {
         CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(headerOffset);
         ReadOnlySpan<byte> image = (headerOffset ==

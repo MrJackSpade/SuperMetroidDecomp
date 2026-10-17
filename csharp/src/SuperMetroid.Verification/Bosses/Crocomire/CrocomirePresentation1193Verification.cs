@@ -132,7 +132,7 @@ internal static class CrocomirePresentation1193Verification
             scroll.Bg1Offset = scroll.Bg1Offset.WithY(3);
             scroll.CalculateScrollsAndUpdates();
             ushort bg2 = scroll.Bg2Scroll.Y;
-            (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = unchecked((ushort)-4);
+            (death ?? throw new InvalidOperationException("Verification requires death.")).RumbleYOffset = -4;
             runtime.RoomMains.RunCrocomireComebackRoomMain();
             AssertEqual((ushort)99, scroll.Bg1Scroll.Y, "Native rumble includes BG1's ordinary Y offset");
             AssertEqual(bg2, scroll.Bg2Scroll.Y, "Hidden-wall rumble leaves BG2 unchanged");

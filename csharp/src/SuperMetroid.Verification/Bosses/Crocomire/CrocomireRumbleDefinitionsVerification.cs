@@ -89,10 +89,12 @@ internal static class CrocomireRumbleDefinitionsVerification
         enemies.Presentation._cgram = cgram;
         enemies.CrocomireBehavior.CrocomireDeath = death;
 
-        ushort referenceIndex = state.RumbleTableOffset;
-        ushort referenceY = death.RumbleYOffset;
+        // The reference model keeps the cartridge's words; production keeps signed pixel quantities, which the
+        // comparisons read back as words.
+        ushort referenceIndex = checked((ushort)state.RumbleTableOffset);
+        ushort referenceY = unchecked((ushort)death.RumbleYOffset);
         ushort referenceCooldown = death.RumbleCooldown.RawValue;
-        ushort referenceDelta = death.RumbleDelta;
+        ushort referenceDelta = checked((ushort)death.RumbleDelta);
         // The native dispatcher indexes its table by even byte offset; the state stores the phase in table order.
         ushort referenceDeathIndex = (ushort)((ushort)state.DeathSequenceIndex * 2);
         int frames = 0;
@@ -110,8 +112,11 @@ internal static class CrocomireRumbleDefinitionsVerification
 
             AssertEqual(referenceIndex, state.RumbleTableOffset,
                 $"Crocomire rumble frame {frames} target index");
-            AssertEqual(referenceY, death.RumbleYOffset,
-                $"Crocomire rumble frame {frames} Y offset");
+            // The terminator writes its marker into the word the rumble shares with the melt shake counter;
+            // production keeps that marker in the counter and leaves the last offset, which nothing reads again.
+            if (state.DeathSequenceIndex == CrocomireDeathPhase.RumbleHiddenWall)
+                AssertEqual(referenceY, unchecked((ushort)death.RumbleYOffset),
+                    $"Crocomire rumble frame {frames} Y offset");
             AssertEqual(referenceCooldown, death.RumbleCooldown.RawValue,
                 $"Crocomire rumble frame {frames} cooldown");
             AssertEqual(referenceDelta, death.RumbleDelta,
@@ -123,8 +128,8 @@ internal static class CrocomireRumbleDefinitionsVerification
         AssertTrue(frames < 2048, "Crocomire rumble production sequence terminates");
         AssertEqual((ushort)0x0080, state.DeathPhaseDelay.RawValue,
             "Crocomire rumble production terminator handoff");
-        AssertEqual((ushort)0x8080, death.RumbleYOffset,
-            "Crocomire rumble production terminator Y marker");
+        AssertEqual((ushort)0x8080, death.MeltShakeCounter.RawValue,
+            "Crocomire rumble production terminator marker reaches the melt shake counter");
         for (int color = 0; color < CrocomirePaletteRomData.WallSpikesCount; color++)
             AssertEqual(colors.ResolveWallSpikes(color),
                 cgram.Colors[CrocomirePaletteRomData.WallSpikesDestination + color],

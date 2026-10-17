@@ -251,7 +251,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         {
             MeltingTableOffset = CrocomireMeltingTransferDefinitions.Passes[0].TransferStartOffset,
             PixelsToErasePerColumn = 48,
-            TargetHeightOrSkeletonTileIndex = 48,
+            MeltTargetHeight = 48,
         };
         death.MutableMeltingGraphics.Fill(0xff);
         enemies.BindFixtureDefinitions(CompiledRoomEnemyDefinitions.Instance);
@@ -359,7 +359,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
         AssertEqual((ushort)48, death.PixelsToErasePerColumn,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} erase count");
-        AssertEqual((ushort)48, death.TargetHeightOrSkeletonTileIndex,
+        AssertEqual(48, death.MeltTargetHeight,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} target height");
         var result = death.Bg2WorkingTilemap.Slice(32,
             CrocomireMeltingArtworkFormat.TilemapCellCount).ToArray();

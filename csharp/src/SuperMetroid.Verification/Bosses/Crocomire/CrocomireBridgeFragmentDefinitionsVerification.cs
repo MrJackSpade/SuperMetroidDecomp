@@ -17,18 +17,19 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
     internal static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa49156;
-        for (ushort byteOffset = 0; byteOffset < 22; byteOffset += 2)
+        // The cartridge table holds one X word per fragment, in launch order.
+        for (int fragment = 0; fragment < CrocomireBridgeFragmentDefinitions.FragmentCount; fragment++)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + byteOffset);
-            AssertEqual(expected, CrocomireBridgeFragmentDefinitions.XPosition(byteOffset),
-                $"Crocomire bridge fragment offset ${byteOffset:X2}");
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(sourceAddress + fragment * sizeof(ushort));
+            AssertEqual(expected, CrocomireBridgeFragmentDefinitions.XPosition(fragment),
+                $"Crocomire bridge fragment {fragment}");
         }
         AssertThrows<ArgumentOutOfRangeException>(
-            () => CrocomireBridgeFragmentDefinitions.XPosition(1),
-            "Crocomire odd bridge-fragment offset");
+            () => CrocomireBridgeFragmentDefinitions.XPosition(-1),
+            "Crocomire bridge fragment before the first");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => CrocomireBridgeFragmentDefinitions.XPosition(22),
-            "Crocomire bridge-fragment offset past table");
+            () => CrocomireBridgeFragmentDefinitions.XPosition(CrocomireBridgeFragmentDefinitions.FragmentCount),
+            "Crocomire bridge fragment past the last");
 
         var enemies = new RoomEnemySystem();
         var death = new CrocomireDeathState();
@@ -45,23 +46,23 @@ internal static class CrocomireBridgeFragmentDefinitionsVerification
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[17 - fragment];
             AssertEqual(RoomEnemyProjectileKind.CrocomireBridgeCrumbling, projectile.Kind,
                 $"Crocomire bridge fragment {fragment} kind");
-            AssertEqual(CrocomireBridgeFragmentDefinitions.XPosition((ushort)(fragment * 2)),
+            AssertEqual(CrocomireBridgeFragmentDefinitions.XPosition(fragment),
                 projectile.Position.X.Whole,
                 $"Crocomire bridge fragment {fragment} production X");
             AssertEqual((ushort)187, projectile.Position.Y.Whole,
                 $"Crocomire bridge fragment {fragment} production Y");
             AssertEqual((ushort)0x0074, projectile.Velocity.Y.RawValue,
                 $"Crocomire bridge fragment {fragment} production Y velocity");
-            AssertEqual(checked((ushort)((fragment + 1) * 2)), death.BridgeFragmentCursor,
-                $"Crocomire bridge fragment {fragment} cursor");
+            AssertEqual(fragment + 1, death.BridgeFragmentsSpawned,
+                $"Crocomire bridge fragment {fragment} launch count");
         }
 
         int activeBeforeCutoff = enemies.ActiveEnemyProjectileCount;
         spawn();
         AssertEqual(activeBeforeCutoff, enemies.ActiveEnemyProjectileCount,
             "Crocomire bridge fragment cursor 22 stops spawning");
-        AssertEqual((ushort)22, death.BridgeFragmentCursor,
-            "Crocomire bridge fragment cutoff preserves cursor");
+        AssertEqual(CrocomireBridgeFragmentDefinitions.FragmentCount, death.BridgeFragmentsSpawned,
+            "Crocomire bridge fragment cutoff preserves the launch count");
         Console.WriteLine(
             "Crocomire bridge fragments: all eleven native positions, eleven real allocations and the cursor cutoff pass with the source table forbidden.");
     }

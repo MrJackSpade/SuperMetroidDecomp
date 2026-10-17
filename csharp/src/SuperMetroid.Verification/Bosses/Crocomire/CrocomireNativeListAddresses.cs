@@ -98,7 +98,7 @@ internal static class CrocomireNativeListAddresses
     };
 
     /// <summary>The bank-$A4 sound callbacks and the sound each queues.</summary>
-    internal static readonly Dictionary<ushort, ushort> BodySoundCallbacks = new()
+    internal static readonly Dictionary<ushort, SoundEffectId> BodySoundCallbacks = new()
     {
         [0x8cfb] = CrocomireSoundDefinitions.Cry,
         [0x8d07] = CrocomireSoundDefinitions.BigExplosion,
@@ -126,7 +126,7 @@ internal static class CrocomireNativeListAddresses
     internal static bool HasReached(NativeEnemyListDefinitions.Reader reader, CrocomireBodyProgram program) => reader.Cursor >= BodyEntry(program);
 
     /// <summary>The sound a native body callback queues, if it is a sound callback.</summary>
-    internal static ushort? BodySound(ushort callback) => BodySoundCallbacks.TryGetValue(callback, out ushort sound) ? sound : null;
+    internal static SoundEffectId? BodySound(ushort callback) => BodySoundCallbacks.TryGetValue(callback, out SoundEffectId sound) ? sound : null;
 
     /// <summary>What a native bank-$86 Crocomire projectile list word does.</summary>
     internal enum ProjectileWordKind

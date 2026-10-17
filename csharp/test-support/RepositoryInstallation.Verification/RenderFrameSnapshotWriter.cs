@@ -169,14 +169,14 @@ internal static class RenderFrameSnapshotWriter
                 writer.Write(checked((byte)part.Size.Y));
                 writer.Write(part.Character);
                 writer.Write((ushort)part.Flip);
-                writer.Write(part.Palette ?? byte.MaxValue);
-                writer.Write(part.Priority ?? byte.MaxValue);
+                writer.Write(checked((byte)(part.Palette ?? byte.MaxValue)));
+                writer.Write(checked((byte)(part.Priority ?? byte.MaxValue)));
             }
             writer.Write(indexes[draw.Artwork]);
             WritePosition(writer, draw.Origin);
             writer.Write((ushort)draw.Flip);
-            writer.Write(draw.Palette);
-            writer.Write(draw.Priority);
+            writer.Write(checked((byte)draw.Palette));
+            writer.Write(checked((byte)draw.Priority));
         }
     }
 
@@ -192,7 +192,7 @@ internal static class RenderFrameSnapshotWriter
         WriteCount(writer, layer.Cells.Length);
         foreach (BgCell cell in layer.Cells)
         {
-            writer.Write(checked((ushort)cell.Character)); writer.Write(cell.Palette); writer.Write(cell.Priority);
+            writer.Write(checked((ushort)cell.Character)); writer.Write(checked((byte)cell.Palette)); writer.Write(cell.Priority);
             writer.Write((ushort)cell.Flip);
         }
         writer.Write(layer.Origin.X); writer.Write(layer.Origin.Y);

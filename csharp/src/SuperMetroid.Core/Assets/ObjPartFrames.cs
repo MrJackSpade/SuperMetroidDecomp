@@ -30,7 +30,7 @@ public static class ObjPartFrames
         byte size = x.IsLarge ? LargeObjectPixels : SmallObjectPixels;
         return new(new Offset16<ScreenPixels>(checked((short)x.SignedOffset), unchecked((sbyte)y)),
             new Extent16<ScreenPixels>(size, size), attributes.TileNumber - firstCharacter, attributes.FlipFlags,
-            inheritPalette ? null : (byte)attributes.PaletteIndex, (byte)attributes.Priority);
+            inheritPalette ? null : attributes.PaletteIndex, attributes.Priority);
     }
 
     /// <summary>A frame of one small OBJ at the origin, as the cartridge's raw small-sprite writes place it.</summary>

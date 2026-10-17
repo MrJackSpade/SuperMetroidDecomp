@@ -34,7 +34,7 @@ public sealed class BgLayer
         {
             if ((uint)cell.Character >= (uint)artwork.CharacterCount)
                 throw new ArgumentException($"Background layer {source} reads character {cell.Character}; artwork {artwork.Id} has {artwork.CharacterCount}.", nameof(cells));
-            if (cell.Palette > 7)
+            if (cell.Palette is < 0 or > 7)
                 throw new ArgumentOutOfRangeException(nameof(cells), cell.Palette, "Background palette rows are 0..7.");
         }
         Source = source;

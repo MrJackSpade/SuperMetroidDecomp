@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Assets;
 /// <param name="Character">First character in the draw's artwork.</param>
 /// <param name="FlipX">Whether the pixels are mirrored horizontally.</param>
 /// <param name="FlipY">Whether the pixels are mirrored vertically.</param>
-/// <param name="Palette">OBJ palette 0..7.</param>
-/// <param name="Priority">Priority against the backgrounds 0..3.</param>
+/// <param name="Palette">OBJ palette row 0..7, taken from a validated <see cref="SpriteFramePart"/> or <see cref="SpriteDraw"/>.</param>
+/// <param name="Priority">Priority against the backgrounds 0..3, taken from a validated part or draw.</param>
 public readonly record struct SpriteScreenPart(Offset16<ScreenPixels> Position, Extent16<ScreenPixels> Size, int Character,
-    bool FlipX, bool FlipY, byte Palette, byte Priority)
+    bool FlipX, bool FlipY, int Palette, int Priority)
 {
     /// <summary>The artwork character holding a pixel of this part, from its position inside the part's rectangle.</summary>
     /// <param name="cell">Pixel inside the part, before flipping.</param>

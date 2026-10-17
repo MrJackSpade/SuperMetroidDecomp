@@ -139,7 +139,7 @@ public static class SnesObjRenderer
                     int character = part.CharacterAt(new(column, row), out Position16<CharacterPixels> pixel);
                     byte colorIndex = draw.Artwork.ColorIndex(character, pixel);
                     if (colorIndex != 0)
-                        Plot(screenY * frame.X + screenX, colorIndex, part.Palette, part.Priority, cgram, selectedPriority, targets);
+                        Plot(screenY * frame.X + screenX, colorIndex, (byte)part.Palette, (byte)part.Priority, cgram, selectedPriority, targets);
                 }
             }
         }

@@ -17,12 +17,12 @@ public sealed record SpriteDraw
     /// <exception cref="ArgumentOutOfRangeException">The palette or priority is out of range.</exception>
     /// <exception cref="ArgumentException">The frame reads a character beyond the artwork.</exception>
     public SpriteDraw(SpriteSource source, SpriteFrame frame, SpriteArtwork artwork, Position16<ScreenPixels> origin,
-        SnesTileFlipFlags flip, byte palette, byte priority)
+        SnesTileFlipFlags flip, int palette, int priority)
     {
         Ensure.NotNull(frame);
         Ensure.NotNull(artwork);
-        if (palette > 7) throw new ArgumentOutOfRangeException(nameof(palette), palette, "OBJ palettes are 0..7.");
-        if (priority > 3) throw new ArgumentOutOfRangeException(nameof(priority), priority, "OBJ priorities are 0..3.");
+        if (palette is < 0 or > 7) throw new ArgumentOutOfRangeException(nameof(palette), palette, "OBJ palettes are 0..7.");
+        if (priority is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(priority), priority, "OBJ priorities are 0..3.");
         if (frame.LastCharacter >= artwork.CharacterCount)
             throw new ArgumentException($"Frame {frame.Name} reads character {frame.LastCharacter}; artwork {artwork.Id} has {artwork.CharacterCount}.", nameof(frame));
         Source = source;
@@ -44,10 +44,10 @@ public sealed record SpriteDraw
     public Position16<ScreenPixels> Origin { get; }
     /// <summary>Mirrors the whole frame about its origin.</summary>
     public SnesTileFlipFlags Flip { get; }
-    /// <summary>OBJ palette for parts that do not choose their own.</summary>
-    public byte Palette { get; }
-    /// <summary>Priority against the backgrounds for parts that do not choose their own.</summary>
-    public byte Priority { get; }
+    /// <summary>OBJ palette row 0..7 for parts that do not choose their own; validated by the constructor.</summary>
+    public int Palette { get; }
+    /// <summary>Priority against the backgrounds 0..3 for parts that do not choose their own; validated by the constructor.</summary>
+    public int Priority { get; }
 
     /// <summary>Names the draw for debugger watches: source, frame and signed origin.</summary>
     public override string ToString() =>

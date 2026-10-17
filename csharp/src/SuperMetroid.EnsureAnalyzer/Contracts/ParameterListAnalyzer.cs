@@ -102,10 +102,10 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         foreach (IParameterSymbol parameter in method.Parameters)
         {
             if (parameter.RefKind != RefKind.None || parameter.Type is not INamedTypeSymbol type ||
-                !type.Locations.Any(location => location.IsInSource))
+                !RepositoryOwnership.Owns(type))
                 continue;
             INamedTypeSymbol[] narrower = type.AllInterfaces
-                .Where(contract => contract.Locations.Any(location => location.IsInSource) && contract.GetMembers().Length != 0)
+                .Where(contract => RepositoryOwnership.Owns(contract) && contract.GetMembers().Length != 0)
                 .ToArray();
             if (narrower.Length == 0 || UsedMembers(context.SemanticModel, body, parameter) is not { Count: > 0 } used)
                 continue;

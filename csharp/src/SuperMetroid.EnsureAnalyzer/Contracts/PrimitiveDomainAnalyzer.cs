@@ -491,7 +491,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
             // Only repository-declared storage can be retyped; a library member such as Length
             // pools unrelated arrays and is never one domain.
             if (!IsIntegral(subject.Type) || Subject(subject) is not { } symbol ||
-                !symbol.Locations.Any(location => location.IsInSource))
+                !RepositoryOwnership.Owns(symbol))
                 return;
             if (constant is not IFieldReferenceOperation { Field: { IsConst: true } field } ||
                 !IsOwned(field.ContainingType) || field.ContainingType.TypeKind == TypeKind.Enum)
@@ -552,7 +552,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         private void ReportLiteralDomain(CompilationAnalysisContext context, ISymbol symbol,
             List<(ITypeSymbol? Domain, Location Site, bool Stepped, object? Constant)> writes)
         {
-            if (symbol is ILocalSymbol || !symbol.Locations.Any(location => location.IsInSource) ||
+            if (symbol is ILocalSymbol || !RepositoryOwnership.Owns(symbol) ||
                 _ordered.Contains(symbol) || writes.Any(write => write.Stepped || write.Constant is null))
                 return;
             var written = new HashSet<object>(writes.Select(write => write.Constant).OfType<object>());
@@ -844,9 +844,8 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     private static Location DefaultLocation(ISwitchCaseOperation section) =>
         section.Clauses.First(clause => clause.CaseKind == CaseKind.Default).Syntax.GetLocation();
 
-    /// <summary>Limits closed-domain diagnostics to types declared in the analyzed source compilation.</summary>
-    private static bool IsOwned(INamedTypeSymbol type) =>
-        type.Locations.Any(location => location.IsInSource);
+    /// <summary>Limits closed-domain diagnostics to types this repository declares, in any of its projects.</summary>
+    private static bool IsOwned(INamedTypeSymbol type) => RepositoryOwnership.Owns(type);
 
     /// <summary>Excludes composable flags enums from exhaustive closed-enum handling.</summary>
     private static bool IsFlags(INamedTypeSymbol type) =>

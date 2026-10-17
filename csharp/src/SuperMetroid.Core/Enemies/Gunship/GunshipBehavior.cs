@@ -196,9 +196,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // $A2:A75C decrements the solid bottom's engine-sound timer and reloads 70 on
         // one/underflow. QueueSfx2_Max6($4D) occurs before the reload, exactly as it does in
         // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
-        ushort oldBottomTimer = bottom.VariableD;
-        bottom.VariableD = unchecked((ushort)(bottom.VariableD - 1));
-        if (oldBottomTimer == 1 || (short)bottom.VariableD < 0)
+        NativeWordCounterStep bottomTimer = NativeCountdown.FromRaw(bottom.VariableD).Decrement();
+        bottom.VariableD = bottomTimer.Value;
+        if (bottomTimer.IsZeroOrNegative)
         {
             _audio.QueueEnemySound(SoundEffectLibrary2Sounds.GunshipEngine, maximumQueued: 6);
             bottom.VariableD = 70;
@@ -388,9 +388,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Cycles the four native idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
-        ushort oldTimer = top.VariableD;
-        top.VariableD = unchecked((ushort)(top.VariableD - 1));
-        if (oldTimer != 1 && (short)top.VariableD >= 0)
+        NativeWordCounterStep bobTimer = NativeCountdown.FromRaw(top.VariableD).Decrement();
+        top.VariableD = bobTimer.Value;
+        if (!bobTimer.IsZeroOrNegative)
             return;
 
         GunshipIdleBobDefinition bob = GunshipMotionDefinitions.IdleBob(
@@ -445,9 +445,9 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Decrements the native function timer, treating one and signed underflow as expiry.</summary>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
-        ushort oldTimer = top.VariableA;
-        top.VariableA = unchecked((ushort)(top.VariableA - 1));
-        return oldTimer == 1 || (short)top.VariableA < 0;
+        NativeWordCounterStep functionTimer = NativeCountdown.FromRaw(top.VariableA).Decrement();
+        top.VariableA = functionTimer.Value;
+        return functionTimer.IsZeroOrNegative;
     }
 
     /// <summary>Lowers Samus two pixels per frame until the closing-pad threshold.</summary>

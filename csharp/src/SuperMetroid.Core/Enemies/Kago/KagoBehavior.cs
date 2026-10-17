@@ -250,11 +250,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the library-two sound countdown shared by every live bug state.</summary>
     private void StepKagoBugSound(RoomEnemyProjectileSlot projectile)
     {
-        if (projectile.Variable0 == 0)
+        NativeCountdown soundTimer = NativeCountdown.FromRaw(projectile.Variable0);
+        if (soundTimer.IsZero)
             return;
 
-        projectile.Variable0 = unchecked((ushort)(projectile.Variable0 - 1));
-        if (projectile.Variable0 == 0)
+        soundTimer = soundTimer.DecrementToZero();
+        projectile.Variable0 = soundTimer.RawValue;
+        if (soundTimer.IsZero)
             LastKagoBugSoundEffect = EnemySoundEffectDefinitions.KagoBugSoundEffect;
     }
 

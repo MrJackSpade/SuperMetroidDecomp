@@ -210,10 +210,10 @@ internal static class GameplayDisplayFrameTestsVerification
         FixedColorRegisterSnapshot suitBefore = runtime.PublishDisplayFrame().Latched.FixedColors.SuitPickup;
         AssertTrue(runtime.PublishDisplayFrame().FrameEnd.SuitPickupBeam is not null, "suit light beam window is read live");
         AssertEqual(suitBefore.Red, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
-            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Red, "suit COLDATA waits for the NMI");
+            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "suit COLDATA waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(runtime.SuitPickup.FixedColorRed, (GameplayDisplayCapture.SuitPickup(runtime.PublishDisplayFrame())
-            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Red, "the accepted NMI publishes suit COLDATA");
+            ?? throw new InvalidOperationException("Active suit pickup has no flash.")).Color.Red, "the accepted NMI publishes suit COLDATA");
     }
 
     /// <summary>Door setup publishes BGMODE with its Mode 7 matrix; room setup BG12NBA and Ridley's matrix follow the NMI.</summary>

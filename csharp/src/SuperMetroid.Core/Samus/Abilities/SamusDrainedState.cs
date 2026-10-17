@@ -45,14 +45,21 @@ public sealed class SamusDrainedState
     /// </summary>
     public bool RainbowPaletteEnabled { get; private set; }
 
-    /// <summary>Global special-Samus-palette frame used by the cutscene rainbow cycle.</summary>
-    public ushort SpecialPaletteFrame { get; private set; }
+    /// <summary>
+    /// Calls each Hyper Beam palette is held for during the cutscene rainbow cycle, 0 through the Baby's maximum of
+    /// ten: command <c>$16</c> starts it at one, the Baby raises it one at a time and never past its maximum, and
+    /// command <c>$17</c> clears it. Each palette advance reloads the common palette timer from it.
+    /// </summary>
+    public int SpecialPaletteFrame { get; private set; }
 
     /// <summary>Common palette timer initialized to one by command `$16`.</summary>
     public NativeCountdown CommonPaletteTimer { get; private set; }
 
-    /// <summary>Charge-palette index cleared by both rainbow commands.</summary>
-    public ushort ChargePaletteIndex { get; private set; }
+    /// <summary>
+    /// Index of the Hyper Beam palette shown by the rainbow cycle, 0 through the palette count minus one: cleared by
+    /// both rainbow commands and advanced by one on each timer expiry, returning to zero after the last palette.
+    /// </summary>
+    public int ChargePaletteIndex { get; private set; }
 
     /// <summary>
     /// Host-readable identity of the timer/hack function installed by Samus command five
@@ -155,9 +162,11 @@ public sealed class SamusDrainedState
     /// Applies `$A9:CD59-$CD65`'s frame increment after the Baby's fractional `$0300`
     /// accumulator carries. The native comparison clamps at ten rather than wrapping.
     /// </summary>
-    public void IncrementRainbowPaletteFrame(ushort maximumFrame)
+    /// <param name="maximumFrame">The largest hold the cycle may reach; the Baby passes ten.</param>
+    public void IncrementRainbowPaletteFrame(int maximumFrame)
     {
-        ushort incremented = unchecked((ushort)(SpecialPaletteFrame + 1));
+        // The frame never exceeds the caller's small maximum, so the increment cannot reach a wrap.
+        int incremented = SpecialPaletteFrame + 1;
         SpecialPaletteFrame = incremented < maximumFrame ? incremented : maximumFrame;
     }
 
@@ -222,8 +231,8 @@ public sealed class SamusDrainedState
         if (!timer.IsZero && timer.IsNonNegative)
             return true;
 
-        CommonPaletteTimer = NativeCountdown.FromRaw(SpecialPaletteFrame);
-        ChargePaletteIndex = unchecked((ushort)(ChargePaletteIndex + 1));
+        CommonPaletteTimer = NativeCountdown.Start(SpecialPaletteFrame);
+        ChargePaletteIndex++;
         if (ChargePaletteIndex >= SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount)
             ChargePaletteIndex = 0;
         return true;

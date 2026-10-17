@@ -82,33 +82,39 @@ public sealed class SamusXrayState
     /// <summary>WRAM `$0A7E`; right-facing angles occupy `$00-$7F`, left `$80-$FF`.</summary>
     public SnesAngle Angle { get; private set; }
 
-    /// <summary>WRAM `$0A82`, the whole half-width of the beam in 8-bit angle units.</summary>
-    public ushort AngularWidth { get; private set; }
+    /// <summary>
+    /// The beam's half-width as a 16.16 value in 256-per-turn angle units: zero at admission, grown by
+    /// <see cref="AngularWideningSpeed"/> on each widening call, and clamped to exactly ten when its whole part
+    /// would reach eleven. The widening adds carry the fraction into the whole part exactly as the cartridge does.
+    /// </summary>
+    public SnesSignedSixteenSixteen AngularHalfWidth { get; private set; }
 
-    /// <summary>WRAM `$0A84`, the fractional half-width accumulator.</summary>
-    public ushort AngularSubwidth { get; private set; }
-
-    /// <summary>WRAM `$0A86`, the whole widening velocity.</summary>
-    public ushort AngularWidthDelta { get; private set; }
-
-    /// <summary>WRAM `$0A88`, the fractional widening velocity.</summary>
-    public ushort AngularSubwidthDelta { get; private set; }
+    /// <summary>The whole angle units of <see cref="AngularHalfWidth"/>, 0 through 10, which aim clamps and the window read.</summary>
+    public int AngularWidth => AngularHalfWidth.WholePixels;
 
     /// <summary>
-    /// WRAM `$0A8C`: zero while widening, one for the full beam, and `$FFFF` to make the
-    /// palette handler restore normal suit colors after teardown.
+    /// The 16.16 widening speed in angle units per call: zero at admission and raised by the fixed widening step
+    /// before each widening call adds it to <see cref="AngularHalfWidth"/>.
     /// </summary>
-    public ushort BeamSizeFlag { get; private set; }
+    public SnesSignedSixteenSixteen AngularWideningSpeed { get; private set; }
 
-    /// <summary>WRAM `$0A68`; eight selects the native visor palette handler.</summary>
-    public ushort SpecialPaletteType { get; private set; }
+    /// <summary>
+    /// The visor-colour sequence the palette handler runs: widening at admission, full beam once the palette
+    /// handler sees the full-beam phase, and a request to restore the normal suit palette after teardown.
+    /// </summary>
+    public XrayVisorPaletteMode VisorPaletteMode { get; private set; }
 
-    /// <summary>Typed view of the native special-palette handler index.</summary>
-    public SamusSpecialPaletteType SpecialPaletteKind =>
-        (SamusSpecialPaletteType)SpecialPaletteType;
+    /// <summary>
+    /// The special-palette handler this owner holds: X-ray once the visor command installs it, none after
+    /// teardown restores the suit palette or another handler replaces it.
+    /// </summary>
+    public SamusSpecialPaletteType SpecialPaletteKind { get; private set; }
 
-    /// <summary>WRAM `$0ACE`, a byte offset into the six ROM visor-color words.</summary>
-    public ushort SpecialPaletteFrame { get; private set; }
+    /// <summary>
+    /// Byte offset of the visor colour shown next, an even value from 0 through 10: widening shows 0, 2 and 4 and
+    /// holds 4; the full beam cycles 6, 8 and 10. Every advance is bounded by those comparisons.
+    /// </summary>
+    public int SpecialPaletteFrame { get; private set; }
 
     /// <summary>WRAM `$0AD0`, the shared five-frame palette cadence timer.</summary>
     public NativeCountdown CommonPaletteTimer { get; private set; }
@@ -151,7 +157,7 @@ public sealed class SamusXrayState
         // `$91:E173-$E189` contains a very specific five-bomb/cooldown/divisor rejection.
         // Preserve the three-way conjunction; rejecting every nonzero cooldown would erase
         // a retail quirk, while ignoring it would permit the exact forbidden state.
-        if (conditions.ProjectileCooldownTimer == 7 && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
+        if (conditions.ProjectileCooldownTimer.RawValue == 7 && conditions.BombCounter == 5 && samus.XSpeedDivisor == 2)
             return false;
 
         // Landing art `$A4-$A7/$E0-$E7` is explicitly excluded even though its movement
@@ -161,7 +167,7 @@ public sealed class SamusXrayState
             >= SamusPoseId.LandingAimUpRightPose and <= SamusPoseId.FiringLandingLeftPose)
             return false;
 
-        if (conditions.GameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionStatus != 0 ||
+        if (conditions.GameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay || conditions.PowerBombExplosionActive ||
             samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0)
         {
             return false;
@@ -222,11 +228,9 @@ public sealed class SamusXrayState
         // same-frame hurt expiry wins that later arbitration, the beam HDMA lifecycle,
         // frozen-time word, and four subsystem disables still remain live: X-Mode.
         Angle = facingLeft ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn;
-        AngularWidth = 0;
-        AngularSubwidth = 0;
-        AngularWidthDelta = 0;
-        AngularSubwidthDelta = 0;
-        BeamSizeFlag = 0;
+        AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
+        AngularWideningSpeed = SnesSignedSixteenSixteen.Zero;
+        VisorPaletteMode = XrayVisorPaletteMode.Widening;
         SetupStage = XraySetupStage.FreezeTimeBackupBg2Registers;
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
@@ -251,7 +255,7 @@ public sealed class SamusXrayState
         // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
         samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 63);
-        SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
+        SpecialPaletteKind = SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
         // `$91:EEA6` installs both X-Ray handler pointers, so an interrupted Flash's RTS
@@ -314,12 +318,10 @@ public sealed class SamusXrayState
         SetupStage = XraySetupStage.Complete;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = SnesAngle.Zero;
-        AngularWidth = 0;
-        AngularSubwidth = 0;
-        AngularWidthDelta = 0;
-        AngularSubwidthDelta = 0;
-        BeamSizeFlag = 0;
-        SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
+        AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
+        AngularWideningSpeed = SnesSignedSixteenSixteen.Zero;
+        VisorPaletteMode = XrayVisorPaletteMode.Widening;
+        SpecialPaletteKind = SamusSpecialPaletteType.None;
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = NativeCountdown.Start(0);
     }
@@ -327,10 +329,10 @@ public sealed class SamusXrayState
     /// <summary>Another special-palette handler replaces shared WRAM <c>$0A68/$0ACE/$0AD0</c>.</summary>
     internal void RelinquishPaletteHandler()
     {
-        SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
+        SpecialPaletteKind = SamusSpecialPaletteType.None;
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = NativeCountdown.Start(0);
-        BeamSizeFlag = 0;
+        VisorPaletteMode = XrayVisorPaletteMode.Widening;
     }
 
     /// <summary>
@@ -428,8 +430,6 @@ public sealed class SamusXrayState
         EnsureActive();
 
         XrayBeamPhase phaseAtStart = BeamPhase;
-        SnesAngle angleAtStart = Angle;
-        ushort widthAtStart = AngularWidth;
 
         if (SetupStage != XraySetupStage.Complete)
         {
@@ -453,22 +453,15 @@ public sealed class SamusXrayState
                     break;
                 }
 
-                // Four 16-bit words reproduce ADC carry propagation exactly. Fractional
-                // widening velocity gains `$0800` per call; both velocity and width can
-                // carry into their whole components before the ten-unit clamp.
-                uint delta = SnesSixteenSixteen.Compose(AngularWidthDelta, AngularSubwidthDelta);
-                delta = unchecked(delta + SamusXrayRomData.Window.WideningStep);
-                AngularWidthDelta = SnesFixedPosition.WholeOf(unchecked((int)delta));
-                AngularSubwidthDelta = unchecked((ushort)delta);
-
-                uint width = SnesSixteenSixteen.Compose(AngularWidth, AngularSubwidth);
-                width = unchecked(width + delta);
-                AngularWidth = SnesFixedPosition.WholeOf(unchecked((int)width));
-                AngularSubwidth = unchecked((ushort)width);
-                if (AngularWidth >= 11)
+                // The 16.16 adds reproduce the cartridge's carry propagation exactly: the widening
+                // speed gains the fixed fractional step per call, and both speed and width can
+                // carry into their whole parts before the ten-unit clamp.
+                AngularWideningSpeed += SnesSignedSixteenSixteen.FromRaw(
+                    checked((int)SamusXrayRomData.Window.WideningStep));
+                AngularHalfWidth += AngularWideningSpeed;
+                if (AngularHalfWidth.WholePixels >= 11)
                 {
-                    AngularWidth = 10;
-                    AngularSubwidth = 0;
+                    AngularHalfWidth = SnesSignedSixteenSixteen.FromParts(10, 0);
                     BeamPhase = XrayBeamPhase.Full;
                 }
                 break;
@@ -524,27 +517,27 @@ public sealed class SamusXrayState
     {
         Ensure.NotNull(cgram);
 
-        if (unchecked((short)BeamSizeFlag) < 0)
+        if (VisorPaletteMode == XrayVisorPaletteMode.RestoreSuitPalette)
         {
             // Carry clear from the native handler asks the outer dispatcher to load the
             // complete normal suit palette, then clears every X-ray palette word.
             SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);
-            SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
+            SpecialPaletteKind = SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = NativeCountdown.Start(0);
-            BeamSizeFlag = 0;
+            VisorPaletteMode = XrayVisorPaletteMode.Widening;
             return true;
         }
 
         if (SpecialPaletteKind != SamusSpecialPaletteType.Xray)
             return false;
 
-        if (BeamSizeFlag == 0 && (ushort)BeamPhase >= (ushort)XrayBeamPhase.Full)
+        if (VisorPaletteMode == XrayVisorPaletteMode.Widening && (ushort)BeamPhase >= (ushort)XrayBeamPhase.Full)
         {
             // `$91:DCEA` enters the full-beam three-color loop at byte offset six.
-            SpecialPaletteFrame = 6;
+            SpecialPaletteFrame = SamusXrayRomData.Palette.FullCycleFirstWordOffset;
             CommonPaletteTimer = NativeCountdown.Start(1);
-            BeamSizeFlag = 1;
+            VisorPaletteMode = XrayVisorPaletteMode.FullBeam;
         }
 
         NativeWordCounterStep timer = CommonPaletteTimer.Decrement();
@@ -561,16 +554,16 @@ public sealed class SamusXrayState
                 $"X-ray visor offset {SpecialPaletteFrame} has no installed color.");
         new SamusPalettes(cgram).Visor.Write(0, visorColor);
 
-        if (BeamSizeFlag == 0)
+        if (VisorPaletteMode == XrayVisorPaletteMode.Widening)
         {
             // Widening uses offsets 0,2,4 and then pins four until state two is observed.
             if (SpecialPaletteFrame < SamusXrayRomData.Palette.WideningFinalWordOffset)
-                SpecialPaletteFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
+                SpecialPaletteFrame += sizeof(ushort);
         }
         else
         {
             // Full beam cycles offsets 6,8,10,6... with the comparison after increment.
-            ushort next = unchecked((ushort)(SpecialPaletteFrame + 2));
+            int next = SpecialPaletteFrame + sizeof(ushort);
             SpecialPaletteFrame = next < SamusXrayRomData.Palette.FullCycleEndWordOffset
                 ? next
                 : SamusXrayRomData.Palette.FullCycleFirstWordOffset;
@@ -692,11 +685,9 @@ public sealed class SamusXrayState
         SetupStage = XraySetupStage.Complete;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = SnesAngle.Zero;
-        AngularWidth = 0;
-        AngularSubwidth = 0;
-        AngularWidthDelta = 0;
-        AngularSubwidthDelta = 0;
-        BeamSizeFlag = ushort.MaxValue;
+        AngularHalfWidth = SnesSignedSixteenSixteen.Zero;
+        AngularWideningSpeed = SnesSignedSixteenSixteen.Zero;
+        VisorPaletteMode = XrayVisorPaletteMode.RestoreSuitPalette;
         DeactivationSoundRequested = true;
     }
 

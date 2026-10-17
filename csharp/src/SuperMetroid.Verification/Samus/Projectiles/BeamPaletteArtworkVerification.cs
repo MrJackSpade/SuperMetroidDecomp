@@ -87,7 +87,7 @@ internal static class BeamPaletteArtworkVerification
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Accepted NMI refreshes normal beam palette");
 
         var flash = runtime.Player.IntroducedSamus.CrystalFlash;
-        flash.SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
+        flash.SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         runtime.Cgram.SetColor(224, new Bgr555(27, 3, 0));
         runtime.Artwork.BeamArtwork = artwork;
         runtime.FrameBoundary.BeginAcceptedFrame(0);

@@ -26,7 +26,7 @@ internal static class CrystalFlashPaletteTimingDefinitions
     /// production cycle matches with timer-word ROM reads forbidden.
     /// Investigation: #625 / #668.
     /// </remarks>
-    public static ushort DurationForByteOffset(ushort byteOffset)
+    public static ushort DurationForByteOffset(int byteOffset)
     {
         if (byteOffset % RecordByteCount != 0 ||
             byteOffset >= RecordCount * RecordByteCount)

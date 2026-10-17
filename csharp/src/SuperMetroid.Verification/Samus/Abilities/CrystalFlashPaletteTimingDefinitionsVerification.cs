@@ -76,7 +76,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
                 CrystalFlashPaletteTimingDefinitions.RecordByteCount));
             AssertEqual(expectedTimer, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
                 $"production Crystal Flash body timer call {call}");
-            AssertEqual(expectedOffset, samus.CrystalFlash.CommonPaletteTimer,
+            AssertEqual(expectedOffset, samus.CrystalFlash.BodyPaletteRecordOffset,
                 $"production Crystal Flash body record call {call}");
         }
 

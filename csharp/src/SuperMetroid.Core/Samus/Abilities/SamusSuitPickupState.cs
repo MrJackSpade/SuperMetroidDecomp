@@ -20,6 +20,11 @@ namespace SuperMetroid.Core.Samus.Abilities;
 /// Nothing in gameplay reads that table, so this owner publishes the beam's shape, progress
 /// and fixed color as <c>Flash</c> instead, and the renderer rasterizes it.
 /// </para>
+/// <para>
+/// The stage and the light beam's progress share two scratch words with the shinespark's
+/// vertical acceleration, Crystal Flash's ammunition timer and Draygon's escape counter.
+/// <see cref="PublishSharedScratch"/> writes the exact values those owners read after every stage call.
+/// </para>
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
@@ -50,17 +55,30 @@ public sealed class SamusSuitPickupState
     /// <summary>The suit whose native stage-three function is installed.</summary>
     public SamusSuitPickupKind Kind { get; private set; }
 
-    /// <summary>WRAM <c>$0A72</c>, selecting one of the seven bank-$88 functions.</summary>
-    public byte Substate { get; private set; }
+    /// <summary>The light-beam stage the next pre-instruction call runs; it returns to the first stage when the transformation finishes.</summary>
+    public SamusSuitPickupStage Stage { get; private set; }
 
     /// <summary>
-    /// Overloaded WRAM light-beam word. Depending on the stage its bytes are horizontal
-    /// endpoints or its low word is a top/bottom scanline count.
+    /// Scanlines the beam has covered from each screen edge while it appears, or wiped while it shrinks: zero at
+    /// setup and again from the end of the curved widening until the shrinking stage starts, and never above 255.
     /// </summary>
-    public ushort LightBeamPosition { get; private set; }
+    private int _lightBeamScanlines;
 
-    /// <summary>Unsigned 8.8 widening speed used by stages one, two, and four.</summary>
-    public ushort LightBeamWideningSpeed { get; private set; }
+    /// <summary>
+    /// The beam's inclusive left screen column while it is a column or centre line (the uniform, curved,
+    /// dissipating and finishing stages); only X is meaningful. Its arithmetic wraps at the eight-bit window column.
+    /// </summary>
+    private Position16<ScreenPixels> _lightBeamLeft;
+
+    /// <summary>The beam's inclusive right screen column in the same stages as <see cref="_lightBeamLeft"/>; only X is meaningful.</summary>
+    private Position16<ScreenPixels> _lightBeamRight;
+
+    /// <summary>
+    /// The unsigned 8.8 speed, in screen pixels per update, at which the beam's edges move apart or its wipe
+    /// advances; only X is meaningful. It starts at one pixel, accelerates during the curved widening, is halved at
+    /// the reveal and decelerates to a one-pixel minimum while the beam shrinks.
+    /// </summary>
+    public EightEightVector<ScreenPixels> LightBeamWideningVelocity { get; private set; }
 
     /// <summary>Raw COLDATA red byte, including its component-enable bit.</summary>
     public byte FixedColorRed { get; private set; }
@@ -95,11 +113,13 @@ public sealed class SamusSuitPickupState
         FixedColorBlue = kind == SamusSuitPickupKind.Varia
             ? SamusPaletteRomData.SuitPickup.VariaBlue
             : SamusPaletteRomData.SuitPickup.GravityBlue;
-        Substate = 0;
-        LightBeamPosition = 0;
+        Stage = SamusSuitPickupStage.LightBeamAppears;
+        _lightBeamScanlines = 0;
+        _lightBeamLeft = Position16<ScreenPixels>.Zero;
+        _lightBeamRight = Position16<ScreenPixels>.Zero;
         _preInstructionInstallCallsRemaining = 2;
         PublishSharedScratch(samus);
-        LightBeamWideningSpeed = SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed;
+        LightBeamWideningVelocity = WideningVelocity(SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed);
         Beam = SamusSuitPickupBeam.None;
 
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
@@ -156,79 +176,110 @@ public sealed class SamusSuitPickupState
             return;
         }
 
-        switch (Substate)
+        switch (Stage)
         {
-            case 0:
+            case SamusSuitPickupStage.LightBeamAppears:
                 StepLightBeamAppears();
                 break;
-            case 1:
+            case SamusSuitPickupStage.UniformWidening:
                 StepUniformWidening();
                 break;
-            case 2:
+            case SamusSuitPickupStage.CurvedWidening:
                 StepCurvedWidening();
                 break;
-            case 3:
+            case SamusSuitPickupStage.RevealSuit:
                 RevealSuit(samus, cgram);
                 break;
-            case 4:
+            case SamusSuitPickupStage.LightBeamShrinks:
                 StepLightBeamShrinks();
                 break;
-            case 5:
+            case SamusSuitPickupStage.LightBeamDissipates:
                 StepLightBeamDissipates();
                 break;
-            case 6:
+            case SamusSuitPickupStage.Finish:
                 Finish(samus);
                 break;
             default:
-                throw new InvalidDataException($"Unknown suit-pickup substate {Substate}.");
+                throw new InvalidDataException($"Unknown suit-pickup stage {Stage}.");
         }
         PublishSharedScratch(samus);
     }
 
-    /// <summary>Publishes suit writes to the other owners of native $0DEC/$0DEE.</summary>
+    /// <summary>
+    /// Publishes suit writes to the other owners of native $0DEC/$0DEE: the stage number, and the light beam's
+    /// progress word (its scanline count, or its left column in the low byte and right column in the high byte).
+    /// </summary>
     private void PublishSharedScratch(SamusState samus)
     {
-        samus.Shinespark.ApplySuitPickupScratch(Substate, LightBeamPosition);
+        ushort stageNumber = SharedScratchStageNumber(Stage);
+        samus.Shinespark.ApplySuitPickupScratch(stageNumber, SharedScratchLightBeamWord());
         // Suit setup and each HDMA phase write the same word Flash later reads as
         // its ammo-decrement counter. Suspending Flash's movement does not give it
         // a private copy of that word; Draygon's escape counter aliases it too.
-        samus.CrystalFlash.SetSharedAmmoCounter(Substate);
-        samus.DraygonGrabbed.SetSharedEscapeCounter(Substate);
+        samus.CrystalFlash.SetSharedAmmoCounter(stageNumber);
+        samus.DraygonGrabbed.SetSharedEscapeCounter(stageNumber);
     }
+
+    /// <summary>The number, 0 through 6 in stage order, the shared scratch word holds for <paramref name="stage"/>.</summary>
+    private static ushort SharedScratchStageNumber(SamusSuitPickupStage stage) => stage switch
+    {
+        SamusSuitPickupStage.LightBeamAppears => (ushort)0,
+        SamusSuitPickupStage.UniformWidening => (ushort)1,
+        SamusSuitPickupStage.CurvedWidening => (ushort)2,
+        SamusSuitPickupStage.RevealSuit => (ushort)3,
+        SamusSuitPickupStage.LightBeamShrinks => (ushort)4,
+        SamusSuitPickupStage.LightBeamDissipates => (ushort)5,
+        SamusSuitPickupStage.Finish => (ushort)6,
+        _ => throw new InvalidDataException($"Unknown suit-pickup stage {stage}."),
+    };
+
+    /// <summary>
+    /// The light-beam word the shared scratch holds: the scanline count while the beam appears, during the reveal
+    /// and while it shrinks; the two edge columns, left in the low byte, while it is a column or centre line.
+    /// </summary>
+    private ushort SharedScratchLightBeamWord() => Stage switch
+    {
+        SamusSuitPickupStage.LightBeamAppears or SamusSuitPickupStage.RevealSuit or
+            SamusSuitPickupStage.LightBeamShrinks => checked((ushort)_lightBeamScanlines),
+        SamusSuitPickupStage.UniformWidening or SamusSuitPickupStage.CurvedWidening or
+            SamusSuitPickupStage.LightBeamDissipates or SamusSuitPickupStage.Finish =>
+            SnesLittleEndian.Word(checked((byte)_lightBeamLeft.X), checked((byte)_lightBeamRight.X)),
+        _ => throw new InvalidDataException($"Unknown suit-pickup stage {Stage}."),
+    };
 
     /// <summary>Extends the narrow beam inward from both screen edges until 128 rows are covered.</summary>
     private void StepLightBeamAppears()
     {
-        LightBeamPosition = unchecked((ushort)(LightBeamPosition + 8));
-        // The narrow beam covers this many scanlines from both the top and bottom edges.
-        int scanlineCount = unchecked((short)LightBeamPosition);
+        // The count grows from zero by eight to exactly 128, so the cartridge's signed
+        // comparison with 128 is this ordinary one.
+        _lightBeamScanlines += 8;
         Beam = new(SamusSuitPickupBeamShape.GrowingFromEdges,
-            SnesLittleEndian.LowByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints),
-            SnesLittleEndian.HighByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints),
-            scanlineCount);
+            ScreenColumn(SnesLittleEndian.LowByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints)),
+            ScreenColumn(SnesLittleEndian.HighByte(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints)),
+            _lightBeamScanlines);
 
-        if (unchecked((short)(LightBeamPosition - 128)) >= 0)
+        if (_lightBeamScanlines >= 128)
         {
-            Substate++;
-            LightBeamPosition = SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints;
+            Stage = SamusSuitPickupStage.UniformWidening;
+            SetLightBeamEdges(SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints);
         }
     }
 
     /// <summary>Moves the beam's left and right endpoints apart uniformly before curved widening begins.</summary>
     private void StepUniformWidening()
     {
-        byte amount = unchecked((byte)(SnesEightEight.WholeOf(LightBeamWideningSpeed)));
-        byte left = unchecked((byte)LightBeamPosition);
-        byte right = SnesLittleEndian.HighByte(LightBeamPosition);
-        left = unchecked((byte)(left - amount));
-        right = unchecked((byte)(right + amount));
-        LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
-        Beam = new(SamusSuitPickupBeamShape.Column, left, right, 0);
+        byte amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        // Window columns are eight bits wide: both edges wrap within the screen row.
+        byte left = unchecked((byte)(checked((byte)_lightBeamLeft.X) - amount));
+        byte right = unchecked((byte)(checked((byte)_lightBeamRight.X) + amount));
+        _lightBeamLeft = ScreenColumn(left);
+        _lightBeamRight = ScreenColumn(right);
+        Beam = new(SamusSuitPickupBeamShape.Column, _lightBeamLeft, _lightBeamRight, 0);
 
         if (unchecked((sbyte)(left - 97)) < 0)
         {
-            Substate++;
-            LightBeamPosition = SamusSpecialSequenceRomData.SuitPickup.CurvedWideningStart;
+            Stage = SamusSuitPickupStage.CurvedWidening;
+            SetLightBeamEdges(SamusSpecialSequenceRomData.SuitPickup.CurvedWideningStart);
         }
     }
 
@@ -237,10 +288,10 @@ public sealed class SamusSuitPickupState
     {
         AdvanceColorTowardWhite();
 
-        byte amount = unchecked((byte)(SnesEightEight.WholeOf(LightBeamWideningSpeed)));
-        byte oldLeft = unchecked((byte)LightBeamPosition);
+        byte amount = unchecked((byte)SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue));
+        byte oldLeft = checked((byte)_lightBeamLeft.X);
         byte left = unchecked((byte)(oldLeft - amount));
-        byte right = SnesLittleEndian.HighByte(LightBeamPosition);
+        byte right = checked((byte)_lightBeamRight.X);
         // The native BEQ shares the negative-result clamp. Exact zero must also
         // force the right endpoint to 255 or the reveal is delayed by a frame.
         if (left == 0 || unchecked((sbyte)(oldLeft - amount)) < 0)
@@ -253,17 +304,18 @@ public sealed class SamusSuitPickupState
             int widenedRight = right + amount;
             right = widenedRight > byte.MaxValue ? byte.MaxValue : unchecked((byte)widenedRight);
         }
-        LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
+        _lightBeamLeft = ScreenColumn(left);
+        _lightBeamRight = ScreenColumn(right);
         // `$88:E13E-$E19C` widens this column by the authored curve on each scanline.
-        Beam = new(SamusSuitPickupBeamShape.CurvedColumn, left, right, 0);
+        Beam = new(SamusSuitPickupBeamShape.CurvedColumn, _lightBeamLeft, _lightBeamRight, 0);
 
-        LightBeamWideningSpeed = unchecked((ushort)(
-            LightBeamWideningSpeed + SamusSpecialSequenceRomData.SuitPickup.WideningAcceleration));
-        if (LightBeamPosition == SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints)
+        LightBeamWideningVelocity += WideningVelocity(SamusSpecialSequenceRomData.SuitPickup.WideningAcceleration);
+        if (SnesLittleEndian.Word(left, right) == SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints)
         {
-            Substate++;
-            LightBeamWideningSpeed >>= 1;
-            LightBeamPosition = 0;
+            Stage = SamusSuitPickupStage.RevealSuit;
+            // The unsigned speed halves, truncating its lowest fraction bit.
+            LightBeamWideningVelocity = WideningVelocity(unchecked((ushort)(LightBeamWideningVelocity.X.RawValue / 2)));
+            _lightBeamScanlines = 0;
         }
     }
 
@@ -282,7 +334,7 @@ public sealed class SamusSuitPickupState
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();
         samus.Presentation.LoadSuitPalette(cgram);
-        Substate++;
+        Stage = SamusSuitPickupStage.LightBeamShrinks;
     }
 
     /// <summary>Wipes beam rows from both edges while decelerating and restoring the suit-specific fixed color.</summary>
@@ -293,37 +345,36 @@ public sealed class SamusSuitPickupState
         else
             AdvanceColorTowardOrange();
 
-        LightBeamPosition = unchecked((ushort)(
-            LightBeamPosition + (SnesEightEight.WholeOf(LightBeamWideningSpeed))));
+        // The wipe grows from zero by the speed's whole pixels and stops once it reaches 128, so it
+        // stays far inside the range where the cartridge's signed comparison is this ordinary one.
+        _lightBeamScanlines += SnesEightEight.WholeOf(LightBeamWideningVelocity.X.RawValue);
         // The final curved column is wiped by this many scanlines from the top. Native's
         // lower do/while starts at position minus one, so the bottom wipe is one shorter.
-        int scanlineCount = unchecked((short)LightBeamPosition);
-        Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = scanlineCount };
+        Beam = Beam with { Shape = SamusSuitPickupBeamShape.ClosingCurvedColumn, Progress = _lightBeamScanlines };
 
-        LightBeamWideningSpeed = unchecked((ushort)(
-            LightBeamWideningSpeed - SamusSpecialSequenceRomData.SuitPickup.ShrinkingDeceleration));
-        if (unchecked((short)(
-            LightBeamWideningSpeed - SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed)) < 0)
+        ushort decelerated = unchecked((ushort)(
+            LightBeamWideningVelocity.X.RawValue - SamusSpecialSequenceRomData.SuitPickup.ShrinkingDeceleration));
+        LightBeamWideningVelocity = WideningVelocity(decelerated);
+        if (unchecked((short)(decelerated - SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed)) < 0)
+            LightBeamWideningVelocity = WideningVelocity(SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed);
+        if (_lightBeamScanlines >= 128)
         {
-            LightBeamWideningSpeed =
-                SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed;
-        }
-        if (unchecked((short)(LightBeamPosition - 128)) >= 0)
-        {
-            Substate++;
-            LightBeamPosition = SamusSpecialSequenceRomData.SuitPickup.DissipationStart;
+            Stage = SamusSuitPickupStage.LightBeamDissipates;
+            SetLightBeamEdges(SamusSpecialSequenceRomData.SuitPickup.DissipationStart);
         }
     }
 
     /// <summary>Closes the single remaining center scanline until the native threshold ends the effect.</summary>
     private void StepLightBeamDissipates()
     {
-        byte left = unchecked((byte)(LightBeamPosition + 8));
-        byte right = unchecked((byte)((SnesLittleEndian.HighByte(LightBeamPosition)) - 8));
-        LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
-        Beam = new(SamusSuitPickupBeamShape.CenterLine, left, right, 0);
+        // Window columns are eight bits wide: the starting left column 255 wraps to 7 on the first call.
+        byte left = unchecked((byte)(checked((byte)_lightBeamLeft.X) + 8));
+        byte right = unchecked((byte)(checked((byte)_lightBeamRight.X) - 8));
+        _lightBeamLeft = ScreenColumn(left);
+        _lightBeamRight = ScreenColumn(right);
+        Beam = new(SamusSuitPickupBeamShape.CenterLine, _lightBeamLeft, _lightBeamRight, 0);
         if (unchecked((sbyte)(left - 112)) >= 0)
-            Substate++;
+            Stage = SamusSuitPickupStage.Finish;
     }
 
     /// <summary>Clears the window and fixed-color effect, then releases Samus input after the last HDMA stage.</summary>
@@ -333,14 +384,30 @@ public sealed class SamusSuitPickupState
         FixedColorGreen = SamusPaletteRomData.SuitPickup.ResetGreen;
         FixedColorBlue = SamusPaletteRomData.SuitPickup.ResetBlue;
         Beam = SamusSuitPickupBeam.None;
-        Substate = 0;
-        LightBeamPosition = 0;
+        Stage = SamusSuitPickupStage.LightBeamAppears;
+        _lightBeamScanlines = 0;
+        _lightBeamLeft = Position16<ScreenPixels>.Zero;
+        _lightBeamRight = Position16<ScreenPixels>.Zero;
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
         samus.InputLocked = false;
         IsActive = false;
     }
+
+    /// <summary>Starts a column stage at the authored edge pair: the left column in the low byte, the right in the high byte.</summary>
+    private void SetLightBeamEdges(ushort edgeColumns)
+    {
+        _lightBeamLeft = ScreenColumn(SnesLittleEndian.LowByte(edgeColumns));
+        _lightBeamRight = ScreenColumn(SnesLittleEndian.HighByte(edgeColumns));
+    }
+
+    /// <summary>The screen position of window column <paramref name="column"/>; only X is meaningful.</summary>
+    private static Position16<ScreenPixels> ScreenColumn(byte column) => new(column, 0);
+
+    /// <summary>A horizontal unsigned 8.8 speed from its raw word; the vertical axis is unused.</summary>
+    private static EightEightVector<ScreenPixels> WideningVelocity(ushort speed) =>
+        new(new SnesSignedEightEight(speed), new SnesSignedEightEight(0));
 
     /// <summary>Raises each COLDATA component by two toward the white reveal color.</summary>
     private void AdvanceColorTowardWhite()

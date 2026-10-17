@@ -171,7 +171,7 @@ public static class XrayRevealVisualFiles
         var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
             selected.Rooms.Select(room => (room.Pointer,
                 (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles.Select(tile =>
-                    new XrayRoomOverlayVisual(tile.Block, tile.Word)).ToArray())));
+                    new XrayRoomOverlayVisual(tile.Block, new RoomLevelWord(tile.Word))).ToArray())));
         return new XrayRevealVisualCatalog(mappings, overlays);
     }
 

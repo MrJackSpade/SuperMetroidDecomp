@@ -16,7 +16,10 @@ internal static class SuitPickupBeamWindowBuilder
         ushort empty = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
         var windows = new ushort[lines];
         Array.Fill(windows, empty);
-        ushort extent = unchecked((ushort)SnesLittleEndian.Word(beam.Left, beam.Right));
+        // Window registers hold eight-bit columns; the beam's columns are always 0 through 255.
+        byte left = checked((byte)beam.Left.X);
+        byte right = checked((byte)beam.Right.X);
+        ushort extent = SnesLittleEndian.Word(left, right);
         switch (beam.Shape)
         {
             case SamusSuitPickupBeamShape.None:
@@ -32,10 +35,10 @@ internal static class SuitPickupBeamWindowBuilder
                 Array.Fill(windows, extent);
                 break;
             case SamusSuitPickupBeamShape.CurvedColumn:
-                FillCurvedColumn(windows, beam.Left, beam.Right);
+                FillCurvedColumn(windows, left, right);
                 break;
             case SamusSuitPickupBeamShape.ClosingCurvedColumn:
-                FillCurvedColumn(windows, beam.Left, beam.Right);
+                FillCurvedColumn(windows, left, right);
                 // The upper wipe always clears at least the first scanline; the lower wipe
                 // is one scanline shorter, leaving the center line for the final stage.
                 for (int i = 0; i < Math.Min(Math.Max(1, beam.Progress), lines); i++)

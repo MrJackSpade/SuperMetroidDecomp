@@ -707,10 +707,10 @@ internal static class CollectiblesVerification
             pickup.Step(samus, cgram);
             AssertEqual(SamusSuitPickupBeam.None, pickup.Beam,
                 "instruction-list setup calls leave the beam empty");
-            AssertEqual((byte)0, pickup.Substate, "instruction-list setup calls stay in stage zero");
+            AssertEqual(SamusSuitPickupStage.LightBeamAppears, pickup.Stage, "instruction-list setup calls stay in stage zero");
         }
         pickup.Step(samus, cgram);
-        AssertEqual(new SamusSuitPickupBeam(SamusSuitPickupBeamShape.GrowingFromEdges, 120, 120, 8), pickup.Beam,
+        AssertEqual(SuitBeam(SamusSuitPickupBeamShape.GrowingFromEdges, 120, 120, 8), pickup.Beam,
             "stage zero publishes eight grown scanlines of the X=120 beam");
         ushort[] stageZero = SuitPickupBeamWindowBuilder.Build(pickup.Beam);
         AssertEqual((ushort)0x7878, stageZero[0],
@@ -741,7 +741,7 @@ internal static class CollectiblesVerification
                 beams.Add(pickup.Beam);
                 flashes.Add(flash);
             }
-            if (!observedReveal && pickup.Substate == 4)
+            if (!observedReveal && pickup.Stage == SamusSuitPickupStage.LightBeamShrinks)
             {
                 observedReveal = true;
                 AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose,
@@ -767,6 +767,10 @@ internal static class CollectiblesVerification
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
+    /// <summary>A suit-pickup beam whose window spans screen columns <paramref name="left"/> through <paramref name="right"/>.</summary>
+    private static SamusSuitPickupBeam SuitBeam(SamusSuitPickupBeamShape shape, ushort left, ushort right, int progress) =>
+        new(shape, new Position16<ScreenPixels>(left, 0), new Position16<ScreenPixels>(right, 0), progress);
+
     /// <summary>Checks the Varia light beam's published shape, progress and color across the whole transformation.</summary>
     private static void VerifySuitPickupBeamSequence(List<SamusSuitPickupBeam> beams, List<SamusSuitPickupFlash> flashes)
     {
@@ -786,15 +790,15 @@ internal static class CollectiblesVerification
         AssertEqual(128, growing[^1].Progress, "stage zero ends when the beam meets at the center");
 
         SamusSuitPickupBeam[] column = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.Column)];
-        AssertEqual(new SamusSuitPickupBeam(SamusSuitPickupBeamShape.Column, 119, 121, 0), column[0],
+        AssertEqual(SuitBeam(SamusSuitPickupBeamShape.Column, 119, 121, 0), column[0],
             "stage one widens the narrow beam by one pixel per side");
         for (int i = 1; i < column.Length; i++)
-            AssertTrue(column[i].Left < column[i - 1].Left && column[i].Right > column[i - 1].Right,
+            AssertTrue(column[i].Left.X < column[i - 1].Left.X && column[i].Right.X > column[i - 1].Right.X,
                 "stage one widens every update");
-        AssertTrue(column[^1].Left < 97 && column[^2].Left >= 97, "stage one ends once the left edge passes X=97");
+        AssertTrue(column[^1].Left.X < 97 && column[^2].Left.X >= 97, "stage one ends once the left edge passes X=97");
 
         SamusSuitPickupBeam[] curved = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CurvedColumn)];
-        AssertEqual(new SamusSuitPickupBeam(SamusSuitPickupBeamShape.CurvedColumn, 0, 255, 0), curved[^1],
+        AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CurvedColumn, 0, 255, 0), curved[^1],
             "stage two ends at the full-screen column");
         ushort[] full = SuitPickupBeamWindowBuilder.Build(curved[^1]);
         AssertTrue(full.All(word => word == SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints),
@@ -807,7 +811,7 @@ internal static class CollectiblesVerification
         SamusSuitPickupBeam[] closing = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.ClosingCurvedColumn)];
         for (int i = 0; i < closing.Length; i++)
         {
-            AssertTrue(closing[i].Left == 0 && closing[i].Right == 255, "stage four closes the final curved column");
+            AssertTrue(closing[i].Left.X == 0 && closing[i].Right.X == 255, "stage four closes the final curved column");
             if (i > 0) AssertTrue(closing[i].Progress > closing[i - 1].Progress, "stage four wipes further every update");
         }
         AssertTrue(closing[^1].Progress >= 128, "stage four ends once the wipe reaches the center");
@@ -819,10 +823,10 @@ internal static class CollectiblesVerification
         AssertEqual(SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints, wiped[255 - (top - 1)], "closing keeps the scanline above the bottom wipe");
 
         SamusSuitPickupBeam[] line = [.. beams.Where(beam => beam.Shape == SamusSuitPickupBeamShape.CenterLine)];
-        AssertEqual(new SamusSuitPickupBeam(SamusSuitPickupBeamShape.CenterLine, 7, 240, 0), line[0],
+        AssertEqual(SuitBeam(SamusSuitPickupBeamShape.CenterLine, 7, 240, 0), line[0],
             "stage five starts from the native dissipation endpoints");
         for (int i = 1; i < line.Length; i++)
-            AssertTrue(line[i].Left == line[i - 1].Left + 8 && line[i].Right == line[i - 1].Right - 8,
+            AssertTrue(line[i].Left.X == line[i - 1].Left.X + 8 && line[i].Right.X == line[i - 1].Right.X - 8,
                 "stage five narrows eight pixels per side every update");
         ushort[] center = SuitPickupBeamWindowBuilder.Build(line[0]);
         AssertTrue(center.Select((word, y) => (word, y)).All(row => row.y == 128
@@ -837,12 +841,12 @@ internal static class CollectiblesVerification
             "fixed color holds until the curved stage");
         SamusSuitPickupFlash white = flashes[firstClosing - 1];
         AssertEqual((SamusPaletteRomData.SuitPickup.WhiteRed, SamusPaletteRomData.SuitPickup.WhiteGreen, SamusPaletteRomData.SuitPickup.WhiteBlue),
-            (white.Red, white.Green, white.Blue), "the curved stage brightens the fixed color to white");
+            (white.Color.Red, white.Color.Green, white.Color.Blue), "the curved stage brightens the fixed color to white");
         SamusSuitPickupFlash last = flashes[^1];
         AssertEqual((SamusPaletteRomData.SuitPickup.WhiteRed, SamusPaletteRomData.SuitPickup.VariaOrangeGreen, SamusPaletteRomData.SuitPickup.VariaOrangeBlue),
-            (last.Red, last.Green, last.Blue), "the shrinking Varia beam settles on orange");
+            (last.Color.Red, last.Color.Green, last.Color.Blue), "the shrinking Varia beam settles on orange");
         for (int i = firstClosing; i < flashes.Count; i++)
-            AssertTrue(flashes[i].Green <= flashes[i - 1].Green && flashes[i].Blue <= flashes[i - 1].Blue,
+            AssertTrue(flashes[i].Color.Green <= flashes[i - 1].Color.Green && flashes[i].Color.Blue <= flashes[i - 1].Color.Blue,
                 "the shrinking beam's color only steps down");
     }
 
@@ -871,8 +875,8 @@ internal static class CollectiblesVerification
             AssertEqual(initialMetadata, history.PreviousDirectionAndMovement, "suit entry commits front metadata");
             int frames = 0;
             var cgram = new SnesCgram();
-            while (pickup.Substate < 4 && frames++ < 2000) pickup.Step(samus, cgram);
-            AssertEqual(4, pickup.Substate, "suit history fixture reaches reveal");
+            while (pickup.Stage != SamusSuitPickupStage.LightBeamShrinks && frames++ < 2000) pickup.Step(samus, cgram);
+            AssertEqual(SamusSuitPickupStage.LightBeamShrinks, pickup.Stage, "suit history fixture reaches reveal");
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");

@@ -85,8 +85,8 @@ internal static class CrystalFlashColorsVerification
             AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteTimer.RawValue,
                 samus.CrystalFlash.SpecialPaletteTimer.RawValue,
                 $"color edit preserves bubble timer on call {call}");
-            AssertEqual(nativeSamus.CrystalFlash.CommonPaletteTimer,
-                samus.CrystalFlash.CommonPaletteTimer,
+            AssertEqual(nativeSamus.CrystalFlash.BodyPaletteRecordOffset,
+                samus.CrystalFlash.BodyPaletteRecordOffset,
                 $"color edit preserves body cursor on call {call}");
             AssertEqual(nativeSamus.CrystalFlash.SpecialPaletteFrame,
                 samus.CrystalFlash.SpecialPaletteFrame,

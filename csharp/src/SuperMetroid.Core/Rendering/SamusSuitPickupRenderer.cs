@@ -15,9 +15,9 @@ public static class SamusSuitPickupRenderer
         if (flash is not { } active) return null;
         ushort[] endpoints = SuitPickupBeamWindowBuilder.Build(active.Beam);
         var windows = new ColorAddWindow[Height];
-        byte red = ExpandFiveBit(active.Red);
-        byte green = ExpandFiveBit(active.Green);
-        byte blue = ExpandFiveBit(active.Blue);
+        byte red = ExpandFiveBit(active.Color.Red);
+        byte green = ExpandFiveBit(active.Color.Green);
+        byte blue = ExpandFiveBit(active.Color.Blue);
         for (int y = 0; y < Height; y++)
             windows[y] = new(SnesLittleEndian.LowByte(endpoints[y]), SnesLittleEndian.HighByte(endpoints[y]), red, green, blue);
         return new(windows);

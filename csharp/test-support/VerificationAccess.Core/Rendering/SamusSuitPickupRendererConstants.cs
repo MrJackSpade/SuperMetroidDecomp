@@ -24,9 +24,9 @@ internal static class SamusSuitPickupRendererConstants
         if (flash is not { } active)
             return;
 
-        byte red = SamusSuitPickupRenderer.ExpandFiveBit(active.Red);
-        byte green = SamusSuitPickupRenderer.ExpandFiveBit(active.Green);
-        byte blue = SamusSuitPickupRenderer.ExpandFiveBit(active.Blue);
+        byte red = SamusSuitPickupRenderer.ExpandFiveBit(active.Color.Red);
+        byte green = SamusSuitPickupRenderer.ExpandFiveBit(active.Color.Green);
+        byte blue = SamusSuitPickupRenderer.ExpandFiveBit(active.Color.Blue);
         ushort[] windows = SuitPickupBeamWindowBuilder.Build(active.Beam);
         for (int y = 0; y < SamusSuitPickupRenderer.Height; y++)
         {

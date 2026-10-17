@@ -463,7 +463,7 @@ internal static class CoreAccess
             self._secondReleasedCrashEcho.Angle;
 
         /// <summary>Departing radius (projectile X velocity) of crash-echo projectile slot three.</summary>
-        internal ushort FirstReleasedCrashEchoRadius =>
+        internal int FirstReleasedCrashEchoRadius =>
             self._firstReleasedCrashEcho.Radius;
     }
 

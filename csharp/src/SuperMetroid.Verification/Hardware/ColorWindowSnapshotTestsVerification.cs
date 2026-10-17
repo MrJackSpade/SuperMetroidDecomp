@@ -40,10 +40,10 @@ internal static class ColorWindowSnapshotTestsVerification
             AssertTrue(SamusSuitPickupRenderer.Capture(pickup.Flash) is null, "inactive suit emits no operation");
             var samus = PrepareRetailSamusFixture(new SamusState { Pose = SamusPoseId.FacingRightNormalPose });
             pickup.Begin(samus, new(0, 0), kind);
-            var phases = new HashSet<byte>();
+            var phases = new HashSet<SamusSuitPickupStage>();
             for (int tick = 0; tick < 2000 && pickup.IsActive; tick++)
             {
-                bool sample = phases.Add(pickup.Substate) || tick % 7 == 0;
+                bool sample = phases.Add(pickup.Stage) || tick % 7 == 0;
                 ScanlineColorAddRenderLayer? retained = null;
                 Rgba32[]? expected = null;
                 if (sample)

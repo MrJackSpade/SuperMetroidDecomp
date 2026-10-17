@@ -28,8 +28,11 @@ public sealed class SamusCrystalFlashState
     /// <summary>WRAM <c>$0A64</c>, initialized to nine for the ten two-pixel raise frames.</summary>
     public NativeCountdown RaiseTimer { get; private set; }
 
-    /// <summary>WRAM <c>$0DEA</c>: zero missiles, one supers, two power bombs.</summary>
-    public ushort AmmoDecrementIndex { get; private set; }
+    /// <summary>
+    /// The ammunition the drain is consuming: missiles at activation, then super missiles and power bombs as each
+    /// ten-decrement run expires. No other owner shares this selector.
+    /// </summary>
+    public CrystalFlashAmmoKind DrainingAmmo { get; private set; }
 
     /// <summary>WRAM <c>$0DEC</c>, reloaded to ten between the three ammunition families.</summary>
     public NativeCountdown AmmoDecrementTimer { get; private set; }
@@ -43,34 +46,43 @@ public sealed class SamusCrystalFlashState
     /// <summary>Another special palette handler replaces $0ACC and its live $0A68 timer.</summary>
     internal void RelinquishPaletteHandler()
     {
-        SpecialPaletteType = 0;
+        SpecialPaletteKind = SamusSpecialPaletteType.None;
         SpecialPaletteTimer = NativeCountdown.Start(0);
     }
 
-    /// <summary>WRAM <c>$0DF0</c>, captured after the complete 20-pixel rise.</summary>
-    public ushort RaisedYPosition { get; private set; }
+    /// <summary>
+    /// Samus's room position captured after the complete 20-pixel rise. Only the Y axis is meaningful: the finish
+    /// handler compares Samus's whole Y with it through the wrapped spatial difference and walks her down one
+    /// pixel per call while they differ.
+    /// </summary>
+    public Position16<RoomPixels> RaisedPosition { get; private set; }
 
     /// <summary>WRAM <c>$0DF2</c>, seeded to one for bank-$91's palette program.</summary>
     public NativeCountdown CrystalPaletteTimer { get; private set; }
 
-    /// <summary>WRAM <c>$0ACC</c>; seven dispatches the cartridge's Crystal Flash palette.</summary>
-    public ushort SpecialPaletteType { get; internal set; }
+    /// <summary>
+    /// The special-palette handler this owner holds: Crystal Flash from activation until the finish restores the
+    /// beam palette, or none once another handler replaces it.
+    /// </summary>
+    public SamusSpecialPaletteType SpecialPaletteKind { get; internal set; }
 
-    /// <summary>Typed view of the native special-palette handler index.</summary>
-    public SamusSpecialPaletteType SpecialPaletteKind =>
-        (SamusSpecialPaletteType)SpecialPaletteType;
-
-    /// <summary>WRAM <c>$0ACE</c>, initialized to the first Crystal Flash palette record.</summary>
-    public ushort SpecialPaletteFrame { get; private set; }
+    /// <summary>
+    /// Byte offset of the current bubble colour set, 0 through twice the bubble-set count minus two, in steps of
+    /// two. Each bubble-timer expiry advances it by two and wraps it to zero after the last set; it is mirrored
+    /// into the shared special-palette frame the next special-palette owner inherits.
+    /// </summary>
+    public int SpecialPaletteFrame { get; private set; }
 
     /// <summary>WRAM <c>$0A68</c>; <c>$FFFF</c> requests beam-palette restoration at finish.</summary>
     public NativeCountdown SpecialPaletteTimer { get; internal set; }
 
     /// <summary>
-    /// WRAM <c>$0AD0</c>, a byte offset into the ten interleaved pointer/timer records at
-    /// `$91:DC00`.
+    /// Byte offset of the current body-palette record, four bytes per record. Activation inherits the value the
+    /// shared special-palette timer holds (Speed Booster's), so it is any value from 0 through 65535 until the
+    /// first body-timer expiry validates it as one of the ten record offsets; afterwards each expiry advances it
+    /// by one record and wraps it to zero after the tenth. It is mirrored into that shared timer every call.
     /// </summary>
-    public ushort CommonPaletteTimer { get; private set; }
+    public int BodyPaletteRecordOffset { get; private set; }
 
     /// <summary>Set when `$90:D6C5` would spawn the two bank-$88 window HDMA objects.</summary>
     public bool BubbleHdmaRequested { get; private set; }
@@ -161,19 +173,19 @@ public sealed class SamusCrystalFlashState
         samus.Drained.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
         RaiseTimer = NativeCountdown.Start(9);
-        AmmoDecrementIndex = 0;
+        DrainingAmmo = CrystalFlashAmmoKind.Missiles;
         AmmoDecrementTimer = NativeCountdown.Start(10);
         samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
-        RaisedYPosition = 0;
+        RaisedPosition = Position16<RoomPixels>.Zero;
         CrystalPaletteTimer = NativeCountdown.Start(1);
-        SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
+        SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         SpecialPaletteFrame = 0;
         SpecialPaletteTimer = NativeCountdown.Start(1);
         // `$90:D5A2` clears shared `$0ACE` but does not write shared `$0AD0`. The latter
         // is also Speed Booster's palette timer, so preserve the live aliased word rather
         // than silently inventing the usual zero initialization.
         samus.HorizontalSpeed.SpecialPaletteFrame = 0;
-        CommonPaletteTimer = samus.HorizontalSpeed.SpecialPaletteTimer.RawValue;
+        BodyPaletteRecordOffset = samus.HorizontalSpeed.SpecialPaletteTimer.RawValue;
         BubbleHdmaRequested = false;
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
@@ -248,7 +260,7 @@ public sealed class SamusCrystalFlashState
         // The delay program is already on its raise loop, but the movement handler forces
         // frame six and timer three so main art begins on this precise transition frame.
         samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 6, timer: 3);
-        RaisedYPosition = samus.Position.Y.Whole;
+        RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleHdmaRequested = true;
         ActivationSoundRequested = true;
@@ -265,20 +277,20 @@ public sealed class SamusCrystalFlashState
         if ((nmiFrameCounter & 7) != 0)
             return;
 
-        switch (AmmoDecrementIndex)
+        switch (DrainingAmmo)
         {
-            case 0:
+            case CrystalFlashAmmoKind.Missiles:
                 samus.Missiles = SamusQuantity.DecrementPositive(samus.Missiles);
                 break;
-            case 1:
+            case CrystalFlashAmmoKind.SuperMissiles:
                 samus.SuperMissiles = SamusQuantity.DecrementPositive(samus.SuperMissiles);
                 break;
-            case 2:
+            case CrystalFlashAmmoKind.PowerBombs:
                 samus.PowerBombs = SamusQuantity.DecrementPositive(samus.PowerBombs);
                 break;
             default:
                 throw new InvalidOperationException(
-                    $"Crystal Flash ammo pointer index ${AmmoDecrementIndex:X4} is invalid.");
+                    $"Crystal Flash ammunition kind {DrainingAmmo} is undefined.");
         }
 
         SamusEnergyRestoration.Restore(samus, 50);
@@ -289,11 +301,13 @@ public sealed class SamusCrystalFlashState
         if (!timerExpired)
             return;
 
-        if (AmmoDecrementIndex < 2)
+        if (DrainingAmmo != CrystalFlashAmmoKind.PowerBombs)
         {
             AmmoDecrementTimer = NativeCountdown.Start(10);
             samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
-            AmmoDecrementIndex = unchecked((ushort)(AmmoDecrementIndex + 1));
+            DrainingAmmo = DrainingAmmo == CrystalFlashAmmoKind.Missiles
+                ? CrystalFlashAmmoKind.SuperMissiles
+                : CrystalFlashAmmoKind.PowerBombs;
             return;
         }
 
@@ -306,10 +320,10 @@ public sealed class SamusCrystalFlashState
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests palette restoration.</summary>
     private void StepFinish(SamusState samus)
     {
-        // Retail usually enters with equality because RaisedYPosition was captured at the
+        // Retail usually enters with equality because RaisedPosition was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
         // displaced Samus upward/downward makes the whole Y word walk downward one per call.
-        if (samus.Position.Y.Whole != RaisedYPosition)
+        if ((samus.Position.Whole - RaisedPosition).Y != 0)
             samus.Position += new Offset16<RoomPixels>(0, 1);
 
         // The ROM delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
@@ -359,9 +373,9 @@ public sealed class SamusCrystalFlashState
             (palettes ?? throw new InvalidOperationException(
                 "Crystal Flash requires installed beam palettes.")).LoadTo(cgram, beamType);
 
-            SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
+            SpecialPaletteKind = SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
-            CommonPaletteTimer = 0;
+            BodyPaletteRecordOffset = 0;
             SpecialPaletteTimer = NativeCountdown.Start(0);
             CrystalPaletteTimer = NativeCountdown.Start(0);
             PublishSharedPaletteWords(samus);
@@ -381,11 +395,12 @@ public sealed class SamusCrystalFlashState
                     $"Crystal Flash bubble frame {SpecialPaletteFrame} has no installed color.");
             colors.ApplyBubble(cgram, SpecialPaletteFrame / sizeof(ushort));
 
-            ushort nextBubbleFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
+            // The frame was validated below the table end above, so this advance stays far below any wrap.
+            int nextBubbleFrame = SpecialPaletteFrame + sizeof(ushort);
             SpecialPaletteFrame = nextBubbleFrame <
                 SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort)
                     ? nextBubbleFrame
-                    : (ushort)0;
+                    : 0;
         }
 
         NativeWordCounterStep crystalPaletteTimer =
@@ -394,24 +409,24 @@ public sealed class SamusCrystalFlashState
         if (crystalPaletteTimer.IsZeroOrNegative)
         {
             if (colors is null ||
-                CommonPaletteTimer % SamusPaletteRomData.CrystalFlash.BodyRecordByteCount != 0 ||
-                CommonPaletteTimer >= SamusPaletteRomData.CrystalFlash.BodyRecordCount *
+                BodyPaletteRecordOffset % SamusPaletteRomData.CrystalFlash.BodyRecordByteCount != 0 ||
+                BodyPaletteRecordOffset >= SamusPaletteRomData.CrystalFlash.BodyRecordCount *
                     SamusPaletteRomData.CrystalFlash.BodyRecordByteCount)
                 throw new InvalidDataException(
-                    $"Crystal Flash body frame {CommonPaletteTimer} has no installed color.");
+                    $"Crystal Flash body frame {BodyPaletteRecordOffset} has no installed color.");
             CrystalPaletteTimer =
                 NativeCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
-                    CommonPaletteTimer));
+                    BodyPaletteRecordOffset));
             colors.ApplyBody(cgram,
-                CommonPaletteTimer / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
+                BodyPaletteRecordOffset / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
 
-            ushort nextRecord = unchecked((ushort)(
-                CommonPaletteTimer + SamusPaletteRomData.CrystalFlash.BodyRecordByteCount));
-            CommonPaletteTimer = nextRecord <
+            // The offset was validated as one of the ten records above, so this advance cannot wrap.
+            int nextRecord = BodyPaletteRecordOffset + SamusPaletteRomData.CrystalFlash.BodyRecordByteCount;
+            BodyPaletteRecordOffset = nextRecord <
                 SamusPaletteRomData.CrystalFlash.BodyRecordCount *
                     SamusPaletteRomData.CrystalFlash.BodyRecordByteCount
                         ? nextRecord
-                        : (ushort)0;
+                        : 0;
         }
 
         // Carry is set for every active call, including frames on which neither timer
@@ -428,7 +443,7 @@ public sealed class SamusCrystalFlashState
         // X-ray, and several other special handlers reuse the same two physical words.
         // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
         // inspection and the next owner's initial state faithful to WRAM.
-        samus.HorizontalSpeed.SpecialPaletteFrame = SpecialPaletteFrame;
-        samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.FromRaw(CommonPaletteTimer);
+        samus.HorizontalSpeed.SpecialPaletteFrame = checked((ushort)SpecialPaletteFrame);
+        samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.FromRaw(checked((ushort)BodyPaletteRecordOffset));
     }
 }

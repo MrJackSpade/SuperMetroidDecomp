@@ -693,7 +693,7 @@ public static class SnesGameplayFrameRenderer
             (xray.Crouching
                 ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         int angle = xray.Angle.TableIndex;
-        int width = SnesLittleEndian.LowByte(xray.AngularWidth);
+        int width = xray.AngularWidth;
         Offset16<ScreenPixels> a = ReadXrayDirection(angle - width), b = ReadXrayDirection(angle + width);
         bool horizontal = width == 0 && (angle == SnesAngle.QuarterTurn.TableIndex || angle == SnesAngle.ThreeQuarterTurn.TableIndex);
         var lines = new XrayWindowLine[Height];

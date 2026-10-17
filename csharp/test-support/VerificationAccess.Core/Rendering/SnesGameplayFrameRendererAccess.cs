@@ -113,7 +113,7 @@ internal static class SnesGameplayFrameRendererAccess
             int originY = samusOnScreen.Y -
                 (movementType == SamusMovementType.Crouching ? 12 : 16);
             int centerAngle = xray.Angle.TableIndex;
-            int angularWidth = SnesLittleEndian.LowByte(xray.AngularWidth);
+            int angularWidth = xray.AngularWidth;
             int leftEdgeAngle = unchecked((byte)(centerAngle - angularWidth));
             int rightEdgeAngle = unchecked((byte)(centerAngle + angularWidth));
 

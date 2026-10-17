@@ -128,7 +128,7 @@ internal static class SamusVisorColorsVerification
         {
             // This fixture enters the full-beam stage immediately before call 11;
             // native $91:DCEA restarts that stage at color byte offset six.
-            ushort sourceOffset = call == 11 ? (ushort)6 : native.Xray.SpecialPaletteFrame;
+            ushort sourceOffset = call == 11 ? (ushort)6 : checked((ushort)native.Xray.SpecialPaletteFrame);
             bool expected = native.Xray.UpdatePalette(nativeCgram, native.EquippedItems);
             bool actual = installed.Xray.UpdatePalette(installedCgram, installed.EquippedItems);
             if (expected)

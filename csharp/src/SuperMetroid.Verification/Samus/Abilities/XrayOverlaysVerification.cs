@@ -19,7 +19,7 @@ internal static class XrayOverlaysVerification
             Enumerable.Range(1, 8).Select(value => (ushort)value),
             new (ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[]
             {
-                (0x9000, new XrayRoomOverlayVisual[] { new(new(1, 1), 0x0809), new(new(17, 1), 10) }),
+                (0x9000, new XrayRoomOverlayVisual[] { new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)) }),
             });
         var entries = new List<(RoomCollisionType Type, byte Bts, XrayRevealVisualWords Visual)>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())

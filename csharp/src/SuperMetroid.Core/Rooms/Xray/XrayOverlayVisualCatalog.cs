@@ -59,7 +59,7 @@ public sealed class XrayOverlayVisualCatalog
         foreach ((ushort pointer, IReadOnlyList<XrayRoomOverlayVisual> tiles) in rooms)
         {
             if (pointer < 0x8000 || tiles is null || tiles.Count == 0 ||
-                tiles.Any(tile => tile.Word > 0x0fff) ||
+                tiles.Any(tile => tile.Metatile.Raw > 0x0fff) ||
                 !this.rooms.TryAdd(pointer, tiles.ToArray()))
                 throw new InvalidDataException($"Invalid X-ray room overlay ${pointer:X4}.");
         }
@@ -88,7 +88,7 @@ public sealed class XrayOverlayVisualCatalog
                 // Identity hashes the authored byte coordinates.
                 content.Append("x", checked((byte)tile.Block.X));
                 content.Append("y", checked((byte)tile.Block.Y));
-                content.Append("word", tile.Word);
+                content.Append("word", tile.Metatile.Raw);
             }
         }
     });

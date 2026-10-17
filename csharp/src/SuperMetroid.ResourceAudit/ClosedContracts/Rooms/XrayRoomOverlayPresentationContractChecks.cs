@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Samus.Abilities;
+using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Xray;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
@@ -21,12 +22,12 @@ internal static class XrayRoomOverlayPresentationContractChecks
         catch (InvalidDataException) { rejected = true; }
         Require(rejected, "production construction must reject missing required room overlays");
         ushort first = XrayRoomOverlaySourceDefinitions.All.First();
-        XrayRoomOverlayVisual[] tiles = [new(new(1, 2), 3)];
+        XrayRoomOverlayVisual[] tiles = [new(new(1, 2), new RoomLevelWord(3))];
         var rooms = XrayRoomOverlaySourceDefinitions.All.Select(pointer =>
             (pointer, (IReadOnlyList<XrayRoomOverlayVisual>)tiles)).ToArray();
         var catalog = new XrayOverlayVisualCatalog(new ushort[8], rooms);
-        tiles[0] = new(new(0, 0), 0);
-        Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), 3),
+        tiles[0] = new(new(0, 0), new RoomLevelWord(0));
+        Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), new RoomLevelWord(3)),
             "installed overlays must be independent of caller tile arrays");
 
         ClosedPresentationContract contract = RoomRevealClosedContractDefinitions.All.Single(item =>

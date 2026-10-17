@@ -113,13 +113,13 @@ internal static class GameplayContentIdentityVerification
         if (edit == "xray-item") items[^1] = 1;
         XrayRoomOverlayVisual[] tiles =
         [
-            new(new(1, 2), 3),
+            new(new(1, 2), new RoomLevelWord(3)),
             new(new((byte)(edit == "overlay-x" ? 5 : 4), (byte)(edit == "overlay-y" ? 6 : 5)),
-                (ushort)(edit == "overlay-word" ? 7 : 6)),
+                new RoomLevelWord((ushort)(edit == "overlay-word" ? 7 : 6))),
         ];
         if (edit == "overlay-order") Array.Reverse(tiles);
         (ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[] rooms =
-            [(0x8000, tiles), (0x8002, new XrayRoomOverlayVisual[] { new(new(8, 9), 10) })];
+            [(0x8000, tiles), (0x8002, new XrayRoomOverlayVisual[] { new(new(8, 9), new RoomLevelWord(10)) })];
         var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new XrayRevealVisualCatalog(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);

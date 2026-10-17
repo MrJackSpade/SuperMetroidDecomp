@@ -143,7 +143,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(0x1b08, samus.PoseHistory.PreviousDirectionAndMovement, "Crystal Flash commits right metadata");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
-    AssertEqual(7, samus.CrystalFlash.SpecialPaletteType,
+    AssertEqual(SamusSpecialPaletteType.CrystalFlash, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash installs palette handler seven");
 
     var crystalCgram = new SnesCgram();
@@ -161,7 +161,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash bubble timer reloads five");
     AssertEqual(10, samus.CrystalFlash.CrystalPaletteTimer.RawValue,
         "Crystal Flash body timer comes from interleaved ROM record");
-    AssertEqual(4, samus.CrystalFlash.CommonPaletteTimer,
+    AssertEqual(4, samus.CrystalFlash.BodyPaletteRecordOffset,
         "Crystal Flash body record advances four bytes");
     AssertEqual(2, samus.HorizontalSpeed.SpecialPaletteFrame,
         "Crystal Flash publishes aliased $0ACE palette frame");
@@ -194,7 +194,7 @@ internal static void VerifySamusCrystalFlash()
     AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.Position.Y.Whole, "complete raise is 20 pixels");
-    AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedYPosition,
+    AssertEqual(samus.Position.Y.Whole, samus.CrystalFlash.RaisedPosition.Y,
         "raised Y capture follows tenth displacement");
     AssertEqual(6, samus.AnimationFrame, "raise transition forces animation frame six");
     AssertTrue(samus.CrystalFlash.BubbleHdmaRequested,
@@ -314,7 +314,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash finish restores beam palette color zero");
     AssertEqual(0x030f, crystalCgram.Colors[0xef],
         "Crystal Flash finish restores all sixteen beam palette colors");
-    AssertEqual(0, samus.CrystalFlash.SpecialPaletteType,
+    AssertEqual(SamusSpecialPaletteType.None, samus.CrystalFlash.SpecialPaletteKind,
         "Crystal Flash palette handler clears after restoration");
 
     var left = new SamusState
@@ -465,12 +465,17 @@ internal static void VerifySamusXray()
         standing.Xray.StepBeam(standing, SnesButton.B);
     AssertEqual(XrayBeamPhase.Widening, standing.Xray.BeamPhase,
         "X-ray remains widening through call 26");
+    // After n widening calls the speed is n steps and the width is the triangular number n(n+1)/2 of steps.
+    const int wideningCalls = 26;
     AssertEqual(10, standing.Xray.AngularWidth, "call 26 whole width");
-    AssertEqual(0xf800, standing.Xray.AngularSubwidth, "call 26 fractional width");
+    AssertEqual(SnesSignedSixteenSixteen.FromRaw(wideningCalls * (wideningCalls + 1) / 2 *
+            checked((int)SamusXrayRomData.Window.WideningStep)), standing.Xray.AngularHalfWidth,
+        "call 26 width is 351 widening steps, carrying into whole units exactly");
     standing.Xray.StepBeam(standing, SnesButton.B);
     AssertEqual(XrayBeamPhase.Full, standing.Xray.BeamPhase, "call 27 reaches full beam");
     AssertEqual(10, standing.Xray.AngularWidth, "full beam clamps width ten");
-    AssertEqual(0, standing.Xray.AngularSubwidth, "full beam clears width fraction");
+    AssertEqual(SnesSignedSixteenSixteen.FromParts(10, 0), standing.Xray.AngularHalfWidth,
+        "full beam clears width fraction");
 
     // `$88:88B8/$88DC` puts this standing-right fixture's origin at screen (103,184).
     // `$91:C5FF` advances `$03FE` once per scanline and publishes the high byte, making
@@ -499,7 +504,7 @@ internal static void VerifySamusXray()
 
     AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
         "full beam enters visor cycle");
-    AssertEqual(1, standing.Xray.BeamSizeFlag, "full beam palette flag");
+    AssertEqual(XrayVisorPaletteMode.FullBeam, standing.Xray.VisorPaletteMode, "full beam palette mode");
     AssertEqual(0x43ff, cgram.Colors[196], "first full-beam visor color");
     AssertEqual(8, standing.Xray.SpecialPaletteFrame, "full-beam palette offset advances");
 
@@ -561,7 +566,7 @@ internal static void VerifySamusXray()
     AssertTrue(!standing.Xray.IsActive && !standing.Xray.TimeIsFrozen,
         "X-ray teardown restores time and handlers");
     AssertEqual(SamusPoseId.FacingLeftNormalPose, standing.Pose, "left X-ray exits to ordinary standing");
-    AssertEqual(0xffff, standing.Xray.BeamSizeFlag,
+    AssertEqual(XrayVisorPaletteMode.RestoreSuitPalette, standing.Xray.VisorPaletteMode,
         "X-ray teardown requests palette restoration");
     AssertTrue(standing.Xray.DeactivationSoundRequested, "X-ray deactivation sound requested");
     AssertTrue(standing.Xray.ConsumeDeactivationSoundRequest(),
@@ -571,7 +576,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.UpdatePalette(cgram, standing.EquippedItems, xraySuitColors),
         "X-ray teardown restores normal suit palette");
     AssertEqual(0x0104, cgram.Colors[196], "normal palette replaces visor color");
-    AssertEqual(0, standing.Xray.SpecialPaletteType, "X-ray palette handler clears");
+    AssertEqual(SamusSpecialPaletteType.None, standing.Xray.SpecialPaletteKind, "X-ray palette handler clears");
 
     // Crouched setup selects `$D9`. Releasing while its `$43` turn is still active makes
     // `$91:E2AD` classify movement type `$0E` as standing, choose left `$02`, expand radius
@@ -675,7 +680,7 @@ internal static void VerifySamusXray()
         "X-ray rejects unsupported previous movement type");
     var fiveBombQuirk = Rejected(SamusPoseId.FacingRightNormalPose);
     fiveBombQuirk.XSpeedDivisor = 2;
-    AssertTrue(!fiveBombQuirk.Xray.TryBegin(fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = 7, BombCounter = 5 }),
+    AssertTrue(!fiveBombQuirk.Xray.TryBegin(fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = NativeCountdown.Start(7), BombCounter = 5 }),
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(

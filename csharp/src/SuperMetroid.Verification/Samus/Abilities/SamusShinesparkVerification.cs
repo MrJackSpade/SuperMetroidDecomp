@@ -468,6 +468,77 @@ internal static void VerifySamusStoredShineAndShinespark()
 // controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
 // finish command, energy overflow, and one-frame-late movement-handler cleanup.
 
+    /// <summary>
+    /// Checks that the crash orbit's angular travel and a departing echo's radius wrap past 65535 to zero. The travel
+    /// is seeded through the slot-three echo coordinate it shares, as a preceding echo leaves it, and both values then
+    /// advance only through the production crash and echo handlers.
+    /// </summary>
+    internal static void VerifyCrashTravelAndEchoRadiusWrap()
+    {
+        const int width = 24;
+        const int height = 24;
+        var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height),
+            new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
+        var samus = new SamusState
+        {
+            Pose = SamusPoseId.ShinesparkWindupRightPose,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(160, 160)),
+            Health = 29,
+        };
+        samus.PoseMetadata.RefreshCollisionRadii();
+        samus.Presentation.InitializeAnimation();
+        samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
+        samus.Shinespark.BeginWindup(samus);
+        samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);
+        samus.Kinematics.YAcceleration = 0;
+        samus.Kinematics.YSubacceleration = 0;
+
+        // Four short of the largest travel, so the first orbiting call wraps it to zero.
+        int seededTravel = SamusShinesparkState.LargestCrashAngularTravel - 3;
+        samus.Shinespark._firstReleasedCrashEcho.Position = new Position16<RoomPixels>(0, checked((ushort)seededTravel));
+        int nmiFrame = 0;
+        void StepSpark() => samus.Shinespark.Step(new SamusTerrain { Level = level }, samus, new ShinesparkFrame { NmiFrameCounter = nmiFrame++ });
+
+        StepSpark();
+        AssertEqual(ShinesparkPhase.Crash, samus.Shinespark.Phase, "below the sustaining energy the spark installs the crash handler");
+        AssertEqual(seededTravel, samus.Shinespark.CrashAngularTravel, "crash entry keeps the travel a preceding echo left");
+        for (int call = 1; call <= 4; call++)
+            StepSpark();
+        AssertEqual(16, samus.Shinespark.CrashRadius, "four expanding calls reach radius sixteen");
+        AssertEqual(ShinesparkCrashOrbitStage.Orbiting, samus.Shinespark.CrashOrbitStage, "radius sixteen starts the orbit");
+
+        StepSpark();
+        AssertEqual(0, samus.Shinespark.CrashAngularTravel, "the first orbiting call wraps the travel past 65535 to zero");
+        AssertEqual((ushort)0, samus.Shinespark.FirstReleasedCrashEcho.Position.Y, "the shared echo coordinate holds the wrapped travel");
+        // From zero the travel climbs four per call; 124 still orbits and 128 starts contracting.
+        for (int call = 2; call <= 32; call++)
+        {
+            StepSpark();
+            AssertEqual(ShinesparkCrashOrbitStage.Orbiting, samus.Shinespark.CrashOrbitStage, $"orbiting call {call} keeps orbiting below 128");
+        }
+        StepSpark();
+        AssertEqual(128, samus.Shinespark.CrashAngularTravel, "the wrapped travel climbs back to 128");
+        AssertEqual(ShinesparkCrashOrbitStage.Contracting, samus.Shinespark.CrashOrbitStage, "travel 128 starts contracting");
+
+        // A departing echo seven short of the largest radius wraps to zero on its next expansion and is drawn on Samus.
+        var echo = new SamusShinesparkState.ReleasedEchoSlot();
+        echo.Initialize(SnesAngle.Zero, samus.Position.Whole);
+        echo.Radius = SamusShinesparkState.ReleasedEchoSlot.LargestRadius - 7;
+        AssertTrue(SamusShinesparkState.StepReleasedCrashEcho(samus, new Position16<RoomPixels>(0, 0), echo),
+            "a wrapped echo stays inside the viewport");
+        AssertEqual(0, echo.Radius, "a departing echo's radius wraps past 65535 to zero");
+        AssertEqual(samus.Position.Whole, echo.Position, "a zero radius places the echo on Samus");
+        Console.WriteLine("Shinespark crash wraps: angular travel and departing echo radius wrap past 65535 to zero.");
+    }
+
+    /// <summary>Runs the crash angular-travel and echo-radius wrap check, which needs no cartridge.</summary>
+    [VerificationCommand("--shinespark-crash-wraps")]
+    internal static int ShinesparkCrashWrapsCommand()
+    {
+        Suite(nameof(VerifyCrashTravelAndEchoRadiusWrap), () => VerifyCrashTravelAndEchoRadiusWrap());
+        return 0;
+    }
+
     /// <summary>Runs the focused stored-shine and shinespark lifecycle check.</summary>
     [VerificationCommand("--shinespark")]
     internal static int ShinesparkCommand()

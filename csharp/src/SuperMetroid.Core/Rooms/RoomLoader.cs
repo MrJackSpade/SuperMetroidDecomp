@@ -986,8 +986,8 @@ internal sealed class RoomLoader
         if (unchecked((short)room.State.BackgroundDataPointer) < 0)
         {
             LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(new LibraryBackgroundStaging(_bg2TilemapStaging, _enemies.Room.Staging), _vram, room.State.BackgroundDataPointer, door.Pointer, new LibraryBackgroundArtwork { TilemapArt = _artwork.RoomBackgroundTilemapArt, SkyArt = _artwork.RoomSkyTilemapArt, HudArt = _artwork.MapPresentation?.HudTiles, CharacterArt = _artwork.RoomCharacterArt });
-            if (backgroundResult.Bg3CharacterBaseWord is ushort bg3CharacterBaseWord)
-                _display.GameplayHudCharacterBaseWord = bg3CharacterBaseWord;
+            if (backgroundResult.SelectsKraidHudCharacters)
+                _display.SelectKraidHudCharacterBase();
         }
 
         // `$82:E43A-$E472` destroys room-owned objects before constructing the destination.

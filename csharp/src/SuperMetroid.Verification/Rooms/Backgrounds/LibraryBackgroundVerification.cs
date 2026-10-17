@@ -153,7 +153,7 @@ internal static void VerifyLibraryBackgroundLoader()
         SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.ExecuteReference(bus, vram, 0xe000, activeDoorPointer: 0);
     AssertEqual(4, SuperMetroid.TestSupport.VerificationImporters.LibraryBackgroundProgramImporter.Read(bus, 0xe000).Instructions.Count + 1,
         "library-background command count includes terminator");
-    AssertEqual<ushort?>(null, result.Bg3CharacterBaseWord, "ordinary library list leaves BG3 base unchanged");
+    AssertEqual(false, result.SelectsKraidHudCharacters, "ordinary library list leaves BG3 base unchanged");
     AssertEqual(0x2211, vram.ReadWord(0x4800), "library background first BG2 page word");
     AssertEqual(0x4433, vram.ReadWord(0x4801), "library background first BG2 page tail");
     AssertEqual(0x2211, vram.ReadWord(0x4c00), "library background second BG2 page word");

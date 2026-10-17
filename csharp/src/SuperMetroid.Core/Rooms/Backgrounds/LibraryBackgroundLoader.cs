@@ -43,7 +43,7 @@ public static class LibraryBackgroundLoader
         Ensure.NotNull(staging);
         Ensure.NotNull(vram);
         Ensure.NotNull(program);
-        ushort? bg3CharacterBaseWord = null;
+        bool selectsKraidHudCharacters = false;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {
             switch (instruction.Command)
@@ -60,8 +60,7 @@ public static class LibraryBackgroundLoader
                     break;
                 case LibraryBackgroundCommand.TransferToVramForKraid:
                     TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
-                    bg3CharacterBaseWord =
-                        RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
+                    selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
                     ClearBg2(staging, vram, includeKraidPage: false);
@@ -80,8 +79,7 @@ public static class LibraryBackgroundLoader
             }
         }
 
-        return new LibraryBackgroundExecutionResult(
-bg3CharacterBaseWord);
+        return new LibraryBackgroundExecutionResult(selectsKraidHudCharacters);
     }
 
     /// <summary>Routes a transfer command (plain, Kraid or door-selected) to live memory or its installed art catalog, preserving its VRAM word destination.</summary>

@@ -70,7 +70,7 @@ internal static class LibraryBackgroundProgramImporter
         SnesVram vram, ushort pointer, ushort activeDoorPointer)
     {
         LibraryBackgroundProgram program = Read(source, pointer);
-        ushort? characterBase = null;
+        bool selectsKraidHudCharacters = false;
         foreach (LibraryBackgroundInstruction instruction in program.Instructions)
         {
             switch (instruction.Command)
@@ -86,7 +86,7 @@ internal static class LibraryBackgroundProgramImporter
                     for (int i = 0; i < bytes.Length; i++) bytes[i] = ReadImportByte(source, (int)start.AddWithinBank(i));
                     vram.ExecuteQueuedAssetWrite(bytes, instruction.Destination);
                     if (instruction.Command == LibraryBackgroundCommand.TransferToVramForKraid)
-                        characterBase = RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
+                        selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     byte[] expanded = RomDataReader.Decompress(CartridgeImportSource.Require(source), instruction.SourceAddress);
@@ -107,7 +107,7 @@ internal static class LibraryBackgroundProgramImporter
                     throw new InvalidDataException($"Unsupported imported background command {instruction.Command}.");
             }
         }
-        return new(characterBase);
+        return new(selectsKraidHudCharacters);
 
         void ClearAndTransfer(RoomAssetRomData.TilemapTransfer transfer, bool includeKraidPage)
         {

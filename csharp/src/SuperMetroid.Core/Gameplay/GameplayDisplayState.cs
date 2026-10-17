@@ -42,6 +42,11 @@ internal sealed class GameplayDisplayState
     public ushort GameplayHudCharacterBaseWord { get; internal set; } =
         GameplayVramLayout.HudCharacterWord;
 
+    /// <summary>Moves the HUD's BG3 characters to Kraid's base, as Kraid's library-background transfer does.</summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
+    internal void SelectKraidHudCharacterBase() =>
+        GameplayHudCharacterBaseWord = Rooms.RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
+
     /// <summary>
     /// Door setup's direct write of the Mode 7 registers and BGMODE before the room is exposed
     /// (<c>$8F:E4E0</c>, or <c>$8F:E513</c> clearing them). Later room-main changes reach the

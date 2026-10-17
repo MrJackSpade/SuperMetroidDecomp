@@ -109,7 +109,7 @@ internal sealed class MotherBrainEncounter
             return;
         }
         if (_presentation.EscapeTimerArtwork?.TryLoadNativeTransfer(
-            _presentation.Vram, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
+            _presentation.Vram, unchecked((int)transfer.SourceAddress), checked((ushort)transfer.Size), transfer.VramDestination) == true)
             return;
         if (SnesAddressMath.BankNumber(unchecked((int)transfer.SourceAddress)) is not (126 or 127)) // Banks $7E/$7F: WRAM.
         {
@@ -128,18 +128,26 @@ internal sealed class MotherBrainEncounter
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        if (MotherBrain?.LastSoundEffect is ushort motherBrainLibrary2)
-            audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, motherBrainLibrary2), maximumQueued: 6);
-        if (MotherBrain?.LastSoundEffectLibrary1 is ushort motherBrainLibrary1)
-            audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, motherBrainLibrary1), maximumQueued: 6);
-        if (MotherBrain?.LastSoundEffectLibrary3 is ushort motherBrainLibrary3)
+        if (MotherBrain?.LastSoundEffect is SoundEffectId motherBrainLibrary2)
+            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary2, SoundEffectLibrary.Library2), maximumQueued: 6);
+        if (MotherBrain?.LastSoundEffectLibrary1 is SoundEffectId motherBrainLibrary1)
+            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary1, SoundEffectLibrary.Library1), maximumQueued: 6);
+        if (MotherBrain?.LastSoundEffectLibrary3 is SoundEffectId motherBrainLibrary3)
         {
             // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
             // three Mother Brain instructions use Max6.
-            byte maximumQueued = motherBrainLibrary3 == MotherBrainSoundDefinitions.Explosion.Value ? (byte)3 : (byte)6;
-            audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, motherBrainLibrary3), maximumQueued);
+            byte maximumQueued = motherBrainLibrary3 == MotherBrainSoundDefinitions.Explosion ? (byte)3 : (byte)6;
+            audio.QueueEnemySound(RequireLibrary(motherBrainLibrary3, SoundEffectLibrary.Library3), maximumQueued);
         }
     }
+
+    /// <summary>
+    /// Each published slot stands for one of the cartridge's per-library sound queues, so a sound
+    /// recorded in a slot must belong to that slot's library.
+    /// </summary>
+    private static SoundEffectId RequireLibrary(SoundEffectId sound, SoundEffectLibrary library) =>
+        sound.Library == library ? sound : throw new InvalidOperationException(
+            $"Mother Brain published {sound} in its {library} sound slot.");
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacyMusic(EnemyAudioQueue audio)

@@ -16,7 +16,7 @@ internal static class MotherBrainNeckKinematics
         ref ushort upperAngle,
         ref MotherBrainNeckMovement lowerMovementIndex,
         ref MotherBrainNeckMovement upperMovementIndex,
-        ushort angleDelta,
+        int angleDelta,
         ushort brainY,
         ushort samusY)
     {
@@ -164,21 +164,21 @@ internal static class MotherBrainNeckKinematics
     private static Position16<RoomPixels> CalculateLowerSegment(
         Position16<RoomPixels> reference,
         byte angle,
-        ushort distance) =>
+        int distance) =>
         reference + new Offset16<RoomPixels>(112, -96) + CalculatePolarOffset(angle, distance);
 
     /// <summary>
     /// One joint's displacement: <c>$A9:C46C</c> for the angle (X) and the angle plus a
     /// quarter turn (Y), each added to the anchor with 16-bit wrap.
     /// </summary>
-    private static Offset16<RoomPixels> CalculatePolarOffset(byte angle, ushort distance) =>
+    private static Offset16<RoomPixels> CalculatePolarOffset(byte angle, int distance) =>
         new(CalculateSignedComponent(angle, distance),
             CalculateSignedComponent(unchecked((byte)(angle + 64)), distance));
 
     /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
     internal static short CalculateSignedComponent(
         byte angle,
-        ushort distance)
+        int distance)
     {
         short sine = EnemyTrigonometryTables.SignedSine(angle);
         int product = sine * unchecked((sbyte)distance);

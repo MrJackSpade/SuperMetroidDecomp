@@ -14,7 +14,7 @@ internal static class MotherBrainDoorFragmentDefinitions
     /// interleaved offsets at <c>$86:C992-$86:C9B1</c> are a zero X and a Y that steps eight
     /// pixels from 32 above the door; every fragment flies right at $0500.
     /// </summary>
-    internal static MotherBrainDoorFragmentDefinition ForParameter(ushort parameter)
+    internal static MotherBrainDoorFragmentDefinition ForParameter(int parameter)
     {
         if (parameter >= Count)
         {

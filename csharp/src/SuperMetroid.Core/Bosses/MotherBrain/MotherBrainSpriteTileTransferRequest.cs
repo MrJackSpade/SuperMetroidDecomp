@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// One native seven-byte sprite-tile transfer entry consumed by `$A9:C5BE`.
 /// </summary>
 public readonly record struct MotherBrainSpriteTileTransferRequest(
-    ushort EntryIndex,
-    ushort Size,
+    int EntryIndex,
+    int Size,
     uint SourceAddress,
     ushort VramDestination);

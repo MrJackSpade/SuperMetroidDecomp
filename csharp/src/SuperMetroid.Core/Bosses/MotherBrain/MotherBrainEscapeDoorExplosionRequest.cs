@@ -6,4 +6,4 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public readonly record struct MotherBrainEscapeDoorExplosionRequest(
     Position16<RoomPixels> Position,
     MiscDustAnimation Animation,
-    ushort SoundEffect);
+    SoundEffectId SoundEffect);

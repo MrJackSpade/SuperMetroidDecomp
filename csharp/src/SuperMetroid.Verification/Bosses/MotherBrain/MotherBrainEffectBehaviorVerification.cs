@@ -75,7 +75,7 @@ internal static class MotherBrainEffectBehaviorVerification
             deathEnemies.MotherBrainEncounter.MotherBrain = new MotherBrainEnemyState(
                 new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 112)) });
             deathEnemies.MotherBrainBehavior.SpawnMotherBrainDeathExplosion(
-                new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), ProjectileParameter: parameter, SoundEffect: 0));
+                new MotherBrainDeathExplosionRequest(Offset: new(-5, 9), ProjectileParameter: parameter, SoundEffect: MotherBrainSoundDefinitions.Explosion));
             RoomEnemyProjectileSlot deathExplosion = deathEnemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainDeathExplosion);
             AssertTrue(deathExplosion.Animation is MiscDustProjectileAnimation started && started.Cursor.Program == deathPrograms[parameter],
@@ -228,6 +228,33 @@ internal static class MotherBrainEffectBehaviorVerification
                 $"{expectedKind} floor impact starts the splash program");
             AssertLifetime(droolEnemies, drool, 40, $"{expectedKind} splash survives all four ten-frame stages");
         }
+    }
+
+    /// <summary>
+    /// The live-bomb count rises with each spawned bomb and falls with each deleted one, and a
+    /// deletion with no counted bomb fails instead of wrapping to the cartridge's $FFFF.
+    /// </summary>
+    internal static void VerifyMotherBrainBombCount()
+    {
+        var state = new MotherBrainEnemyState(new RoomEnemySlot(0, EnemySlotFixtures.Registry));
+        state.RecordBombSpawned();
+        state.RecordBombSpawned();
+        AssertEqual(2, state.BombCounter, "two spawned bombs are counted");
+        state.RecordBombRemoved();
+        state.RecordBombRemoved();
+        AssertEqual(0, state.BombCounter, "both deletions are uncounted");
+        AssertThrows<InvalidOperationException>(state.RecordBombRemoved,
+            "deleting a bomb that was never counted is rejected");
+        AssertEqual(0, state.BombCounter, "the rejected deletion leaves the count at zero");
+        Console.WriteLine("  Mother Brain bombs: the live count follows spawns and deletions and never wraps.");
+    }
+
+    /// <summary>Runs the Mother Brain live-bomb count check.</summary>
+    [VerificationCommand("--mother-brain-bomb-count")]
+    internal static int MotherBrainBombCountCommand()
+    {
+        Suite(nameof(VerifyMotherBrainBombCount), () => VerifyMotherBrainBombCount());
+        return 0;
     }
 
     /// <summary>Runs Mother Brain's effect program oracle and behavior suite.</summary>

@@ -53,21 +53,21 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public MotherBrainBodyPose Pose { get; internal set; }
 
-    /// <summary>Zero-based palette-step count stored in native <c>mbn_var_37</c>.</summary>
-    public ushort GrayFadeIndex { get; internal set; }
+    /// <summary>Zero-based count of fake-death grey palette steps taken, 0 through the eight-step table length plus one.</summary>
+    public int GrayFadeIndex { get; internal set; }
 
     /// <summary>Eight-frame cadence and wrapping coordinate cursor for fake-death dust.</summary>
     public NativeCountdown FakeDeathExplosionTimer { get; internal set; }
     /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer underflows.</summary>
-    public ushort FakeDeathExplosionIndex { get; internal set; }
+    public int FakeDeathExplosionIndex { get; internal set; }
 
     /// <summary>
     /// The room flash's current frame (#641), or null while no flash runs. Its timer counts upward, unlike enemy
     /// instruction timers, because handler $D192 compares elapsed frames with each duration.
     /// </summary>
     public int? RoomFlashFrame { get; internal set; }
-    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by $A9:D192 and reset when the frame changes.</summary>
-    public ushort RoomFlashTimer { get; internal set; }
+    /// <summary>Elapsed-update count for the current room-flash frame, advanced upward by $A9:D192 and reset when the frame changes; never above the frame's two-update duration.</summary>
+    public int RoomFlashTimer { get; internal set; }
 
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
     public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
@@ -78,13 +78,13 @@ public sealed class MotherBrainEnemyState
     public IReadOnlyList<MotherBrainMusicRequest> MusicRequests => _musicRequests;
 
     /// <summary>Last library-two fake-death/tube sound emitted during this enemy frame.</summary>
-    public ushort? LastSoundEffect { get; internal set; }
+    public SoundEffectId? LastSoundEffect { get; internal set; }
 
     /// <summary>Last library-one rainbow-beam sound emitted during this enemy frame.</summary>
-    public ushort? LastSoundEffectLibrary1 { get; internal set; }
+    public SoundEffectId? LastSoundEffectLibrary1 { get; internal set; }
 
     /// <summary>Last library-three sound emitted by a Mother Brain private opcode.</summary>
-    public ushort? LastSoundEffectLibrary3 { get; internal set; }
+    public SoundEffectId? LastSoundEffectLibrary3 { get; internal set; }
 
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
@@ -101,9 +101,6 @@ public sealed class MotherBrainEnemyState
     /// <summary>Palette selector applied by the custom brain drawing routine.</summary>
     public ushort BrainPaletteIndex { get; internal set; }
 
-    /// <summary>Countdown used by the normal head-palette setup routine, initially ten.</summary>
-    public ushort BrainPaletteTimer { get; internal set; }
-
     /// <summary>
     /// The brain's own program (#641), separate from the head enemy's dummy program: the cursor rests on the frame
     /// being shown, as <c>MotherBrainBody.brainInstListPointer</c> ($7E:8002) does. Null means the brain is not live
@@ -116,7 +113,7 @@ public sealed class MotherBrainEnemyState
     /// and the program advances once it exceeds the frame's duration, so each frame shows for
     /// its duration plus one draw.
     /// </summary>
-    public ushort BrainFrameTimer { get; internal set; }
+    public int BrainFrameTimer { get; internal set; }
 
     /// <summary>Where the body enemy's program resumes (#641).</summary>
     internal AnimationProgramCursor<MotherBrainBodyProgram> BodyCursor { get; set; } =
@@ -139,22 +136,22 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public bool DrawBrain { get; internal set; }
 
-    /// <summary>Byte cursor at $7E:7842 into Mother Brain's native rainbow palette list.</summary>
-    public ushort RainbowPaletteCursor { get; internal set; }
+    /// <summary>Byte cursor at $7E:7842 into Mother Brain's rainbow palette list: an even offset from zero to two bytes per rainbow frame.</summary>
+    public int RainbowPaletteCursor { get; internal set; }
 
     /// <summary>Whether the active bank-$A9 draw hook appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }
 
-    /// <summary>Native fake-ascent neck lengths installed by <c>$A9:903F</c>.</summary>
-    public ushort NeckSegment0Distance { get; internal set; }
+    /// <summary>Lower-neck joint 0's pixel distance from the shared body anchor, initialized to two by <c>$A9:903F</c>.</summary>
+    public int NeckSegment0Distance { get; internal set; }
     /// <summary>Lower-neck joint 1's pixel distance from the shared body anchor, initialized to ten by $A9:903F.</summary>
-    public ushort NeckSegment1Distance { get; internal set; }
+    public int NeckSegment1Distance { get; internal set; }
     /// <summary>Lower-neck joint 2's pixel distance from the shared body anchor, initialized to twenty; joint 2 also anchors the upper half.</summary>
-    public ushort NeckSegment2Distance { get; internal set; }
+    public int NeckSegment2Distance { get; internal set; }
     /// <summary>Upper-neck joint 3's pixel distance from joint 2, initialized to ten by $A9:903F.</summary>
-    public ushort NeckSegment3Distance { get; internal set; }
+    public int NeckSegment3Distance { get; internal set; }
     /// <summary>Upper-neck joint 4's pixel distance from joint 2, initialized to twenty; its resulting position anchors the brain.</summary>
-    public ushort NeckSegment4Distance { get; internal set; }
+    public int NeckSegment4Distance { get; internal set; }
 
     /// <summary>Five current world-space neck joints; segment four anchors the brain.</summary>
     public Position16<RoomPixels> NeckSegment0 { get; internal set; }
@@ -171,8 +168,8 @@ public sealed class MotherBrainEnemyState
     public ushort LowerNeckAngle { get; internal set; }
     /// <summary>Upper-neck angle in native 8.8 angle units; its high byte selects the 256-entry trigonometric cycle for joints 3 and 4.</summary>
     public ushort UpperNeckAngle { get; internal set; }
-    /// <summary>Wrapping 8.8 angle step added or subtracted by both neck motion dispatchers each enabled update.</summary>
-    public ushort NeckAngleDelta { get; internal set; }
+    /// <summary>Neck angular speed in 8.8 angle units, added or subtracted by both neck motion dispatchers each enabled update; every producer writes a positive speed of at most $0900.</summary>
+    public int NeckAngleDelta { get; internal set; }
     /// <summary>Whether articulated neck angle dispatch is enabled; positions and custom drawing remain separate from this motion flag.</summary>
     public bool NeckMovementEnabled { get; internal set; }
     /// <summary>Lower-neck table byte offset: 0 inert, 2/4 alternating down/up, 6 one-way lowering, or 8 one-way raising; endpoints update this offset.</summary>
@@ -207,8 +204,8 @@ public sealed class MotherBrainEnemyState
     /// <summary>Live escape message owner installed by $A6:C23F.</summary>
     public EscapeTypewriterState? EscapeTypewriter { get; internal set; }
 
-    /// <summary>Visible prefix of the enemy BG2 staging tilemap requested at ascent completion.</summary>
-    public ushort EnemyBg2TilemapSize { get; internal set; }
+    /// <summary>Byte length of the visible prefix of the enemy BG2 staging tilemap requested at ascent completion.</summary>
+    public int EnemyBg2TilemapSize { get; internal set; }
     /// <summary>Witness that body setup, ascent completion, or death has requested its staging BG2 tilemap update; size names the requested prefix.</summary>
     public bool EnemyBg2TilemapTransferRequested { get; internal set; }
 
@@ -216,7 +213,7 @@ public sealed class MotherBrainEnemyState
     public NativeCountdown BodySubFunctionTimer { get; internal set; }
 
     /// <summary>Zero-based palette pointer-table index used while leaving fake-death grey.</summary>
-    public ushort GrayTransitionCounter { get; internal set; }
+    public int GrayTransitionCounter { get; internal set; }
 
     /// <summary>Enables the head's ordinary palette processing; resurrection and draining transitions suspend it while their own palettes own the colors.</summary>
     public bool BrainPaletteHandlingEnabled { get; internal set; }
@@ -237,7 +234,7 @@ public sealed class MotherBrainEnemyState
     /// increments before spawning and wraps at six, so a zero-initialized encounter emits
     /// parameter one first.
     /// </summary>
-    public ushort DroolProjectileParameter { get; internal set; }
+    public int DroolProjectileParameter { get; internal set; }
 
     /// <summary>Native phase-two walking/shot-reaction accumulator.</summary>
     public ushort WalkCounter { get; internal set; }
@@ -253,16 +250,27 @@ public sealed class MotherBrainEnemyState
     public NativeCountdown AttackCooldown { get; internal set; }
 
     /// <summary>
-    /// Number of active Mother Brain bombs. Phase two refuses another bomb when this is
-    /// at least one; the shared bank-$86 bomb implementation owns increments and decrements.
+    /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at
+    /// least one; <see cref="RecordBombSpawned"/> and <see cref="RecordBombRemoved"/> keep it.
     /// </summary>
-    public ushort BombCounter { get; internal set; }
+    public int BombCounter { get; internal set; }
+
+    /// <summary>Counts a bomb the shared bank-$86 bomb initializer has just spawned.</summary>
+    internal void RecordBombSpawned() => BombCounter++;
+
+    /// <summary>
+    /// Uncounts a bomb that has just been deleted. Every deleted bomb was counted when it
+    /// spawned, so the count is positive here; a zero count means a bomb was deleted twice.
+    /// </summary>
+    internal void RecordBombRemoved() => BombCounter = BombCounter > 0
+        ? BombCounter - 1
+        : throw new InvalidOperationException("A Mother Brain bomb was deleted while none was counted.");
 
     /// <summary>
     /// Native <c>bodyTargetXPosition</c> used while the bomb decision walks the body toward
     /// X=$40 or $60 before entering its posture sequence.
     /// </summary>
-    public ushort BodyTargetXPosition { get; internal set; }
+    public int BodyTargetXPosition { get; internal set; }
 
     /// <summary>
     /// Native <c>deathBeamAttackPhase</c> consumed by <c>$A9:B87D</c>. Despite the historical
@@ -280,8 +288,8 @@ public sealed class MotherBrainEnemyState
     public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
     /// <summary>Signed native 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
     public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
-    /// <summary>Byte-angle aim retained in a native word, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
-    public ushort HandBeamNextAngle { get; internal set; }
+    /// <summary>Aim angle in 256-unit-turn table units (0 through 255), calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
+    public int HandBeamNextAngle { get; internal set; }
 
     /// <summary>
     /// The already verified rainbow/finish-off/Baby/phase-three state machine, attached to
@@ -317,7 +325,7 @@ public sealed class MotherBrainEnemyState
     /// Baby's later healing/idle functions. It is deliberately a count, not a boolean:
     /// native <c>INC</c> permits more than one ring to land before the next Baby turn.
     /// </summary>
-    internal ushort PendingBabyCryCount { get; set; }
+    internal int PendingBabyCryCount { get; set; }
 
     /// <summary>Live bank-$88 rainbow-beam presentation state published by body AI.</summary>
     public bool RainbowBeamHdmaActive { get; internal set; }
@@ -325,8 +333,8 @@ public sealed class MotherBrainEnemyState
     public MotherBrainRainbowBeamHdmaState RainbowBeamHdma { get; } = new();
     /// <summary>Current native angular aim published from the beam's forced-movement owner and consumed by the bank-$88 HDMA presentation.</summary>
     public SnesAngle RainbowBeamAngle { get; internal set; }
-    /// <summary>Native 8.8 angular-width word published by body AI as the rainbow beam widens or narrows; independent of pixel width at a given scanline.</summary>
-    public ushort RainbowBeamAngularWidth { get; internal set; }
+    /// <summary>Rainbow-beam angular width in 8.8 table units, published by body AI as the beam widens or narrows; independent of pixel width at a given scanline.</summary>
+    public int RainbowBeamAngularWidth { get; internal set; }
     /// <summary>Whether this body-function call requested a rainbow palette step; cleared at the beginning of every enemy frame.</summary>
     public bool RainbowBeamPaletteRequested { get; internal set; }
 
@@ -348,11 +356,10 @@ public sealed class MotherBrainEnemyState
 
 
     /// <summary>
-    /// Clamped byte-angle written by head opcode <c>$A9:9E5B</c> and consumed by the next
-    /// <c>$A9:9E29</c> onion-ring spawn. It remains a word because native extended WRAM is
-    /// word-addressed even though the calculation deliberately operates in 8-bit mode.
+    /// Clamped aim angle in 256-unit-turn table units, 16 through 72, written by head opcode
+    /// <c>$A9:9E5B</c> and consumed by the next <c>$A9:9E29</c> onion-ring spawn.
     /// </summary>
-    public ushort OnionRingsTargetAngle { get; internal set; }
+    public int OnionRingsTargetAngle { get; internal set; }
 
     /// <summary>Native parameter identities for the twelve turrets requested at room entry.</summary>
     private readonly ushort[] _initialTurretParameters = new ushort[12];

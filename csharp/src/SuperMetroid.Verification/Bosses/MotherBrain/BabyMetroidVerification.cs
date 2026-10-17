@@ -78,7 +78,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     var baby = new BabyMetroidCutsceneState();
     baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
     AssertEqual(0x3800, baby.Properties.ToNativeWord(), "Baby population/init property OR");
-    AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
+    AssertEqual(false, baby.HitFlashPaletteShown, "Baby cutscene shows its own palette, not the hit flash");
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
     AssertEqual(MotherBrainBabyProgram.Initial, baby.Program, "Baby initial program");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
@@ -103,7 +103,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     baby.Step(samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
-    AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
+    AssertEqual(SuperMetroid.Core.Hardware.SnesAngle.FromRaw(0xd680), baby.Angle, "Baby first curve angle");
     AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
     AssertEqual(0xf772, baby.Velocity.X.RawValue, "Baby first ROM sine X velocity");
     AssertEqual(0x051e, baby.Velocity.Y.RawValue, "Baby first ROM cosine Y velocity");
@@ -199,6 +199,40 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     Console.WriteLine(
         "  Baby Metroid: entrance, first latch and Mother Brain regain balance agree.");
 }
+
+    /// <summary>
+    /// The slowing Samus rainbow accumulates 768/65536 of a palette frame per call and advances
+    /// a frame exactly when the cartridge's 16-bit accumulator would carry, keeping the remainder.
+    /// </summary>
+    internal static void VerifySamusRainbowFractionCarry()
+    {
+        AssertEqual((768, false), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(0),
+            "one call from a cleared accumulator adds 768 without completing a frame");
+        int fraction = 0;
+        for (int call = 1; call <= 85; call++)
+        {
+            (int next, bool completed) = BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(fraction);
+            AssertTrue(!completed, $"call {call} stays below a whole frame");
+            fraction = next;
+        }
+        AssertEqual(65280, fraction, "85 calls accumulate 65280 of the 65536 a frame needs");
+        AssertEqual((512, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(fraction),
+            "the 86th call carries into a new frame and keeps the 512 remainder");
+        AssertEqual((767, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(65535),
+            "the largest fraction carries and keeps the wrapped remainder");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(65536),
+            "a fraction that is already a whole frame is rejected");
+        Console.WriteLine("  Baby Metroid: the slowing Samus rainbow carries exactly at whole frames.");
+    }
+
+    /// <summary>Runs the slowing Samus rainbow accumulator check.</summary>
+    [VerificationCommand("--baby-metroid-rainbow-fraction")]
+    internal static int BabyMetroidRainbowFractionCommand()
+    {
+        Suite(nameof(VerifySamusRainbowFractionCarry), () => VerifySamusRainbowFractionCarry());
+        return 0;
+    }
 
     /// <summary>Runs the Baby Metroid entrance and route-definition check.</summary>
     [VerificationCommand("--baby-metroid-route-definitions")]

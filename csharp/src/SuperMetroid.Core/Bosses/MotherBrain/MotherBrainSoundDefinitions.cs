@@ -21,11 +21,11 @@ internal static class MotherBrainSoundDefinitions
     /// <summary>Library-2 sound $29: floor dust bursts as Mother Brain rises.</summary>
     internal static SoundEffectId AscentDust { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0029);
 
-    /// <summary>$A9:BE96 queues library-one $02 when the rainbow drain runs out.</summary>
-    internal const ushort StopRainbowDrain = 0x0002;
+    /// <summary>Library-1 sound $02: the rainbow drain's looping voice stops ($A9:BE96).</summary>
+    internal static SoundEffectId StopRainbowDrain { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0002);
 
-    /// <summary>$A9:C889 queues library-one $40 when the Baby begins draining Mother Brain.</summary>
-    internal const ushort StartRainbowDrain = 0x0040;
+    /// <summary>Library-1 sound $40: the rainbow drain's looping voice starts, also when the Baby begins draining Mother Brain ($A9:C889).</summary>
+    internal static SoundEffectId StartRainbowDrain { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0040);
 
     /// <summary>Library-2 sound $7F: the rainbow beam starts charging.</summary>
     internal static SoundEffectId RainbowBeamCharge { get; } = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x007f);

@@ -183,7 +183,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.StartDrainingSamus, attack.Phase,
         "zero delay timer underflows and schedules drain initializer");
     AssertEqual(8, attack.EarthquakeType, "delay underflow selects earthquake type eight");
-    AssertEqual(8, attack.EarthquakeTimer, "delay underflow seeds eight-frame earthquake");
+    AssertEqual(NativeCountdown.Start(8), attack.EarthquakeTimer, "delay underflow seeds eight-frame earthquake");
 
     int drainCalls = 0;
     int queuedBeamSounds = (wall.SoundQueued ? 1 : 0) + (delay.SoundQueued ? 1 : 0);
@@ -221,7 +221,7 @@ internal static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(0x0200, attack.AngularWidth, "beam shutdown pins angular width floor");
     AssertTrue(lockedBeforeNarrowing && !samus.InputLocked, "beam shutdown runs Samus command one");
     AssertTrue(!attack.HdmaActive, "beam shutdown disables its HDMA channel");
-    AssertEqual(8, attack.SamusProjectileCooldownTimer,
+    AssertEqual(NativeCountdown.Start(8), attack.SamusProjectileCooldownTimer,
         "beam shutdown reloads Samus projectile cooldown");
 
     int fallingCalls = 0;

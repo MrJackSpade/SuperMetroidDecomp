@@ -54,8 +54,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort RinkaHealth = 10;
     /// <summary>Enemy palette selected for both ordinary and Mother Brain variants.</summary>
     private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
-    /// <summary>Signed 8.8 magnitude used to resolve the cartridge angle into flight velocity.</summary>
-    private const ushort RinkaSpeed = 0x0120;
+    /// <summary>Flight speed in 8.8 pixels per update (1 + 32/256 pixels), resolved along the cartridge angle into flight velocity.</summary>
+    private const ushort RinkaSpeed = 288;
     /// <summary>Number of Mother Brain Rinka actors sharing the eleven spawn resources.</summary>
     private const ushort RinkaMaximumSpecialActors = 3;
 
@@ -67,30 +67,28 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =
     [
-        new(0x03e7, 0x0026),
-        new(0x03e7, 0x00a6),
-        new(0x0337, 0x0036),
-        new(0x0337, 0x00a6),
-        new(0x0277, 0x001c),
-        new(0x0277, 0x00b6),
-        new(0x01b7, 0x0036),
-        new(0x01b7, 0x00a6),
-        new(0x00f7, 0x001c),
-        new(0x00f7, 0x00b6),
-        new(0x0080, 0x00a8),
+        new(999, 38),
+        new(999, 166),
+        new(823, 54),
+        new(823, 166),
+        new(631, 28),
+        new(631, 182),
+        new(439, 54),
+        new(439, 166),
+        new(247, 28),
+        new(247, 182),
+        new(128, 168),
     ];
 
     /// <summary>Pairs an authored spawn point with its one-based even extra-RAM resource token.</summary>
     internal static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
-        new(RinkaSpawnPoints[index], (ushort)(2 * (index + 1)));
+        new(RinkaSpawnPoints[index], 2 * (index + 1));
 
     /// <summary>Marks which of the eleven authored spawn points are currently reserved.</summary>
     private readonly bool[] _rinkaOccupiedSpawnResources =
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
-    /// <summary>Tracks active visible special Rinkas as private room state.</summary>
-    private ushort _rinkaActiveCount;
     /// <summary>Causes special Rinkas to be removed instead of launched or respawned.</summary>
-    internal ushort _rinkaTerminationFlag;
+    internal bool _rinkaTerminationFlag;
     /// <summary>Layer-1 camera coordinates used by the native spawn and flight windows.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     /// <summary>
@@ -99,13 +97,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
-    /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
+    /// <summary>Clears the shared termination flag and all per-slot/extra-RAM spawn ownership.</summary>
     internal void ResetRinkaRoomState(Position16<RoomPixels> camera)
     {
         Array.Clear(_rinkaOccupiedSpawnResources);
         _deferredRinkaSpawnSlots.Clear();
-        _rinkaActiveCount = 0;
-        _rinkaTerminationFlag = 0;
+        _rinkaTerminationFlag = false;
         _rinkaCamera = camera;
     }
 
@@ -182,7 +179,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (IsSpecialRinka(slot))
         {
-            if (_rinkaTerminationFlag != 0)
+            if (_rinkaTerminationFlag)
             {
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
@@ -229,9 +226,8 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (_deferredRinkaSpawnSlots.Count != 0)
             throw new InvalidOperationException(
                 "A Rinka ran before the door loader chose every special Rinka's spawn point.");
-        if (IsSpecialRinka(slot) && _rinkaTerminationFlag != 0)
+        if (IsSpecialRinka(slot) && _rinkaTerminationFlag)
         {
-            DecrementVisibleSpecialRinkaCount(slot);
             ReleaseSpecialRinkaSpawn(state);
             RunRinkaDeathAnimation(slot);
             return;
@@ -261,12 +257,12 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
                 byte sourceAngle = EnemyMath.CalculateCartridgeAngle(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-                byte velocityAngle = unchecked((byte)-(sourceAngle + 0x80));
+                byte velocityAngle = unchecked((byte)-(sourceAngle + EnemyByteAngleDefinitions.HalfTurn));
                 state.Velocity = new(
                     new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle)),
                     new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(
                         RinkaSpeed,
-                        unchecked((byte)(velocityAngle + 0x40)))));
+                        unchecked((byte)(velocityAngle + EnemyByteAngleDefinitions.QuarterTurn)))));
                 return;
 
             case RinkaEnemyFunction.Flying:
@@ -300,7 +296,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         RinkaEnemyState state = RequireRinkaState(slot);
-        DecrementVisibleSpecialRinkaCount(slot);
         ReleaseSpecialRinkaSpawn(state);
         if (!IsSpecialRinka(slot))
         {
@@ -323,10 +318,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (RinkaIsOutsideFlightWindow(slot))
             slot.FrozenTimer = NativeCountdown.Start(0);
-        if (_rinkaTerminationFlag == 0)
+        if (!_rinkaTerminationFlag)
             return false;
 
-        DecrementVisibleSpecialRinkaCount(slot);
         ReleaseSpecialRinkaSpawn(RequireRinkaState(slot));
         RunRinkaDeathAnimation(slot);
         return true;
@@ -347,7 +341,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             case RinkaCueKind.Fire:
                 slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
                 state.Function = RinkaEnemyFunction.AimDelay;
-                _rinkaActiveCount = unchecked((ushort)(_rinkaActiveCount + 1));
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(RinkaCueKind)} {cue.Kind}.");
@@ -363,15 +356,13 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (IsSpecialRinka(slot))
         {
             ReleaseSpecialRinkaSpawn(state);
-            if (_rinkaTerminationFlag != 0)
+            if (_rinkaTerminationFlag)
             {
-                DecrementVisibleSpecialRinkaCount(slot);
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
             }
         }
 
-        DecrementVisibleSpecialRinkaCount(slot);
         ReinitializeRinka(slot, state);
     }
 
@@ -460,16 +451,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
         state.SpawnResourceToken = 0;
-    }
-
-    /// <summary>Decrements the active count only for visible special actors, saturating at zero.</summary>
-    private void DecrementVisibleSpecialRinkaCount(RoomEnemySlot slot)
-    {
-        if (!IsSpecialRinka(slot) || slot.Properties.HasAny(EnemyProperties.Invisible))
-            return;
-        _rinkaActiveCount = _rinkaActiveCount == 0
-            ? (ushort)0
-            : unchecked((ushort)(_rinkaActiveCount - 1));
     }
 
     /// <summary>Ports $A2:B8D3's asymmetric (-16..271, -16..239) flight rectangle.</summary>

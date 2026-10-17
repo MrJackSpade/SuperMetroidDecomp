@@ -59,17 +59,18 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Health ceiling applied while an active Zebetite regenerates each update.</summary>
     private const ushort ZebetiteMaximumHealth = 1000;
-    /// <summary>Library-three sound selected by the Zebetite shot reaction.</summary>
-    private const ushort ZebetiteShotSound = 9;
+    /// <summary>Library-3 sound $09, selected by the Zebetite shot reaction.</summary>
+    private static readonly SoundEffectId ZebetiteShotSound = SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 9);
 
     /// <summary>Most recent library-three sound requested by Zebetite shot AI.</summary>
-    public ushort? LastZebetiteSoundEffect { get; private set; }
+    public SoundEffectId? LastZebetiteSoundEffect { get; private set; }
 
     /// <summary>
-    /// Native <c>palette_change_num</c>. A nonzero scripted palette fade suppresses the
-    /// Zebetite's private two-color cycle; normal gameplay leaves this at zero.
+    /// Native <c>palette_change_num</c>, the count of scripted palette fades in progress. A
+    /// nonzero count suppresses the Zebetite's private two-color cycle; normal gameplay leaves
+    /// this at zero.
     /// </summary>
-    public ushort PaletteChangeNumber { get; set; }
+    public int PaletteChangeNumber { get; set; }
 
     /// <summary>
     /// <c>CameraDistanceIndex</c> ($0941), shared by every boss that retargets the camera.
@@ -97,10 +98,10 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             ? ZebetiteAiFunction.WaitForDoorTransition
             : ZebetiteAiFunction.SpawnLinkedHalf;
 
-        ushort generation = 0;
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit2) ? 1 : 0)));
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit1) ? 1 : 0)));
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit0) ? 1 : 0)));
+        int generation = 0;
+        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit2) ? 1 : 0);
+        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit1) ? 1 : 0);
+        generation = (generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit0) ? 1 : 0);
         state.Generation = generation;
         if (generation >= 4)
         {
@@ -182,7 +183,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort nextGeneration = unchecked((ushort)(state.Generation + 1));
+        int nextGeneration = state.Generation + 1;
         state.Generation = nextGeneration;
         PublishZebetiteGenerationEvents(nextGeneration);
         FinishZebetiteDeath(slot);
@@ -294,7 +295,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private bool HasZebetiteEvent(EventNumber eventNumber) => _room.Services.Events.Has(eventNumber);
 
     /// <summary>Stores the next generation as three persistent Zebetite-destroyed event bits.</summary>
-    private void PublishZebetiteGenerationEvents(ushort generation)
+    private void PublishZebetiteGenerationEvents(int generation)
     {
         PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit0, (generation & 1) != 0);
         PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit1, (generation & 2) != 0);
@@ -409,7 +410,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastZebetiteSoundEffect, library: SoundEffectLibrary.Library3, maximumQueued: 6);
+        if (LastZebetiteSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>

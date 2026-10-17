@@ -67,7 +67,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         List<Step> steps =
         [
             Step.Show(StageDraws[stage], 1),
-            Step.Publish(MotherBrainGlassPlmCue.RepeatUntil((ushort)(HitsPerStage * (stage + 1)))),
+            Step.Publish(MotherBrainGlassPlmCue.RepeatUntil(HitsPerStage * (stage + 1))),
         ];
         if (BurstOf(stage) is { } burst)
         {

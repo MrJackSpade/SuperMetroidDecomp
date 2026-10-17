@@ -25,20 +25,20 @@ public sealed class ZebetiteEnemyState
     }
 
     /// <summary>
-    /// Variable C. Native code deliberately stores the palette-cycle counter in physical
-    /// slot zero even after the first barrier generation has vacated that slot.
+    /// Palette-cycle counter in variable C. Native code deliberately stores the shared counter
+    /// in physical slot zero even after the first barrier generation has vacated that slot.
     /// </summary>
-    public ushort PaletteCycle
+    public int PaletteCycle
     {
         get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        internal set => _slot.VariableC = checked((ushort)value);
     }
 
-    /// <summary>Variable D, the binary value formed from persistent events five/four/three.</summary>
-    public ushort Generation
+    /// <summary>Barrier generation 0 through 4 in variable D, formed from persistent events five/four/three; four means every barrier is destroyed.</summary>
+    public int Generation
     {
         get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        internal set => _slot.VariableD = checked((ushort)value);
     }
 
     /// <summary>Variable F, including the sign bit that requests a linked second half.</summary>
@@ -51,11 +51,11 @@ public sealed class ZebetiteEnemyState
     /// <summary>Where this half's health program resumes (#641).</summary>
     internal AnimationProgramCursor<ZebetiteProgram> Cursor { get; set; }
 
-    /// <summary>Parameter two contains the linked half's native <c>$40</c>-byte slot index.</summary>
-    public ushort LinkedNativeIndex
+    /// <summary>The linked half's native <c>$40</c>-byte slot index, kept in parameter two.</summary>
+    public int LinkedNativeIndex
     {
         get => _slot.Parameter2;
-        internal set => _slot.Parameter2 = value;
+        internal set => _slot.Parameter2 = checked((ushort)value);
     }
 
     /// <summary>Nonzero native init0/parameter one identifies the linked bottom half; it skips primary palette cycling and dies without publishing the next generation's events or respawn.</summary>

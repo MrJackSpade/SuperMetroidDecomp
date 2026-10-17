@@ -46,7 +46,7 @@ internal sealed record MotherBrainLiveActorSnapshot
     public required MotherBrainNeckMovement UpperNeckMovementIndex { get; init; }
 
     /// <summary>Number of live Mother Brain bomb enemy projectiles at body WRAM <c>$7E:802A</c>.</summary>
-    public required ushort BombCounter { get; init; }
+    public required int BombCounter { get; init; }
 
     /// <summary>Shared Mother Brain hitbox-enable word cleared at both death boundaries.</summary>
     public required bool HitboxesEnabled { get; init; }

@@ -44,6 +44,44 @@ internal static class MotherBrainFakeDeathLockVerification
         Console.WriteLine("  Mother Brain fake-death lock: command zero locks Samus, command one frees her.");
     }
 
+    /// <summary>
+    /// The fake-death explosions step backward through their eight positions: an expiry from
+    /// the first position wraps to the last, then continues to the one before it.
+    /// </summary>
+    internal static void VerifyMotherBrainFakeDeathExplosionOrder()
+    {
+        var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
+        runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RoomLoader.InitializeStartingCeresRoom();
+        runtime.RoomLoader.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
+        MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain ??
+            throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain.");
+        state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
+        state.FunctionTimer = NativeCountdown.Start(100);
+        state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.Finished;
+        state.FakeDeathExplosionIndex = 0;
+
+        int[] expectedIndices = [7, 6];
+        foreach (int expected in expectedIndices)
+        {
+            state.FakeDeathExplosionTimer = NativeCountdown.Start(0);
+            runtime.Enemies.MotherBrainBehavior.RunMotherBrainFadeToGray(state);
+            AssertEqual(expected, state.FakeDeathExplosionIndex,
+                $"an expired explosion timer steps back to position {expected}");
+        }
+        Console.WriteLine("  Mother Brain fake-death explosions: the first position wraps back to the last.");
+    }
+
+    /// <summary>Runs the fake-death explosion position order check.</summary>
+    [VerificationCommand("--mother-brain-fake-death-explosion-order")]
+    internal static int MotherBrainFakeDeathExplosionOrderCommand()
+    {
+        Suite(nameof(VerifyMotherBrainFakeDeathExplosionOrder), () => VerifyMotherBrainFakeDeathExplosionOrder());
+        return 0;
+    }
+
     /// <summary>Runs the focused fake-death command-zero and command-one lock transition check.</summary>
     [VerificationCommand("--mother-brain-fake-death-lock")]
     internal static int MotherBrainFakeDeathLockCommand()

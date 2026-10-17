@@ -27,9 +27,9 @@ internal static class ZebetiteDefinitions
     /// leftward from X=824. Large barriers have half-height24 at Y=111; split
     /// halves have half-height8 at equal forty-pixel offsets from that center.
     /// </summary>
-    internal static ZebetiteGenerationDefinition Generation(ushort generation)
+    internal static ZebetiteGenerationDefinition Generation(int generation)
     {
-        if (generation >= 4)
+        if ((uint)generation >= 4)
         {
             throw new InvalidDataException(
                 $"Zebetite generation {generation} exceeds its four active records.");

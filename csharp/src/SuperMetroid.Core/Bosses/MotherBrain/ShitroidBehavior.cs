@@ -61,7 +61,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private Position16<RoomPixels> _shitroidCamera;
 
     /// <summary>Last library-two sound queued during this Shitroid frame.</summary>
-    public ushort? LastShitroidSoundEffectLibrary2 { get; private set; }
+    public SoundEffectId? LastShitroidSoundEffectLibrary2 { get; private set; }
 
     /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
     public ShitroidMusicRequest? LastShitroidMusicRequest { get; private set; }
@@ -403,7 +403,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         SetShitroidScrollPair(RoomScrollState.RedBoundary);
         QueueShitroidWallPlms(PlmHeaderId.CreateBabyMetroidInvisibleWall);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;
-        state.CryEnabled = 1;
+        state.CryEnabled = true;
     }
 
     /// <summary>Writes high scroll bytes one and three while retaining and zero-extending the existing low bytes.</summary>
@@ -511,7 +511,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             state.PaletteDelay = 10;
             samus.SpecialSuperPaletteFlags = 0;
             samus.Drained.LetFall(samus);
-            state.CryEnabled = 0;
+            state.CryEnabled = false;
             LastShitroidMusicRequest = new ShitroidMusicRequest(
                 MusicCommand.SelectTrack(7),
                 MusicCommandDelay.EightFrames);
@@ -573,12 +573,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         int distance = Math.Abs(unchecked((short)(currentX - targetX)));
         if (distance < threshold)
         {
-            state.HorizontalLockAccumulator = unchecked((ushort)(
-                state.HorizontalLockAccumulator + 2));
+            state.HorizontalLockAccumulator += 2;
         }
         else if (state.HorizontalLockAccumulator != 0)
         {
-            state.HorizontalLockAccumulator = NativeWordCounter.Decrement(state.HorizontalLockAccumulator).Value;
+            state.HorizontalLockAccumulator--;
         }
     }
 
@@ -778,9 +777,9 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         byte phase = unchecked((byte)((state.PaletteTimerAndPhase + 1) & 7));
         state.PaletteTimerAndPhase = SnesLittleEndian.Word(phase, unchecked((byte)state.PaletteDelay));
-        if (phase == 5 && state.CryEnabled != 0)
+        if (phase == 5 && state.CryEnabled)
         {
-            state.CryCounter = unchecked((ushort)(state.CryCounter + 1));
+            state.CryCounter++;
             if (state.CryCounter >= 4)
             {
                 state.CryCounter = 0;
@@ -964,7 +963,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastShitroidSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastShitroidSoundEffectLibrary2 is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 
     /// <summary>Queues this frame's published music requests through the shared enemy audio queue, in the retail queue limits.</summary>

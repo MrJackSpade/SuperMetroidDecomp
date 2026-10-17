@@ -42,13 +42,13 @@ public sealed class RinkaEnemyState
     }
 
     /// <summary>
-    /// Native extra-RAM selector stored in variable D. Special Mother Brain Rinkas use the
-    /// even values $0002..$0016 from $A2:B75B; zero means no spawn resource is reserved.
+    /// Reservation token of the spawn location a special Mother Brain Rinka holds, kept in
+    /// variable D: one of the even tokens 2 through 22 from $A2:B75B, or zero when it holds none.
     /// </summary>
-    public ushort SpawnResourceToken
+    public int SpawnResourceToken
     {
         get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        internal set => _slot.VariableD = checked((ushort)value);
     }
 
     /// <summary>Wrapping 16-bit countdown used both before flight and before special respawn.</summary>

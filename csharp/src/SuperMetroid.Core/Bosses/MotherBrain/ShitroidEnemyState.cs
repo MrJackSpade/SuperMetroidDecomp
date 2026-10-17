@@ -44,11 +44,11 @@ public sealed class ShitroidEnemyState
         internal set => Slot.VariableD = value;
     }
 
-    /// <summary>Gets the phase reload controlling Shitroid's palette-cycle cadence.</summary>
-    public ushort PaletteDelay
+    /// <summary>Updates between palette-cycle phases: ten at the ordinary pace, one while draining quickly.</summary>
+    public int PaletteDelay
     {
         get => Slot.VariableE;
-        internal set => Slot.VariableE = value;
+        internal set => Slot.VariableE = checked((ushort)value);
     }
 
     /// <summary>Gets the current AI state's general-purpose countdown.</summary>
@@ -61,14 +61,17 @@ public sealed class ShitroidEnemyState
     /// <summary>Native extended word 01: randomized vertical-follow duration.</summary>
     public NativeCountdown HoverTimer { get; internal set; }
 
-    /// <summary>Native extended word 02: consecutive horizontal-lock accumulator.</summary>
-    public ushort HorizontalLockAccumulator { get; internal set; }
+    /// <summary>
+    /// Horizontal-lock accumulator (native extended word 02): gains two each update the Shitroid
+    /// is horizontally aligned with its target and loses one, never below zero, otherwise.
+    /// </summary>
+    public int HorizontalLockAccumulator { get; internal set; }
 
-    /// <summary>Native extended word 04: enables the periodic Shitroid cry.</summary>
-    public ushort CryEnabled { get; internal set; }
+    /// <summary>Whether the periodic Shitroid cry is enabled (native extended word 04).</summary>
+    public bool CryEnabled { get; internal set; }
 
-    /// <summary>Native extended word 05: counts every fourth palette-cycle cry.</summary>
-    public ushort CryCounter { get; internal set; }
+    /// <summary>Palette cycles toward the next periodic cry, 0 through 3 (native extended word 05).</summary>
+    public int CryCounter { get; internal set; }
 
     /// <summary>
     /// Diagnostic mirror of native word 08 in physical slot one. Shitroid writes the actual

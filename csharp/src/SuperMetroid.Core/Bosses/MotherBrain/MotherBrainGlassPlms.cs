@@ -130,7 +130,7 @@ internal sealed class MotherBrainGlassPlms
             checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth)));
         foreach (MotherBrainGlassShard shard in shards)
             _motherBrainGlassProjectileRequests.Add(new MotherBrainGlassProjectileRequest(
-                (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard, (ushort)shard, glassBlock));
+                RoomEnemyProjectileKind.MotherBrainGlassShard, shard, glassBlock));
     }
 
     /// <summary>Sets the glass-destroyed event.</summary>

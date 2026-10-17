@@ -107,7 +107,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(baby.Program);
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
-        slot.InstructionTimer = NativeCountdown.FromRaw(baby.InstructionTimer);
+        slot.InstructionTimer = baby.InstructionTimer;
         slot.Timer = NativeCountdown.Start(0);
 
         // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
@@ -198,7 +198,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         slot.Position = baby.Position;
         slot.Properties = baby.Properties;
-        slot.PaletteIndex = baby.Palette;
+        slot.PaletteIndex = baby.HitFlashPaletteShown ? (ushort)0 : EnemyPaletteBits.Palette7;
         slot.VramTilesIndex = baby.GraphicsOffset;
         slot.Health = baby.Health;
     }

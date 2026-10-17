@@ -71,7 +71,7 @@ public sealed class MotherBrainCorpseRottingState
         EnemyStagingSurfaces scratch,
         Position16<RoomPixels> brainPosition,
         ushort randomNumberSeed,
-        ushort mainEnemyExecutionCounter)
+        int mainEnemyExecutionCounter)
     {
         Ensure.NotNull(scratch);
         if (!IsInitialized)
@@ -100,7 +100,7 @@ public sealed class MotherBrainCorpseRottingState
                         16),
                     Animation: MiscDustAnimation.CorpseDustCloud,
                     SoundEffectQueued: (mainEnemyExecutionCounter & 7) == 0,
-                    SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust.Value));
+                    SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust));
             });
 
         // The final entry returns carry clear before the enemy-specific VRAM transfer

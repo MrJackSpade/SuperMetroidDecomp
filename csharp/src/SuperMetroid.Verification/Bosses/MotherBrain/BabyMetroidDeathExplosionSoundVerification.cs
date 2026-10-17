@@ -31,12 +31,12 @@ internal static class BabyMetroidDeathExplosionSoundVerification
             BabyMetroidCutscenePhase.TakeFinalBlow, BabyMetroidCutscenePhase.TakeFinalBlow,
             BodyStumbleRequested: false, LatchSoundQueued: false, ReleaseDustClouds: [],
             AmbientCrySoundQueued: false,
-            DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, 0x0013),
+            DeathExplosion: new BabyMetroidDeathExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, MotherBrainSoundDefinitions.Explosion),
             BabyPaletteTransfer: null, AttackTileTransfer: null, BackgroundPaletteTransfer: null);
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state ?? throw new InvalidOperationException("Verification requires state.")), step);
-        AssertEqual((ushort?)0x0013, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
-        AssertEqual((ushort?)null, state.LastSoundEffect, "and nothing in library two");
+        AssertEqual((SoundEffectId?)MotherBrainSoundDefinitions.Explosion, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
+        AssertEqual((SoundEffectId?)null, state.LastSoundEffect, "and nothing in library two");
 
         // Mother Brain's corpse-rot dust ($A9:B252) and escape-door explosion ($A9:B346) both
         // queue through QueueSound_Lib2_Max3.
@@ -44,12 +44,12 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         {
             DeathExplosions = [], CorpseRottingVramTransfers = [], EscapeSequenceTileTransfers = [],
             EscapePaletteFxRequests = [], EscapeDoorParticleSpawns = [],
-            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: 0x0010)],
-            EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, 0x0024),
+            CorpseDustRequests = [new MotherBrainCorpseDustRequest(new Position16<RoomPixels>(0x0080, 0x0080), MiscDustAnimation.CorpseDustCloud, SoundEffectQueued: true, SoundEffect: SoundEffectLibrary2Sounds.DeadMonsterDust)],
+            EscapeDoorExplosion = new MotherBrainEscapeDoorExplosionRequest(new(0x0080, 0x0080), MiscDustAnimation.SmallExplosion, SoundEffectLibrary2Sounds.SmallExplosion),
         };
         state.LastSoundEffectLibrary3 = null;
         runtime.Enemies.MotherBrainBehavior.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
-        AssertEqual((ushort?)null, state.LastSoundEffectLibrary3, "neither sound goes to library three");
+        AssertEqual((SoundEffectId?)null, state.LastSoundEffectLibrary3, "neither sound goes to library three");
         AssertSequenceEqual(
             new[]
             {

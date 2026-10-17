@@ -30,9 +30,9 @@ public sealed class MotherBrainRainbowBeamHdmaState
     /// <param name="active">Enemy-owned enable state; false disables drawing without advancing color or resolving geometry, and a later activation restarts the color cycle.</param>
     /// <param name="head">Head enemy's whole-pixel room position, not camera-relative. Adding fourteen to X and retaining the low byte gives the screen-window mouth X; the mouth is five pixels below Y and must lie strictly between native work-area scanlines 32 and 232.</param>
     /// <param name="angle">Beam center aim; only its 256-unit-turn table index is used when computing the two wrapping edge angles.</param>
-    /// <param name="angularWidth">Native 8.8 angular-width word; its high byte is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
+    /// <param name="angularWidth">Angular width in 8.8 table units, $0200 through $0C00; its whole part is halved with integer truncation to obtain each edge's displacement in 256-unit-turn table units.</param>
     public void Step(bool active, Position16<RoomPixels> head,
-        SnesAngle angle, ushort angularWidth)
+        SnesAngle angle, int angularWidth)
     {
         if (!active)
         {
@@ -62,9 +62,9 @@ public sealed class MotherBrainRainbowBeamHdmaState
 
     /// <summary>Projects the beam's two angular edges into scanline window words using native quadrant dispatch and mouth offsets.</summary>
     private void ResolveGeometry(Position16<RoomPixels> head,
-        SnesAngle angle, ushort angularWidth)
+        SnesAngle angle, int angularWidth)
     {
-        int halfWidth = (SnesLittleEndian.HighByte(angularWidth)) / 2;
+        int halfWidth = SnesEightEight.WholeOf(Ensure.BetweenInclusive(0, ushort.MaxValue, angularWidth)) / 2;
         byte a = unchecked((byte)(angle.TableIndex - halfWidth));
         byte b = unchecked((byte)(angle.TableIndex + halfWidth));
         int quadrant = (a / SnesAngle.QuarterTurn.TableIndex) * 4 + b / SnesAngle.QuarterTurn.TableIndex;

@@ -29,7 +29,7 @@ internal static class MotherBrainEffectCueRules
             if (cue.Kind == MotherBrainEffectCueKind.SetPreInstruction)
                 AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), (ushort)cue.PreInstruction, $"{at}: pre-instruction");
             else if (cue.Kind == MotherBrainEffectCueKind.SetRadius)
-                AssertEqual(SnesLittleEndian.Word(operands[0], operands[1]), cue.Value, $"{at}: packed radii");
+                AssertEqual(new Extent16<RoomPixels>(operands[0], operands[1]), cue.Radius, $"{at}: X and Y radii");
         },
         cue => cue.Kind == MotherBrainEffectCueKind.Delete);
 }

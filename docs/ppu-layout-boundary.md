@@ -1,13 +1,22 @@
-# PPU layout boundary (#630)
+# PPU layout boundary
 
-Rendering, runtime, frontend, tooling and test code never know the PPU's physical layout. Register
-numbers, VRAM word/byte addresses, CGRAM slots, OAM low/high-table packing and their backing buffers
-live in declared boundaries; every other caller works with typed, domain-named members —
-background tilemaps and characters, palettes and `Bgr555` colours, object attributes, Mode 7 data,
-windows, screen selection and colour math. This mirrors the CPU-bus boundary (#629,
-`docs/cpu-bus-boundary.md`).
+## What this boundary is for
 
-## Layers
+The destination has no PPU in the simulation. The simulation publishes a display model (sprites as composed
+frames, background layers, palettes as colours, effects as descriptions) and a presentation backend draws it;
+the Godot host will be one such backend. VRAM addresses, CGRAM slots, OAM packing and register numbers are then
+knowledge of whichever backend emulates the original hardware, and of nothing else.
+
+Presentation quirks are not requirements (sprite caps and overflow, per-part priority, OAM parking, exact
+scanline rasterization, stale tilemap strips, VRAM layout effects). What stays exact is anything gameplay can
+observe: draw-time side effects that mutate simulation state, and display state that gameplay reads back.
+
+Everything below is the scaffolding that isolates the PPU while the display model replaces it: a boundary
+labels a reach-in so it can be removed, a layout catalog is the first step for a VRAM base that used to be
+inline, and a rendering view is a step toward the simulation not knowing the backend at all. Nothing new goes
+behind this boundary; a new display need is expressed in the display model, and the backend learns to draw it.
+
+## Layers while the PPU is being removed
 
 | Layer | Examples | May know layout? |
 |---|---|---|
@@ -42,8 +51,10 @@ boundary on a local function or lambda has no effect.
 - Ranges are bounded typed views and batch/DMA operations — never raw spans handed to callers.
   Hot paths stay allocation-free: views are structs over the backend, batch operations take spans.
 - `Bgr555` is the colour type everywhere after the raw CGRAM word crosses the codec boundary.
-- Preserve PPU behaviour exactly: byte/word port behaviour, VMAIN increment/remap modes, latch
-  order, OAM low/high packing, CGRAM masking, register side effects, snapshot ownership.
+- The backend that emulates the PPU preserves its behaviour exactly (byte/word port behaviour, VMAIN
+  increment/remap modes, latch order, OAM low/high packing, CGRAM masking, register side effects, snapshot
+  ownership) because that backend is the current renderer. None of it is a requirement on the simulation or
+  on any other backend, except where gameplay reads the result back.
 
 ## Catalogs, aliases and views in practice
 

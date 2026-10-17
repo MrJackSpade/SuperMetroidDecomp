@@ -4,7 +4,7 @@
 bytes. It duplicated the named slot data and checksums in 32 hexadecimal pages.
 Version 2 removes it. The named state is authoritative and native SRAM is rebuilt.
 
-At runtime the saves are `SaveSlotStore` state (#1322): `GameSaveJsonCodec` maps the document to and from the
+At runtime the saves are `SaveSlotStore` state: `GameSaveJsonCodec` maps the document to and from the
 store, and the address space has no SRAM. `SaveRamCodec` rebuilds the native SRAM image from the store only at
 the import and export boundaries: legacy `.srm`, recording `InitialSaveRam` and recorder seeds.
 

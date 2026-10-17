@@ -1,12 +1,15 @@
-# S-DSP register boundary (#631)
+# S-DSP register boundary
 
-Audio code never addresses S-DSP registers by number. Register numbers, the sixteen-byte voice
-stride, field masks and register encodings live in `SnesDspRegisterMap`, `ManagedSnesDsp` and the
-typed controls in `SnesDspControls.cs`; the sound-driver port (`ManagedSpcPlayer`) and everything else
-use `SnesDspControls.Global` and `SnesDspControls.Voice(index)`.
+The S-DSP exists only in the export pipeline: the offline clip renderer in
+`SuperMetroid.AssetExtraction/Audio/Synthesis` renders every music track and sound effect to a clip at
+export, and the runtime plays clips. Nothing at runtime writes a DSP register, and nothing in the simulation
+knows the DSP exists. The export pipeline may know the hardware, because its job is to read what the
+cartridge produced; that is the one place this knowledge belongs.
 
-Since #1305 the S-DSP and its typed controls are part of the offline clip renderer in
-`SuperMetroid.AssetExtraction/Audio/Synthesis`; nothing at runtime writes DSP registers.
+Within the renderer, audio code never addresses S-DSP registers by number. Register numbers, the sixteen-byte
+voice stride, field masks and register encodings live in `SnesDspRegisterMap`, `ManagedSnesDsp` and the typed
+controls in `SnesDspControls.cs`; the sound-driver port (`ManagedSpcPlayer`) and everything else use
+`SnesDspControls.Global` and `SnesDspControls.Voice(index)`.
 
 ## Boundary and enforcement
 

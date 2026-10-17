@@ -1,4 +1,4 @@
-# Parameter lists and operation contexts (#633)
+# Parameter lists and operation contexts
 
 Operations take cohesive typed contexts instead of long positional lists. The analyzer in
 `SuperMetroid.EnsureAnalyzer/ParameterListAnalyzer.cs` enforces this as build errors in every
@@ -41,11 +41,6 @@ Exemptions are declared on the member, never per project:
   `OrdinaryGameplayRenderLayer`, `EnemySpritemapDraw`, `PauseMenuEntry`).
 - Keep per-invocation input separate from long-lived dependencies: `LoadRoomPopulation(PlmRoom,
   population, RoomPlmServices)`.
-
-`docs/parameter-list-inventory.json` records every occurrence found at the baseline: the
-operation, its parameters before and after, the contracts it now takes, and its status. It also
-lists the forwarding clusters, the operations that copied parameters into fields, and the test
-helpers that mirrored production signatures.
 
 Compile-time contract checks live in `SuperMetroid.EnsureVerification`
 (`VerifyParameterContracts`), runtime invariants in the Verification suite

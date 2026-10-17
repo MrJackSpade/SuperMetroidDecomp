@@ -1,19 +1,18 @@
 # Godot migration architecture
 
-**Scope: planning for the future, currently unstarted Godot migration only.**
-Apply this guidance only when explicitly working on that migration. It does not
-apply to ongoing development, bug fixes, lookup-table work, or other tickets in
-the existing C# implementation. It creates no new acceptance gates, service or
-interface requirements, or refactoring obligations for that work. The source
-examples below explain future migration constraints; they are not a cleanup queue
-or instructions to change those files now. Writing or reading this plan does not
-start the migration or authorize switching away from the active ticket.
+**Scope.** This document describes the shape the simulation is converging on and
+guides the eventual Godot project with editable scenes, while retaining the
+original game logic expressed by the C# port. The shape is the design reference for
+every change in the C# product, under [the manifesto](manifesto.md): work in the
+existing implementation moves code toward this shape, never away from it. What is
+not started is the Godot host, scene authoring and engine integration; reading this
+plan does not start that work or authorize switching away from the active ticket.
+The source examples below are evidence of constraints at the time of inspection,
+not a cleanup queue; recheck them when working on a slice.
 
-This document guides implementation of a full Godot project with editable scenes
-while retaining the original game logic expressed by the C# port. Its audience is
-the developer or implementing AI making decisions as dependencies are uncovered.
-It describes which approaches to prefer under particular constraints, the reasons
-for those preferences, and the behavior that each choice must preserve.
+Its audience is the developer or implementing AI making decisions as dependencies
+are uncovered. It describes which approaches to prefer under particular constraints,
+the reasons for those preferences, and the behavior that each choice must preserve.
 
 The architectural direction is phase dispatch through entities into domain
 services. The dispatcher preserves execution semantics; entities and services
@@ -22,8 +21,7 @@ between objects with appropriate lifetimes. Editable Godot scenes are the intend
 authoring environment; a host that only displays the existing framebuffer is a
 possible intermediate milestone.
 
-This is future migration design guidance, not a completed phase inventory or an
-implementation.
+This is design guidance, not a completed phase inventory or an implementation.
 Architecture alone does not prove frame parity. Preserving the selected C# baseline
 and correcting a discrepancy from the cartridge are separate changes. Follow
 [AGENTS.md](../AGENTS.md) for ticket ownership, confirmation scope, original-source
@@ -583,8 +581,9 @@ a new definition boundary; relabeling those overrides as full scene editing is
 insufficient. An unedited imported scene should preserve its original definition
 semantics. A deliberate edit may change outcomes while using the same mechanics.
 
-When native identities are used as gameplay data, retain their mapping for stock
-content. Establish an explicit identity and compatibility policy before allowing
+Stock content is identified by semantic names; the mapping from a native identity
+to that name belongs to the import pipeline and never to the simulation or the
+scene data. Establish an explicit identity and compatibility policy before allowing
 new rooms or actors that exceed current catalogs or slot constraints. Do not assume
 arbitrary content already works because existing scenes can be edited.
 
@@ -606,9 +605,9 @@ silently remove those behaviors. Unbounded corruption remains outside AGENTS.md'
 implementation scope.
 
 Keep extraction and startup imports separate from gameplay capabilities. Reuse
-the ROM-free runtime boundary; scene conversion must not restore runtime ROM reads.
-Retain domain-named catalogs and source identity documentation as required by
-AGENTS.md. Do not undo independently justified algorithms by exporting mechanics
+the ROM-free runtime boundary; scene conversion must not restore runtime ROM reads
+or reintroduce addresses as identities. Definition data stays in domain-named
+catalogs. Do not undo independently justified algorithms by exporting mechanics
 back into arbitrary lookup data as part of scene authoring.
 
 ## State restoration and host bindings

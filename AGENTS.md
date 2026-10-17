@@ -1,21 +1,27 @@
 # Project Working Instructions
 
-## Future Godot migration only
+## Read the manifesto first
 
-- Only when explicitly working on the future, currently unstarted Godot
-  migration, read
-  [the architectural plan](docs/godot-architecture.md). It records conditional
-  design guidance for phase dispatch, entities, services, shared state, scene
-  authoring, and behavior preservation.
-- This plan does not apply to existing C# development or current tickets. It adds
-  no requirements, acceptance gates, or refactoring obligations to that work;
-  examples of existing code are migration evidence, not a cleanup queue.
-- For migration work, establish the applicable source constraints before choosing
-  a preferred pattern; illustrative phase and interface names are not a completed
-  design. Record the execution, state-ownership, and lifetime contracts for the
-  affected slice.
-- This guidance does not change active-ticket ownership or authorize migration
-  implementation merely because the plan exists.
+- [docs/manifesto.md](docs/manifesto.md) is the reference for every design decision in
+  this repository: what the project is, where it is going, why the analyzers exist, why
+  their findings are never excused, and what a correct change looks like. Read it before
+  changing code, and include its section 8 rules in every subagent prompt. Where a shorter
+  rule here or in another document conflicts with it, the manifesto wins.
+
+## The Godot destination
+
+- [The architectural plan](docs/godot-architecture.md) describes the shape the
+  simulation is converging on: phase dispatch through entities into domain services,
+  shared state as explicit relationships with real lifetimes, one owner of simulation
+  advancement, a display snapshot boundary, semantic audio and input contracts. That
+  shape is the design reference for every change in the C# product, not only for the
+  migration itself: a change that moves code toward it is progress, a change that
+  moves away from it is not, whatever ticket it serves.
+- What is not started is the Godot host, scene authoring and engine integration. The
+  plan does not authorize beginning that work, switching away from the active ticket,
+  or treating its illustrative names as a completed design. For migration work,
+  establish the applicable source constraints before choosing a pattern and record the
+  execution, state-ownership and lifetime contracts for the affected slice.
 
 ## Discord version updates
 
@@ -367,17 +373,24 @@ constraint, not a side concern.
 - Per-batch progress reports are brief. The full self-contained summary required by
   "Batch handoff summaries" is for handoff.
 
-## Cartridge constants and definition data
+## Identities, definition data and cartridge addresses
 
-- Put ROM addresses, native dispatcher identifiers, instruction-list pointers, phase IDs,
-  table offsets, and similar definition sets in dedicated, domain-named catalog types. Do
-  not park them as constants at the top of a functional runtime, renderer, or state class.
-- Call sites should read as named domain operations, for example
-  `DoorCodes.DoorCode_Scroll6_Green`, rather than raw hexadecimal values with explanatory
-  comments beside the behavior.
-- Put the address, native symbol, and identity explanation on the catalog member's XML
-  summary. Keep comments in functional code for behavior, ordering, and non-obvious side
-  effects instead of repeating what a numeric value denotes.
+- Identities are semantic names: enum members, types, behaviour-object instances. Their
+  backing values are arbitrary and nothing reads them. An enum or constant whose value is a
+  ROM address, a code pointer or an instruction-list pointer, and whose value is read,
+  compared, indexed or switched on, is cartridge coupling and is removed, not extended.
+- Definition data (durations, speeds, shapes, damage, frame lists, names) lives in
+  domain-named catalog types with the meaning on each member's XML summary. Catalog files
+  hold data only: no `if`, `switch`, loops or decisions. Call sites read as named domain
+  operations.
+- The ROM is known only to the import and extraction pipeline. The mapping from an address
+  to a semantic identity is that pipeline's private knowledge, decoded once. An address
+  catalog inside the simulation is scaffolding on the way out: it is never the destination,
+  and no new address is added to the simulation because a catalog exists for it.
 - Use an enum only when values are a proven mutually exclusive domain. Use `[Flags]` only
   when the cartridge demonstrably treats the values as composable bits; do not infer flag
-  semantics from suggestive values alone.
+  semantics from suggestive values alone. The flags stay typed; one codec at the import or
+  export boundary converts them to a word.
+- Comments in functional code explain behaviour, ordering and non-obvious side effects,
+  never what a numeric value denotes. If a comment is needed to say what a number means,
+  the number should be a name.

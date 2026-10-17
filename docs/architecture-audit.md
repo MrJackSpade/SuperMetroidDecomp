@@ -1,4 +1,4 @@
-# Architecture audit (#621)
+# Architecture audit
 
 Every type declared in the repository's source is listed in
 [`architecture-inventory.json`](architecture-inventory.json) with its kind, scope (product, test or
@@ -36,6 +36,13 @@ Some structural findings need a reviewed acceptance in
 
 Each review names the type, the exact flags it accepts, a disposition and the reason. A review
 whose finding no longer exists fails the audit, so accepted exceptions cannot accumulate.
+
+A review is a per-site justification, not an acceptance of the shape. Every flag above names a shape the
+design forbids (`manifesto.md`: entities and services with explicit dependencies, no context bags, no
+reach-backs, no monoliths), so a review is debt with a reason attached: it says why this type cannot be fixed
+in the change at hand, and it is removed when the type is. A reviews entry is never added to make a new type
+pass, and a disposition such as "cartridge routine family" names scaffolding that the migration replaces, not
+a category of type that is allowed to exist.
 
 ## Partial types
 
@@ -96,7 +103,7 @@ part. Files declaring no type (entry-point statements, assembly attributes) are 
 
 ## Core source layout
 
-Core is organized by gameplay domain first and then by cohesive feature (#626). Each directory is a module whose
+Core is organized by gameplay domain first and then by cohesive feature. Each directory is a module whose
 namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kraid`):
 
 | Module | Owns |
@@ -113,7 +120,7 @@ namespace matches its path (`Core/Bosses/Kraid` is `SuperMetroid.Core.Bosses.Kra
 | `Runtime` | the gameplay frame loop that composes the simulation, with `Attract` (demo playback), door transitions, checkpoint autosaves and the runtime's renderer and audio publication |
 | `Frontend/<Screen>` | the game-state dispatcher and host options, and one module per screen or cinematic (title, intro, `CeresCinematics`, file select, pause map, options, game over, ending, recordings) |
 | `Assets` | artwork infrastructure every domain shares: PNG and JSON documents (`ArtworkJson`), tile encoders, base palettes |
-| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models and host colors, renderers, SPC driver, spatial and fixed-point types, and controller input |
+| `Hardware`, `Rendering`, `Audio`, `Spatial`, `Input` | the SNES models and host colors, renderers, SPC driver, spatial and fixed-point types, and controller input. `Hardware` shrinks as the machine is removed; its destination is the handful of stubs that reproduce gameplay-observable timing and idiosyncrasies (`manifesto.md`), not a model of the console |
 
 A domain's installed-artwork layer (catalogs, presentations, formats and documents of extracted artwork) lives in
 its `Artwork` module, so gameplay code and the artwork it draws stay separable. The resource audit uses that layer
@@ -140,7 +147,7 @@ Core's layers, lowest first, are Geometry (`Spatial`), Hardware, Foundation (`In
 Code below the frontend reads frontend-owned content through narrow contracts that the frontend implements, never
 through the frontend's types; documentation crefs are not dependencies.
 
-**SME6407** (#1315) keeps species behind the enemy system. Outside the `Enemies` and `Bosses` modules, Core reads and
+**SME6407** keeps species behind the enemy system. Outside the `Enemies` and `Bosses` modules, Core reads and
 commands species only through `RoomEnemySystem`'s capability interfaces (`Elevator`, `Gunship`, `Ceres`,
 `RoomMainHooks`, `LoaderHooks`, `GrappleTargets`, `PlmSpawns`, `TourianStatue`, `DisplaySources`), never through a
 `*Behavior` or `*Encounter` property.
@@ -152,5 +159,6 @@ a source root outside each project's own ignored `bin` and `obj` (test fixtures 
 
 The architecture audit also writes `docs/module-inventory.json`: every compiled source file with its module, role,
 namespace, assemblies, Core layer and the modules it references, each module's aggregate dependencies, and the
-dependency cycles among Core modules. A cycle fails the audit unless `acceptedCycles` in the map lists exactly that
-set of modules with its tracking issues; the remaining Simulation cycle is tracked by #1362, #1315 and #1328.
+dependency cycles among Core modules. A cycle among Core modules fails the audit. An `acceptedCycles` entry in the
+map is a grandfathered cycle: debt that the design forbids, listed with the issues that remove it. No cycle is
+ever added to that list, no listed cycle is widened, and each entry goes when its cycle does.

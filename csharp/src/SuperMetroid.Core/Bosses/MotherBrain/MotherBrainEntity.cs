@@ -48,6 +48,6 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
-        return new();
+        return new("Mother Brain body", found, writes);
     }
 }

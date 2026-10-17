@@ -42,7 +42,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = room.InstalledArtwork.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
-        return new();
+        return new("Phantoon", found, writes);
     }
 
     /// <summary>

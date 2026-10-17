@@ -847,7 +847,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 TorizoFallingLeftFrame,
                 out var unchangedFallingLeftCollision) &&
                    unchangedFallingLeftCollision[0].Offset.X == -16 &&
-                   unchangedFallingLeftCollision[0].HitboxList == 0x87c7,
+                   unchangedFallingLeftCollision[0].Hitboxes.Rectangles.Count == 0,
             "Torizo falling-left cosmetic edit cannot move its physical component");
 
         var versionTwentyOne = new EnemyExtendedFrameDocument
@@ -935,7 +935,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xac06, out var unchangedLeftFootOrbCollision) &&
                    unchangedLeftFootOrbCollision[0].Offset.X == 9 &&
-                   unchangedLeftFootOrbCollision[0].HitboxList == 0x87c7,
+                   unchangedLeftFootOrbCollision[0].Hitboxes.Rectangles.Count == 0,
             "Golden Torizo left-foot orb cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument rightSonicOverride =
@@ -960,7 +960,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xabec, out var unchangedRightSonicCollision) &&
                    unchangedRightSonicCollision[0].Offset.X == 15 &&
-                   unchangedRightSonicCollision[0].HitboxList == 0x87c7,
+                   unchangedRightSonicCollision[0].Hitboxes.Rectangles.Count == 0,
             "Golden Torizo right-sonic cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument rightOrbOverride =
@@ -985,7 +985,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xac88, out var unchangedRightOrbCollision) &&
                    unchangedRightOrbCollision[0].Offset.X == 15 &&
-                   unchangedRightOrbCollision[0].HitboxList == 0x87c7,
+                   unchangedRightOrbCollision[0].Hitboxes.Rectangles.Count == 0,
             "Golden Torizo right-orb cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument jumpBackOverride =
@@ -1010,7 +1010,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xb048, out var unchangedJumpBackCollision) &&
                    unchangedJumpBackCollision[0].Offset.X == 15 &&
-                   unchangedJumpBackCollision[0].HitboxList == 0x87c7,
+                   unchangedJumpBackCollision[0].Hitboxes.Rectangles.Count == 0,
             "Torizo jump-back cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenRightwardOverride =
@@ -1035,7 +1035,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xa4f0, out var unchangedRightwardCollision) &&
                    unchangedRightwardCollision[0].Offset.X == 0 &&
-                   unchangedRightwardCollision[0].HitboxList == 0x87c7,
+                   unchangedRightwardCollision[0].Hitboxes.Rectangles.Count == 0,
             "Golden Torizo rightward cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenWalkingOverride =
@@ -1060,7 +1060,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xa4fa, out var unchangedWalkingCollision) &&
                    unchangedWalkingCollision[0].Offset.X == -15 &&
-                   unchangedWalkingCollision[0].HitboxList == 0x87c7,
+                   unchangedWalkingCollision[0].Hitboxes.Rectangles.Count == 0,
             "Golden Torizo walking cosmetic edit cannot move its physical component");
 
         EnemyExtendedFrameDocument goldenAwakeningOverride =
@@ -1085,7 +1085,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(TorizoCollisionDefinitions.TryGetComponents(
                 0xaa5e, out var unchangedGoldenCollision) &&
                    unchangedGoldenCollision[0].Offset.X == -5 &&
-                   unchangedGoldenCollision[0].HitboxList == 0x886a,
+                   unchangedGoldenCollision[0].Hitboxes.Rectangles.Count == 0,
             "Golden Torizo cosmetic edit cannot move the engine-owned physical component");
 
         EnemyExtendedFrameDocument kraidArmOverride =

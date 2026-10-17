@@ -6,17 +6,14 @@ internal readonly struct TorizoCollisionComponents(GoldenTorizoCollisionComponen
     /// <summary>Number of ordered native components in this frame's collision drawing.</summary>
     internal int Length => source.Length;
 
-    /// <summary>Projects one component into the requested facing, reflecting X and selecting the paired right-facing hitbox list when needed.</summary>
+    /// <summary>Projects one component into the requested facing, reflecting X and substituting each hitbox list's right-facing counterpart when needed.</summary>
     internal GoldenTorizoCollisionComponent this[int index]
     {
         get
         {
             GoldenTorizoCollisionComponent part = source[index];
             if (!mirrored) return part;
-            ushort list = part.HitboxList == TorizoCollisionDefinitions.EmptyList
-                ? TorizoCollisionDefinitions.EmptyList
-                : (ushort)(part.HitboxList + TorizoCollisionDefinitions.RightFacingListOffset);
-            return part with { Offset = part.Offset.MirroredX(), HitboxList = list };
+            return part with { Offset = part.Offset.MirroredX(), Hitboxes = part.Hitboxes.RightFacing };
         }
     }
 

@@ -2293,20 +2293,22 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;
             ushort componentY = componentOrigin.Y;
-            foreach (GoldenTorizoCollisionHitbox hitbox in
-                     TorizoCollisionDefinitions.HitboxesAt(component.HitboxList))
+            IReadOnlyList<GoldenTorizoCollisionHitbox> rectangles = component.Hitboxes.Rectangles;
+            for (int index = 0; index < rectangles.Count; index++)
             {
+                GoldenTorizoCollisionHitbox hitbox = rectangles[index];
                 ushort left = unchecked((ushort)(componentX + hitbox.Left));
                 ushort top = unchecked((ushort)(componentY + hitbox.Top));
                 ushort right = unchecked((ushort)(componentX + hitbox.Right));
                 ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = probe.SelectShotCallback
+                    ? TorizoHitboxCallbackCodec.ToCallbackWord(hitbox.Shot)
+                    : TorizoHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
                 return true;
             }
         }
         return false;
-    
     }
 }

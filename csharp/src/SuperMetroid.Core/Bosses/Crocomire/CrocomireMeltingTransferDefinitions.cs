@@ -13,7 +13,7 @@ internal static class CrocomireMeltingTransferDefinitions
     internal const byte ScratchBank = 0x7e;
     /// <summary><c>$7E:4000</c>: the first byte of the melt's graphics scratch image.</summary>
     internal const ushort ScratchStart = 0x4000;
-    /// <summary>Bytes between consecutive scratch chunks, and between consecutive graphics sources in the cartridge.</summary>
+    /// <summary>Bytes between consecutive scratch chunks.</summary>
     internal const int ChunkByteStride = 0x200;
     /// <summary>Bytes each upload sends from one scratch chunk to VRAM.</summary>
     internal const int UploadByteCount = 0x160;
@@ -35,7 +35,7 @@ internal static class CrocomireMeltingTransferDefinitions
         };
         int start = offset + 8 + 4 * chunks + 2;
         int end = start + 8 * chunks;
-        return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, end + 2, chunks);
+        return new(offset, 0x58, 0x30, 0x200, start, end, end + 2, chunks);
     }
 
     /// <summary>Accepts only the transfer-list start of one of the two compiled melt headers.</summary>

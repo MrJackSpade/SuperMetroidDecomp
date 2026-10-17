@@ -2,13 +2,13 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
 /// Fixed control and transfer metadata for one Crocomire dissolve pass. The graphics
-/// bytes at the selected bank-$A4 sources remain presentation data, not mechanics.
+/// chunks it copies are presentation data; where they come from in the cartridge is the
+/// extraction pipeline's knowledge, not the simulation's.
 /// </summary>
 /// <param name="HeaderOffset">Melt-table cursor of the pass header.</param>
 /// <param name="MaximumAdjustedDestinationY">Lowest BG2 source row the distortion stretches back to.</param>
 /// <param name="DistortionEndY">Height at which the pass's distortion band stops.</param>
 /// <param name="WordsToCopy">Words each graphics copy moves, one fewer than the native copy actually writes.</param>
-/// <param name="SourceBank">Cartridge bank of the pass's graphics sources.</param>
 /// <param name="TransferStartOffset">Melt-table cursor of the pass's first upload.</param>
 /// <param name="TransferEndOffset">Melt-table cursor of the pass's upload terminator.</param>
 /// <param name="NextHeaderOffset">Melt-table cursor just past the pass, where the next pass's header starts.</param>
@@ -18,7 +18,6 @@ internal readonly record struct CrocomireMeltingPass(
     int MaximumAdjustedDestinationY,
     int DistortionEndY,
     int WordsToCopy,
-    byte SourceBank,
     int TransferStartOffset,
     int TransferEndOffset,
     int NextHeaderOffset,

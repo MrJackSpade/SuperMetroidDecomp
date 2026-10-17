@@ -1,20 +1,22 @@
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
-/// <summary>Native copy pairs: consecutive $0200-byte source/scratch strides.
-/// The second pass includes $A4:B87D (palette and adjacent data) as its seventh
-/// source. Preserve that native chunk and the caller's inclusive $0201-word copy.</summary>
+/// <summary>The pass's graphics chunks in copy order, each landing one scratch stride after the last.
+/// The second pass's seventh chunk is palette and adjacent data rather than tiles; it is
+/// preserved, as is the caller's inclusive $0201-word copy.</summary>
 internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPass Pass)
 {
     /// <summary>Six first-pass or seven second-pass source/scratch pairs.</summary>
     internal int Length => Pass.ChunkCount;
-    /// <summary>Calculates one $0200-stride source address and its scratch destination.</summary>
+    /// <summary>Names one chunk of the pass and calculates its scratch destination.</summary>
     internal CrocomireMeltingCopy this[int index]
     {
         get
         {
             if ((uint)index >= Length) throw new IndexOutOfRangeException();
-            int source = Pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First ? 0xa07d : 0xac7d;
-            return new(source + index * CrocomireMeltingTransferDefinitions.ChunkByteStride,
+            CrocomireMeltingHeader pass = Pass.HeaderOffset == (ushort)CrocomireMeltingHeader.First
+                ? CrocomireMeltingHeader.First
+                : CrocomireMeltingHeader.Second;
+            return new(pass, index,
                 CrocomireMeltingTransferDefinitions.ScratchStart + index * CrocomireMeltingTransferDefinitions.ChunkByteStride);
         }
     }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -210,7 +211,7 @@ internal static class CrocomireMeltingDefinitionsVerification
                 for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
                 {
                     expectedGraphics[destination + index] = rom.ReadCartridgeByte(
-                        ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
+                        ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
                 }
             }
             AssertTrue(death.MeltingGraphics.SequenceEqual(expectedGraphics),

@@ -1187,7 +1187,7 @@ public static class EnemyTileArtworkFiles
             for (int index = 0; index < (pass.WordsToCopy + 1) * 2; index++)
             {
                 planar[destination + index] = bus.ReadCartridgeByte(
-                    ((int)new SnesAddress(pass.SourceBank, unchecked((ushort)(copy.SourceWord + index)))));
+                    ((int)new SnesAddress(checked((byte)pass.SourceBank), checked((ushort)(copy.SourceWord + index)))));
             }
         }
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(encodedByteCount);

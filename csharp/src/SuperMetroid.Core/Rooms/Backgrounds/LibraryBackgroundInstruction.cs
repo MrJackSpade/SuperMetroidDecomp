@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Rooms.Backgrounds;
 /// <param name="Command">Bank-$82 dispatcher operation. Program arrays contain nonterminating commands; End is represented by the array's end instead.</param>
 /// <param name="SourceAddress">Full 24-bit source bus identity for transfers or compressed artwork; transfers may source live WRAM. Zero for operand-free clear commands.</param>
 /// <param name="Destination">VRAM word address for transfers, or byte offset within bank $7E for decompression; zero when unused.</param>
-/// <param name="ByteCount">Transfer payload length in bytes, required to be nonzero by the execution consumer; zero for decompression and clear operations whose sizes are determined elsewhere.</param>
+/// <param name="ByteCount">Transfer payload length in bytes, required to be nonzero by the execution consumer; zero for decompression and clear operations whose sizes are determined elsewhere. A count, not a native word: every producer supplies a sixteen-bit operand (at most 4096 in retail), nothing modifies it, and it is only compared and used as a span length.</param>
 /// <param name="DoorPointer">16-bit door identity compared with the current door for TransferForDoor, or zero for unconditional commands.</param>
 public readonly record struct LibraryBackgroundInstruction(
     LibraryBackgroundCommand Command,
     int SourceAddress,
     ushort Destination,
-    ushort ByteCount,
+    int ByteCount,
     ushort DoorPointer);

@@ -105,3 +105,32 @@ the option the cleanup continued with. None of them stopped the run.
 - **Option taken:** one coordinated batch with ownership over Intro, Ceres and Ending: the loop counter becomes a
   private countdown in the sprite, each other use becomes a typed field on its owner, and the pre-instruction
   address becomes the owner's typed pre-instruction.
+
+## 7. Room identity: cartridge-pointer keys for room headers, states and their content
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs` (15, 16, 20-23), `Rooms/CartridgeRoomState.cs`
+  (5, 7-12, 14-19), `Rooms/Backgrounds/LibraryBackgroundInstruction.cs` (15, 17), `LibraryBackgroundProgram.cs:11`,
+  `Rooms/Scrolling/ScrollPlms.cs:173`; consumers `RoomLoader`, `DoorTransitionState`, `SuperMetroidGame`, about 40
+  verification files comparing `LoadedRoom.Pointer`/`State.Pointer`, and the generators
+  `tools/generate-library-background-programs.ps1` and `tools/generate-room-plm-population-definitions.ps1`.
+- **Red flag:** rooms, room states and everything they reference (FX, populations, tileset, scroll, x-ray, PLM,
+  background list, scroll program, callbacks) are keyed by bank-$8F pointers from `door.DestinationRoomPointer` through
+  `RoomHeaderDefinitions.Get(ushort)`. Replacing that is a whole-subsystem representation change.
+- **Evidence checked:** the Rooms batch worker's report; the existing `RoomIdentity` type; manifesto §3 and §7 (address
+  dispatch row).
+- **Option taken:** one coordinated batch later in the run with ownership over Rooms, `RoomLoader`,
+  `DoorTransitionState`, `SuperMetroidGame` and both generators: rooms keyed by `RoomIdentity`, states by a semantic
+  state identity, the runtime state holding resolved content and typed callbacks, scrollers as typed camera offsets,
+  CRE as a typed flag, and all pointer translation in the import generators.
+
+## 8. Room sprite-object pool (bank-$B4 instruction interpreter)
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Rooms/SpriteObjects/RoomSpriteObjectSlot.cs` (16, 30, 32, 34, 36, 38);
+  consumers `KraidBehavior.cs:836` (copies `NativeIndex` into an enemy scratch word), `MetroidBehavior.cs:444/453`,
+  Draygon, Evir burial and escape-room verification.
+- **Red flag:** the slot is an instruction interpreter over cartridge pointers; the fix replaces it with typed
+  timelines for every user of the pool, and Kraid's scratch-word copy of the native index needs its own decision.
+- **Evidence checked:** the Rooms batch worker's report; `docs/cartridge-encoding.md` (Botwoon is the reference
+  program migration).
+- **Option taken:** migrate the pool to `AnimationTimeline` programs with ROM oracles in one batch owning the pool and
+  every consumer; Kraid's copy becomes a typed reference to the sprite object it spawned.

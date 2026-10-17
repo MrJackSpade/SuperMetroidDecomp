@@ -11,7 +11,7 @@ public sealed record LibraryBackgroundStaging(Bg2TilemapStaging Tilemap, IWorkRa
 {
     /// <summary>Uploads a native WRAM-sourced transfer from whichever owned buffer holds its source.</summary>
     [PpuLayoutBoundary("codec: library-background WRAM transfer's native VRAM destination")]
-    internal void LoadNativeTransfer(SnesVram vram, int sourceAddress, ushort byteCount, ushort encodedDestination)
+    internal void LoadNativeTransfer(SnesVram vram, int sourceAddress, int byteCount, ushort encodedDestination)
     {
         Ensure.NotNull(vram);
         if (!Tilemap.TryResolve(sourceAddress, byteCount, out VramStagingBuffer buffer, out int offset) &&

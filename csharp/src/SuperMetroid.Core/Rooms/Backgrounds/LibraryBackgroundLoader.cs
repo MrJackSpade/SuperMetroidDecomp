@@ -49,7 +49,7 @@ public static class LibraryBackgroundLoader
             switch (instruction.Command)
             {
                 case LibraryBackgroundCommand.TransferToVram:
-                    TransferToVram(staging, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                    TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 case LibraryBackgroundCommand.DecompressToWorkRam:
                     DecompressToWorkRam(staging, instruction.SourceAddress,
@@ -59,7 +59,7 @@ public static class LibraryBackgroundLoader
                     FillAndTransfer(staging, vram, RoomAssetRomData.LibraryBackground.ClearFx);
                     break;
                 case LibraryBackgroundCommand.TransferToVramForKraid:
-                    TransferToVram(staging, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                    TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     bg3CharacterBaseWord =
                         RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
                     break;
@@ -71,7 +71,7 @@ public static class LibraryBackgroundLoader
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.DoorPointer == activeDoorPointer)
-                        TransferToVram(staging, vram, new LibraryBackgroundTransfer { SourceAddress = instruction.SourceAddress, DestinationWord = instruction.Destination, ByteCount = instruction.ByteCount }, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+                        TransferToVram(staging, vram, instruction, artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
                     break;
                 default:
                     throw new InvalidDataException(
@@ -84,9 +84,9 @@ public static class LibraryBackgroundLoader
 bg3CharacterBaseWord);
     }
 
-    /// <summary>Routes a native DMA command to live memory or its installed art catalog, preserving its VRAM word destination.</summary>
+    /// <summary>Routes a transfer command (plain, Kraid or door-selected) to live memory or its installed art catalog, preserving its VRAM word destination.</summary>
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
-    private static void TransferToVram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundTransfer transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
+    private static void TransferToVram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundInstruction transfer, RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt)
     {
         if (transfer.ByteCount == 0)
         {
@@ -98,7 +98,7 @@ bg3CharacterBaseWord);
         // memory or installed-art transfers. Its destination is a VRAM word, not a byte offset.
         SnesDmaSourceKind sourceKind = SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(transfer.SourceAddress));
         if (sourceKind is SnesDmaSourceKind.WorkRam)
-            staging.LoadNativeTransfer(vram, transfer.SourceAddress, transfer.ByteCount, transfer.DestinationWord);
+            staging.LoadNativeTransfer(vram, transfer.SourceAddress, transfer.ByteCount, transfer.Destination);
         else if (characterArt is not null &&
             transfer.SourceAddress == RoomAssetRomData.LibraryBackground.TourianStatueGhost.SourceAddress)
         {
@@ -109,15 +109,15 @@ bg3CharacterBaseWord);
                     $"Tourian statue-ghost transfer requested {transfer.ByteCount} bytes, " +
                     $"not {RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount}.");
             vram.ExecuteQueuedAssetWrite(characterArt.Get(transfer.SourceAddress).Transfer.Span,
-                transfer.DestinationWord);
+                transfer.Destination);
         }
         else if (hudArt is not null && transfer.SourceAddress == HudTileAtlasFormat.SourceAddress &&
             transfer.ByteCount == HudTileAtlasFormat.CharacterByteCount)
             vram.ExecuteQueuedAssetWrite(
-                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], transfer.DestinationWord);
+                hudArt.Transfer.Span[..HudTileAtlasFormat.CharacterByteCount], transfer.Destination);
         else if (skyArt is not null && skyArt.TryResolve(transfer.SourceAddress, transfer.ByteCount,
                 out ReadOnlyMemory<byte> selected))
-            vram.ExecuteQueuedAssetWrite(selected.Span, transfer.DestinationWord);
+            vram.ExecuteQueuedAssetWrite(selected.Span, transfer.Destination);
         else if (transfer.SourceAddress >= RoomAssetRomData.LibraryBackground.RomSourceAddressFloor &&
             skyArt is not null && hudArt is not null && characterArt is not null)
         {

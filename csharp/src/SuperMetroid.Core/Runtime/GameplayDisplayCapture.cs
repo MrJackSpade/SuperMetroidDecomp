@@ -124,7 +124,7 @@ public static class GameplayDisplayCapture
                 : crocomireBg2Scroll is { } crocomireX ? Add(crocomireX.X, shake.Bg2.X) : bg2Scroll.X,
                 kraidBg2Scroll is { } kraidY ? Add(kraidY.Y, shake.Bg2.Y)
                 : crocomireBg2Scroll is { } crocomireY ? Add(crocomireY.Y, shake.Bg2.Y)
-                : sky is { } skyRegisters ? Add(skyRegisters.VerticalScroll, shake.Bg2.Y) : bg2Scroll.Y),
+                : sky is { } skyRegisters ? Add(skyRegisters.Bg2Scroll.Y, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBg2Scroll is not null ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)
                 : bosses.MotherBrainBg2ScrollOverride ? new Extent16<TilemapCells>(32, 32)
                 : sky?.HorizontalHdmaConfigured != true && !verticalStatueMap ? new Extent16<TilemapCells>(64, 32)

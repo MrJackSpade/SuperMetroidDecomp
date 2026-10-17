@@ -150,7 +150,6 @@ internal sealed class ScrollPlms : IPlmFamilySource
         slot.InstructionPointer = RoomPlmInstructionLists.ScrollTriggerWaiting;
         slot.Family = new ScrollPlmState
         {
-            UseCompiledRetailProgram = true,
             Program = compiledSource.HasValue ? null : program.ToArray(),
             CompiledSource = compiledSource,
         };
@@ -171,8 +170,6 @@ internal sealed class ScrollPlms : IPlmFamilySource
         public bool Triggered { get; set; }
         /// <summary>Bound retail program identity; independent of later room-argument edits.</summary>
         public ushort? CompiledSource { get; set; }
-        /// <summary>Legacy snapshot field only; it no longer selects an input reader.</summary>
-        public bool UseCompiledRetailProgram { get; set; }
         /// <summary>Validated constructed pairs. Null executes the retail identity directly, including historical states.</summary>
         public byte[]? Program { get; set; }
     }

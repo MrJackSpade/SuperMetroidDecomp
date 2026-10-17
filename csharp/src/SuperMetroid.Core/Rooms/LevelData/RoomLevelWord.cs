@@ -67,7 +67,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
         ValidateCollisionType(collisionType);
         return new RoomLevelWord(unchecked((ushort)(
             visualBlockIndex |
-            (ushort)visualFlipFlags |
+            visualFlipFlags.ToNativeWord() |
             ((ushort)collisionType << CollisionTypeShift))));
     }
 

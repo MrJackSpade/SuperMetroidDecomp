@@ -132,9 +132,9 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 $"{at}: $A4:{list:X4} hitbox {index} right");
             AssertEqual(unchecked((short)rom.ReadCartridgeWord((address + 6))), hitbox.Bottom,
                 $"{at}: $A4:{list:X4} hitbox {index} bottom");
-            AssertEqual(rom.ReadCartridgeWord((address + 8)), hitbox.TouchAi,
+            AssertEqual(rom.ReadCartridgeWord((address + 8)), CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Touch),
                 $"{at}: $A4:{list:X4} hitbox {index} touch callback");
-            AssertEqual(rom.ReadCartridgeWord((address + 10)), hitbox.ShotAi,
+            AssertEqual(rom.ReadCartridgeWord((address + 10)), CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Shot),
                 $"{at}: $A4:{list:X4} hitbox {index} shot callback");
         }
     }

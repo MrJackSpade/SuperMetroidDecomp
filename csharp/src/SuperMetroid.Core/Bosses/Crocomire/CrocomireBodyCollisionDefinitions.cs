@@ -22,35 +22,35 @@ internal static class CrocomireBodyCollisionDefinitions
 
     // The hitbox lists precede the frames that reference them: static fields initialise in declaration order.
     /// <summary>Lower-front body rectangle using the standard touch and shot callbacks.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] LowerFrontBody = [new(-78, 32, -16, 43, 0xb93d, 0xbab4)];
+    private static readonly CrocomireBodyCollisionHitbox[] LowerFrontBody = [new(-78, 32, -16, 43, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];
     /// <summary>Thin horizontal jaw/body contact strip using standard callbacks.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] JawStrip = [new(-95, 11, -16, 11, 0xb93d, 0xbab4)];
+    private static readonly CrocomireBodyCollisionHitbox[] JawStrip = [new(-95, 11, -16, 11, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];
     /// <summary>Lower body rectangle for another mouth pose, retaining the standard callbacks.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] LowerBodyOtherMouthPose = [new(-69, 31, -16, 44, 0xb93d, 0xbab4)];
+    private static readonly CrocomireBodyCollisionHitbox[] LowerBodyOtherMouthPose = [new(-69, 31, -16, 44, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];
     /// <summary>Mid-body rectangle with the standard damage callbacks.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] MidBody = [new(-60, 18, -16, 32, 0xb93d, 0xbab4)];
+    private static readonly CrocomireBodyCollisionHitbox[] MidBody = [new(-60, 18, -16, 32, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];
     /// <summary>Wider mid-body rectangle with the standard damage callbacks.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] WideMidBody = [new(-80, 13, -16, 27, 0xb93d, 0xbab4)];
+    private static readonly CrocomireBodyCollisionHitbox[] WideMidBody = [new(-80, 13, -16, 27, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.AlternateDust)];
     /// <summary>The empty list of the two low components every fight frame carries.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] EmptyLowComponent = [];
     /// <summary>Raised mouth rectangle whose shot callback differs from the standard body set.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] RaisedMouth = [new(-95, -6, -16, 27, 0xb93d, 0xb951)];
+    private static readonly CrocomireBodyCollisionHitbox[] RaisedMouth = [new(-95, -6, -16, 27, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.CountHit)];
     /// <summary>Upper mouth rectangle using the alternate shot callback.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] UpperMouth = [new(-59, -9, -16, 5, 0xb93d, 0xb951)];
+    private static readonly CrocomireBodyCollisionHitbox[] UpperMouth = [new(-59, -9, -16, 5, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.CountHit)];
     /// <summary>High mouth rectangle used by a raised body pose with alternate shot handling.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] HighMouth = [new(-93, -36, -30, -13, 0xb93d, 0xb951)];
+    private static readonly CrocomireBodyCollisionHitbox[] HighMouth = [new(-93, -36, -30, -13, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.CountHit)];
     /// <summary>The empty list of the upper component in the attack frames.</summary>
     private static readonly CrocomireBodyCollisionHitbox[] EmptyAttackUpperComponent = [];
     /// <summary>Three-piece upper body collision list with separate shot handling for its first piece.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] UpperBody = [new(-50, -37, 40, -16, 0x8023, 0xba05), new(-52, -58, 42, -38, 0x8023, 0x802d), new(-32, -13, 40, 0, 0x8023, 0x802d)];
+    private static readonly CrocomireBodyCollisionHitbox[] UpperBody = [new(-50, -37, 40, -16, CrocomireHitboxTouch.Common, CrocomireHitboxShot.Mouth), new(-52, -58, 42, -38, CrocomireHitboxTouch.Common, CrocomireHitboxShot.Common), new(-32, -13, 40, 0, CrocomireHitboxTouch.Common, CrocomireHitboxShot.Common)];
     /// <summary>Three-piece raised upper-body list with a taller first rectangle.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] RaisedUpperBody = [new(-46, -53, 13, -16, 0x8023, 0xba05), new(-41, -74, 16, -57, 0x8023, 0x802d), new(-37, -16, 16, -3, 0x8023, 0x802d)];
+    private static readonly CrocomireBodyCollisionHitbox[] RaisedUpperBody = [new(-46, -53, 13, -16, CrocomireHitboxTouch.Common, CrocomireHitboxShot.Mouth), new(-41, -74, 16, -57, CrocomireHitboxTouch.Common, CrocomireHitboxShot.Common), new(-37, -16, 16, -3, CrocomireHitboxTouch.Common, CrocomireHitboxShot.Common)];
     /// <summary>Broad high body rectangle whose shot callback is the common no-op.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] BroadHighBody = [new(-37, -50, 38, -4, 0xb93d, 0x802d)];
+    private static readonly CrocomireBodyCollisionHitbox[] BroadHighBody = [new(-37, -50, 38, -4, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.Common)];
     /// <summary>Full-height central body rectangle with the main fight shot callback.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] CentralBody = [new(-38, -48, 37, 52, 0xb93d, 0xb968)];
+    private static readonly CrocomireBodyCollisionHitbox[] CentralBody = [new(-38, -48, 37, 52, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.Dust)];
     /// <summary>Lower central body rectangle using the alternate shot callback.</summary>
-    private static readonly CrocomireBodyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, 0xb93d, 0xb951)];
+    private static readonly CrocomireBodyCollisionHitbox[] LowerCentralBody = [new(-38, -4, 42, 52, CrocomireHitboxTouch.Claw, CrocomireHitboxShot.CountHit)];
 
     /// <summary>Four native frame runs containing the fifty physical component lists, with presentation art excluded.</summary>
     private static readonly CollisionRecordRuns<CrocomireBodyCollisionComponent> Frames = CollisionRecordRuns<CrocomireBodyCollisionComponent>.Frames(

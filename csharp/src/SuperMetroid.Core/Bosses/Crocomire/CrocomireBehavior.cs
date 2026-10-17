@@ -2395,7 +2395,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                 if (!probe.Overlaps(left, top, right, bottom))
                     continue;
-                callback = probe.SelectShotCallback ? hitbox.ShotAi : hitbox.TouchAi;
+                callback = probe.SelectShotCallback ? CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Shot) : CrocomireHitboxCallbackCodec.ToCallbackWord(hitbox.Touch);
                 return true;
             }
         }

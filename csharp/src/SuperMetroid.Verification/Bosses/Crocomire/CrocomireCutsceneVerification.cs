@@ -53,7 +53,7 @@ internal static class CrocomireCutsceneVerification
                 {
                     var box = boxes[boxIndex];
                     int boxAddress = list + 2 + 12 * boxIndex;
-                    ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top), unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), box.TouchAi, box.ShotAi];
+                    ushort[] words = [unchecked((ushort)box.Left), unchecked((ushort)box.Top), unchecked((ushort)box.Right), unchecked((ushort)box.Bottom), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot)];
                     for (int word = 0; word < words.Length; word++)
                         AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | (boxAddress + word * 2)), words[word], "corpse native rectangle/callback");
                 }
@@ -66,7 +66,7 @@ internal static class CrocomireCutsceneVerification
                     {
                         object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot, (ushort)0];
                         AssertTrue(ExtendedHitboxWalker.Find(enemies, hit), "corpse physical component is visited");
-                        AssertEqual(shot ? box.ShotAi : box.TouchAi, (ushort)(hit[^1] ?? throw new InvalidOperationException("Verification requires hit[^1].")), "corpse selects native callback");
+                        AssertEqual(shot ? CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot) : CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), (ushort)(hit[^1] ?? throw new InvalidOperationException("Verification requires hit[^1].")), "corpse selects native callback");
                     }
                 }
                 anyHitbox |= boxes.Count != 0;

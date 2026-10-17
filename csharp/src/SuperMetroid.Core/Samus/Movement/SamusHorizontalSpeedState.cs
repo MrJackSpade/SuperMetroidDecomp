@@ -94,9 +94,13 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// WRAM $0B40, SamusEchoesSFXFlag: set by $90:859D before the start request,
-    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E.
+    /// consumed by $90:F591 after boost ends, or cleared silently by quicksand $84:B40E. 0 through 65535.
     /// </summary>
-    public ushort EchoSoundFlag { get; set; }
+    public int EchoSoundFlag
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>Consumes speed stage four's native <c>QueueSfx3_Max6($03)</c> call.</summary>
     public bool ConsumeEchoSoundRequest()
@@ -153,11 +157,19 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Whole-pixel per-frame velocity of departing echo one; only X moves.</summary>
     public Offset16<RoomPixels> SecondSpeedEchoVelocity { get; private set; }
 
-    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>.</summary>
-    public ushort TotalSpeed { get; internal set; }
+    /// <summary>Whole part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBC</c>, 0 through 65535.</summary>
+    public int TotalSpeed
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
-    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>.</summary>
-    public ushort TotalSubspeed { get; internal set; }
+    /// <summary>Fractional part produced by <c>Samus_CalcSpeed_X</c> at WRAM <c>$0DBE</c>, 0 through 65535.</summary>
+    public int TotalSubspeed
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>
     /// Speed divisor, 0 through 65535: total speed is halved this many times, capped at four

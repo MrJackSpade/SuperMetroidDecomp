@@ -150,7 +150,11 @@ public sealed class SamusKinematicsState
     public ushort YSubacceleration { get; set; }
 
     /// <summary>Native <c>enable_horiz_slope_coll</c>; bit 1 enables post-X Y alignment.</summary>
-    public ushort HorizontalSlopeCollisionEnable { get; set; } = 3;
+    public int HorizontalSlopeCollisionEnable
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    } = 3;
 
     /// <summary>Native flag set when square collision or non-square alignment changes Y.</summary>
     public bool PositionAdjustedBySlope { get; set; }
@@ -170,7 +174,7 @@ public sealed class SamusKinematicsState
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
     /// <c>$90:EC3E</c>, this does not subtract one. The native addition wraps at 16 bits.
     /// </summary>
-    public ushort BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
+    public int BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
 
     /// <summary>
     /// Bottom-centre occupied point: Samus's whole X and the last pixel row her collision box

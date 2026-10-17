@@ -784,7 +784,7 @@ public sealed class SamusLiquidPhysicsState
     /// perform signed 16-bit subtraction against the selected surface. Retain that exact
     /// ordering so sentinel and wraparound behavior stay debugger-visible.
     /// </summary>
-    private SamusLiquidMedium DetermineRawMediumAtBoundary(ushort boundary)
+    private SamusLiquidMedium DetermineRawMediumAtBoundary(int boundary)
     {
         if (unchecked((short)FxYPosition) >= 0)
             return WaterAffectsBoundary(boundary) ? SamusLiquidMedium.Water : SamusLiquidMedium.Air;
@@ -792,12 +792,12 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Applies the room's water-disable option before comparing a boundary with the water surface.</summary>
-    internal bool WaterAffectsBoundary(ushort boundary) =>
+    internal bool WaterAffectsBoundary(int boundary) =>
         (LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) == 0 &&
         IsBelowSurface(FxYPosition, boundary);
 
     /// <summary>Uses native signed 16-bit subtraction and rejects a negative absent-surface sentinel.</summary>
-    internal static bool IsBelowSurface(int surface, ushort boundary) =>
+    internal static bool IsBelowSurface(int surface, int boundary) =>
         unchecked((short)surface) >= 0 &&
         unchecked((short)(surface - boundary)) < 0;
 

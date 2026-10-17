@@ -354,7 +354,11 @@ public sealed class SamusState
     /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
     /// word visible makes both native producers and the single consumer debugger-auditable.
     /// </remarks>
-    public ushort PoseTransitionShotDirection { get; internal set; }
+    public int PoseTransitionShotDirection
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>WRAM `$0A76`: whether Mother Brain's hyper beam is enabled (native `$8000`).</summary>
     public bool HyperBeamEnabled { get; set; }
@@ -400,7 +404,11 @@ public sealed class SamusState
     /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
     /// special prospective command as accepted and prevents the same explosion rearming it.
     /// </summary>
-    public ushort BombJumpDirection { get; set; }
+    public int BombJumpDirection
+    {
+        get;
+        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
 
     /// <summary>True for `$90:E025`'s one-frame velocity-initialization handler.</summary>
     public bool BombJumpStarting { get; set; }

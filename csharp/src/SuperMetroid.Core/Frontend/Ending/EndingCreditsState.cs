@@ -57,16 +57,20 @@ internal sealed class EndingCreditsState
     /// <summary>The state of the post-credits text, which exists while that phase runs.</summary>
     private EndingBackgroundTextState PostCreditsText => postCreditsText ??
         throw new InvalidOperationException("The post-credits text is not running.");
-    /// <summary>Wrapping frame counter used by alternating atmospheric rotation.</summary>
-    internal ushort cinematicFrame;
+    /// <summary>
+    /// Cinematic calls made so far. Only its parity and quarter phase are read (the alternating
+    /// atmospheric rotation and the planet turn cadence), so a growing count reproduces the
+    /// cartridge's wrapping word exactly.
+    /// </summary>
+    internal int cinematicFrame;
     /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
     private int setupNmiWaits;
     /// <summary>Countdown interpreted by the currently installed cinematic function.</summary>
     internal int phaseTimer;
     /// <summary>Shared fade progression through scene and palette handoffs.</summary>
     private int fadeCounter;
-    /// <summary>Current native screen brightness during cinematic fades.</summary>
-    internal byte brightness;
+    /// <summary>Master brightness during cinematic fades, from 0 (black) through 15 (full); every fade step clamps to that range.</summary>
+    internal int brightness;
     /// <summary>Mode-7 translation; only X uses a subpixel because native Y has no fractional word.</summary>
     internal FixedPosition<Mode7Pixels> mode7;
     /// <summary>
@@ -1085,7 +1089,7 @@ internal sealed class EndingCreditsState
         if (fadeCounter-- <= 0)
         {
             fadeCounter = 1;
-            brightness = (byte)Math.Min(15, brightness + 1);
+            brightness = Math.Min(15, brightness + 1);
         }
         return brightness == 15;
     }
@@ -1096,7 +1100,7 @@ internal sealed class EndingCreditsState
         if (fadeCounter-- <= 0)
         {
             fadeCounter = 1;
-            brightness = (byte)Math.Max(0, brightness - 1);
+            brightness = Math.Max(0, brightness - 1);
         }
         return brightness == 0;
     }
@@ -1107,7 +1111,7 @@ internal sealed class EndingCreditsState
         if (fadeCounter-- <= 0)
         {
             fadeCounter = 3;
-            brightness = (byte)Math.Min(15, brightness + 1);
+            brightness = Math.Min(15, brightness + 1);
         }
         return brightness == 15;
     }
@@ -1167,7 +1171,7 @@ internal sealed class EndingCreditsState
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(PpuMemorySnapshot.Capture(vram, cgram, Presentation.PrepareSprites()), layers,
-            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), brightness);
+            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
 
         static Bg4BppRenderLayer Plane(ushort map, bool high) => new(map,
             EndingExplosionDisplayDefinitions.Characters,
@@ -1192,7 +1196,7 @@ internal sealed class EndingCreditsState
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(PpuMemorySnapshot.Capture(vram, cgram, Presentation.PrepareSprites()), layers,
-            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), brightness);
+            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
     }
 
     /// <summary>CGRAM snapshot taken before the planet explosion's object/background crossfade.</summary>

@@ -37,8 +37,8 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>The pose Mother Brain's program shows; null before its first frame and after deletion.</summary>
     public CinematicSpritePose? Pose => actor.Pose;
 
-    /// <summary>Number of missiles consumed by <c>$8B:B786</c>, from zero through four.</summary>
-    public ushort HitCount { get; private set; }
+    /// <summary>Number of missiles consumed by <c>$8B:B786</c>; the fourth starts the explosion.</summary>
+    public int HitCount { get; private set; }
 
     /// <summary>True once the fourth hit switches this actor to <c>$8B:B80F</c>.</summary>
     public bool ExplosionStarted { get; private set; }

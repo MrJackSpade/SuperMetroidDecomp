@@ -31,7 +31,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new ObjRenderLayer(_ending.endingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer());
             return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram,
-                PrepareSprites()), layers.ToArray(), 3, _ending.brightness);
+                PrepareSprites()), layers.ToArray(), 3, checked((byte)_ending.brightness));
         }
         if (_ending.postShot is not null)
         {
@@ -43,7 +43,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
             return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, PrepareSprites()), layers.ToArray(),
-                ObjectSelection(CurrentRewardObjectSheet), _ending.brightness);
+                ObjectSelection(CurrentRewardObjectSheet), checked((byte)_ending.brightness));
         }
         if (_ending.Phase == EndingCreditsPhase.Credits)
         {
@@ -102,7 +102,7 @@ internal sealed class EndingCreditsPresentation
             if (_ending.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingCreditsState.WhiteAddition(_ending.whiteFlashColor));
         }
-        return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, oam), layers.ToArray(), objectSelection, _ending.brightness);
+        return new(PpuMemorySnapshot.Capture(_ending.vram, _ending.cgram, oam), layers.ToArray(), objectSelection, checked((byte)_ending.brightness));
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>

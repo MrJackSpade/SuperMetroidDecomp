@@ -41,8 +41,6 @@ internal sealed class CreditsObjectState
     public bool Finished { get; private set; }
     /// <summary>Whole-pixel credits scroll position the background plane is drawn at.</summary>
     public Position16<BgPlanePixels> ScrollPosition => scroll.Whole;
-    /// <summary>Vertical whole-pixel credits scroll, as the verification accessor reads it.</summary>
-    public ushort VerticalScroll => scroll.Y.Whole;
 
     /// <summary>Reattaches installed row content after restoring serialized scrolling state.</summary>
     public void BindPresentation(CreditsPresentation? value) => presentation = value;

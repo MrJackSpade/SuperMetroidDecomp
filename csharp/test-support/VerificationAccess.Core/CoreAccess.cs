@@ -101,19 +101,19 @@ internal static class CoreAccess
         /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
         internal ushort FlashbackSamusY => intro.flashbackSamus?.Position.Y.Whole ?? 0;
         /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
-        internal ushort MotherBrainHitCount =>
+        internal int MotherBrainHitCount =>
             intro.flashbackMotherBrain?.HitCount ?? 0;
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
     extension(EndingCreditsState ending)
     {
-        /// <summary>Current credits fade brightness from the private cinematic state.</summary>
-        internal byte Brightness => ending.brightness;
-        /// <summary>Native frame counter for the ending cinematic.</summary>
-        internal ushort CinematicFrame => ending.cinematicFrame;
-        /// <summary>Current credits scroll position, or zero before credits exist.</summary>
-        internal ushort CreditsVerticalScroll => ending.credits?.VerticalScroll ?? 0;
+        /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
+        internal int Brightness => ending.brightness;
+        /// <summary>Cinematic calls the ending has made so far.</summary>
+        internal int CinematicFrame => ending.cinematicFrame;
+        /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
+        internal int CreditsVerticalScroll => ending.credits?.ScrollPosition.Y ?? 0;
     }
 
     /// <summary>Exposes pause indicator placement, page transition, and displayed map tile state.</summary>

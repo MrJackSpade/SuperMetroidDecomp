@@ -15,10 +15,11 @@ internal sealed class SamusHudSelection
         _samus = owner;
     }
     /// <summary>
-    /// WRAM <c>$0AAA</c>: one on a selection change, then two after the selection remains
-    /// stable for another frame. The arm-cannon cover animation uses this two-frame gate.
+    /// Selection stability: one on a selection change, then two after the selection remains stable for another
+    /// frame, where it saturates; zero before the first update. The arm-cannon cover animation uses this
+    /// two-frame gate.
     /// </summary>
-    public ushort HudItemChangedThisFrame { get; set; }
+    public int HudItemChangedThisFrame { get; set; }
 
     /// <summary>
     /// Ports <c>HandleSwitchingHudSelection</c> at <c>$90:C4E7</c> for the retail default
@@ -72,9 +73,7 @@ internal sealed class SamusHudSelection
         {
             // Native saturates this word at two; it is a short stabilization counter,
             // never a general elapsed-time counter.
-            HudItemChangedThisFrame = HudItemChangedThisFrame >= 2
-                ? (ushort)2
-                : unchecked((ushort)(HudItemChangedThisFrame + 1));
+            HudItemChangedThisFrame = Math.Min(HudItemChangedThisFrame + 1, 2);
         }
         return new HudSelectionOutcome(itemHandlerAccepted);
     }

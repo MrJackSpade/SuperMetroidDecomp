@@ -60,14 +60,21 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort EvirFarOffscreenDistance = 256;
 
 
-    /// <summary>Most recent library-two spit sound requested during this enemy frame.</summary>
-    public ushort? LastEvirSoundEffect { get; private set; }
+    /// <summary>The library-two sound the spit plays when it is launched or regenerates.</summary>
+    private static readonly SoundEffectId EvirSpitSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.EvirSpitSound);
+
+    /// <summary>The horizontal distance, in room pixels, from the mouth at which the regenerating spit starts.</summary>
+    private const short RegenerationStartDistance = 8;
+
+    /// <summary>Most recent spit sound requested during this enemy frame.</summary>
+    public SoundEffectId? LastEvirSoundEffect { get; private set; }
 
     /// <summary>Ports <c>InitAI_Evir</c> at $A8:87E0.</summary>
     internal void InitializeEvir(RoomEnemySlot slot, SamusState? samus)
     {
-        var state = new EvirEnemyState(slot);
-        slot.SetSpeciesState<EvirEnemyState>(state);
+        var state = new EvirEnemyState();
+        slot.SetSpeciesState(state, state.ClearWithRecord);
 
         if (slot.Parameter1 != 0)
         {
@@ -81,52 +88,63 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SetEvirBodyFacing(slot, state, samus);
 
-            // Parameter two's low byte indexes two adjacent signed 16.16 entries in the
-            // shared linear-speed table: downward first, then upward. The high byte is the
-            // steady-state number of frames between direction changes.
-            ushort speedOffset = unchecked((ushort)((byte)slot.Parameter2 * 8));
-            (state.DownVelocity, state.DownSubvelocity) = EnemyMath.ReadLinearEnemySpeed(speedOffset);
-            (state.UpVelocity, state.UpSubvelocity) = EnemyMath.ReadLinearEnemySpeed(
-                unchecked((ushort)(speedOffset + 4)));
-
-            // $A8:8811 indexes Enemy.init1+1 ($0FB7) with Y, the speed-table byte offset,
-            // rather than X. The byte read is absolute enemy RAM chosen by the speed index
-            // alone: in the 100% movie's Botwoon-hallway Evirs (speed 12) it is the high
-            // byte of slot 2's palette word, so the first half-cycle is not always zero.
-            state.MovementTimer = NativeCountdown.FromRaw((ushort)(ReadAliasedEnemyRamByte(
-                EvirInitDefinitions.AliasedTimerAddress + speedOffset) >> 1));
+            // Parameter two's low byte selects the body's record in the shared linear-speed
+            // table, whose positive half is the downward velocity and negative half the upward
+            // one. The high byte is the steady-state number of frames between direction changes.
+            int speedRecord = SnesLittleEndian.LowByte(slot.Parameter2);
+            ushort speedOffset = checked((ushort)(speedRecord * EnemyLinearSpeedDefinitions.RecordSize));
+            (short downWhole, ushort downFraction) = EnemyMath.ReadLinearEnemySpeed(speedOffset);
+            state.DownVelocity = SnesSignedSixteenSixteen.FromParts(downWhole, downFraction);
+            (short upWhole, ushort upFraction) = EnemyMath.ReadLinearEnemySpeed(
+                checked((ushort)(speedOffset + EnemyLinearSpeedDefinitions.RecordSize / 2)));
+            state.UpVelocity = SnesSignedSixteenSixteen.FromParts(upWhole, upFraction);
+            state.MovementTimer = ReadFirstHalfCycle(speedRecord);
         }
 
-        state.MovementDirection = 0;
+        state.MovingDown = false;
         state.InstalledProgram = null;
         state.Function = EvirAiFunction.HandleBodyOrArms;
     }
 
-    /// <summary>Reads one byte of the 32-slot enemy RAM block at absolute WRAM <paramref name="address"/>.</summary>
-    private byte ReadAliasedEnemyRamByte(int address)
+    /// <summary>
+    /// The body's first bobbing half-cycle. Instead of half its own direction-change period, the body takes half the
+    /// upper eight bits of another enemy's value, fixed by its speed record
+    /// (<see cref="EvirInitDefinitions.FirstHalfCycleSources"/>). The enemy is read as it stands while the population
+    /// loads: for the second Evir of either retail room the third enemy is the first Evir's spit, already carrying its
+    /// body's palette, so the first half-cycle is not zero.
+    /// </summary>
+    private NativeCountdown ReadFirstHalfCycle(int speedRecord)
     {
-        int relative = address - EnemyRamDefinitions.FirstSlotAddress;
-        int slotIndex = relative / EnemyRamDefinitions.SlotStride;
-        if (relative < 0 || slotIndex >= RoomEnemySystem.MaximumEnemyCount)
-            throw new InvalidOperationException($"WRAM ${address:X4} lies outside enemy RAM.");
-        int byteOffset = relative % EnemyRamDefinitions.SlotStride;
-        ushort word = _slotTable._slots[slotIndex].ReadNativeWord(byteOffset & ~1);
-        return (byteOffset & 1) == 0 ? (byte)word : SnesLittleEndian.HighByte(word);
+        foreach (EvirFirstHalfCycleSource source in EvirInitDefinitions.FirstHalfCycleSources)
+        {
+            if (source.SpeedRecord != speedRecord)
+                continue;
+            RoomEnemySlot enemy = _slotTable._slots[source.SlotIndex];
+            ushort value = source.Field switch
+            {
+                EvirHalfCycleSourceField.PopulationParameter2 => enemy.Parameter2,
+                EvirHalfCycleSourceField.Palette => enemy.PaletteIndex,
+                _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
+            };
+            return NativeCountdown.Start(SnesLittleEndian.HighByte(value) / 2);
+        }
+        throw new InvalidDataException(
+            $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
     }
 
     /// <summary>Ports <c>InitAI_EvirProjectile</c> at $A8:88B0.</summary>
     internal void InitializeEvirProjectile(RoomEnemySlot slot)
     {
-        var state = new EvirEnemyState(slot)
+        var state = new EvirEnemyState
         {
             RequestedProgram = EvirProgram.ProjectileNormal,
             InstalledProgram = null,
-            RegenerationFlag = 0,
-            MovingFlag = 0,
+            Regenerating = false,
+            InFlight = false,
             Function = EvirAiFunction.ProjectileIdle,
-            RegenerationXOffset = 0,
+            RegenerationOffset = Offset16<RoomPixels>.Zero,
         };
-        slot.SetSpeciesState<EvirEnemyState>(state);
+        slot.SetSpeciesState(state, state.ClearWithRecord);
         InstallEvirInstruction(slot, state);
 
         RoomEnemySlot body = RequireEvirRelativeSlot(slot, -2, EnemyDefinitionId.Evir, "projectile body", initializing: true);
@@ -147,7 +165,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Function != EvirAiFunction.HandleBodyOrArms)
         {
             throw new InvalidDataException(
-                $"Evir body/arms function $A8:{(ushort)state.Function:X4} is not translated.");
+                $"Evir body/arms function {state.Function} is not translated.");
         }
 
         if (slot.Parameter1 != 0)
@@ -165,21 +183,19 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Direction is allowed to follow Samus only while the projectile is fully present.
         // During regeneration the mouth, arms, and projectile retain their launch facing.
-        if (projectileState.RegenerationFlag == 0)
+        if (!projectileState.Regenerating)
             SetEvirBodyFacing(slot, state, samus);
 
-        int displacement = state.MovementDirection == 0
-            ? ComposeEvirFixed(state.UpVelocity, state.UpSubvelocity)
-            : ComposeEvirFixed(state.DownVelocity, state.DownSubvelocity);
-        slot.Position = slot.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
+        slot.Position = slot.Position.AdvanceY(state.MovingDown ? state.DownVelocity : state.UpVelocity);
 
         // DEC/BPL means zero expires immediately into $FFFF. Every later reset uses the
         // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
-        state.MovementTimer = state.MovementTimer.Decrement().Remaining;
-        if (state.MovementTimer.IsNegative)
+        NativeWordCounterStep step = state.MovementTimer.Decrement();
+        state.MovementTimer = step.Remaining;
+        if (step.IsNegative)
         {
-            state.MovementTimer = NativeCountdown.FromRaw(SnesLittleEndian.HighByte(slot.Parameter2));
-            state.MovementDirection ^= 1;
+            state.MovementTimer = NativeCountdown.Start(SnesLittleEndian.HighByte(slot.Parameter2));
+            state.MovingDown = !state.MovingDown;
         }
     }
 
@@ -192,14 +208,14 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.FrozenTimer.IsZero)
         {
-            if (state.MovingFlag != 0)
+            if (state.InFlight)
             {
                 RequestEvirInstruction(
                     slot,
                     state,
                     EvirProgram.ProjectileNormal);
             }
-            else if (state.RegenerationFlag != 0)
+            else if (state.Regenerating)
             {
                 RequestEvirInstruction(
                     slot,
@@ -225,7 +241,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 break;
             default:
                 throw new InvalidDataException(
-                    $"Evir projectile function $A8:{(ushort)state.Function:X4} is not translated.");
+                    $"Evir projectile function {state.Function} is not translated.");
         }
     }
 
@@ -237,13 +253,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Evir facing AI requires the active Samus actor.");
-        state.FacingDirection = unchecked((short)(activeSamus.Position.X.Whole - body.Position.X.Whole)) < 0
-            ? (ushort)0
-            : (ushort)1;
+        state.Facing = unchecked((short)(activeSamus.Position.X.Whole - body.Position.X.Whole)) < 0
+            ? EvirFacing.Left
+            : EvirFacing.Right;
         RequestEvirInstruction(
             body,
             state,
-            state.FacingDirection == 0
+            state.Facing == EvirFacing.Left
                 ? EvirProgram.BodyFacingLeft
                 : EvirProgram.BodyFacingRight);
     }
@@ -253,13 +269,13 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", initializing);
         EvirEnemyState bodyState = RequireEvirState(body);
-        state.FacingDirection = bodyState.FacingDirection;
+        state.Facing = bodyState.Facing;
         arms.Position = arms.Position.WithWhole(new(unchecked((ushort)(
-            body.Position.X.Whole + (state.FacingDirection == 0 ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 10))));
+            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 10))));
         RequestEvirInstruction(
             arms,
             state,
-            state.FacingDirection == 0
+            state.Facing == EvirFacing.Left
                 ? EvirProgram.ArmsFacingLeft
                 : EvirProgram.ArmsFacingRight);
     }
@@ -273,9 +289,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyDefinitionId.Evir,
             "projectile body");
         EvirEnemyState bodyState = RequireEvirState(body);
-        state.FacingDirection = bodyState.FacingDirection;
+        state.Facing = bodyState.Facing;
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            body.Position.X.Whole + (state.FacingDirection == 0 ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 18))));
+            body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 18))));
     }
 
     /// <summary>Aims at nearby Samus using the native angle transform and signed 16.16 speed tables.</summary>
@@ -317,7 +333,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             state,
             EvirProgram.ProjectileNormal);
-        state.MovingFlag = 1;
+        state.InFlight = true;
         state.Function = EvirAiFunction.ProjectileMoving;
     }
 
@@ -353,8 +369,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!body.FrozenTimer.IsZero)
             return;
 
-        state.MovingFlag = 0;
-        state.RegenerationFlag = 1;
+        state.InFlight = false;
+        state.Regenerating = true;
         state.Function = EvirAiFunction.ProjectileRegenerating;
         RequestEvirInstruction(
             projectile,
@@ -373,35 +389,31 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!body.FrozenTimer.IsZero)
             return;
 
-        if (state.RegenerationFlag == 0)
+        if (!state.Regenerating)
         {
             RequestEvirInstruction(
                 projectile,
                 state,
                 EvirProgram.ProjectileNormal);
-            state.MovingFlag = 0;
+            state.InFlight = false;
             state.Function = EvirAiFunction.ProjectileIdle;
             return;
         }
 
         ResetEvirProjectilePosition(projectile, state);
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
-            projectile.Position.X.Whole + state.RegenerationXOffset)));
+        projectile.Position += state.RegenerationOffset;
     }
 
     /// <summary>Instruction $A8:878F.</summary>
-    private void QueueEvirSpitSound() => LastEvirSoundEffect = EnemySoundEffectDefinitions.EvirSpitSound;
+    private void QueueEvirSpitSound() => LastEvirSoundEffect = EvirSpitSound;
 
     /// <summary>Instruction $A8:879B.</summary>
     private void SetInitialEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
-        state.RegenerationXOffset = EvirBodyFacesRight(slot)
-            ? unchecked((ushort)-8)
-            : (ushort)8;
+        state.RegenerationOffset = new(EvirBodyFacesRight(slot) ? (short)-RegenerationStartDistance : RegenerationStartDistance, 0);
 
     /// <summary>Instruction $A8:87B6.</summary>
     private void AdvanceEvirRegenerationOffset(RoomEnemySlot slot, EvirEnemyState state) =>
-        state.RegenerationXOffset = unchecked((ushort)(
-            state.RegenerationXOffset + (EvirBodyFacesRight(slot) ? 1 : -1)));
+        state.RegenerationOffset += new Offset16<RoomPixels>(EvirBodyFacesRight(slot) ? (short)1 : (short)-1, 0);
 
     /// <summary>
     /// Both regeneration instructions test <c>Evir.instList-$80,X</c>: the installed list
@@ -417,14 +429,10 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Instruction $A8:87CB.</summary>
     private static void FinishEvirRegeneration(EvirEnemyState state)
     {
-        state.RegenerationFlag = 0;
-        state.MovingFlag = 0;
+        state.Regenerating = false;
+        state.InFlight = false;
         state.Function = EvirAiFunction.ProjectileIdle;
     }
-
-    /// <summary>Combines signed whole and unsigned fractional velocity words into native 16.16 form.</summary>
-    private static int ComposeEvirFixed(short whole, ushort fraction) =>
-        unchecked((SnesSixteenSixteen.FromWhole(whole)) | fraction);
 
     /// <summary>Records the desired list and installs it only when it differs from the active one.</summary>
     private static void RequestEvirInstruction(
@@ -506,7 +514,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         firstRelative.FrozenTimer = actor.FrozenTimer;
         firstRelative.AiStates = firstRelative.AiStates | EnemyAiStates.Frozen;
-        if (secondRelative.VariableC != (ushort)EvirAiFunction.ProjectileMoving)
+        // The cartridge compares the following-but-one record's function with the moving spit's. In the retail
+        // Evir rooms that record is an Evir or an empty slot, never another species.
+        if (secondRelative.SpeciesState<EvirEnemyState>()?.Function != EvirAiFunction.ProjectileMoving)
         {
             secondRelative.FrozenTimer = actor.FrozenTimer;
             secondRelative.AiStates = secondRelative.AiStates | EnemyAiStates.Frozen;
@@ -620,6 +630,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastEvirSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastEvirSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

@@ -36,6 +36,13 @@ public sealed class RoomEnemySlot
     /// </summary>
     private readonly Dictionary<string, object> _speciesStates = new(StringComparer.Ordinal);
 
+    /// <summary>
+    /// For each installed species state that keeps values the cartridge stores in this record's common words, the
+    /// operation that empties those values, keyed like the states. <see cref="Clear"/> runs them: emptying the record
+    /// empties those values, while the state itself outlives the occupant.
+    /// </summary>
+    private readonly Dictionary<string, Action> _clearWithRecord = new(StringComparer.Ordinal);
+
     /// <summary>The <typeparamref name="T"/> state last installed in this slot this room, or null.</summary>
     internal T? SpeciesState<T>() where T : class =>
         _speciesStates.TryGetValue(StateKey<T>(), out object? state) ? (T)state : null;
@@ -43,14 +50,30 @@ public sealed class RoomEnemySlot
     /// <summary>Installs or, with null, removes this slot's <typeparamref name="T"/> state.</summary>
     internal void SetSpeciesState<T>(T? state) where T : class
     {
+        _clearWithRecord.Remove(StateKey<T>());
         if (state is null)
             _speciesStates.Remove(StateKey<T>());
         else
             _speciesStates[StateKey<T>()] = state;
     }
 
+    /// <summary>
+    /// Installs this slot's <typeparamref name="T"/> state together with <paramref name="clearWithRecord"/>, which
+    /// empties the values the state keeps in place of this record's common words whenever <see cref="Clear"/> empties
+    /// the record.
+    /// </summary>
+    internal void SetSpeciesState<T>(T state, Action clearWithRecord) where T : class
+    {
+        _speciesStates[StateKey<T>()] = Ensure.NotNull(state);
+        _clearWithRecord[StateKey<T>()] = Ensure.NotNull(clearWithRecord);
+    }
+
     /// <summary>Drops every species state, at room load.</summary>
-    internal void ClearSpeciesStates() => _speciesStates.Clear();
+    internal void ClearSpeciesStates()
+    {
+        _speciesStates.Clear();
+        _clearWithRecord.Clear();
+    }
 
     /// <summary>The storage key of a state type.</summary>
     private static string StateKey<T>() => typeof(T).FullName ?? throw new InvalidOperationException("A state type has no name.");
@@ -166,48 +189,7 @@ public sealed class RoomEnemySlot
         Parameter1 = Parameter2 = 0;
         VariableA = VariableB = VariableC = VariableD = VariableE = VariableF = 0;
         SpawnOffset = Offset16<RoomPixels>.Zero;
+        foreach (Action clearWithRecord in _clearWithRecord.Values)
+            clearWithRecord();
     }
-
-    /// <summary>
-    /// Reads the word at <paramref name="offset"/> of this slot's native 64-byte
-    /// <c>EnemyData</c> record ($0F78 + slot*$40), for cartridge code that indexes enemy
-    /// RAM with an unrelated register. Words whose native encoding the port does not hold
-    /// verbatim are rejected rather than reconstructed.
-    /// </summary>
-    internal ushort ReadNativeWord(int offset) => (EnemyDataField)offset switch
-    {
-        EnemyDataField.Definition => (ushort)EnemyDefinitionPointer,
-        EnemyDataField.XPosition => Position.X.Whole,
-        EnemyDataField.XSubposition => Position.X.Fraction,
-        EnemyDataField.YPosition => Position.Y.Whole,
-        EnemyDataField.YSubposition => Position.Y.Fraction,
-        EnemyDataField.XRadius => Radius.X,
-        EnemyDataField.YRadius => Radius.Y,
-        EnemyDataField.Properties => Properties.ToNativeWord(),
-        EnemyDataField.ExtraProperties => ExtraProperties.ToNativeWord(),
-        EnemyDataField.AiHandler => AiStates.NativeWord,
-        EnemyDataField.Health => checked((ushort)Health),
-        EnemyDataField.Spritemap => SpritemapPointer,
-        EnemyDataField.Timer => Timer.RawValue,
-        EnemyDataField.Instruction => CurrentInstruction,
-        EnemyDataField.InstructionTimer => InstructionTimer.RawValue,
-        EnemyDataField.Palette => PaletteIndex,
-        EnemyDataField.VramTiles => VramTilesIndex,
-        EnemyDataField.Layer => Layer,
-        EnemyDataField.FlashTimer => FlashTimer.RawValue,
-        EnemyDataField.FrozenTimer => FrozenTimer.RawValue,
-        EnemyDataField.InvincibilityTimer => InvincibilityTimer.RawValue,
-        EnemyDataField.ShakeTimer => ShakeTimer.RawValue,
-        EnemyDataField.FrameCounter => FrameCounter,
-        EnemyDataField.VariableA => VariableA,
-        EnemyDataField.VariableB => VariableB,
-        EnemyDataField.VariableC => VariableC,
-        EnemyDataField.VariableD => VariableD,
-        EnemyDataField.VariableE => VariableE,
-        EnemyDataField.VariableF => VariableF,
-        EnemyDataField.Parameter1 => Parameter1,
-        EnemyDataField.Parameter2 => Parameter2,
-        _ => throw new InvalidOperationException(
-            $"Enemy RAM word +${offset:X2} has no verbatim native projection."),
-    };
 }

@@ -59,27 +59,29 @@ internal static class EvirInstructionProgramDefinitionsVerification
             EvirEnemyState state = PrepareEvirInstructionSlot(slot, EnemyDefinitionId.EvirProjectile, EvirProgram.ProjectileRegenerating);
             // #1269: the projectile's own facing word disagrees with its body on purpose; $A8:879B/$87B6 follow the
             // body's installed list, so the offset starts at +8.
-            state.FacingDirection = 1;
-            state.MovingFlag = 1;
-            state.RegenerationFlag = 1;
+            state.Facing = EvirFacing.Right;
+            state.InFlight = true;
+            state.Regenerating = true;
             state.Function = EvirAiFunction.ProjectileRegenerating;
-            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState(enemies.SlotTable.Slots[0]) { InstalledProgram = EvirProgram.BodyFacingLeft });
+            enemies.SlotTable.Slots[0].SetSpeciesState(new EvirEnemyState { InstalledProgram = EvirProgram.BodyFacingLeft });
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int call = 0; call < 10; call++)
             {
                 slot.InstructionTimer = NativeCountdown.Start(1);
                 EnemyInstructionRunner.Process(arguments);
                 if (call == 0)
-                    AssertEqual((ushort)8, state.RegenerationXOffset,
+                    AssertEqual(new Offset16<RoomPixels>(8, 0), state.RegenerationOffset,
                         "a left-facing body sets the +8 offset whatever the projectile's facing word");
             }
             AssertEqual(EvirAnimationsConstants.Spritemaps(EvirProgram.ProjectileNormal).Single(), slot.SpritemapPointer,
                 "regenerating Evir projectile ends on its flight pose");
-            AssertEqual((ushort)0, state.RegenerationXOffset, "regeneration loop advances the projectile mouth offset eight times");
-            AssertEqual((ushort)0, state.RegenerationFlag, "regeneration finish cue clears regeneration ownership");
-            AssertEqual((ushort)0, state.MovingFlag, "regeneration finish cue leaves the projectile stationary");
-            AssertEqual(EvirAiFunction.ProjectileIdle, state.Function, "regeneration finish cue restores idle AI");
-            AssertEqual((ushort)0x005e, enemies.EvirBehavior.LastEvirSoundEffect, "regeneration publishes the native spit sound");
+            AssertEqual(Offset16<RoomPixels>.Zero, state.RegenerationOffset, "regeneration loop advances the projectile mouth offset eight times");
+            AssertTrue(!state.Regenerating, "regeneration finish cue clears regeneration ownership");
+            AssertTrue(!state.InFlight, "regeneration finish cue leaves the projectile stationary");
+            AssertEqual((EvirAiFunction?)EvirAiFunction.ProjectileIdle, state.Function, "regeneration finish cue restores idle AI");
+            const ushort nativeSpitSound = 0x005e;
+            AssertEqual((SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, nativeSpitSound),
+                enemies.EvirBehavior.LastEvirSoundEffect, "regeneration publishes the native library-two spit sound");
         }
 
         Suite(nameof(EvirAnimationsVerification.VerifyEvirAnimations), () => EvirAnimationsVerification.VerifyEvirAnimations(rom));
@@ -104,7 +106,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = EvirFrameToolingDefinitions.Bank });
         slot.InstructionTimer = NativeCountdown.Start(1);
-        var state = new EvirEnemyState(slot)
+        var state = new EvirEnemyState
         {
             RequestedProgram = program,
             InstalledProgram = program,

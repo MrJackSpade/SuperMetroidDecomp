@@ -205,3 +205,18 @@ question; the answer is to do what the analyzer asks.
 - **Owner answer:** do not defer. Convert Kraid's head cursor in this run as part of the question 4 migration:
   `AnimationProgramCursor<KraidHeadProgram>` in `KraidEnemyState`, `VariableB` translated only in the snapshot
   import codec, a ROM oracle over the native lists, and the seven verifications rewritten.
+
+## 12. Evir initial half-cycle: only the retail speed records are accepted
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Enemies/Evir/EvirBehavior.cs` (`ReadFirstHalfCycle`) and
+  `EvirInitDefinitions.FirstHalfCycleSources`.
+- **Conflict:** the owner's question-4 answer (model the Evir aliased read explicitly) against the batch rule that
+  behaviour is preserved for every input the old code accepted. The native initializer reads the enemy record byte at
+  $0FB7 + 8 x speedRecord. Every retail population uses speed record 8 or 12, which reach exactly slot 1's population
+  parameter 2 and slot 2's palette; the old generic reader also accepted other (non-retail) speed records, which the
+  explicit model now rejects with `InvalidDataException`. The combat tail likewise treats a non-Evir slot as not
+  moving, which is exact for retail rooms (Evir rooms hold only Evirs and empty slots).
+- **Evidence checked:** the ROM bytes of the initializer at $A8:87E0, a scan of bank $A1 for every Evir population
+  (rooms $D461 and $D4C2), `RoomEnemyPopulationDefinitions`, and the population loader's clear-then-initialize order.
+- **Option taken:** keep the explicit model; retail gameplay is unchanged, and only non-retail population data (which
+  the project's ROM revision never contains) now fails loudly instead of reading arbitrary enemy RAM.

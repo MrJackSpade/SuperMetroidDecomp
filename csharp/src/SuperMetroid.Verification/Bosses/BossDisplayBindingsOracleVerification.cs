@@ -92,7 +92,9 @@ internal static class BossDisplayBindingsOracleVerification
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
             .Select(part => (part.Offset.X, part.Offset.Y, BossPhysicalHitboxes(frame.Bank, part.HitboxPointer))).ToArray(),
         DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
-            .Select(part => (part.Offset.X, part.Offset.Y, BossPhysicalHitboxes(frame.Bank, (ushort)part.HitboxPointer))).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y,
+                part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
+                    DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),
     };
 
@@ -101,9 +103,6 @@ internal static class BossDisplayBindingsOracleVerification
     {
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.HitboxesAt(pointer)
             .Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)).ToArray(),
-        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.HitboxesAt(
-                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"))
-            .SelectToArray(box => Words(box.Left, box.Top, box.Right, box.Bottom, box.TouchAi, box.ShotAi)),
         _ => throw new InvalidDataException("Unknown native oracle bank."),
     };
 

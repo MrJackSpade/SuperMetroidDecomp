@@ -16,6 +16,12 @@ using SuperMetroid.Verification.Harness;
 /// <summary>Checks Draygon's full BG2 staging and DMA output from a fresh room.</summary>
 internal static class DraygonTilemapProductionVerification
 {
+    /// <summary>
+    /// The enemy BG2 transfer size Draygon's body initializer gives the native NMI upload (A5:86D7): the first
+    /// 1,024 bytes of the staging surface. The port writes VRAM directly, so only this oracle models the prefix.
+    /// </summary>
+    private const int NativeBg2TransferByteCount = 1024;
+
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon tilemap production")]
@@ -39,7 +45,6 @@ internal static class DraygonTilemapProductionVerification
         // or queue construction; it isolates the downstream tilemap/DMA producer.
         var staging = Enumerable.Repeat((ushort)0x0338, 2048).ToArray();
         var expectedVram = staging.ToArray();
-        AssertEqual((ushort)0x0400, boss.Bg2TilemapSize, "A5:86D7 initializes the native DMA prefix size");
         for (int word = 0; word < expectedVram.Length; word++)
             AssertEqual(expectedVram[word], vram.ReadWord(0x4800 + word), "fresh Draygon BG2 starts entirely blank before any draw");
         var destinations = new HashSet<int>(); var streams = new HashSet<int>();
@@ -79,7 +84,7 @@ internal static class DraygonTilemapProductionVerification
             // of staging when any extended command ran. Compare untouched cells too.
             if (queuedTransfer)
             {
-                staging.AsSpan(0, boss.Bg2TilemapSize / 2).CopyTo(expectedVram);
+                staging.AsSpan(0, NativeBg2TransferByteCount / 2).CopyTo(expectedVram);
                 transfers++;
             }
             oam.BeginFrame(); enemies.Drawing.DrawLayers(oam, new(0, 0), 0, 7); oam.FinalizeFrame();

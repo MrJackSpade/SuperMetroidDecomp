@@ -158,7 +158,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             expectedStreamIndex = unchecked((ushort)(
                 expectedStreamIndex + DraygonIntroDanceDefinitions.StreamIndexAdvance));
 
-            AssertEqual(expectedStreamIndex, state.FightIntroDanceIndex,
+            AssertEqual((int)expectedStreamIndex, state.FightIntroDanceIndex,
                 $"Draygon intro frame {frame} stream index");
             for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
             {

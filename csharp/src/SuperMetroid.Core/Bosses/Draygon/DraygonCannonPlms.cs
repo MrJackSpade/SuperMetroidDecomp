@@ -43,14 +43,14 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         };
 
         ushort variablePointer = slot.RoomArgument;
-        if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out _))
+        if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out DraygonCannonControlWord controlWord))
         {
             throw new InvalidDataException(
                 $"Draygon cannon header $84:{(int)slot.HeaderPointer:X4} has invalid control " +
                 $"word ${variablePointer:X4}.");
         }
 
-        slot.Family = new DraygonCannonPlmState(variablePointer);
+        slot.Family = new DraygonCannonPlmState(controlWord);
         if (slot.HeaderPointer == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
@@ -118,7 +118,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
             ?? throw new InvalidOperationException("Draygon cannon damage reached a slot without cannon state.");
         (_bindings.Enemies ?? throw new InvalidOperationException(
             "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
-                DraygonCannonWorkRamAddresses.Decode(state.VariablePointer));
+                state.ControlWord);
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,
@@ -145,13 +145,13 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
 
     /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
-        ushort variablePointer) : PlmFamilyState
+        DraygonCannonControlWord controlWord) : PlmFamilyState
     {
         /// <inheritdoc/>
         internal override PlmFamily Family => PlmFamily.DraygonCannon;
 
-        /// <summary>Bank-$A5 word written when this physical cannon stops firing.</summary>
-        public ushort VariablePointer { get; } = variablePointer;
+        /// <summary>The cannon whose firing Draygon stops when this physical cannon is destroyed, decoded from the room's PLM argument at setup.</summary>
+        public DraygonCannonControlWord ControlWord { get; } = controlWord;
         /// <summary>Marks that this cannon's terrain and firing control have been disabled.</summary>
         public bool Destroyed { get; set; }
         /// <summary>Indicates a projectile collision awaiting missile-family filtering.</summary>

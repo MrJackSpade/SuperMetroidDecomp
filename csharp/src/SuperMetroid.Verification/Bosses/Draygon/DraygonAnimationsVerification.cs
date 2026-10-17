@@ -196,9 +196,9 @@ internal static class DraygonAnimationsVerification
             AssertEqual(native.NewFrame, arms.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.Counter, arms.Timer.RawValue, $"{at}: loop counter");
             DraygonCue[] cues = [.. callbacks.Select(callback => CueOf(callback.Word, callback.Operands))];
-            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Library == SoundEffectLibrary.Library2)?.Sound,
+            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library2)?.Sound,
                 state.LastSoundLibrary2, $"{at}: library-2 sound");
-            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Library == SoundEffectLibrary.Library3)?.Sound,
+            AssertEqual(cues.OfType<DraygonCue.QueueSound>().LastOrDefault(sound => sound.Sound.Library == SoundEffectLibrary.Library3)?.Sound,
                 state.LastSoundLibrary3, $"{at}: library-3 sound");
             if (cues.Any(cue => cue is DraygonCue.ParalyseTailAndArms))
             {

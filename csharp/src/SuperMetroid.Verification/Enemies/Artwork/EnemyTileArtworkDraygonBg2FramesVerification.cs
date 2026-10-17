@@ -144,7 +144,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     internal static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
     {
-        var nativeLists = new HashSet<ushort>();
+        var nativeLists = new Dictionary<ushort, IReadOnlyList<DraygonCollisionHitbox>>();
         foreach (EnemyBg2FrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
             int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
@@ -160,22 +160,22 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon {frame.Name} collision X offset");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 2)), unchecked((ushort)component.Offset.Y),
                     $"Draygon {frame.Name} collision Y offset");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), (ushort)component.HitboxPointer,
-                    $"Draygon {frame.Name} hitbox list identity");
-                nativeLists.Add((ushort)component.HitboxPointer);
+                ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
+                if (nativeLists.TryGetValue(pointer, out IReadOnlyList<DraygonCollisionHitbox>? shared))
+                    AssertTrue(ReferenceEquals(shared, component.Hitboxes),
+                        $"Draygon {frame.Name} shares the list every frame naming hitbox list {pointer:X4} holds");
+                else
+                    nativeLists.Add(pointer, component.Hitboxes);
             }
         }
         AssertEqual(3, nativeLists.Count,
             "Draygon BG2 frames have three distinct native hitbox lists");
-        foreach (ushort pointer in nativeLists)
+        foreach ((ushort pointer, IReadOnlyList<DraygonCollisionHitbox> hitboxes) in nativeLists)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
-            ReadOnlySpan<DraygonCollisionHitbox> hitboxes =
-                DraygonCollisionDefinitions.HitboxesAt(
-                ClosedNativeWords.Decode<DraygonHitboxList>(pointer, "compiled Draygon hitbox list"));
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Length,
+            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
-            for (int index = 0; index < hitboxes.Length; index++)
+            for (int index = 0; index < hitboxes.Count; index++)
             {
                 int record = list + 2 + index * 12;
                 DraygonCollisionHitbox box = hitboxes[index];
@@ -187,10 +187,10 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon list {pointer:X4} box {index} right");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), unchecked((ushort)box.Bottom),
                     $"Draygon list {pointer:X4} box {index} bottom");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), box.TouchAi,
-                    $"Draygon list {pointer:X4} box {index} touch callback");
-                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), box.ShotAi,
-                    $"Draygon list {pointer:X4} box {index} shot callback");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 8)), DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch),
+                    $"Draygon list {pointer:X4} box {index} touch reaction");
+                AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 10)), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot),
+                    $"Draygon list {pointer:X4} box {index} shot reaction");
             }
         }
 

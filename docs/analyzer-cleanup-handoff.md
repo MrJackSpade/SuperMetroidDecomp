@@ -325,3 +325,44 @@ Commit and push that update too.
 ## Progress log
 
 - 2026-10-17, coordinator run: stopped at `c77b2c1c9` with 719 census sites (Core 536, AssetExtraction 183).
+- 2026-10-17, single-agent run (started at `8d7d6c424`, baseline census 752 sites: Core 558, AssetExtraction 194):
+  - `307bdf8de` Ridley state and Ceres status (5.1.1): Core SME6347 521 -> 511.
+  - `2ad682c7e` Crocomire hitbox reactions (5.1.2): Core SME6347 511 -> 509.
+  - `3341556f8` OAM entry, colour-add window, VRAM queue entry (5.1.3): Core SME6347 509 -> 504.
+  - `d66047a73` palette-change step counter (5.1.4): Core SME6347 504 -> 503.
+  - `6974ca45b` audio request, queue-limit and music-index storage (5.1.4 queue limit, 5.1.5): Core SME6347 503 -> 493.
+  - `1f23a146e` frame counters and shared enemy state (5.1.6, 5.1.7 kill count, elevator, pickup sound, spawn VRAM index):
+    Core SME6347 493 -> 475.
+  - `0caf741c5` liquid surface, velocity and tide phase (5.1.4): Core SME6347 475 -> 468.
+  - `2b7ae32bf` layer-2 scroll axes (5.1.4): Core SME6347 468 -> 466.
+  - `bb39597e6` library-background BG3 character choice (5.1.4): Core SME6347 466 -> 465.
+  - `497851680` room enemy population record (5.1.7): Core SME6347 465 -> 460.
+  - `d79ee9ceb` AssetExtraction closed domains and non-audio storage (5.2): SME6274 7 -> 0, SME6276 2 -> 0,
+    AssetExtraction SME6347 185 -> 172.
+  - `5de6ef29b` door hit counters and eye-door reach: Core SME6347 460 -> 455.
+  - `356388e1e` frontend fade brightness levels: Core SME6347 455 -> 451.
+  - `1399f41dd` escape typewriter state and Maridia elevatube motion: Core SME6347 451 -> 444.
+  - `752acfb8a` Samus knockback direction and hurt-flash counter: Core SME6347 444 -> 442.
+  - `0708472ff` Samus flare mirror and animation frame buffer: Core SME6347 442 -> 440.
+  - `2da9420f5` room-state theme and music selectors and the enemy death quota: Core SME6347 440 -> 435.
+  - `a74d1456c` station activation index: Core SME6347 435 -> 434.
+  - `e6bd20ae5` Ceres steam hitbox reactions: Core SME6347 434 -> 432.
+  - `d4a138c6f` escape timer state and running flag: Core SME6347 432 -> 431.
+  - `751ffa2b9` solid-enemy collision records and slope alignment result: Core SME6347 431 -> 426.
+  - `30cd00191` ending-time override minutes: Core SME6347 426 -> 425.
+  - `a5de855a0` Samus knockback direction enum: Core SME6347 425 -> 424.
+  - Deviations from the queue's designs, decided against the code: a Ridley tail angle is an int, not SnesAngle (its
+    low byte is the sine index; SnesAngle's table index is the high byte), and the whip targets are `int?`.
+    `ceres_status` is one four-stage enum (`CeresEscapeStatus`), not an enum plus a rotation flag, because the door's
+    $8000 write replaces the status rather than OR-ing a bit.
+  - Left for later: beam firing's result tuple still carries a sound request word (changes with the Samus projectile
+    slots, owner question 2); `CartridgeDoorHeader.SamusDistance` (a signed distance whose negative values select a
+    default) touches every door constructor; the AssetExtraction audio rows (172) and the per-family enemy state
+    migrations (5.3) were not started. Also left: `SamusState.BombJumpDirection` and `PoseTransitionShotDirection` pack a
+    direction with provenance bits that native imports carry raw, and the power-bomb status mirror belongs with the
+    Samus projectile slots; `SuperMetroidGame.FrameNumber` has about 60 consumers.
+  - The census was run from a detached worktree at each local commit so editing could continue while it ran; the
+    worktree needs one `dotnet restore` of the solution before its first census.
+  - No new owner question.
+  - Final census: 633 sites (Core 461: SME6347 424, SME6292 12, SME6341 10, SME6342 6, SME6346 5, SME6349 4;
+    AssetExtraction 172, all SME6347), down from 752. No project other than Android fails to compile.

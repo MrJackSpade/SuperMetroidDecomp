@@ -57,7 +57,7 @@ internal static class EnemyLinearSpeedsVerification
             slot.Bind(EnemyDefinitionId.Owtch, slot.Definition);
             owtch(slot);
             var o = enemies.OwtchStates[0];
-            AssertEqual(expected, ((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity, o.RightSubvelocity, o.LeftVelocity, o.LeftSubvelocity), "Owtch native speed setup");
+            AssertEqual(expected, ((o ?? throw new InvalidOperationException("Verification requires o.")).RightVelocity.WholeWord, o.RightVelocity.Fraction, o.LeftVelocity.WholeWord, o.LeftVelocity.Fraction), "Owtch native speed setup");
             slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
             stoke(slot);
             var s = enemies.StokeStates[0];

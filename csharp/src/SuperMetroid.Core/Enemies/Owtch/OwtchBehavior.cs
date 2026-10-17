@@ -43,7 +43,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Owtch sinks sixteen whole pixels below its walking height.</summary>
-    private const ushort OwtchMaximumBurialDepth = 16;
+    private const int OwtchMaximumBurialDepth = 16;
 
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
     internal static void InitializeOwtch(RoomEnemySlot slot)
@@ -78,15 +78,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
         var state = new OwtchEnemyState(slot)
         {
-            RightVelocity = unchecked((ushort)right.Whole),
-            RightSubvelocity = right.Fraction,
-            LeftVelocity = unchecked((ushort)left.Whole),
-            LeftSubvelocity = left.Fraction,
+            RightVelocity = SnesSignedSixteenSixteen.FromParts(right.Whole, right.Fraction),
+            LeftVelocity = SnesSignedSixteenSixteen.FromParts(left.Whole, left.Fraction),
             Behavior = (OwtchBehaviorState)initialState,
-            SinkYOffset = 0,
+            BurialDepth = 0,
             UndergroundTimer = NativeCountdown.FromRaw(undergroundTimer),
-            MinimumXPosition = unchecked((ushort)(slot.Position.X.Whole - travelDistance)),
-            MaximumXPosition = unchecked((ushort)(slot.Position.X.Whole + travelDistance)),
+            MinimumPosition = new(unchecked((ushort)(slot.Position.X.Whole - travelDistance)), 0),
+            MaximumPosition = new(unchecked((ushort)(slot.Position.X.Whole + travelDistance)), 0),
         };
         slot.SetSpeciesState(state);
         SetOwtchProgram(slot, state, initialProgram);
@@ -95,7 +93,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         // whole coordinate and records the same sixteen-pixel depth used by normal sinking.
         if (state.Behavior == OwtchBehaviorState.Underground)
         {
-            state.SinkYOffset = OwtchMaximumBurialDepth;
+            state.BurialDepth = OwtchMaximumBurialDepth;
             slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + OwtchMaximumBurialDepth)));
         }
     }
@@ -123,8 +121,10 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case OwtchBehaviorState.Sinking:
                 slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 1)));
-                state.SinkYOffset = unchecked((ushort)(state.SinkYOffset + 1));
-                if (unchecked((short)(state.SinkYOffset - OwtchMaximumBurialDepth)) >= 0)
+                // Sinking starts from zero, so the depth stays within one through sixteen and the cartridge's signed
+                // word comparison is an ordinary one.
+                state.BurialDepth++;
+                if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
                     state.UndergroundTimer = NativeCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
@@ -134,8 +134,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case OwtchBehaviorState.Rising:
                 slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
-                state.SinkYOffset = NativeWordCounter.Decrement(state.SinkYOffset).Value;
-                if (state.SinkYOffset == 0)
+                if (state.RiseOnePixel())
                 {
                     // $A2:A549 samples RandomNumberSeed+1 without advancing the RNG. The
                     // gameplay runtime supplies that read seam; isolated callers without it
@@ -166,26 +165,13 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         OwtchEnemyState state,
         bool movingRight)
     {
-        ushort subvelocity = movingRight
-            ? state.RightSubvelocity
-            : state.LeftSubvelocity;
-        ushort velocity = movingRight
-            ? state.RightVelocity
-            : state.LeftVelocity;
-
-        uint fractionalSum = (uint)slot.Position.X.Fraction + subvelocity;
-        slot.Position = slot.Position.WithFractionX(unchecked((ushort)fractionalSum));
-        if (fractionalSum > ushort.MaxValue)
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + 1)));
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + velocity)));
+        // The fraction's carry and the whole pixels' wraparound match the cartridge's paired additions.
+        slot.Position = slot.Position.AdvanceX(movingRight ? state.RightVelocity : state.LeftVelocity);
 
         if (!movingRight)
         {
-            if (!EnemyMath.IsNegative16(unchecked((ushort)(
-                    slot.Position.X.Whole - state.MinimumXPosition))))
-            {
+            if ((slot.Position.Whole - state.MinimumPosition).X >= 0)
                 return;
-            }
 
             // This DEC is an original-game bug. Zero wraps to $FFFF; main AI then indexes
             // the preceding initializer pointer rather than a declared function entry.
@@ -193,11 +179,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (!EnemyMath.IsNegative16(unchecked((ushort)(
-                slot.Position.X.Whole - state.MaximumXPosition))))
-        {
+        if ((slot.Position.Whole - state.MaximumPosition).X >= 0)
             state.Behavior = OwtchBehaviorState.MovingLeft;
-        }
     }
 
     /// <summary>Ports Owtch's six-in-256 per-frame burial gate at $A2:A553.</summary>

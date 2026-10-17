@@ -42,9 +42,9 @@ internal static class OwtchMovementDefinitionsVerification
                     AssertEqual(OwtchMovementDefinitions.UndergroundTimer(timerIndex),
                         (state ?? throw new InvalidOperationException("Verification requires state.")).UndergroundTimer.RawValue,
                         $"Owtch production timer {spawnX:X4}/{timerIndex}/{distanceIndex}");
-                    AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumXPosition,
+                    AssertEqual(unchecked((ushort)(spawnX - distance)), state.MinimumPosition.X,
                         $"Owtch minimum X {spawnX:X4}/{timerIndex}/{distanceIndex}");
-                    AssertEqual(unchecked((ushort)(spawnX + distance)), state.MaximumXPosition,
+                    AssertEqual(unchecked((ushort)(spawnX + distance)), state.MaximumPosition.X,
                         $"Owtch maximum X {spawnX:X4}/{timerIndex}/{distanceIndex}");
                 }
             }

@@ -1,7 +1,9 @@
 # Owner questions from the analyzer cleanup
 
 Each entry records a conflict between sources or a red flag found during the cleanup, the evidence checked, and
-the option the cleanup continued with. None of them stopped the run.
+the option the cleanup continued with. None of them stopped the run. The owner's answer is recorded under each
+entry (2026-10-17). Standing rule from question 2: whether to comply with an analyzer rule is never an owner
+question; the answer is to do what the analyzer asks.
 
 ## 1. SuperMetroid.Android cannot be loaded by the census on this machine
 
@@ -18,6 +20,9 @@ the option the cleanup continued with. None of them stopped the run.
   show no compile error outside `SuperMetroid.Android`, and the Android set must not grow. Android's analyzer
   findings remain uncounted until the census runs on a machine with the Android workload. The final full build
   has the same limitation.
+- **Owner answer:** Android is only a window into Core and becomes irrelevant with the Godot port, so it needs no
+  code cleanliness work. Keep it as the one known environmental failure; do not install the workload for it and do
+  not spend cleanup effort on its findings.
 
 ## 2. Samus projectile slots: whole-subsystem representation change
 
@@ -37,6 +42,9 @@ the option the cleanup continued with. None of them stopped the run.
   unsigned 8.8 radius type for the Power Bomb (its wrap at `$88:90DF` is load-bearing and stays exact); typed
   projectile programs following Botwoon's `AnimationTimeline`; the trail timeline. Each step is its own batch with
   ownership covering every consumer.
+- **Owner answer:** this is not an owner question. The analyzer asks for the change and that was the entire point of
+  the analyzer. Do what the analyzer asks. Proceed with the option taken. This answer stands for every entry whose
+  only question is whether to comply with a rule.
 
 ## 3. SpaceTime beam overrun: committed bank-$80 program bytes
 
@@ -54,6 +62,8 @@ the option the cleanup continued with. None of them stopped the run.
   observable effect is bounded and reproduced from data the import pipeline reads from the player's ROM, or, if it
   cannot be bounded, the SpaceTime overrun is removed under the emulation scope limit. The worker assigned to it
   decides between those by investigation and records the evidence.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
 
 ## 4. Enemy family state as views over multipurpose slot words
 
@@ -73,6 +83,9 @@ the option the cleanup continued with. None of them stopped the run.
   narrow-storage findings at the typed members without changing what any other reader of the word observes. The
   move to per-family owned state, and an explicit model of the Evir read, is recorded as the next step for the
   enemy subsystem and is not taken during this run.
+- **Owner answer:** do not defer. Do the per-family owned-state migration in this run: one batch per family moving
+  to owned typed state, slot words written only by the snapshot/debug codec, and an explicit model of the Evir
+  aliased read. The typed views over aliased words are an interim step inside this run, not its end state.
 
 ## 5. Enemy slot frame identity: `RoomEnemySlot.SpritemapPointer`
 
@@ -90,6 +103,8 @@ the option the cleanup continued with. None of them stopped the run.
 - **Option taken:** proceed with the destination shape as one cross-family batch once the per-family encoding
   batches are committed: the slot holds a typed frame reference, the families' frame records stop exposing an
   address, and the address-to-frame mapping moves to the extraction and ROM oracles.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
 
 ## 6. Cinematic sprite scratch word and pre-instruction pointer (Intro, Ceres, Ending)
 
@@ -105,6 +120,8 @@ the option the cleanup continued with. None of them stopped the run.
 - **Option taken:** one coordinated batch with ownership over Intro, Ceres and Ending: the loop counter becomes a
   private countdown in the sprite, each other use becomes a typed field on its owner, and the pre-instruction
   address becomes the owner's typed pre-instruction.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
 
 ## 7. Room identity: cartridge-pointer keys for room headers, states and their content
 
@@ -122,6 +139,8 @@ the option the cleanup continued with. None of them stopped the run.
   `DoorTransitionState`, `SuperMetroidGame` and both generators: rooms keyed by `RoomIdentity`, states by a semantic
   state identity, the runtime state holding resolved content and typed callbacks, scrollers as typed camera offsets,
   CRE as a typed flag, and all pointer translation in the import generators.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
 
 ## 8. Room sprite-object pool (bank-$B4 instruction interpreter)
 
@@ -134,6 +153,8 @@ the option the cleanup continued with. None of them stopped the run.
   program migration).
 - **Option taken:** migrate the pool to `AnimationTimeline` programs with ROM oracles in one batch owning the pool and
   every consumer; Kraid's copy becomes a typed reference to the sprite object it spawned.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
 
 ## 9. Palette-FX colours keyed by bank-$8D addresses
 
@@ -148,3 +169,39 @@ the option the cleanup continued with. None of them stopped the run.
 - **Option taken:** one batch later in the run owning the palette-FX system, presentation and extractor: colours keyed
   by (palette-FX frame record, colour ordinal), the address-to-record mapping only in extraction with a ROM oracle, and
   the per-family address arithmetic deleted.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
+
+## 10. Shared RNG state
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Progression/Bank80SystemState.cs:187` (`RandomNumber`), `NextRandom`,
+  `SetRandomNumber`; consumers `FrontendSession.cs:338`, `RoomLayer3FxState.cs:276`, `RoomEnemyRuntimeServices.cs:48`,
+  `RoomLoader`, `SamusLiquidPhysicsState`, `FakeKraidBehavior`, `RidleyFullMovieVerification.cs` and many more that
+  take the random word as `ushort`.
+- **Red flag:** the generator's 16-bit state, byte-wise multiply and byte swaps are load-bearing for gameplay parity;
+  retyping it changes the shared RNG representation for every consumer.
+- **Evidence checked:** the Progression batch worker's report; the settled pattern for wrap-observable counters (an
+  `int` 0..65535 with named wrapping operations).
+- **Option taken:** one dedicated batch owning the RNG and all its consumers: a typed shared-RNG value exposing `Next()`
+  and the room-FX byte swap as named operations, with consumers taking the typed value or an `int` sample.
+- **Owner answer:** do what the analyzer asks; that is the entire point of the analyzer. Whether to comply with a
+  rule is never an owner question. Proceed with the option taken.
+
+## 11. Kraid's head program cursor in an aliased slot word
+
+- **File and site:** `csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidHeadInstructionDefinitions.cs` (SME6341 at 76,
+  101-103); the cursor lives in Kraid's body `RoomEnemySlot.VariableB`, set and read by `KraidBehavior`, written raw by
+  `NativeSnapshotImportVerification.cs:289`.
+- **Conflict:** manifesto §7 (address dispatch becomes a typed program with a ROM oracle) against recorded decision 4
+  (aliased slot words keep exact typed views and are not retyped during this run). A typed view over `VariableB` still
+  needs an address-to-cursor codec in Core, which is the current code; and the cartridge behaviour reads words around
+  the cursor (the mouth hitbox two or four bytes before it, the growth selection after it).
+- **Evidence checked:** the boss-leftovers worker's report; decision 4; the Ridley `BodyProgram` cursor precedent;
+  seven Kraid verifications that assert raw cursor addresses.
+- **Option taken:** keep decision 4 for this word during the run; the rows stay until the per-family state migration
+  recorded in question 4. That migration converts it: `AnimationProgramCursor<KraidHeadProgram>` in `KraidEnemyState`,
+  steps carrying their collision-shape selection and growth-resume class, `VariableB` translated only in the snapshot
+  import codec, a ROM oracle over the native lists, and the seven verifications rewritten.
+- **Owner answer:** do not defer. Convert Kraid's head cursor in this run as part of the question 4 migration:
+  `AnimationProgramCursor<KraidHeadProgram>` in `KraidEnemyState`, `VariableB` translated only in the snapshot
+  import codec, a ROM oracle over the native lists, and the seven verifications rewritten.

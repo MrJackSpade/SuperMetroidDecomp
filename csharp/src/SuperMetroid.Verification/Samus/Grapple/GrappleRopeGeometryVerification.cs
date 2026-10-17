@@ -19,9 +19,12 @@ internal static class GrappleRopeGeometryVerification
         // Exercise the actual drawing entry point, with valid initial instruction
         // timers. Expected positions emulate $94:AFD5-B091's overlapping-word
         // accumulator, using cartridge samples independently of compiled tables.
+        // A negative signed length (32768 and above) is unrepresentable: the rope length is held as 0 through 32767.
+        AssertThrows<ArgumentOutOfRangeException>(() => new SamusGrappleState { RopeLength = 32768 },
+            "the rope length rejects a negative signed length");
         foreach (int direction in new[] { 1, -1 })
         foreach (int origin in new[] { 128, 4, 252 })
-        foreach (ushort length in new ushort[] { 120, 1, 7, 8, 16, 128, 32768 })
+        foreach (ushort length in new ushort[] { 120, 1, 7, 8, 16, 128 })
         {
             var grapple = new SamusGrappleState
             {

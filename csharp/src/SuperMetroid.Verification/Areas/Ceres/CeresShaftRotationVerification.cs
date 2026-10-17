@@ -36,9 +36,9 @@ internal static class CeresShaftRotationVerification
             AssertEqual(timer, state.RotationTimer.RawValue, "shaft native timer every frame");
             if (changed)
             {
-                AssertEqual(rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 4)), actual.Transform.MatrixA, "shaft native cosine every publication");
-                AssertEqual(rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2)), actual.Transform.MatrixB, "shaft native sine every publication");
-                AssertEqual(unchecked((ushort)-rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2))), actual.Transform.MatrixC, "shaft native negative sine");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 4))), actual.Transform.MatrixA, "shaft native cosine every publication");
+                AssertEqual(unchecked((short)rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2))), actual.Transform.MatrixB, "shaft native sine every publication");
+                AssertEqual(unchecked((short)-rom.ReadCartridgeWord(CeresShaftRotationDefinitions.ReferenceAddress + (offset + 2))), actual.Transform.MatrixC, "shaft native negative sine");
                 phaseWord = (short)phaseWord < 0
                     ? phaseWord == 0x8001 ? (ushort)0 : (ushort)(phaseWord - 1)
                     : phaseWord == 67 ? (ushort)0x8044 : (ushort)(phaseWord + 1);

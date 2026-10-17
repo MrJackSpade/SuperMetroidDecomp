@@ -221,8 +221,7 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Runs the slot's condition handler before timer and bytecode execution, including room heat and cutscene gates.</summary>
     private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
     {
-        PaletteFxPreInstruction preInstruction = slot.PreInstruction;
-        if (!Enum.IsDefined(preInstruction))
+        if (slot.PreInstruction is not { } preInstruction || !Enum.IsDefined(preInstruction))
         {
             throw new NotSupportedException(
                 $"Room palette-FX pre-instruction {slot.PreInstruction} is not translated " +
@@ -438,10 +437,10 @@ public sealed class RoomPaletteFxSystem
         /// <summary>CGRAM colour selected by the most recent SetColorIndex command (native byte offset twice this).</summary>
         public int ColorIndex { get; set; }
         /// <summary>
-        /// Pre-instruction evaluated before this slot's program timer. A freed slot holds the cleared (zero) value, which
-        /// never runs because the slot is skipped while free.
+        /// Pre-instruction evaluated before this slot's program timer; none while the slot is free, which never runs
+        /// because the slot is skipped while free.
         /// </summary>
-        public PaletteFxPreInstruction PreInstruction { get; set; }
+        public PaletteFxPreInstruction? PreInstruction { get; set; }
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
@@ -454,7 +453,7 @@ public sealed class RoomPaletteFxSystem
         {
             Id = 0;
             ColorIndex = 0;
-            PreInstruction = default;
+            PreInstruction = null;
             Cursor = default;
             InstructionTimer = NativeCountdown.Start(0);
             Timer = NativeCountdown.Start(0);

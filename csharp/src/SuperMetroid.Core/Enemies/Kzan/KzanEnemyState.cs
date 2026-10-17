@@ -39,55 +39,56 @@ public sealed class KzanEnemyState
         internal set => _slot.VariableB = value.RawValue;
     }
 
-    /// <summary>Original top-slot Y coordinate in whole room pixels, backed by variable C at <c>$0FAC,x</c>; upward motion clamps here before restarting the wait.</summary>
-    public ushort RisingTargetYPosition
+    /// <summary>The top's original position, where upward motion stops before restarting the wait; only its Y is meaningful, and it stays in variable C (<c>$0FAC,x</c>) for other enemies' aliased enemy-RAM reads. Positions compare with it by the wrapped spatial difference.</summary>
+    public Position16<RoomPixels> RisingTarget
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => new(0, _slot.VariableC);
+        internal set => _slot.VariableC = value.Y;
     }
 
-    /// <summary>Lower Y limit in whole room pixels, backed by variable D at <c>$0FAE,x</c>; initialized to the spawn Y plus population parameter 2's high-byte fall distance, with 16-bit wrapping.</summary>
-    public ushort FallingTargetYPosition
+    /// <summary>The lowest position of the fall, the spawn Y plus population parameter 2's high-byte fall distance with room-coordinate wraparound; only its Y is meaningful, and it stays in variable D (<c>$0FAE,x</c>) for other enemies' aliased enemy-RAM reads. Positions compare with it by the wrapped spatial difference.</summary>
+    public Position16<RoomPixels> FallingTarget
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => new(0, _slot.VariableD);
+        internal set => _slot.VariableD = value.Y;
     }
 
-    /// <summary>Fractional low word of the initial 16.16 downward speed sample, backed by variable E at <c>$0FB0,x</c>; this initialization snapshot is not the accelerating current velocity.</summary>
-    public ushort InitialFallingYSubspeed
+    /// <summary>
+    /// The initial downward speed sample selected by population parameter 1's low byte, in pixels per update; this
+    /// initialization snapshot is not the accelerating current speed. Its fraction and whole halves stay in variables E
+    /// and F (<c>$0FB0,x</c> and <c>$0FB2,x</c>) for other enemies' aliased enemy-RAM reads.
+    /// </summary>
+    public SnesSignedSixteenSixteen InitialFallingSpeed
     {
-        get => _slot.VariableE;
-        internal set => _slot.VariableE = value;
+        get => SnesSignedSixteenSixteen.FromParts(unchecked((short)_slot.VariableF), _slot.VariableE);
+        internal set
+        {
+            _slot.VariableE = value.Fraction;
+            _slot.VariableF = value.WholeWord;
+        }
     }
 
-    /// <summary>Signed whole-pixel high word of the initial 16.16 downward speed sample, stored as raw bits in variable F at <c>$0FB2,x</c>; selected by population parameter 1's low byte.</summary>
-    public ushort InitialFallingYSpeed
-    {
-        get => _slot.VariableF;
-        internal set => _slot.VariableF = value;
-    }
-
-    /// <summary>Reload value for the top wait, copied from population parameter 2's low byte into the owning slot's native <c>$7E:7800,x</c> extension word.</summary>
-    public ushort FallWaitTimerResetValue
+    /// <summary>Reload value for the top wait in actor updates, 0 through 255, copied from population parameter 2's low byte into the owning slot's native <c>$7E:7800,x</c> extension word.</summary>
+    public int FallWaitTimerResetValue
     {
         get => _words.FallWaitTimerResetValue;
         internal set => _words.FallWaitTimerResetValue = value;
     }
 
-    /// <summary>Whole room-pixel Y coordinate saved before a falling or rising update, backed by <c>$7E:7802,x</c>; the accepted whole-pixel movement determines rider displacement.</summary>
-    public ushort PreviousYPosition
+    /// <summary>The top's position saved before a falling or rising update, backed by <c>$7E:7802,x</c>; only its Y is read, and the accepted whole-pixel movement since it determines rider displacement.</summary>
+    public Position16<RoomPixels> PreviousPosition
     {
-        get => _words.PreviousYPosition;
-        internal set => _words.PreviousYPosition = value;
+        get => _words.PreviousPosition;
+        internal set => _words.PreviousPosition = value;
     }
 
     /// <summary>
     /// Byte offset into <c>CommonEnemySpeeds_LinearlyIncreasing</c>. Kzan advances by eight
     /// bytes per falling frame because each logical speed owns positive and negative pairs.
     /// Backed by <c>$7E:7804,x</c>, initialized from population parameter 1's low byte times
-    /// eight, and capped at <c>$0200</c> after each falling update.
+    /// eight (0 through 2040), and capped at 512 after each falling update.
     /// </summary>
-    public ushort FallingYSpeedTableIndex
+    public int FallingYSpeedTableIndex
     {
         get => _words.FallingYSpeedTableIndex;
         internal set => _words.FallingYSpeedTableIndex = value;

@@ -31,7 +31,14 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Fractional pixels subtracted each rising actor update.</summary>
     private const ushort KzanNtscRisingSubspeed = unchecked((ushort)-32768);
     /// <summary>Last speed-table offset permitted during falling acceleration.</summary>
-    private const ushort KzanMaximumFallingSpeedTableOffset = 512;
+    private const int KzanMaximumFallingSpeedTableOffset = 512;
+
+    /// <summary>Speed-table bytes per falling step: one logical speed's positive and negative pair.</summary>
+    private const int KzanFallingSpeedTableStride = 8;
+
+    /// <summary>The library-two landing sound published when the falling top reaches its target.</summary>
+    private static readonly SoundEffectId KzanLandingSound =
+        SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.KzanLandingSoundEffect);
 
     /// <summary>The words each physical slot keeps across Kzan occupants for the current room.</summary>
     private readonly KzanExtensionWords[] _extensions = NewExtensions();
@@ -51,23 +58,22 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
         state.Function = KzanEnemyFunction.WaitingToFall;
 
-        // init0's low byte is a logical speed-table index. The 65C816 multiplies it by
-        // eight with three ASLs and permits word wrapping; do the same before reading the
-        // cartridge table. Retail values include $40, selecting its final NTSC entry.
-        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
+        // init0's low byte is a logical speed-table index; the cartridge multiplies it by
+        // eight (its byte offset, at most 2040) before reading the table. Retail values
+        // include 64, selecting its final NTSC entry.
+        int speedTableOffset = SnesLittleEndian.LowByte(slot.Parameter1) * KzanFallingSpeedTableStride;
         state.FallingYSpeedTableIndex = speedTableOffset;
-        (short initialWhole, ushort initialFraction) = EnemyMath.ReadLinearEnemySpeed(speedTableOffset);
-        state.InitialFallingYSubspeed = initialFraction;
-        state.InitialFallingYSpeed = unchecked((ushort)initialWhole);
+        (short initialWhole, ushort initialFraction) = EnemyMath.ReadLinearEnemySpeed(checked((ushort)speedTableOffset));
+        state.InitialFallingSpeed = SnesSignedSixteenSixteen.FromParts(initialWhole, initialFraction);
 
         // init1 packs two unrelated bytes: the high byte is fall distance in pixels and the
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
-        state.FallingTargetYPosition = unchecked((ushort)(
-            slot.Position.Y.Whole + (SnesLittleEndian.HighByte(slot.Parameter2))));
-        state.RisingTargetYPosition = slot.Position.Y.Whole;
-        state.FallWaitTimerResetValue = unchecked((byte)slot.Parameter2);
-        state.FallWaitTimer = NativeCountdown.FromRaw(state.FallWaitTimerResetValue);
+        var spawn = new Position16<RoomPixels>(0, slot.Position.Y.Whole);
+        state.FallingTarget = spawn + new Offset16<RoomPixels>(0, SnesLittleEndian.HighByte(slot.Parameter2));
+        state.RisingTarget = spawn;
+        state.FallWaitTimerResetValue = SnesLittleEndian.LowByte(slot.Parameter2);
+        state.FallWaitTimer = NativeCountdown.Start(state.FallWaitTimerResetValue);
     }
 
     /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
@@ -127,9 +133,8 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.FallWaitTimer.IsZero)
             return;
 
-        state.FallWaitTimer = NativeCountdown.FromRaw(state.FallWaitTimerResetValue);
-        state.FallingYSpeedTableIndex = unchecked((ushort)(
-            (SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
+        state.FallWaitTimer = NativeCountdown.Start(state.FallWaitTimerResetValue);
+        state.FallingYSpeedTableIndex = SnesLittleEndian.LowByte(slot.Parameter1) * KzanFallingSpeedTableStride;
         state.Function = KzanEnemyFunction.Falling;
     }
 
@@ -139,31 +144,28 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState? samus)
     {
-        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousPosition = slot.Position.Whole;
         (short wholeSpeed, ushort fractionalSpeed) =
-            EnemyMath.ReadLinearEnemySpeed(state.FallingYSpeedTableIndex);
+            EnemyMath.ReadLinearEnemySpeed(checked((ushort)state.FallingYSpeedTableIndex));
         AddKzanY(slot, wholeSpeed, fractionalSpeed);
 
-        // CMP/BMI tests only the sign bit of the wrapped subtraction. That is intentionally
-        // not a host integer >= comparison; coordinates near the word boundary retain the
-        // same cartridge behavior.
-        if (!EnemyMath.IsNegative16(slot.Position.Y.Whole - state.FallingTargetYPosition))
+        // CMP/BMI tests only the sign of the wrapped subtraction, which the spatial difference
+        // keeps: coordinates near the room's edge retain the same cartridge behavior.
+        if ((slot.Position.Whole - state.FallingTarget).Y >= 0)
         {
             state.RiseWaitTimer = NativeCountdown.Start(KzanNtscRiseWaitFrames);
             state.Function = KzanEnemyFunction.WaitingToRise;
-            slot.Position = slot.Position.WithWholeY(state.FallingTargetYPosition);
-            LastKzanSoundEffect = EnemySoundEffectDefinitions.KzanLandingSoundEffect;
+            slot.Position = slot.Position.WithWholeY(state.FallingTarget.Y);
+            LastKzanSoundEffect = KzanLandingSound;
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
 
-        state.FallingYSpeedTableIndex = unchecked((ushort)(
-            state.FallingYSpeedTableIndex + 8));
-        if (!EnemyMath.IsNegative16(
-                state.FallingYSpeedTableIndex - KzanMaximumFallingSpeedTableOffset))
-        {
-            state.FallingYSpeedTableIndex = KzanMaximumFallingSpeedTableOffset;
-        }
+        // The cartridge caps the offset by the sign of its word difference from the cap; both
+        // stay far below the word's sign bit, so that is the ordinary minimum.
+        state.FallingYSpeedTableIndex = Math.Min(
+            state.FallingYSpeedTableIndex + KzanFallingSpeedTableStride,
+            KzanMaximumFallingSpeedTableOffset);
     }
 
     /// <summary>Counts down the 64-frame NTSC landing hold before switching to ascent.</summary>
@@ -180,15 +182,15 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         KzanEnemyState state,
         SamusState? samus)
     {
-        state.PreviousYPosition = slot.Position.Y.Whole;
+        state.PreviousPosition = slot.Position.Whole;
 
         // The NTSC build rises by exactly 0.8000h pixels per actor frame. Perform the same
         // split SEC/SBC so a fractional borrow decrements the whole position word.
         SubtractKzanY(slot, wholeSpeed: 0, KzanNtscRisingSubspeed);
-        if (EnemyMath.IsNegative16(slot.Position.Y.Whole - state.RisingTargetYPosition))
+        if ((slot.Position.Whole - state.RisingTarget).Y < 0)
         {
             state.Function = KzanEnemyFunction.WaitingToFall;
-            slot.Position = slot.Position.WithWholeY(state.RisingTargetYPosition);
+            slot.Position = slot.Position.WithWholeY(state.RisingTarget.Y);
         }
 
         CarrySamusWithKzanIfTouchingFromBelow(slot, state, samus);
@@ -255,8 +257,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null || !IsKzanTouchingSamusFromBelow(slot, samus))
             return;
 
-        ushort yDelta = unchecked((ushort)(slot.Position.Y.Whole - state.PreviousYPosition));
-        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, (slot.Position.Whole - state.PreviousPosition).Y);
     }
 
     /// <summary>Rejects a top AI call before its matching per-slot state has been initialized.</summary>
@@ -300,7 +301,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Last library-two Kzan landing sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>
-    public ushort? LastKzanSoundEffect { get; private set; }
+    public SoundEffectId? LastKzanSoundEffect { get; private set; }
 
     /// <inheritdoc/>
     public void ResetForRoomLoad(IRoomEnemyLoad request)
@@ -319,6 +320,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>
     internal void QueueLegacySounds(EnemyAudioQueue audio)
     {
-        audio.QueueLegacySound(LastKzanSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        if (LastKzanSoundEffect is SoundEffectId sound)
+            audio.QueueEnemySound(sound, maximumQueued: 6);
     }
 }

@@ -6,14 +6,14 @@ namespace SuperMetroid.Core.Enemies.Kzan;
 /// </summary>
 internal sealed class KzanExtensionWords
 {
-    /// <summary>countdown reset copied from init1's low byte.</summary>
-    internal ushort FallWaitTimerResetValue { get; set; }
+    /// <summary>Countdown reset copied from init1's low byte, in actor updates.</summary>
+    internal int FallWaitTimerResetValue { get; set; }
 
-    /// <summary>Whole Y before each rise/fall step, used to carry Samus by the accepted delta.</summary>
-    internal ushort PreviousYPosition { get; set; }
+    /// <summary>Position before each rise/fall step, whose Y carries Samus by the accepted delta.</summary>
+    internal Position16<RoomPixels> PreviousPosition { get; set; }
 
-    /// <summary>index into the linear enemy speed table, capped at its final NTSC entry.</summary>
-    internal ushort FallingYSpeedTableIndex { get; set; }
+    /// <summary>Byte offset into the linear enemy speed table, capped at its final NTSC entry.</summary>
+    internal int FallingYSpeedTableIndex { get; set; }
 
     /// <summary>hold between landing and rising.</summary>
     internal ushort RiseWaitTimer { get; set; }

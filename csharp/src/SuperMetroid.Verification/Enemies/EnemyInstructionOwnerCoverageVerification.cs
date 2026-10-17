@@ -85,7 +85,6 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.Parameter1 = checked((ushort)population.Parameter1);
                 slot.Parameter2 = checked((ushort)population.Parameter2);
                 slot.InstructionTimer = NativeCountdown.Start(1);
-                slot.AiBank = definition.Bank;
 
                 bool translatedRecord = true;
                 try

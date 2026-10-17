@@ -71,7 +71,6 @@ internal static class EnemyAnimationIsolationFixtureVerification
 
             Actor.Bind(golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon, Actor.Definition);
             Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer));
-            Actor.AiBank = Actor.Definition.Bank;
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);
             Actor.Layer = Actor.Definition.Layer;

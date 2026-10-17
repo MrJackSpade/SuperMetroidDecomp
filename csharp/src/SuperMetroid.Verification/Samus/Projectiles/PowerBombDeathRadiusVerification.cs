@@ -53,7 +53,6 @@ internal static class PowerBombDeathRadiusVerification
         {
             actor.Bind(EnemyDefinitionId.Atomic, actor.Definition);
             actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer));
-            actor.AiBank = actor.Definition.Bank;
             actor.Health = health;
             actor.Position = actor.Position.WithWhole(new(x, explosionY));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);

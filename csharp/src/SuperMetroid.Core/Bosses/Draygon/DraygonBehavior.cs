@@ -1823,7 +1823,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.HurtAiTime + 8)));
+        body.FlashTimer = NativeCountdown.Start(body.HurtAiTime + 8);
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 

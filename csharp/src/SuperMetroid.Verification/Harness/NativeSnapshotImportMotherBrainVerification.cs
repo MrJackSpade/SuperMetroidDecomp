@@ -47,11 +47,11 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.BrainCursor = unchecked((short)brain) >= 0 ? null : MotherBrainNativeListAddresses.CompareHead(cartridge)[brain];
         state.BrainFrameTimer = W(MotherBrainMemory.BrainInstructionTimer);
         Dictionary<ushort, AnimationProgramCursor<MotherBrainBodyProgram>> body = MotherBrainNativeListAddresses.CompareBody(cartridge);
-        state.BodyCursor = body[state.Body.CurrentInstruction];
-        state.HeadSlotCursor = body[state.Head.CurrentInstruction];
+        state.BodyCursor = body[checked((ushort)state.Body.CurrentInstruction)];
+        state.HeadSlotCursor = body[checked((ushort)state.Head.CurrentInstruction)];
         Dictionary<ushort, AnimationProgramCursor<MotherBrainTubePiece>> tubes = MotherBrainNativeListAddresses.CompareTubes(cartridge);
         foreach (RoomEnemySlot tube in runtime.Enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainTubes))
-            runtime.Enemies.MotherBrainBehavior._extensions[tube.SlotIndex].FallingTubeCursor = tubes[tube.CurrentInstruction];
+            runtime.Enemies.MotherBrainBehavior._extensions[tube.SlotIndex].FallingTubeCursor = tubes[checked((ushort)tube.CurrentInstruction)];
         state.BrainMainShakeTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BrainMainShakeTimer));
         state.DeleteTurretsAndRinkas = W(MotherBrainMemory.DeleteTurretsAndRinkas) != 0;
         state.RainbowPaletteCursor = W(MotherBrainMemory.RainbowPaletteIndex);

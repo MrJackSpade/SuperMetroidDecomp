@@ -59,7 +59,7 @@ internal sealed class RidleyNativeInstructionPointers
         }
         if (enemies.PipeBugStates[actor.SlotIndex] is { } pipeBug)
             return pipeBugs.Pointer(pipeBug.Program);
-        return actor.CurrentInstruction;
+        return checked((ushort)actor.CurrentInstruction);
     }
 
     /// <summary>

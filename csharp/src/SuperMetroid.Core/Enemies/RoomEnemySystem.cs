@@ -1032,7 +1032,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         slot.Health = definition.Health;
         slot.Layer = definition.Layer;
         slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-        slot.CurrentInstruction = checked((ushort)population.InitializationParameter);
+        slot.CurrentInstruction = population.InitializationParameter;
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiStates = EnemyAiStates.None;
@@ -1041,7 +1041,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         slot.Timer = NativeCountdown.Start(0);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.FrameCounter = 0;
-        slot.AiBank = definition.Bank;
         slot.HurtAiTime = definition.HurtAiTime;
         slot.PaletteIndex = paletteIndex;
         slot.VramTilesIndex = tileIndex;

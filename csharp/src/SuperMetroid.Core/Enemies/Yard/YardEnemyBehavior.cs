@@ -79,7 +79,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Yard initialization at $A3:CDE2-$CE56.</summary>
     internal static void InitializeYard(RoomEnemySlot slot)
     {
-        ushort direction = slot.CurrentInstruction;
+        ushort direction = checked((ushort)slot.CurrentInstruction);
         if (direction >= 8)
         {
             throw new InvalidDataException(

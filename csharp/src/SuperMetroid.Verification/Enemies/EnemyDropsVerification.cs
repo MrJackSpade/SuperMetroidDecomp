@@ -351,7 +351,7 @@ internal static class EnemyDropsVerification
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 9);
         AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
-        AssertEqual((byte)0xa3, enemy.AiBank,
+        AssertEqual((byte)0xa3, enemy.Definition.Bank,
             "respawning death leaves native placeholder AI bank");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled,
             "generic enemy death increments room kill counter");

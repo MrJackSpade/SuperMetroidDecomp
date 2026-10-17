@@ -822,7 +822,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
-                    body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)((body.HurtAiTime == 0 ? 4 : body.HurtAiTime) + 8)));
+                    body.FlashTimer = NativeCountdown.Start(body.HurtFlashFrames + 8);
                     body.AiStates = body.AiStates | EnemyAiStates.Hurt;
                     if (type.HasAnyBeam(SamusBeamFlags.Plasma))
                         body.InvincibilityTimer = NativeCountdown.Start(16);

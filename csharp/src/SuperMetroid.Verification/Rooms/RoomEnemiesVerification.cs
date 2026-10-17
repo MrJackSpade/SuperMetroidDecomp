@@ -168,7 +168,7 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(0x0789, slot.Position.Y.Whole, "population Y position");
     AssertEqual(0x0600, slot.PaletteIndex, "graphics-set OBJ palette index");
     AssertEqual(0, slot.VramTilesIndex, "first graphics-set tile index");
-    AssertEqual(0xa2, slot.AiBank, "definition AI bank copied into native slot");
+    AssertEqual(0xa2, slot.Definition.Bank, "definition AI bank bound to native slot");
     AssertEqual(0x5a, slot.HurtAiTime, "definition hurt-AI time copied into native slot");
     AssertEqual(EnemyAiStates.None, slot.AiStates, "room load clears AI handler bits");
     AssertEqual(0, slot.FlashTimer.RawValue, "room load clears flash timer");
@@ -508,7 +508,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         ripper.FlashTimer = NativeCountdown.Start(16);
         ripper.FrozenTimer = NativeCountdown.Start(400);
         ushort initialX = ripper.Position.X.Whole;
-        ushort initialInstruction = ripper.CurrentInstruction;
+        int initialInstruction = ripper.CurrentInstruction;
         for (int frame = 1; frame <= 12; frame++)
         {
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });

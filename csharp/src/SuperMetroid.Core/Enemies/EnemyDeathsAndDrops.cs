@@ -137,7 +137,6 @@ internal sealed class EnemyDeathsAndDrops
         // The cartridge reads the header through the new pointer on every dispatch.
         // Our cached definition must follow that pointer even during the death frame.
         enemy.Bind(EnemyDefinitionId.Respawn, _room.LoadedDefinitions.ReadEnemyDefinition(EnemyDefinitionId.Respawn));
-        enemy.AiBank = enemy.Definition.Bank;
     }
 
     /// <summary>Chooses header death art, upgrading a small explosion for Super Missile kills.</summary>

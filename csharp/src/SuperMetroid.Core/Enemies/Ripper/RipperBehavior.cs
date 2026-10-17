@@ -49,7 +49,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // selector. Only its low byte reaches the eight-byte speed-table multiplication.
         // The peculiar BIT #$FEFF direction test is preserved literally: every retail word
         // with a nonzero speed field selects the positive pair, even when bit eight is set.
-        ushort packedSelector = slot.CurrentInstruction;
+        ushort packedSelector = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
         bool selectsPositiveVelocity = (packedSelector & RipperMasks.VelocitySelectorBits) != 0;
         LoadRipperVariantVelocity(state, selectsPositiveVelocity);

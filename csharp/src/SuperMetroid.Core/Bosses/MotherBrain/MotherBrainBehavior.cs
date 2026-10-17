@@ -1463,8 +1463,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
-        head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
+        head.FlashTimer = NativeCountdown.Start(head.HurtFlashFrames + 8);
         head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         head.Health = damage >= head.Health
             ? 0
@@ -1542,8 +1541,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        ushort hurtTime = head.HurtAiTime == 0 ? (ushort)4 : head.HurtAiTime;
-        head.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
+        head.FlashTimer = NativeCountdown.Start(head.HurtFlashFrames + 8);
         head.AiStates = head.AiStates | EnemyAiStates.Hurt;
         // The shared native no-death tail still grants Plasma's hit immunity.
         // A surviving penetrating beam cannot damage this head again every frame.

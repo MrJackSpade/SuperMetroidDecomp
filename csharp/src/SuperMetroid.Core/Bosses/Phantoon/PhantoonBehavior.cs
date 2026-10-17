@@ -903,8 +903,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
                 if (damage != 0)
                 {
-                    ushort hurtTime = body.HurtAiTime == 0 ? (ushort)4 : body.HurtAiTime;
-                    body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
+                    body.FlashTimer = NativeCountdown.Start(body.HurtFlashFrames + 8);
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared native damage helper.

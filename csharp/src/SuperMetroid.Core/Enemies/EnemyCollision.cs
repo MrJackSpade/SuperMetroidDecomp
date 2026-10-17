@@ -384,8 +384,7 @@ internal sealed class EnemyCollision
                 }
                 if (damage != 0)
                 {
-                    ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-                    enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
+                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
@@ -644,8 +643,7 @@ internal sealed class EnemyCollision
         if (damage == 0)
             return;
 
-        ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-        enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
+        enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         enemy.Health = damage >= enemy.Health
             ? 0
@@ -743,8 +741,7 @@ internal sealed class EnemyCollision
                 if (damage != 0)
                 {
                     enemy.InvincibilityTimer = NativeCountdown.Start(48);
-                    ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
-                    enemy.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(hurtTime + 8)));
+                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     enemy.Health = damage >= enemy.Health
                         ? 0
@@ -1017,7 +1014,7 @@ internal sealed class EnemyCollision
         // Touch damage uses the raw hurt-AI duration (default four), unlike projectile and
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
-        enemy.FlashTimer = NativeCountdown.FromRaw(enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime);
+        enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         samus.KnockbackTimer = NativeCountdown.Start(0);

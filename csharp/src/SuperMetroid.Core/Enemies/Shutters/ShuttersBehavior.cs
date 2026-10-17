@@ -240,7 +240,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new HorizontalShutterEnemyState(slot);
         slot.SetSpeciesState(state);
 
-        ushort packedSpeedAndDirection = slot.CurrentInstruction;
+        ushort packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
         state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = state.PrimaryDirection ^ 1;
@@ -805,7 +805,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new VerticalShutterEnemyState(slot);
         slot.SetSpeciesState(state);
 
-        ushort packedSpeedAndDirection = slot.CurrentInstruction;
+        ushort packedSpeedAndDirection = checked((ushort)slot.CurrentInstruction);
         state.SpeedTableIndex = unchecked((byte)packedSpeedAndDirection);
         state.PrimaryDirection = unchecked((byte)(SnesEightEight.WholeOf(packedSpeedAndDirection)));
         state.ReactionDirection = state.PrimaryDirection;

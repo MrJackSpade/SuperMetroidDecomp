@@ -36,7 +36,6 @@ internal static class MotherBrainBodyPresentationFixtureVerification
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;
             Body.Bind(bodyId, Body.Definition);
             Body.Bind(Body.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(bodyId));
-            Body.AiBank = Body.Definition.Bank;
             Body.Position = Body.Position.WithWhole(new(128, 128));
             Body.PaletteIndex = Body.VramTilesIndex = 0;
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.SlotTable.Slots[1], Form = MotherBrainForm.DrainedByBabyMetroid };

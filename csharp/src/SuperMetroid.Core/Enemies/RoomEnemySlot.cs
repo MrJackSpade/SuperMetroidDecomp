@@ -118,8 +118,16 @@ public sealed class RoomEnemySlot
     public ushort SpritemapPointer { get; internal set; }
     /// <summary>Enemy.loopCounter at +$18: actor/instruction-owned loop or delay word; it is not a universal elapsed-frame counter.</summary>
     public NativeCountdown Timer { get; internal set; }
-    /// <summary>Enemy.instList at +$1A: current bank-relative animation instruction pointer, initially populated from the actor-specific initialization parameter.</summary>
-    public ushort CurrentInstruction { get; internal set; }
+    /// <summary>
+    /// Enemy.instList at +$1A, 0 through 65535: populated from the population's actor-specific initialization
+    /// parameter, which several families read as packed selectors; an imported state carries the native instruction
+    /// pointer here.
+    /// </summary>
+    public int CurrentInstruction
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
+    }
     /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
     public NativeCountdown InstructionTimer { get; internal set; }
     /// <summary>Enemy.palette at +$1E: native OBJ palette attribute bits, normally the graphics-set palette index shifted left nine, rather than a CGRAM color index.</summary>
@@ -138,10 +146,15 @@ public sealed class RoomEnemySlot
     public NativeCountdown ShakeTimer { get; internal set; }
     /// <summary>Enemy.frameCounter at +$2C: wrapping enemy-processing counter used by actor behavior and drawing, independent of the global NMI counter.</summary>
     public ushort FrameCounter { get; internal set; }
-    /// <summary>Low byte of Enemy.bank at +$2E: bank used to resolve the current actor's code and animation pointers.</summary>
-    public byte AiBank { get; internal set; }
-    /// <summary>Definition-derived hurt duration byte retained beside AiBank, corresponding to the other byte of the native bank/hurt-time word.</summary>
-    public byte HurtAiTime { get; internal set; }
+    /// <summary>The definition's hurt duration, 0 through 255, copied into the slot when it is populated.</summary>
+    public int HurtAiTime
+    {
+        get;
+        internal set => field = Ensure.BetweenInclusive(0, byte.MaxValue, value);
+    }
+
+    /// <summary>The frames a hurt flash runs before any extension: the hurt duration, or four when it is zero.</summary>
+    internal int HurtFlashFrames => HurtAiTime == 0 ? 4 : HurtAiTime;
     /// <summary>Enemy.init0 at +$3C: mutable first actor-specific parameter initialized from the room population record.</summary>
     public ushort Parameter1 { get; internal set; }
     /// <summary>Enemy.init1 at +$3E: mutable second actor-specific parameter initialized from the room population record.</summary>
@@ -185,7 +198,7 @@ public sealed class RoomEnemySlot
         FrameCounter = 0;
         ShakeTimer = NativeCountdown.Start(0);
         InvincibilityTimer = NativeCountdown.Start(0);
-        AiBank = HurtAiTime = 0;
+        HurtAiTime = 0;
         Parameter1 = Parameter2 = 0;
         VariableA = VariableB = VariableC = VariableD = VariableE = VariableF = 0;
         SpawnOffset = Offset16<RoomPixels>.Zero;

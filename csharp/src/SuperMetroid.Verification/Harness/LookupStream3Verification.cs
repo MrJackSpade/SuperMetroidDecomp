@@ -429,7 +429,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
         int nativeCharacters = 0;
-        foreach (var source in IntroNarrationDefinitions.Pages)
+        foreach (var source in IntroNarrationScriptSources.Pages)
         {
             var selected = (IntroNarrationPresentation.NarrationPage)stock.GetLines(source.Id);
             AssertTrue(selected.supplied is null,

@@ -20,7 +20,7 @@ public static class IntroNarrationExtractor
     {
         Ensure.NotNull(bus);
         var pages = new Dictionary<string, IntroNarrationPage>(StringComparer.Ordinal);
-        foreach (IntroNarrationNativePage source in IntroNarrationDefinitions.Pages)
+        foreach (IntroNarrationScriptPage source in IntroNarrationScriptSources.Pages)
             pages.Add(source.Id.ToString(), ExtractPage(bus, source));
 
         using var output = new MemoryStream();
@@ -35,38 +35,38 @@ public static class IntroNarrationExtractor
     /// <summary>Walks one bounded bank-$8C page script and groups consecutive single-tile glyphs by row.</summary>
     private static IntroNarrationPage ExtractPage(
         ISnesAddressSpace bus,
-        IntroNarrationNativePage page)
+        IntroNarrationScriptPage page)
     {
-        ushort cursor = page.InstructionPointer;
+        ushort cursor = checked((ushort)page.InstructionPointer);
         RequireWord(bus, cursor, page.BeginOpcode, $"{page.Id} begin opcode");
         cursor = Add(cursor, 2);
         RequireRecord(bus, cursor, IntroNarrationDefinitions.InitialMarkerDelayFrames,
-            IntroNarrationDefinitions.Native.MarkerPackedPosition,
-            IntroNarrationDefinitions.Native.MarkerDataPointer,
-            IntroNarrationDefinitions.Native.DoNothingFunction);
+            IntroNarrationScriptDefinitions.MarkerPackedPosition,
+            IntroNarrationScriptDefinitions.MarkerDataPointer,
+            IntroNarrationScriptDefinitions.DoNothingFunction);
         cursor = Add(cursor, 6);
 
         var rows = new SortedDictionary<int, StringBuilder>();
         int previousRow = -1;
         int previousColumn = 0;
-        for (int record = 0; record < IntroNarrationDefinitions.Native.MaximumRecords; record++)
+        for (int record = 0; record < IntroNarrationScriptDefinitions.MaximumRecords; record++)
         {
             ushort word = ReadWord(bus, cursor);
-            if ((word & IntroNarrationDefinitions.Native.InstructionCommandBit) != 0)
+            if ((word & IntroNarrationScriptDefinitions.InstructionCommandBit) != 0)
             {
                 if (page.Id == IntroNarrationPageId.Page6 &&
-                    word == IntroNarrationDefinitions.Native.SetCaretBlinkingOpcode)
+                    word == IntroNarrationScriptDefinitions.SetCaretBlinkingOpcode)
                 {
                     cursor = Add(cursor, 2);
                     RequireRecord(bus, cursor, IntroNarrationDefinitions.FinalPageHoldFrames,
-                        IntroNarrationDefinitions.Native.MarkerPackedPosition,
-                        IntroNarrationDefinitions.Native.MarkerDataPointer,
-                        IntroNarrationDefinitions.Native.DoNothingFunction);
+                        IntroNarrationScriptDefinitions.MarkerPackedPosition,
+                        IntroNarrationScriptDefinitions.MarkerDataPointer,
+                        IntroNarrationScriptDefinitions.DoNothingFunction);
                     cursor = Add(cursor, 6);
                     word = ReadWord(bus, cursor);
                 }
                 if (word != page.FinishOpcode || ReadWord(bus, Add(cursor, 2)) !=
-                    IntroNarrationDefinitions.Native.DeleteOpcode)
+                    IntroNarrationScriptDefinitions.DeleteOpcode)
                 {
                     throw new InvalidDataException(
                         $"Opening-narration {page.Id} ended with unexpected opcode ${word:X4} at $8C:{cursor:X4}.");
@@ -87,12 +87,12 @@ public static class IntroNarrationExtractor
             ushort packedPosition = ReadWord(bus, Add(cursor, 2));
             ushort dataPointer = ReadWord(bus, Add(cursor, 4));
             int column = packedPosition &
-                IntroNarrationDefinitions.Native.PackedPositionXMask;
+                IntroNarrationScriptDefinitions.PackedPositionXMask;
             int row = SnesLittleEndian.HighByte(packedPosition);
             ushort drawFunction = ReadWord(bus, dataPointer);
             int dimensions = SnesLittleEndian.Word(ReadByte(bus, Add(dataPointer, 2)), ReadByte(bus, Add(dataPointer, 3)));
-            if (drawFunction != IntroNarrationDefinitions.Native.DrawCharacterFunction ||
-                dimensions != IntroNarrationDefinitions.Native.SingleTileDimensions)
+            if (drawFunction != IntroNarrationScriptDefinitions.DrawCharacterFunction ||
+                dimensions != IntroNarrationScriptDefinitions.SingleTileDimensions)
                 throw new InvalidDataException(
                     $"Opening-narration {page.Id} character record at $8C:{cursor:X4} has an invalid glyph payload.");
             if (row != previousRow)
@@ -115,7 +115,7 @@ public static class IntroNarrationExtractor
 
         throw new InvalidDataException(
             $"Opening-narration {page.Id} did not terminate within " +
-            $"{IntroNarrationDefinitions.Native.MaximumRecords} records.");
+            $"{IntroNarrationScriptDefinitions.MaximumRecords} records.");
     }
 
     /// <summary>Checks a marker record's duration, packed position, data pointer, and draw callback.</summary>
@@ -141,7 +141,7 @@ public static class IntroNarrationExtractor
     private static void RequireWord(
         ISnesAddressSpace bus,
         ushort pointer,
-        ushort expected,
+        int expected,
         string identity)
     {
         ushort actual = ReadWord(bus, pointer);
@@ -153,11 +153,11 @@ public static class IntroNarrationExtractor
     /// <summary>Reads one script byte from the fixed narration bank.</summary>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(
-            IntroNarrationDefinitions.Native.ScriptBank, pointer));
+            IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Reads a little-endian narration word with bank-local address wrapping.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(IntroNarrationDefinitions.Native.ScriptBank, pointer));
+        CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(IntroNarrationScriptDefinitions.ScriptBank, pointer));
 
     /// <summary>Advances a script pointer with native 16-bit bank-local wrapping.</summary>
     private static ushort Add(ushort pointer, int bytes) =>

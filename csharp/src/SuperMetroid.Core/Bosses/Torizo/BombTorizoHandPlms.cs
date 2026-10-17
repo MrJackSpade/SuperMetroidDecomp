@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Bosses.Torizo.Artwork;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -21,7 +20,6 @@ internal sealed class BombTorizoHandPlms
         _bindings = bindings;
         _slotTable = slotTable;
     }
-    /// <summary>Bank-$86 projectile definition $A993 for the statue fragments spawned as Bomb Torizo wakes.</summary>
     /// <summary>VRAM transfers queued by the hand's copy-from-RAM instruction for this frame.</summary>
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
     /// <summary>Statue-fragment spawns queued by the hand's breaking instruction for this frame.</summary>
@@ -103,11 +101,10 @@ internal sealed class BombTorizoHandPlms
             TorizoInstructionTileRomData.ChozoDebrisSource,
             BombTorizoHandPlmProgramDefinitions.DebrisDestinationWord));
 
-    /// <summary><c>$84:D357</c>: spawns one statue-breaking fragment with <paramref name="parameter"/> at the hand's block.</summary>
-    internal void SpawnFragment(PlmSlot slot, ushort parameter) =>
+    /// <summary><c>$84:D357</c>: spawns statue fragment <paramref name="fragment"/> at the hand's block.</summary>
+    internal void SpawnFragment(PlmSlot slot, int fragment) =>
         _bombTorizoStatueProjectileRequests.Add(new BombTorizoStatueProjectileRequest(
-            (ushort)RoomEnemyProjectileKind.BombTorizoStatueBreaking,
-            parameter,
+            fragment,
             // The native fragment spawn carries both block coordinates as bytes.
             new(checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
                 checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth)))));

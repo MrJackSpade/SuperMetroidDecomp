@@ -1,7 +1,11 @@
 ﻿namespace SuperMetroid.Core.Bosses.Torizo;
 
-/// <summary>One <c>SpawnEprojWithRoomGfx($A993, parameter)</c> hand fragment.</summary>
+/// <summary>One statue fragment the breaking Bomb Torizo hand spawns at its block.</summary>
+/// <param name="Fragment">
+/// Which of the sixteen fragments, from zero to <see cref="BombTorizoStatueFragmentDefinitions.FragmentCount"/> minus
+/// one; it selects the fragment's program, placement and fall.
+/// </param>
+/// <param name="PlmBlock">The block the hand occupies, which the fragment's placement is relative to.</param>
 public readonly record struct BombTorizoStatueProjectileRequest(
-    ushort DefinitionPointer,
-    ushort Parameter,
+    int Fragment,
     Position16<RoomBlocks> PlmBlock);

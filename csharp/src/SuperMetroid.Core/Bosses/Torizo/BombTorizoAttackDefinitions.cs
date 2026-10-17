@@ -30,7 +30,7 @@ internal static class BombTorizoAttackDefinitions
     /// even values; the translated host's bounded odd restored values retain their prior
     /// word-index truncation instead of gaining a new behavior during this migration.
     /// </summary>
-    internal static Offset16<RoomPixels> Swipe(ushort parameter)
+    internal static Offset16<RoomPixels> Swipe(int parameter)
     {
         int index = parameter >> 1;
         if ((uint)index >= (uint)SwipePlacements.Length)
@@ -48,12 +48,12 @@ internal static class BombTorizoAttackDefinitions
     /// returns the selected low-health explosion placement.
     /// </summary>
     internal static Offset16<RoomPixels> LowHealthExplosion(
-        ushort parameter,
+        int parameter,
         bool facingRight)
     {
         int adjusted = parameter + 2 + (facingRight ? 0 : 2);
         int index = adjusted >> 1;
-        if ((uint)index >= 6u)
+        if (parameter < 0 || (uint)index >= 6u)
         {
             throw new InvalidDataException(
                 $"Bomb Torizo explosion parameter ${parameter:X4} selects table index {index}.");

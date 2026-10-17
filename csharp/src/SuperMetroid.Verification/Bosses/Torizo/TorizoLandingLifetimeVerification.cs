@@ -33,7 +33,7 @@ internal static class TorizoLandingLifetimeVerification
         var body=runtime.Enemies.SlotTable.Slots.First(e=>e.EnemyDefinitionPointer==EnemyDefinitionId.BombTorizo);
         var state=(TorizoEnemyState)(runtime.Enemies.BombTorizoBehavior._torizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState."));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnCursor=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling2);
-        state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.VerticalAcceleration=40;
+        state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.JumpAcceleration=new EightEightVector<RoomPixels>(0,40);
         body.Health=body.Definition.Health;body.Parameter1=body.Parameter2=0;
         body.Properties=EnemyPropertyWord.FromNativeWord((ushort)(0x2000));state.BodyProgram=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling1);body.InstructionTimer=NativeCountdown.Start(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));

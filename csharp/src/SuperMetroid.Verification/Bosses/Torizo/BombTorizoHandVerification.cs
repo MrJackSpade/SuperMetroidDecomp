@@ -130,17 +130,17 @@ internal static class BombTorizoHandVerification
                 "successful debris DMA clears the pending queue");
         }
 
-        var parameters = new List<ushort>();
+        var fragments = new List<int>();
         for (int frame = 0; frame < 400 && plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand); frame++)
         {
             plms.Step(level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
-            parameters.AddRange(plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
-                request => request.Parameter));
+            fragments.AddRange(plms.BombTorizoHand.BombTorizoStatueProjectileRequests.Select(
+                request => request.Fragment));
         }
         AssertSequenceEqual(
-            new ushort[] { 0, 2, 4, 6, 8, 10, 12, 14 },
-            parameters,
-            "hand fragment parameters preserve cartridge order");
+            new[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+            fragments,
+            "hand fragments preserve cartridge order");
         AssertTrue(!plms.BombTorizoHand.HasActiveHeader(PlmHeaderId.BombTorizoHand),
             "final delete removes header seen by Torizo AI");
         AssertEqual((ushort)0x00ff,

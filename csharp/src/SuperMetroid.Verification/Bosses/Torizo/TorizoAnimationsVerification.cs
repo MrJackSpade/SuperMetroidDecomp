@@ -144,7 +144,7 @@ internal static class TorizoAnimationsVerification
                         TorizoOperand role = instruction.Operands[operandIndex];
                         ushort typed = role switch
                         {
-                            TorizoOperand.Value => cue.Value,
+                            TorizoOperand.Value => checked((ushort)cue.Value),
                             TorizoOperand.Function => (ushort)cue.Function,
                             TorizoOperand.PreInstruction => (ushort)cue.PreInstruction,
                             TorizoOperand.Target => Entry(cue.Target),

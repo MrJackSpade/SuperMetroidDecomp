@@ -628,7 +628,7 @@ internal static class FrontendRomFreeVerification
             // The stun's ClearAnimationLock and its return path's UnmarkStunned release the
             // boss; later attacks may lock again, so observe the release, not the last frame.
             else if (forcedGoldenStunObserved && !forcedGoldenStunReleased &&
-                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).ShotGuard == 0 &&
+                     (installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo ?? throw new InvalidOperationException("Verification requires installed.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.GoldenTorizo.")).AnimationLocked == false &&
                      ((awakenedGoldenTorizo ?? throw new InvalidOperationException("Verification requires awakenedGoldenTorizo.")).Parameter2 & (ushort)TorizoBehaviorFlags.Stunned) == 0)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&

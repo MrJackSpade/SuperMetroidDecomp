@@ -24,9 +24,9 @@ internal static class BombTorizoMovementDefinitions
     private static readonly short[] LeftWalkVelocities = [-5, 0, -5, -19, -16, -7, 0, -7, -17, -18];
 
     /// <summary>Returns the frame-relative posture displacement selected by an even byte offset.</summary>
-    internal static Offset16<RoomPixels> Posture(ushort tableOffset)
+    internal static Offset16<RoomPixels> Posture(int tableOffset)
     {
-        if ((tableOffset & 1) != 0 || tableOffset >= LeftPostureX.Length * 4)
+        if (tableOffset < 0 || (tableOffset & 1) != 0 || tableOffset >= LeftPostureX.Length * 4)
         {
             throw new InvalidDataException(
                 $"Bomb Torizo posture offset ${tableOffset:X4} exceeds " +
@@ -41,9 +41,9 @@ internal static class BombTorizoMovementDefinitions
     }
 
     /// <summary>Returns the walking velocity selected by an even byte offset.</summary>
-    internal static ushort WalkVelocity(ushort tableOffset)
+    internal static ushort WalkVelocity(int tableOffset)
     {
-        if ((tableOffset & 1) != 0 || tableOffset >= LeftWalkVelocities.Length * 4)
+        if (tableOffset < 0 || (tableOffset & 1) != 0 || tableOffset >= LeftWalkVelocities.Length * 4)
         {
             throw new InvalidDataException(
                 $"Bomb Torizo walk offset ${tableOffset:X4} exceeds " +

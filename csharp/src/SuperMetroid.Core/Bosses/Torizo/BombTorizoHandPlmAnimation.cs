@@ -32,7 +32,7 @@ internal sealed class BombTorizoHandPlmAnimation()
                 hand.CopyDebrisTiles();
                 break;
             case BombTorizoHandCueKind.SpawnFragment:
-                hand.SpawnFragment(slot, cue.FragmentParameter);
+                hand.SpawnFragment(slot, cue.Fragment);
                 break;
             case BombTorizoHandCueKind.QueueMusic:
                 hand.QueueMusic();

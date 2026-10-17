@@ -201,8 +201,8 @@ internal static class BossRoomPlmProgramsVerification
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.CopyDebrisTiles), 9);
                 return true;
             case RoomPlmInstruction.SpawnTorizoStatueBreaking:
+                AssertEqual(0, Word(2) % sizeof(ushort), "hand fragment operand is a two-byte table offset");
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.SpawnFragment, Word(2) / sizeof(ushort)), 4);
-                AssertEqual(Word(2), cue.FragmentParameter, "hand fragment parameter");
                 return true;
             case RoomPlmInstruction.QueueSongOneMusicTrack:
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic), 2);

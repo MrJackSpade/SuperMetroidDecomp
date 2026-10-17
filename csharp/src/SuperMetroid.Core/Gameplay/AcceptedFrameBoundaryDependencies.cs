@@ -68,12 +68,9 @@ internal sealed record AcceptedFrameBoundaryDependencies
     /// <summary>Vram.</summary>
     public required SnesVram Vram { get; init; }
 
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
-
     /// <summary>Xray.</summary>
     public required XrayReveal Xray { get; init; }
 
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
+    /// <summary>Executes the queued video transfers, whose address-sourced entries read live memory.</summary>
+    public required Action DrainQueuedVramWrites { get; init; }
 }

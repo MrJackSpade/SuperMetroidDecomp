@@ -63,12 +63,10 @@ internal sealed class AcceptedFrameBoundary
     private readonly TourianStatueSequence _tourianStatues;
     /// <summary>Receives Samus tile DMA and drained video-queue writes.</summary>
     private readonly SnesVram _vram;
-    /// <summary>General video transfer queue drained after Samus graphics DMA.</summary>
-    private readonly VramWriteQueue _vramWrites;
     /// <summary>Transfers the X-ray BG1 read at the end of the accepted publication.</summary>
     private readonly XrayReveal _xray;
-    /// <summary>Memory bus supplied to Samus DMA and queued video transfers.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+    /// <summary>Executes the queued video transfers, whose address-sourced entries read live memory.</summary>
+    private readonly Action _drainQueuedVramWrites;
 
     /// <summary>Connects controller, PPU, sprite, video-queue, and frame-clock owners to the NMI boundary.</summary>
     internal AcceptedFrameBoundary(AcceptedFrameBoundaryDependencies dependencies)
@@ -91,9 +89,8 @@ internal sealed class AcceptedFrameBoundary
         _suitPickup = dependencies.SuitPickup;
         _tourianStatues = dependencies.TourianStatues;
         _vram = dependencies.Vram;
-        _vramWrites = dependencies.VramWrites;
         _xray = dependencies.Xray;
-        _addressSpace = dependencies.AddressSpace;
+        _drainQueuedVramWrites = dependencies.DrainQueuedVramWrites;
     }
 
     /// <summary>
@@ -171,7 +168,7 @@ internal sealed class AcceptedFrameBoundary
             CaptureFixedColors(),
             CaptureXrayRevealTilemap());
         _artwork.PublishReboundHudArtwork();
-        _vramWrites.DrainTo(_vram, RuntimeMemory.RequireBus(_addressSpace), _artwork);
+        _drainQueuedVramWrites();
         // A rebound snapshot may retain old CGRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
         _artwork.PublishReboundBeamPalette();

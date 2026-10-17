@@ -64,8 +64,8 @@ internal sealed class SamusFramePhases
     private readonly XrayReveal _xray;
     /// <summary>UpdateSamusPose after normal beta's animation.</summary>
     private readonly SamusPoseTransitionPhase _transitions;
-    /// <summary>Provides native movement tables and routines still read at the runtime boundary.</summary>
-    private readonly ISnesAddressSpace _addressSpace;
+    /// <summary>Opens the live persistent-progress mirror that malformed projectile callbacks may write.</summary>
+    private readonly Func<SuperMetroid.Core.Saves.SaveMirrorMemory> _openProgressionMirror;
 
     /// <summary>Binds the frame owners required to preserve Samus's alpha, beta, and presentation ordering.</summary>
     internal SamusFramePhases(SamusFramePhasesDependencies dependencies)
@@ -89,7 +89,7 @@ internal sealed class SamusFramePhases
         _room = dependencies.Room;
         _roomPaletteFx = dependencies.RoomPaletteFx;
         _system = dependencies.System;
-        _addressSpace = dependencies.AddressSpace;
+        _openProgressionMirror = dependencies.OpenProgressionMirror;
         _transitions = new SamusPoseTransitionPhase(new SamusPoseTransitionPhaseDependencies { Controller1 = dependencies.Controller1, Freeze = dependencies.Freeze, Clock = dependencies.Clock, Options = dependencies.Options, Player = dependencies.Player, Plms = dependencies.Plms, Room = dependencies.Room });
     }
 
@@ -399,7 +399,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, _plms);
             // mirror are normally equivalent. Publish them before bank-$90 alpha
             // so malformed callback-table entries can perform their literal WRAM
             // writes, then reclaim ownership only when such a write occurred.
-            var progressionMirror = new SuperMetroid.Core.Saves.SaveMirrorMemory(RuntimeMemory.RequireBus(_addressSpace));
+            var progressionMirror = _openProgressionMirror();
             _system.WritePersistentMirror(progressionMirror);
             SamusProjectileFrameResult projectileFrame = _projectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = _plms,
                 ProgressionMirror = progressionMirror }, samus, new ProjectileButtonInput { ControllerInput = _controller1.Current, ControllerNewInput = _controller1.NewlyPressed, ControllerPreviousNewInput = samus.InputSnapshot.PreviousDrawNewInput }, camera.PixelPosition, _bombProjectiles, projectileProducerEnabled: !frame.AlphaInputLocked(samus) && !_player.DebugGrappleItemSelected, producerSoundSuppressed: _bombProjectiles.SoundSuppressedBeforeProjectileHandling);

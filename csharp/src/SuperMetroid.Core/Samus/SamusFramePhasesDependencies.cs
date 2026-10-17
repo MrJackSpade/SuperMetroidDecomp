@@ -68,6 +68,6 @@ internal sealed record SamusFramePhasesDependencies
     public required SamusSuitPickupState SuitPickup { get; init; }
     /// <summary>Xray.</summary>
     public required XrayReveal Xray { get; init; }
-    /// <summary>Address space.</summary>
-    public required ISnesAddressSpace AddressSpace { get; init; }
+    /// <summary>Opens the live persistent-progress mirror that malformed projectile callbacks may write.</summary>
+    public required Func<SuperMetroid.Core.Saves.SaveMirrorMemory> OpenProgressionMirror { get; init; }
 }
